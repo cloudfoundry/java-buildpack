@@ -2,3 +2,5 @@ language: ruby
 rvm:
   - 2.0.0
   - 1.9.3
+notifications:
+  webhooks: http://ec2-54-229-6-54.eu-west-1.compute.amazonaws.com/projects/50e26044-3523-4631-9411-4144db27be23/status
