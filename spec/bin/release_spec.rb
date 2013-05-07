@@ -16,9 +16,9 @@
 require 'spec_helper'
 require 'open3'
 
-describe 'compile' do
+describe 'release' do
 
-  it 'should return zero if the compile is successful' do
+  it 'should return zero if the release is successful' do
     # TODO Implement test as things are filled out
   end
 
@@ -32,7 +32,7 @@ describe 'compile' do
 
   private
 
-  COMPILE = File.expand_path('../../../bin/compile', __FILE__)
+  COMPILE = File.expand_path('../../../bin/release', __FILE__)
   FIXTURES_DIR = File.expand_path('../../fixtures', __FILE__)
 
 end
