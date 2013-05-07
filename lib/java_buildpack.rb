@@ -19,4 +19,4 @@ end
 
 require 'java-buildpack/compile'
 require 'java-buildpack/detect'
-#require 'java-buildpack/release'
+require 'java-buildpack/release'
