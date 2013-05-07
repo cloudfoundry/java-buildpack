@@ -13,10 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# A Cloud Foundry buildpack for running Java applications
-module JavaBuildpack
-end
+class JavaBuildpack::Detect
 
-require 'java-buildpack/detect'
-#require 'java-buildpack/compile'
-#require 'java-buildpack/release'
+  def initialize(app_dir)
+
+  end
+
+  def run
+
+  end
+
+end
