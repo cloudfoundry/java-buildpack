@@ -1,4 +1,4 @@
-# Cloud Foundry Java Buildpack
+# Git Pivotal Tracker Integration
 # Copyright (c) 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# A Cloud Foundry buildpack for running Java applications
-module JavaBuildpack
-end
+require 'spec_helper'
+require 'open3'
 
-require 'java-buildpack/compile'
-require 'java-buildpack/detect'
-#require 'java-buildpack/release'
+describe 'compile' do
+
+  it 'should return zero if the compile is successful' do
+    # TODO Implement test as things are filled out
+  end
+
+  it 'should return non-zero if an error occurs' do
+    # TODO Implement test as things are filled out
+  end
+
+  it 'should print the error message if an error occurs' do
+    # TODO Implement test as things are filled out
+  end
+
+  private
+
+  COMPILE = File.expand_path('../../../bin/compile', __FILE__)
+  FIXTURES_DIR = File.expand_path('../../fixtures', __FILE__)
+
+end

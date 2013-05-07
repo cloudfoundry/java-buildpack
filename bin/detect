@@ -19,4 +19,14 @@ require 'java_buildpack'
 
 build_dir = ARGV[0]
 
-JavaBuildpack::Detect.new(build_dir).run
+begin
+  components = JavaBuildpack::Detect.new(build_dir).run
+  unless components.empty?
+    puts components
+  else
+    abort
+  end
+rescue => e
+  abort e.message
+end
+

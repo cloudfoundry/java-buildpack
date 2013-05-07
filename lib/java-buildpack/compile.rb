@@ -13,22 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Encapsulates the detection functionality in the Java buildpack
-class JavaBuildpack::Detect
+# Encapsulates the compilation functionality in the Java buildpack
+class JavaBuildpack::Compile
 
-  # Creates a new instance, passing in the application directory used during detection
+  # Creates a new instance, passing in the application directory used during compilation
   #
-  # @param [String] app_dir The application directory used during detection
-  def initialize(app_dir)
+  # @param [String] app_dir The application directory used during compilation
+  # @param [String] app_cache_dir The application cache directory used during compilation
+  def initialize(app_dir, app_cache_dir)
 
   end
 
   # The execution entry point for detection.  This method is responsible for identifying all of the components that are
   # that which to participate in the buildpack and returning their names.
   #
-  # @return [Array<String>] the names of components that wish to participate in the buildpack
+  # @return [void]
   def run
-    []
+
   end
 
 end
