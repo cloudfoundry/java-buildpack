@@ -1,4 +1,4 @@
-# Cloud Foundry Java Buildpack
+# Cloud Foundry Java Buildpack Utilities
 # Copyright (c) 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# A Cloud Foundry buildpack for running Java applications
-module JavaBuildpack
+require 'spec_helper'
+
+describe JavaBuildpack::SelectedJre do
+
+  before do
+    @selected_jre = described_class.new('spec/fixtures/java')
+  end
+
+  it 'should return the id' do
+    expect(@selected_jre.id).to eq('java-openjdk-8')
+  end
+
+  it 'should return the uri' do
+    expect(@selected_jre.uri).to eq(JavaBuildpack::SelectedJre::JRES[:openjdk][:J8])
+  end
+
 end
-
-require 'java_buildpack_utils'
-
-require 'java-buildpack/compile'
-require 'java-buildpack/detect'
-require 'java-buildpack/release'

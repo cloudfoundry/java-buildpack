@@ -13,23 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/selected_jre'
+
+module JavaBuildpack
+
 # Encapsulates the detection functionality in the Java buildpack
-class JavaBuildpack::Detect
+  class Detect
 
-  # Creates a new instance, passing in the application directory used during detection
-  #
-  # @param [String] app_dir The application directory used during detection
-  def initialize(app_dir)
-    @jre = JavaBuildpackUtils::Jre::Detect.new(app_dir)
+    # Creates a new instance, passing in the application directory used during detection
+    #
+    # @param [String] app_dir The application directory used during detection
+    def initialize(app_dir)
+      @selected_jre = SelectedJre.new(app_dir)
+    end
+
+    # The execution entry point for detection.  This method is responsible for identifying all of the components that are
+    # that which to participate in the buildpack and returning their names.
+    #
+    # @return [Array<String>] the names of components that wish to participate in the buildpack
+    def run
+      @selected_jre.id
+    end
+
   end
-
-  # The execution entry point for detection.  This method is responsible for identifying all of the components that are
-  # that which to participate in the buildpack and returning their names.
-  #
-  # @return [Array<String>] the names of components that wish to participate in the buildpack
-  def run
-    components = []
-    components << @jre.run
-  end
-
 end

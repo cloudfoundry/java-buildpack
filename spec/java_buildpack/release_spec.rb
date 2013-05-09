@@ -14,20 +14,13 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'open3'
 
-describe 'release' do
+describe JavaBuildpack::Release do
 
-  it 'should return zero if the release is successful' do
-    Open3.popen3("bin/release spec/fixtures/java") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to be_success
-    end
-  end
 
-  it 'should print the execution command payload' do
-    Open3.popen3("bin/release spec/fixtures/java") do |stdin, stdout, stderr, wait_thr|
-      expect(stdout.read).to match("---\n:addons: \\[\\]\n:config_vars: {}\n:default_process_types:\n  :web: ''\n")
-    end
+  it 'should return the execution command payload' do
+    payload = JavaBuildpack::Release.new('spec/fixtures/java').run
+    expect(payload).to eq("---\naddons: []\nconfig_vars: {}\ndefault_process_types:\n  web: .java/bin/java -cp . com.gopivotal.SimpleJava\n")
   end
 
 end

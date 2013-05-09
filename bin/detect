@@ -17,7 +17,7 @@
 $stdout.sync = true
 $:.unshift File.expand_path("../../lib", __FILE__)
 
-require 'java_buildpack'
+require 'java_buildpack/detect'
 
 build_dir = ARGV[0]
 
@@ -28,7 +28,7 @@ begin
   else
     abort
   end
-rescue => e
-  abort e.message
+# rescue => e
+#   abort e.message
 end
 
