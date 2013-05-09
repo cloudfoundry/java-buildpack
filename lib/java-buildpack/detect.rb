@@ -20,7 +20,7 @@ class JavaBuildpack::Detect
   #
   # @param [String] app_dir The application directory used during detection
   def initialize(app_dir)
-
+    @jre = JavaBuildpackUtils::Jre::Detect.new(app_dir)
   end
 
   # The execution entry point for detection.  This method is responsible for identifying all of the components that are
@@ -28,7 +28,8 @@ class JavaBuildpack::Detect
   #
   # @return [Array<String>] the names of components that wish to participate in the buildpack
   def run
-    []
+    components = []
+    components << @jre.run
   end
 
 end

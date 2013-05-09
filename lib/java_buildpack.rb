@@ -17,6 +17,8 @@
 module JavaBuildpack
 end
 
+require 'java_buildpack_utils'
+
 require 'java-buildpack/compile'
 require 'java-buildpack/detect'
 require 'java-buildpack/release'

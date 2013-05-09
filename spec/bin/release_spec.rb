@@ -19,20 +19,15 @@ require 'open3'
 describe 'release' do
 
   it 'should return zero if the release is successful' do
-    # TODO Implement test as things are filled out
+    Open3.popen3("bin/release spec/fixtures/java") do |stdin, stdout, stderr, wait_thr|
+      expect(wait_thr.value).to be_success
+    end
   end
 
-  it 'should return non-zero if an error occurs' do
-    # TODO Implement test as things are filled out
+  it 'should print the execution command payload' do
+    Open3.popen3("bin/release spec/fixtures/java") do |stdin, stdout, stderr, wait_thr|
+      expect(stdout.read).to match("---\n:addons: \\[\\]\n:config_vars: {}\n:default_process_types:\n  :web: ''\n")
+    end
   end
-
-  it 'should print the error message if an error occurs' do
-    # TODO Implement test as things are filled out
-  end
-
-  private
-
-  COMPILE = File.expand_path('../../../bin/release', __FILE__)
-  FIXTURES_DIR = File.expand_path('../../fixtures', __FILE__)
 
 end

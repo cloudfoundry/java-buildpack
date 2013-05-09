@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'yaml'
+
 # Encapsulates the release functionality in the Java buildpack
 class JavaBuildpack::Release
 
@@ -20,7 +22,7 @@ class JavaBuildpack::Release
   #
   # @param [String] app_dir The application directory used during release
   def initialize(app_dir)
-
+    @jre = JavaBuildpackUtils::Jre::Release.new(app_dir)
   end
 
   # The execution entry point for release.  This method is responsible for generating a payload describing the execution
@@ -28,6 +30,8 @@ class JavaBuildpack::Release
   #
   # @return [String] the YAML formatted payload describing the execution command used to start the application
   def run
+    java_home = @jre.run
+
     {
         addons: [],
         config_vars: {},
