@@ -29,6 +29,8 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.9.3'
 
+  s.add_dependency 'java-buildpack-utils', '~> 1.0'
+
   s.add_development_dependency 'bundler', '~> 1.3'
   s.add_development_dependency 'rake', '~> 10.0'
   s.add_development_dependency 'redcarpet', '~> 2.2'

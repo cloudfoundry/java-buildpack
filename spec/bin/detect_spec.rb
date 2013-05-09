@@ -19,32 +19,21 @@ require 'open3'
 describe 'detect' do
 
   it 'should return non-zero if the application is not Java' do
-    Open3.popen3("#{DETECT} #{FIXTURES_DIR}/non-java") do |stdin, stdout, stderr, wait_thr|
-      expect(stdout.read).to eq('')
-      expect(stderr.read).to eq('')
+    Open3.popen3("bin/detect spec/fixtures/non-java") do |stdin, stdout, stderr, wait_thr|
       expect(wait_thr.value).to_not be_success
     end
   end
 
   it 'should return zero if the application is Java' do
-    # TODO Implement test as things are filled out
+    Open3.popen3("bin/detect spec/fixtures/java") do |stdin, stdout, stderr, wait_thr|
+      expect(wait_thr.value).to be_success
+    end
   end
 
   it 'should print the names of participating components if the application is Java' do
-    # TODO Implement test as things are filled out
+    Open3.popen3("bin/detect spec/fixtures/java") do |stdin, stdout, stderr, wait_thr|
+      expect(stdout.read).to match(/java-openjdk-8/)
+    end
   end
-
-  it 'should return non-zero if an error occurs' do
-    # TODO Implement test as things are filled out
-  end
-
-  it 'should print the error message if an error occurs' do
-    # TODO Implement test as things are filled out
-  end
-
-  private
-
-  DETECT = File.expand_path('../../../bin/detect', __FILE__)
-  FIXTURES_DIR = File.expand_path('../../fixtures', __FILE__)
 
 end

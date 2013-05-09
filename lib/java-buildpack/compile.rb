@@ -16,12 +16,13 @@
 # Encapsulates the compilation functionality in the Java buildpack
 class JavaBuildpack::Compile
 
-  # Creates a new instance, passing in the application directory used during compilation
+  # Creates a new instance, passing in the application directory and application cache directories used during
+  # compilation
   #
   # @param [String] app_dir The application directory used during compilation
   # @param [String] app_cache_dir The application cache directory used during compilation
   def initialize(app_dir, app_cache_dir)
-
+    @jre = JavaBuildpackUtils::Jre::Compile.new(app_dir, app_cache_dir)
   end
 
   # The execution entry point for detection.  This method is responsible for identifying all of the components that are
@@ -29,7 +30,7 @@ class JavaBuildpack::Compile
   #
   # @return [void]
   def run
-
+    @jre.run
   end
 
 end

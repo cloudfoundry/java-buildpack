@@ -14,29 +14,13 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'open3'
 
-describe 'compile' do
+describe JavaBuildpack::Release do
 
-  before do
-    @previous_value = ENV['BUILDPACK_CACHE']
-    ENV['BUILDPACK_CACHE'] = Dir.tmpdir
-  end
 
-  after do
-    ENV['BUILDPACK_CACHE'] = @previous_value
-  end
-
-  it 'should return zero if the compile is successful' do
-    FIXTURE = 'spec/fixtures/java'
-
-    Dir.mktmpdir do |root|
-      FileUtils.cp_r "#{FIXTURE}/.", root
-
-      Open3.popen3("bin/compile #{root}") do |stdin, stdout, stderr, wait_thr|
-        expect(wait_thr.value).to be_success
-      end
-    end
+  it 'should return the execution command payload' do
+    payload = JavaBuildpack::Release.new('spec/fixtures/java').run
+    expect(payload).to eq("---\n:addons: []\n:config_vars: {}\n:default_process_types:\n  :web: ''\n")
   end
 
 end
