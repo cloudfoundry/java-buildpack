@@ -44,21 +44,38 @@ module JavaBuildpack
 
       open(uri) do |file| # Use a global cache when available
         puts "(#{(Time.now - download_start_time).duration})"
-
-        expand_start_time = Time.now
-        print "-----> Expanding JRE to #{JAVA_HOME} "
-
-        absolute_java_home = File.join @app_dir, JAVA_HOME
-        `rm -rf #{absolute_java_home}`
-        `mkdir -p #{absolute_java_home}`
-        `tar xzvf #{file.path} -C #{absolute_java_home} --strip 1 2>&1`
-        puts "(#{(Time.now - expand_start_time).duration})"
+        expand file
       end
     end
 
     private
 
     JAVA_HOME = '.java'
+
+    def expand(file)
+      expand_start_time = Time.now
+       print "-----> Expanding JRE from to #{JAVA_HOME} "
+
+       java_home = File.join @app_dir, JAVA_HOME
+       `rm -rf #{java_home}`
+       `mkdir -p #{java_home}`
+
+       case @selected_jre.type
+       when :tar then expand_tar file, java_home
+       when :deb then expand_deb file, java_home
+       else raise "JRE package type '#{@selected_jre.type}' is not supported"
+       end
+
+        puts "(#{(Time.now - expand_start_time).duration})"
+    end
+
+    def expand_tar(file, java_home)
+        `tar xzvf #{file.path} -C #{java_home} --strip 1 2>&1`
+    end
+
+    def expand_deb(file, java_home)
+      `tar xzOf #{file.path} data.tar.gz | tar xz -C #{java_home} --strip 5 "./usr/lib/jvm/java-*/*" 2>&1`
+    end
 
   end
 end

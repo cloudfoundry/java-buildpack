@@ -40,16 +40,30 @@ module JavaBuildpack
 
     # The collection of legal JREs
     JRES = {
-        'openjdk' => {
-            '6' => '',
-            '7' => '',
-            '8' => 'http://download.java.net/jdk8/archive/b88/binaries/jre-8-ea-bin-b88-linux-x64-02_may_2013.tar.gz'
+      'openjdk' => {
+        '6' => {
+          :type => :deb,
+          :uri => 'http://mirrors.us.kernel.org/ubuntu/pool/universe/o/openjdk-6/openjdk-6-jre-headless_6b27-1.12.4-1ubuntu1_amd64.deb'
         },
-        'oracle' => {
-            '6' => '',
-            '7' => 'http://javadl.sun.com/webapps/download/AutoDL?BundleId=76853',
-            '8' => ''
+        '7' => {
+          :type => :deb,
+          :uri => ''
+        },
+        '8' => {
+          :type => :tar,
+          :uri => 'http://download.java.net/jdk8/archive/b88/binaries/jre-8-ea-bin-b88-linux-x64-02_may_2013.tar.gz'
         }
+      },
+      'oracle' => {
+        '6' => {
+          :type => :zip,
+          :uri => 'http://javadl.sun.com/webapps/download/AutoDL?BundleId=68284',
+        },
+        '7' => {
+         :type => :tar,
+         :uri => 'http://javadl.sun.com/webapps/download/AutoDL?BundleId=76853'
+        }
+      }
     }
 
     # @!attribute [r] id
@@ -57,11 +71,13 @@ module JavaBuildpack
     #                    'java-<vendor>-<version>'
     # @!attribute [r] uri
     #   @return [String] the download URI for the JRE being used
+    # @!attribute [r] type
+    #   @return [Symbol] a symbol that declares the type of the download
     # @!attribute [r] vendor
     #   @return [String] the vendor for the JRE being used
     # @!attribute [r] version
     #   @return [String] the version for the JRE being used
-    attr_reader :id, :uri, :vendor, :version
+    attr_reader :id, :type, :uri, :vendor, :version
 
     # Creates a new instance, passing in the application directory used during release
     #
@@ -76,7 +92,8 @@ module JavaBuildpack
       raise "'#{@version}' is not a valid Java runtime version" unless JRES[@vendor].has_key?(@version)
 
       @id = "java-#{@vendor}-#{@version}"
-      @uri = JRES[@vendor][@version]
+      @type = JRES[@vendor][@version][:type]
+      @uri = JRES[@vendor][@version][:uri]
     end
 
     private

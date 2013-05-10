@@ -23,15 +23,40 @@ describe JavaBuildpack::Compile do
     $stderr = StringIO.new
   end
 
-  it 'should extract Java' do
+  it 'should extract Java from a GZipped TAR' do
     JavaBuildpack::SelectedJre.any_instance.stub(:uri).and_return('spec/fixtures/stub-java.tar.gz')
+    JavaBuildpack::SelectedJre.any_instance.stub(:type).and_return(:tar)
 
     Dir.mktmpdir do |root|
       FileUtils.cp_r "spec/fixtures/single_system_properties/.", root
       JavaBuildpack::Compile.new(root, Dir.tmpdir).run
 
-      absolute_java_home = File.join(root, '.java', 'bin', 'java')
-      expect(File.exists?(absolute_java_home)).to be_true
+      java = File.join(root, '.java', 'bin', 'java')
+      expect(File.exists?(java)).to be_true
+    end
+  end
+
+  it 'should extract Java from a DEB' do
+    JavaBuildpack::SelectedJre.any_instance.stub(:uri).and_return('spec/fixtures/stub-java.deb')
+    JavaBuildpack::SelectedJre.any_instance.stub(:type).and_return(:deb)
+
+    Dir.mktmpdir do |root|
+      FileUtils.cp_r "spec/fixtures/single_system_properties/.", root
+      JavaBuildpack::Compile.new(root, Dir.tmpdir).run
+
+      java = File.join(root, '.java', 'bin', 'java')
+      expect(File.exists?(java)).to be_true
+    end
+  end
+
+  it 'shoud raise an error if an unknown package type is encountered' do
+    JavaBuildpack::SelectedJre.any_instance.stub(:uri).and_return('spec/fixtures/stub-java.tar.gz')
+    JavaBuildpack::SelectedJre.any_instance.stub(:type).and_return(:unknown)
+
+     Dir.mktmpdir do |root|
+      FileUtils.cp_r "spec/fixtures/single_system_properties/.", root
+
+      expect { JavaBuildpack::Compile.new(root, Dir.tmpdir).run }.to raise_error
     end
   end
 
