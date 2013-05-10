@@ -1,4 +1,4 @@
-# Cloud Foundry Java Buildpack
+# Cloud Foundry Java Buildpack Utilities
 # Copyright (c) 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,15 @@
 
 require 'spec_helper'
 
-describe JavaBuildpack::Release do
+describe JavaBuildpack::Properties do
 
-
-  it 'should return the execution command payload' do
-    payload = JavaBuildpack::Release.new('spec/fixtures/java').run
-    expect(payload).to eq("---\n:addons: []\n:config_vars: {}\n:default_process_types:\n  :web: ''\n")
+  it 'should parse properties' do
+    properties = JavaBuildpack::Properties.new('spec/fixtures/test.properties')
+    expect(properties['alpha']).to eq('bravo')
+    expect(properties['charlie']).to eq('delta')
+    expect(properties['echo']).to eq('foxtrot')
+    expect(properties['golf']).to eq('')
+    expect(properties['Main-Class']).to eq('com.gopivotal.SimpleJava')
   end
 
 end

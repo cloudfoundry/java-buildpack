@@ -18,7 +18,9 @@ SimpleCov.start do
   add_filter 'spec'
 end
 
-require 'java_buildpack'
+require 'java_buildpack/compile'
+require 'java_buildpack/detect'
+require 'java_buildpack/release'
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true

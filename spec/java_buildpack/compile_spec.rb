@@ -14,28 +14,26 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'open3'
+require 'tmpdir'
 
-describe 'compile' do
+describe JavaBuildpack::Compile do
+  let(:fake_java_tar_path) { File.expand_path("../../fixtures/stub-java.tar.gz", __FILE__) }
 
   before do
-    @previous_value = ENV['BUILDPACK_CACHE']
-    ENV['BUILDPACK_CACHE'] = Dir.tmpdir
+    $stdout = StringIO.new
+    $stderr = StringIO.new
   end
 
-  after do
-    ENV['BUILDPACK_CACHE'] = @previous_value
-  end
-
-  it 'should return zero if the compile is successful' do
+  it 'should extract Java' do
+    JavaBuildpack::SelectedJre.any_instance.stub(:uri).and_return(fake_java_tar_path)
     FIXTURE = 'spec/fixtures/java'
 
     Dir.mktmpdir do |root|
       FileUtils.cp_r "#{FIXTURE}/.", root
+      JavaBuildpack::Compile.new(root, Dir.tmpdir).run
 
-      Open3.popen3("bin/compile #{root}") do |stdin, stdout, stderr, wait_thr|
-        expect(wait_thr.value).to be_success
-      end
+      absolute_java_home = File.join(root, '.java', 'bin', 'java')
+      expect(File.exists?(absolute_java_home)).to be_true
     end
   end
 
