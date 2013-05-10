@@ -23,7 +23,7 @@ build_dir = ARGV[0]
 
 begin
   puts JavaBuildpack::Release.new(build_dir).run
-# rescue => e
-#   abort e.message
+rescue => e
+  abort e.message
 end
 
