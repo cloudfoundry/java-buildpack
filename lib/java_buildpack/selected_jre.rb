@@ -1,4 +1,4 @@
-# Cloud Foundry Java Buildpack Utilities
+# Cloud Foundry Java Buildpack
 # Copyright (c) 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,20 +17,26 @@ require 'java_buildpack/utils/properties'
 
 module JavaBuildpack
 
-# A class containing information about the JRE selected by the user.
+  # A class containing information about the JRE selected by the user.
   class SelectedJre
 
     # The default JRE vendor
     DEFAULT_VENDOR = 'oracle'
 
+    # The environment variable for specifying the vendor
+    ENV_VAR_VENDOR = 'JAVA_RUNTIME_VENDOR'
+
     # The property key for specifying the vendor
-    KEY_VENDOR = 'java.runtime.vendor'
+    PROP_KEY_VENDOR = 'java.runtime.vendor'
 
     # The default JRE version
     DEFAULT_VERSION = '7'
 
+    # The environment variable for specifying the version
+    ENV_VAR_VERSION = 'JAVA_RUNTIME_VERSION'
+
     # The property key for specifying the version
-    KEY_VERSION = 'java.runtime.version'
+    PROP_KEY_VERSION = 'java.runtime.version'
 
     # The collection of legal JREs
     JRES = {
@@ -79,7 +85,7 @@ module JavaBuildpack
     end
 
     def system_properties(app_dir)
-      candidates = Dir["**/#{SYSTEM_PROPERTIES}"]
+      candidates = Dir["#{app_dir}/**/#{SYSTEM_PROPERTIES}"]
 
       if candidates.length > 1
         raise "More than one system.properties file found: #{candidates}"
@@ -93,23 +99,22 @@ module JavaBuildpack
     end
 
     def configured_vendor(properties)
-      vendor = nil
-
-      unless properties.nil?
-        vendor = properties[KEY_VENDOR]
-      end
-
-      vendor
+      resolve ENV_VAR_VENDOR, PROP_KEY_VENDOR, properties
     end
 
     def configured_version(properties)
-      raw_version = nil
+      raw_version = resolve ENV_VAR_VERSION, PROP_KEY_VERSION, properties
+      normalize_version raw_version
+    end
 
-      unless properties.nil?
-        raw_version = properties[KEY_VERSION]
+    def resolve(env_var, prop_key, properties, default = nil)
+      value = ENV[env_var]
+
+      if value.nil? && !properties.nil?
+        value = properties[prop_key]
       end
 
-      normalize_version raw_version
+      value
     end
   end
 end

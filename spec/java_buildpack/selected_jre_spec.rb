@@ -1,4 +1,4 @@
-# Cloud Foundry Java Buildpack Utilities
+# Cloud Foundry Java Buildpack
 # Copyright (c) 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,16 +17,38 @@ require 'spec_helper'
 
 describe JavaBuildpack::SelectedJre do
 
-  before do
-    @selected_jre = described_class.new('spec/fixtures/java')
+  it 'should read properties from system.properties' do
+    selected_jre = JavaBuildpack::SelectedJre.new('spec/fixtures/single_system_properties')
+
+    expect(selected_jre.id).to eq('java-openjdk-8')
+    expect(selected_jre.uri).to eq(JavaBuildpack::SelectedJre::JRES[:openjdk][:J8])
+    expect(selected_jre.vendor).to eq('openjdk')
+    expect(selected_jre.version).to eq('8')
   end
 
-  it 'should return the id' do
-    expect(@selected_jre.id).to eq('java-openjdk-8')
+  it 'should read properties from environment variables' do
+    previous_vendor = nil
+    previous_version = nil
+    begin
+      previous_vendor = ENV['JAVA_RUNTIME_VENDOR']
+      ENV['JAVA_RUNTIME_VENDOR'] = 'oracle'
+      previous_version = ENV['JAVA_RUNTIME_VERSION']
+      ENV['JAVA_RUNTIME_VERSION'] = '1.7'
+
+      selected_jre = JavaBuildpack::SelectedJre.new('spec/fixtures/single_system_properties')
+
+      expect(selected_jre.id).to eq('java-oracle-7')
+      expect(selected_jre.uri).to eq(JavaBuildpack::SelectedJre::JRES[:oracle][:J7])
+      expect(selected_jre.vendor).to eq('oracle')
+      expect(selected_jre.version).to eq('7')
+    ensure
+      ENV['JAVA_RUNTIME_VENDOR'] = previous_vendor
+      ENV['JAVA_RUNTIME_VERSION'] = previous_version
+    end
   end
 
-  it 'should return the uri' do
-    expect(@selected_jre.uri).to eq(JavaBuildpack::SelectedJre::JRES[:openjdk][:J8])
+  it 'should raise an error if there are multiple system.properties' do
+    lambda { JavaBuildpack::SelectedJre.new('spec/fixtures/multiple_system_properties') }.should raise_error
   end
 
 end

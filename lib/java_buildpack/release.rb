@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/utils/properties'
 require 'yaml'
-require "java_buildpack/utils/properties"
 
 module JavaBuildpack
 
-# Encapsulates the release functionality in the Java buildpack
+  # Encapsulates the release functionality in the Java buildpack
   class Release
 
     # Creates a new instance, passing in the application directory used during release
@@ -33,13 +33,13 @@ module JavaBuildpack
     #
     # @return [String] the YAML formatted payload describing the execution command used to start the application
     def run
-      manifest_file = Properties.new(File.expand_path("./META-INF/MANIFEST.MF", @app_dir))
+      manifest_file = Properties.new(File.join(@app_dir, 'META-INF', 'MANIFEST.MF'))
 
       {
-          "addons" => [],
-          "config_vars" => {},
-          "default_process_types" => {
-              "web" => ".java/bin/java -cp . #{manifest_file["Main-Class"]}"
+          'addons' => [],
+          'config_vars' => {},
+          'default_process_types' => {
+              'web' => ".java/bin/java -cp . #{manifest_file["Main-Class"]}"
           }
       }.to_yaml
     end

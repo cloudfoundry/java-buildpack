@@ -17,7 +17,7 @@ require 'java_buildpack/selected_jre'
 
 module JavaBuildpack
 
-# Encapsulates the detection functionality in the Java buildpack
+  # Encapsulates the detection functionality in the Java buildpack
   class Detect
 
     # Creates a new instance, passing in the application directory used during detection
