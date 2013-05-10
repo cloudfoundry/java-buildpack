@@ -1,4 +1,4 @@
-# Cloud Foundry Java Buildpack Utilities
+# Cloud Foundry Java Buildpack
 # Copyright (c) 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +17,9 @@ require 'spec_helper'
 
 describe JavaBuildpack::Properties do
 
+  let(:properties) { JavaBuildpack::Properties.new('spec/fixtures/test.properties') }
+
   it 'should parse properties' do
-    properties = JavaBuildpack::Properties.new('spec/fixtures/test.properties')
     expect(properties['alpha']).to eq('bravo')
     expect(properties['charlie']).to eq('delta')
     expect(properties['echo']).to eq('foxtrot')

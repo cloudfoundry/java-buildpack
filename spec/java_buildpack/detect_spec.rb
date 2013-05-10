@@ -18,7 +18,7 @@ require 'spec_helper'
 describe JavaBuildpack::Detect do
 
   it 'should return the id of the Java being used' do
-    components = JavaBuildpack::Detect.new('spec/fixtures/java').run
+    components = JavaBuildpack::Detect.new('spec/fixtures/single_system_properties').run
     expect(components).to include('java-openjdk-8')
   end
 

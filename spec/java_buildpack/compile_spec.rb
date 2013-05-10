@@ -17,7 +17,6 @@ require 'spec_helper'
 require 'tmpdir'
 
 describe JavaBuildpack::Compile do
-  let(:fake_java_tar_path) { File.expand_path("../../fixtures/stub-java.tar.gz", __FILE__) }
 
   before do
     $stdout = StringIO.new
@@ -25,11 +24,10 @@ describe JavaBuildpack::Compile do
   end
 
   it 'should extract Java' do
-    JavaBuildpack::SelectedJre.any_instance.stub(:uri).and_return(fake_java_tar_path)
-    FIXTURE = 'spec/fixtures/java'
+    JavaBuildpack::SelectedJre.any_instance.stub(:uri).and_return('spec/fixtures/stub-java.tar.gz')
 
     Dir.mktmpdir do |root|
-      FileUtils.cp_r "#{FIXTURE}/.", root
+      FileUtils.cp_r "spec/fixtures/single_system_properties/.", root
       JavaBuildpack::Compile.new(root, Dir.tmpdir).run
 
       absolute_java_home = File.join(root, '.java', 'bin', 'java')

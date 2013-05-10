@@ -1,4 +1,4 @@
-# Cloud Foundry Java Buildpack Utilities
+# Cloud Foundry Java Buildpack
 # Copyright (c) 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 
 module JavaBuildpack
 
-# A class representing a collection of Java properties
+  # A class representing a collection of Java properties
   class Properties < Hash
 
     # Create a new instance, populating it with values from a properties file

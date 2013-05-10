@@ -14,13 +14,19 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'yaml'
 
 describe JavaBuildpack::Release do
 
-
   it 'should return the execution command payload' do
-    payload = JavaBuildpack::Release.new('spec/fixtures/java').run
-    expect(payload).to eq("---\naddons: []\nconfig_vars: {}\ndefault_process_types:\n  web: .java/bin/java -cp . com.gopivotal.SimpleJava\n")
+    payload = JavaBuildpack::Release.new('spec/fixtures/single_system_properties').run
+    expect(payload).to eq({
+      'addons' => [],
+      'config_vars' => {},
+      'default_process_types' => {
+        'web' => '.java/bin/java -cp . com.gopivotal.SimpleJava'
+      }
+    }.to_yaml)
   end
 
 end
