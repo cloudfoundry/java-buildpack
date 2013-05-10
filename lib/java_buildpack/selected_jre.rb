@@ -40,15 +40,15 @@ module JavaBuildpack
 
     # The collection of legal JREs
     JRES = {
-        openjdk: {
-            J6: '',
-            J7: '',
-            J8: 'http://download.java.net/jdk8/archive/b88/binaries/jre-8-ea-bin-b88-linux-x64-02_may_2013.tar.gz'
+        'openjdk' => {
+            '6' => '',
+            '7' => '',
+            '8' => 'http://download.java.net/jdk8/archive/b88/binaries/jre-8-ea-bin-b88-linux-x64-02_may_2013.tar.gz'
         },
-        oracle: {
-            J6: '',
-            J7: 'http://javadl.sun.com/webapps/download/AutoDL?BundleId=76853',
-            J8: ''
+        'oracle' => {
+            '6' => '',
+            '7' => 'http://javadl.sun.com/webapps/download/AutoDL?BundleId=76853',
+            '8' => ''
         }
     }
 
@@ -69,11 +69,14 @@ module JavaBuildpack
     def initialize(app_dir)
       properties = system_properties(app_dir)
 
-
       @vendor = configured_vendor properties
+      raise "'#{@vendor}' is not a valid Java runtime vendor" unless JRES.has_key?(@vendor)
+
       @version = configured_version properties
+      raise "'#{@version}' is not a valid Java runtime version" unless JRES[@vendor].has_key?(@version)
+
       @id = "java-#{@vendor}-#{@version}"
-      @uri = JRES[@vendor.to_sym]["J#{@version}".to_sym]
+      @uri = JRES[@vendor][@version]
     end
 
     private

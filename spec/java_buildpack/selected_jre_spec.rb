@@ -21,7 +21,7 @@ describe JavaBuildpack::SelectedJre do
     selected_jre = JavaBuildpack::SelectedJre.new('spec/fixtures/single_system_properties')
 
     expect(selected_jre.id).to eq('java-openjdk-8')
-    expect(selected_jre.uri).to eq(JavaBuildpack::SelectedJre::JRES[:openjdk][:J8])
+    expect(selected_jre.uri).to eq(JavaBuildpack::SelectedJre::JRES['openjdk']['8'])
     expect(selected_jre.vendor).to eq('openjdk')
     expect(selected_jre.version).to eq('8')
   end
@@ -38,7 +38,7 @@ describe JavaBuildpack::SelectedJre do
       selected_jre = JavaBuildpack::SelectedJre.new('spec/fixtures/single_system_properties')
 
       expect(selected_jre.id).to eq('java-oracle-7')
-      expect(selected_jre.uri).to eq(JavaBuildpack::SelectedJre::JRES[:oracle][:J7])
+      expect(selected_jre.uri).to eq(JavaBuildpack::SelectedJre::JRES['oracle']['7'])
       expect(selected_jre.vendor).to eq('oracle')
       expect(selected_jre.version).to eq('7')
     ensure
@@ -48,7 +48,12 @@ describe JavaBuildpack::SelectedJre do
   end
 
   it 'should raise an error if there are multiple system.properties' do
-    lambda { JavaBuildpack::SelectedJre.new('spec/fixtures/multiple_system_properties') }.should raise_error
+    expect { JavaBuildpack::SelectedJre.new('spec/fixtures/multiple_system_properties') }.to raise_error
+  end
+
+  it 'should raise an error if an error invalid vendor or version is specified' do
+    expect { JavaBuildpack::SelectedJre.new('spec/fixtures/invalid_vendor') }.to raise_error("'sun' is not a valid Java runtime vendor")
+    expect { JavaBuildpack::SelectedJre.new('spec/fixtures/invalid_version') }.to raise_error("'5' is not a valid Java runtime version")
   end
 
 end
