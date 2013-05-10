@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # Cloud Foundry Java Buildpack
 # Copyright (c) 2013 the original author or authors.
 #
@@ -14,17 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-$stdout.sync = true
-$:.unshift File.expand_path("../../lib", __FILE__)
+require 'spec_helper'
+require 'open3'
 
-require 'java_buildpack/compile'
+describe 'detect script' do
 
-build_dir = ARGV[0]
-cache_dir = ARGV[1]
+  it 'should return non-zero if failure' do
+    Open3.popen3("bin/detect spec/fixtures/invalid_vendor") do |stdin, stdout, stderr, wait_thr|
+      expect(wait_thr.value).to_not be_success
+      expect(stderr.read).to eq("'sun' is not a valid Java runtime vendor\n")
+    end
+  end
 
-begin
-  JavaBuildpack::Compile.new(build_dir, cache_dir).run
-rescue => e
-  abort e.message
+  it 'should return zero if success' do
+    Open3.popen3("bin/detect spec/fixtures/single_system_properties") do |stdin, stdout, stderr, wait_thr|
+      expect(wait_thr.value).to be_success
+    end
+  end
+
 end
-

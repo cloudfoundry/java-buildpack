@@ -28,7 +28,7 @@ begin
   else
     abort
   end
-# rescue => e
-#   abort e.message
+rescue => e
+  abort e.message
 end
 
