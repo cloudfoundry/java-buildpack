@@ -21,7 +21,8 @@ describe JavaBuildpack::SelectedJre do
     selected_jre = JavaBuildpack::SelectedJre.new('spec/fixtures/single_system_properties')
 
     expect(selected_jre.id).to eq('java-openjdk-8')
-    expect(selected_jre.uri).to eq(JavaBuildpack::SelectedJre::JRES['openjdk']['8'])
+    expect(selected_jre.type).to eq(JavaBuildpack::SelectedJre::JRES['openjdk']['8'][:type])
+    expect(selected_jre.uri).to eq(JavaBuildpack::SelectedJre::JRES['openjdk']['8'][:uri])
     expect(selected_jre.vendor).to eq('openjdk')
     expect(selected_jre.version).to eq('8')
   end
@@ -38,7 +39,8 @@ describe JavaBuildpack::SelectedJre do
       selected_jre = JavaBuildpack::SelectedJre.new('spec/fixtures/single_system_properties')
 
       expect(selected_jre.id).to eq('java-oracle-7')
-      expect(selected_jre.uri).to eq(JavaBuildpack::SelectedJre::JRES['oracle']['7'])
+      expect(selected_jre.type).to eq(JavaBuildpack::SelectedJre::JRES['oracle']['7'][:type])
+      expect(selected_jre.uri).to eq(JavaBuildpack::SelectedJre::JRES['oracle']['7'][:uri])
       expect(selected_jre.vendor).to eq('oracle')
       expect(selected_jre.version).to eq('7')
     ensure
