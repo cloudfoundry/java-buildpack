@@ -15,6 +15,7 @@
 
 require 'java_buildpack/selected_jre'
 require 'java_buildpack/utils/format_duration'
+require 'java_buildpack/utils/os'
 require 'open-uri'
 
 module JavaBuildpack
@@ -54,27 +55,33 @@ module JavaBuildpack
 
     def expand(file)
       expand_start_time = Time.now
-       print "-----> Expanding JRE from to #{JAVA_HOME} "
+      print "-----> Expanding JRE to #{JAVA_HOME} "
 
-       java_home = File.join @app_dir, JAVA_HOME
-       `rm -rf #{java_home}`
-       `mkdir -p #{java_home}`
+      java_home = File.join @app_dir, JAVA_HOME
+      `rm -rf #{java_home}`
+      `mkdir -p #{java_home}`
 
-       case @selected_jre.type
-       when :tar then expand_tar file, java_home
-       when :deb then expand_deb file, java_home
-       else raise "JRE package type '#{@selected_jre.type}' is not supported"
-       end
+      case @selected_jre.type
+      when :tar then expand_tar file, java_home
+      when :deb then expand_deb file, java_home
+      else raise "JRE package type '#{@selected_jre.type}' is not supported"
+      end
 
-        puts "(#{(Time.now - expand_start_time).duration})"
+      puts "(#{(Time.now - expand_start_time).duration})"
     end
 
     def expand_tar(file, java_home)
-        `tar xzvf #{file.path} -C #{java_home} --strip 1 2>&1`
+      `tar xzf #{file.path} -C #{java_home} --strip 1 2>&1`
     end
 
     def expand_deb(file, java_home)
-      `tar xzOf #{file.path} data.tar.gz | tar xz -C #{java_home} --strip 5 "./usr/lib/jvm/java-*/*" 2>&1`
+      if OS.linux?
+        filter = '--wildcards "./usr/lib/jvm/java-*/*"'
+      else
+        filter = '"./usr/lib/jvm/java-*/*"'
+      end
+
+      `tar xzOf #{file.path} data.tar.gz | tar xz -C #{java_home} --strip 5 #{filter} 2>&1`
     end
 
   end
