@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/selected_jre'
+require 'java_buildpack/jre_properties'
+require 'java_buildpack/jre_selector'
 require 'java_buildpack/utils/format_duration'
 require 'java_buildpack/utils/os'
 require 'open-uri'
@@ -30,7 +31,9 @@ module JavaBuildpack
     # @param [String] app_cache_dir The application cache directory used during compilation
     def initialize(app_dir, app_cache_dir)
       @app_dir = app_dir
-      @selected_jre = SelectedJre.new(app_dir)
+      @jre_properties = JreProperties.new(app_dir)
+      jre_selector = JreSelector.new
+      @uri = jre_selector.uri(@jre_properties.vendor, @jre_properties.version)
     end
 
     # The execution entry point for detection.  This method is responsible for identifying all of the components that are
@@ -38,12 +41,10 @@ module JavaBuildpack
     #
     # @return [void]
     def run
-      uri = @selected_jre.uri
-
       download_start_time = Time.now
-      print "-----> Downloading #{@selected_jre.vendor} #{@selected_jre.version} JRE from #{uri} "
+      print "-----> Downloading #{@jre_properties.vendor} #{@jre_properties.version} JRE from #{@uri} "
 
-      open(uri) do |file| # Use a global cache when available
+      open(@uri) do |file| # Use a global cache when available
         puts "(#{(Time.now - download_start_time).duration})"
         expand file
       end
@@ -61,11 +62,7 @@ module JavaBuildpack
       `rm -rf #{java_home}`
       `mkdir -p #{java_home}`
 
-      case @selected_jre.type
-      when :tar then expand_tar file, java_home
-      when :deb then expand_deb file, java_home
-      else raise "JRE package type '#{@selected_jre.type}' is not supported"
-      end
+      expand_tar file, java_home
 
       puts "(#{(Time.now - expand_start_time).duration})"
     end
