@@ -13,75 +13,57 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/utils/properties'
+
+require 'java_buildpack/utils/value_resolver'
+require 'java_buildpack/vendor_resolver'
+require 'java_buildpack/version_resolver'
+require 'open-uri'
+require 'yaml'
+
 
 module JavaBuildpack
 
   # A class encapsulating the JRE properties specified by the user.
   class JreProperties
 
-    DEFAULT_VENDOR = 'openjdk'
-
     # @!attribute [r] vendor
-    #   @return [String] the JRE vendor requested by the user
+    #   @return [String] the resolved JRE vendor based on user input
     # @!attribute [r] version
-    #   @return [String] the JRE version requested by the user
-    attr_reader :vendor, :version
+    #   @return [String] the resolved JRE version based on user input
+    # @!attribute [r] uri
+    #   @return [String] the resolved JRE URI based on user input
+    attr_reader :vendor, :version, :uri
 
     # Creates a new instance, passing in the application directory used during release
     #
     # @param [String] app_dir The application to inspect for values specified by the user
     def initialize(app_dir)
-      properties = system_properties(app_dir)
+      value_resolver = ValueResolver.new(app_dir)
 
-      @vendor = configured_vendor properties
-      @vendor = DEFAULT_VENDOR if @vendor.nil?
+      candidate_vendor = value_resolver.resolve(ENV_VAR_VENDOR, SYS_PROP_VENDOR)
+      candidate_version = value_resolver.resolve(ENV_VAR_VERSION, SYS_PROP_VERSION)
 
-      @version = configured_version properties
+      jre_vendor_repositories = YAML.load_file JRES_YAML_FILE
+      @vendor = VendorResolver.resolve(candidate_vendor, jre_vendor_repositories.keys)
+      repository = jre_vendor_repositories[@vendor]
+      index = YAML.parse(open "#{repository}#{INDEX_PATH}").to_ruby
+      @version = VersionResolver.resolve(candidate_version, index.keys)
+      @uri = "#{repository}/#{index[@version]}"
     end
 
     private
 
-    SYSTEM_PROPERTIES = 'system.properties'
-
     ENV_VAR_VENDOR = 'JAVA_RUNTIME_VENDOR'
-
-    PROP_KEY_VENDOR = 'java.runtime.vendor'
 
     ENV_VAR_VERSION = 'JAVA_RUNTIME_VERSION'
 
-    PROP_KEY_VERSION = 'java.runtime.version'
+    INDEX_PATH = '/index.yml'
 
-    def system_properties(app_dir)
-      candidates = Dir["#{app_dir}/**/#{SYSTEM_PROPERTIES}"]
+    JRES_YAML_FILE = 'config/jres.yml'
 
-      if candidates.length > 1
-        raise "More than one system.properties file found: #{candidates}"
-      end
+    SYS_PROP_VENDOR = 'java.runtime.vendor'
 
-      if candidates[0]
-        Properties.new(candidates[0])
-      else
-        nil
-      end
-    end
+    SYS_PROP_VERSION = 'java.runtime.version'
 
-    def configured_vendor(properties)
-      resolve ENV_VAR_VENDOR, PROP_KEY_VENDOR, properties
-    end
-
-    def configured_version(properties)
-      resolve ENV_VAR_VERSION, PROP_KEY_VERSION, properties
-    end
-
-    def resolve(env_var, prop_key, properties, default = nil)
-      value = ENV[env_var]
-
-      if value.nil? && !properties.nil?
-        value = properties[prop_key]
-      end
-
-      value
-    end
   end
 end

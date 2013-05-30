@@ -19,7 +19,7 @@ require 'yaml'
 describe JavaBuildpack::Release do
 
   it 'should return the execution command payload' do
-    payload = JavaBuildpack::Release.new('spec/fixtures/single_system_properties').run
+    payload = JavaBuildpack::Release.new('spec/fixtures/no_system_properties').run
     expect(payload).to eq({
       'addons' => [],
       'config_vars' => {},

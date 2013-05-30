@@ -18,16 +18,18 @@ require 'tmpdir'
 
 describe JavaBuildpack::Compile do
 
+  let(:jre_selector) { double('JreSelector', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri') }
+
   before do
     $stdout = StringIO.new
     $stderr = StringIO.new
   end
 
   it 'should extract Java from a GZipped TAR' do
-    JavaBuildpack::JreSelector.any_instance.stub(:uri).and_return('spec/fixtures/stub-java.tar.gz')
-
     Dir.mktmpdir do |root|
-      FileUtils.cp_r "spec/fixtures/single_system_properties/.", root
+      JavaBuildpack::JreProperties.stub(:new).with(root).and_return(jre_selector)
+      JavaBuildpack::Compile.any_instance.stub(:open).with('test-uri').and_yield(File.open('spec/fixtures/stub-java.tar.gz'))
+
       JavaBuildpack::Compile.new(root, Dir.tmpdir).run
 
       java = File.join(root, '.java', 'bin', 'java')

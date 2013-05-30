@@ -17,46 +17,33 @@ require 'spec_helper'
 
 describe JavaBuildpack::JreProperties do
 
-  it 'should read properties from system.properties' do
-    selected_jre = JavaBuildpack::JreProperties.new('spec/fixtures/single_system_properties')
+  CANDIDATE_VENDOR = 'candidate-vendor'
 
-    expect(selected_jre.vendor).to eq('openjdk')
-    expect(selected_jre.version).to eq('8')
+  CANDIDATE_VERSION = 'candidate-version'
+
+  RESOLVED_PATH = 'resolved-path'
+
+  RESOLVED_ROOT = 'resolved-root'
+
+  RESOLVED_VENDOR = 'resolved-vendor'
+
+  RESOLVED_VERSION = 'resolved-version'
+
+  RESOLVED_URI = "#{RESOLVED_ROOT}/#{RESOLVED_PATH}"
+
+  it 'returns the resolved vendor, version, and uri' do
+    YAML.stub(:load_file).with('config/jres.yml').and_return(RESOLVED_VENDOR => RESOLVED_ROOT)
+    JavaBuildpack::JreProperties.any_instance.stub(:open).with("#{RESOLVED_ROOT}/index.yml").and_return(File.open('spec/fixtures/test-index.yml'))
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_VENDOR', 'java.runtime.vendor').and_return(CANDIDATE_VENDOR)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_VERSION', 'java.runtime.version').and_return(CANDIDATE_VERSION)
+    JavaBuildpack::VendorResolver.stub(:resolve).with(CANDIDATE_VENDOR, [RESOLVED_VENDOR]).and_return(RESOLVED_VENDOR)
+    JavaBuildpack::VersionResolver.stub(:resolve).with(CANDIDATE_VERSION, [RESOLVED_VERSION]).and_return(RESOLVED_VERSION)
+
+    jre_properties = JavaBuildpack::JreProperties.new('spec/fixtures/no_system_properties')
+
+    expect(jre_properties.vendor).to eq(RESOLVED_VENDOR)
+    expect(jre_properties.version).to eq(RESOLVED_VERSION)
+    expect(jre_properties.uri).to eq(RESOLVED_URI)
   end
 
-  it 'should read properties from environment variables in preference to system.properties' do
-    previous_vendor = nil
-    previous_version = nil
-    begin
-      previous_vendor = ENV['JAVA_RUNTIME_VENDOR']
-      ENV['JAVA_RUNTIME_VENDOR'] = 'somevendor'
-      previous_version = ENV['JAVA_RUNTIME_VERSION']
-      ENV['JAVA_RUNTIME_VERSION'] = '1.7'
-
-      jre_properties = JavaBuildpack::JreProperties.new('spec/fixtures/single_system_properties')
-
-      expect(jre_properties.vendor).to eq('somevendor')
-      expect(jre_properties.version).to eq('1.7')
-    ensure
-      ENV['JAVA_RUNTIME_VENDOR'] = previous_vendor
-      ENV['JAVA_RUNTIME_VERSION'] = previous_version
-    end
-  end
-
-  it 'should raise an error if there are multiple system.properties' do
-    expect { JavaBuildpack::JreProperties.new('spec/fixtures/multiple_system_properties') }.to raise_error
-  end
-
-  it 'should default the vendor if there is no system.properties and no vendor environment variable is set' do
-    previous_vendor = nil
-    begin
-      previous_vendor = ENV['JAVA_RUNTIME_VENDOR']
-      ENV['JAVA_RUNTIME_VENDOR'] = nil
-      jre_properties = JavaBuildpack::JreProperties.new('spec/fixtures/no_system_properties')
-      expect(jre_properties.vendor).to eq(JavaBuildpack::JreProperties::DEFAULT_VENDOR)
-    ensure
-      ENV['JAVA_RUNTIME_VENDOR'] = previous_vendor
-    end
-
-  end
 end

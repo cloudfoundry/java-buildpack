@@ -14,10 +14,9 @@
 # limitations under the License.
 
 require 'java_buildpack/jre_properties'
-require 'java_buildpack/jre_selector'
 require 'java_buildpack/utils/format_duration'
-require 'java_buildpack/utils/os'
 require 'open-uri'
+require 'tempfile'
 
 module JavaBuildpack
 
@@ -31,9 +30,8 @@ module JavaBuildpack
     # @param [String] app_cache_dir The application cache directory used during compilation
     def initialize(app_dir, app_cache_dir)
       @app_dir = app_dir
+      @app_cache_dir = app_cache_dir
       @jre_properties = JreProperties.new(app_dir)
-      jre_selector = JreSelector.new
-      @uri = jre_selector.uri(@jre_properties.vendor, @jre_properties.version)
     end
 
     # The execution entry point for detection.  This method is responsible for identifying all of the components that are
@@ -42,11 +40,21 @@ module JavaBuildpack
     # @return [void]
     def run
       download_start_time = Time.now
-      print "-----> Downloading #{@jre_properties.vendor} #{@jre_properties.version} JRE from #{@uri} "
+      print "-----> Downloading #{@jre_properties.vendor} #{@jre_properties.version} JRE from #{@jre_properties.uri} "
 
-      open(@uri) do |file| # Use a global cache when available
-        puts "(#{(Time.now - download_start_time).duration})"
+      file = Tempfile.new('jre', @app_cache_dir)
+      begin
+        open(@jre_properties.uri) do |stream|
+          IO.copy_stream(stream, file)
+          puts "(#{(Time.now - download_start_time).duration})"
+        end
+
+        file.close
+
         expand file
+      ensure
+        file.close
+        file.unlink
       end
     end
 
@@ -59,26 +67,15 @@ module JavaBuildpack
       print "-----> Expanding JRE to #{JAVA_HOME} "
 
       java_home = File.join @app_dir, JAVA_HOME
-      `rm -rf #{java_home}`
-      `mkdir -p #{java_home}`
-
-      expand_tar file, java_home
+      system "rm -rf #{java_home}"
+      system "mkdir -p #{java_home}"
+      system "tar xzf #{file.path} -C #{java_home} --strip 1 2>&1"
 
       puts "(#{(Time.now - expand_start_time).duration})"
     end
 
     def expand_tar(file, java_home)
-      `tar xzf #{file.path} -C #{java_home} --strip 1 2>&1`
-    end
 
-    def expand_deb(file, java_home)
-      if OS.linux?
-        filter = '--wildcards "./usr/lib/jvm/java-*/*"'
-      else
-        filter = '"./usr/lib/jvm/java-*/*"'
-      end
-
-      `tar xzOf #{file.path} data.tar.gz | tar xz -C #{java_home} --strip 5 #{filter} 2>&1`
     end
 
   end

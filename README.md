@@ -7,34 +7,76 @@
 
 [cf]: http://www.cloudfoundry.com
 
-
-# Configuration
-The buildpack allows you to configure the both the vendor and version of the Java runtime your application should use.  To configure these, you can either put a `system.properties` file into your pushed artifact, or specify environment variables for your application.  By default the **OpenJDK 7** Java runtime is chosen.
+# Buildpack Users
+The buildpack allows you to configure the both the vendor and version of the Java runtime your application should use.  To configure these, you can put a `system.properties` file into your pushed artifact.
 
 ## `system.properties`
 If a `system.properties` file exists anywhere within your artifact's filesystem and the following properties have been set, they will be read and used to select the Java runtime for your application:
 
-| Name |  Description
+| Name | Description
 | ---- | -----------
-| `java.runtime.vendor` | The vendor of the Java runtime to use.  Legal values are `oracle` or `openjdk`.
-| `java.runtime.version` | The version of the Java runtime to use.  The legal values are dependent on the vendor, but are typically `6`, `7`, `8`, `1.6`, `1.7`, and `1.8` are acceptable.
+| `java.runtime.vendor` | The vendor of the Java runtime to use.  The legal values are defined by the keys in [`config/jres.yml`][jres_yml].
+| `java.runtime.version` | The version of the Java runtime to use.  The legal values are defined by the keys in [`index.yml`][index_yml]
 
 An example `system.properties` file would to contain the following:
 ```java
 java.runtime.vendor=openjdk
-java.runtime.version=8
+java.runtime.version=1.7.0_21
 ```
+## JRE Version Syntax and Ordering
+JREs versions are composed of major, minor, micro, and optional qualifier parts (`<major>.<minor>.<micro>[_<qualifier>]`).  The major, minor, and micro parts must be numeric.  The qualifier part is composed of letters, digits, and hyphens.  The lexical ordering of the qualifier is:
 
-## Environment Variables
-If the following environment variables have been set, they will be read and used to select the Java runtime for your application:
+1. hyphen
+2. lowercase letters
+3. uppercase letters
+4. digits
 
-| Name |  Description
-| ---- | -----------
-| `JAVA_RUNTIME_VENDOR` | The vendor of the Java runtime to use.  Legal values are `oracle` or `openjdk`.
-| `JAVA_RUNTIME_VERSION` | The version of the Java runtime to use.  The legal values are dependent on the vendor, but are typically `6`, `7`, `8`, `1.6`, `1.7`, and `1.8` are acceptable.
+## JRE Version Wildcards
+In addition to declaring a specific version of JRE to use, you can also specify a bounded range of JRES to use.  Appending the `+` symbol to a version prefix chooses the latest JRE that begins with the prefix.
 
-To set these properties for your application, do the following:
+| Example | Description
+| ------- | -----------
+| `1.+`   	| Selects the greatest available version less than `2.0.0`.
+| `1.7.+` 	| Selects the greatest available version less than `1.8.0`.
+| `1.7.0_+` | Selects the greatest available version less than `1.7.1`. Use this syntax to stay up to date with the latest security releases in a particular version.
+
+## Default JRE
+If the user does not specify a JRE vendor and version, a JRE is selected automatically.  The selection algorithm is as follows:
+
+1. If a single vendor is available, it is selected.  If zero or more than one vendor is available, the buildpack will fail.
+2. The latest version of JRE for the selected vendor is chosen.
+
+[jres_yml]: config/jres.yml
+[index_yml]: http://jres.gopivotal.com.s3.amazonaws.com/lucid/x86_64/openjdk/index.yml
+
+
+# Buildpack Developers
+This buildpacks is designed to be extensible by other developers.  To this end, various bits of configuration are exposed that make it simple to add functionality.
+
+## Adding JRES
+By default, this buildpack only allows users to choose from [OpenJDK][openjdk] JREs.  To allow users to choose a JRE from other vendors, these vendors must be specified in [`config/jres.yml`][jres_yml].  The file is [YAML][yaml] formatted with the following syntax:
+
 ```plain
-cf set-env my-app JAVA_RUNTIME_VENDOR openjdk
-cf set-env my-app JAVA_RUNTIME_VERSION 8
+<vendor name>: <JRE repository root URI>
 ```
+
+The JRE repository root must contain a `/index.yml` file ([example][index_yml]).  This file is also [YAML][yaml] formatted with the following syntax:
+
+```plain
+<JRE version>: <path relative to JRE repository root>
+```
+
+The JRES uploaded to the repository must be gzipped TAR files and have no top-level directory ([example][example_jre]).
+
+An example filesystem might look like:
+
+```plain
+/index.yml
+/openjdk-1.6.0_27.tar.gz
+/openjdk-1.7.0_21.tar.gz
+/openjdk-1.8.0_M7.tar.gz
+```
+
+[openjdk]: http://openjdk.java.net
+[yaml]: http://www.yaml.org
+[example_jre]: http://jres.gopivotal.com.s3.amazonaws.com/lucid/x86_64/openjdk/openjdk-1.8.0_M7.tar.gz
