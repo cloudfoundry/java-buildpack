@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/selected_jre'
+require 'java_buildpack/jre_properties'
+require 'java_buildpack/jre_selector'
 require 'java_buildpack/utils/properties'
 require 'yaml'
 
@@ -27,7 +28,10 @@ module JavaBuildpack
     # @param [String] app_dir The application directory used during release
     def initialize(app_dir)
       @app_dir = app_dir
-      @selected_jre = SelectedJre.new(app_dir)
+
+      # Diagnose invalid vendor or version.
+      jre_properties = JreProperties.new(app_dir)
+      JreSelector.new.uri(jre_properties.vendor, jre_properties.version)
     end
 
     # The execution entry point for release.  This method is responsible for generating a payload describing the execution

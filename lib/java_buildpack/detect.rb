@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/selected_jre'
+require 'java_buildpack/jre_properties'
+require 'java_buildpack/jre_selector'
 
 module JavaBuildpack
 
@@ -24,7 +25,9 @@ module JavaBuildpack
     #
     # @param [String] app_dir The application directory used during detection
     def initialize(app_dir)
-      @selected_jre = SelectedJre.new(app_dir)
+      @jre_properties = JreProperties.new(app_dir)
+      # Diagnose invalid vendor or version.
+      JreSelector.new.uri(@jre_properties.vendor, @jre_properties.version)
     end
 
     # The execution entry point for detection.  This method is responsible for identifying all of the components that are
@@ -32,7 +35,7 @@ module JavaBuildpack
     #
     # @return [Array<String>] the names of components that wish to participate in the buildpack
     def run
-      @selected_jre.id
+      "java-#{@jre_properties.vendor}-#{@jre_properties.version}"
     end
 
   end
