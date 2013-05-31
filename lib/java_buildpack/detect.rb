@@ -14,7 +14,6 @@
 # limitations under the License.
 
 require 'java_buildpack/jre_properties'
-require 'java_buildpack/jre_selector'
 
 module JavaBuildpack
 
@@ -26,8 +25,6 @@ module JavaBuildpack
     # @param [String] app_dir The application directory used during detection
     def initialize(app_dir)
       @jre_properties = JreProperties.new(app_dir)
-      # Diagnose invalid vendor or version.
-      JreSelector.new.uri(@jre_properties.vendor, @jre_properties.version)
     end
 
     # The execution entry point for detection.  This method is responsible for identifying all of the components that are

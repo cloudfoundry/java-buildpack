@@ -14,8 +14,6 @@
 # limitations under the License.
 
 require 'java_buildpack/jre_properties'
-require 'java_buildpack/jre_selector'
-require 'java_buildpack/utils/properties'
 require 'yaml'
 
 module JavaBuildpack
@@ -29,9 +27,7 @@ module JavaBuildpack
     def initialize(app_dir)
       @app_dir = app_dir
 
-      # Diagnose invalid vendor or version.
-      jre_properties = JreProperties.new(app_dir)
-      JreSelector.new.uri(jre_properties.vendor, jre_properties.version)
+      JreProperties.new(app_dir)
     end
 
     # The execution entry point for release.  This method is responsible for generating a payload describing the execution

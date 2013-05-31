@@ -13,16 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'open3'
-
-describe 'compile script' do
-
-  it 'should return non-zero if failure' do
-    Open3.popen3("bin/compile spec/fixtures/invalid_vendor") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to_not be_success
-      expect(stderr.read).to eq("Invalid JRE vendor 'sun'\n")
-    end
-  end
-
-end
+# Configuration for JRE repositories keyed by vendor
+---
+openjdk: "http://jres.gopivotal.com.s3.amazonaws.com/lucid/x86_64/openjdk"

@@ -16,10 +16,15 @@
 require 'spec_helper'
 
 describe JavaBuildpack::Detect do
+  TEST_VENDOR = 'test-vendor'
+  TEST_VERSION = 'test-version'
 
   it 'should return the id of the Java being used' do
-    components = JavaBuildpack::Detect.new('spec/fixtures/single_system_properties').run
-    expect(components).to include('java-openjdk-8')
+    JavaBuildpack::JreProperties.any_instance.stub(:vendor).and_return(TEST_VENDOR)
+    JavaBuildpack::JreProperties.any_instance.stub(:version).and_return(TEST_VERSION)
+
+    components = JavaBuildpack::Detect.new('spec/fixtures/no_system_properties').run
+    expect(components).to include("java-#{TEST_VENDOR}-#{TEST_VERSION}")
   end
 
 end
