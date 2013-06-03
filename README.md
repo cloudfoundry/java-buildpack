@@ -54,15 +54,23 @@ If the user does not specify a JRE vendor and version, a JRE is selected automat
 This buildpacks is designed to be extensible by other developers.  To this end, various bits of configuration are exposed that make it simple to add functionality.
 
 ## Adding JRES
-By default, this buildpack only allows users to choose from [OpenJDK][openjdk] JREs.  To allow users to choose a JRE from other vendors, these vendors must be specified in [`config/jres.yml`][jres_yml].  The file is [YAML][yaml] formatted with the following syntax:
+By default, this buildpack only allows users to choose from [OpenJDK][openjdk] JREs.  To allow users to choose a JRE from other vendors, these vendors must be specified in [`config/jres.yml`][jres_yml].  The file is [YAML][yaml] formatted  and in the simplest case is a mapping from a vendor name to a `String` repository root.
 
-```plain
+```yaml
 <vendor name>: <JRE repository root URI>
+```
+
+When configured like this, if the user does not specify a version of the JRE to use, the latest possible version will be selected.  If a particular JRE should use a default that is not the latest (e.g. using `1.7.0_21` instead of `1.8.0_M7`), the default version can be specified by using a `Hash` instead of a `String` as the value.
+
+```yaml
+<vendor name>:
+  default_version: <default version pattern>
+  repository_root: <JRE repository root URI>
 ```
 
 The JRE repository root must contain a `/index.yml` file ([example][index_yml]).  This file is also [YAML][yaml] formatted with the following syntax:
 
-```plain
+```yaml
 <JRE version>: <path relative to JRE repository root>
 ```
 
