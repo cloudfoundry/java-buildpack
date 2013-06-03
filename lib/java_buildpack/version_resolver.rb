@@ -52,11 +52,11 @@ module JavaBuildpack
       end
     end
 
-    # Internal class. DO NOT USE.
+    # @private
     class TokenizedVersion < Array
       include Comparable
 
-      # Internal constant. DO NOT USE.
+      # @private
       WILDCARD = '+'
 
       def initialize(version, allow_wildcards = true)
@@ -70,25 +70,17 @@ module JavaBuildpack
         validate allow_wildcards
       end
 
-      # Internal method. DO NOT USE.
+      # @private
       def <=>(another)
         comparison = self[0] <=> another[0]
         comparison = self[1] <=> another[1] if comparison == 0
         comparison = self[2] <=> another[2] if comparison == 0
-
-        self_qualifier = self[3].nil? ? '' : self[3]
-        another_qualifier = another[3].nil? ? '' : another[3]
-        i = 0
-        until comparison != 0 || i == [self_qualifier.length, another_qualifier.length].min
-          comparison = char_compare(self_qualifier[i], another_qualifier[i])
-          i += 1
-        end
-        comparison = self_qualifier.length <=> another_qualifier.length  if comparison == 0
+        comparison = qualifier_compare(self[3].nil? ? '' : self[3], another[3].nil? ? '' : another[3]) if comparison == 0
 
         comparison
       end
 
-      # Internal method. DO NOT USE.
+      # @private
       def to_s
         @version
       end
@@ -130,6 +122,24 @@ module JavaBuildpack
         end
 
         return micro, qualifier
+      end
+
+      def minimum_qualifier_length(a, b)
+        [a.length, b.length].min
+      end
+
+      def qualifier_compare(a, b)
+        comparison = 0
+
+        i = 0
+        until comparison != 0 || i == minimum_qualifier_length(a, b)
+          comparison = char_compare(a[i], b[i])
+          i += 1
+        end
+
+        comparison = a.length <=> b.length  if comparison == 0
+
+        comparison
       end
 
       def validate(allow_wildcards)
