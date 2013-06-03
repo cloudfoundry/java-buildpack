@@ -145,9 +145,9 @@ module JavaBuildpack
       def validate(allow_wildcards)
         post_wildcard = false
         self.each do |value|
-          raise "Wildcards are not allow in version '#{@version}'" if value == WILDCARD && !allow_wildcards
+          raise "Invalid version '#{@version}': wildcards are not allowed this context" if value == WILDCARD && !allow_wildcards
 
-          raise "No values are allowed after wildcard in version '#{@version}'" if post_wildcard && !value.nil?
+          raise "Invalid version '#{@version}': no characters are allowed after a wildcard" if post_wildcard && !value.nil?
           post_wildcard = true if value == WILDCARD
         end
       end
