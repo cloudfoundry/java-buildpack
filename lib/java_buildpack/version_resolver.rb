@@ -76,10 +76,11 @@ module JavaBuildpack
         self_qualifier = self[3].nil? ? '' : self[3]
         another_qualifier = another[3].nil? ? '' : another[3]
         i = 0
-        until comparison != 0 || i == [self_qualifier.length, another_qualifier.length].max
+        until comparison != 0 || i == [self_qualifier.length, another_qualifier.length].min
           comparison = char_compare(self_qualifier[i], another_qualifier[i])
           i += 1
         end
+        comparison = self_qualifier.length <=> another_qualifier.length  if comparison == 0
 
         comparison
       end

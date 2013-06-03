@@ -59,6 +59,10 @@ describe JavaBuildpack::VersionResolver do
     expect(JavaBuildpack::VersionResolver.resolve('1.8.0_M-7', VERSIONS)).to eq('1.8.0_M-7')
   end
 
+  it 'should order qualifiers correctly' do
+    expect(JavaBuildpack::VersionResolver.resolve('1.7.0_+', ['1.7.0_28', '1.7.0_28a'])).to eq('1.7.0_28a')
+  end
+
   it 'should raise an exception when the major version is not numeric' do
     expect { JavaBuildpack::VersionResolver.resolve('A', VERSIONS) }.to raise_error
   end
