@@ -14,6 +14,7 @@
 # limitations under the License.
 
 require 'java_buildpack/jre_properties'
+require 'java_buildpack/utils/application_cache'
 require 'java_buildpack/utils/format_duration'
 require 'open-uri'
 require 'tempfile'
@@ -30,7 +31,7 @@ module JavaBuildpack
     # @param [String] app_cache_dir The application cache directory used during compilation
     def initialize(app_dir, app_cache_dir)
       @app_dir = app_dir
-      @app_cache_dir = app_cache_dir
+      @application_cache = ApplicationCache.new
       @jre_properties = JreProperties.new(app_dir)
     end
 
@@ -42,19 +43,9 @@ module JavaBuildpack
       download_start_time = Time.now
       print "-----> Downloading #{@jre_properties.vendor} #{@jre_properties.version} JRE from #{@jre_properties.uri} "
 
-      file = Tempfile.new('jre', @app_cache_dir)
-      begin
-        open(@jre_properties.uri) do |stream|
-          IO.copy_stream(stream, file)
-          puts "(#{(Time.now - download_start_time).duration})"
-        end
-
-        file.close
-
+      @application_cache.get(@jre_properties.id, @jre_properties.uri) do |file|
+        puts "(#{(Time.now - download_start_time).duration})"
         expand file
-      ensure
-        file.close
-        file.unlink
       end
     end
 

@@ -18,6 +18,8 @@ SimpleCov.start do
   add_filter 'spec'
 end
 
+require 'webmock/rspec'
+
 require 'java_buildpack/compile'
 require 'java_buildpack/detect'
 require 'java_buildpack/release'

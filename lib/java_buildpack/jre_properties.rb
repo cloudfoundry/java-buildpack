@@ -26,13 +26,15 @@ module JavaBuildpack
   # A class encapsulating the JRE properties specified by the user.
   class JreProperties
 
+    # @!attribute [r] id
+    #   @return [String] a unique identifier for the resolved JRE based on user input
     # @!attribute [r] vendor
     #   @return [String] the resolved JRE vendor based on user input
     # @!attribute [r] version
     #   @return [String] the resolved JRE version based on user input
     # @!attribute [r] uri
     #   @return [String] the resolved JRE URI based on user input
-    attr_reader :vendor, :version, :uri
+    attr_reader :id, :vendor, :version, :uri
 
     # Creates a new instance, passing in the application directory used during release
     #
@@ -53,6 +55,7 @@ module JavaBuildpack
       @version = VersionResolver.resolve(candidate_version, default_version, versions.keys)
 
       @uri = "#{repository_root}/#{versions[@version]}"
+      @id = "java-#{@vendor}-#{@version}"
     end
 
     private

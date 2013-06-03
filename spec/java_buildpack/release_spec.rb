@@ -18,7 +18,11 @@ require 'yaml'
 
 describe JavaBuildpack::Release do
 
+  let(:jre_selector) { double('JreSelector', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri') }
+
   it 'should return the execution command payload' do
+    JavaBuildpack::JreProperties.stub(:new).with('spec/fixtures/no_system_properties').and_return(jre_selector)
+
     payload = JavaBuildpack::Release.new('spec/fixtures/no_system_properties').run
     expect(payload).to eq({
       'addons' => [],

@@ -31,9 +31,11 @@ describe JavaBuildpack::JreProperties do
 
   RESOLVED_VERSION = 'resolved-version'
 
+  RESOLVED_ID = "java-#{RESOLVED_VENDOR}-#{RESOLVED_VERSION}"
+
   RESOLVED_URI = "#{RESOLVED_ROOT}/#{RESOLVED_PATH}"
 
-  it 'returns the resolved vendor, version, and uri from uri-only vendor details' do
+  it 'returns the resolved id, vendor, version, and uri from uri-only vendor details' do
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_VENDOR', 'java.runtime.vendor').and_return(CANDIDATE_VENDOR)
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_VERSION', 'java.runtime.version').and_return(CANDIDATE_VERSION)
     YAML.stub(:load_file).with(File.expand_path 'config/jres.yml').and_return(RESOLVED_VENDOR => RESOLVED_ROOT)
@@ -43,12 +45,13 @@ describe JavaBuildpack::JreProperties do
 
     jre_properties = JavaBuildpack::JreProperties.new('spec/fixtures/no_system_properties')
 
+    expect(jre_properties.id).to eq(RESOLVED_ID)
     expect(jre_properties.vendor).to eq(RESOLVED_VENDOR)
     expect(jre_properties.version).to eq(RESOLVED_VERSION)
     expect(jre_properties.uri).to eq(RESOLVED_URI)
   end
 
-it 'returns the resolved vendor, version, and uri from extended vendor details' do
+it 'returns the resolved id, vendor, version, and uri from extended vendor details' do
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_VENDOR', 'java.runtime.vendor').and_return(CANDIDATE_VENDOR)
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_VERSION', 'java.runtime.version').and_return(CANDIDATE_VERSION)
     YAML.stub(:load_file).with(File.expand_path 'config/jres.yml').and_return(RESOLVED_VENDOR => { 'default_version' => DEFAULT_VERSION,  'repository_root' => RESOLVED_ROOT})
@@ -58,6 +61,7 @@ it 'returns the resolved vendor, version, and uri from extended vendor details' 
 
     jre_properties = JavaBuildpack::JreProperties.new('spec/fixtures/no_system_properties')
 
+    expect(jre_properties.id).to eq(RESOLVED_ID)
     expect(jre_properties.vendor).to eq(RESOLVED_VENDOR)
     expect(jre_properties.version).to eq(RESOLVED_VERSION)
     expect(jre_properties.uri).to eq(RESOLVED_URI)

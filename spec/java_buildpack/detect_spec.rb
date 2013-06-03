@@ -16,15 +16,15 @@
 require 'spec_helper'
 
 describe JavaBuildpack::Detect do
-  TEST_VENDOR = 'test-vendor'
-  TEST_VERSION = 'test-version'
+
+  let(:jre_selector) { double('JreSelector', :id => 'test-id', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri') }
 
   it 'should return the id of the Java being used' do
-    JavaBuildpack::JreProperties.any_instance.stub(:vendor).and_return(TEST_VENDOR)
-    JavaBuildpack::JreProperties.any_instance.stub(:version).and_return(TEST_VERSION)
+    JavaBuildpack::JreProperties.stub(:new).with('spec/fixtures/no_system_properties').and_return(jre_selector)
 
     components = JavaBuildpack::Detect.new('spec/fixtures/no_system_properties').run
-    expect(components).to include("java-#{TEST_VENDOR}-#{TEST_VERSION}")
+
+    expect(components).to include('test-id')
   end
 
 end
