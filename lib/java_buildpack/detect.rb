@@ -32,7 +32,7 @@ module JavaBuildpack
     #
     # @return [Array<String>] the names of components that wish to participate in the buildpack
     def run
-      "java-#{@jre_properties.vendor}-#{@jre_properties.version}"
+      @jre_properties.id
     end
 
   end

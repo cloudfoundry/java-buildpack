@@ -1,8 +1,10 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    addressable (2.3.4)
+    crack (0.3.2)
     diff-lcs (1.2.4)
-    multi_json (1.7.4)
+    multi_json (1.7.5)
     rake (10.0.4)
     redcarpet (2.3.0)
     rspec (2.13.0)
@@ -17,6 +19,9 @@ GEM
       multi_json (~> 1.0)
       simplecov-html (~> 0.7.1)
     simplecov-html (0.7.1)
+    webmock (1.11.0)
+      addressable (>= 2.2.7)
+      crack (>= 0.3.2)
     yard (0.8.6.1)
 
 PLATFORMS
@@ -27,4 +32,5 @@ DEPENDENCIES
   redcarpet
   rspec
   simplecov
+  webmock
   yard
