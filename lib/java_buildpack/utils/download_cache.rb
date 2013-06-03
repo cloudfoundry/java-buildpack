@@ -27,6 +27,7 @@ module JavaBuildpack
     #
     # @param [String] cache_root the filesystem root for downloaded files to be cached in
     def initialize(cache_root = Dir.tmpdir)
+      Dir.mkdir(cache_root) unless File.exists? cache_root
       @cache_root = cache_root
     end
 
