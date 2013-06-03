@@ -98,6 +98,7 @@ module JavaBuildpack
           major_or_minor, tail = nil, nil
         else
           raise "Invalid version '#{s}': must not end in '.'" if s[-1] == '.'
+          raise "Invalid version '#{s}': missing component" if s =~ /\.[\._]/
           tokens = s.match(/^([^\.]+)(?:\.(.*))?/)
 
           major_or_minor, tail = tokens[1..-1]

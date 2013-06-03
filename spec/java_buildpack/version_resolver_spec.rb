@@ -71,18 +71,19 @@ describe JavaBuildpack::VersionResolver do
   end
 
   it 'should raise an exception when the major version is not numeric' do
-    expect { JavaBuildpack::VersionResolver.resolve('A', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('A', nil, []) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception when the minor version is not numeric' do
-    expect { JavaBuildpack::VersionResolver.resolve('1.A', nil, VERSIONS) }.to raise_error(/Invalid/)
-    expect { JavaBuildpack::VersionResolver.resolve('1..0', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.A', nil, []) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1..0', nil, []) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception when the micro version is not numeric' do
-    expect { JavaBuildpack::VersionResolver.resolve('1.6.A', nil, VERSIONS) }.to raise_error(/Invalid/)
-    expect { JavaBuildpack::VersionResolver.resolve('1.6..', nil, VERSIONS) }.to raise_error(/Invalid/)
-    expect { JavaBuildpack::VersionResolver.resolve('1.6_26', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6.A', nil, []) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6..', nil, []) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6._0', nil, []) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6_26', nil, []) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception if no version can be resolved' do
@@ -90,56 +91,56 @@ describe JavaBuildpack::VersionResolver do
   end
 
   it 'should raise an exception when major version is not legal' do
-    expect { JavaBuildpack::VersionResolver.resolve('1+', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1+', nil, []) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception when minor version is not legal' do
-    expect { JavaBuildpack::VersionResolver.resolve('1.6+', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6+', nil, []) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception when micro version is not legal' do
-    expect { JavaBuildpack::VersionResolver.resolve('1.6.0+', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6.0+', nil, []) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception when qualifier version is not legal' do
-    expect { JavaBuildpack::VersionResolver.resolve('1.6.0_05+', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6.0_05+', nil, []) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception when the qualifier is not letter, number, or hyphen' do
-    expect { JavaBuildpack::VersionResolver.resolve('1.6.0_?', nil, VERSIONS) }.to raise_error(/Invalid/)
-    expect { JavaBuildpack::VersionResolver.resolve('1.6.0__5', nil, VERSIONS) }.to raise_error(/Invalid/)
-    expect { JavaBuildpack::VersionResolver.resolve('1.6.0_A.', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6.0_?', nil, []) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6.0__5', nil, []) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6.0_A.', nil, []) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception when a major version wildcard is folowed by anything' do
-    expect { JavaBuildpack::VersionResolver.resolve('+.6.0_26', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('+.6.0_26', nil, []) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception when a minor version wildcard is folowed by anything' do
-    expect { JavaBuildpack::VersionResolver.resolve('1.+.0_26', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.+.0_26', nil, []) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception when a micro version wildcard is folowed by anything' do
-    expect { JavaBuildpack::VersionResolver.resolve('1.6.+_26', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6.+_26', nil, []) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception when too many components are specified' do
-    expect { JavaBuildpack::VersionResolver.resolve('1.6.0.25', nil, VERSIONS) }.to raise_error(/Invalid/)
-    expect { JavaBuildpack::VersionResolver.resolve('1.6.0.25_27', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6.0.25', nil, []) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.6.0.25_27', nil, []) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception when not enough components are specified' do
-    expect { JavaBuildpack::VersionResolver.resolve('_25', nil, VERSIONS) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('_25', nil, []) }.to raise_error(/Invalid/)
   end
 
-  it 'should raise an exception when a wildcard is specified in the versions collection' do
+  it 'should raise an exception when a wildcard is specified in the [] collection' do
     expect { JavaBuildpack::VersionResolver.resolve('1.6.0_25', nil, ['+']) }.to raise_error(/Invalid/)
   end
 
   it 'should raise an exception when a version ends with a component separator' do
-    expect { JavaBuildpack::VersionResolver.resolve('1.', nil, ['1.']) }.to raise_error(/Invalid/)
-    expect { JavaBuildpack::VersionResolver.resolve('1.7.', nil, ['1.7.']) }.to raise_error(/Invalid/)
-    expect { JavaBuildpack::VersionResolver.resolve('1.7.0_', nil, ['1.7.0_']) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.', nil, []) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.7.', nil, []) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::VersionResolver.resolve('1.7.0_', nil, []) }.to raise_error(/Invalid/)
   end
 
 end
