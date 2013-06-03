@@ -39,16 +39,20 @@ module JavaBuildpack
     # @param [String] app_dir The application to inspect for values specified by the user
     def initialize(app_dir)
       value_resolver = ValueResolver.new(app_dir)
-
       candidate_vendor = value_resolver.resolve(ENV_VAR_VENDOR, SYS_PROP_VENDOR)
       candidate_version = value_resolver.resolve(ENV_VAR_VERSION, SYS_PROP_VERSION)
 
-      jre_vendor_repositories = YAML.load_file JRES_YAML_FILE
-      @vendor = VendorResolver.resolve(candidate_vendor, jre_vendor_repositories.keys)
-      repository = jre_vendor_repositories[@vendor]
-      index = YAML.parse(open "#{repository}#{INDEX_PATH}").to_ruby
-      @version = VersionResolver.resolve(candidate_version, index.keys)
-      @uri = "#{repository}/#{index[@version]}"
+      vendors = load_vendors
+      @vendor = VendorResolver.resolve(candidate_vendor, vendors.keys)
+      vendor_details = vendors[@vendor]
+
+      repository_root = find_repository_root vendor_details
+      default_version = find_default_version vendor_details
+      versions = load_versions(repository_root)
+
+      @version = VersionResolver.resolve(candidate_version, default_version, versions.keys)
+
+      @uri = "#{repository_root}/#{versions[@version]}"
     end
 
     private
@@ -61,9 +65,41 @@ module JavaBuildpack
 
     JRES_YAML_FILE = 'config/jres.yml'
 
+    KEY_DEFAULT_VERSION = 'default_version'
+
+    KEY_REPOSITORY_ROOT = 'repository_root'
+
     SYS_PROP_VENDOR = 'java.runtime.vendor'
 
     SYS_PROP_VERSION = 'java.runtime.version'
+
+    def find_default_version(vendor_details)
+      if vendor_details.is_a?(Hash) && vendor_details.has_key?(KEY_DEFAULT_VERSION)
+        default_version = vendor_details[KEY_DEFAULT_VERSION]
+      else
+        default_version = nil
+      end
+    end
+
+    def find_repository_root(vendor_details)
+      if vendor_details.is_a? String
+        repository_root = vendor_details
+      elsif vendor_details.is_a?(Hash) && vendor_details.has_key?(KEY_REPOSITORY_ROOT)
+        repository_root = vendor_details[KEY_REPOSITORY_ROOT]
+      else
+        raise "Vendor details must be either a String or a Hash with a key of '#{KEY_REPOSITORY_ROOT}' and a value that is a String that points to the root of a JRE repository."
+      end
+
+      repository_root
+    end
+
+    def load_versions(repository_root)
+      YAML.parse(open "#{repository_root}#{INDEX_PATH}").to_ruby
+    end
+
+    def load_vendors
+      YAML.load_file JRES_YAML_FILE
+    end
 
   end
 end

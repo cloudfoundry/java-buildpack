@@ -15,4 +15,6 @@
 
 # Configuration for JRE repositories keyed by vendor
 ---
-openjdk: "http://jres.gopivotal.com.s3.amazonaws.com/lucid/x86_64/openjdk"
+openjdk:
+  default_version: 1.7.0_+
+  repository_root: "http://jres.gopivotal.com.s3.amazonaws.com/lucid/x86_64/openjdk"

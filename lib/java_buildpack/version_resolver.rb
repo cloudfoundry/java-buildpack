@@ -24,11 +24,14 @@ module JavaBuildpack
     # The resolution returns the maximum of the versions that match the candidate version
     #
     # @param [String, nil] candidate_version the version, possibly containing a wildcard, to resolve
+    # @param [String, nil] default_version the version, possibly containing a wildcard, to resolve if
+    #                                      +candidate_version+ is +nil+
     # @param [Array<String>] versions the collection of versions to resolve against
     # @return [String] the resolved version
     # @raise if no version can be resolved
-    def self.resolve(candidate_version, versions)
-      tokenized_candidate_version = TokenizedVersion.new(candidate_version)
+    def self.resolve(candidate_version, default_version, versions)
+      tokenized_candidate_version = TokenizedVersion.new(
+        candidate_version.nil? || candidate_version.empty? ? default_version : candidate_version)
       tokenized_versions = versions.map { |version| TokenizedVersion.new(version, false) }
 
       version = tokenized_versions
