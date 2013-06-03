@@ -17,6 +17,7 @@ If a `system.properties` file exists anywhere within your artifact's filesystem 
 | ---- | -----------
 | `java.runtime.vendor` | The vendor of the Java runtime to use.  The legal values are defined by the keys in [`config/jres.yml`][jres_yml].
 | `java.runtime.version` | The version of the Java runtime to use.  The legal values are defined by the keys in [`index.yml`][index_yml]
+| `java.runtime.stack.size` | The Java stack size to use. For example, a value of 256k will result in the java command line option -Xss=256k. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to -Xss=. 
 
 An example `system.properties` file would to contain the following:
 ```java

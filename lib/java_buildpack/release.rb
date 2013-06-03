@@ -27,7 +27,7 @@ module JavaBuildpack
     def initialize(app_dir)
       @app_dir = app_dir
 
-      JreProperties.new(app_dir)
+      @jre_properties = JreProperties.new(app_dir)
     end
 
     # The execution entry point for release.  This method is responsible for generating a payload describing the execution
@@ -41,9 +41,16 @@ module JavaBuildpack
           'addons' => [],
           'config_vars' => {},
           'default_process_types' => {
-              'web' => ".java/bin/java -cp . #{manifest_file["Main-Class"]}"
+              'web' => ".java/bin/java -cp . #{manifest_file["Main-Class"]}#{stack_size}"
           }
       }.to_yaml
+    end
+
+    private
+
+    def stack_size
+      size = @jre_properties.stack_size
+      size.nil? ? '' : " -Xss#{size}"
     end
 
   end

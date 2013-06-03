@@ -34,7 +34,9 @@ module JavaBuildpack
     #   @return [String] the resolved JRE version based on user input
     # @!attribute [r] uri
     #   @return [String] the resolved JRE URI based on user input
-    attr_reader :id, :vendor, :version, :uri
+    # @!attribute [r] stack_size
+    #   @return [String, nil] the stack size specified by the user or nil if none was specified
+    attr_reader :id, :vendor, :version, :uri, :stack_size
 
     # Creates a new instance, passing in the application directory used during release
     #
@@ -43,6 +45,8 @@ module JavaBuildpack
       value_resolver = ValueResolver.new(app_dir)
       candidate_vendor = value_resolver.resolve(ENV_VAR_VENDOR, SYS_PROP_VENDOR)
       candidate_version = value_resolver.resolve(ENV_VAR_VERSION, SYS_PROP_VERSION)
+      @stack_size = value_resolver.resolve(ENV_VAR_STACK_SIZE, SYS_PROP_STACK_SIZE)
+      raise "Invalid stack size '#{@stack_size}': embedded whitespace" if @stack_size =~ /\s/
 
       vendors = load_vendors
       @vendor = VendorResolver.resolve(candidate_vendor, vendors.keys)
@@ -64,6 +68,8 @@ module JavaBuildpack
 
     ENV_VAR_VERSION = 'JAVA_RUNTIME_VERSION'
 
+    ENV_VAR_STACK_SIZE = 'JAVA_RUNTIME_STACK_SIZE'
+
     INDEX_PATH = '/index.yml'
 
     JRES_YAML_FILE = '../../config/jres.yml'
@@ -75,6 +81,8 @@ module JavaBuildpack
     SYS_PROP_VENDOR = 'java.runtime.vendor'
 
     SYS_PROP_VERSION = 'java.runtime.version'
+
+    SYS_PROP_STACK_SIZE = 'java.runtime.stack.size'
 
     def find_default_version(vendor_details)
       if vendor_details.is_a?(Hash) && vendor_details.has_key?(KEY_DEFAULT_VERSION)
