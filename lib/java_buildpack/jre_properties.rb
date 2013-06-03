@@ -63,7 +63,7 @@ module JavaBuildpack
 
     INDEX_PATH = '/index.yml'
 
-    JRES_YAML_FILE = 'config/jres.yml'
+    JRES_YAML_FILE = '../../config/jres.yml'
 
     KEY_DEFAULT_VERSION = 'default_version'
 
@@ -98,7 +98,7 @@ module JavaBuildpack
     end
 
     def load_vendors
-      YAML.load_file JRES_YAML_FILE
+      YAML.load_file(File.expand_path JRES_YAML_FILE, File.dirname(__FILE__))
     end
 
   end
