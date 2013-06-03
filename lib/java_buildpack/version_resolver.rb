@@ -102,6 +102,7 @@ module JavaBuildpack
         if s.nil? || s.empty?
           major_or_minor, tail = nil, nil
         else
+          raise "Invalid version '#{s}': must not end in '.'" if s[-1] == '.'
           tokens = s.match(/^([^\.]+)(?:\.(.*))?/)
 
           major_or_minor, tail = tokens[1..-1]
@@ -116,6 +117,7 @@ module JavaBuildpack
         if s.nil? || s.empty?
           micro, qualifier = nil, nil
         else
+          raise "Invalid version '#{s}': must not end in '_'" if s[-1] == '_'
           tokens = s.match(/^([^\_]+)(?:_(.*))?/)
 
           micro, qualifier = tokens[1..-1]

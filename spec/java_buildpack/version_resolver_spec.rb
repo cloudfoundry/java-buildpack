@@ -129,4 +129,10 @@ describe JavaBuildpack::VersionResolver do
     expect { JavaBuildpack::VersionResolver.resolve('1.6.0_25', ['+']) }.to raise_error
   end
 
+  it 'should raise an exception when a version ends with a component separator' do
+    expect { JavaBuildpack::VersionResolver.resolve('1.', ['1.']) }.to raise_error
+    expect { JavaBuildpack::VersionResolver.resolve('1.7.', ['1.7.']) }.to raise_error
+    expect { JavaBuildpack::VersionResolver.resolve('1.7.0_', ['1.7.0_']) }.to raise_error
+  end
+
 end
