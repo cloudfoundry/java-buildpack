@@ -3,30 +3,68 @@
 [![Dependency Status](https://gemnasium.com/cloudfoundry/java-buildpack.png)](http://gemnasium.com/cloudfoundry/java-buildpack)
 [![Code Climate](https://codeclimate.com/github/cloudfoundry/java-buildpack.png)](https://codeclimate.com/github/cloudfoundry/java-buildpack)
 
-`java-buildpack` is a [Cloud Foundry][cf] buildpack for running Java applications
+The `java-buildpack` is a [Cloud Foundry][cf] buildpack for running Java applications.  It is designed to run most Java applications with no additional configuration, but supports configuration of the standard components, and extension to add custom components.
 
 [cf]: http://www.cloudfoundry.com
 
-# Buildpack Users
-The buildpack allows you to configure the both the vendor and version of the Java runtime your application should use.  To configure these, you can put a `system.properties` file into your pushed artifact.
+* [Usage](#usage) ([Configuration](#config))
+* [Design](#design)
+* [Standard Components](#standard-components)
+	* [OpenJDK JRE](#openjdk) ([Configuration](#openjdk-config))
+	* [Java Main Class Container](#javamain) ([Configuration](#javamain-config))
+* [Extending](#extending)
+	* [JREs](#extending-jres)
+	* [Containers](#extending-containers)
 
-## `system.properties`
-If a `system.properties` file exists anywhere within your artifact's filesystem and the following properties have been set, they will be read and used to select the Java runtime for your application:
+---
 
-| Name | Description
-| ---- | -----------
-| `java.runtime.vendor` | The vendor of the Java runtime to use.  The legal values are defined by the keys in [`config/jres.yml`][jres_yml].
-| `java.runtime.version` | The version of the Java runtime to use.  The legal values are defined by the keys in [`index.yml`][index_yml]
-| `java.runtime.heap.size.maximum` | The Java maximum heap size to use. For example, a value of `64m` will result in the java command line option `-Xmx64m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-Xmx`.
-| `java.runtime.perm.gen.size.maximum` | The Java maximum PermGen size to use. For example, a value of `128m` will result in the java command line option `-XX:MaxPermSize=128m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-XX:MaxPermSize=`.
-| `java.runtime.stack.size` | The Java stack size to use. For example, a value of `256k` will result in the java command line option `-Xss256k`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-Xss`.
+# Usage
+To use this buildpack specify the URI of the repository when pushing an application to Cloud Foundry.
 
-An example `system.properties` file would to contain the following:
-```java
-java.runtime.vendor=openjdk
-java.runtime.version=1.7.0_21
+```bash
+cf push --buildpack https://github.com/cloudfoundry/java-buildpack
 ```
-## JRE Version Syntax and Ordering
+
+<a name='config'></a>
+## Configuration and Extension
+The buildpack supports configuration and extension through the use of Git repository forking.  The easiest way to accomplish this is to use [GitHub's forking functionality][fork] to create a copy of this repository.  In that copy of the repository, make the required configuration and extension changes.  Then when pushing a Cloud Foundry application, use the URL of the new repository.  If the modifications are applicable to the Cloud Foundry community, please submit a [pull request][pull-request] with the changes.
+
+[fork]: https://help.github.com/articles/fork-a-repo
+[pull-request]: https://help.github.com/articles/using-pull-requests
+
+### `system.properties`
+Components are configured by setting key-value pairs in a `system.properties` file.  The `system.properties` file can exist anywhere within the pushed artifact's file system.
+
+# Design
+The buildpack is designed as a collection of components.  These components are divided into three types; _JREs_, _Containers_, and _Frameworks_.
+
+### JRE Components
+JRE components represent the JRE that will be used when running an application.  This type of component is responsible for determining which JRE should be used, downloading and unpacking that JRE, and resolving any JRE-specific options that should be used at runtime.
+
+Only a single JRE component can be used to run an application.  If more than one JRE can be used, an error will be raised and application deployment will fail.  In this case, the `java.runtime.vendor` property in `system.properties` must be set to a value that will cause a single JRE component to be used.
+
+### Container Components
+Container components represent the way that an application will be run.  Container types range from traditional application servers and servlet containers to simple Java `main()` method execution.  This type of component is responsible for determining which container should be used, downloading and unpacking that container, and producing the command that will be executed by Cloud Foundry at runtime.
+
+Only a single container component can run an application.  If more than one container can be used, an error will be raised and application deployment will fail.
+
+### Framework Components
+Framework components represent additional behavior or transformations used when an application is run.  Framework types include the downloading of JDBC JARs for bound services and automatic reconfiguration of `DataSource`s in Spring configuration to match bound services.  This type of component is responsible for determining which frameworks are required, transforming the application, and contributing any additional options that should be used at runtime.
+
+Any number of framework components can be used when running an application.
+
+# Standard Components
+The buildpack contributes a number of standard components that enable most Java applications to run.
+
+<a name='openjdk'></a>
+## OpenJDK JRE
+**Criteria:** `java.runtime.vendor` set to `openjdk`
+
+The OpenJDK JRE provides Java runtimes from the [OpenJDK][openjdk] project.  Versions of Java from the 1.6, 1.7, and 1.8 lines are available.  If the version to use is not configured in `system.properties`, the latest version from the `1.7.0` line is chosen.
+
+[openjdk]: http://openjdk.java.net
+
+### JRE Version Syntax and Ordering
 JREs versions are composed of major, minor, micro, and optional qualifier parts (`<major>.<minor>.<micro>[_<qualifier>]`).  The major, minor, and micro parts must be numeric.  The qualifier part is composed of letters, digits, and hyphens.  The lexical ordering of the qualifier is:
 
 1. hyphen
@@ -34,7 +72,7 @@ JREs versions are composed of major, minor, micro, and optional qualifier parts 
 3. uppercase letters
 4. digits
 
-## JRE Version Wildcards
+### JRE Version Wildcards
 In addition to declaring a specific version of JRE to use, you can also specify a bounded range of JRES to use.  Appending the `+` symbol to a version prefix chooses the latest JRE that begins with the prefix.
 
 | Example | Description
@@ -43,51 +81,110 @@ In addition to declaring a specific version of JRE to use, you can also specify 
 | `1.7.+` 	| Selects the greatest available version less than `1.8.0`.
 | `1.7.0_+` | Selects the greatest available version less than `1.7.1`. Use this syntax to stay up to date with the latest security releases in a particular version.
 
-## Default JRE
-If the user does not specify a JRE vendor and version, a JRE is selected automatically.  The selection algorithm is as follows:
+<a name='openjdk-config'></a>
+### Configuration
+The OpenJDK JRE allows the configuration of the version of Java to use as well as the allocation of memory at runtime.
 
-1. If a single vendor is available, it is selected.  If zero or more than one vendor is available, the buildpack will fail.
-2. The latest version of JRE for the selected vendor is chosen.
+#### Version
 
-[jres_yml]: config/jres.yml
+| Name | Description
+| ---- | -----------
+| `java.runtime.version` | The version of Java runtime to use.  This value can either be an explicit version as found in [this listing][index_yml] or by using wildcards.
+
 [index_yml]: http://jres.gopivotal.com.s3.amazonaws.com/lucid/x86_64/openjdk/index.yml
 
+#### Memory
 
-# Buildpack Developers
-This buildpacks is designed to be extensible by other developers.  To this end, various bits of configuration are exposed that make it simple to add functionality.
+| Name | Description
+| ---- | -----------
+| `java.heap.size` | The Java maximum heap size to use. For example, a value of `64m` will result in the java command line option `-Xmx64m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-Xmx`.
+| `java.permgen.size` | The Java maximum PermGen size to use. For example, a value of `128m` will result in the java command line option `-XX:MaxPermSize=128m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-XX:MaxPermSize=`.
+| `java.stack.size` | The Java stack size to use. For example, a value of `256k` will result in the java command line option `-Xss256k`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-Xss`.
 
-## Adding JRES
-By default, this buildpack only allows users to choose from [OpenJDK][openjdk] JREs.  To allow users to choose a JRE from other vendors, these vendors must be specified in [`config/jres.yml`][jres_yml].  The file is [YAML][yaml] formatted  and in the simplest case is a mapping from a vendor name to a `String` repository root.
+<a name='javamain'></a>
+## Java Main Class Container
+**Criteria:** `Main-Class` attribute set in `META-INF/MANIFEST.MF` or `java.main.class` set
 
-```yaml
-<vendor name>: <JRE repository root URI>
+The Java Main Class Container allows applications that provide a class with a `main()` method in it to be run.  These applications are run with a command that looks like `./java/bin/java -cp . com.gopivotal.SampleClass`.
+
+<a name='javamain-config'></a>
+### Configuration
+
+| Name | Description
+| ---- | -----------
+| `java.main.class` | The Java class name to run. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line.  If not specified, the Java Manifest value of `Main-Class` is used.
+
+
+# Extending
+The buildpack is designed to be extended by specifying components in [`config/components.yml`][components_yml].  The values listed in this file correspond to Ruby class names that will be instantiated and called.  In order for these classes to be instantiated, the files containing them must be located in specific directories in the repository.
+
+[components_yml]: config/components.yml
+
+<a name='extending-jres'></a>
+## JREs
+To add a JRE, the class file must be located in [`lib/java_buildpack/jre`][jre_dir].  The class must have the following methods:
+
+[jre_dir]: lib/java_buildpack/jre
+
+```ruby
+# An initializer for the instance.
+#
+# @param [Hash<Symbol, String>] context A shared context provided to all components
+# @option context [String] :app_dir the directory that the application exists in
+# @option context [Array<String>] :java_opts an array that Java options can be added to
+# @option context [Hash] :system_properties the properties provided by the user
+def initialize(context = {})
+
+# Determines if the JRE can be used to run the application.
+#
+# @return [String, nil]  If the JRE can be used to run the application, a +String+ that uniquely identifies the JRE
+#                         (e.g. +jre-openjdk-1.7.0_21+).  Otherwise, +nil+.
+def detect
+
+# Downloads and unpacks the JRE.  The JRE is expected to be unpacked such that +JAVA_HOME+ is +.java+.  Status output
+# written to +STDOUT+ is expected as part of this invocation.
+#
+# @return [void]
+def compile
+
+# Adds any JRE-specific options to +context[:java_opts]+.  Typically this includes memory configuration (heap, perm gen,
+# etc.) but could be anything that a JRE needs to have configured.
+#
+# @return [void]
+def release
 ```
 
-When configured like this, if the user does not specify a version of the JRE to use, the latest possible version will be selected.  If a particular JRE should use a default that is not the latest (e.g. using `1.7.0_21` instead of `1.8.0_M7`), the default version can be specified by using a `Hash` instead of a `String` as the value.
+<a name='extending-containers'></a>
+## Containers
+To add a container, the class file must be located in [`lib/java_buildpack/container`][container_dir].  The class must have the following methods
 
-```yaml
-<vendor name>:
-  default_version: <default version pattern>
-  repository_root: <JRE repository root URI>
+[container_dir]: lib/java_buildpack/container
+
+```ruby
+# An initializer for the instance.
+#
+# @param [Hash<Symbol, String>] context A shared context provided to all components
+# @option context [String] :app_dir the directory that the application exists in
+# @option context [Array<String>] :java_opts an array that Java options can be added to
+# @option context [Hash] :system_properties the properties provided by the user
+def initialize(context = {})
+
+# Determines if the container can be used to run the application.
+#
+# @return [String, nil]  If the container can be used to run the application, a +String+ that uniquely identifies the
+#                         container (e.g. +tomcat-7.0.29+).  Otherwise, +nil+.
+def detect
+
+# Downloads and unpacks the container.  The container is expected to transform the application in whatever way
+# necessary (e.g. moving files or creating symbolic links) to run it.  Status output written to +STDOUT+ is expected as
+# part of this invocation.
+#
+# @return [void]
+def compile
+
+# Creates the command to run the application with.  The container is expected to read +context[:java_opts]+ and take
+# those values into account when creating the command.
+#
+# @return [String] the command to run the application with
+def release
 ```
-
-The JRE repository root must contain a `/index.yml` file ([example][index_yml]).  This file is also [YAML][yaml] formatted with the following syntax:
-
-```yaml
-<JRE version>: <path relative to JRE repository root>
-```
-
-The JRES uploaded to the repository must be gzipped TAR files and have no top-level directory ([example][example_jre]).
-
-An example filesystem might look like:
-
-```plain
-/index.yml
-/openjdk-1.6.0_27.tar.gz
-/openjdk-1.7.0_21.tar.gz
-/openjdk-1.8.0_M7.tar.gz
-```
-
-[openjdk]: http://openjdk.java.net
-[yaml]: http://www.yaml.org
-[example_jre]: http://jres.gopivotal.com.s3.amazonaws.com/lucid/x86_64/openjdk/openjdk-1.8.0_M7.tar.gz

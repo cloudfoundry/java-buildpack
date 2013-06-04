@@ -13,22 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'open3'
+require 'java_buildpack'
 
-describe 'release script' do
-
-  it 'should return non-zero if failure' do
-    Open3.popen3("bin/release spec/fixtures/integration_invalid_vendor") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to_not be_success
-      expect(stderr.read).to eq("Invalid JRE vendor 'sun'\n")
-    end
-  end
-
-  it 'should return zero if success' do
-    Open3.popen3("bin/release spec/fixtures/integration_valid") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to be_success
-    end
-  end
-
+# A module encapsulating all of the JRE selection code for the Java buildpack
+module JavaBuildpack::Jre
 end

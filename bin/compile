@@ -17,12 +17,12 @@
 $stdout.sync = true
 $:.unshift File.expand_path("../../lib", __FILE__)
 
-require 'java_buildpack/compile'
+require 'java_buildpack/buildpack'
 
 build_dir = ARGV[0]
 
 begin
-  JavaBuildpack::Compile.new(build_dir).run
+  JavaBuildpack::Buildpack.new(build_dir).compile
 rescue => e
   abort e.message
 end

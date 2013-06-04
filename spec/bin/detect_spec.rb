@@ -19,21 +19,21 @@ require 'open3'
 describe 'detect script' do
 
   it 'should return non-zero if vendor is invalid' do
-    Open3.popen3("bin/detect spec/fixtures/invalid_vendor") do |stdin, stdout, stderr, wait_thr|
+    Open3.popen3("bin/detect spec/fixtures/integration_invalid_vendor") do |stdin, stdout, stderr, wait_thr|
       expect(wait_thr.value).to_not be_success
       expect(stderr.read).to eq("Invalid JRE vendor 'sun'\n")
     end
   end
 
   it 'should return non-zero if version is invalid' do
-    Open3.popen3("bin/detect spec/fixtures/invalid_version") do |stdin, stdout, stderr, wait_thr|
+    Open3.popen3("bin/detect spec/fixtures/integration_invalid_version") do |stdin, stdout, stderr, wait_thr|
       expect(wait_thr.value).to_not be_success
       expect(stderr.read).to match(/^No version resolvable for '5' in /)
     end
   end
 
   it 'should return zero if success' do
-    Open3.popen3("bin/detect spec/fixtures/single_system_properties") do |stdin, stdout, stderr, wait_thr|
+    Open3.popen3("bin/detect spec/fixtures/integration_valid") do |stdin, stdout, stderr, wait_thr|
       expect(wait_thr.value).to be_success
     end
   end

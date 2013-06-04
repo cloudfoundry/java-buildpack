@@ -14,21 +14,22 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'open3'
+require 'java_buildpack/util/properties'
 
-describe 'release script' do
+module JavaBuildpack::Util
 
-  it 'should return non-zero if failure' do
-    Open3.popen3("bin/release spec/fixtures/integration_invalid_vendor") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to_not be_success
-      expect(stderr.read).to eq("Invalid JRE vendor 'sun'\n")
+  describe Properties do
+
+    let(:properties) { Properties.new('spec/fixtures/test.properties') }
+
+    it 'should parse properties' do
+      expect(properties['alpha']).to eq('bravo')
+      expect(properties['charlie']).to eq('delta')
+      expect(properties['echo']).to eq('foxtrot')
+      expect(properties['golf']).to eq('')
+      expect(properties['Main-Class']).to eq('com.gopivotal.SimpleJava')
     end
-  end
 
-  it 'should return zero if success' do
-    Open3.popen3("bin/release spec/fixtures/integration_valid") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to be_success
-    end
   end
 
 end
