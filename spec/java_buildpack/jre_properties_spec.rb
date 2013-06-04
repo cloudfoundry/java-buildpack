@@ -39,10 +39,15 @@ describe JavaBuildpack::JreProperties do
 
   INVALID_STACK_SIZE = '128k -Xint'
 
+  HEAP_SIZE = '64m'
+
+  INVALID_HEAP_SIZE = '64m -Xint'
+
   it 'returns the resolved id, vendor, version, and uri from uri-only vendor details' do
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_VENDOR', 'java.runtime.vendor').and_return(CANDIDATE_VENDOR)
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_VERSION', 'java.runtime.version').and_return(CANDIDATE_VERSION)
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_STACK_SIZE', 'java.runtime.stack.size').and_return(nil)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_HEAP_SIZE_MAXIMUM', 'java.runtime.heap.size.maximum').and_return(nil)
     YAML.stub(:load_file).with(File.expand_path 'config/jres.yml').and_return(RESOLVED_VENDOR => RESOLVED_ROOT)
     JavaBuildpack::VendorResolver.stub(:resolve).with(CANDIDATE_VENDOR, [RESOLVED_VENDOR]).and_return(RESOLVED_VENDOR)
     JavaBuildpack::JreProperties.any_instance.stub(:open).with("#{RESOLVED_ROOT}/index.yml").and_return(File.open('spec/fixtures/test-index.yml'))
@@ -60,6 +65,7 @@ it 'returns the resolved id, vendor, version, and uri from extended vendor detai
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_VENDOR', 'java.runtime.vendor').and_return(CANDIDATE_VENDOR)
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_VERSION', 'java.runtime.version').and_return(CANDIDATE_VERSION)
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_STACK_SIZE', 'java.runtime.stack.size').and_return(nil)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_HEAP_SIZE_MAXIMUM', 'java.runtime.heap.size.maximum').and_return(nil)
     YAML.stub(:load_file).with(File.expand_path 'config/jres.yml').and_return(RESOLVED_VENDOR => {'default_version' => DEFAULT_VERSION, 'repository_root' => RESOLVED_ROOT})
     JavaBuildpack::VendorResolver.stub(:resolve).with(CANDIDATE_VENDOR, [RESOLVED_VENDOR]).and_return(RESOLVED_VENDOR)
     JavaBuildpack::JreProperties.any_instance.stub(:open).with("#{RESOLVED_ROOT}/index.yml").and_return(File.open('spec/fixtures/test-index.yml'))
@@ -86,6 +92,7 @@ it 'returns the resolved id, vendor, version, and uri from extended vendor detai
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).and_return(CANDIDATE_VENDOR)
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).and_return(CANDIDATE_VERSION)
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_STACK_SIZE', 'java.runtime.stack.size').and_return(STACK_SIZE)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_HEAP_SIZE_MAXIMUM', 'java.runtime.heap.size.maximum').and_return(nil)
     YAML.stub(:load_file).and_return(RESOLVED_VENDOR => {'default_version' => DEFAULT_VERSION, 'repository_root' => RESOLVED_ROOT})
     JavaBuildpack::VendorResolver.stub(:resolve).and_return(RESOLVED_VENDOR)
     JavaBuildpack::JreProperties.any_instance.stub(:open).and_return(File.open('spec/fixtures/test-index.yml'))
@@ -100,6 +107,7 @@ it 'returns the resolved id, vendor, version, and uri from extended vendor detai
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).and_return(CANDIDATE_VENDOR)
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).and_return(CANDIDATE_VERSION)
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_STACK_SIZE', 'java.runtime.stack.size').and_return(nil)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_HEAP_SIZE_MAXIMUM', 'java.runtime.heap.size.maximum').and_return(nil)
     YAML.stub(:load_file).and_return(RESOLVED_VENDOR => {'default_version' => DEFAULT_VERSION, 'repository_root' => RESOLVED_ROOT})
     JavaBuildpack::VendorResolver.stub(:resolve).and_return(RESOLVED_VENDOR)
     JavaBuildpack::JreProperties.any_instance.stub(:open).and_return(File.open('spec/fixtures/test-index.yml'))
@@ -114,6 +122,50 @@ it 'returns the resolved id, vendor, version, and uri from extended vendor detai
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).and_return(CANDIDATE_VENDOR)
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).and_return(CANDIDATE_VERSION)
     JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_STACK_SIZE', 'java.runtime.stack.size').and_return(INVALID_STACK_SIZE)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_HEAP_SIZE_MAXIMUM', 'java.runtime.heap.size.maximum').and_return(nil)
+    YAML.stub(:load_file).and_return(RESOLVED_VENDOR => {'default_version' => DEFAULT_VERSION, 'repository_root' => RESOLVED_ROOT})
+    JavaBuildpack::VendorResolver.stub(:resolve).and_return(RESOLVED_VENDOR)
+    JavaBuildpack::JreProperties.any_instance.stub(:open).and_return(File.open('spec/fixtures/test-index.yml'))
+    JavaBuildpack::VersionResolver.stub(:resolve).and_return(RESOLVED_VERSION)
+
+    expect { JavaBuildpack::JreProperties.new('spec/fixtures/no_system_properties')}.to raise_error
+  end
+
+  it 'returns the resolved maximum heap size' do
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).and_return(CANDIDATE_VENDOR)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).and_return(CANDIDATE_VERSION)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_STACK_SIZE', 'java.runtime.stack.size').and_return(nil)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_HEAP_SIZE_MAXIMUM', 'java.runtime.heap.size.maximum').and_return(HEAP_SIZE)
+    YAML.stub(:load_file).and_return(RESOLVED_VENDOR => {'default_version' => DEFAULT_VERSION, 'repository_root' => RESOLVED_ROOT})
+    JavaBuildpack::VendorResolver.stub(:resolve).and_return(RESOLVED_VENDOR)
+    JavaBuildpack::JreProperties.any_instance.stub(:open).and_return(File.open('spec/fixtures/test-index.yml'))
+    JavaBuildpack::VersionResolver.stub(:resolve).and_return(RESOLVED_VERSION)
+
+    jre_properties = JavaBuildpack::JreProperties.new('spec/fixtures/no_system_properties')
+
+    expect(jre_properties.heap_size_maximum).to eq(HEAP_SIZE)
+  end
+
+  it 'returns a nil maximum heap size when maximum heap size is not specified' do
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).and_return(CANDIDATE_VENDOR)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).and_return(CANDIDATE_VERSION)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_STACK_SIZE', 'java.runtime.stack.size').and_return(nil)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_HEAP_SIZE_MAXIMUM', 'java.runtime.heap.size.maximum').and_return(nil)
+    YAML.stub(:load_file).and_return(RESOLVED_VENDOR => {'default_version' => DEFAULT_VERSION, 'repository_root' => RESOLVED_ROOT})
+    JavaBuildpack::VendorResolver.stub(:resolve).and_return(RESOLVED_VENDOR)
+    JavaBuildpack::JreProperties.any_instance.stub(:open).and_return(File.open('spec/fixtures/test-index.yml'))
+    JavaBuildpack::VersionResolver.stub(:resolve).and_return(RESOLVED_VERSION)
+
+    jre_properties = JavaBuildpack::JreProperties.new('spec/fixtures/no_system_properties')
+
+    expect(jre_properties.heap_size_maximum).to be_nil
+  end
+
+  it 'raises an error when the resolved maximum heap size is invalid' do
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).and_return(CANDIDATE_VENDOR)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).and_return(CANDIDATE_VERSION)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_STACK_SIZE', 'java.runtime.stack.size').and_return(nil)
+    JavaBuildpack::ValueResolver.any_instance.stub(:resolve).with('JAVA_RUNTIME_HEAP_SIZE_MAXIMUM', 'java.runtime.heap.size.maximum').and_return(INVALID_HEAP_SIZE)
     YAML.stub(:load_file).and_return(RESOLVED_VENDOR => {'default_version' => DEFAULT_VERSION, 'repository_root' => RESOLVED_ROOT})
     JavaBuildpack::VendorResolver.stub(:resolve).and_return(RESOLVED_VENDOR)
     JavaBuildpack::JreProperties.any_instance.stub(:open).and_return(File.open('spec/fixtures/test-index.yml'))

@@ -19,7 +19,7 @@ require 'yaml'
 describe JavaBuildpack::Release do
 
   it 'should return the execution command payload' do
-    jre_selector = double('JreSelector', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri', :stack_size => nil)
+    jre_selector = double('JreSelector', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri', :stack_size => nil, :heap_size_maximum => nil)
     JavaBuildpack::JreProperties.stub(:new).with('spec/fixtures/no_system_properties').and_return(jre_selector)
 
     payload = JavaBuildpack::Release.new('spec/fixtures/no_system_properties').run
@@ -33,7 +33,7 @@ describe JavaBuildpack::Release do
   end
 
   it 'should include specified options' do
-    jre_selector = double('JreSelector', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri', :stack_size => '128k')
+    jre_selector = double('JreSelector', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri', :stack_size => '128k', :heap_size_maximum => '64m')
     JavaBuildpack::JreProperties.stub(:new).with('spec/fixtures/java_options').and_return(jre_selector)
 
     payload = JavaBuildpack::Release.new('spec/fixtures/java_options').run
@@ -41,7 +41,7 @@ describe JavaBuildpack::Release do
                               'addons' => [],
                               'config_vars' => {},
                               'default_process_types' => {
-                                  'web' => '.java/bin/java -cp . com.gopivotal.SimpleJava -Xss128k'
+                                  'web' => '.java/bin/java -cp . com.gopivotal.SimpleJava -Xss128k -Xmx=64m'
                               }
                           }.to_yaml)
   end
