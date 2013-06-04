@@ -18,19 +18,32 @@ require 'yaml'
 
 describe JavaBuildpack::Release do
 
-  let(:jre_selector) { double('JreSelector', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri') }
-
   it 'should return the execution command payload' do
+    jre_selector = double('JreSelector', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri', :stack_size => nil)
     JavaBuildpack::JreProperties.stub(:new).with('spec/fixtures/no_system_properties').and_return(jre_selector)
 
     payload = JavaBuildpack::Release.new('spec/fixtures/no_system_properties').run
     expect(payload).to eq({
-      'addons' => [],
-      'config_vars' => {},
-      'default_process_types' => {
-        'web' => '.java/bin/java -cp . com.gopivotal.SimpleJava'
-      }
-    }.to_yaml)
+                              'addons' => [],
+                              'config_vars' => {},
+                              'default_process_types' => {
+                                  'web' => '.java/bin/java -cp . com.gopivotal.SimpleJava'
+                              }
+                          }.to_yaml)
+  end
+
+  it 'should include specified options' do
+    jre_selector = double('JreSelector', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri', :stack_size => '128k')
+    JavaBuildpack::JreProperties.stub(:new).with('spec/fixtures/java_options').and_return(jre_selector)
+
+    payload = JavaBuildpack::Release.new('spec/fixtures/java_options').run
+    expect(payload).to eq({
+                              'addons' => [],
+                              'config_vars' => {},
+                              'default_process_types' => {
+                                  'web' => '.java/bin/java -cp . com.gopivotal.SimpleJava -Xss128k'
+                              }
+                          }.to_yaml)
   end
 
 end
