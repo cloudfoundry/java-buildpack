@@ -67,21 +67,24 @@ module JavaBuildpack
     SYS_PROP_STACK_SIZE = 'java.runtime.stack.size'
 
     def resolve_heap_size_maximum(value_resolver)
-      heap_size_maximum = value_resolver.resolve(ENV_VAR_HEAP_SIZE_MAXIMUM, SYS_PROP_HEAP_SIZE_MAXIMUM)
-      raise "Invalid maximum heap size '#{heap_size_maximum}': embedded whitespace" if heap_size_maximum =~ /\s/
-      heap_size_maximum.nil? ? nil : "-Xmx#{heap_size_maximum}"
+      resolve value_resolver, ENV_VAR_HEAP_SIZE_MAXIMUM, SYS_PROP_HEAP_SIZE_MAXIMUM,
+        'Invalid maximum heap size \'%s\': embedded whitespace', '-Xmx%s'
     end
 
     def resolve_perm_gen_size_maximum(value_resolver)
-      perm_gen_size_maximum = value_resolver.resolve(ENV_VAR_PERM_GEN_SIZE_MAXIMUM, SYS_PROP_PERM_GEN_SIZE_MAXIMUM)
-      raise "Invalid maximum PermGen size '#{perm_gen_size_maximum}': embedded whitespace" if perm_gen_size_maximum =~ /\s/
-      perm_gen_size_maximum.nil? ? nil : "-XX:MaxPermSize=#{perm_gen_size_maximum}"
+      resolve value_resolver, ENV_VAR_PERM_GEN_SIZE_MAXIMUM, SYS_PROP_PERM_GEN_SIZE_MAXIMUM,
+        'Invalid maximum PermGen size \'%s\': embedded whitespace', '-XX:MaxPermSize=%s'
     end
 
     def resolve_stack_size(value_resolver)
-      stack_size = value_resolver.resolve(ENV_VAR_STACK_SIZE, SYS_PROP_STACK_SIZE)
-      raise "Invalid stack size '#{stack_size}': embedded whitespace" if stack_size =~ /\s/
-      stack_size.nil? ? nil : "-Xss#{stack_size}"
+      resolve value_resolver, ENV_VAR_STACK_SIZE, SYS_PROP_STACK_SIZE,
+        'Invalid stack size \'%s\': embedded whitespace', '-Xss%s'
+    end
+
+    def resolve(value_resolver, env_var, sys_prop, whitespace_message_pattern, value_pattern)
+      value = value_resolver.resolve(env_var, sys_prop)
+      raise whitespace_message_pattern % value if value =~ /\s/
+      value.nil? ? nil : value_pattern % value
     end
 
   end
