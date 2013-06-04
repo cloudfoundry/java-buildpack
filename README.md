@@ -17,8 +17,9 @@ If a `system.properties` file exists anywhere within your artifact's filesystem 
 | ---- | -----------
 | `java.runtime.vendor` | The vendor of the Java runtime to use.  The legal values are defined by the keys in [`config/jres.yml`][jres_yml].
 | `java.runtime.version` | The version of the Java runtime to use.  The legal values are defined by the keys in [`index.yml`][index_yml]
-| `java.runtime.stack.size` | The Java stack size to use. For example, a value of 256k will result in the java command line option -Xss256k. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to -Xss.
-| `java.runtime.heap.size.maximum` | The Java maximum heap size to use. For example, a value of 64m will result in the java command line option -Xmx64m. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to -Xmx.
+| `java.runtime.heap.size.maximum` | The Java maximum heap size to use. For example, a value of `64m` will result in the java command line option `-Xmx64m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-Xmx`.
+| `java.runtime.perm.gen.size.maximum` | The Java maximum PermGen size to use. For example, a value of `128m` will result in the java command line option `-XX:MaxPermSize=128m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-XX:MaxPermSize=`.
+| `java.runtime.stack.size` | The Java stack size to use. For example, a value of `256k` will result in the java command line option `-Xss256k`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-Xss`.
 
 An example `system.properties` file would to contain the following:
 ```java

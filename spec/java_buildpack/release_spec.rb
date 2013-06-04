@@ -18,30 +18,35 @@ require 'yaml'
 
 describe JavaBuildpack::Release do
 
+  let(:java_opts) { double('JavaOpts') }
+  let(:jre_selector) { double('JreSelector', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri') }
+
   it 'should return the execution command payload' do
-    jre_selector = double('JreSelector', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri', :stack_size => nil, :heap_size_maximum => nil)
+    JavaBuildpack::JavaOpts.stub(:new).with('spec/fixtures/no_system_properties').and_return(java_opts)
     JavaBuildpack::JreProperties.stub(:new).with('spec/fixtures/no_system_properties').and_return(jre_selector)
+    java_opts.stub(:to_s).and_return('')
 
     payload = JavaBuildpack::Release.new('spec/fixtures/no_system_properties').run
     expect(payload).to eq({
                               'addons' => [],
                               'config_vars' => {},
                               'default_process_types' => {
-                                  'web' => '.java/bin/java -cp . com.gopivotal.SimpleJava'
+                                  'web' => '.java/bin/java -cp .  com.gopivotal.SimpleJava'
                               }
                           }.to_yaml)
   end
 
   it 'should include specified options' do
-    jre_selector = double('JreSelector', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri', :stack_size => '128k', :heap_size_maximum => '64m')
-    JavaBuildpack::JreProperties.stub(:new).with('spec/fixtures/java_options').and_return(jre_selector)
+    JavaBuildpack::JavaOpts.stub(:new).with('spec/fixtures/no_system_properties').and_return(java_opts)
+    JavaBuildpack::JreProperties.stub(:new).with('spec/fixtures/no_system_properties').and_return(jre_selector)
+    java_opts.stub(:to_s).and_return('-XJavaOpt')
 
-    payload = JavaBuildpack::Release.new('spec/fixtures/java_options').run
+    payload = JavaBuildpack::Release.new('spec/fixtures/no_system_properties').run
     expect(payload).to eq({
                               'addons' => [],
                               'config_vars' => {},
                               'default_process_types' => {
-                                  'web' => '.java/bin/java -cp . com.gopivotal.SimpleJava -Xss128k -Xmx64m'
+                                  'web' => '.java/bin/java -cp . -XJavaOpt com.gopivotal.SimpleJava'
                               }
                           }.to_yaml)
   end
