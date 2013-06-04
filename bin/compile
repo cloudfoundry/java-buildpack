@@ -20,10 +20,9 @@ $:.unshift File.expand_path("../../lib", __FILE__)
 require 'java_buildpack/compile'
 
 build_dir = ARGV[0]
-cache_dir = ARGV[1]
 
 begin
-  JavaBuildpack::Compile.new(build_dir, cache_dir).run
+  JavaBuildpack::Compile.new(build_dir).run
 rescue => e
   abort e.message
 end

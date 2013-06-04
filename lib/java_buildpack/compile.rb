@@ -28,8 +28,7 @@ module JavaBuildpack
     # compilation
     #
     # @param [String] app_dir The application directory used during compilation
-    # @param [String] app_cache_dir The application cache directory used during compilation
-    def initialize(app_dir, app_cache_dir)
+    def initialize(app_dir)
       @app_dir = app_dir
       @application_cache = ApplicationCache.new
       @jre_properties = JreProperties.new(app_dir)
