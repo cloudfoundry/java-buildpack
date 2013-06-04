@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/java_opts'
 require 'java_buildpack/jre_properties'
 require 'yaml'
 
@@ -26,7 +27,7 @@ module JavaBuildpack
     # @param [String] app_dir The application directory used during release
     def initialize(app_dir)
       @app_dir = app_dir
-
+      @java_opts = JavaOpts.new(app_dir)
       @jre_properties = JreProperties.new(app_dir)
     end
 
@@ -41,21 +42,9 @@ module JavaBuildpack
           'addons' => [],
           'config_vars' => {},
           'default_process_types' => {
-              'web' => ".java/bin/java -cp . #{manifest_file["Main-Class"]}#{stack_size}#{heap_size_maximum}"
+              'web' => ".java/bin/java -cp . #{@java_opts} #{manifest_file["Main-Class"]}"
           }
       }.to_yaml
-    end
-
-    private
-
-    def stack_size
-      size = @jre_properties.stack_size
-      size.nil? ? '' : " -Xss#{size}"
-    end
-
-    def heap_size_maximum
-      size = @jre_properties.heap_size_maximum
-      size.nil? ? '' : " -Xmx#{size}"
     end
 
   end

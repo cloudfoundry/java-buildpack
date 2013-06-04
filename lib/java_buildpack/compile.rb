@@ -64,9 +64,5 @@ module JavaBuildpack
       puts "(#{(Time.now - expand_start_time).duration})"
     end
 
-    def expand_tar(file, java_home)
-
-    end
-
   end
 end
