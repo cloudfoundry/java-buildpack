@@ -41,7 +41,7 @@ describe JavaBuildpack::Release do
                               'addons' => [],
                               'config_vars' => {},
                               'default_process_types' => {
-                                  'web' => '.java/bin/java -cp . com.gopivotal.SimpleJava -Xss128k -Xmx=64m'
+                                  'web' => '.java/bin/java -cp . com.gopivotal.SimpleJava -Xss128k -Xmx64m'
                               }
                           }.to_yaml)
   end
