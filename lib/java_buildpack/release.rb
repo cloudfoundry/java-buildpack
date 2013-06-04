@@ -41,7 +41,7 @@ module JavaBuildpack
           'addons' => [],
           'config_vars' => {},
           'default_process_types' => {
-              'web' => ".java/bin/java -cp . #{manifest_file["Main-Class"]}#{stack_size}"
+              'web' => ".java/bin/java -cp . #{manifest_file["Main-Class"]}#{stack_size}#{heap_size_maximum}"
           }
       }.to_yaml
     end
@@ -51,6 +51,11 @@ module JavaBuildpack
     def stack_size
       size = @jre_properties.stack_size
       size.nil? ? '' : " -Xss#{size}"
+    end
+
+    def heap_size_maximum
+      size = @jre_properties.heap_size_maximum
+      size.nil? ? '' : " -Xmx=#{size}"
     end
 
   end

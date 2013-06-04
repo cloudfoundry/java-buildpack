@@ -36,7 +36,9 @@ module JavaBuildpack
     #   @return [String] the resolved JRE URI based on user input
     # @!attribute [r] stack_size
     #   @return [String, nil] the stack size specified by the user or nil if none was specified
-    attr_reader :id, :vendor, :version, :uri, :stack_size
+    # @!attribute [r] heap_size_maximum
+    #   @return [String, nil] the maximum heap size specified by the user or nil if none was specified
+    attr_reader :id, :vendor, :version, :uri, :stack_size, :heap_size_maximum
 
     # Creates a new instance, passing in the application directory used during release
     #
@@ -47,6 +49,8 @@ module JavaBuildpack
       candidate_version = value_resolver.resolve(ENV_VAR_VERSION, SYS_PROP_VERSION)
       @stack_size = value_resolver.resolve(ENV_VAR_STACK_SIZE, SYS_PROP_STACK_SIZE)
       raise "Invalid stack size '#{@stack_size}': embedded whitespace" if @stack_size =~ /\s/
+      @heap_size_maximum = value_resolver.resolve(ENV_VAR_HEAP_SIZE_MAXIMUM, SYS_PROP_HEAP_SIZE_MAXIMUM)
+      raise "Invalid maximum heap size '#{@heap_size_maximum}': embedded whitespace" if @heap_size_maximum =~ /\s/
 
       vendors = load_vendors
       @vendor = VendorResolver.resolve(candidate_vendor, vendors.keys)
@@ -70,6 +74,8 @@ module JavaBuildpack
 
     ENV_VAR_STACK_SIZE = 'JAVA_RUNTIME_STACK_SIZE'
 
+    ENV_VAR_HEAP_SIZE_MAXIMUM = 'JAVA_RUNTIME_HEAP_SIZE_MAXIMUM'
+
     INDEX_PATH = '/index.yml'
 
     JRES_YAML_FILE = '../../config/jres.yml'
@@ -83,6 +89,8 @@ module JavaBuildpack
     SYS_PROP_VERSION = 'java.runtime.version'
 
     SYS_PROP_STACK_SIZE = 'java.runtime.stack.size'
+
+    SYS_PROP_HEAP_SIZE_MAXIMUM = 'java.runtime.heap.size.maximum'
 
     def find_default_version(vendor_details)
       if vendor_details.is_a?(Hash) && vendor_details.has_key?(KEY_DEFAULT_VERSION)
