@@ -55,7 +55,7 @@ module JavaBuildpack
 
     def heap_size_maximum
       size = @jre_properties.heap_size_maximum
-      size.nil? ? '' : " -Xmx=#{size}"
+      size.nil? ? '' : " -Xmx#{size}"
     end
 
   end
