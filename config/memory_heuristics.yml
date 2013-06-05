@@ -20,4 +20,5 @@
 ---
 heap: 0.5
 permgen: 0.3
-native: 0.2
+stack: 0.1
+native: 0.1
