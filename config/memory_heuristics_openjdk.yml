@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for MemoryHeuristics.
+# Configuration for WeightBalancingMemoryHeuristic.
 #
-# Each weighting is a decimal fraction between 0 and 1 and is used, except in the case of 'native', to calculate the
-# corresponding default memory size. The sum of the weightings must not exceed 1.
+# Each weighting is a positive decimal fraction less than 1 and is used to indicate the relative amount of memory that
+# should be allotted to the corresponding memory category. The sum of the weightings must not exceed 1.
 ---
 heap: 0.5
-permgen: 0.3
+metaspace: 0.3
 stack: 0.1
 native: 0.1

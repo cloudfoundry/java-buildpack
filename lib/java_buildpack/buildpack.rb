@@ -109,7 +109,7 @@ module JavaBuildpack
       component_files.concat jre_directory.children
 
       component_files.each do |file|
-        require file.relative_path_from(root_directory)
+        require file.relative_path_from(root_directory) unless file.directory?
       end
     end
 
