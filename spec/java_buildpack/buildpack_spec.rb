@@ -27,12 +27,12 @@ module JavaBuildpack
     let(:stub_container2) { double('StubContainer2') }
     let(:stub_jre1) { double('StubJre1', :detect => 'stub-jre-1') }
     let(:stub_jre2) { double('StubJre2', :detect => 'stub-jre-2') }
-    let(:system_properties) { double('SystemProperties') }
+    let(:configuration) { double('SystemProperties') }
 
      it 'should raise an error if more than one container can run an application' do
       YAML.stub(:load_file).with(File.expand_path('config/components.yml'))
         .and_return('containers' => ['Test::StubContainer1', 'Test::StubContainer2'], 'jres' => ['Test::StubJre1'])
-      SystemProperties.stub(:new).with(APP_DIR).and_return(system_properties)
+      SystemProperties.stub(:new).with(APP_DIR).and_return(configuration)
       Test::StubContainer1.stub(:new).and_return(stub_container1)
       Test::StubContainer2.stub(:new).and_return(stub_container2)
       Test::StubJre1.stub(:new).and_return(stub_jre1)
@@ -45,7 +45,7 @@ module JavaBuildpack
     it 'should return no detections if no container can run an application' do
       YAML.stub(:load_file).with(File.expand_path('config/components.yml'))
         .and_return('containers' => ['Test::StubContainer1'], 'jres' => ['Test::StubJre1'])
-      SystemProperties.stub(:new).with(APP_DIR).and_return(system_properties)
+      SystemProperties.stub(:new).with(APP_DIR).and_return(configuration)
       Test::StubContainer1.stub(:new).and_return(stub_container1)
       Test::StubJre1.stub(:new).and_return(stub_jre1)
       stub_container1.stub(:detect).and_return(nil)
@@ -57,7 +57,7 @@ module JavaBuildpack
     it 'should raise an error if more than one JRE can run an application' do
       YAML.stub(:load_file).with(File.expand_path('config/components.yml'))
         .and_return('containers' => ['Test::StubContainer1'], 'jres' => ['Test::StubJre1', 'Test::StubJre2'])
-      SystemProperties.stub(:new).with(APP_DIR).and_return(system_properties)
+      SystemProperties.stub(:new).with(APP_DIR).and_return(configuration)
       Test::StubContainer1.stub(:new).and_return(stub_container1)
       Test::StubJre1.stub(:new).and_return(stub_jre1)
       Test::StubJre2.stub(:new).and_return(stub_jre2)
@@ -70,7 +70,7 @@ module JavaBuildpack
     it 'should call compile on matched components' do
       YAML.stub(:load_file).with(File.expand_path('config/components.yml'))
         .and_return('containers' => ['Test::StubContainer1', 'Test::StubContainer2'], 'jres' => ['Test::StubJre1'])
-      SystemProperties.stub(:new).with(APP_DIR).and_return(system_properties)
+      SystemProperties.stub(:new).with(APP_DIR).and_return(configuration)
       Test::StubContainer1.stub(:new).and_return(stub_container1)
       Test::StubContainer2.stub(:new).and_return(stub_container2)
       Test::StubJre1.stub(:new).and_return(stub_jre1)
@@ -87,7 +87,7 @@ module JavaBuildpack
     it 'should call release on matched components' do
       YAML.stub(:load_file).with(File.expand_path('config/components.yml'))
         .and_return('containers' => ['Test::StubContainer1', 'Test::StubContainer2'], 'jres' => ['Test::StubJre1'])
-      SystemProperties.stub(:new).with(APP_DIR).and_return(system_properties)
+      SystemProperties.stub(:new).with(APP_DIR).and_return(configuration)
       Test::StubContainer1.stub(:new).and_return(stub_container1)
       Test::StubContainer2.stub(:new).and_return(stub_container2)
       Test::StubJre1.stub(:new).and_return(stub_jre1)

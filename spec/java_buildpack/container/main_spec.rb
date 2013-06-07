@@ -23,7 +23,7 @@ module JavaBuildpack::Container
     it 'should detect with main class system property' do
       detected = Main.new(
         :app_dir => 'spec/fixtures/container_none',
-        :system_properties => { 'java.main.class' => 'test-java-main-class' }).detect
+        :configuration => { 'java.main.class' => 'test-java-main-class' }).detect
 
       expect(detected).to be_true
     end
@@ -31,7 +31,7 @@ module JavaBuildpack::Container
     it 'should detect with main class manifest entry' do
       detected = Main.new(
         :app_dir => 'spec/fixtures/container_main',
-        :system_properties => { }).detect
+        :configuration => { }).detect
 
       expect(detected).to be_true
     end
@@ -39,7 +39,7 @@ module JavaBuildpack::Container
     it 'should not detect without main class manifest entry' do
       detected = Main.new(
         :app_dir => 'spec/fixtures/container_main_no_main_class',
-        :system_properties => { }).detect
+        :configuration => { }).detect
 
       expect(detected).to be_false
     end
@@ -47,7 +47,7 @@ module JavaBuildpack::Container
     it 'should not detect without manifest' do
       detected = Main.new(
         :app_dir => 'spec/fixtures/container_main_none',
-        :system_properties => { }).detect
+        :configuration => { }).detect
 
       expect(detected).to be_false
     end
@@ -55,7 +55,7 @@ module JavaBuildpack::Container
     it 'should not detect without manifest' do
       command = Main.new(
         :java_opts => [ 'test-opt-2', 'test-opt-1' ],
-        :system_properties => { 'java.main.class' => 'test-java-main-class' }).release
+        :configuration => { 'java.main.class' => 'test-java-main-class' }).release
 
       expect(command).to eq('.java/bin/java -cp . test-opt-1 test-opt-2 test-java-main-class')
     end

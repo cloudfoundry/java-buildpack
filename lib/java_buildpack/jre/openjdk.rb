@@ -28,12 +28,12 @@ module JavaBuildpack::Jre
     # @param [Hash] context the context that is provided to the instance
     # @option context [String] :app_dir the directory that the application exists in
     # @option context [Array<String>] :java_opts an array that Java options can be added to
-    # @option context [JavaBuildpack::Util::Properties] :system_properties the properties provided by the user
+    # @option context [Hash] :configuration the properties provided by the user
     def initialize(context = {})
       @app_dir = context[:app_dir]
       @java_opts = context[:java_opts]
-      @system_properties = context[:system_properties]
-      @details = Details.new(@system_properties)
+      @configuration = context[:configuration]
+      @details = Details.new(@configuration)
     end
 
     # Detects which version of Java this application should use.  *NOTE:* This method will always return _some_ value,
@@ -95,7 +95,7 @@ module JavaBuildpack::Jre
     end
 
     def resolve(key, whitespace_message_pattern, value_pattern)
-      value = @system_properties[key]
+      value = @configuration[key]
       raise whitespace_message_pattern % value if value =~ /\s/
       value.nil? ? nil : value_pattern % value
     end
