@@ -57,4 +57,5 @@ class Numeric
   MINUTE = (60 * SECOND).freeze
 
   HOUR = (60 * MINUTE).freeze
+
 end

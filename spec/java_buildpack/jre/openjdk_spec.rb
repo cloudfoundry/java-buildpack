@@ -67,7 +67,7 @@ module JavaBuildpack::Jre
       Details.stub(:new).and_return(details)
 
       java_opts = []
-      OpenJdk.new(:java_opts => java_opts, :system_properties => { 'java.heap.size' => HEAP_SIZE }).release
+      OpenJdk.new(:java_opts => java_opts, :configuration => { 'java.heap.size' => HEAP_SIZE }).release
 
       expect(java_opts[0]).to eq("-Xmx#{HEAP_SIZE}")
     end
@@ -76,7 +76,7 @@ module JavaBuildpack::Jre
       Details.stub(:new).and_return(details)
 
       java_opts = []
-      OpenJdk.new(:java_opts => java_opts, :system_properties => {}).release
+      OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
       expect(java_opts[0]).to be_nil
     end
@@ -85,14 +85,14 @@ module JavaBuildpack::Jre
       Details.stub(:new).and_return(details)
 
       java_opts = []
-      expect { OpenJdk.new(:java_opts => java_opts, :system_properties => { 'java.heap.size' => INVALID_HEAP_SIZE }).release}.to raise_error
+      expect { OpenJdk.new(:java_opts => java_opts, :configuration => { 'java.heap.size' => INVALID_HEAP_SIZE }).release}.to raise_error
     end
 
     it 'adds the resolved permgen size to java_opts' do
       Details.stub(:new).and_return(details)
 
       java_opts = []
-      OpenJdk.new(:java_opts => java_opts, :system_properties => { 'java.permgen.size' => PERMGEN_SIZE }).release
+      OpenJdk.new(:java_opts => java_opts, :configuration => { 'java.permgen.size' => PERMGEN_SIZE }).release
 
       expect(java_opts[1]).to eq("-XX:MaxPermSize=#{PERMGEN_SIZE}")
     end
@@ -101,7 +101,7 @@ module JavaBuildpack::Jre
       Details.stub(:new).and_return(details)
 
       java_opts = []
-      OpenJdk.new(:java_opts => java_opts, :system_properties => {}).release
+      OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
       expect(java_opts[1]).to be_nil
     end
@@ -110,14 +110,14 @@ module JavaBuildpack::Jre
       Details.stub(:new).and_return(details)
 
       java_opts = []
-      expect { OpenJdk.new(:java_opts => java_opts, :system_properties => { 'java.permgen.size' => INVALID_PERMGEN_SIZE }).release}.to raise_error
+      expect { OpenJdk.new(:java_opts => java_opts, :configuration => { 'java.permgen.size' => INVALID_PERMGEN_SIZE }).release}.to raise_error
     end
 
     it 'adds the resolved stack size to java_opts' do
       Details.stub(:new).and_return(details)
 
       java_opts = []
-      OpenJdk.new(:java_opts => java_opts, :system_properties => { 'java.stack.size' => STACK_SIZE }).release
+      OpenJdk.new(:java_opts => java_opts, :configuration => { 'java.stack.size' => STACK_SIZE }).release
 
       expect(java_opts[2]).to eq("-Xss#{STACK_SIZE}")
     end
@@ -126,7 +126,7 @@ module JavaBuildpack::Jre
       Details.stub(:new).and_return(details)
 
       java_opts = []
-      OpenJdk.new(:java_opts => java_opts, :system_properties => {}).release
+      OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
       expect(java_opts[2]).to be_nil
     end
@@ -135,7 +135,7 @@ module JavaBuildpack::Jre
       Details.stub(:new).and_return(details)
 
       java_opts = []
-      expect { OpenJdk.new(:java_opts => java_opts, :system_properties => { 'java.stack.size' => INVALID_STACK_SIZE }).release}.to raise_error
+      expect { OpenJdk.new(:java_opts => java_opts, :configuration => { 'java.stack.size' => INVALID_STACK_SIZE }).release}.to raise_error
     end
   end
 

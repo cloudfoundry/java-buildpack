@@ -15,6 +15,7 @@
 
 require 'java_buildpack'
 require 'java_buildpack/system_properties'
+require 'java_buildpack/util/constantize'
 require 'pathname'
 require 'yaml'
 
@@ -32,18 +33,18 @@ module JavaBuildpack
       context = {
         :app_dir => app_dir,
         :java_opts => [],
-        :system_properties => SystemProperties.new(app_dir)
+        :configuration => SystemProperties.new(app_dir)
       }
 
       Buildpack.require_component_files
       components = Buildpack.components
 
       @containers = components['containers'].map do |container|
-        Object.const_get(container).new(context)
+        container.constantize.new(context)
       end
 
       @jres = components['jres'].map do |jre|
-        Object.const_get(jre).new(context)
+        jre.constantize.new(context)
       end
     end
 

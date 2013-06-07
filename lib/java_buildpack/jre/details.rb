@@ -67,10 +67,10 @@ module JavaBuildpack::Jre
 
     # Creates a new instance, passing in the application directory used during release
     #
-    # @param [JavaBuildpack::Util::SystemProperties] system_properties the properties provided by the user
-    def initialize(system_properties = {})
-      candidate_vendor = system_properties[SYS_PROP_VENDOR]
-      candidate_version = system_properties[SYS_PROP_VERSION]
+    # @param [Hash] configuration the properties provided by the user
+    def initialize(configuration = {})
+      candidate_vendor = configuration[SYS_PROP_VENDOR]
+      candidate_version = configuration[SYS_PROP_VERSION]
 
       vendors = load_vendors
       @vendor = VendorResolver.resolve(candidate_vendor, vendors.keys)

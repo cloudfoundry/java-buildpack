@@ -28,11 +28,11 @@ module JavaBuildpack::Container
     # @param [Hash] context the context that is provided to the instance
     # @option context [String] :app_dir the directory that the application exists in
     # @option context [Array<String>] :java_opts an array that Java options can be added to
-    # @option context [JavaBuildpack::Util::Properties] :system_properties the properties provided by the user
+    # @option context [Hash] :configuration the properties provided by the user
     def initialize(context = {})
       @app_dir = context[:app_dir]
       @java_opts = context[:java_opts]
-      @system_properties = context[:system_properties]
+      @configuration = context[:configuration]
     end
 
     # Detects whether this application is Java +main()+ application.
@@ -76,7 +76,7 @@ module JavaBuildpack::Container
     end
 
     def main_class
-      @system_properties[SYSTEM_PROPERTY] || manifest[MANIFEST_PROPERTY]
+      @configuration[SYSTEM_PROPERTY] || manifest[MANIFEST_PROPERTY]
     end
 
   end
