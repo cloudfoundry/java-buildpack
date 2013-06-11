@@ -17,50 +17,50 @@ require 'spec_helper'
 require 'java_buildpack/jre/memory/memory_limit'
 require 'java_buildpack/jre/memory/memory_size'
 
-describe JavaBuildpack::MemoryLimit do
+describe JavaBuildpack::Jre::MemoryLimit do
 
   it 'should accept a memory limit in megabytes or gigabytes' do
     with_memory_limit('1G') do
-      expect(JavaBuildpack::MemoryLimit.memory_limit).to eq(JavaBuildpack::MemorySize.new('1048576K'))
+      expect(JavaBuildpack::Jre::MemoryLimit.memory_limit).to eq(JavaBuildpack::Jre::MemorySize.new('1048576K'))
     end
     with_memory_limit('1g') do
-      expect(JavaBuildpack::MemoryLimit.memory_limit).to eq(JavaBuildpack::MemorySize.new('1048576K'))
+      expect(JavaBuildpack::Jre::MemoryLimit.memory_limit).to eq(JavaBuildpack::Jre::MemorySize.new('1048576K'))
     end
     with_memory_limit('1M') do
-      expect(JavaBuildpack::MemoryLimit.memory_limit).to eq(JavaBuildpack::MemorySize.new('1024K'))
+      expect(JavaBuildpack::Jre::MemoryLimit.memory_limit).to eq(JavaBuildpack::Jre::MemorySize.new('1024K'))
     end
     with_memory_limit('1m') do
-      expect(JavaBuildpack::MemoryLimit.memory_limit).to eq(JavaBuildpack::MemorySize.new('1024K'))
+      expect(JavaBuildpack::Jre::MemoryLimit.memory_limit).to eq(JavaBuildpack::Jre::MemorySize.new('1024K'))
     end
   end
 
   it 'should fail if a memory limit is not specified' do
     with_memory_limit(nil) do
-      expect { JavaBuildpack::MemoryLimit.memory_limit }.to raise_error(/not\ specified/)
+      expect { JavaBuildpack::Jre::MemoryLimit.memory_limit }.to raise_error(/not\ specified/)
     end
   end
 
   it 'should fail if a memory limit does not have a unit' do
     with_memory_limit('1') do
-      expect { JavaBuildpack::MemoryLimit.memory_limit }.to raise_error(/Invalid/)
+      expect { JavaBuildpack::Jre::MemoryLimit.memory_limit }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if a memory limit is not an number' do
     with_memory_limit('xm') do
-      expect { JavaBuildpack::MemoryLimit.memory_limit }.to raise_error(/Invalid/)
+      expect { JavaBuildpack::Jre::MemoryLimit.memory_limit }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if a memory limit is not an integer' do
     with_memory_limit('1.1m') do
-      expect { JavaBuildpack::MemoryLimit.memory_limit }.to raise_error(/Invalid/)
+      expect { JavaBuildpack::Jre::MemoryLimit.memory_limit }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if a memory limit is negative' do
     with_memory_limit('-1m') do
-      expect { JavaBuildpack::MemoryLimit.memory_limit }.to raise_error(/Invalid/)
+      expect { JavaBuildpack::Jre::MemoryLimit.memory_limit }.to raise_error(/Invalid/)
     end
   end
 

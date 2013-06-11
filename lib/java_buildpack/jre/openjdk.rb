@@ -15,6 +15,9 @@
 
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/details'
+require 'java_buildpack/jre/memory/memory_heuristics_openjdk_pre8'
+require 'java_buildpack/jre/memory/memory_heuristics_openjdk'
+require 'java_buildpack/jre/tokenized_version'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
 
@@ -41,6 +44,7 @@ module JavaBuildpack::Jre
     #
     # @return [String, nil] returns +jre-<vendor>-<version>+.
     def detect
+      memory_sizes # drive out errors early
       id @details
     end
 
@@ -48,6 +52,7 @@ module JavaBuildpack::Jre
     #
     # @return [void]
     def compile
+      memory_sizes # drive out errors early
       application_cache = JavaBuildpack::Util::ApplicationCache.new
 
       download_start_time = Time.now
@@ -63,9 +68,9 @@ module JavaBuildpack::Jre
     #
     # @return [void]
     def release
-      @java_opts << resolve_heap_size
-      @java_opts << resolve_permgen_size
-      @java_opts << resolve_stack_size
+      memory_sizes.each do |memory_size|
+        @java_opts << memory_size
+      end
     end
 
     private
@@ -75,6 +80,8 @@ module JavaBuildpack::Jre
     JAVA_HOME = '.java'.freeze
 
     PERMGEN_SIZE = 'java.permgen.size'.freeze
+
+    METASPACE_SIZE = 'java.metaspace.size'.freeze
 
     STACK_SIZE = 'java.stack.size'.freeze
 
@@ -94,22 +101,30 @@ module JavaBuildpack::Jre
       "jre-#{details.vendor}-#{details.version}"
     end
 
-    def resolve(key, whitespace_message_pattern, value_pattern)
-      value = @configuration[key]
-      raise whitespace_message_pattern % value if value =~ /\s/
-      value.nil? ? nil : value_pattern % value
-    end
+    def memory_sizes
+      java_options = []
 
-    def resolve_heap_size
-      resolve HEAP_SIZE,  'Invalid heap size \'%s\': embedded whitespace', '-Xmx%s'
-    end
+      if TokenizedVersion.new(@details.version) < TokenizedVersion.new("1.8")
+        specified_memory_sizes = {}
+        specified_memory_sizes['heap'] = @configuration[HEAP_SIZE]
+        specified_memory_sizes['permgen'] = @configuration[PERMGEN_SIZE]
+        specified_memory_sizes['stack'] = @configuration[STACK_SIZE]
+        mh = MemoryHeuristicsOpenJDKPre8.new(specified_memory_sizes)
+        java_options << "-Xmx#{mh.heap}"
+        java_options << "-XX:MaxPermSize=#{mh.permgen}"
+        java_options << "-Xss#{mh.stack}"
+      else
+        specified_memory_sizes = {}
+        specified_memory_sizes['heap'] = @configuration[HEAP_SIZE]
+        specified_memory_sizes['metaspace'] = @configuration[METASPACE_SIZE]
+        specified_memory_sizes['stack'] = @configuration[STACK_SIZE]
+        mh = MemoryHeuristicsOpenJDK.new(specified_memory_sizes)
+        java_options << "-Xmx#{mh.heap}"
+        java_options << "-XX:MaxMetaspaceSize=#{mh.metaspace}"
+        java_options << "-Xss#{mh.stack}"
+      end
 
-    def resolve_permgen_size
-      resolve PERMGEN_SIZE, 'Invalid PermGen size \'%s\': embedded whitespace', '-XX:MaxPermSize=%s'
-    end
-
-    def resolve_stack_size
-      resolve STACK_SIZE, 'Invalid stack size \'%s\': embedded whitespace', '-Xss%s'
+      java_options
     end
 
   end

@@ -16,7 +16,7 @@
 require 'java_buildpack/jre/memory/memory_bucket'
 require 'java_buildpack/jre/memory/memory_size'
 
-module JavaBuildpack
+module JavaBuildpack::Jre
 
   class StackMemoryBucket < MemoryBucket
 

@@ -15,7 +15,7 @@
 
 require 'java_buildpack/jre/memory/memory_size'
 
-module JavaBuildpack
+module JavaBuildpack::Jre
 
 # A MemoryBucket is used to calculate default sizes for various type of memory
   class MemoryBucket
