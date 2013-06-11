@@ -18,27 +18,27 @@ require 'java_buildpack/jre/memory/stack_memory_bucket'
 require 'java_buildpack/jre/memory/memory_bucket'
 require 'java_buildpack/jre/memory/memory_size'
 
-describe JavaBuildpack::StackMemoryBucket do
+describe JavaBuildpack::Jre::StackMemoryBucket do
 
   TEST_STACK_BUCKET_NAME = 'stack-bucket'
   TEST_STACK_BUCKET_WEIGHTING = 0.05
-  TEST_STACK_SIZE = JavaBuildpack::MemorySize.new('2M')
-  TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY = JavaBuildpack::MemorySize.new('1G')
-  DEFAULT_STACK_SIZE = JavaBuildpack::MemorySize.new('1M')
+  TEST_STACK_SIZE = JavaBuildpack::Jre::MemorySize.new('2M')
+  TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY = JavaBuildpack::Jre::MemorySize.new('1G')
+  DEFAULT_STACK_SIZE = JavaBuildpack::Jre::MemorySize.new('1M')
 
   it 'should call the superclass constructor correctly' do
     # since we can't easily stub the superclass, test the superclass behaves as expected
-    stack_memory_bucket = JavaBuildpack::StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, TEST_STACK_SIZE, TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY)
+    stack_memory_bucket = JavaBuildpack::Jre::StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, TEST_STACK_SIZE, TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY)
     expect(stack_memory_bucket.size).to eq(TEST_STACK_SIZE)
   end
 
   it 'should calculate the excess memory correctly' do
-    stack_memory_bucket = JavaBuildpack::StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, TEST_STACK_SIZE, TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY)
+    stack_memory_bucket = JavaBuildpack::Jre::StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, TEST_STACK_SIZE, TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY)
     expect(stack_memory_bucket.excess).to eq(TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY * ((TEST_STACK_SIZE - DEFAULT_STACK_SIZE)/DEFAULT_STACK_SIZE) * TEST_STACK_BUCKET_WEIGHTING)
   end
 
   it 'should use the correct default size if size has not been set' do
-    stack_memory_bucket = JavaBuildpack::StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, nil, TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY)
+    stack_memory_bucket = JavaBuildpack::Jre::StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, nil, TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY)
     expect(stack_memory_bucket.size).to eq(DEFAULT_STACK_SIZE)
   end
 

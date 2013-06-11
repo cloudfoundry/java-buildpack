@@ -33,8 +33,20 @@ describe 'detect script' do
   end
 
   it 'should return zero if success' do
-    Open3.popen3("bin/detect spec/fixtures/integration_valid") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to be_success
+    with_memory_limit('1G') do
+      Open3.popen3("bin/detect spec/fixtures/integration_valid") do |stdin, stdout, stderr, wait_thr|
+        expect(wait_thr.value).to be_success
+      end
+    end
+  end
+
+  def with_memory_limit(memory_limit)
+    previous_value = ENV['MEMORY_LIMIT']
+    begin
+      ENV['MEMORY_LIMIT'] = memory_limit
+      yield
+    ensure
+      ENV['MEMORY_LIMIT'] = previous_value
     end
   end
 

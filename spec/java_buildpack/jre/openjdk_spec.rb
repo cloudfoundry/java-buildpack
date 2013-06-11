@@ -21,20 +21,23 @@ module JavaBuildpack::Jre
 
   describe OpenJdk do
 
-    HEAP_SIZE = '1024m'
+    HEAP_SIZE = '1G'
 
-    INVALID_HEAP_SIZE = '1024m -Xint'
+    INVALID_HEAP_SIZE = '1024M -Xint'
 
-    PERMGEN_SIZE = '128m'
+    PERMGEN_SIZE = '128M'
 
-    INVALID_PERMGEN_SIZE = '128m -Xint'
+    METASPACE_SIZE = '128M'
 
-    STACK_SIZE = '128k'
+    INVALID_PERMGEN_SIZE = '128M -Xint'
 
-    INVALID_STACK_SIZE = '128k -Xint'
+    STACK_SIZE = '128K'
+
+    INVALID_STACK_SIZE = '128K -Xint'
 
     let(:application_cache) { double('ApplicationCache') }
-    let(:details) { double('Details', :vendor => 'test-vendor', :version => 'test-version', :uri => 'test-uri') }
+    let(:details_pre_8) { double('Details', :vendor => 'test-vendor', :version => '1.7', :uri => 'test-uri') }
+    let(:details_post_8) { double('Details', :vendor => 'test-vendor', :version => '1.8', :uri => 'test-uri') }
 
     before do
       $stdout = StringIO.new
@@ -42,101 +45,150 @@ module JavaBuildpack::Jre
     end
 
     it 'should detect with id of JRE' do
-      Details.stub(:new).and_return(details)
+      with_memory_limit('1G') do
+        Details.stub(:new).and_return(details_pre_8)
 
-      detected = OpenJdk.new().detect
+        detected = OpenJdk.new(:configuration => {}, :java_opts => []).detect
 
-      expect(detected).to eq('jre-test-vendor-test-version')
+        expect(detected).to eq('jre-test-vendor-1.7')
+      end
     end
 
     it 'should extract Java from a GZipped TAR' do
-      Dir.mktmpdir do |root|
-        Details.stub(:new).and_return(details)
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('jre-test-vendor-test-version', 'test-uri')
+      with_memory_limit('1G') do
+        Dir.mktmpdir do |root|
+          Details.stub(:new).and_return(details_pre_8)
+          JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
+          application_cache.stub(:get).with('jre-test-vendor-1.7', 'test-uri')
           .and_yield(File.open('spec/fixtures/stub-java.tar.gz'))
 
-        OpenJdk.new(:app_dir => root).compile
+          OpenJdk.new(:app_dir => root, :configuration => {}, :java_opts => []).compile
 
-        java = File.join(root, '.java', 'bin', 'java')
-        expect(File.exists?(java)).to be_true
+          java = File.join(root, '.java', 'bin', 'java')
+          expect(File.exists?(java)).to be_true
+        end
       end
     end
 
     it 'adds the resolved heap size to java_opts' do
-      Details.stub(:new).and_return(details)
+      with_memory_limit('1G') do
+        Details.stub(:new).and_return(details_pre_8)
 
-      java_opts = []
-      OpenJdk.new(:java_opts => java_opts, :configuration => { 'java.heap.size' => HEAP_SIZE }).release
+        java_opts = []
+        OpenJdk.new(:java_opts => java_opts, :configuration => {'java.heap.size' => HEAP_SIZE}).release
 
-      expect(java_opts[0]).to eq("-Xmx#{HEAP_SIZE}")
+        expect(java_opts[0]).to eq("-Xmx#{HEAP_SIZE}")
+      end
     end
 
-    it 'does not add a heap size to java_opts if not specified' do
-      Details.stub(:new).and_return(details)
+    it 'adds a default heap size to java_opts if not specified' do
+      with_memory_limit('1G') do
+        Details.stub(:new).and_return(details_pre_8)
 
-      java_opts = []
-      OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
+        java_opts = []
+        OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
-      expect(java_opts[0]).to be_nil
+        expect(java_opts[0]).to match(/-Xmx/)
+      end
     end
 
-      it 'raises an error when heap size has embedded whitespace' do
-      Details.stub(:new).and_return(details)
+    it 'raises an error when heap size has embedded whitespace' do
+      Details.stub(:new).and_return(details_pre_8)
 
       java_opts = []
-      expect { OpenJdk.new(:java_opts => java_opts, :configuration => { 'java.heap.size' => INVALID_HEAP_SIZE }).release}.to raise_error
+      expect { OpenJdk.new(:java_opts => java_opts, :configuration => {'java.heap.size' => INVALID_HEAP_SIZE}).release }.to raise_error
     end
 
     it 'adds the resolved permgen size to java_opts' do
-      Details.stub(:new).and_return(details)
+      with_memory_limit('1G') do
+        Details.stub(:new).and_return(details_pre_8)
 
-      java_opts = []
-      OpenJdk.new(:java_opts => java_opts, :configuration => { 'java.permgen.size' => PERMGEN_SIZE }).release
+        java_opts = []
+        OpenJdk.new(:java_opts => java_opts, :configuration => {'java.permgen.size' => PERMGEN_SIZE}).release
 
-      expect(java_opts[1]).to eq("-XX:MaxPermSize=#{PERMGEN_SIZE}")
+        expect(java_opts[1]).to eq("-XX:MaxPermSize=#{PERMGEN_SIZE}")
+      end
     end
 
-    it 'does not add a permgen size to java_opts if not specified' do
-      Details.stub(:new).and_return(details)
+    it 'adds a default permgen size to java_opts if not specified' do
+      with_memory_limit('1G') do
+        Details.stub(:new).and_return(details_pre_8)
 
-      java_opts = []
-      OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
+        java_opts = []
+        OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
-      expect(java_opts[1]).to be_nil
+        expect(java_opts[1]).to match(/-XX:MaxPermSize=/)
+      end
     end
 
-      it 'raises an error when permgen size has embedded whitespace' do
-      Details.stub(:new).and_return(details)
+    it 'raises an error when permgen size has embedded whitespace' do
+      Details.stub(:new).and_return(details_pre_8)
 
       java_opts = []
-      expect { OpenJdk.new(:java_opts => java_opts, :configuration => { 'java.permgen.size' => INVALID_PERMGEN_SIZE }).release}.to raise_error
+      expect { OpenJdk.new(:java_opts => java_opts, :configuration => {'java.permgen.size' => INVALID_PERMGEN_SIZE}).release }.to raise_error
     end
 
     it 'adds the resolved stack size to java_opts' do
-      Details.stub(:new).and_return(details)
+      with_memory_limit('1G') do
+        Details.stub(:new).and_return(details_pre_8)
 
-      java_opts = []
-      OpenJdk.new(:java_opts => java_opts, :configuration => { 'java.stack.size' => STACK_SIZE }).release
+        java_opts = []
+        OpenJdk.new(:java_opts => java_opts, :configuration => {'java.stack.size' => STACK_SIZE}).release
 
-      expect(java_opts[2]).to eq("-Xss#{STACK_SIZE}")
+        expect(java_opts[2]).to eq("-Xss#{STACK_SIZE}")
+      end
     end
 
     it 'does not add a stack size to java_opts if not specified' do
-      Details.stub(:new).and_return(details)
+      with_memory_limit('1G') do
+        Details.stub(:new).and_return(details_pre_8)
 
-      java_opts = []
-      OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
+        java_opts = []
+        OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
-      expect(java_opts[2]).to be_nil
+        expect(java_opts[2]).to match(/-Xss/)
+      end
     end
 
-      it 'raises an error when stack size has embedded whitespace' do
-      Details.stub(:new).and_return(details)
+    it 'raises an error when stack size has embedded whitespace' do
+      Details.stub(:new).and_return(details_pre_8)
 
       java_opts = []
-      expect { OpenJdk.new(:java_opts => java_opts, :configuration => { 'java.stack.size' => INVALID_STACK_SIZE }).release}.to raise_error
+      expect { OpenJdk.new(:java_opts => java_opts, :configuration => {'java.stack.size' => INVALID_STACK_SIZE}).release }.to raise_error
     end
+
+    it 'adds the resolved maximum metaspace size to java_opts' do
+      with_memory_limit('1G') do
+        Details.stub(:new).and_return(details_post_8)
+
+        java_opts = []
+        OpenJdk.new(:java_opts => java_opts, :configuration => {'java.metaspace.size' => METASPACE_SIZE}).release
+
+        expect(java_opts[1]).to eq("-XX:MaxMetaspaceSize=#{PERMGEN_SIZE}")
+      end
+    end
+
+    it 'adds a default permgen size to java_opts if not specified' do
+      with_memory_limit('1G') do
+        Details.stub(:new).and_return(details_post_8)
+
+        java_opts = []
+        OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
+
+        expect(java_opts[1]).to match(/-XX:MaxMetaspaceSize=/)
+      end
+    end
+
+    def with_memory_limit(memory_limit)
+      previous_value = ENV['MEMORY_LIMIT']
+      begin
+        ENV['MEMORY_LIMIT'] = memory_limit
+        yield
+      ensure
+        ENV['MEMORY_LIMIT'] = previous_value
+      end
+    end
+
   end
 
 end

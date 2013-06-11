@@ -15,7 +15,7 @@
 
 require 'java_buildpack/jre/memory/memory_size'
 
-module JavaBuildpack
+module JavaBuildpack::Jre
 
   # A utility for handling Java memory settings.
   class MemoryLimit

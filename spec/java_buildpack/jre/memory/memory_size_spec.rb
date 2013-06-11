@@ -18,53 +18,57 @@ require 'java_buildpack/jre/memory/memory_size'
 
 describe 'Numeric memory size additions' do
 
-  ONE_MEG = JavaBuildpack::MemorySize.new('1M')
-  HALF_A_MEG = JavaBuildpack::MemorySize.new('512K')
+  ONE_MEG = JavaBuildpack::Jre::MemorySize.new('1M')
+  HALF_A_MEG = JavaBuildpack::Jre::MemorySize.new('512K')
 
   it 'should accept a memory size in bytes, kilobytes, megabytes, or gigabytes' do
-    expect(JavaBuildpack::MemorySize.new('1024B')).to eq(JavaBuildpack::MemorySize.new('1k'))
-    expect(JavaBuildpack::MemorySize.new('1024b')).to eq(JavaBuildpack::MemorySize.new('1k'))
-    expect(JavaBuildpack::MemorySize.new('1M')).to eq(JavaBuildpack::MemorySize.new('1024k'))
-    expect(JavaBuildpack::MemorySize.new('1m')).to eq(JavaBuildpack::MemorySize.new('1024k'))
-    expect(JavaBuildpack::MemorySize.new('1G')).to eq(JavaBuildpack::MemorySize.new('1048576k'))
-    expect(JavaBuildpack::MemorySize.new('1g')).to eq(JavaBuildpack::MemorySize.new('1048576k'))
+    expect(JavaBuildpack::Jre::MemorySize.new('1024B')).to eq(JavaBuildpack::Jre::MemorySize.new('1k'))
+    expect(JavaBuildpack::Jre::MemorySize.new('1024b')).to eq(JavaBuildpack::Jre::MemorySize.new('1k'))
+    expect(JavaBuildpack::Jre::MemorySize.new('1M')).to eq(JavaBuildpack::Jre::MemorySize.new('1024k'))
+    expect(JavaBuildpack::Jre::MemorySize.new('1m')).to eq(JavaBuildpack::Jre::MemorySize.new('1024k'))
+    expect(JavaBuildpack::Jre::MemorySize.new('1G')).to eq(JavaBuildpack::Jre::MemorySize.new('1048576k'))
+    expect(JavaBuildpack::Jre::MemorySize.new('1g')).to eq(JavaBuildpack::Jre::MemorySize.new('1048576k'))
   end
 
   it 'should fail if nil is passed to  the constructor' do
-    expect { JavaBuildpack::MemorySize.new(nil) }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::Jre::MemorySize.new(nil) }.to raise_error(/Invalid/)
   end
 
   it 'should fail if a memory size does not have a unit' do
-    expect { JavaBuildpack::MemorySize.new('1') }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::Jre::MemorySize.new('1') }.to raise_error(/Invalid/)
   end
 
 it 'should fail if a memory size has an invalid unit' do
-    expect { JavaBuildpack::MemorySize.new('1A') }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::Jre::MemorySize.new('1A') }.to raise_error(/Invalid/)
   end
 
   it 'should fail if a memory size is not an number' do
-    expect { JavaBuildpack::MemorySize.new('xm') }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::Jre::MemorySize.new('xm') }.to raise_error(/Invalid/)
   end
 
   it 'should fail if a memory size is not an integer' do
-    expect { JavaBuildpack::MemorySize.new('1.1m') }.to raise_error(/Invalid/)
+    expect { JavaBuildpack::Jre::MemorySize.new('1.1m') }.to raise_error(/Invalid/)
+  end
+
+  it 'should fail if a memory size has embedded whitespace' do
+    expect { JavaBuildpack::Jre::MemorySize.new('1 1m') }.to raise_error(/Invalid/)
   end
 
   it 'should accept a negative value' do
-    expect(JavaBuildpack::MemorySize.new('-1M')).to eq(JavaBuildpack::MemorySize.new('-1024k'))
+    expect(JavaBuildpack::Jre::MemorySize.new('-1M')).to eq(JavaBuildpack::Jre::MemorySize.new('-1024k'))
   end
 
   it 'should compare values correctly' do
-    expect(ONE_MEG).to be < JavaBuildpack::MemorySize.new('1025K')
-    expect(JavaBuildpack::MemorySize.new('1025K')).to be > ONE_MEG
+    expect(ONE_MEG).to be < JavaBuildpack::Jre::MemorySize.new('1025K')
+    expect(JavaBuildpack::Jre::MemorySize.new('1025K')).to be > ONE_MEG
   end
 
   it 'should fail when a memory size is compared to a numeric' do
-    expect { JavaBuildpack::MemorySize.new('1B') < 2 }.to raise_error(/Cannot\ compare/)
+    expect { JavaBuildpack::Jre::MemorySize.new('1B') < 2 }.to raise_error(/Cannot\ compare/)
   end
 
   it 'should multiply values correctly' do
-    expect(ONE_MEG * 2).to eq(JavaBuildpack::MemorySize.new('2M'))
+    expect(ONE_MEG * 2).to eq(JavaBuildpack::Jre::MemorySize.new('2M'))
   end
 
   it 'should fail when a memory size is multiplied by a memory size' do
@@ -96,11 +100,11 @@ it 'should fail if a memory size has an invalid unit' do
   end
 
   it 'should fail when a memory size is divided by an incorrect type' do
-    expect { JavaBuildpack::MemorySize.new('1B') / '' }.to raise_error(/Cannot\ divide/)
+    expect { JavaBuildpack::Jre::MemorySize.new('1B') / '' }.to raise_error(/Cannot\ divide/)
   end
 
   it 'should provide a zero memory size' do
-    expect(JavaBuildpack::MemorySize.ZERO).to eq(JavaBuildpack::MemorySize.new('0B'))
+    expect(JavaBuildpack::Jre::MemorySize.ZERO).to eq(JavaBuildpack::Jre::MemorySize.new('0B'))
   end
 
 end

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module JavaBuildpack
+module JavaBuildpack::Jre
 
   class MemorySize
     include Comparable

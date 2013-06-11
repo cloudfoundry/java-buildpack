@@ -17,7 +17,7 @@ require 'java_buildpack/jre/memory/memory_bucket'
 require 'java_buildpack/jre/memory/stack_memory_bucket'
 require 'java_buildpack/jre/memory/weight_balancing_memory_heuristic'
 
-module JavaBuildpack
+module JavaBuildpack::Jre
 
   # A utility for defaulting Java memory settings.
   class MemoryHeuristicsOpenJDKPre8
