@@ -52,7 +52,7 @@ module JavaBuildpack::Container
       expect(detected).to be_false
     end
 
-    it 'should not detect without manifest' do
+    it 'should return command' do
       command = Main.new(
         :java_opts => [ 'test-opt-2', 'test-opt-1' ],
         :configuration => { 'java.main.class' => 'test-java-main-class' }).release

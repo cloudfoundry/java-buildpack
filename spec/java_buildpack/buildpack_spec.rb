@@ -23,19 +23,33 @@ module JavaBuildpack
   describe Buildpack do
 
     let(:buildpack) { Buildpack.new(APP_DIR) }
-    let(:stub_container1) { double('StubContainer1') }
-    let(:stub_container2) { double('StubContainer2') }
-    let(:stub_jre1) { double('StubJre1', :detect => 'stub-jre-1') }
-    let(:stub_jre2) { double('StubJre2', :detect => 'stub-jre-2') }
+    let(:stub_container1) { double('StubContainer1', :detect => nil) }
+    let(:stub_container2) { double('StubContainer2', :detect => nil) }
+    let(:stub_framework1) { double('StubFramework1', :detect => nil) }
+    let(:stub_framework2) { double('StubFramework2', :detect => nil) }
+    let(:stub_jre1) { double('StubJre1', :detect => nil) }
+    let(:stub_jre2) { double('StubJre2', :detect => nil) }
     let(:configuration) { double('SystemProperties') }
 
-     it 'should raise an error if more than one container can run an application' do
-      YAML.stub(:load_file).with(File.expand_path('config/components.yml'))
-        .and_return('containers' => ['Test::StubContainer1', 'Test::StubContainer2'], 'jres' => ['Test::StubJre1'])
+    before do
+      YAML.stub(:load_file).with(File.expand_path('config/components.yml')).and_return(
+        'containers' => ['Test::StubContainer1', 'Test::StubContainer2'],
+        'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
+        'jres' => ['Test::StubJre1', 'Test::StubJre2'])
+
       SystemProperties.stub(:new).with(APP_DIR).and_return(configuration)
+
       Test::StubContainer1.stub(:new).and_return(stub_container1)
       Test::StubContainer2.stub(:new).and_return(stub_container2)
+
+      Test::StubFramework1.stub(:new).and_return(stub_framework1)
+      Test::StubFramework2.stub(:new).and_return(stub_framework2)
+
       Test::StubJre1.stub(:new).and_return(stub_jre1)
+      Test::StubJre2.stub(:new).and_return(stub_jre2)
+    end
+
+    it 'should raise an error if more than one container can run an application' do
       stub_container1.stub(:detect).and_return('stub-container-1')
       stub_container2.stub(:detect).and_return('stub-container-2')
 
@@ -43,24 +57,11 @@ module JavaBuildpack
     end
 
     it 'should return no detections if no container can run an application' do
-      YAML.stub(:load_file).with(File.expand_path('config/components.yml'))
-        .and_return('containers' => ['Test::StubContainer1'], 'jres' => ['Test::StubJre1'])
-      SystemProperties.stub(:new).with(APP_DIR).and_return(configuration)
-      Test::StubContainer1.stub(:new).and_return(stub_container1)
-      Test::StubJre1.stub(:new).and_return(stub_jre1)
-      stub_container1.stub(:detect).and_return(nil)
-
       detected = buildpack.detect
       expect(detected).to be_empty
     end
 
     it 'should raise an error if more than one JRE can run an application' do
-      YAML.stub(:load_file).with(File.expand_path('config/components.yml'))
-        .and_return('containers' => ['Test::StubContainer1'], 'jres' => ['Test::StubJre1', 'Test::StubJre2'])
-      SystemProperties.stub(:new).with(APP_DIR).and_return(configuration)
-      Test::StubContainer1.stub(:new).and_return(stub_container1)
-      Test::StubJre1.stub(:new).and_return(stub_jre1)
-      Test::StubJre2.stub(:new).and_return(stub_jre2)
       stub_jre1.stub(:detect).and_return('stub-jre-1')
       stub_jre2.stub(:detect).and_return('stub-jre-2')
 
@@ -68,41 +69,41 @@ module JavaBuildpack
     end
 
     it 'should call compile on matched components' do
-      YAML.stub(:load_file).with(File.expand_path('config/components.yml'))
-        .and_return('containers' => ['Test::StubContainer1', 'Test::StubContainer2'], 'jres' => ['Test::StubJre1'])
-      SystemProperties.stub(:new).with(APP_DIR).and_return(configuration)
-      Test::StubContainer1.stub(:new).and_return(stub_container1)
-      Test::StubContainer2.stub(:new).and_return(stub_container2)
-      Test::StubJre1.stub(:new).and_return(stub_jre1)
       stub_container1.stub(:detect).and_return('stub-container-1')
-      stub_container2.stub(:detect).and_return(nil)
+      stub_framework1.stub(:detect).and_return('stub-framework-1')
+      stub_jre1.stub(:detect).and_return('stub-jre-1')
 
-      stub_jre1.should_receive(:compile)
       stub_container1.should_receive(:compile)
       stub_container2.should_not_receive(:compile)
+      stub_framework1.should_receive(:compile)
+      stub_framework2.should_not_receive(:compile)
+      stub_jre1.should_receive(:compile)
+      stub_jre2.should_not_receive(:compile)
 
       detected = buildpack.compile
     end
 
     it 'should call release on matched components' do
-      YAML.stub(:load_file).with(File.expand_path('config/components.yml'))
-        .and_return('containers' => ['Test::StubContainer1', 'Test::StubContainer2'], 'jres' => ['Test::StubJre1'])
-      SystemProperties.stub(:new).with(APP_DIR).and_return(configuration)
-      Test::StubContainer1.stub(:new).and_return(stub_container1)
-      Test::StubContainer2.stub(:new).and_return(stub_container2)
-      Test::StubJre1.stub(:new).and_return(stub_jre1)
       stub_container1.stub(:detect).and_return('stub-container-1')
-      stub_container1.stub(:release).and_return('test-command')
-      stub_container2.stub(:detect).and_return(nil)
+      stub_framework1.stub(:detect).and_return('stub-framework-1')
+      stub_jre1.stub(:detect).and_return('stub-jre-1')
 
-      stub_jre1.should_receive(:release)
+      stub_container1.stub(:release).and_return('test-command')
+
+      stub_container1.should_receive(:release)
       stub_container2.should_not_receive(:release)
+      stub_framework1.should_receive(:release)
+      stub_framework2.should_not_receive(:release)
+      stub_jre1.should_receive(:release)
+      stub_jre2.should_not_receive(:release)
 
       payload = buildpack.release
 
       expect(payload).to eq({'addons' => [], 'config_vars' => {}, 'default_process_types' => { 'web' => 'test-command' }}.to_yaml)
     end
   end
+
+  private
 
 end
 
@@ -117,5 +118,11 @@ module Test
   end
 
   class StubJre2
+  end
+
+  class StubFramework1
+  end
+
+  class StubFramework2
   end
 end

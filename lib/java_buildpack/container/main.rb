@@ -59,11 +59,11 @@ module JavaBuildpack::Container
 
     private
 
+    CONFIGURATION_PROPERTY = 'java.main.class'.freeze
+
     CONTAINER_NAME = 'java-main'.freeze
 
     MANIFEST_PROPERTY = 'Main-Class'.freeze
-
-    SYSTEM_PROPERTY = 'java.main.class'.freeze
 
     def java_opts
       @java_opts.compact.sort.join(' ')
@@ -76,7 +76,7 @@ module JavaBuildpack::Container
     end
 
     def main_class
-      @configuration[SYSTEM_PROPERTY] || manifest[MANIFEST_PROPERTY]
+      @configuration[CONFIGURATION_PROPERTY] || manifest[MANIFEST_PROPERTY]
     end
 
   end
