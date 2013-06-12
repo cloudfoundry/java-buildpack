@@ -26,6 +26,10 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
   PRE8_TEST_WEIGHTINGS = {'heap' => PRE8_TEST_HEAP_WEIGHTING, 'permgen' => PRE8_TEST_PERMGEN_WEIGHTING, 'stack' => PRE8_TEST_STACK_WEIGHTING, 'native' => PRE8_TEST_NATIVE_WEIGHTING}
   PRE8_CONFIG_FILE_PATH = 'config/memory_heuristics_openjdk_pre8.yml'
 
+  before do
+    $stderr = StringIO.new
+  end
+
   it 'should fail if the configured weightings sum to more than 1' do
     with_memory_limit('1m') do
       YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return({'heap' => 0.5, 'permgen' => 0.4, 'stack' => 0.1, 'native' => 0.1})

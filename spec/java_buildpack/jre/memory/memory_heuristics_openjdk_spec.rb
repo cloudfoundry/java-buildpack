@@ -26,6 +26,10 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDK do
   OPENJDK_TEST_WEIGHTINGS = {'heap' => OPENJDK_TEST_HEAP_WEIGHTING, 'metaspace' => OPENJDK_TEST_METASPACE_WEIGHTING, 'stack' => OPENJDK_TEST_STACK_WEIGHTING, 'native' => OPENJDK_TEST_NATIVE_WEIGHTING}
   OPENJDK_CONFIG_FILE_PATH = 'config/memory_heuristics_openjdk.yml'
 
+  before do
+    $stderr = StringIO.new
+  end
+
   it 'should fail if the configured weightings sum to more than 1' do
     with_memory_limit('1m') do
       YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return({'heap' => 0.5, 'metaspace' => 0.4, 'stack' => 0.1, 'native' => 0.1})

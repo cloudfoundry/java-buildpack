@@ -28,6 +28,10 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
   CONFIG_FILENAME = 'memory_heuristics_openjdk_pre8.yml'
   CONFIG_FILE_PATH = File.expand_path "config/#{CONFIG_FILENAME}"
 
+  before do
+    $stderr = StringIO.new
+  end
+
   it 'should fail if a memory limit is not specified' do
     with_memory_limit(nil) do
       expect { JavaBuildpack::Jre::WeightBalancingMemoryHeuristic.new(CONFIG_FILENAME, {}) }.to raise_error(/not\ specified/)
@@ -50,7 +54,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
   it 'should fail if the heap weighting is less than 0' do
     with_memory_limit('1m') do
       YAML.stub(:load_file).with(CONFIG_FILE_PATH).and_return({'heap' => -0.1, 'permgen' => 0.3,
-                                                                                'stack' => 0.1, 'native' => 0.1})
+                                                               'stack' => 0.1, 'native' => 0.1})
       expect { JavaBuildpack::Jre::WeightBalancingMemoryHeuristic.new(CONFIG_FILENAME, {}) }.to raise_error(/Invalid/)
     end
   end
@@ -65,7 +69,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
   it 'should fail if the stack weighting is less than 0' do
     with_memory_limit('1m') do
       YAML.stub(:load_file).with(CONFIG_FILE_PATH).and_return({'heap' => 0.5, 'permgen' => 0.3,
-                                                                                'stack' => -0.1, 'native' => 0.1})
+                                                               'stack' => -0.1, 'native' => 0.1})
       expect { JavaBuildpack::Jre::WeightBalancingMemoryHeuristic.new(CONFIG_FILENAME, {}) }.to raise_error(/Invalid/)
     end
   end
@@ -175,14 +179,22 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     end
   end
 
-  def with_memory_limit(memory_limit)
-    previous_value = ENV['MEMORY_LIMIT']
-    begin
-      ENV['MEMORY_LIMIT'] = memory_limit
-      yield
-    ensure
-      ENV['MEMORY_LIMIT'] = previous_value
+  it 'should issue a warning when the specified maximum memory sizes imply the total memory size may be too large' do
+    with_memory_limit('4096m') do
+      YAML.stub(:load_file).with(CONFIG_FILE_PATH).and_return(TEST_WEIGHTINGS)
+      memory_heuristics = JavaBuildpack::Jre::WeightBalancingMemoryHeuristic.new(CONFIG_FILENAME, {'heap' => '1m', 'permgen' => '1m', 'stack' => '2m'})
+      expect(memory_heuristics.output['heap']).to eq('1M')
+      expect(memory_heuristics.output['permgen']).to eq('1M')
+      expect(memory_heuristics.output['stack']).to eq('2M')
+      expect($stderr.string).to match(/WARNING:/)
     end
+  end
+
+  def with_memory_limit(memory_limit)
+    previous_value, ENV['MEMORY_LIMIT'] = ENV['MEMORY_LIMIT'], memory_limit
+    yield
+  ensure
+    ENV['MEMORY_LIMIT'] = previous_value
   end
 
 end
