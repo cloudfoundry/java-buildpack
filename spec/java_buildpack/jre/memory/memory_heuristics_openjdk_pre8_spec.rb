@@ -16,6 +16,10 @@
 require 'spec_helper'
 require 'java_buildpack/jre/memory/memory_heuristics_openjdk_pre8'
 
+def heuristics_pre8(hash)
+  {'openjdk' => {'memory_heuristics' => {'pre_8' => hash}}}
+end
+
 describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
 
   PRE8_TEST_HEAP_WEIGHTING = 0.5
@@ -23,8 +27,8 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
   PRE8_TEST_STACK_WEIGHTING = 0.1
   PRE8_TEST_NATIVE_WEIGHTING = 0.1
   PRE8_TEST_SMALL_NATIVE_WEIGHTING = 0.05
-  PRE8_TEST_WEIGHTINGS = {'heap' => PRE8_TEST_HEAP_WEIGHTING, 'permgen' => PRE8_TEST_PERMGEN_WEIGHTING, 'stack' => PRE8_TEST_STACK_WEIGHTING, 'native' => PRE8_TEST_NATIVE_WEIGHTING}
-  PRE8_CONFIG_FILE_PATH = 'config/memory_heuristics_openjdk_pre8.yml'
+  PRE8_TEST_WEIGHTINGS = heuristics_pre8({'heap' => PRE8_TEST_HEAP_WEIGHTING, 'permgen' => PRE8_TEST_PERMGEN_WEIGHTING, 'stack' => PRE8_TEST_STACK_WEIGHTING, 'native' => PRE8_TEST_NATIVE_WEIGHTING})
+  PRE8_CONFIG_FILE_PATH = 'config/jres.yml'
 
   before do
     $stderr = StringIO.new
@@ -32,44 +36,44 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
 
   it 'should fail if the configured weightings sum to more than 1' do
     with_memory_limit('1m') do
-      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return({'heap' => 0.5, 'permgen' => 0.4, 'stack' => 0.1, 'native' => 0.1})
+      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(heuristics_pre8({'heap' => 0.5, 'permgen' => 0.4, 'stack' => 0.1, 'native' => 0.1}))
       expect { JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({}) }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if the heap weighting is less than 0' do
     with_memory_limit('1m') do
-      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return({'heap' => -0.1, 'permgen' => 0.3,
-                                                                                'stack' => 0.1, 'native' => 0.1})
+      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(heuristics_pre8({'heap' => -0.1, 'permgen' => 0.3,
+                                                                                'stack' => 0.1, 'native' => 0.1}))
       expect { JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({}) }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if the permgen weighting is less than 0' do
     with_memory_limit('1m') do
-      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return({'heap' => 0.5, 'permgen' => -0.3, 'stack' => 0.1, 'native' => 0.1})
+      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(heuristics_pre8({'heap' => 0.5, 'permgen' => -0.3, 'stack' => 0.1, 'native' => 0.1}))
       expect { JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({}) }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if the stack weighting is less than 0' do
     with_memory_limit('1m') do
-      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return({'heap' => 0.5, 'permgen' => 0.3,
-                                                                                'stack' => -0.1, 'native' => 0.1})
+      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(heuristics_pre8({'heap' => 0.5, 'permgen' => 0.3,
+                                                                                'stack' => -0.1, 'native' => 0.1}))
       expect { JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({}) }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if the native weighting is less than 0' do
     with_memory_limit('1m') do
-      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return({'heap' => 0.5, 'permgen' => 0.3, 'stack' => 0.1, 'native' => -0.1})
+      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(heuristics_pre8({'heap' => 0.5, 'permgen' => 0.3, 'stack' => 0.1, 'native' => -0.1}))
       expect { JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({}) }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if a configured weighting is invalid' do
     with_memory_limit('1m') do
-      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return({'heap' => PRE8_TEST_HEAP_WEIGHTING, 'permgen' => PRE8_TEST_PERMGEN_WEIGHTING, 'stack' => PRE8_TEST_STACK_WEIGHTING, 'native' => 'x'})
+      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(heuristics_pre8({'heap' => PRE8_TEST_HEAP_WEIGHTING, 'permgen' => PRE8_TEST_PERMGEN_WEIGHTING, 'stack' => PRE8_TEST_STACK_WEIGHTING, 'native' => 'x'}))
       expect { JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({}) }.to raise_error(/Invalid/)
     end
   end
@@ -93,7 +97,7 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
 
   it 'should default maximum heap size and permgen size according to the configured weightings when the weightings sum to less than 1' do
     with_memory_limit('1024m') do
-      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return({'heap' => PRE8_TEST_HEAP_WEIGHTING, 'permgen' => PRE8_TEST_PERMGEN_WEIGHTING, 'stack' => PRE8_TEST_STACK_WEIGHTING, 'native' => PRE8_TEST_SMALL_NATIVE_WEIGHTING})
+      YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(heuristics_pre8({'heap' => PRE8_TEST_HEAP_WEIGHTING, 'permgen' => PRE8_TEST_PERMGEN_WEIGHTING, 'stack' => PRE8_TEST_STACK_WEIGHTING, 'native' => PRE8_TEST_SMALL_NATIVE_WEIGHTING}))
       memory_heuristics = JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({})
       expect(memory_heuristics.heap).to eq("#{(1024 * PRE8_TEST_HEAP_WEIGHTING).to_i.to_s}M")
       expect(memory_heuristics.permgen).to eq("#{(1024 * 1024 * PRE8_TEST_PERMGEN_WEIGHTING).to_i.to_s}K")

@@ -16,6 +16,10 @@
 require 'spec_helper'
 require 'java_buildpack/jre/memory/memory_heuristics_openjdk'
 
+def heuristics_post8(hash)
+  {'openjdk' => {'memory_heuristics' => {'post_8' => hash}}}
+end
+
 describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDK do
 
   OPENJDK_TEST_HEAP_WEIGHTING = 0.5
@@ -23,8 +27,8 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDK do
   OPENJDK_TEST_STACK_WEIGHTING = 0.1
   OPENJDK_TEST_NATIVE_WEIGHTING = 0.1
   OPENJDK_TEST_SMALL_NATIVE_WEIGHTING = 0.05
-  OPENJDK_TEST_WEIGHTINGS = {'heap' => OPENJDK_TEST_HEAP_WEIGHTING, 'metaspace' => OPENJDK_TEST_METASPACE_WEIGHTING, 'stack' => OPENJDK_TEST_STACK_WEIGHTING, 'native' => OPENJDK_TEST_NATIVE_WEIGHTING}
-  OPENJDK_CONFIG_FILE_PATH = 'config/memory_heuristics_openjdk.yml'
+  OPENJDK_TEST_WEIGHTINGS = heuristics_post8({'heap' => OPENJDK_TEST_HEAP_WEIGHTING, 'metaspace' => OPENJDK_TEST_METASPACE_WEIGHTING, 'stack' => OPENJDK_TEST_STACK_WEIGHTING, 'native' => OPENJDK_TEST_NATIVE_WEIGHTING})
+  OPENJDK_CONFIG_FILE_PATH = 'config/jres.yml'
 
   before do
     $stderr = StringIO.new
@@ -32,44 +36,44 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDK do
 
   it 'should fail if the configured weightings sum to more than 1' do
     with_memory_limit('1m') do
-      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return({'heap' => 0.5, 'metaspace' => 0.4, 'stack' => 0.1, 'native' => 0.1})
+      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return(heuristics_post8({'heap' => 0.5, 'metaspace' => 0.4, 'stack' => 0.1, 'native' => 0.1}))
       expect { JavaBuildpack::Jre::MemoryHeuristicsOpenJDK.new({}) }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if the heap weighting is less than 0' do
     with_memory_limit('1m') do
-      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return({'heap' => -0.1, 'metaspace' => 0.3,
-                                                                                'stack' => 0.1, 'native' => 0.1})
+      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return(heuristics_post8({'heap' => -0.1, 'metaspace' => 0.3,
+                                                                                                   'stack' => 0.1, 'native' => 0.1}))
       expect { JavaBuildpack::Jre::MemoryHeuristicsOpenJDK.new({}) }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if the metaspace weighting is less than 0' do
     with_memory_limit('1m') do
-      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return({'heap' => 0.5, 'metaspace' => -0.3, 'stack' => 0.1, 'native' => 0.1})
+      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return(heuristics_post8({'heap' => 0.5, 'metaspace' => -0.3, 'stack' => 0.1, 'native' => 0.1}))
       expect { JavaBuildpack::Jre::MemoryHeuristicsOpenJDK.new({}) }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if the stack weighting is less than 0' do
     with_memory_limit('1m') do
-      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return({'heap' => 0.5, 'metaspace' => 0.3,
-                                                                                'stack' => -0.1, 'native' => 0.1})
+      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return(heuristics_post8({'heap' => 0.5, 'metaspace' => 0.3,
+                                                                                                   'stack' => -0.1, 'native' => 0.1}))
       expect { JavaBuildpack::Jre::MemoryHeuristicsOpenJDK.new({}) }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if the native weighting is less than 0' do
     with_memory_limit('1m') do
-      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return({'heap' => 0.5, 'metaspace' => 0.3, 'stack' => 0.1, 'native' => -0.1})
+      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return(heuristics_post8({'heap' => 0.5, 'metaspace' => 0.3, 'stack' => 0.1, 'native' => -0.1}))
       expect { JavaBuildpack::Jre::MemoryHeuristicsOpenJDK.new({}) }.to raise_error(/Invalid/)
     end
   end
 
   it 'should fail if a configured weighting is invalid' do
     with_memory_limit('1m') do
-      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return({'heap' => OPENJDK_TEST_HEAP_WEIGHTING, 'metaspace' => OPENJDK_TEST_METASPACE_WEIGHTING, 'stack' => OPENJDK_TEST_STACK_WEIGHTING, 'native' => 'x'})
+      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return(heuristics_post8({'heap' => OPENJDK_TEST_HEAP_WEIGHTING, 'metaspace' => OPENJDK_TEST_METASPACE_WEIGHTING, 'stack' => OPENJDK_TEST_STACK_WEIGHTING, 'native' => 'x'}))
       expect { JavaBuildpack::Jre::MemoryHeuristicsOpenJDK.new({}) }.to raise_error(/Invalid/)
     end
   end
@@ -93,7 +97,7 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDK do
 
   it 'should default maximum heap size and metaspace size according to the configured weightings when the weightings sum to less than 1' do
     with_memory_limit('1024m') do
-      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return({'heap' => OPENJDK_TEST_HEAP_WEIGHTING, 'metaspace' => OPENJDK_TEST_METASPACE_WEIGHTING, 'stack' => OPENJDK_TEST_STACK_WEIGHTING, 'native' => OPENJDK_TEST_SMALL_NATIVE_WEIGHTING})
+      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return(heuristics_post8({'heap' => OPENJDK_TEST_HEAP_WEIGHTING, 'metaspace' => OPENJDK_TEST_METASPACE_WEIGHTING, 'stack' => OPENJDK_TEST_STACK_WEIGHTING, 'native' => OPENJDK_TEST_SMALL_NATIVE_WEIGHTING}))
       memory_heuristics = JavaBuildpack::Jre::MemoryHeuristicsOpenJDK.new({})
       expect(memory_heuristics.heap).to eq("#{(1024 * OPENJDK_TEST_HEAP_WEIGHTING).to_i.to_s}M")
       expect(memory_heuristics.metaspace).to eq("#{(1024 * 1024 * OPENJDK_TEST_METASPACE_WEIGHTING).to_i.to_s}K")

@@ -37,8 +37,7 @@ module JavaBuildpack::Jre
 
     # Creates an instance based on a hash containing memory settings, a configuration file containing weightings, and the application's memory size in $MEMORY_LIMIT.
     def initialize(args)
-
-      weight_balancing_memory_heuristic = WeightBalancingMemoryHeuristic.new(MEMORY_HEURISTICS_YAML_FILE, args)
+      weight_balancing_memory_heuristic = WeightBalancingMemoryHeuristic.new(MEMORY_HEURISTICS_YAML_FILE, WEIGHTINGS_NAME, args)
 
       @heap = weight_balancing_memory_heuristic.output['heap']
       @permgen = weight_balancing_memory_heuristic.output['permgen']
@@ -47,7 +46,8 @@ module JavaBuildpack::Jre
 
     private
 
-    MEMORY_HEURISTICS_YAML_FILE = 'memory_heuristics_openjdk_pre8.yml'
+    MEMORY_HEURISTICS_YAML_FILE = 'jres.yml'
+    WEIGHTINGS_NAME = 'pre_8'
 
   end
 end
