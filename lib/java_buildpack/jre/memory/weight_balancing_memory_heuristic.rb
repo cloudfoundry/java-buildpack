@@ -57,6 +57,7 @@ module JavaBuildpack::Jre
 
       buckets.each_value do |bucket|
         bucket.adjust(total_excess, total_adjustable_weighting)
+        raise "Total memory #{memory_limit} exceeded by configured memory #{args}" if bucket.size < MemorySize.ZERO
       end
 
       WeightBalancingMemoryHeuristic.issue_memory_wastage_warning buckets
