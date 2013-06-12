@@ -71,7 +71,7 @@ module JavaBuildpack::Jre
     end
 
     it 'adds the resolved heap size to java_opts' do
-      with_memory_limit('1G') do
+      with_memory_limit('2G') do
         Details.stub(:new).and_return(details_pre_8)
 
         java_opts = []

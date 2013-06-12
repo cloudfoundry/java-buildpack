@@ -188,6 +188,13 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
       expect(memory_heuristics.output['stack']).to eq('2M')
       expect($stderr.string).to match(/WARNING:/)
     end
+    end
+
+  it 'should fail when the specified maximum memory is larger than the total memory size' do
+    with_memory_limit('4096m') do
+      YAML.stub(:load_file).with(CONFIG_FILE_PATH).and_return(TEST_WEIGHTINGS)
+      expect { JavaBuildpack::Jre::WeightBalancingMemoryHeuristic.new(CONFIG_FILENAME, {'heap' => '5g'}) }.to raise_error(/exceeded/)
+    end
   end
 
   def with_memory_limit(memory_limit)
