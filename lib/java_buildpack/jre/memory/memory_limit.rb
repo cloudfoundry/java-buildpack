@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/memory_size'
 
 module JavaBuildpack::Jre

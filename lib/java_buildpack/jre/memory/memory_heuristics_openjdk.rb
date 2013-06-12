@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/memory_bucket'
 require 'java_buildpack/jre/memory/stack_memory_bucket'
 require 'java_buildpack/jre/memory/weight_balancing_memory_heuristic'
