@@ -105,26 +105,34 @@ module JavaBuildpack::Jre
       java_options = []
 
       if TokenizedVersion.new(@details.version) < TokenizedVersion.new("1.8")
-        specified_memory_sizes = {}
-        specified_memory_sizes['heap'] = @configuration[HEAP_SIZE]
-        specified_memory_sizes['permgen'] = @configuration[PERMGEN_SIZE]
-        specified_memory_sizes['stack'] = @configuration[STACK_SIZE]
-        mh = MemoryHeuristicsOpenJDKPre8.new(specified_memory_sizes)
-        java_options << "-Xmx#{mh.heap}"
-        java_options << "-XX:MaxPermSize=#{mh.permgen}"
-        java_options << "-Xss#{mh.stack}"
+        pre_8_memory_sizes(java_options)
       else
-        specified_memory_sizes = {}
-        specified_memory_sizes['heap'] = @configuration[HEAP_SIZE]
-        specified_memory_sizes['metaspace'] = @configuration[METASPACE_SIZE]
-        specified_memory_sizes['stack'] = @configuration[STACK_SIZE]
-        mh = MemoryHeuristicsOpenJDK.new(specified_memory_sizes)
-        java_options << "-Xmx#{mh.heap}"
-        java_options << "-XX:MaxMetaspaceSize=#{mh.metaspace}"
-        java_options << "-Xss#{mh.stack}"
+        post_8_memory_sizes(java_options)
       end
 
       java_options
+    end
+
+    def post_8_memory_sizes(java_options)
+      specified_memory_sizes = {}
+      specified_memory_sizes['heap'] = @configuration[HEAP_SIZE]
+      specified_memory_sizes['metaspace'] = @configuration[METASPACE_SIZE]
+      specified_memory_sizes['stack'] = @configuration[STACK_SIZE]
+      mh = MemoryHeuristicsOpenJDK.new(specified_memory_sizes)
+      java_options << "-Xmx#{mh.heap}"
+      java_options << "-XX:MaxMetaspaceSize=#{mh.metaspace}"
+      java_options << "-Xss#{mh.stack}"
+    end
+
+    def pre_8_memory_sizes(java_options)
+      specified_memory_sizes = {}
+      specified_memory_sizes['heap'] = @configuration[HEAP_SIZE]
+      specified_memory_sizes['permgen'] = @configuration[PERMGEN_SIZE]
+      specified_memory_sizes['stack'] = @configuration[STACK_SIZE]
+      mh = MemoryHeuristicsOpenJDKPre8.new(specified_memory_sizes)
+      java_options << "-Xmx#{mh.heap}"
+      java_options << "-XX:MaxPermSize=#{mh.permgen}"
+      java_options << "-Xss#{mh.stack}"
     end
 
   end
