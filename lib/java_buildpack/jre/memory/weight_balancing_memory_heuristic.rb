@@ -28,12 +28,12 @@ module JavaBuildpack::Jre
     #   @return [Hash] a hash of memory types and corresponding memory sizes, e.g. {'memory-type' => '1M'}
     attr_reader :output
 
-    # Creates an instance based on a configuration file containing weightings, a hash containing memory settings, and the application's memory size in $MEMORY_LIMIT.
-    def initialize(weighting_configuration_filename, args)
+    # Creates an instance based on a configuration file containing weightings, the name of the weighting hash with the configuration file, a hash containing memory settings, and the application's memory size in $MEMORY_LIMIT.
+    def initialize(weighting_configuration_filename, weightings_name, args)
 
       memory_limit = MemoryLimit.memory_limit
 
-      config = WeightBalancingMemoryHeuristic.load_config weighting_configuration_filename
+      config = WeightBalancingMemoryHeuristic.load_config(weighting_configuration_filename, weightings_name)
 
       buckets = {}
       total_weighting = 0
@@ -72,8 +72,17 @@ module JavaBuildpack::Jre
 
     NATIVE_MEMORY_WARNING_FACTOR = 3
 
-    def self.load_config(weighting_configuration_filename)
-      YAML.load_file(File.expand_path "../../../../config/#{weighting_configuration_filename}", File.dirname(__FILE__))
+    def self.load_config(weighting_configuration_filename, weightings_name)
+      config = YAML.load_file(File.expand_path "../../../../config/#{weighting_configuration_filename}", File.dirname(__FILE__))
+      openjdk = extract_hash(config, weighting_configuration_filename, 'openjdk')
+      memory_heuristics = extract_hash(openjdk, weighting_configuration_filename, 'memory_heuristics')
+      extract_hash(memory_heuristics, weighting_configuration_filename, weightings_name)
+    end
+
+    def self.extract_hash(config, weighting_configuration_filename, hash_name)
+      hash = config[hash_name]
+      raise "Value of '#{hash_name}' missing from config/#{weighting_configuration_filename}" unless hash
+      hash
     end
 
     def self.create_memory_bucket(memory_type, weighting, size, total_memory)
