@@ -85,6 +85,12 @@ module JavaBuildpack::Jre
 
     STACK_SIZE = 'java.stack.size'.freeze
 
+    PROPERTY_MAPPING = {HEAP_SIZE => 'heap', STACK_SIZE => 'stack', PERMGEN_SIZE => 'permgen', METASPACE_SIZE => 'metaspace'}
+
+    def rename(input, mapping)
+      Hash[input.map { |k, v| [mapping[k], v] }]
+    end
+
     def expand(file)
       expand_start_time = Time.now
       print "-----> Expanding JRE to #{JAVA_HOME} "
@@ -102,47 +108,22 @@ module JavaBuildpack::Jre
     end
 
     def memory_sizes
-      if TokenizedVersion.new(@details.version) < TokenizedVersion.new("1.8")
-        pre_8_memory_sizes
-      else
-        post_8_memory_sizes
-      end
+      specified_memory_sizes = rename(@configuration, PROPERTY_MAPPING)
+      heuristic_class = pre_8 ? MemoryHeuristicsOpenJDKPre8 : MemoryHeuristicsOpenJDK
+      java_options(heuristic_class.new(specified_memory_sizes))
     end
 
-    def post_8_memory_sizes()
-      specified_memory_sizes = common_memory_sizes()
-      specified_memory_sizes['metaspace'] = @configuration[METASPACE_SIZE]
-
-      mh = MemoryHeuristicsOpenJDK.new(specified_memory_sizes)
-
-      java_options = common_java_options(mh)
-      java_options << "-XX:MaxMetaspaceSize=#{mh.metaspace}"
-      java_options
+    def pre_8
+      TokenizedVersion.new(@details.version) < TokenizedVersion.new("1.8")
     end
 
-    def pre_8_memory_sizes()
-      specified_memory_sizes = common_memory_sizes()
-      specified_memory_sizes['permgen'] = @configuration[PERMGEN_SIZE]
-
-      mh = MemoryHeuristicsOpenJDKPre8.new(specified_memory_sizes)
-
-      java_options = common_java_options(mh)
-      java_options << "-XX:MaxPermSize=#{mh.permgen}"
-      java_options
-    end
-
-    def common_java_options(mh)
+    def java_options(mh)
       java_options = []
       java_options << "-Xmx#{mh.heap}"
       java_options << "-Xss#{mh.stack}"
+      java_options << "-XX:MaxMetaspaceSize=#{mh.metaspace}" if mh.respond_to?(:metaspace)
+      java_options << "-XX:MaxPermSize=#{mh.permgen}" if mh.respond_to?(:permgen)
       java_options
-    end
-
-    def common_memory_sizes
-      specified_memory_sizes = {}
-      specified_memory_sizes['heap'] = @configuration[HEAP_SIZE]
-      specified_memory_sizes['stack'] = @configuration[STACK_SIZE]
-      specified_memory_sizes
     end
 
   end
