@@ -15,6 +15,6 @@
 
 require 'java_buildpack'
 
-# A module encapsulating all of the JRE selection code for the Java buildpack
+# A module encapsulating all of the JRE components for the Java buildpack
 module JavaBuildpack::Jre
 end

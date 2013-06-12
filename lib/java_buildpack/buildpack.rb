@@ -39,13 +39,18 @@ module JavaBuildpack
       Buildpack.require_component_files
       components = Buildpack.components
 
+      @jres = components['jres'].map do |jre|
+        jre.constantize.new(context)
+      end
+
+      @frameworks = components['frameworks'].map do |framework|
+        framework.constantize.new(context)
+      end
+
       @containers = components['containers'].map do |container|
         container.constantize.new(context)
       end
 
-      @jres = components['jres'].map do |jre|
-        jre.constantize.new(context)
-      end
     end
 
     # Iterates over all of the components to detect if this buildpack can be used to run an application
@@ -57,10 +62,12 @@ module JavaBuildpack
       jre_detections = @jres.map { |jre| jre.detect }.compact
       raise "Application can be run useing more than one JRE: #{jre_detections.join(', ')}" if jre_detections.size > 1
 
+      framework_detections = @frameworks.map { |framework| framework.detect }.compact
+
       container_detections = @containers.map { |container| container.detect }.compact
       raise "Application can be run by more than one container: #{container_detections.join(', ')}" if container_detections.size > 1
 
-      container_detections.empty? ? [] : jre_detections.concat(container_detections).flatten.compact
+      container_detections.empty? ? [] : jre_detections.concat(framework_detections).concat(container_detections).flatten.compact
     end
 
     # Transforms the application directory such that the JRE, container, and frameworks can run the application
@@ -68,6 +75,7 @@ module JavaBuildpack
     # @return [void]
     def compile
       jre.compile
+      frameworks.each { |framework| framework.compile }
       container.compile
     end
 
@@ -77,6 +85,7 @@ module JavaBuildpack
     # @return [String] The payload required to run the application.
     def release
       jre.release
+      frameworks.each { |framework| framework.release }
       command = container.release
 
       {
@@ -100,13 +109,18 @@ module JavaBuildpack
       Pathname.new(File.expand_path('container', File.dirname(__FILE__)))
     end
 
+    def self.framework_directory
+      Pathname.new(File.expand_path('framework', File.dirname(__FILE__)))
+    end
+
     def self.jre_directory
       Pathname.new(File.expand_path('jre', File.dirname(__FILE__)))
     end
 
     def self.require_component_files
-      component_files = container_directory.children()
-      component_files.concat jre_directory.children
+      component_files = jre_directory.children()
+      component_files.concat framework_directory.children
+      component_files.concat container_directory.children
 
       component_files.each do |file|
         require file.relative_path_from(root_directory) unless file.directory?
@@ -119,6 +133,10 @@ module JavaBuildpack
 
     def container
       @containers.detect { |container| container.detect }
+    end
+
+    def frameworks
+      @frameworks.select { |framework| framework.detect }
     end
 
     def jre

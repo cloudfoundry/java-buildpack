@@ -12,9 +12,11 @@ The `java-buildpack` is a [Cloud Foundry][cf] buildpack for running Java applica
 * [Standard Components](#standard-components)
 	* [OpenJDK JRE](#openjdk) ([Configuration](#openjdk-config))
 	* [Java Main Class Container](#javamain) ([Configuration](#javamain-config))
+	* [`JAVA_OPTS` Framework](#javaopts) ([Configuration](#javaopts-config))
 * [Extending](#extending)
 	* [JREs](#extending-jres)
 	* [Containers](#extending-containers)
+	* [Frameworks](#extending-framework)
 
 ---
 
@@ -58,7 +60,10 @@ The buildpack contributes a number of standard components that enable most Java 
 
 <a name='openjdk'></a>
 ## OpenJDK JRE
-**Criteria:** `java.runtime.vendor` set to `openjdk`
+| | |
+| - | -
+| **Detection Criteria** | `java.runtime.vendor` set to `openjdk`
+| **Detection Tags** | `jre-openjdk-<version>`
 
 The OpenJDK JRE provides Java runtimes from the [OpenJDK][openjdk] project.  Versions of Java from the 1.6, 1.7, and 1.8 lines are available.  If the version to use is not configured in `system.properties`, the latest version from the `1.7.0` line is chosen.
 
@@ -106,11 +111,20 @@ The OpenJDK JRE allows the configuration of the version of Java to use as well a
 
 If some memory sizes are not specified using the above properties, default values are provided. For maximum heap, Metaspace, or PermGen size, the default value is based on a proportion of the total memory specified when the application was pushed. For stack size, the default value is one megabyte.
 
-If any memory sizes are specified which are not equal to the default value, the proportionate defaults are adjusted accordingly. The default stack size is never adjusted from the default value.  
+If any memory sizes are specified which are not equal to the default value, the proportionate defaults are adjusted accordingly. The default stack size is never adjusted from the default value.
+
+#### OpenJDK Memory Heuristics
+
+The calculation of default memory sizes for OpenJDK is configured via YAML files in the buildpack's `config` directory.
+
+The configuration contains a weighting between `0` and `1` corresponding to a proportion of the total memory specified when the application was pushed. The weightings should add up to `1`.
 
 <a name='javamain'></a>
 ## Java Main Class Container
-**Criteria:** `Main-Class` attribute set in `META-INF/MANIFEST.MF` or `java.main.class` set
+| | |
+| - | -
+| **Detection Criteria** | `Main-Class` attribute set in `META-INF/MANIFEST.MF` or `java.main.class` set
+| **Detection Tags** | `java-main`
 
 The Java Main Class Container allows applications that provide a class with a `main()` method in it to be run.  These applications are run with a command that looks like `./java/bin/java -cp . com.gopivotal.SampleClass`.
 
@@ -119,7 +133,25 @@ The Java Main Class Container allows applications that provide a class with a `m
 
 | Name | Description
 | ---- | -----------
-| `java.main.class` | The Java class name to run. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line.  If not specified, the Java Manifest value of `Main-Class` is used.
+| `java.main.class` | The Java class name to run. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line.  If not specified, the Java Manifest value of `Main-Class` is used.
+
+<a name="javaopts"></a>
+## `JAVA_OPTS` Framework
+| | |
+| - | -
+| **Detection Criteria** | `java.opts` set
+| **Detection Tags** | `java-opts`
+
+The `JAVA_OPTS` Framework contributes arbitrary Java options to the application at runtime.
+
+<a name="javaopts"></a>
+### Configuration
+
+| Name | Description
+| ---- | -----------
+| `java.opts` | The Java options to use when running the application.  All values are used without modification when invoking the JVM.
+
+
 
 
 # Extending
@@ -144,8 +176,8 @@ def initialize(context = {})
 
 # Determines if the JRE can be used to run the application.
 #
-# @return [String, nil]  If the JRE can be used to run the application, a +String+ that uniquely identifies the JRE
-#                         (e.g. +jre-openjdk-1.7.0_21+).  Otherwise, +nil+.
+# @return [String, nil] If the JRE can be used to run the application, a +String+ that uniquely identifies the JRE
+#                       (e.g. +jre-openjdk-1.7.0_21+).  Otherwise, +nil+.
 def detect
 
 # Downloads and unpacks the JRE.  The JRE is expected to be unpacked such that +JAVA_HOME+ is +.java+.  Status output
@@ -178,8 +210,8 @@ def initialize(context = {})
 
 # Determines if the container can be used to run the application.
 #
-# @return [String, nil]  If the container can be used to run the application, a +String+ that uniquely identifies the
-#                         container (e.g. +tomcat-7.0.29+).  Otherwise, +nil+.
+# @return [String, nil] If the container can be used to run the application, a +String+ that uniquely identifies the
+#                       container (e.g. +tomcat-7.0.29+).  Otherwise, +nil+.
 def detect
 
 # Downloads and unpacks the container.  The container is expected to transform the application in whatever way
@@ -196,9 +228,35 @@ def compile
 def release
 ```
 
-## OpenJDK Memory Heuristics
+<a name='extending-frameworks'></a>
+## Frameworks
+To add a framework, the class file must be located in [`lib/java_buildpack/framework`][framework_dir].  The class must have the following methods:
 
-The calculation of default memory sizes for OpenJDK is configured via YAML files in the buildpack's `config` directory.
+[framework_dir]: lib/java_buildpack/framework
 
-The configuration contains a weighting between 0 and 1 corresponding to a proportion of the total memory specified
-when the application was pushed. The weightings should add up to 1.
+```ruby
+# An initializer for the instance.
+#
+# @param [Hash<Symbol, String>] context A shared context provided to all components
+# @option context [String] :app_dir the directory that the application exists in
+# @option context [Array<String>] :java_opts an array that Java options can be added to
+# @option context [Hash] :system_properties the properties provided by the user
+def initialize(context = {})
+
+# Determines if the framework can be applied to the application
+#
+# @return [String, nil] If the framework can be used to run the application, a +String+ that uniquely identifies the
+#                        framework (e.g. +java-opts+).  Otherwise, +nil+.
+def detect
+
+# Transforms the application based on the framework.  Status output written to +STDOUT+ is expected as part of this invocation.
+#
+# @return [void]
+def compile
+
+# Adds any framework-specific options to +context[:java_opts]+.  Typically this includes any JRE configuration required
+# by the framework, but could be anything that a framework needs to have configured.
+#
+# @return [void]
+def release
+```

@@ -13,11 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for components to use in the buildpack
----
-containers:
-  - "JavaBuildpack::Container::Main"
-jres:
-  - "JavaBuildpack::Jre::OpenJdk"
-frameworks:
-  - "JavaBuildpack::Framework::JavaOpts"
+require 'java_buildpack'
+
+# A module encapsulating all of the framework components for the Java buildpack
+module JavaBuildpack::Framework
+end
