@@ -82,8 +82,8 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
     with_memory_limit('1024m') do
       YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(PRE8_TEST_WEIGHTINGS)
       memory_heuristics = JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({})
-      expect(memory_heuristics.heap).to eq("#{(1024 * PRE8_TEST_HEAP_WEIGHTING).to_i.to_s}M")
-      expect(memory_heuristics.permgen).to eq("#{(1024 * 1024 * PRE8_TEST_PERMGEN_WEIGHTING).to_i.to_s}K")
+      expect(memory_heuristics.output['heap']).to eq("#{(1024 * PRE8_TEST_HEAP_WEIGHTING).to_i.to_s}M")
+      expect(memory_heuristics.output['permgen']).to eq("#{(1024 * 1024 * PRE8_TEST_PERMGEN_WEIGHTING).to_i.to_s}K")
     end
   end
 
@@ -91,7 +91,7 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
     with_memory_limit('0m') do
       YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(PRE8_TEST_WEIGHTINGS)
       memory_heuristics = JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({})
-      expect(memory_heuristics.stack).to eq('1M')
+      expect(memory_heuristics.output['stack']).to eq('1M')
     end
   end
 
@@ -99,8 +99,8 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
     with_memory_limit('1024m') do
       YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(heuristics_pre8({'heap' => PRE8_TEST_HEAP_WEIGHTING, 'permgen' => PRE8_TEST_PERMGEN_WEIGHTING, 'stack' => PRE8_TEST_STACK_WEIGHTING, 'native' => PRE8_TEST_SMALL_NATIVE_WEIGHTING}))
       memory_heuristics = JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({})
-      expect(memory_heuristics.heap).to eq("#{(1024 * PRE8_TEST_HEAP_WEIGHTING).to_i.to_s}M")
-      expect(memory_heuristics.permgen).to eq("#{(1024 * 1024 * PRE8_TEST_PERMGEN_WEIGHTING).to_i.to_s}K")
+      expect(memory_heuristics.output['heap']).to eq("#{(1024 * PRE8_TEST_HEAP_WEIGHTING).to_i.to_s}M")
+      expect(memory_heuristics.output['permgen']).to eq("#{(1024 * 1024 * PRE8_TEST_PERMGEN_WEIGHTING).to_i.to_s}K")
     end
   end
 
@@ -108,8 +108,8 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
     with_memory_limit('4096m') do
       YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(PRE8_TEST_WEIGHTINGS)
       memory_heuristics = JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({'heap' => "#{(4096 * 3 / 4).to_i.to_s}m"})
-      expect(memory_heuristics.heap).to eq('3G')
-      expect(memory_heuristics.permgen).to eq("#{(1024 * 4096 * PRE8_TEST_PERMGEN_WEIGHTING - 1024 * 1024 * PRE8_TEST_PERMGEN_WEIGHTING / (PRE8_TEST_PERMGEN_WEIGHTING + PRE8_TEST_NATIVE_WEIGHTING)).to_i.to_s}K")
+      expect(memory_heuristics.output['heap']).to eq('3G')
+      expect(memory_heuristics.output['permgen']).to eq("#{(1024 * 4096 * PRE8_TEST_PERMGEN_WEIGHTING - 1024 * 1024 * PRE8_TEST_PERMGEN_WEIGHTING / (PRE8_TEST_PERMGEN_WEIGHTING + PRE8_TEST_NATIVE_WEIGHTING)).to_i.to_s}K")
     end
   end
 
@@ -117,8 +117,8 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
     with_memory_limit('4096m') do
       YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(PRE8_TEST_WEIGHTINGS)
       memory_heuristics = JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({'permgen' => "#{(4096 / 2).to_i.to_s}m"})
-      expect(memory_heuristics.permgen).to eq('2G')
-      expect(memory_heuristics.heap).to eq("#{(1024 * 4096 * PRE8_TEST_HEAP_WEIGHTING - 1024 * 4096 * 0.2 * PRE8_TEST_HEAP_WEIGHTING / (PRE8_TEST_HEAP_WEIGHTING + PRE8_TEST_NATIVE_WEIGHTING)).to_i.to_s}K")
+      expect(memory_heuristics.output['permgen']).to eq('2G')
+      expect(memory_heuristics.output['heap']).to eq("#{(1024 * 4096 * PRE8_TEST_HEAP_WEIGHTING - 1024 * 4096 * 0.2 * PRE8_TEST_HEAP_WEIGHTING / (PRE8_TEST_HEAP_WEIGHTING + PRE8_TEST_NATIVE_WEIGHTING)).to_i.to_s}K")
     end
   end
 
@@ -127,8 +127,8 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
       YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(PRE8_TEST_WEIGHTINGS)
       memory_heuristics = JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({'stack' => '2m'})
       # The stack size is double the default, so this will consume an extra 409.6m, which should be taken from heap, permgen, and native according to their weightings
-      expect(memory_heuristics.heap).to eq("#{(1024 * 4096 * PRE8_TEST_HEAP_WEIGHTING - 1024 * 409.6 * PRE8_TEST_HEAP_WEIGHTING / (PRE8_TEST_HEAP_WEIGHTING + PRE8_TEST_PERMGEN_WEIGHTING + PRE8_TEST_NATIVE_WEIGHTING)).to_i.to_s}K")
-      expect(memory_heuristics.permgen).to eq("#{(1024 * 4096 * PRE8_TEST_PERMGEN_WEIGHTING - 1024 * 409.6 * PRE8_TEST_PERMGEN_WEIGHTING / (PRE8_TEST_PERMGEN_WEIGHTING + PRE8_TEST_HEAP_WEIGHTING + PRE8_TEST_NATIVE_WEIGHTING)).to_i.to_s}K")
+      expect(memory_heuristics.output['heap']).to eq("#{(1024 * 4096 * PRE8_TEST_HEAP_WEIGHTING - 1024 * 409.6 * PRE8_TEST_HEAP_WEIGHTING / (PRE8_TEST_HEAP_WEIGHTING + PRE8_TEST_PERMGEN_WEIGHTING + PRE8_TEST_NATIVE_WEIGHTING)).to_i.to_s}K")
+      expect(memory_heuristics.output['permgen']).to eq("#{(1024 * 4096 * PRE8_TEST_PERMGEN_WEIGHTING - 1024 * 409.6 * PRE8_TEST_PERMGEN_WEIGHTING / (PRE8_TEST_PERMGEN_WEIGHTING + PRE8_TEST_HEAP_WEIGHTING + PRE8_TEST_NATIVE_WEIGHTING)).to_i.to_s}K")
     end
   end
 
@@ -138,7 +138,7 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
       memory_heuristics = JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({'heap' => "#{(4096 * 3 / 4).to_i.to_s}m", 'stack' => '2m'})
       # The heap size is 1G more than the default, so this should be taken from permgen according to the weightings
       # The stack size is double the default, so this will consume an extra 409.6m, some of which should be taken from permgen according to the weightings
-      expect(memory_heuristics.permgen).to eq("#{(1024 * 4096 * PRE8_TEST_PERMGEN_WEIGHTING - 1024 * 1024 * PRE8_TEST_PERMGEN_WEIGHTING / (PRE8_TEST_PERMGEN_WEIGHTING + PRE8_TEST_NATIVE_WEIGHTING) -
+      expect(memory_heuristics.output['permgen']).to eq("#{(1024 * 4096 * PRE8_TEST_PERMGEN_WEIGHTING - 1024 * 1024 * PRE8_TEST_PERMGEN_WEIGHTING / (PRE8_TEST_PERMGEN_WEIGHTING + PRE8_TEST_NATIVE_WEIGHTING) -
           1024 * 409.6 * PRE8_TEST_PERMGEN_WEIGHTING / (PRE8_TEST_PERMGEN_WEIGHTING + PRE8_TEST_NATIVE_WEIGHTING)).to_i.to_s}K")
     end
   end
@@ -147,9 +147,9 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8 do
     with_memory_limit('4096m') do
       YAML.stub(:load_file).with(File.expand_path PRE8_CONFIG_FILE_PATH).and_return(PRE8_TEST_WEIGHTINGS)
       memory_heuristics = JavaBuildpack::Jre::MemoryHeuristicsOpenJDKPre8.new({'heap' => '1m', 'permgen' => '1m', 'stack' => '2m'})
-      expect(memory_heuristics.heap).to eq('1M')
-      expect(memory_heuristics.permgen).to eq('1M')
-      expect(memory_heuristics.stack).to eq('2M')
+      expect(memory_heuristics.output['heap']).to eq('1M')
+      expect(memory_heuristics.output['permgen']).to eq('1M')
+      expect(memory_heuristics.output['stack']).to eq('2M')
     end
   end
 

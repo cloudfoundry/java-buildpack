@@ -23,25 +23,14 @@ module JavaBuildpack::Jre
   # A utility for defaulting Java memory settings.
   class MemoryHeuristicsOpenJDKPre8
 
-    # @!attribute [r] heap
-    #   @return [String] the maximum heap size, e.g. '1M'
-    attr_reader :heap
-
-    # @!attribute [r] permgen
-    #   @return [String, nil] the maximum permgen size, e.g. '1M', or nil if the maximum permgen size is not set
-    attr_reader :permgen
-
-    # @!attribute [r] stack
-    #   @return [String] the stack size, e.g. '1M'
-    attr_reader :stack
+    # @!attribute [r] output
+    #   @return [Hash] a hash of the memory settings
+    attr_reader :output
 
     # Creates an instance based on a hash containing memory settings, a configuration file containing weightings, and the application's memory size in $MEMORY_LIMIT.
     def initialize(args)
       weight_balancing_memory_heuristic = WeightBalancingMemoryHeuristic.new(MEMORY_HEURISTICS_YAML_FILE, WEIGHTINGS_NAME, args)
-
-      @heap = weight_balancing_memory_heuristic.output['heap']
-      @permgen = weight_balancing_memory_heuristic.output['permgen']
-      @stack = weight_balancing_memory_heuristic.output['stack']
+      @output = weight_balancing_memory_heuristic.output
     end
 
     private
