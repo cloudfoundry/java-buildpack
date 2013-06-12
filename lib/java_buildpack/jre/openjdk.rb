@@ -44,7 +44,7 @@ module JavaBuildpack::Jre
     #
     # @return [String, nil] returns +jre-<vendor>-<version>+.
     def detect
-      memory_sizes # drive out errors early
+      # memory_sizes # drive out errors early
       id @details
     end
 
@@ -52,7 +52,7 @@ module JavaBuildpack::Jre
     #
     # @return [void]
     def compile
-      memory_sizes # drive out errors early
+      # memory_sizes # drive out errors early
       application_cache = JavaBuildpack::Util::ApplicationCache.new
 
       download_start_time = Time.now
@@ -68,9 +68,9 @@ module JavaBuildpack::Jre
     #
     # @return [void]
     def release
-      memory_sizes.each do |memory_size|
-        @java_opts << memory_size
-      end
+      #memory_sizes.each do |memory_size|
+      #  @java_opts << memory_size
+      #end
     end
 
     private
