@@ -110,19 +110,19 @@ module JavaBuildpack::Jre
     def memory_sizes
       specified_memory_sizes = rename(@configuration, PROPERTY_MAPPING)
       heuristic_class = pre_8 ? MemoryHeuristicsOpenJDKPre8 : MemoryHeuristicsOpenJDK
-      java_options(heuristic_class.new(specified_memory_sizes))
+      java_options(heuristic_class.new(specified_memory_sizes).output)
     end
 
     def pre_8
       TokenizedVersion.new(@details.version) < TokenizedVersion.new("1.8")
     end
 
-    def java_options(mh)
+    def java_options(memory_values)
       java_options = []
-      java_options << "-Xmx#{mh.heap}"
-      java_options << "-Xss#{mh.stack}"
-      java_options << "-XX:MaxMetaspaceSize=#{mh.metaspace}" if mh.respond_to?(:metaspace)
-      java_options << "-XX:MaxPermSize=#{mh.permgen}" if mh.respond_to?(:permgen)
+      java_options << "-Xmx#{memory_values['heap']}"
+      java_options << "-Xss#{memory_values['stack']}"
+      java_options << "-XX:MaxMetaspaceSize=#{memory_values['metaspace']}" if memory_values['metaspace']
+      java_options << "-XX:MaxPermSize=#{memory_values['permgen']}" if memory_values['permgen']
       java_options
     end
 
