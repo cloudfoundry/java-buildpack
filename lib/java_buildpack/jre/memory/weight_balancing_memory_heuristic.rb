@@ -33,6 +33,21 @@ module JavaBuildpack::Jre
 
       memory_limit = MemoryLimit.memory_limit
 
+      buckets = WeightBalancingMemoryHeuristic.create_memory_buckets(args, memory_limit, weighting_configuration_filename, weightings_name)
+
+      WeightBalancingMemoryHeuristic.balance_buckets(args, buckets, memory_limit)
+
+      WeightBalancingMemoryHeuristic.issue_memory_wastage_warning buckets
+
+      @output = {}
+      buckets.each_pair do |memory_type, bucket|
+        @output[memory_type] = bucket.size.to_s
+      end
+    end
+
+    private
+
+    def self.create_memory_buckets(args, memory_limit, weighting_configuration_filename, weightings_name)
       config = WeightBalancingMemoryHeuristic.load_config(weighting_configuration_filename, weightings_name)
 
       buckets = {}
@@ -46,7 +61,10 @@ module JavaBuildpack::Jre
       end
 
       raise "Invalid configuration in 'config/#{weighting_configuration_filename}': sum of weightings is greater than 1" if total_weighting > 1
+      buckets
+    end
 
+    def self.balance_buckets(args, buckets, memory_limit)
       total_excess = MemorySize.ZERO
       total_adjustable_weighting = 0
       buckets.each_value do |bucket|
@@ -59,16 +77,7 @@ module JavaBuildpack::Jre
         bucket.adjust(total_excess, total_adjustable_weighting)
         raise "Total memory #{memory_limit} exceeded by configured memory #{args}" if bucket.size < MemorySize.ZERO
       end
-
-      WeightBalancingMemoryHeuristic.issue_memory_wastage_warning buckets
-
-      @output = {}
-      buckets.each_pair do |memory_type, bucket|
-        @output[memory_type] = bucket.size.to_s
-      end
     end
-
-    private
 
     NATIVE_MEMORY_WARNING_FACTOR = 3
 
