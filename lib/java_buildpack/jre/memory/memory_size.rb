@@ -62,31 +62,15 @@ module JavaBuildpack::Jre
     end
 
     # Compare this memory size with another memory size
-    # @param [Object] other
+    # @param [MemorySize] other
     # @return [Numeric] the result
     def <=>(other)
-      raise "Cannot compare a MemorySize to an instance of #{other.class}" unless self.class == other.class
+      raise "Cannot compare a MemorySize to an instance of #{other.class}" unless other.is_a? MemorySize
       @bytes <=> other.bytes
     end
 
-    # Multiply this memory size by a numeric factor.
-    # @param [Object] other the factor to multiply by
-    # @return [MemorySize] the result
-    def *(other)
-      raise "Cannot multiply a Memory size by an instance of #{other.class}" unless other.is_a? Numeric
-      MemorySize.from_numeric((@bytes * other).round)
-    end
-
-    # Subtract a memory size from this memory size.
-    # @param [Object] other the memory size to subtract
-    # @return [MemorySize] the result
-    def -(other)
-      raise "Cannot subtract an instance of #{other.class} from a MemorySize" unless other.is_a? MemorySize
-      MemorySize.from_numeric(@bytes - other.bytes)
-    end
-
     # Add a memory size to this memory size.
-    # @param [Object] other the memory size to add
+    # @param [MemorySize] other the memory size to add
     # @return [MemorySize] the result
     def +(other)
       raise "Cannot add an instance of #{other.class} to a MemorySize" unless other.is_a? MemorySize
@@ -94,8 +78,24 @@ module JavaBuildpack::Jre
     end
 
     # Divide a memory size by a memory size or a numeric value. The units are respected, so the result of diving by a
+    # Multiply this memory size by a numeric factor.
+    # @param [Numeric] other the factor to multiply by
+    # @return [MemorySize] the result
+    def *(other)
+      raise "Cannot multiply a Memory size by an instance of #{other.class}" unless other.is_a? Numeric
+      MemorySize.from_numeric((@bytes * other).round)
+    end
+
+    # Subtract a memory size from this memory size.
+    # @param [MemorySize] other the memory size to subtract
+    # @return [MemorySize] the result
+    def -(other)
+      raise "Cannot subtract an instance of #{other.class} from a MemorySize" unless other.is_a? MemorySize
+      MemorySize.from_numeric(@bytes - other.bytes)
+    end
+
     # memory size is a numeric whereas the result of dividing by a numeric value is a memory size.
-    # @param [Object] other the memory size or numeric value to divide by
+    # @param [MemorySize, Numeric] other the memory size or numeric value to divide by
     # @return [MemorySize, Numeric] the result
     def /(other)
       return @bytes / other.bytes if other.is_a? MemorySize
