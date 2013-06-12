@@ -59,6 +59,8 @@ module JavaBuildpack::Jre
         bucket.adjust(total_excess, total_adjustable_weighting)
       end
 
+      WeightBalancingMemoryHeuristic.issue_memory_wastage_warning buckets
+
       @output = {}
       buckets.each_pair do |memory_type, bucket|
         @output[memory_type] = bucket.size.to_s
@@ -66,6 +68,8 @@ module JavaBuildpack::Jre
     end
 
     private
+
+    NATIVE_MEMORY_WARNING_FACTOR = 3
 
     def self.load_config(weighting_configuration_filename)
       YAML.load_file(File.expand_path "../../../../config/#{weighting_configuration_filename}", File.dirname(__FILE__))
@@ -76,6 +80,13 @@ module JavaBuildpack::Jre
         StackMemoryBucket.new(weighting, size, total_memory)
       else
         MemoryBucket.new(memory_type, weighting, size, true, total_memory)
+      end
+    end
+
+    def self.issue_memory_wastage_warning(buckets)
+      native_bucket = buckets['native']
+      if native_bucket && native_bucket.size > native_bucket.default_size * NATIVE_MEMORY_WARNING_FACTOR
+        $stderr.puts "-----> WARNING: there is #{NATIVE_MEMORY_WARNING_FACTOR} times more spare native memory than the default, so configured Java memory may be too small."
       end
     end
 

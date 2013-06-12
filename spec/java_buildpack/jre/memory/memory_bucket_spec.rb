@@ -60,6 +60,11 @@ describe JavaBuildpack::Jre::MemoryBucket do
     expect(memory_bucket.size).to eq(TEST_SIZE)
   end
 
+  it 'should calculate the correct default size' do
+    memory_bucket = JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, TEST_SIZE, true, TEST_TOTAL_MEMORY)
+    expect(memory_bucket.default_size).to eq(TEST_TOTAL_MEMORY * TEST_WEIGHTING)
+  end
+
   it 'should apply the default if a nil size is specified' do
     memory_bucket = JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, nil, true, TEST_TOTAL_MEMORY)
     expect(memory_bucket.size).to eq(TEST_TOTAL_MEMORY * TEST_WEIGHTING)

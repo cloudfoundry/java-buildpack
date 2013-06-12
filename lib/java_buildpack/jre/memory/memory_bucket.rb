@@ -74,6 +74,12 @@ module JavaBuildpack::Jre
       end
     end
 
+    # Returns the default memory size as a weighted proportion of total memory.
+    # @return [MemorySize] the default memory size
+    def default_size
+      @total_memory * @weighting
+    end
+
     protected
 
     def set_size(size)
@@ -81,11 +87,6 @@ module JavaBuildpack::Jre
     end
 
     private
-
-    def default_size
-      @total_memory * @weighting
-    end
-
 
     def self.validate_name(name)
       raise "Invalid MemoryBucket name '#{name}'" if name.nil? || name.to_s.size == 0
