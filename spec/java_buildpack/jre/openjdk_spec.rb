@@ -106,7 +106,7 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {'java.permgen.size' => PERMGEN_SIZE}).release
 
-        expect(java_opts[1]).to eq("-XX:MaxPermSize=#{PERMGEN_SIZE}")
+        expect(java_opts[2]).to eq("-XX:MaxPermSize=#{PERMGEN_SIZE}")
       end
     end
 
@@ -117,7 +117,7 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
-        expect(java_opts[1]).to match(/-XX:MaxPermSize=/)
+        expect(java_opts[2]).to match(/-XX:MaxPermSize=/)
       end
     end
 
@@ -135,7 +135,7 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {'java.stack.size' => STACK_SIZE}).release
 
-        expect(java_opts[2]).to eq("-Xss#{STACK_SIZE}")
+        expect(java_opts[1]).to eq("-Xss#{STACK_SIZE}")
       end
     end
 
@@ -146,7 +146,7 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
-        expect(java_opts[2]).to match(/-Xss/)
+        expect(java_opts[1]).to match(/-Xss/)
       end
     end
 
@@ -164,7 +164,7 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {'java.metaspace.size' => METASPACE_SIZE}).release
 
-        expect(java_opts[1]).to eq("-XX:MaxMetaspaceSize=#{PERMGEN_SIZE}")
+        expect(java_opts[2]).to eq("-XX:MaxMetaspaceSize=#{PERMGEN_SIZE}")
       end
     end
 
@@ -175,7 +175,7 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
-        expect(java_opts[1]).to match(/-XX:MaxMetaspaceSize=/)
+        expect(java_opts[2]).to match(/-XX:MaxMetaspaceSize=/)
       end
     end
 
