@@ -19,11 +19,7 @@ require 'tmpdir'
 
 module JavaBuildpack::Jre
 
-  RSpec.configure do |c|
-    c.filter_run_excluding :waiting_for_memory_limit_support => true
-  end
-
-  describe OpenJdk, :waiting_for_memory_limit_support => true do
+  describe OpenJdk do
 
     HEAP_SIZE = '1G'
 
@@ -81,7 +77,8 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {'java.heap.size' => HEAP_SIZE}).release
 
-        expect(java_opts[0]).to eq("-Xmx#{HEAP_SIZE}")
+        expect(java_opts.length).to eq(3)
+        expect(java_opts.join(' ')).to match(/-Xmx#{HEAP_SIZE}/)
       end
     end
 
@@ -92,7 +89,8 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
-        expect(java_opts[0]).to match(/-Xmx/)
+        expect(java_opts.length).to eq(3)
+        expect(java_opts.join(' ')).to match(/-Xmx/)
       end
     end
 
@@ -110,7 +108,8 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {'java.permgen.size' => PERMGEN_SIZE}).release
 
-        expect(java_opts[2]).to eq("-XX:MaxPermSize=#{PERMGEN_SIZE}")
+        expect(java_opts.length).to eq(3)
+        expect(java_opts.join(' ')).to match(/-XX:MaxPermSize=#{PERMGEN_SIZE}/)
       end
     end
 
@@ -121,7 +120,8 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
-        expect(java_opts[2]).to match(/-XX:MaxPermSize=/)
+        expect(java_opts.length).to eq(3)
+        expect(java_opts.join(' ')).to match(/-XX:MaxPermSize=/)
       end
     end
 
@@ -139,18 +139,20 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {'java.stack.size' => STACK_SIZE}).release
 
-        expect(java_opts[1]).to eq("-Xss#{STACK_SIZE}")
+        expect(java_opts.length).to eq(3)
+        expect(java_opts.join(' ')).to match(/-Xss#{STACK_SIZE}/)
       end
     end
 
-    it 'does not add a stack size to java_opts if not specified' do
+    it 'adds a stack size to java_opts if not specified' do
       with_memory_limit('1G') do
         Details.stub(:new).and_return(details_pre_8)
 
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
-        expect(java_opts[1]).to match(/-Xss/)
+        expect(java_opts.length).to eq(3)
+        expect(java_opts.join(' ')).to match(/-Xss1M/)
       end
     end
 
@@ -168,7 +170,8 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {'java.metaspace.size' => METASPACE_SIZE}).release
 
-        expect(java_opts[2]).to eq("-XX:MaxMetaspaceSize=#{PERMGEN_SIZE}")
+        expect(java_opts.length).to eq(3)
+        expect(java_opts.join(' ')).to match(/-XX:MaxMetaspaceSize=#{PERMGEN_SIZE}/)
       end
     end
 
@@ -179,7 +182,20 @@ module JavaBuildpack::Jre
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
 
-        expect(java_opts[2]).to match(/-XX:MaxMetaspaceSize=/)
+        expect(java_opts.length).to eq(3)
+        expect(java_opts.join(' ')).to match(/-XX:MaxMetaspaceSize=/)
+      end
+    end
+
+    it 'falls back to not defaulting memory sizes if $MEMORY_LIMIT is not set' do
+      with_memory_limit(nil) do
+        Details.stub(:new).and_return(details_pre_8)
+
+        java_opts = []
+        OpenJdk.new(:java_opts => java_opts, :configuration => {}).release
+
+        expect(java_opts.length).to eq(1)
+        expect(java_opts[0]).to match(/-Xss1M/)
       end
     end
 

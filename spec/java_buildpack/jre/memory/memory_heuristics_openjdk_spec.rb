@@ -153,6 +153,15 @@ describe JavaBuildpack::Jre::MemoryHeuristicsOpenJDK do
     end
   end
 
+  it 'should only defaults the thread stack size when the memory limit is unknown' do
+    with_memory_limit(nil) do
+      YAML.stub(:load_file).with(File.expand_path OPENJDK_CONFIG_FILE_PATH).and_return(OPENJDK_TEST_WEIGHTINGS)
+      memory_heuristics = JavaBuildpack::Jre::MemoryHeuristicsOpenJDK.new({})
+      expect(memory_heuristics.output['heap']).to be_nil
+      expect(memory_heuristics.output['metaspace']).to be_nil
+      expect(memory_heuristics.output['stack']).to eq('1M')
+    end
+  end
 
   def with_memory_limit(memory_limit)
     previous_value = ENV['MEMORY_LIMIT']

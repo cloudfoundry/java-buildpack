@@ -34,9 +34,9 @@ describe JavaBuildpack::Jre::MemoryLimit do
     end
   end
 
-  it 'should fail if a memory limit is not specified' do
+  it 'should return nil if a memory limit is not specified' do
     with_memory_limit(nil) do
-      expect { JavaBuildpack::Jre::MemoryLimit.memory_limit }.to raise_error(/not\ specified/)
+      expect(JavaBuildpack::Jre::MemoryLimit.memory_limit).to be_nil
     end
   end
 

@@ -37,11 +37,11 @@ module JavaBuildpack::Jre
 
       WeightBalancingMemoryHeuristic.balance_buckets(args, buckets, memory_limit)
 
-      WeightBalancingMemoryHeuristic.issue_memory_wastage_warning buckets
+      WeightBalancingMemoryHeuristic.issue_memory_wastage_warning(buckets) if memory_limit
 
       @output = {}
       buckets.each_pair do |memory_type, bucket|
-        @output[memory_type] = bucket.size.to_s
+        @output[memory_type] = bucket.size.to_s if bucket.size
       end
     end
 
@@ -75,7 +75,7 @@ module JavaBuildpack::Jre
 
       buckets.each_value do |bucket|
         bucket.adjust(total_excess, total_adjustable_weighting)
-        raise "Total memory #{memory_limit} exceeded by configured memory #{args}" if bucket.size < MemorySize.ZERO
+        raise "Total memory #{memory_limit} exceeded by configured memory #{args}" if bucket.size && bucket.size < MemorySize.ZERO
       end
     end
 

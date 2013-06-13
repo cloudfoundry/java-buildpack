@@ -42,4 +42,14 @@ describe JavaBuildpack::Jre::StackMemoryBucket do
     expect(stack_memory_bucket.size).to eq(DEFAULT_STACK_SIZE)
   end
 
+  it 'should use the correct default size if size has not been set and total memory is nil' do
+    stack_memory_bucket = JavaBuildpack::Jre::StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, nil, nil)
+    expect(stack_memory_bucket.size).to eq(DEFAULT_STACK_SIZE)
+  end
+
+  it 'should return excess of 0 if size has been set and total memory is nil' do
+    stack_memory_bucket = JavaBuildpack::Jre::StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, TEST_STACK_SIZE, nil)
+    expect(stack_memory_bucket.excess).to eq(JavaBuildpack::Jre::MemorySize.ZERO)
+  end
+
 end
