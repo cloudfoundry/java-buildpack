@@ -82,7 +82,7 @@ module JavaBuildpack::Jre
 
       @version = VersionResolver.resolve(candidate_version, default_version, versions.keys)
 
-      @uri = "#{repository_root}/#{versions[@version]}"
+      @uri = versions[@version]
     end
 
     private
