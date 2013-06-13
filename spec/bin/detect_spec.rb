@@ -21,7 +21,7 @@ describe 'detect script' do
   it 'should return non-zero if version is invalid' do
     Open3.popen3("bin/detect spec/fixtures/integration_invalid_version") do |stdin, stdout, stderr, wait_thr|
       expect(wait_thr.value).to_not be_success
-      expect(stderr.read).to match(/^Invalid version '5': missing component/)
+      expect(stderr.read).to match(/No version resolvable for '1.5.0'/)
     end
   end
 
