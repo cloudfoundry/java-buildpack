@@ -19,11 +19,7 @@ require 'tmpdir'
 
 module JavaBuildpack::Jre
 
-  RSpec.configure do |c|
-    c.filter_run_excluding :waiting_for_memory_limit_support => true
-  end
-
-  describe OpenJdk, :waiting_for_memory_limit_support => true do
+  describe OpenJdk do
 
     HEAP_SIZE = '1G'
 
