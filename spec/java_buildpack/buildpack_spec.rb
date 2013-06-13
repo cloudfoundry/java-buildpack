@@ -29,7 +29,6 @@ module JavaBuildpack
     let(:stub_framework2) { double('StubFramework2', :detect => nil) }
     let(:stub_jre1) { double('StubJre1', :detect => nil) }
     let(:stub_jre2) { double('StubJre2', :detect => nil) }
-    let(:configuration) { double('SystemProperties') }
 
     before do
       YAML.stub(:load_file).with(File.expand_path('config/components.yml')).and_return(
@@ -37,7 +36,7 @@ module JavaBuildpack
         'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
         'jres' => ['Test::StubJre1', 'Test::StubJre2'])
 
-      SystemProperties.stub(:new).with(APP_DIR).and_return(configuration)
+      SystemProperties.stub(:new).with(APP_DIR).and_return({})
 
       Test::StubContainer1.stub(:new).and_return(stub_container1)
       Test::StubContainer2.stub(:new).and_return(stub_container2)

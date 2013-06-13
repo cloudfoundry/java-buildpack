@@ -27,28 +27,38 @@ module JavaBuildpack
     # Creates a new instance, passing in the application directory.  As part of initialization, all of files located in
     # the following directories are +require+d:
     # * +lib/java_buildpack/container+
+    # * +lib/java_buildpack/jre+
+    # * +lib/java_buildpack/framework+
     #
     # @param [String] app_dir The application directory
     def initialize(app_dir)
-      context = {
-        :app_dir => app_dir,
-        :java_opts => [],
-        :configuration => SystemProperties.new(app_dir)
-      }
-
       Buildpack.require_component_files
       components = Buildpack.components
 
+      java_opts = []
+
       @jres = components['jres'].map do |jre|
-        jre.constantize.new(context)
+        jre.constantize.new({
+          :app_dir => app_dir,
+          :java_opts => java_opts,
+          :configuration => Buildpack.configuration(app_dir, jre)
+        })
       end
 
       @frameworks = components['frameworks'].map do |framework|
-        framework.constantize.new(context)
+        framework.constantize.new({
+          :app_dir => app_dir,
+          :java_opts => java_opts,
+          :configuration => Buildpack.configuration(app_dir, framework)
+        })
       end
 
       @containers = components['containers'].map do |container|
-        container.constantize.new(context)
+        container.constantize.new({
+          :app_dir => app_dir,
+          :java_opts => java_opts,
+          :configuration => Buildpack.configuration(app_dir, container)
+        })
       end
 
     end
@@ -103,6 +113,18 @@ module JavaBuildpack
 
     def self.components
       YAML.load_file(File.expand_path(COMPONENTS_CONFIG, File.dirname(__FILE__)))
+    end
+
+    def self.configuration(app_dir, type)
+      configuration = {}
+
+      name = type.match(/^(?:.*::)?(.*)$/)[1].downcase
+      config_file = File.expand_path("../../config/#{name}.yml", File.dirname(__FILE__))
+      configuration.merge!(YAML.load_file(config_file)) if File.exists? config_file
+
+      configuration.merge!(SystemProperties.new(app_dir))
+
+      configuration
     end
 
     def self.container_directory

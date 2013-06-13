@@ -19,9 +19,9 @@ require 'open3'
 describe 'release script' do
 
   it 'should return non-zero if failure' do
-    Open3.popen3("bin/release spec/fixtures/integration_invalid_vendor") do |stdin, stdout, stderr, wait_thr|
+    Open3.popen3("bin/release spec/fixtures/integration_invalid_version") do |stdin, stdout, stderr, wait_thr|
       expect(wait_thr.value).to_not be_success
-      expect(stderr.read).to eq("Invalid JRE vendor 'sun'\n")
+      expect(stderr.read).to eq("Invalid version '5': missing component\n")
     end
   end
 

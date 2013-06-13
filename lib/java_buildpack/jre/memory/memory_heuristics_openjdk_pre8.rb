@@ -14,28 +14,24 @@
 # limitations under the License.
 
 require 'java_buildpack/jre'
-require 'java_buildpack/jre/memory/memory_bucket'
-require 'java_buildpack/jre/memory/stack_memory_bucket'
 require 'java_buildpack/jre/memory/weight_balancing_memory_heuristic'
 
 module JavaBuildpack::Jre
 
-  # A utility for defaulting Java memory settings.
-  class MemoryHeuristicsOpenJDKPre8
+  # A utility for calculating the memory settings for OpenJDK < 1.8.0
+  class MemoryHeuristicsOpenJDKPre8 < WeightBalancingMemoryHeuristic
 
-    # @!attribute [r] output
-    #   @return [Hash] a hash of the memory settings
-    attr_reader :output
-
-    # Creates an instance based on a hash containing memory settings, a configuration file containing weightings, and the application's memory size in $MEMORY_LIMIT.
-    def initialize(args)
-      weight_balancing_memory_heuristic = WeightBalancingMemoryHeuristic.new(MEMORY_HEURISTICS_YAML_FILE, WEIGHTINGS_NAME, args)
-      @output = weight_balancing_memory_heuristic.output
+    # Creates an instance based on a hash containing memory settings, a configuration file containing weightings, and
+    # the application's memory size in $MEMORY_LIMIT.
+    #
+    # @param [Hash<String, Numeric>] specified_sizes any sizings specified by the user
+    # @param [Hash<Stirng, Numeric>] memory_heuristics the memory heuristics for OpenJDK
+    def initialize(specified_sizes, memory_heuristics)
+      super(specified_sizes, memory_heuristics[WEIGHTINGS_NAME])
     end
 
     private
 
-    MEMORY_HEURISTICS_YAML_FILE = 'jres.yml'
     WEIGHTINGS_NAME = 'pre_8'
 
   end

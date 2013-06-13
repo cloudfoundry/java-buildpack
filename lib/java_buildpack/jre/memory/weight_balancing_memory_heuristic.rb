@@ -28,14 +28,16 @@ module JavaBuildpack::Jre
     #   @return [Hash] a hash of memory types and corresponding memory sizes, e.g. {'memory-type' => '1M'}
     attr_reader :output
 
-    # Creates an instance based on a configuration file containing weightings, the name of the weighting hash with the configuration file, a hash containing memory settings, and the application's memory size in $MEMORY_LIMIT.
-    def initialize(weighting_configuration_filename, weightings_name, args)
-
+    # Creates an instance based on user-specified sizes weightings, and the application's memory size in $MEMORY_LIMIT.
+    #
+    # @param [Hash<String, Numeric>] specified_sizes any sizings specified by the user
+    # @param [Hash<String, Numeric>] weightings the weightings for this version of the JRE
+    def initialize(specified_sizes, weightings)
       memory_limit = MemoryLimit.memory_limit
 
-      buckets = WeightBalancingMemoryHeuristic.create_memory_buckets(args, memory_limit, weighting_configuration_filename, weightings_name)
+      buckets = WeightBalancingMemoryHeuristic.create_memory_buckets(specified_sizes, weightings, memory_limit)
 
-      WeightBalancingMemoryHeuristic.balance_buckets(args, buckets, memory_limit)
+      WeightBalancingMemoryHeuristic.balance_buckets(specified_sizes, buckets, memory_limit)
 
       WeightBalancingMemoryHeuristic.issue_memory_wastage_warning(buckets) if memory_limit
 
@@ -47,24 +49,23 @@ module JavaBuildpack::Jre
 
     private
 
-    def self.create_memory_buckets(args, memory_limit, weighting_configuration_filename, weightings_name)
-      config = WeightBalancingMemoryHeuristic.load_config(weighting_configuration_filename, weightings_name)
-
+    def self.create_memory_buckets(specified_sizes, weightings, memory_limit)
       buckets = {}
       total_weighting = 0
-      config.each_pair do |memory_type, weighting|
-        value = args[memory_type]
-        buckets[memory_type] = WeightBalancingMemoryHeuristic.create_memory_bucket(memory_type, weighting,
-                                                                                   value ? MemorySize.new(value) : nil,
-                                                                                   memory_limit)
+      weightings.each_pair do |memory_type, weighting|
+        value = specified_sizes[memory_type]
+
+        buckets[memory_type] = WeightBalancingMemoryHeuristic.create_memory_bucket(
+          memory_type, weighting, value ? MemorySize.new(value) : nil, memory_limit)
+
         total_weighting += weighting
       end
 
-      raise "Invalid configuration in 'config/#{weighting_configuration_filename}': sum of weightings is greater than 1" if total_weighting > 1
+      raise "Invalid configuration: sum of weightings is greater than 1" if total_weighting > 1
       buckets
     end
 
-    def self.balance_buckets(args, buckets, memory_limit)
+    def self.balance_buckets(specified_sizes, buckets, memory_limit)
       total_excess = MemorySize.ZERO
       total_adjustable_weighting = 0
       buckets.each_value do |bucket|
@@ -75,24 +76,11 @@ module JavaBuildpack::Jre
 
       buckets.each_value do |bucket|
         bucket.adjust(total_excess, total_adjustable_weighting)
-        raise "Total memory #{memory_limit} exceeded by configured memory #{args}" if bucket.size && bucket.size < MemorySize.ZERO
+        raise "Total memory #{memory_limit} exceeded by configured memory #{specified_sizes}" if bucket.size && bucket.size < MemorySize.ZERO
       end
     end
 
     NATIVE_MEMORY_WARNING_FACTOR = 3
-
-    def self.load_config(weighting_configuration_filename, weightings_name)
-      config = YAML.load_file(File.expand_path "../../../../config/#{weighting_configuration_filename}", File.dirname(__FILE__))
-      openjdk = extract_hash(config, weighting_configuration_filename, 'openjdk')
-      memory_heuristics = extract_hash(openjdk, weighting_configuration_filename, 'memory_heuristics')
-      extract_hash(memory_heuristics, weighting_configuration_filename, weightings_name)
-    end
-
-    def self.extract_hash(config, weighting_configuration_filename, hash_name)
-      hash = config[hash_name]
-      raise "Value of '#{hash_name}' missing from config/#{weighting_configuration_filename}" unless hash
-      hash
-    end
 
     def self.create_memory_bucket(memory_type, weighting, size, total_memory)
       if memory_type == 'stack'
