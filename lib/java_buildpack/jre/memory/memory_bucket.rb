@@ -35,14 +35,15 @@ module JavaBuildpack::Jre
     # size
     # @param [Boolean] adjustable whether the size of this memory bucket can grow/shrink or is fixed. If the user
     # specified the size of the memory bucket, the size is fixed, regardless of the value of this parameter, although
-    # the parameter value must still be valid.
-    # @param [Numeric] total_memory the total virtual memory size of the operating system process in KB
+    # the parameter value must still be valid. If total_memory is nil, the size is fixed since no defaulting will occur.
+    # @param [Numeric, nil] total_memory the total virtual memory size of the operating system process in KB or nil if
+    # this is not known
     def initialize(name, weighting, size, adjustable, total_memory)
       @name = MemoryBucket.validate_name name
       @weighting = validate_weighting weighting
       @size_specified = size ? validate_memory_size(size, 'size') : nil
-      @adjustable = (validate_adjustable adjustable) && !@size_specified
-      @total_memory = validate_memory_size(total_memory, 'total_memory')
+      @adjustable = (validate_adjustable adjustable) && !@size_specified && total_memory
+      @total_memory = total_memory ? validate_memory_size(total_memory, 'total_memory') : nil
       @size = @size_specified || default_size
     end
 
@@ -50,7 +51,11 @@ module JavaBuildpack::Jre
     #
     # @return [Numeric] the excess memory in KB
     def excess
-      @size_specified ? @size_specified - default_size : MemorySize.ZERO
+      if @total_memory
+        @size_specified ? @size_specified - default_size : MemorySize.ZERO
+      else
+        MemorySize.ZERO
+      end
     end
 
     # Returns the adjustable weighting of this memory bucket.
@@ -75,9 +80,9 @@ module JavaBuildpack::Jre
     end
 
     # Returns the default memory size as a weighted proportion of total memory.
-    # @return [MemorySize] the default memory size
+    # @return [MemorySize, nil] the default memory size or nil if there is no default
     def default_size
-      @total_memory * @weighting
+      @total_memory ? @total_memory * @weighting : nil
     end
 
     protected

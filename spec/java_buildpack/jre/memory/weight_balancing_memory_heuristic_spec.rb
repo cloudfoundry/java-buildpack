@@ -37,12 +37,6 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     $stderr = StringIO.new
   end
 
-  it 'should fail if a memory limit is not specified' do
-    with_memory_limit(nil) do
-      expect { JavaBuildpack::Jre::WeightBalancingMemoryHeuristic.new(CONFIG_FILENAME, WEIGHTINGS_NAME, {}) }.to raise_error(/not\ specified/)
-    end
-  end
-
   it 'should fail if a memory limit is negative' do
     with_memory_limit('-1m') do
       expect { JavaBuildpack::Jre::WeightBalancingMemoryHeuristic.new(CONFIG_FILENAME, WEIGHTINGS_NAME, {}) }.to raise_error(/Invalid/)
@@ -199,6 +193,16 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     with_memory_limit('4096m') do
       YAML.stub(:load_file).with(CONFIG_FILE_PATH).and_return(TEST_WEIGHTINGS)
       expect { JavaBuildpack::Jre::WeightBalancingMemoryHeuristic.new(CONFIG_FILENAME, WEIGHTINGS_NAME, {'heap' => '5g'}) }.to raise_error(/exceeded/)
+    end
+  end
+
+  it 'should only default the stack size when the total memory size is not available' do
+    with_memory_limit(nil) do
+      YAML.stub(:load_file).with(CONFIG_FILE_PATH).and_return(TEST_WEIGHTINGS)
+      memory_heuristics = JavaBuildpack::Jre::WeightBalancingMemoryHeuristic.new(CONFIG_FILENAME, WEIGHTINGS_NAME, {})
+      expect(memory_heuristics.output['heap']).to be_nil
+      expect(memory_heuristics.output['permgen']).to be_nil
+      expect(memory_heuristics.output['stack']).to eq('1M')
     end
   end
 

@@ -37,7 +37,11 @@ module JavaBuildpack::Jre
     #
     # @return [Numeric] the excess memory in KB
     def excess
-      size ? default_size * ((size - DEFAULT_STACK_SIZE) / DEFAULT_STACK_SIZE) : 0
+      if default_size
+        size ? default_size * ((size - DEFAULT_STACK_SIZE) / DEFAULT_STACK_SIZE) : 0
+      else
+        MemorySize.ZERO
+      end
     end
 
     private

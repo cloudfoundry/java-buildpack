@@ -27,32 +27,32 @@ describe JavaBuildpack::Jre::MemoryBucket do
 
   it 'should fail to construct if name is nil' do
     expect { JavaBuildpack::Jre::MemoryBucket.new(nil, TEST_WEIGHTING, TEST_SIZE, true,
-                                             TEST_TOTAL_MEMORY) }.to raise_error(/Invalid MemoryBucket name/)
+                                                  TEST_TOTAL_MEMORY) }.to raise_error(/Invalid MemoryBucket name/)
   end
 
   it 'should fail to construct if name is the empty string' do
     expect { JavaBuildpack::Jre::MemoryBucket.new('', TEST_WEIGHTING, TEST_SIZE, true,
-                                             TEST_TOTAL_MEMORY) }.to raise_error(/Invalid MemoryBucket name/)
+                                                  TEST_TOTAL_MEMORY) }.to raise_error(/Invalid MemoryBucket name/)
   end
 
   it 'should fail to construct if weighting is nil' do
     expect { JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, nil, TEST_SIZE, true,
-                                             TEST_TOTAL_MEMORY) }.to raise_error(/Invalid weighting/)
+                                                  TEST_TOTAL_MEMORY) }.to raise_error(/Invalid weighting/)
   end
 
   it 'should fail to construct if weighting is not numeric' do
     expect { JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, 'x', TEST_SIZE, true,
-                                             TEST_TOTAL_MEMORY) }.to raise_error(/Invalid weighting/)
+                                                  TEST_TOTAL_MEMORY) }.to raise_error(/Invalid weighting/)
   end
 
   it 'should fail to construct if weighting is negative' do
     expect { JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, -0.1, TEST_SIZE, true,
-                                             TEST_TOTAL_MEMORY) }.to raise_error(/Invalid weighting/)
+                                                  TEST_TOTAL_MEMORY) }.to raise_error(/Invalid weighting/)
   end
 
   it 'should fail to construct if weighting is greater than 1' do
     expect { JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, 1.1, TEST_SIZE, true,
-                                             TEST_TOTAL_MEMORY) }.to raise_error(/Invalid weighting/)
+                                                  TEST_TOTAL_MEMORY) }.to raise_error(/Invalid weighting/)
   end
 
   it 'should record a non-nil size' do
@@ -72,22 +72,41 @@ describe JavaBuildpack::Jre::MemoryBucket do
 
   it 'should fail to construct if size is non-numeric' do
     expect { JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, 'x', true,
-                                             TEST_TOTAL_MEMORY) }.to raise_error(/Invalid\ 'size'\ parameter/)
+                                                  TEST_TOTAL_MEMORY) }.to raise_error(/Invalid\ 'size'\ parameter/)
   end
 
   it 'should fail to construct if adjustable is not true or false' do
     expect { JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, TEST_SIZE, nil,
-                                             TEST_TOTAL_MEMORY) }.to raise_error(/Invalid\ 'adjustable'\ parameter/)
+                                                  TEST_TOTAL_MEMORY) }.to raise_error(/Invalid\ 'adjustable'\ parameter/)
   end
 
-  it 'should fail to construct if total_memory is nil' do
-    expect { JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, TEST_SIZE, true,
-                                             nil) }.to raise_error(/Invalid\ 'total_memory'\ parameter/)
+  it 'should record the size if total_memory is nil' do
+    expect(JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, TEST_SIZE, true, nil).size).to eq(TEST_SIZE)
+  end
+
+  it 'should return a zero excess if total_memory is nil' do
+    expect(JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, TEST_SIZE, true,
+                                                nil).excess).to eq(JavaBuildpack::Jre::MemorySize.ZERO)
+  end
+
+  it 'should return a zero adjustable weighting if total_memory is nil' do
+    expect(JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, TEST_SIZE, true,
+                                                nil).adjustable_weighting).to eq(0)
+  end
+
+  it 'should return a nil default size if total_memory is nil' do
+    expect(JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, TEST_SIZE, true,
+                                                nil).default_size).to be_nil
+  end
+
+  it 'should cope with adjust being called if total_memory is nil' do
+    JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, TEST_SIZE, true,
+                                                nil).adjust(JavaBuildpack::Jre::MemorySize.ZERO, 0)
   end
 
   it 'should fail to construct if total_memory is non-numeric' do
     expect { JavaBuildpack::Jre::MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, TEST_SIZE, true,
-                                             'x') }.to raise_error(/Invalid\ 'total_memory'\ parameter/)
+                                                  'x') }.to raise_error(/Invalid\ 'total_memory'\ parameter/)
   end
 
   it 'should calculate the excess memory correctly' do

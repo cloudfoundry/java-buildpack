@@ -87,8 +87,15 @@ module JavaBuildpack::Jre
 
     PROPERTY_MAPPING = {HEAP_SIZE => 'heap', STACK_SIZE => 'stack', PERMGEN_SIZE => 'permgen', METASPACE_SIZE => 'metaspace'}
 
-    def rename(input, mapping)
-      Hash[input.map { |k, v| [mapping[k], v] }]
+    SWITCHES = {'heap' => '-Xmx', 'stack' => '-Xss', 'metaspace' => '-XX:MaxMetaspaceSize=', 'permgen' => '-XX:MaxPermSize='}
+
+    def rename(input, renaming)
+      renamed = {}
+      input.each_pair do |k, v|
+        renamed_key = renaming[k]
+        renamed[renamed_key] = v if renamed_key
+      end
+      renamed
     end
 
     def expand(file)
@@ -119,10 +126,11 @@ module JavaBuildpack::Jre
 
     def java_options(memory_values)
       java_options = []
-      java_options << "-Xmx#{memory_values['heap']}"
-      java_options << "-Xss#{memory_values['stack']}"
-      java_options << "-XX:MaxMetaspaceSize=#{memory_values['metaspace']}" if memory_values['metaspace']
-      java_options << "-XX:MaxPermSize=#{memory_values['permgen']}" if memory_values['permgen']
+
+      rename(memory_values, SWITCHES).each_pair do |switch, memory_value|
+        java_options << "#{switch}#{memory_value}"
+      end
+
       java_options
     end
 
