@@ -26,15 +26,13 @@ module JavaBuildpack::Jre
 
     DEFAULT_VERSION = 'default-version'
 
-    RESOLVED_PATH = 'resolved-path'
-
     RESOLVED_ROOT = 'resolved-root'
 
     RESOLVED_VENDOR = 'resolved-vendor'
 
     RESOLVED_VERSION = 'resolved-version'
 
-    RESOLVED_URI = "#{RESOLVED_ROOT}/#{RESOLVED_PATH}"
+    RESOLVED_URI = 'resolved-uri'
 
     it 'returns the resolved id, vendor, version, and uri from uri-only vendor details' do
       YAML.stub(:load_file).with(File.expand_path 'config/jres.yml').and_return(RESOLVED_VENDOR => RESOLVED_ROOT)
