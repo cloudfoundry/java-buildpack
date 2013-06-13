@@ -17,7 +17,7 @@
 ---
 openjdk:
   default_version: 1.7.0_+
-  repository_root: "http://jres.gopivotal.com.s3.amazonaws.com/lucid/x86_64/openjdk"
+  repository_root: "http://dist.gopivotal.com.s3.amazonaws.com/openjdk/lucid/x86_64"
   memory_heuristics:
     post_8:
       heap: 0.75
