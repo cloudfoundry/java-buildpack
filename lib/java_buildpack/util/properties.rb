@@ -27,7 +27,7 @@ module JavaBuildpack::Util
       unless file.nil?
         File.foreach(file) do |line|
           unless blank_line?(line) || comment_line?(line)
-            if line =~ /^[\s]*([^:=\s]+)[\s]*[=:]?[\s]*([^:=\s]*)\s*$/
+            if line =~ /^[\s]*([^:=\s]+)[\s]*[=:]?[\s]*(.*?)\s*$/
               self[$1] = $2
             end
           end

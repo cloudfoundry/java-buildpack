@@ -28,6 +28,8 @@ module JavaBuildpack::Util
       expect(properties['echo']).to eq('foxtrot')
       expect(properties['golf']).to eq('')
       expect(properties['Main-Class']).to eq('com.gopivotal.SimpleJava')
+      expect(properties['hotel.india']).to eq('-Djuliet=kilo')
+      expect(properties['lima']).to eq('-XX:mike="november oscar"')
     end
 
   end
