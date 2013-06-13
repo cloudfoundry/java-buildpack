@@ -61,7 +61,7 @@ The buildpack contributes a number of standard components that enable most Java 
 <a name='openjdk'></a>
 ## OpenJDK JRE
 | | |
-| - | -
+| --- | ---
 | **Detection Criteria** | `java.runtime.vendor` set to `openjdk`
 | **Detection Tags** | `jre-openjdk-<version>`
 
@@ -122,7 +122,7 @@ The configuration contains a weighting between `0` and `1` corresponding to a pr
 <a name='javamain'></a>
 ## Java Main Class Container
 | | |
-| - | -
+| --- | ---
 | **Detection Criteria** | `Main-Class` attribute set in `META-INF/MANIFEST.MF` or `java.main.class` set
 | **Detection Tags** | `java-main`
 
@@ -138,7 +138,7 @@ The Java Main Class Container allows applications that provide a class with a `m
 <a name="javaopts"></a>
 ## `JAVA_OPTS` Framework
 | | |
-| - | -
+| --- | ---
 | **Detection Criteria** | `java.opts` set
 | **Detection Tags** | `java-opts`
 
