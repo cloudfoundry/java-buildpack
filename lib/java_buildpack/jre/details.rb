@@ -15,8 +15,8 @@
 
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/vendor_resolver'
-require 'java_buildpack/jre/version_resolver'
-require 'open-uri'
+require 'java_buildpack/util/repository_index'
+require 'java_buildpack/util/version_resolver'
 require 'yaml'
 
 module JavaBuildpack::Jre
@@ -60,7 +60,7 @@ module JavaBuildpack::Jre
     # @!attribute [r] vendor
     #   @return [String] the resolved JRE vendor based on user input
     # @!attribute [r] version
-    #   @return [String] the resolved JRE version based on user input
+    #   @return [JavaBuildpack::Util::TokenizedVersion] the resolved JRE version based on user input
     # @!attribute [r] uri
     #   @return [String] the resolved JRE URI based on user input
     attr_reader :vendor, :version, :uri
@@ -80,14 +80,12 @@ module JavaBuildpack::Jre
       default_version = find_default_version vendor_details
       versions = load_versions(repository_root)
 
-      @version = VersionResolver.resolve(candidate_version, default_version, versions.keys)
+      @version = JavaBuildpack::Util::VersionResolver.resolve(candidate_version, default_version, versions.keys)
 
       @uri = versions[@version]
     end
 
     private
-
-    INDEX_PATH = '/index.yml'
 
     JRES_YAML_FILE = '../../../config/jres.yml'
 
@@ -120,7 +118,7 @@ module JavaBuildpack::Jre
     end
 
     def load_versions(repository_root)
-      YAML.parse(open "#{repository_root}#{INDEX_PATH}").to_ruby
+      JavaBuildpack::Util::RepositoryIndex.new('openjdk-index', repository_root)
     end
 
     def load_vendors

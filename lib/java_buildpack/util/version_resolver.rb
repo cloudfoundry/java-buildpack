@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/jre'
-require 'java_buildpack/jre/tokenized_version'
+require 'java_buildpack/util'
+require 'java_buildpack/util/tokenized_version'
 
-module JavaBuildpack::Jre
+module JavaBuildpack::Util
 
   # A resolver that selects values from a collection based on a set of rules governing wildcards
   class VersionResolver
@@ -30,7 +30,7 @@ module JavaBuildpack::Jre
     # @param [String, nil] default_version the version, possibly containing a wildcard, to resolve if
     #                                      +candidate_version+ is +nil+
     # @param [Array<String>] versions the collection of versions to resolve against
-    # @return [String] the resolved version
+    # @return [TokenizedVersion] the resolved version
     # @raise if no version can be resolved
     def self.resolve(candidate_version, default_version, versions)
       tokenized_candidate_version = TokenizedVersion.new(
@@ -42,7 +42,7 @@ module JavaBuildpack::Jre
         .max { |a, b| a <=> b }
 
       raise "No version resolvable for '#{candidate_version}' in #{versions.join(', ')}" if version.nil?
-      version.to_s
+      version
     end
 
     private

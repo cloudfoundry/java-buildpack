@@ -17,7 +17,7 @@ require 'java_buildpack/jre'
 require 'java_buildpack/jre/details'
 require 'java_buildpack/jre/memory/memory_heuristics_openjdk_pre8'
 require 'java_buildpack/jre/memory/memory_heuristics_openjdk'
-require 'java_buildpack/jre/tokenized_version'
+require 'java_buildpack/util/tokenized_version'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
 
@@ -53,12 +53,11 @@ module JavaBuildpack::Jre
     # @return [void]
     def compile
       memory_sizes # drive out errors early
-      application_cache = JavaBuildpack::Util::ApplicationCache.new
 
       download_start_time = Time.now
       print "-----> Downloading #{@details.vendor} #{@details.version} JRE from #{@details.uri} "
 
-      application_cache.get(id(@details), @details.uri) do |file|
+      JavaBuildpack::Util::ApplicationCache.new.get(id(@details), @details.uri) do |file|  # TODO Use global cache #50175265
         puts "(#{(Time.now - download_start_time).duration})"
         expand file
       end
@@ -121,7 +120,7 @@ module JavaBuildpack::Jre
     end
 
     def pre_8
-      TokenizedVersion.new(@details.version) < TokenizedVersion.new("1.8")
+      @details.version < JavaBuildpack::Util::TokenizedVersion.new("1.8.0")
     end
 
     def java_options(memory_values)

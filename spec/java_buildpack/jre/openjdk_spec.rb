@@ -36,8 +36,8 @@ module JavaBuildpack::Jre
     INVALID_STACK_SIZE = '128K -Xint'
 
     let(:application_cache) { double('ApplicationCache') }
-    let(:details_pre_8) { double('Details', :vendor => 'test-vendor', :version => '1.7', :uri => 'test-uri') }
-    let(:details_post_8) { double('Details', :vendor => 'test-vendor', :version => '1.8', :uri => 'test-uri') }
+    let(:details_pre_8) { double('Details', :vendor => 'test-vendor', :version => JavaBuildpack::Util::TokenizedVersion.new('1.7.0'), :uri => 'test-uri') }
+    let(:details_post_8) { double('Details', :vendor => 'test-vendor', :version => JavaBuildpack::Util::TokenizedVersion.new('1.8.0'), :uri => 'test-uri') }
 
     before do
       $stdout = StringIO.new
@@ -50,7 +50,7 @@ module JavaBuildpack::Jre
 
         detected = OpenJdk.new(:configuration => {}, :java_opts => []).detect
 
-        expect(detected).to eq('jre-test-vendor-1.7')
+        expect(detected).to eq('jre-test-vendor-1.7.0')
       end
     end
 
@@ -59,7 +59,7 @@ module JavaBuildpack::Jre
         Dir.mktmpdir do |root|
           Details.stub(:new).and_return(details_pre_8)
           JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-          application_cache.stub(:get).with('jre-test-vendor-1.7', 'test-uri')
+          application_cache.stub(:get).with('jre-test-vendor-1.7.0', 'test-uri')
           .and_yield(File.open('spec/fixtures/stub-java.tar.gz'))
 
           OpenJdk.new(:app_dir => root, :configuration => {}, :java_opts => []).compile
