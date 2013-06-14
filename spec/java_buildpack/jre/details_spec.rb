@@ -37,8 +37,8 @@ module JavaBuildpack::Jre
     it 'returns the resolved id, vendor, version, and uri from uri-only vendor details' do
       YAML.stub(:load_file).with(File.expand_path 'config/jres.yml').and_return(RESOLVED_VENDOR => RESOLVED_ROOT)
       VendorResolver.stub(:resolve).with(CANDIDATE_VENDOR, [RESOLVED_VENDOR]).and_return(RESOLVED_VENDOR)
-      Details.any_instance.stub(:open).with("#{RESOLVED_ROOT}/index.yml").and_return(File.open('spec/fixtures/test-index.yml'))
-      VersionResolver.stub(:resolve).with(CANDIDATE_VERSION, nil, [RESOLVED_VERSION]).and_return(RESOLVED_VERSION)
+      JavaBuildpack::Util::RepositoryIndex.stub(:new).and_return({ 'resolved-version' => 'resolved-uri' })
+      JavaBuildpack::Util::VersionResolver.stub(:resolve).with(CANDIDATE_VERSION, nil, [RESOLVED_VERSION]).and_return(RESOLVED_VERSION)
 
       details = Details.new({ 'java.runtime.vendor' => CANDIDATE_VENDOR, 'java.runtime.version' => CANDIDATE_VERSION})
 
@@ -50,8 +50,8 @@ module JavaBuildpack::Jre
   it 'returns the resolved id, vendor, version, and uri from extended vendor details' do
       YAML.stub(:load_file).with(File.expand_path 'config/jres.yml').and_return(RESOLVED_VENDOR => {'default_version' => DEFAULT_VERSION, 'repository_root' => RESOLVED_ROOT})
       VendorResolver.stub(:resolve).with(CANDIDATE_VENDOR, [RESOLVED_VENDOR]).and_return(RESOLVED_VENDOR)
-      Details.any_instance.stub(:open).with("#{RESOLVED_ROOT}/index.yml").and_return(File.open('spec/fixtures/test-index.yml'))
-      VersionResolver.stub(:resolve).with(CANDIDATE_VERSION, DEFAULT_VERSION, [RESOLVED_VERSION]).and_return(RESOLVED_VERSION)
+      JavaBuildpack::Util::RepositoryIndex.stub(:new).and_return({ 'resolved-version' => 'resolved-uri' })
+      JavaBuildpack::Util::VersionResolver.stub(:resolve).with(CANDIDATE_VERSION, DEFAULT_VERSION, [RESOLVED_VERSION]).and_return(RESOLVED_VERSION)
 
       details = Details.new({ 'java.runtime.vendor' => CANDIDATE_VENDOR, 'java.runtime.version' => CANDIDATE_VERSION})
 

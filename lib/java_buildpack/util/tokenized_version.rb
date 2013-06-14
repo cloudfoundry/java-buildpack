@@ -13,7 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module JavaBuildpack::Jre
+require 'java_buildpack/util'
+
+
+module JavaBuildpack::Util
 
   # A utility for manipulating JRE version numbers.
   class TokenizedVersion < Array
@@ -110,13 +113,14 @@ module JavaBuildpack::Jre
     end
 
     def validate(allow_wildcards)
-      post_wildcard = false
+      wildcarded = false
       self.each do |value|
         raise "Invalid version '#{@version}': wildcards are not allowed this context" if value == WILDCARD && !allow_wildcards
 
-        raise "Invalid version '#{@version}': no characters are allowed after a wildcard" if post_wildcard && !value.nil?
-        post_wildcard = true if value == WILDCARD
+        raise "Invalid version '#{@version}': no characters are allowed after a wildcard" if wildcarded && !value.nil?
+        wildcarded = true if value == WILDCARD
       end
+      raise "Invalid version '#{@version}': missing component" if !wildcarded && self.compact.length < 3
     end
 
     def valid_major_minor_or_micro(major_minor_or_micro)

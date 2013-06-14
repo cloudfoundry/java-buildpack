@@ -14,9 +14,9 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'java_buildpack/jre/version_resolver'
+require 'java_buildpack/util/version_resolver'
 
-module JavaBuildpack::Jre
+module JavaBuildpack::Util
 
   describe VersionResolver do
 
@@ -31,46 +31,39 @@ module JavaBuildpack::Jre
       '2.0.0'
     ]
 
-    it 'resolves the latest version if no candidate is supplied' do
-      expect(VersionResolver.resolve(nil, nil, VERSIONS)).to eq('2.0.0')
-      expect(VersionResolver.resolve('', nil, VERSIONS)).to eq('2.0.0')
-      expect(VersionResolver.resolve(nil, '', VERSIONS)).to eq('2.0.0')
-      expect(VersionResolver.resolve('', '', VERSIONS)).to eq('2.0.0')
-    end
-
-      it 'resolves the default version if no candidate is supplied' do
-      expect(VersionResolver.resolve(nil, '1.6.0_+', VERSIONS)).to eq('1.6.0_27')
-      expect(VersionResolver.resolve('', '1.6.0_+', VERSIONS)).to eq('1.6.0_27')
+    it 'resolves the default version if no candidate is supplied' do
+      expect(VersionResolver.resolve(nil, '1.6.0_+', VERSIONS).to_s).to eq('1.6.0_27')
+      expect(VersionResolver.resolve('', '1.6.0_+', VERSIONS).to_s).to eq('1.6.0_27')
     end
 
     it 'resolves a wildcard major version' do
-      expect(VersionResolver.resolve('+', nil, VERSIONS)).to eq('2.0.0')
+      expect(VersionResolver.resolve('+', nil, VERSIONS).to_s).to eq('2.0.0')
     end
 
     it 'resolves a wildcard minor version' do
-      expect(VersionResolver.resolve('1.+', nil, VERSIONS)).to eq('1.8.0_05')
+      expect(VersionResolver.resolve('1.+', nil, VERSIONS).to_s).to eq('1.8.0_05')
     end
 
     it 'resolves a wildcard micro version' do
-      expect(VersionResolver.resolve('1.6.+', nil, VERSIONS)).to eq('1.6.1_14')
+      expect(VersionResolver.resolve('1.6.+', nil, VERSIONS).to_s).to eq('1.6.1_14')
     end
 
     it 'resolves a wildcard qualifier' do
-      expect(VersionResolver.resolve('1.6.0_+', nil, VERSIONS)).to eq('1.6.0_27')
-      expect(VersionResolver.resolve('1.8.0_+', nil, VERSIONS)).to eq('1.8.0_05')
+      expect(VersionResolver.resolve('1.6.0_+', nil, VERSIONS).to_s).to eq('1.6.0_27')
+      expect(VersionResolver.resolve('1.8.0_+', nil, VERSIONS).to_s).to eq('1.8.0_05')
     end
 
     it 'resolves a non-wildcard version' do
-      expect(VersionResolver.resolve('1.6.0_26', nil, VERSIONS)).to eq('1.6.0_26')
-      expect(VersionResolver.resolve('2.0.0', nil, VERSIONS)).to eq('2.0.0')
+      expect(VersionResolver.resolve('1.6.0_26', nil, VERSIONS).to_s).to eq('1.6.0_26')
+      expect(VersionResolver.resolve('2.0.0', nil, VERSIONS).to_s).to eq('2.0.0')
     end
 
     it 'resolves a non-digit qualifier' do
-      expect(VersionResolver.resolve('1.8.0_M-7', nil, VERSIONS)).to eq('1.8.0_M-7')
+      expect(VersionResolver.resolve('1.8.0_M-7', nil, VERSIONS).to_s).to eq('1.8.0_M-7')
     end
 
     it 'should order qualifiers correctly' do
-      expect(VersionResolver.resolve('1.7.0_+', nil, ['1.7.0_28', '1.7.0_28a'])).to eq('1.7.0_28a')
+      expect(VersionResolver.resolve('1.7.0_+', nil, ['1.7.0_28', '1.7.0_28a']).to_s).to eq('1.7.0_28a')
     end
 
     it 'should raise an exception when the major version is not numeric' do
@@ -89,8 +82,12 @@ module JavaBuildpack::Jre
       expect { VersionResolver.resolve('1.6_26', nil, []) }.to raise_error(/Invalid/)
     end
 
+    it 'should raise an exception when micro version is missing' do
+      expect { VersionResolver.resolve('1.6', nil, []) }.to raise_error(/Invalid/)
+    end
+
     it 'should raise an exception if no version can be resolved' do
-      expect { VersionResolver.resolve('2.1.0', nil, VERSIONS) }.to raise_error
+      expect { VersionResolver.resolve('2.1.0', nil, VERSIONS).to_s }.to raise_error
     end
 
     it 'should raise an exception when major version is not legal' do
