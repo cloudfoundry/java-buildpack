@@ -18,13 +18,6 @@ require 'open3'
 
 describe 'detect script' do
 
-  it 'should return non-zero if version is invalid' do
-    Open3.popen3("bin/detect spec/fixtures/integration_invalid_version") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to_not be_success
-      expect(stderr.read).to match(/No version resolvable for '1.5.0'/)
-    end
-  end
-
   it 'should return zero if success' do
     with_memory_limit('1G') do
       Open3.popen3("bin/detect spec/fixtures/integration_valid") do |stdin, stdout, stderr, wait_thr|

@@ -16,6 +16,7 @@
 require 'java_buildpack/util'
 require 'net/http'
 require 'tmpdir'
+require 'uri'
 
 module JavaBuildpack::Util
 
@@ -34,7 +35,7 @@ module JavaBuildpack::Util
 
     # Retrieves an item from the cache.  Retrieval of the item uses the following algorithm:
     #
-    # 1. Obtain an exclusive lock based on the key of the item. This allows concurrency for different items, but not for
+    # 1. Obtain an exclusive lock based on the URI of the item. This allows concurrency for different items, but not for
     #    the same item.
     # 2. If the the cached item does not exist, download from +uri+ and cache it, its +Etag+, and its +Last-Modified+
     #    values if they exist
@@ -46,14 +47,13 @@ module JavaBuildpack::Util
     # 5. Yield the cached file (opened read-only) to the passed in block. Once the block is complete, the file is closed
     #    and the lock is released.
     #
-    # @param [String] key the key of the item to retrieve
     # @param [String] uri the uri to download if the item is not already in the cache.  Also used in the case where the
     #                     item is already in the cache, to validate that the item is up to date
     # @yieldparam [File] file the file representing the cached item. In order to ensure that the file is not changed or
     #                    deleted while it is being used, the cached item can only be accessed as part of a block.
     # @return [void]
-    def get(key, uri)
-      filenames = filenames(key)
+    def get(uri)
+      filenames = filenames(uri)
       File.open(filenames[:lock], File::CREAT) do |lock_file|
         lock_file.flock(File::LOCK_EX)
 
@@ -73,10 +73,10 @@ module JavaBuildpack::Util
 
     # Remove an item from the cache
     #
-    # @param [String] key the key of the item to remove
+    # @param [String] uri the URI of the item to remove
     # @return [void]
-    def evict(key)
-      filenames = filenames(key)
+    def evict(uri)
+      filenames = filenames(uri)
       File.open(filenames[:lock], File::CREAT) do |lock_file|
         lock_file.flock(File::LOCK_EX)
 
@@ -104,7 +104,8 @@ module JavaBuildpack::Util
       end
     end
 
-    def filenames(key)
+    def filenames(uri)
+      key = URI.escape(uri, '/')
       {
         :cached => File.join(@cache_root, "#{key}.cached"),
         :etag => File.join(@cache_root, "#{key}.etag"),

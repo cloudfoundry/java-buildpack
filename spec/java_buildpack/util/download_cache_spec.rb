@@ -32,7 +32,7 @@ module JavaBuildpack::Util
       )
 
       Dir.mktmpdir do |root|
-        DownloadCache.new(root).get('foo', 'http://foo-uri/') {}
+        DownloadCache.new(root).get('http://foo-uri/') {}
 
         expect_file_content root, 'cached', 'foo-cached'
         expect_file_content root, 'etag', 'foo-etag'
@@ -58,7 +58,7 @@ module JavaBuildpack::Util
         touch root, 'cached', 'foo-cached'
         touch root, 'etag', 'foo-etag'
 
-        DownloadCache.new(root).get('foo', 'http://foo-uri/') {}
+        DownloadCache.new(root).get('http://foo-uri/') {}
 
         expect_file_content root, 'cached', 'foo-cached'
         expect_file_content root, 'etag', 'foo-etag'
@@ -84,7 +84,7 @@ module JavaBuildpack::Util
         touch root, 'cached', 'foo-cached'
         touch root, 'last_modified', 'foo-last-modified'
 
-        DownloadCache.new(root).get('foo', 'http://foo-uri/') {}
+        DownloadCache.new(root).get('http://foo-uri/') {}
 
         expect_file_content root, 'cached', 'foo-cached'
         expect_file_content root, 'etag', 'foo-etag'
@@ -112,7 +112,7 @@ module JavaBuildpack::Util
         touch root, 'etag', 'foo-etag'
         touch root, 'last_modified', 'foo-last-modified'
 
-        DownloadCache.new(root).get('foo', 'http://foo-uri/') {}
+        DownloadCache.new(root).get('http://foo-uri/') {}
 
         expect_file_content root, 'cached', 'foo-cached'
         expect_file_content root, 'etag', 'foo-etag'
@@ -124,7 +124,7 @@ module JavaBuildpack::Util
       Dir.mktmpdir do |root|
         touch root, 'cached', 'foo-cached'
 
-        DownloadCache.new(root).get('foo', 'http://foo-uri/') {}
+        DownloadCache.new(root).get('http://foo-uri/') {}
 
         expect_file_content root, 'cached', 'foo-cached'
       end
@@ -150,7 +150,7 @@ module JavaBuildpack::Util
         touch root, 'etag', 'foo-etag'
         touch root, 'last_modified', 'foo-last-modified'
 
-        DownloadCache.new(root).get('foo', 'http://foo-uri/') {}
+        DownloadCache.new(root).get('http://foo-uri/') {}
 
         expect_file_content root, 'cached', 'foo-cached'
         expect_file_content root, 'etag', 'foo-etag'
@@ -178,7 +178,7 @@ module JavaBuildpack::Util
         touch root, 'etag', 'foo-etag'
         touch root, 'last_modified', 'foo-last-modified'
 
-        DownloadCache.new(root).get('foo', 'http://foo-uri/') {}
+        DownloadCache.new(root).get('http://foo-uri/') {}
 
         expect_file_content root, 'cached', 'bar-cached'
         expect_file_content root, 'etag', 'bar-etag'
@@ -197,7 +197,7 @@ module JavaBuildpack::Util
       )
 
       Dir.mktmpdir do |root|
-        DownloadCache.new(root).get('foo', 'http://foo-uri/') do |file|
+        DownloadCache.new(root).get('http://foo-uri/') do |file|
           expect(file.read).to eq('foo-cached')
           lambda { file.write('bar') }.should raise_error
         end
@@ -223,7 +223,7 @@ module JavaBuildpack::Util
     private
 
     def touch(root, extension, content = '')
-      file = File.join(root, "foo.#{extension}")
+      file = File.join(root, "http:%2F%2Ffoo-uri%2F.#{extension}")
       File.open(file, 'w') { |f| f.write(content) }
       file
     end
@@ -233,14 +233,14 @@ module JavaBuildpack::Util
         file = touch root, extension
         expect(File.exists?(file)).to be_true
 
-        DownloadCache.new(root).evict('foo')
+        DownloadCache.new(root).evict('http://foo-uri/')
 
         expect(File.exists?(file)).to be_false
       end
     end
 
     def expect_file_content(root, extension, content = '')
-      file = File.join(root, "foo.#{extension}")
+      file = File.join(root, "http:%2F%2Ffoo-uri%2F.#{extension}")
       expect(File.exists?(file)).to be_true
       File.open(file, 'r') { |f| expect(f.read).to eq(content)}
     end

@@ -14,7 +14,7 @@
 # limitations under the License.
 
 require 'java_buildpack/container'
-require 'java_buildpack/container/tomcat_details'
+require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/properties'
 
 module JavaBuildpack::Container
@@ -40,8 +40,8 @@ module JavaBuildpack::Container
     #                  returns +nil+
     def detect
       if web_inf?
-        @tomcat_details = TomcatDetails.new(@configuration)
-        id @tomcat_details
+        tomcat_version, tomcat_uri = find_tomcat
+        id tomcat_version
       else
         nil
       end
@@ -67,8 +67,22 @@ module JavaBuildpack::Container
       File.exists? File.join(@app_dir, WEB_INF_DIRECTORY)
     end
 
-    def id(tomcat_details)
-      "tomcat-#{tomcat_details.configured_version}"
+    def find_tomcat
+      JavaBuildpack::Repository::ConfiguredItem.find_item(@configuration) do |version|
+        check_version_format version
+      end
+    rescue => e
+      raise RuntimeError, "Tomcat container error: #{e.message}", e.backtrace
+    end
+
+    private
+
+    def check_version_format(version)
+      raise "Malformed Tomcat version #{version}: too many version components" if version[3]
+    end
+
+    def id(tomcat_version)
+      "tomcat-#{tomcat_version}"
     end
 
   end

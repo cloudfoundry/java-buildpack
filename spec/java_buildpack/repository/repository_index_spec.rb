@@ -14,9 +14,10 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'java_buildpack/util/repository_index'
+require 'java_buildpack/util/download_cache'
+require 'java_buildpack/repository/repository_index'
 
-module JavaBuildpack::Util
+module JavaBuildpack::Repository
 
   describe RepositoryIndex do
 
@@ -24,13 +25,12 @@ module JavaBuildpack::Util
 
     it 'should load index' do
       JavaBuildpack::Util::DownloadCache.stub(:new).and_return(application_cache)
-      application_cache.stub(:get).with('test-key', 'test-uri/index.yml')
+      application_cache.stub(:get).with('test-uri/index.yml')
         .and_yield(File.open('spec/fixtures/test-index.yml'))
+      JavaBuildpack::Util::VersionResolver.stub(:resolve).with('test-version', ["resolved-version"]).and_return('resolved-version')
 
-      repository_index = RepositoryIndex.new('test-key', 'test-uri')
-
-      expect(repository_index).to include('resolved-version' => 'resolved-uri')
-
+      repository_index = RepositoryIndex.new('test-uri')
+      expect(repository_index.find_item('test-version')).to eq(['resolved-version', 'resolved-uri'])
     end
 
   end
