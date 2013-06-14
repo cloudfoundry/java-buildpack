@@ -26,19 +26,17 @@ module JavaBuildpack::Util
     #   * the final component may be a +
     # The resolution returns the maximum of the versions that match the candidate version
     #
-    # @param [String, nil] candidate_version the version, possibly containing a wildcard, to resolve
-    # @param [String, nil] default_version the version, possibly containing a wildcard, to resolve if
-    #                                      +candidate_version+ is +nil+
+    # @param [String, nil] candidate_version the version, possibly containing a wildcard, to resolve.  If +nil+,
+    #                                        substituted with +.
     # @param [Array<String>] versions the collection of versions to resolve against
     # @return [TokenizedVersion] the resolved version
     # @raise if no version can be resolved
-    def self.resolve(candidate_version, default_version, versions)
-      tokenized_candidate_version = TokenizedVersion.new(
-        candidate_version.nil? || candidate_version.empty? ? default_version : candidate_version)
+    def self.resolve(candidate_version, versions)
+      tokenized_candidate_version = TokenizedVersion.new(safe_candidate_version candidate_version)
       tokenized_versions = versions.map { |version| TokenizedVersion.new(version, false) }
 
       version = tokenized_versions
-        .find_all { |tokenized_version| matches tokenized_candidate_version, tokenized_version }
+        .find_all { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
         .max { |a, b| a <=> b }
 
       raise "No version resolvable for '#{candidate_version}' in #{versions.join(', ')}" if version.nil?
@@ -47,7 +45,11 @@ module JavaBuildpack::Util
 
     private
 
-    def self.matches(tokenized_candidate_version, tokenized_version)
+    def self.safe_candidate_version(candidate_version)
+      candidate_version.nil? || candidate_version.empty? ? '+' : candidate_version
+    end
+
+    def self.matches?(tokenized_candidate_version, tokenized_version)
       (0..3).all? do |i|
         tokenized_candidate_version[i].nil? ||
         tokenized_candidate_version[i] == TokenizedVersion::WILDCARD ||

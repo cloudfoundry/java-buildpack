@@ -23,21 +23,22 @@ module JavaBuildpack::Jre
 
     # @!attribute [r] size
     #   @return [Numeric, nil] the size of the memory bucket in KB or nil if this has not been specified by the user or
-    #   defaulted
+    #                          defaulted
     attr_reader :size
 
     # Constructs a memory bucket.
     #
     # @param [String] name a non-empty, human-readable name for this memory bucket, used only in diagnostics
     # @param [Numeric] weighting a number between 0 and 1 corresponding to the proportion of total memory which this
-    # memory bucket should consume by default
+    #                  memory bucket should consume by default
     # @param [Numeric, nil] size a user-specified size of the memory bucket in KB or nil if the user did not specify a
-    # size
+    #                            size
     # @param [Boolean] adjustable whether the size of this memory bucket can grow/shrink or is fixed. If the user
-    # specified the size of the memory bucket, the size is fixed, regardless of the value of this parameter, although
-    # the parameter value must still be valid. If total_memory is nil, the size is fixed since no defaulting will occur.
-    # @param [Numeric, nil] total_memory the total virtual memory size of the operating system process in KB or nil if
-    # this is not known
+    #                             specified the size of the memory bucket, the size is fixed, regardless of the value of
+    #                             this parameter, although the parameter value must still be valid. If total_memory is
+    #                             +nil+, the size is fixed since no defaulting will occur.
+    # @param [Numeric, nil] total_memory the total virtual memory size of the operating system process in KB or +nil+ if
+    #                                    this is not known
     def initialize(name, weighting, size, adjustable, total_memory)
       @name = MemoryBucket.validate_name name
       @weighting = validate_weighting weighting
@@ -80,6 +81,7 @@ module JavaBuildpack::Jre
     end
 
     # Returns the default memory size as a weighted proportion of total memory.
+    #
     # @return [MemorySize, nil] the default memory size or nil if there is no default
     def default_size
       @total_memory ? @total_memory * @weighting : nil

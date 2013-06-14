@@ -21,6 +21,7 @@ module JavaBuildpack::Jre
     include Comparable
 
     # Creates a memory size based on a memory size string including a unit of 'K', 'M', or 'G'.
+    #
     # @param [String] size a memory size including a unit
     def initialize(size)
       raise "Invalid memory size '#{size}'" if !size || size.length < 2
@@ -45,6 +46,7 @@ module JavaBuildpack::Jre
 
     # Returns a memory size as a string including a unit. If the memory size is not a whole number, it is rounded down.
     # The returned unit is always kilobytes, megabytes, or gigabytes which are commonly used units.
+    #
     # @return [String] the memory size as a string, e.g. "10K"
     def to_s
       kilobytes = (@bytes / KILO).round
@@ -62,6 +64,7 @@ module JavaBuildpack::Jre
     end
 
     # Compare this memory size with another memory size
+    #
     # @param [MemorySize] other
     # @return [Numeric] the result
     def <=>(other)
@@ -70,6 +73,7 @@ module JavaBuildpack::Jre
     end
 
     # Add a memory size to this memory size.
+    #
     # @param [MemorySize] other the memory size to add
     # @return [MemorySize] the result
     def +(other)
@@ -77,8 +81,8 @@ module JavaBuildpack::Jre
       MemorySize.from_numeric(@bytes + other.bytes)
     end
 
-    # Divide a memory size by a memory size or a numeric value. The units are respected, so the result of diving by a
     # Multiply this memory size by a numeric factor.
+    #
     # @param [Numeric] other the factor to multiply by
     # @return [MemorySize] the result
     def *(other)
@@ -87,6 +91,7 @@ module JavaBuildpack::Jre
     end
 
     # Subtract a memory size from this memory size.
+    #
     # @param [MemorySize] other the memory size to subtract
     # @return [MemorySize] the result
     def -(other)
@@ -94,7 +99,9 @@ module JavaBuildpack::Jre
       MemorySize.from_numeric(@bytes - other.bytes)
     end
 
+    # Divide a memory size by a memory size or a numeric value. The units are respected, so the result of diving by a
     # memory size is a numeric whereas the result of dividing by a numeric value is a memory size.
+    #
     # @param [MemorySize, Numeric] other the memory size or numeric value to divide by
     # @return [MemorySize, Numeric] the result
     def /(other)
@@ -104,6 +111,7 @@ module JavaBuildpack::Jre
     end
 
     # Returns a zero memory size.
+    #
     # @return [MemorySize] zero byte memory size
     def self.ZERO
       from_numeric 0

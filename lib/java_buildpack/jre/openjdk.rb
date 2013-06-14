@@ -14,12 +14,12 @@
 # limitations under the License.
 
 require 'java_buildpack/jre'
-require 'java_buildpack/jre/details'
 require 'java_buildpack/jre/memory/memory_heuristics_openjdk_pre8'
 require 'java_buildpack/jre/memory/memory_heuristics_openjdk'
-require 'java_buildpack/util/tokenized_version'
+require 'java_buildpack/util/details'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
+require 'java_buildpack/util/tokenized_version'
 
 module JavaBuildpack::Jre
 
@@ -32,19 +32,19 @@ module JavaBuildpack::Jre
     # @option context [String] :app_dir the directory that the application exists in
     # @option context [Array<String>] :java_opts an array that Java options can be added to
     # @option context [Hash] :configuration the properties provided by the user
-    def initialize(context = {})
+    def initialize(context)
       @app_dir = context[:app_dir]
       @java_opts = context[:java_opts]
       @configuration = context[:configuration]
-      @details = Details.new(@configuration)
+      @details = JavaBuildpack::Util::Details.new(@configuration)
     end
 
     # Detects which version of Java this application should use.  *NOTE:* This method will always return _some_ value,
     # so it should only be used once that application has already been established to be a Java application.
     #
-    # @return [String, nil] returns +jre-<vendor>-<version>+.
+    # @return [String, nil] returns +openjdk-<version>+.
     def detect
-      memory_sizes # drive out errors early
+      memory_sizes @configuration # drive out errors early
       id @details
     end
 
@@ -52,10 +52,8 @@ module JavaBuildpack::Jre
     #
     # @return [void]
     def compile
-      memory_sizes # drive out errors early
-
       download_start_time = Time.now
-      print "-----> Downloading #{@details.vendor} #{@details.version} JRE from #{@details.uri} "
+      print "-----> Downloading OpenJDK #{@details.version} JRE from #{@details.uri} "
 
       JavaBuildpack::Util::ApplicationCache.new.get(id(@details), @details.uri) do |file|  # TODO Use global cache #50175265
         puts "(#{(Time.now - download_start_time).duration})"
@@ -67,35 +65,33 @@ module JavaBuildpack::Jre
     #
     # @return [void]
     def release
-      memory_sizes.each do |memory_size|
-        @java_opts << memory_size
-      end
+      @java_opts.concat to_java_opts(memory_sizes(@configuration))
     end
 
     private
 
-    HEAP_SIZE = 'java.heap.size'.freeze
-
     JAVA_HOME = '.java'.freeze
 
-    PERMGEN_SIZE = 'java.permgen.size'.freeze
+    KEY_MEMORY_HEURISTICS = 'memory_heuristics'
 
-    METASPACE_SIZE = 'java.metaspace.size'.freeze
-
-    STACK_SIZE = 'java.stack.size'.freeze
-
-    PROPERTY_MAPPING = {HEAP_SIZE => 'heap', STACK_SIZE => 'stack', PERMGEN_SIZE => 'permgen', METASPACE_SIZE => 'metaspace'}
-
-    SWITCHES = {'heap' => '-Xmx', 'stack' => '-Xss', 'metaspace' => '-XX:MaxMetaspaceSize=', 'permgen' => '-XX:MaxPermSize='}
-
-    def rename(input, renaming)
-      renamed = {}
-      input.each_pair do |k, v|
-        renamed_key = renaming[k]
-        renamed[renamed_key] = v if renamed_key
-      end
-      renamed
-    end
+    MAPPINGS = {
+      'heap' => {
+        :switch => '-Xmx',
+        :system_property => 'java.heap.size'.freeze
+        },
+      'metaspace' => {
+        :switch => '-XX:MaxMetaspaceSize=',
+        :system_property => 'java.metaspace.size'.freeze
+        },
+      'permgen' => {
+        :switch => '-XX:MaxPermSize=',
+        :system_property => 'java.permgen.size'.freeze
+        },
+      'stack' => {
+        :switch => '-Xss',
+        :system_property => 'java.stack.size'.freeze
+        }
+    }
 
     def expand(file)
       expand_start_time = Time.now
@@ -110,27 +106,41 @@ module JavaBuildpack::Jre
     end
 
     def id(details)
-      "jre-#{details.vendor}-#{details.version}"
+      "openjdk-#{details.version}"
     end
 
-    def memory_sizes
-      specified_memory_sizes = rename(@configuration, PROPERTY_MAPPING)
+    def to_java_opts(memory_values)
+      java_opts = []
+
+      memory_values.each_pair do |key, memory_value|
+        mapping =  MAPPINGS[key]
+        java_opts << "#{mapping[:switch]}#{memory_value}" if mapping
+      end
+
+      java_opts
+    end
+
+    def memory_sizes(configuration)
+      specified_sizes = specified_sizes(configuration)
+      memory_heuristics = configuration[KEY_MEMORY_HEURISTICS]
+
       heuristic_class = pre_8 ? MemoryHeuristicsOpenJDKPre8 : MemoryHeuristicsOpenJDK
-      java_options(heuristic_class.new(specified_memory_sizes).output)
+      heuristic_class.new(specified_sizes, memory_heuristics).output
     end
 
     def pre_8
       @details.version < JavaBuildpack::Util::TokenizedVersion.new("1.8.0")
     end
 
-    def java_options(memory_values)
-      java_options = []
+    def specified_sizes(configuration)
+      specified_sizes = {}
 
-      rename(memory_values, SWITCHES).each_pair do |switch, memory_value|
-        java_options << "#{switch}#{memory_value}"
+      MAPPINGS.each_pair do |key, mapping|
+        system_property = mapping[:system_property]
+        specified_sizes[key] = configuration[system_property] if configuration.has_key? system_property
       end
 
-      java_options
+      specified_sizes
     end
 
   end

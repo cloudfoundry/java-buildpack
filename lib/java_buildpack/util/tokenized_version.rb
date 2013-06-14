@@ -26,8 +26,9 @@ module JavaBuildpack::Util
     WILDCARD = '+'
 
     # Create a tokenized version based on the input array.
+    #
     # @param [Array] version an array of version components
-    # @param [Object] allow_wildcards whether or not to allow '+' as the last component to represent a wildcard
+    # @param [Boolean] allow_wildcards whether or not to allow '+' as the last component to represent a wildcard
     def initialize(version, allow_wildcards = true)
       @version = version
 
@@ -40,6 +41,8 @@ module JavaBuildpack::Util
     end
 
     # Compare this to another array
+    #
+    # @return [Integer] A numerical representation of the comparisong between two instances
     def <=>(another)
       comparison = self[0] <=> another[0]
       comparison = self[1] <=> another[1] if comparison == 0
@@ -50,6 +53,8 @@ module JavaBuildpack::Util
     end
 
     # Convert this to a string
+    #
+    # @return [String] a string representation of this tokenized version
     def to_s
       @version
     end
