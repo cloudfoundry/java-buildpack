@@ -15,7 +15,6 @@
 
 require 'java_buildpack/util'
 
-
 module JavaBuildpack::Util
 
   # A utility for manipulating JRE version numbers.

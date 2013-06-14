@@ -13,17 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'open3'
-require 'tmpdir'
-
-describe 'compile script' do
-
-  it 'should return non-zero if failure' do
-    Open3.popen3("bin/compile spec/fixtures/integration_invalid_version #{Dir.tmpdir}") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to_not be_success
-      expect(stderr.read).to match(/No version resolvable for '1.5.0'/)
-    end
-  end
-
-end
+# Configuration for Tomcat
+---
+version: 7.0.+
+repository_root: "http://download.pivotal.io.s3.amazonaws.com/tomcat/lucid/x86_64"

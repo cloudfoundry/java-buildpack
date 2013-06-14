@@ -17,6 +17,7 @@
 ---
 containers:
   - "JavaBuildpack::Container::Main"
+  - "JavaBuildpack::Container::Tomcat"
 jres:
   - "JavaBuildpack::Jre::OpenJdk"
 frameworks:
