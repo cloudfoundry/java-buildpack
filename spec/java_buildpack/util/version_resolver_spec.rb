@@ -21,14 +21,14 @@ module JavaBuildpack::Util
   describe VersionResolver do
 
     VERSIONS = [
-        '1.6.0_26',
-        '1.6.0_27',
-        '1.6.1_14',
-        '1.7.0_19',
-        '1.7.0_21',
-        '1.8.0_M-7',
-        '1.8.0_05',
-        '2.0.0'
+      '1.6.0_26',
+      '1.6.0_27',
+      '1.6.1_14',
+      '1.7.0_19',
+      '1.7.0_21',
+      '1.8.0_M-7',
+      '1.8.0_05',
+      '2.0.0'
     ]
 
     it 'resolves the default version if no candidate is supplied' do
@@ -64,6 +64,10 @@ module JavaBuildpack::Util
 
     it 'should order qualifiers correctly' do
       expect(VersionResolver.resolve('1.7.0_+', ['1.7.0_28', '1.7.0_28a']).to_s).to eq('1.7.0_28a')
+    end
+
+    it 'should resolve versions numerically' do
+      expect(VersionResolver.resolve('7.0.+', ['7.0.8', '7.0.40']).to_s).to eq('7.0.40')
     end
 
     it 'should raise an exception when the major version is not numeric' do
