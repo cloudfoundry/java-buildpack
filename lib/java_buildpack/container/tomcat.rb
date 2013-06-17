@@ -15,7 +15,8 @@
 
 require 'java_buildpack/container'
 require 'java_buildpack/repository/configured_item'
-require 'java_buildpack/util/properties'
+require 'java_buildpack/util/application_cache'
+require 'java_buildpack/util/format_duration'
 
 module JavaBuildpack::Container
 
@@ -26,12 +27,15 @@ module JavaBuildpack::Container
     #
     # @param [Hash] context the context that is provided to the instance
     # @option context [String] :app_dir the directory that the application exists in
+    # @option context [String] :java_home the directory that acts as +JAVA_HOME+
     # @option context [Array<String>] :java_opts an array that Java options can be added to
-    # @option context [Hash] :configuration the properties
+    # @option context [Hash] :configuration the properties provided by the user
     def initialize(context)
       @app_dir = context[:app_dir]
+      @java_home = context[:java_home]
       @java_opts = context[:java_opts]
-      @configuration = context[:configuration]
+      @version, @uri = Tomcat.find_tomcat(@app_dir, context[:configuration])
+      @tomcat_home = Tomcat.tomcat_home @app_dir
     end
 
     # Detects whether this application is a Tomcat application.
@@ -39,50 +43,104 @@ module JavaBuildpack::Container
     # @return [String] returns +tomcat-<version>+ if and only if the application has a +WEB-INF+ directory, otherwise
     #                  returns +nil+
     def detect
-      if web_inf?
-        tomcat_version, tomcat_uri = find_tomcat
-        id tomcat_version
-      else
-        nil
-      end
+      @version ? id(@version) : nil
     end
 
-    # Does nothing as no transformations are currently performed for Tomcat applications.
+    # Downlaods and unpacks a Tomcat instance
     #
     # @return [void]
     def compile
+      download_start_time = Time.now
+      print "-----> Downloading Tomcat #{@version} from #{@uri} "
+
+      JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file|  # TODO Use global cache #50175265
+        puts "(#{(Time.now - download_start_time).duration})"
+        expand file
+      end
+
+      link_application
     end
 
     # Creates the command to run the Tomcat application.
     #
     # @return [String] the command to run the application.
     def release
+      @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
+
+      "JAVA_HOME=#{@java_home} JAVA_OPTS=\"#{java_opts}\" #{@tomcat_home}/bin/catalina.sh run"
     end
 
     private
 
+    KEY_HTTP_PORT = 'http.port'.freeze
+
+    RESOURCES = '../../../resources/tomcat'
+
+    TOMCAT_HOME = '.tomcat'.freeze
+
     WEB_INF_DIRECTORY = 'WEB-INF'.freeze
 
-    def web_inf?
-      File.exists? File.join(@app_dir, WEB_INF_DIRECTORY)
+    def self.check_version_format(version)
+      raise "Malformed Tomcat version #{version}: too many version components" if version[3]
     end
 
-    def find_tomcat
-      JavaBuildpack::Repository::ConfiguredItem.find_item(@configuration) do |version|
-        check_version_format version
+    def copy_resources(tomcat_home)
+      resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
+      system "cp -r #{resources}/* #{tomcat_home}"
+    end
+
+    def expand(file)
+      expand_start_time = Time.now
+      print "-----> Expanding Tomcat to #{TOMCAT_HOME} "
+
+      tomcat_home = File.join @app_dir, TOMCAT_HOME
+      system "rm -rf #{@tomcat_home}"
+      system "mkdir -p #{@tomcat_home}"
+      system "tar xzf #{file.path} -C #{@tomcat_home} --strip 1 --exclude webapps --exclude conf/server.xml --exclude conf/context.xml 2>&1"
+
+      copy_resources @tomcat_home
+
+      puts "(#{(Time.now - expand_start_time).duration})"
+    end
+
+    def self.find_tomcat(app_dir, configuration)
+      if web_inf? app_dir
+        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |version|
+          check_version_format version
+        end
+      else
+        version = nil
+        uri = nil
       end
+
+      return version, uri
     rescue => e
       raise RuntimeError, "Tomcat container error: #{e.message}", e.backtrace
     end
 
-    private
-
-    def check_version_format(version)
-      raise "Malformed Tomcat version #{version}: too many version components" if version[3]
+    def id(version)
+      "tomcat-#{version}"
     end
 
-    def id(tomcat_version)
-      "tomcat-#{tomcat_version}"
+    def java_opts
+      @java_opts.compact.sort.join(' ')
+    end
+
+    def link_application
+      webapps = "#{@tomcat_home}/webapps"
+      root = "#{webapps}/ROOT"
+
+      system "rm -rf #{root}"
+      system "mkdir -p #{webapps}"
+      system "ln -s #{File.expand_path @app_dir} #{root}"
+    end
+
+    def self.tomcat_home(app_dir)
+      File.join app_dir, TOMCAT_HOME
+    end
+
+    def self.web_inf?(app_dir)
+      File.exists? File.join(app_dir, WEB_INF_DIRECTORY)
     end
 
   end

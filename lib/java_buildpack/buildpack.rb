@@ -35,11 +35,13 @@ module JavaBuildpack
       Buildpack.require_component_files
       components = Buildpack.components
 
-      java_opts = []
+      java_home = String.new
+      java_opts = Array.new
 
       @jres = components['jres'].map do |jre|
         jre.constantize.new({
           :app_dir => app_dir,
+          :java_home => java_home,
           :java_opts => java_opts,
           :configuration => Buildpack.configuration(app_dir, jre)
         })
@@ -48,6 +50,7 @@ module JavaBuildpack
       @frameworks = components['frameworks'].map do |framework|
         framework.constantize.new({
           :app_dir => app_dir,
+          :java_home => java_home,
           :java_opts => java_opts,
           :configuration => Buildpack.configuration(app_dir, framework)
         })
@@ -56,6 +59,7 @@ module JavaBuildpack
       @containers = components['containers'].map do |container|
         container.constantize.new({
           :app_dir => app_dir,
+          :java_home => java_home,
           :java_opts => java_opts,
           :configuration => Buildpack.configuration(app_dir, container)
         })

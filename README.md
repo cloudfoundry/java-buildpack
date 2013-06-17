@@ -12,11 +12,15 @@ The `java-buildpack` is a [Cloud Foundry][cf] buildpack for running Java applica
 * [Standard Components](#standard-components)
 	* [OpenJDK JRE](#openjdk) ([Configuration](#openjdk-config))
 	* [Java Main Class Container](#javamain) ([Configuration](#javamain-config))
+	* [Tomcat Container](#tomcat) ([Tomcat](#tomcat-config))
 	* [`JAVA_OPTS` Framework](#javaopts) ([Configuration](#javaopts-config))
 * [Extending](#extending)
 	* [JREs](#extending-jres)
 	* [Containers](#extending-containers)
 	* [Frameworks](#extending-framework)
+* [Utilities](#utilities)
+	* [Caches](#util-caches)
+	* [Repositories](#util-repositories)
 
 ---
 
@@ -62,41 +66,25 @@ The buildpack contributes a number of standard components that enable most Java 
 ## OpenJDK JRE
 | | |
 | --- | ---
-| **Detection Criteria** | `java.runtime.vendor` set to `openjdk`
-| **Detection Tags** | `jre-openjdk-<version>`
+| **Detection Tags** | `openjdk-<version>`
 
-The OpenJDK JRE provides Java runtimes from the [OpenJDK][openjdk] project.  Versions of Java from the 1.6, 1.7, and 1.8 lines are available.  If the version to use is not configured in `system.properties`, the latest version from the `1.7.0` line is chosen.
+The OpenJDK JRE provides Java runtimes from the [OpenJDK][openjdk] project.  Versions of Java from the 1.6, 1.7, and 1.8 lines are available.  Unless otherwise configured, the version of Java that will be used is specified in [`config/openjdk.yml`][openjdk_yml].
 
 [openjdk]: http://openjdk.java.net
+[openjdk_yml]: config/openjdk.yml
 
-### JRE Version Syntax and Ordering
-JREs versions are composed of major, minor, micro, and optional qualifier parts (`<major>.<minor>.<micro>[_<qualifier>]`).  The major, minor, and micro parts must be numeric.  The qualifier part is composed of letters, digits, and hyphens.  The lexical ordering of the qualifier is:
-
-1. hyphen
-2. lowercase letters
-3. uppercase letters
-4. digits
-
-### JRE Version Wildcards
-In addition to declaring a specific version of JRE to use, you can also specify a bounded range of JRES to use.  Appending the `+` symbol to a version prefix chooses the latest JRE that begins with the prefix.
-
-| Example | Description
-| ------- | -----------
-| `1.+`   	| Selects the greatest available version less than `2.0.0`.
-| `1.7.+` 	| Selects the greatest available version less than `1.8.0`.
-| `1.7.0_+` | Selects the greatest available version less than `1.7.1`. Use this syntax to stay up to date with the latest security releases in a particular version.
 
 <a name='openjdk-config'></a>
 ### Configuration
-The OpenJDK JRE allows the configuration of the version of Java to use as well as the allocation of memory at runtime.
+The OpenJDK JRE allows the configuration of the version of Java to use as well as the allocation of memory at runtime.  The JRE uses the [`Repository` utility support](#util-repositories) and so it supports the [version syntax](#util-repositories-version-syntax) defined there.
 
 #### Version
 
 | Name | Description
 | ---- | -----------
-| `java.runtime.version` | The version of Java runtime to use.  This value can either be an explicit version as found in [this listing][index_yml] or by using wildcards.
+| `java.runtime.version` | The version of Java runtime to use.  This value can either be an explicit version as found in [this listing][openjdk_index_yml] or by using wildcards.
 
-[index_yml]: http://jres.gopivotal.com.s3.amazonaws.com/lucid/x86_64/openjdk/index.yml
+[openjdk_index_yml]: http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml
 
 #### Memory
 
@@ -135,6 +123,23 @@ The Java Main Class Container allows applications that provide a class with a `m
 | ---- | -----------
 | `java.main.class` | The Java class name to run. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line.  If not specified, the Java Manifest value of `Main-Class` is used.
 
+<a name='tomcat'></a>
+## Tomcat Container
+| | |
+| --- | ---
+| **Detection Criteria** | Existence of a `WEB-INF/` folder in the application directory
+| **Detection Tags** | `tomcat-<version>`
+
+The Tomcat Container allows web application to be run.  These applications are run as the root web application in a Tomcat container.
+
+<a name='tomcat-config'></a>
+### Configuration
+The Tomcat Container allows the configuration of the version of Tomcat to use.  The Container uses the [`Repository` utility support](#util-repositories) and so it supports the [version syntax](#util-repositories-version-syntax) defined there.
+
+| Name | Description
+| ---- | -----------
+| `version` | The version of Tomcat to use
+
 <a name="javaopts"></a>
 ## `JAVA_OPTS` Framework
 | | |
@@ -150,9 +155,6 @@ The `JAVA_OPTS` Framework contributes arbitrary Java options to the application 
 | Name | Description
 | ---- | -----------
 | `java.opts` | The Java options to use when running the application.  All values are used without modification when invoking the JVM.
-
-
-
 
 # Extending
 The buildpack is designed to be extended by specifying components in [`config/components.yml`][components_yml].  The values listed in this file correspond to Ruby class names that will be instantiated and called.  In order for these classes to be instantiated, the files containing them must be located in specific directories in the repository.
@@ -170,24 +172,26 @@ To add a JRE, the class file must be located in [`lib/java_buildpack/jre`][jre_d
 #
 # @param [Hash<Symbol, String>] context A shared context provided to all components
 # @option context [String] :app_dir the directory that the application exists in
+# @option context [String] :java_home the directory that acts as +JAVA_HOME+
 # @option context [Array<String>] :java_opts an array that Java options can be added to
-# @option context [Hash] :system_properties the properties provided by the user
-def initialize(context = {})
+# @option context [Hash] :configuration the configuration provided by the user
+def initialize(context)
 
 # Determines if the JRE can be used to run the application.
 #
 # @return [String, nil] If the JRE can be used to run the application, a +String+ that uniquely identifies the JRE
-#                       (e.g. +jre-openjdk-1.7.0_21+).  Otherwise, +nil+.
+#                       (e.g. +openjdk-1.7.0_21+).  Otherwise, +nil+.
 def detect
 
-# Downloads and unpacks the JRE.  The JRE is expected to be unpacked such that +JAVA_HOME+ is +.java+.  Status output
-# written to +STDOUT+ is expected as part of this invocation.
+# Downloads and unpacks the JRE.  Status output written to +STDOUT+ is expected as part of this invocation.
 #
 # @return [void]
 def compile
 
 # Adds any JRE-specific options to +context[:java_opts]+.  Typically this includes memory configuration (heap, perm gen,
-# etc.) but could be anything that a JRE needs to have configured.
+# etc.) but could be anything that a JRE needs to have configured.  As well, +context[:java_home]+ is expected to be
+# updated with the value that the JRE has been unpacked to.  This must be done using the {String.concat} method to
+# ensure that the value is accessible to other components.
 #
 # @return [void]
 def release
@@ -204,9 +208,10 @@ To add a container, the class file must be located in [`lib/java_buildpack/conta
 #
 # @param [Hash<Symbol, String>] context A shared context provided to all components
 # @option context [String] :app_dir the directory that the application exists in
+# @option context [String] :java_home the directory that acts as +JAVA_HOME+
 # @option context [Array<String>] :java_opts an array that Java options can be added to
-# @option context [Hash] :system_properties the properties provided by the user
-def initialize(context = {})
+# @option context [Hash] :configuration the configuration provided by the user
+def initialize(context)
 
 # Determines if the container can be used to run the application.
 #
@@ -221,8 +226,8 @@ def detect
 # @return [void]
 def compile
 
-# Creates the command to run the application with.  The container is expected to read +context[:java_opts]+ and take
-# those values into account when creating the command.
+# Creates the command to run the application with.  The container is expected to read +context[:java_home]+ and
+# +context[:java_opts]+ and take those values into account when creating the command.
 #
 # @return [String] the command to run the application with
 def release
@@ -240,16 +245,17 @@ To add a framework, the class file must be located in [`lib/java_buildpack/frame
 # @param [Hash<Symbol, String>] context A shared context provided to all components
 # @option context [String] :app_dir the directory that the application exists in
 # @option context [Array<String>] :java_opts an array that Java options can be added to
-# @option context [Hash] :system_properties the properties provided by the user
-def initialize(context = {})
+# @option context [Hash] :configuration the configuration provided by the user
+def initialize(context)
 
 # Determines if the framework can be applied to the application
 #
 # @return [String, nil] If the framework can be used to run the application, a +String+ that uniquely identifies the
-#                        framework (e.g. +java-opts+).  Otherwise, +nil+.
+#                       framework (e.g. +java-opts+).  Otherwise, +nil+.
 def detect
 
-# Transforms the application based on the framework.  Status output written to +STDOUT+ is expected as part of this invocation.
+# Transforms the application based on the framework.  Status output written to +STDOUT+ is expected as part of this
+# invocation.
 #
 # @return [void]
 def compile
@@ -260,3 +266,157 @@ def compile
 # @return [void]
 def release
 ```
+
+# Utilities
+The buildpack contains some utilities that might be of use to component developers.
+
+<a name='util-caches'></a>
+## Caches
+Many components will want to cache large files that are downloaded for applications.  The buildpack provides a cache abstraction to encapsulate this caching behavior.  The cache abstraction is comprised of three cache types each with the same signature.
+
+```ruby
+# Retrieves an item from the cache.  Retrieval of the item uses the following algorithm:
+#
+# 1. Obtain an exclusive lock based on the URI of the item. This allows concurrency for different items, but not for
+#    the same item.
+# 2. If the the cached item does not exist, download from +uri+ and cache it, its +Etag+, and its +Last-Modified+
+#    values if they exist.
+# 3. If the cached file does exist, and the original download had an +Etag+ or a +Last-Modified+ value, attempt to
+#    download from +uri+ again.  If the result is +304+ (+Not-Modified+), then proceed without changing the cached
+#    item.  If it is anything else, overwrite the cached file and its +Etag+ and +Last-Modified+ values if they exist.
+# 4. Downgrade the lock to a shared lock as no further mutation of the cache is possible.  This allows concurrency for
+#    read access of the item.
+# 5. Yield the cached file (opened read-only) to the passed in block. Once the block is complete, the file is closed
+#    and the lock is released.
+#
+# @param [String] uri the uri to download if the item is not already in the cache.  Also used in the case where the
+#                     item is already in the cache, to validate that the item is up to date
+# @yieldparam [File] file the file representing the cached item. In order to ensure that the file is not changed or
+#                    deleted while it is being used, the cached item can only be accessed as part of a block.
+# @return [void]
+def get(uri)
+
+# Remove an item from the cache
+#
+# @param [String] uri the URI of the item to remove
+# @return [void]
+def evict(uri)
+```
+
+Usage of a cache might look like the following:
+
+```ruby
+JavaBuildpack::Util::DownloadCache.new().get(uri) do |file|
+  YAML.load_file(file)
+end
+```
+
+### `JavaBuildpack::Util::DownloadCache`
+The [`DownloadCache`][download_cache] is the most generic of the three caches.  It allows you to create a cache that persists files any that write access is available.  The constructor signature looks the following:
+
+```ruby
+# Creates an instance of the cache that is backed by the filesystem rooted at +cache_root+
+#
+# @param [String] cache_root the filesystem root for downloaded files to be cached in
+def initialize(cache_root = Dir.tmpdir)
+```
+
+[download_cache]: lib/java_buildpack/util/download_cache.rb
+
+### `JavaBuildpack::Util::ApplicationCache`
+The [`ApplicationCache`][application_cache] is a cache that persists files into the application cache passed to the `compile` script.  It examines `ARGV[1]` for the cache location and configures itself accordingly.
+
+```ruby
+# Creates an instance that is configured to use the application cache.  The application cache location is defined by
+# the second argument (<tt>ARGV[1]</tt>) to the +compile+ script.
+#
+# @raise if the second argument (<tt>ARGV[1]</tt>) to the +compile+ script is +nil+
+def initialize
+```
+
+[application_cache]: lib/java_buildpack/util/application_cache.rb
+
+### `JavaBuildpack::Util::GlobalCache`
+The [`GlobalCache`][global_cache] is a cache that persists files into the global cache passed to all scripts.  It examines `ENV['BUILDPACK_CACHE']` for the cache location and configures itself accordingly.
+
+```ruby
+# Creates an instance that is configured to use the global cache.  The global cache location is defined by the
+# +BUILDPACK_CACHE+ environment variable
+#
+# @raise if the +BUILDPACK_CACHE+ environment variable is +nil+
+def initialize
+```
+
+[global_cache]: lib/java_buildpack/util/global_cache.rb
+
+<a name='util-repositories'></a>
+## Repositories
+Many components need to have access to multiple versions of binaries.  The buildpack provides a `Repository` abstraction to encapsulate version resolution and download URI creation.
+
+### Repository Structure
+The repository is an HTTP-accessible collection of files.  The repository root must contain an `index.yml` file ([example][example_index_yml]) that is a mapping of concrete versions to URIs.
+
+```yaml
+<version>: <URI>
+```
+
+An example filesystem might look like:
+
+```
+/index.yml
+/openjdk-1.6.0_27.tar.gz
+/openjdk-1.7.0_21.tar.gz
+/openjdk-1.8.0_M7.tar.gz
+```
+
+[example_index_yml]: http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml
+
+### Usage
+
+The main class used when dealing with a repository is [`JavaBuildpack::Repository::ConfiguredItem`][configured_item].  It provides a single method that is used to resolve a specific version and its URI.
+
+```ruby
+# Finds an instance of the file based on the configuration.
+#
+# @param [Hash] configuration the configuration
+# @option configuration [String] :repository_root the root directory of the repository
+# @option configuration [String] :version the version of the file to resolve
+# @param [Block, nil] version_validator an optional version validation block
+# @return [JavaBuildpack::Util::TokenizedVersion] the chosen version of the file
+# @return [String] the URI of the chosen version of the file
+def self.find_item(configuration, &version_validator)
+```
+
+Usage of the class might look like the following:
+
+```ruby
+version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
+```
+
+or with version validation:
+
+```ruby
+version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |version|
+  validate_version version
+end
+```
+
+[configured_item]: lib/java_buildpack/repository/configured_item.rb
+
+<a name='util-repositories-version-syntax'></a>
+### Version Syntax and Ordering
+Versions are composed of major, minor, micro, and optional qualifier parts (`<major>.<minor>.<micro>[_<qualifier>]`).  The major, minor, and micro parts must be numeric.  The qualifier part is composed of letters, digits, and hyphens.  The lexical ordering of the qualifier is:
+
+1. hyphen
+2. lowercase letters
+3. uppercase letters
+4. digits
+
+### Version Wildcards
+In addition to declaring a specific versions to use, you can also specify a bounded range of versions to use.  Appending the `+` symbol to a version prefix chooses the latest version that begins with the prefix.
+
+| Example | Description
+| ------- | -----------
+| `1.+`   	| Selects the greatest available version less than `2.0.0`.
+| `1.7.+` 	| Selects the greatest available version less than `1.8.0`.
+| `1.7.0_+` | Selects the greatest available version less than `1.7.1`. Use this syntax to stay up to date with the latest security releases in a particular version.

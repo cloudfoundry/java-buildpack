@@ -67,7 +67,12 @@ module JavaBuildpack::Jre
       with_memory_limit('1G') do
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
-        detected = OpenJdk.new(:java_opts => [], :configuration => BASE_CONFIGURATION).detect
+        detected = OpenJdk.new(
+          :app_dir => '',
+          :java_home => '',
+          :java_opts => [],
+          :configuration => BASE_CONFIGURATION
+        ).detect
 
         expect(detected).to eq('openjdk-1.7.0')
       end
@@ -79,10 +84,31 @@ module JavaBuildpack::Jre
         JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
         application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-java.tar.gz'))
 
-        OpenJdk.new(:app_dir => root, :configuration => BASE_CONFIGURATION, :java_opts => []).compile
+        OpenJdk.new(
+          :app_dir => root,
+          :configuration => BASE_CONFIGURATION,
+          :java_home => '',
+          :java_opts => []
+        ).compile
 
         java = File.join(root, '.java', 'bin', 'java')
         expect(File.exists?(java)).to be_true
+      end
+    end
+
+    it 'adds the JAVA_HOME to java_home' do
+      with_memory_limit('2G') do
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
+
+        java_home = ''
+        OpenJdk.new(
+          :app_dir => '/application-directory',
+          :java_home => java_home,
+          :java_opts => [],
+          :configuration => BASE_CONFIGURATION
+        )
+
+        expect(java_home).to eq(File.join('/application-directory', '.java'))
       end
     end
 
@@ -91,7 +117,12 @@ module JavaBuildpack::Jre
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
-        OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION.merge({'java.heap.size' => HEAP_SIZE})).release
+        OpenJdk.new(
+          :app_dir => '',
+          :java_home => '',
+          :java_opts => java_opts,
+          :configuration => BASE_CONFIGURATION.merge({'java.heap.size' => HEAP_SIZE})
+        ).release
 
         expect(java_opts.length).to eq(3)
         expect(java_opts.join(' ')).to match(/-Xmx#{HEAP_SIZE}/)
@@ -103,7 +134,12 @@ module JavaBuildpack::Jre
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
-        OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION).release
+        OpenJdk.new(
+          :app_dir => '',
+          :java_home => '',
+          :java_opts => java_opts,
+          :configuration => BASE_CONFIGURATION
+        ).release
 
         expect(java_opts.length).to eq(3)
         expect(java_opts.join(' ')).to match(/-Xmx/)
@@ -114,7 +150,12 @@ module JavaBuildpack::Jre
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
       java_opts = []
-      expect { OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION.merge({'java.heap.size' => INVALID_HEAP_SIZE})).release }.to raise_error
+      expect { OpenJdk.new(
+        :app_dir => '',
+        :java_home => '',
+        :java_opts => java_opts,
+        :configuration => BASE_CONFIGURATION.merge({'java.heap.size' => INVALID_HEAP_SIZE})
+      ).release }.to raise_error
     end
 
     it 'adds the resolved permgen size to java_opts' do
@@ -122,7 +163,12 @@ module JavaBuildpack::Jre
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
-        OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION.merge({'java.permgen.size' => PERMGEN_SIZE})).release
+        OpenJdk.new(
+          :app_dir => '',
+          :java_home => '',
+          :java_opts => java_opts,
+          :configuration => BASE_CONFIGURATION.merge({'java.permgen.size' => PERMGEN_SIZE})
+        ).release
 
         expect(java_opts.length).to eq(3)
         expect(java_opts.join(' ')).to match(/-XX:MaxPermSize=#{PERMGEN_SIZE}/)
@@ -134,7 +180,12 @@ module JavaBuildpack::Jre
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
-        OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION).release
+        OpenJdk.new(
+          :app_dir => '',
+          :java_home => '',
+          :java_opts => java_opts,
+          :configuration => BASE_CONFIGURATION
+        ).release
 
         expect(java_opts.length).to eq(3)
         expect(java_opts.join(' ')).to match(/-XX:MaxPermSize=/)
@@ -145,7 +196,12 @@ module JavaBuildpack::Jre
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
       java_opts = []
-      expect { OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION.merge({'java.permgen.size' => INVALID_PERMGEN_SIZE})).release }.to raise_error
+      expect { OpenJdk.new(
+        :app_dir => '',
+        :java_home => '',
+        :java_opts => java_opts,
+        :configuration => BASE_CONFIGURATION.merge({'java.permgen.size' => INVALID_PERMGEN_SIZE})
+      ).release }.to raise_error
     end
 
     it 'adds the resolved stack size to java_opts' do
@@ -153,7 +209,12 @@ module JavaBuildpack::Jre
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
-        OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION.merge({'java.stack.size' => STACK_SIZE})).release
+        OpenJdk.new(
+          :app_dir => '',
+          :java_home => '',
+          :java_opts => java_opts,
+          :configuration => BASE_CONFIGURATION.merge({'java.stack.size' => STACK_SIZE})
+        ).release
 
         expect(java_opts.length).to eq(3)
         expect(java_opts.join(' ')).to match(/-Xss#{STACK_SIZE}/)
@@ -165,7 +226,12 @@ module JavaBuildpack::Jre
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
-        OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION).release
+        OpenJdk.new(
+          :app_dir => '',
+          :java_home => '',
+          :java_opts => java_opts,
+          :configuration => BASE_CONFIGURATION
+        ).release
 
         expect(java_opts.length).to eq(3)
         expect(java_opts.join(' ')).to match(/-Xss1M/)
@@ -176,7 +242,12 @@ module JavaBuildpack::Jre
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
       java_opts = []
-      expect { OpenJdk.new(:java_opts => java_opts, :configuration => {'java.stack.size' => INVALID_STACK_SIZE}).release }.to raise_error
+      expect { OpenJdk.new(
+        :app_dir => '',
+        :java_home => '',
+        :java_opts => java_opts,
+        :configuration => {'java.stack.size' => INVALID_STACK_SIZE}
+      ).release }.to raise_error
     end
 
     it 'adds the resolved maximum metaspace size to java_opts' do
@@ -184,7 +255,12 @@ module JavaBuildpack::Jre
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_POST_8)
 
         java_opts = []
-        OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION.merge({'java.metaspace.size' => METASPACE_SIZE})).release
+        OpenJdk.new(
+          :app_dir => '',
+          :java_home => '',
+          :java_opts => java_opts,
+          :configuration => BASE_CONFIGURATION.merge({'java.metaspace.size' => METASPACE_SIZE})
+        ).release
 
         expect(java_opts.length).to eq(3)
         expect(java_opts.join(' ')).to match(/-XX:MaxMetaspaceSize=#{PERMGEN_SIZE}/)
@@ -196,7 +272,12 @@ module JavaBuildpack::Jre
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_POST_8)
 
         java_opts = []
-        OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION).release
+        OpenJdk.new(
+          :app_dir => '',
+          :java_home => '',
+          :java_opts => java_opts,
+          :configuration => BASE_CONFIGURATION
+        ).release
 
         expect(java_opts.length).to eq(3)
         expect(java_opts.join(' ')).to match(/-XX:MaxMetaspaceSize=/)
@@ -208,7 +289,12 @@ module JavaBuildpack::Jre
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
-        OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION).release
+        OpenJdk.new(
+          :app_dir => '',
+          :java_home => '',
+          :java_opts => java_opts,
+          :configuration => BASE_CONFIGURATION
+        ).release
 
         expect(java_opts.length).to eq(1)
         expect(java_opts[0]).to match(/-Xss1M/)
@@ -217,7 +303,12 @@ module JavaBuildpack::Jre
 
     it 'should fail when ConfiguredItem.find_item fails' do
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_raise('test error')
-      expect { OpenJdk.new(:java_opts => [], :configuration => BASE_CONFIGURATION).detect }.to raise_error(/OpenJDK\ JRE\ error:\ test\ error/)
+      expect { OpenJdk.new(
+        :app_dir => '',
+        :java_home => '',
+        :java_opts => [],
+        :configuration => BASE_CONFIGURATION
+      ).detect }.to raise_error(/OpenJDK\ JRE\ error:\ test\ error/)
     end
 
     def with_memory_limit(memory_limit)

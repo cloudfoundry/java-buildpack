@@ -25,9 +25,11 @@ module JavaBuildpack::Repository
     # Finds an instance of the file based on the configuration.
     #
     # @param [Hash] configuration the configuration
+    # @option configuration [String] :repository_root the root directory of the repository
+    # @option configuration [String] :version the version of the file to resolve
     # @param [Block, nil] version_validator an optional version validation block
-    # @return [TokenizedVersion] the chosen version of the file
-    # @return [String] the download URI of the chosen version of the file
+    # @return [JavaBuildpack::Util::TokenizedVersion] the chosen version of the file
+    # @return [String] the URI of the chosen version of the file
     def self.find_item(configuration, &version_validator)
       repository_root = ConfiguredItem.repository_root(configuration)
       version = ConfiguredItem.version(configuration)
@@ -39,6 +41,7 @@ module JavaBuildpack::Repository
     private
 
     KEY_REPOSITORY_ROOT = 'repository_root'.freeze
+
     KEY_VERSION = 'version'.freeze
 
     def self.index(repository_root)

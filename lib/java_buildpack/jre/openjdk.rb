@@ -30,10 +30,12 @@ module JavaBuildpack::Jre
     #
     # @param [Hash] context the context that is provided to the instance
     # @option context [String] :app_dir the directory that the application exists in
+    # @option context [String] :java_home the directory that acts as +JAVA_HOME+
     # @option context [Array<String>] :java_opts an array that Java options can be added to
     # @option context [Hash] :configuration the properties provided by the user
     def initialize(context)
       @app_dir = context[:app_dir]
+      @java_home = context[:java_home].concat OpenJdk.java_home(@app_dir)
       @java_opts = context[:java_opts]
       @configuration = context[:configuration]
       @version, @uri = OpenJdk.find_openjdk(@configuration)
@@ -93,37 +95,30 @@ module JavaBuildpack::Jre
         }
     }
 
+    def expand(file)
+      expand_start_time = Time.now
+      print "-----> Expanding JRE to #{JAVA_HOME} "
+
+      java_home =
+      system "rm -rf #{@java_home}"
+      system "mkdir -p #{@java_home}"
+      system "tar xzf #{file.path} -C #{@java_home} --strip 1 2>&1"
+
+      puts "(#{(Time.now - expand_start_time).duration})"
+    end
+
     def self.find_openjdk(configuration)
       JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
     rescue => e
       raise RuntimeError, "OpenJDK JRE error: #{e.message}", e.backtrace
     end
 
-    def expand(file)
-      expand_start_time = Time.now
-      print "-----> Expanding JRE to #{JAVA_HOME} "
-
-      java_home = File.join @app_dir, JAVA_HOME
-      system "rm -rf #{java_home}"
-      system "mkdir -p #{java_home}"
-      system "tar xzf #{file.path} -C #{java_home} --strip 1 2>&1"
-
-      puts "(#{(Time.now - expand_start_time).duration})"
-    end
-
     def id(version)
       "openjdk-#{version}"
     end
 
-    def to_java_opts(memory_values)
-      java_opts = []
-
-      memory_values.each_pair do |key, memory_value|
-        mapping =  MAPPINGS[key]
-        java_opts << "#{mapping[:switch]}#{memory_value}" if mapping
-      end
-
-      java_opts
+    def self.java_home(app_dir)
+      File.join app_dir, JAVA_HOME
     end
 
     def memory_sizes(configuration)
@@ -147,6 +142,17 @@ module JavaBuildpack::Jre
       end
 
       specified_sizes
+    end
+
+    def to_java_opts(memory_values)
+      java_opts = []
+
+      memory_values.each_pair do |key, memory_value|
+        mapping =  MAPPINGS[key]
+        java_opts << "#{mapping[:switch]}#{memory_value}" if mapping
+      end
+
+      java_opts
     end
 
   end

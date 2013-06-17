@@ -27,10 +27,12 @@ module JavaBuildpack::Container
     #
     # @param [Hash] context the context that is provided to the instance
     # @option context [String] :app_dir the directory that the application exists in
+    # @option context [String] :java_home the directory that acts as +JAVA_HOME+
     # @option context [Array<String>] :java_opts an array that Java options can be added to
     # @option context [Hash] :configuration the properties provided by the user
     def initialize(context = {})
       @app_dir = context[:app_dir]
+      @java_home = context[:java_home]
       @java_opts = context[:java_opts]
       @configuration = context[:configuration]
     end
@@ -54,7 +56,7 @@ module JavaBuildpack::Container
     #
     # @return [String] the command to run the application.
     def release
-      ".java/bin/java -cp . #{java_opts} #{main_class}"
+      "#{@java_home}/bin/java -cp . #{java_opts} #{main_class}"
     end
 
     private
