@@ -43,9 +43,9 @@ module JavaBuildpack::Util
     #
     # @return [Integer] A numerical representation of the comparisong between two instances
     def <=>(another)
-      comparison = self[0] <=> another[0]
-      comparison = self[1] <=> another[1] if comparison == 0
-      comparison = self[2] <=> another[2] if comparison == 0
+      comparison = self[0].to_i <=> another[0].to_i
+      comparison = self[1].to_i <=> another[1].to_i if comparison == 0
+      comparison = self[2].to_i <=> another[2].to_i if comparison == 0
       comparison = qualifier_compare(self[3].nil? ? '' : self[3], another[3].nil? ? '' : another[3]) if comparison == 0
 
       comparison
