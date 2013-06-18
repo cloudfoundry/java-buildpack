@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/util'
+require 'java_buildpack/repository'
 require 'java_buildpack/util/tokenized_version'
 
-module JavaBuildpack::Util
+module JavaBuildpack::Repository
 
   # A resolver that selects values from a collection based on a set of rules governing wildcards
   class VersionResolver
@@ -33,7 +33,7 @@ module JavaBuildpack::Util
     # @raise if no version can be resolved
     def self.resolve(candidate_version, versions)
       tokenized_candidate_version = safe_candidate_version candidate_version
-      tokenized_versions = versions.map { |version| TokenizedVersion.new(version, false) }
+      tokenized_versions = versions.map { |version| JavaBuildpack::Util::TokenizedVersion.new(version, false) }
 
       version = tokenized_versions
       .find_all { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
@@ -45,13 +45,13 @@ module JavaBuildpack::Util
 
     private
 
-    TOKENIZED_WILDCARD = TokenizedVersion.new('+')
+    TOKENIZED_WILDCARD = JavaBuildpack::Util::TokenizedVersion.new('+')
 
     def self.safe_candidate_version(candidate_version)
       if candidate_version.nil? then
         TOKENIZED_WILDCARD
       else
-        raise "Invalid TokenizedVersion '#{candidate_version}'" unless candidate_version.is_a?(TokenizedVersion)
+        raise "Invalid TokenizedVersion '#{candidate_version}'" unless candidate_version.is_a?(JavaBuildpack::Util::TokenizedVersion)
         candidate_version
       end
     end
@@ -59,7 +59,7 @@ module JavaBuildpack::Util
     def self.matches?(tokenized_candidate_version, tokenized_version)
       (0..3).all? do |i|
         tokenized_candidate_version[i].nil? ||
-            tokenized_candidate_version[i] == TokenizedVersion::WILDCARD ||
+            tokenized_candidate_version[i] == JavaBuildpack::Util::TokenizedVersion::WILDCARD ||
             tokenized_candidate_version[i] == tokenized_version[i]
       end
     end
