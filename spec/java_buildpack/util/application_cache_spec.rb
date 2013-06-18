@@ -47,9 +47,9 @@ module JavaBuildpack::Util
       Dir.mktmpdir do |root|
         ARGV[1] = root
 
-        ApplicationCache.new().get('foo', 'http://foo-uri/') {}
+        ApplicationCache.new().get('http://foo-uri/') {}
 
-        expect(File.exists?(File.join(root, 'foo.cached'))).to be_true
+        expect(Dir[File.join(root, '*.cached')].size).to eq(1)
       end
     end
 

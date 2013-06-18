@@ -53,9 +53,10 @@ module JavaBuildpack::Jre
       }
     }.freeze
 
+    DETAILS_PRE_8 = [JavaBuildpack::Util::TokenizedVersion.new('1.7.0'), 'test-uri']
+    DETAILS_POST_8 = [JavaBuildpack::Util::TokenizedVersion.new('1.8.0'), 'test-uri']
+
     let(:application_cache) { double('ApplicationCache') }
-    let(:details_pre_8) { double('Details', :version => JavaBuildpack::Util::TokenizedVersion.new('1.7.0'), :uri => 'test-uri') }
-    let(:details_post_8) { double('Details', :version => JavaBuildpack::Util::TokenizedVersion.new('1.8.0'), :uri => 'test-uri') }
 
     before do
       $stdout = StringIO.new
@@ -64,7 +65,7 @@ module JavaBuildpack::Jre
 
     it 'should detect with id of JRE' do
       with_memory_limit('1G') do
-        JavaBuildpack::Util::Details.stub(:new).and_return(details_pre_8)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         detected = OpenJdk.new(:java_opts => [], :configuration => BASE_CONFIGURATION).detect
 
@@ -74,9 +75,9 @@ module JavaBuildpack::Jre
 
     it 'should extract Java from a GZipped TAR' do
       Dir.mktmpdir do |root|
-        JavaBuildpack::Util::Details.stub(:new).and_return(details_pre_8)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
         JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('openjdk-1.7.0', 'test-uri').and_yield(File.open('spec/fixtures/stub-java.tar.gz'))
+        application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-java.tar.gz'))
 
         OpenJdk.new(:app_dir => root, :configuration => BASE_CONFIGURATION, :java_opts => []).compile
 
@@ -87,7 +88,7 @@ module JavaBuildpack::Jre
 
     it 'adds the resolved heap size to java_opts' do
       with_memory_limit('2G') do
-        JavaBuildpack::Util::Details.stub(:new).and_return(details_pre_8)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION.merge({'java.heap.size' => HEAP_SIZE})).release
@@ -99,7 +100,7 @@ module JavaBuildpack::Jre
 
     it 'adds a default heap size to java_opts if not specified' do
       with_memory_limit('1G') do
-        JavaBuildpack::Util::Details.stub(:new).and_return(details_pre_8)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION).release
@@ -110,7 +111,7 @@ module JavaBuildpack::Jre
     end
 
     it 'raises an error when heap size has embedded whitespace' do
-      JavaBuildpack::Util::Details.stub(:new).and_return(details_pre_8)
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
       java_opts = []
       expect { OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION.merge({'java.heap.size' => INVALID_HEAP_SIZE})).release }.to raise_error
@@ -118,7 +119,7 @@ module JavaBuildpack::Jre
 
     it 'adds the resolved permgen size to java_opts' do
       with_memory_limit('1G') do
-        JavaBuildpack::Util::Details.stub(:new).and_return(details_pre_8)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION.merge({'java.permgen.size' => PERMGEN_SIZE})).release
@@ -130,7 +131,7 @@ module JavaBuildpack::Jre
 
     it 'adds a default permgen size to java_opts if not specified' do
       with_memory_limit('1G') do
-        JavaBuildpack::Util::Details.stub(:new).and_return(details_pre_8)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION).release
@@ -141,7 +142,7 @@ module JavaBuildpack::Jre
     end
 
     it 'raises an error when permgen size has embedded whitespace' do
-      JavaBuildpack::Util::Details.stub(:new).and_return(details_pre_8)
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
       java_opts = []
       expect { OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION.merge({'java.permgen.size' => INVALID_PERMGEN_SIZE})).release }.to raise_error
@@ -149,7 +150,7 @@ module JavaBuildpack::Jre
 
     it 'adds the resolved stack size to java_opts' do
       with_memory_limit('1G') do
-        JavaBuildpack::Util::Details.stub(:new).and_return(details_pre_8)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION.merge({'java.stack.size' => STACK_SIZE})).release
@@ -161,7 +162,7 @@ module JavaBuildpack::Jre
 
     it 'adds a stack size to java_opts if not specified' do
       with_memory_limit('1G') do
-        JavaBuildpack::Util::Details.stub(:new).and_return(details_pre_8)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION).release
@@ -172,7 +173,7 @@ module JavaBuildpack::Jre
     end
 
     it 'raises an error when stack size has embedded whitespace' do
-      JavaBuildpack::Util::Details.stub(:new).and_return(details_pre_8)
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
       java_opts = []
       expect { OpenJdk.new(:java_opts => java_opts, :configuration => {'java.stack.size' => INVALID_STACK_SIZE}).release }.to raise_error
@@ -180,7 +181,7 @@ module JavaBuildpack::Jre
 
     it 'adds the resolved maximum metaspace size to java_opts' do
       with_memory_limit('1G') do
-        JavaBuildpack::Util::Details.stub(:new).and_return(details_post_8)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_POST_8)
 
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION.merge({'java.metaspace.size' => METASPACE_SIZE})).release
@@ -192,7 +193,7 @@ module JavaBuildpack::Jre
 
     it 'adds a default permgen size to java_opts if not specified' do
       with_memory_limit('1G') do
-        JavaBuildpack::Util::Details.stub(:new).and_return(details_post_8)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_POST_8)
 
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION).release
@@ -204,7 +205,7 @@ module JavaBuildpack::Jre
 
     it 'falls back to not defaulting memory sizes if $MEMORY_LIMIT is not set' do
       with_memory_limit(nil) do
-        JavaBuildpack::Util::Details.stub(:new).and_return(details_pre_8)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
         java_opts = []
         OpenJdk.new(:java_opts => java_opts, :configuration => BASE_CONFIGURATION).release
@@ -212,6 +213,11 @@ module JavaBuildpack::Jre
         expect(java_opts.length).to eq(1)
         expect(java_opts[0]).to match(/-Xss1M/)
       end
+    end
+
+    it 'should fail when ConfiguredItem.find_item fails' do
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_raise('test error')
+      expect { OpenJdk.new(:java_opts => [], :configuration => BASE_CONFIGURATION).detect }.to raise_error(/OpenJDK\ JRE\ error:\ test\ error/)
     end
 
     def with_memory_limit(memory_limit)

@@ -20,15 +20,13 @@ module JavaBuildpack::Container
 
   describe Tomcat do
 
-  let(:tomcat_details) { double('TomcatDetails', :configured_version => JavaBuildpack::Util::TokenizedVersion.new('7.0.40'), :uri => 'test-uri') }
-
     it 'should detect WEB-INF' do
-      TomcatDetails.stub(:new).and_return(tomcat_details)
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_yield(JavaBuildpack::Util::TokenizedVersion.new('7.0.40')).and_return('resolved-version', 'test-uri')
       detected = Tomcat.new(
           :app_dir => 'spec/fixtures/container_tomcat',
           :configuration => {}).detect
 
-      expect(detected).to eq('tomcat-7.0.40')
+      expect(detected).to eq('tomcat-resolved-version')
     end
 
     it 'should not detect when WEB-INF is absent' do
@@ -37,6 +35,13 @@ module JavaBuildpack::Container
           :configuration => {}).detect
 
       expect(detected).to be_nil
+    end
+
+    it 'should fail when a malformed version is detected' do
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_yield(JavaBuildpack::Util::TokenizedVersion.new('7.0.40_0')).and_return('resolved-version', 'test-uri')
+      expect { Tomcat.new(
+          :app_dir => 'spec/fixtures/container_tomcat',
+          :configuration => {}).detect }.to raise_error(/Malformed\ Tomcat\ version/)
     end
 
   end

@@ -13,27 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'open3'
+require 'java_buildpack'
 
-describe 'release script' do
-
-  it 'should return zero if success' do
-    with_memory_limit('1G') do
-      Open3.popen3("bin/release spec/fixtures/integration_valid") do |stdin, stdout, stderr, wait_thr|
-        expect(wait_thr.value).to be_success
-      end
-    end
-  end
-
-  def with_memory_limit(memory_limit)
-    previous_value = ENV['MEMORY_LIMIT']
-    begin
-      ENV['MEMORY_LIMIT'] = memory_limit
-      yield
-    ensure
-      ENV['MEMORY_LIMIT'] = previous_value
-    end
-  end
-
+# A module encapsulating versioned file repositories for the Java buildpack.
+module JavaBuildpack::Repository
 end

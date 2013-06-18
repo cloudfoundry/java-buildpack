@@ -24,14 +24,17 @@ module JavaBuildpack::Util
     # The wildcard component.
     WILDCARD = '+'
 
-    # Create a tokenized version based on the input array.
+    # Create a tokenized version based on the input string.
     #
-    # @param [Array] version an array of version components
+    # @param [String] version a version string
     # @param [Boolean] allow_wildcards whether or not to allow '+' as the last component to represent a wildcard
     def initialize(version, allow_wildcards = true)
       @version = version
+      if !@version && allow_wildcards
+        @version = WILDCARD
+      end
 
-      major, tail = major_or_minor_and_tail version
+      major, tail = major_or_minor_and_tail @version
       minor, tail = major_or_minor_and_tail tail
       micro, qualifier = micro_and_qualifier tail
 

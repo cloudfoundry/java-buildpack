@@ -19,11 +19,4 @@ require 'tmpdir'
 
 describe 'compile script' do
 
-  it 'should return non-zero if failure' do
-    Open3.popen3("bin/compile spec/fixtures/integration_invalid_version #{Dir.tmpdir}") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to_not be_success
-      expect(stderr.read).to match(/No version resolvable for '1.5.0'/)
-    end
-  end
-
 end

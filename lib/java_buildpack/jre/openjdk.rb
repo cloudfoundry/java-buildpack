@@ -16,7 +16,7 @@
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/memory_heuristics_openjdk_pre8'
 require 'java_buildpack/jre/memory/memory_heuristics_openjdk'
-require 'java_buildpack/util/details'
+require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/tokenized_version'
@@ -36,7 +36,7 @@ module JavaBuildpack::Jre
       @app_dir = context[:app_dir]
       @java_opts = context[:java_opts]
       @configuration = context[:configuration]
-      @details = JavaBuildpack::Util::Details.new(@configuration)
+      @version, @uri = OpenJdk.find_openjdk(@configuration)
     end
 
     # Detects which version of Java this application should use.  *NOTE:* This method will always return _some_ value,
@@ -45,7 +45,7 @@ module JavaBuildpack::Jre
     # @return [String, nil] returns +openjdk-<version>+.
     def detect
       memory_sizes @configuration # drive out errors early
-      id @details
+      id @version
     end
 
     # Downloads and unpacks a JRE
@@ -53,9 +53,9 @@ module JavaBuildpack::Jre
     # @return [void]
     def compile
       download_start_time = Time.now
-      print "-----> Downloading OpenJDK #{@details.version} JRE from #{@details.uri} "
+      print "-----> Downloading OpenJDK #{@version} JRE from #{@uri} "
 
-      JavaBuildpack::Util::ApplicationCache.new.get(id(@details), @details.uri) do |file|  # TODO Use global cache #50175265
+      JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file|  # TODO Use global cache #50175265
         puts "(#{(Time.now - download_start_time).duration})"
         expand file
       end
@@ -93,6 +93,12 @@ module JavaBuildpack::Jre
         }
     }
 
+    def self.find_openjdk(configuration)
+      JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
+    rescue => e
+      raise RuntimeError, "OpenJDK JRE error: #{e.message}", e.backtrace
+    end
+
     def expand(file)
       expand_start_time = Time.now
       print "-----> Expanding JRE to #{JAVA_HOME} "
@@ -105,8 +111,8 @@ module JavaBuildpack::Jre
       puts "(#{(Time.now - expand_start_time).duration})"
     end
 
-    def id(details)
-      "openjdk-#{details.version}"
+    def id(version)
+      "openjdk-#{version}"
     end
 
     def to_java_opts(memory_values)
@@ -129,7 +135,7 @@ module JavaBuildpack::Jre
     end
 
     def pre_8
-      @details.version < JavaBuildpack::Util::TokenizedVersion.new("1.8.0")
+      @version < JavaBuildpack::Util::TokenizedVersion.new("1.8.0")
     end
 
     def specified_sizes(configuration)
