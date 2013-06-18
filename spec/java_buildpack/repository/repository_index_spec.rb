@@ -27,7 +27,7 @@ module JavaBuildpack::Repository
       JavaBuildpack::Util::DownloadCache.stub(:new).and_return(application_cache)
       application_cache.stub(:get).with('test-uri/index.yml')
         .and_yield(File.open('spec/fixtures/test-index.yml'))
-      JavaBuildpack::Util::VersionResolver.stub(:resolve).with('test-version', ["resolved-version"]).and_return('resolved-version')
+      VersionResolver.stub(:resolve).with('test-version', ["resolved-version"]).and_return('resolved-version')
 
       repository_index = RepositoryIndex.new('test-uri')
       expect(repository_index.find_item('test-version')).to eq(['resolved-version', 'resolved-uri'])

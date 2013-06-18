@@ -15,7 +15,7 @@
 
 require 'java_buildpack/repository'
 require 'java_buildpack/util/download_cache'
-require 'java_buildpack/util/version_resolver'
+require 'java_buildpack/repository/version_resolver'
 
 module JavaBuildpack::Repository
 
@@ -38,7 +38,7 @@ module JavaBuildpack::Repository
     # @return [TokenizedVersion] the version of the file found
     # @return [String] the URI of the file found
     def find_item(version)
-      version = JavaBuildpack::Util::VersionResolver.resolve(version, @index.keys)
+      version = VersionResolver.resolve(version, @index.keys)
       uri = @index[version.to_s]
       return version, uri
     end
