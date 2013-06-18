@@ -91,7 +91,7 @@ module JavaBuildpack::Container
         :java_opts => [ 'test-opt-2', 'test-opt-1' ],
         :configuration => {}).release
 
-      expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="-Dhttp.port=$PORT test-opt-1 test-opt-2" spec/fixtures/container_tomcat/.tomcat/bin/catalina.sh run')
+      expect(command).to eq('export JAVA_HOME=test-java-home ; export JAVA_OPTS="-Dhttp.port=$PORT test-opt-1 test-opt-2" ; spec/fixtures/container_tomcat/.tomcat/bin/catalina.sh run')
     end
 
   end

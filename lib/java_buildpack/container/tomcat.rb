@@ -67,7 +67,7 @@ module JavaBuildpack::Container
     def release
       @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
 
-      "JAVA_HOME=#{@java_home} JAVA_OPTS=\"#{java_opts}\" #{@tomcat_home}/bin/catalina.sh run"
+      "export JAVA_HOME=#{@java_home} ; export JAVA_OPTS=\"#{java_opts}\" ; #{@tomcat_home}/bin/catalina.sh run"
     end
 
     private
