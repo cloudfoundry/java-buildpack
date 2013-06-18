@@ -54,10 +54,11 @@ module JavaBuildpack::Container
 
     it 'should return command' do
       command = Main.new(
+        :java_home => 'test-java-home',
         :java_opts => [ 'test-opt-2', 'test-opt-1' ],
         :configuration => { 'java.main.class' => 'test-java-main-class' }).release
 
-      expect(command).to eq('.java/bin/java -cp . test-opt-1 test-opt-2 test-java-main-class')
+      expect(command).to eq('test-java-home/bin/java -cp . test-opt-1 test-opt-2 test-java-main-class')
     end
   end
 

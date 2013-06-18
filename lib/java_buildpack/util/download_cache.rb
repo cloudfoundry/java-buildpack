@@ -38,7 +38,7 @@ module JavaBuildpack::Util
     # 1. Obtain an exclusive lock based on the URI of the item. This allows concurrency for different items, but not for
     #    the same item.
     # 2. If the the cached item does not exist, download from +uri+ and cache it, its +Etag+, and its +Last-Modified+
-    #    values if they exist
+    #    values if they exist.
     # 3. If the cached file does exist, and the original download had an +Etag+ or a +Last-Modified+ value, attempt to
     #    download from +uri+ again.  If the result is +304+ (+Not-Modified+), then proceed without changing the cached
     #    item.  If it is anything else, overwrite the cached file and its +Etag+ and +Last-Modified+ values if they exist.
