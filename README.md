@@ -122,6 +122,7 @@ The Java Main Class Container allows applications that provide a class with a `m
 | Name | Description
 | ---- | -----------
 | `java.main.class` | The Java class name to run. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line.  If not specified, the Java Manifest value of `Main-Class` is used.
+| `java.main.args` | The arguments passed to the `main()` method when running the application. All values appear without modification on the Java command line.
 
 <a name='tomcat'></a>
 ## Tomcat Container
