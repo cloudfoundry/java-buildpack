@@ -108,7 +108,7 @@ module JavaBuildpack::Jre
           :configuration => BASE_CONFIGURATION
         )
 
-        expect(java_home).to eq(File.join('/application-directory', '.java'))
+        expect(java_home).to eq('.java')
       end
     end
 

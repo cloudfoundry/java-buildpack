@@ -35,10 +35,11 @@ module JavaBuildpack::Jre
     # @option context [Hash] :configuration the properties provided by the user
     def initialize(context)
       @app_dir = context[:app_dir]
-      @java_home = context[:java_home].concat OpenJdk.java_home(@app_dir)
       @java_opts = context[:java_opts]
       @configuration = context[:configuration]
       @version, @uri = OpenJdk.find_openjdk(@configuration)
+
+      context[:java_home].concat JAVA_HOME
     end
 
     # Detects which version of Java this application should use.  *NOTE:* This method will always return _some_ value,
@@ -99,10 +100,9 @@ module JavaBuildpack::Jre
       expand_start_time = Time.now
       print "-----> Expanding JRE to #{JAVA_HOME} "
 
-      java_home =
-      system "rm -rf #{@java_home}"
-      system "mkdir -p #{@java_home}"
-      system "tar xzf #{file.path} -C #{@java_home} --strip 1 2>&1"
+      system "rm -rf #{java_home}"
+      system "mkdir -p #{java_home}"
+      system "tar xzf #{file.path} -C #{java_home} --strip 1 2>&1"
 
       puts "(#{(Time.now - expand_start_time).duration})"
     end
@@ -117,8 +117,8 @@ module JavaBuildpack::Jre
       "openjdk-#{version}"
     end
 
-    def self.java_home(app_dir)
-      File.join app_dir, JAVA_HOME
+    def java_home
+      File.join @app_dir, JAVA_HOME
     end
 
     def memory_sizes(configuration)
