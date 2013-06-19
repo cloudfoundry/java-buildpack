@@ -431,3 +431,4 @@ The repositories that are currently referenced by the buildpack are easily repli
 | Component | Builder
 | --------- | -------
 | `openjdk` | <https://github.com/cloudfoundry/builder-openjdk>
+| `tomcat` | <https://github.com/cloudfoundry/builder-tomcat>
