@@ -21,6 +21,7 @@ The `java-buildpack` is a [Cloud Foundry][cf] buildpack for running Java applica
 * [Utilities](#utilities)
 	* [Caches](#util-caches)
 	* [Repositories](#util-repositories)
+	* [Repository Builders](#util-repository-builders)
 
 ---
 
@@ -420,3 +421,13 @@ In addition to declaring a specific versions to use, you can also specify a boun
 | `1.+`   	| Selects the greatest available version less than `2.0.0`.
 | `1.7.+` 	| Selects the greatest available version less than `1.8.0`.
 | `1.7.0_+` | Selects the greatest available version less than `1.7.1`. Use this syntax to stay up to date with the latest security releases in a particular version.
+
+
+<a name='util-repository-builder'></a>
+## Repository Builders
+
+The repositories that are currently referenced by the buildpack are easily replicated.  Simple scripts are used to populate the repositories in an automated fashion.
+
+| Component | Builder
+| --------- | -------
+| `openjdk` | <https://github.com/cloudfoundry/builder-openjdk>
