@@ -22,6 +22,7 @@ The `java-buildpack` is a [Cloud Foundry][cf] buildpack for running Java applica
 	* [Caches](#util-caches)
 	* [Repositories](#util-repositories)
 	* [Repository Builders](#util-repository-builders)
+	* [Test Applications](#util-test-applications)
 
 ---
 
@@ -423,7 +424,7 @@ In addition to declaring a specific versions to use, you can also specify a boun
 | `1.7.0_+` | Selects the greatest available version less than `1.7.1`. Use this syntax to stay up to date with the latest security releases in a particular version.
 
 
-<a name='util-repository-builder'></a>
+<a name='util-repository-builders'></a>
 ## Repository Builders
 
 The repositories that are currently referenced by the buildpack are easily replicated.  Simple scripts are used to populate the repositories in an automated fashion.
@@ -432,3 +433,10 @@ The repositories that are currently referenced by the buildpack are easily repli
 | --------- | -------
 | `openjdk` | <https://github.com/cloudfoundry/builder-openjdk>
 | `tomcat` | <https://github.com/cloudfoundry/builder-tomcat>
+
+<a name='util-test-applications'></a>
+## Test Applications
+
+Simple test applications for various Java application types are provided in the [`java-test-applications`][java_test_applications] respository.  These are not intended to cover all code-paths.  Instead these are constantly changing representations of 'typical' applications.
+
+[java_test_applications]: https://github.com/cloudfoundry/java-test-applications
