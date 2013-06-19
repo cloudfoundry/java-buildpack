@@ -35,7 +35,6 @@ module JavaBuildpack::Container
       @java_home = context[:java_home]
       @java_opts = context[:java_opts]
       @version, @uri = Tomcat.find_tomcat(@app_dir, context[:configuration])
-      @tomcat_home = Tomcat.tomcat_home @app_dir
     end
 
     # Detects whether this application is a Tomcat application.
@@ -67,7 +66,7 @@ module JavaBuildpack::Container
     def release
       @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
 
-      "JAVA_HOME=#{@java_home} JAVA_OPTS=\"#{java_opts}\" #{@tomcat_home}/bin/catalina.sh run"
+      "JAVA_HOME=#{@java_home} JAVA_OPTS=\"#{java_opts}\" #{TOMCAT_HOME}/bin/catalina.sh run"
     end
 
     private
@@ -93,12 +92,11 @@ module JavaBuildpack::Container
       expand_start_time = Time.now
       print "-----> Expanding Tomcat to #{TOMCAT_HOME} "
 
-      tomcat_home = File.join @app_dir, TOMCAT_HOME
-      system "rm -rf #{@tomcat_home}"
-      system "mkdir -p #{@tomcat_home}"
-      system "tar xzf #{file.path} -C #{@tomcat_home} --strip 1 --exclude webapps --exclude conf/server.xml --exclude conf/context.xml 2>&1"
+      system "rm -rf #{tomcat_home}"
+      system "mkdir -p #{tomcat_home}"
+      system "tar xzf #{file.path} -C #{tomcat_home} --strip 1 --exclude webapps --exclude conf/server.xml --exclude conf/context.xml 2>&1"
 
-      copy_resources @tomcat_home
+      copy_resources tomcat_home
 
       puts "(#{(Time.now - expand_start_time).duration})"
     end
@@ -127,16 +125,16 @@ module JavaBuildpack::Container
     end
 
     def link_application
-      webapps = "#{@tomcat_home}/webapps"
+      webapps = "#{tomcat_home}/webapps"
       root = "#{webapps}/ROOT"
 
       system "rm -rf #{root}"
       system "mkdir -p #{webapps}"
-      system "ln -s #{File.expand_path @app_dir} #{root}"
+      system "ln -s ../.. #{root}"
     end
 
-    def self.tomcat_home(app_dir)
-      File.join app_dir, TOMCAT_HOME
+    def tomcat_home
+      File.join @app_dir, TOMCAT_HOME
     end
 
     def self.web_inf?(app_dir)
