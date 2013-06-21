@@ -18,5 +18,5 @@
 version: 7.0.+
 repository_root: "http://download.pivotal.io.s3.amazonaws.com/tomcat/lucid/x86_64"
 support_jar:
-  version: 1.0.+
+  version: 1.1.+
   repository_root: "http://download.pivotal.io.s3.amazonaws.com/tomcat-buildpack-support/lucid/x86_64"
