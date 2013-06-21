@@ -36,6 +36,7 @@ module JavaBuildpack::Jre
     def initialize(context)
       @app_dir = context[:app_dir]
       @java_opts = context[:java_opts]
+      @java_opts << "-XX:OnOutOfMemoryError='kill -9 %p'"
       @configuration = context[:configuration]
       @version, @uri = OpenJdk.find_openjdk(@configuration)
 
