@@ -20,10 +20,10 @@ module JavaBuildpack::Container
 
   describe Main do
 
-    it 'should detect with main class system property' do
+    it 'should detect with main class configuration' do
       detected = Main.new(
         :app_dir => 'spec/fixtures/container_none',
-        :configuration => { 'java.main.class' => 'test-java-main-class' }).detect
+        :configuration => { 'java_main_class' => 'test-java-main-class' }).detect
 
       expect(detected).to be_true
     end
@@ -56,7 +56,7 @@ module JavaBuildpack::Container
       command = Main.new(
         :java_home => 'test-java-home',
         :java_opts => [ 'test-opt-2', 'test-opt-1' ],
-        :configuration => { 'java.main.class' => 'test-java-main-class' }).release
+        :configuration => { 'java_main_class' => 'test-java-main-class' }).release
 
       expect(command).to eq('test-java-home/bin/java -cp . test-opt-1 test-opt-2 test-java-main-class')
     end

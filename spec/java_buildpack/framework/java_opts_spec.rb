@@ -22,15 +22,15 @@ module JavaBuildpack::Framework
 
     let(:java_opts) { [] }
 
-    it 'should detect with java.opts system property' do
+    it 'should detect with java.opts configuration' do
       detected = JavaOpts.new(
         :java_opts => java_opts,
-        :configuration => { 'java.opts' => '-Xmx1024M' }).detect
+        :configuration => { 'java_opts' => '-Xmx1024M' }).detect
 
       expect(detected).to be_true
     end
 
-    it 'should not detect without java.opts system property' do
+    it 'should not detect without java_opts configuration' do
       detected = JavaOpts.new(
         :java_opts => java_opts,
         :configuration => { }).detect
@@ -38,10 +38,10 @@ module JavaBuildpack::Framework
       expect(detected).to be_false
     end
 
-    it 'should add split java.opts to context' do
+    it 'should add split java_opts to context' do
       JavaOpts.new(
         :java_opts => java_opts,
-        :configuration => { 'java.opts' => "-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y -XX:OnOutOfMemoryError='kill -9 %p'" }).release
+        :configuration => { 'java_opts' => "-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y -XX:OnOutOfMemoryError='kill -9 %p'" }).release
 
       expect(java_opts).to include('-Xdebug')
       expect(java_opts).to include('-Xnoagent')

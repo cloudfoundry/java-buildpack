@@ -13,10 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for Tomcat
+# Configuration for the Java +main()+ container
 ---
-version: 7.0.+
-repository_root: "http://download.pivotal.io.s3.amazonaws.com/tomcat/lucid/x86_64"
-support:
-  version: 1.1.+
-  repository_root: "http://download.pivotal.io.s3.amazonaws.com/tomcat-buildpack-support/lucid/x86_64"

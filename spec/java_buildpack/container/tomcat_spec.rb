@@ -20,15 +20,13 @@ module JavaBuildpack::Container
 
   describe Tomcat do
 
-    VERSION = JavaBuildpack::Util::TokenizedVersion.new('7.0.40')
+    TOMCAT_VERSION = JavaBuildpack::Util::TokenizedVersion.new('7.0.40')
 
-    DETAILS = [VERSION, 'test-uri']
+    TOMCAT_DETAILS = [TOMCAT_VERSION, 'test-tomcat-uri']
 
     SUPPORT_VERSION = JavaBuildpack::Util::TokenizedVersion.new('1.0.+')
 
-    SUPPORT_URI = 'http://foo.com/a/b/test-support-uri.jar'
-
-    SUPPORT_DETAILS = [SUPPORT_VERSION, SUPPORT_URI]
+    SUPPORT_DETAILS = [SUPPORT_VERSION, 'test-support-uri']
 
     let(:application_cache) { double('ApplicationCache') }
 
@@ -38,7 +36,8 @@ module JavaBuildpack::Container
     end
 
     it 'should detect WEB-INF' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_yield(VERSION).and_return(DETAILS)
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
+        .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
       detected = Tomcat.new(
           :app_dir => 'spec/fixtures/container_tomcat',
           :configuration => {}).detect
@@ -55,7 +54,8 @@ module JavaBuildpack::Container
     end
 
     it 'should fail when a malformed version is detected' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_yield(JavaBuildpack::Util::TokenizedVersion.new('7.0.40_0'))
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(JavaBuildpack::Util::TokenizedVersion.new('7.0.40_0')) if block }
+        .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
       expect { Tomcat.new(
           :app_dir => 'spec/fixtures/container_tomcat',
           :configuration => {}).detect }.to raise_error(/Malformed\ Tomcat\ version/)
@@ -65,18 +65,16 @@ module JavaBuildpack::Container
       Dir.mktmpdir do |root|
         Dir.mkdir File.join(root, 'WEB-INF')
 
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).with({}).and_yield(VERSION).and_return(DETAILS)
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).with(nil).and_return(SUPPORT_DETAILS)
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
+          .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
 
-        support_jar_copy = File.join(root, 'stub-support.jar')
-        FileUtils.cp('spec/fixtures/stub-support.jar', support_jar_copy)
-        application_cache.stub(:get).with(SUPPORT_URI).and_yield(File.open(support_jar_copy))
+        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
+        application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
+        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
 
         Tomcat.new(
           :app_dir => root,
-          :configuration => {}
+          :configuration => { }
         ).compile
 
         tomcat_dir = File.join root, '.tomcat'
@@ -91,13 +89,14 @@ module JavaBuildpack::Container
         server = File.join conf_dir, 'server.xml'
         expect(File.exists?(server)).to be_true
 
-        support = File.join tomcat_dir, 'lib', 'test-support-uri.jar'
+        support = File.join tomcat_dir, 'lib', 'tomcat-buildpack-support.jar'
         expect(File.exists?(support)).to be_true
       end
     end
 
     it 'should return command' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_yield(VERSION).and_return(DETAILS)
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
+        .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
 
       command = Tomcat.new(
         :app_dir => 'spec/fixtures/container_tomcat',
