@@ -91,9 +91,10 @@ module JavaBuildpack::Container
       print "-----> Downloading Buildpack Tomcat Support #{version} from #{uri} "
 
       JavaBuildpack::Util::ApplicationCache.new.get(uri) do |file|  # TODO Use global cache #50175265
-        puts "(#{(Time.now - download_start_time).duration})"
         File.rename(File.absolute_path(file.path), "#{tomcat_home}/#{LIB_DIRECTORY}/#{File.basename(file.path)}")
       end
+
+      puts "(#{(Time.now - download_start_time).duration})"
     end
 
     def self.check_version_format(version)
@@ -114,9 +115,9 @@ module JavaBuildpack::Container
       system "tar xzf #{file.path} -C #{tomcat_home} --strip 1 --exclude webapps --exclude conf/server.xml --exclude conf/context.xml 2>&1"
 
       copy_resources tomcat_home
-      Tomcat.add_support_jar(tomcat_home, configuration)
-
       puts "(#{(Time.now - expand_start_time).duration})"
+
+      Tomcat.add_support_jar(tomcat_home, configuration)
     end
 
     def self.find_tomcat(app_dir, configuration)
