@@ -24,15 +24,24 @@ module JavaBuildpack::Jre
     # Creates an instance based on a hash containing memory settings, a configuration file containing weightings, and
     # the application's memory size in $MEMORY_LIMIT.
     #
-    # @param [Hash<String, Numeric>] specified_sizes any sizings specified by the user
-    # @param [Hash<Stirng, Numeric>] memory_heuristics the memory heuristics for OpenJDK
-    def initialize(specified_sizes, memory_heuristics)
-      super(specified_sizes, memory_heuristics[WEIGHTINGS_NAME])
+    # @param [Hash<String, Numeric>] sizes any sizings specified by the user
+    # @param [Hash<String, Numeric>] heuristics the memory heuristics for OpenJDK
+    def initialize(sizes, heuristics)
+      super(sizes, heuristics, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS)
     end
 
     private
 
-    WEIGHTINGS_NAME = 'pre_8'
+    JAVA_OPTS = {
+      'heap' => '-Xmx',
+      'permgen' => '-XX:MaxPermSize=',
+      'stack' => '-Xss',
+    }.freeze
+
+    VALID_HEURISTICS = ['heap', 'permgen', 'stack', 'native']
+
+    VALID_SIZES = ['heap', 'permgen', 'stack']
 
   end
+
 end
