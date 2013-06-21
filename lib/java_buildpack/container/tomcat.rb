@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'uri'
 require 'java_buildpack/container'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
@@ -90,11 +91,17 @@ module JavaBuildpack::Container
       download_start_time = Time.now
       print "-----> Downloading Buildpack Tomcat Support #{version} from #{uri} "
 
+      jar_name = parse_jar_name uri
       JavaBuildpack::Util::ApplicationCache.new.get(uri) do |file|  # TODO Use global cache #50175265
-        File.rename(File.absolute_path(file.path), "#{tomcat_home}/#{LIB_DIRECTORY}/#{File.basename(file.path)}")
+        File.rename(File.absolute_path(file.path), "#{tomcat_home}/#{LIB_DIRECTORY}/#{jar_name}")
       end
 
       puts "(#{(Time.now - download_start_time).duration})"
+    end
+
+    def self.parse_jar_name(uri)
+      parsed_uri = URI.parse uri
+      File.basename parsed_uri.path
     end
 
     def self.check_version_format(version)

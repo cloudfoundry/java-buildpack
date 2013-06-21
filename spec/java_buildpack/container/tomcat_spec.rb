@@ -26,7 +26,9 @@ module JavaBuildpack::Container
 
     SUPPORT_VERSION = JavaBuildpack::Util::TokenizedVersion.new('1.0.+')
 
-    SUPPORT_DETAILS = [SUPPORT_VERSION, 'test-support-uri']
+    SUPPORT_URI = 'http://foo.com/a/b/test-support-uri.jar'
+
+    SUPPORT_DETAILS = [SUPPORT_VERSION, SUPPORT_URI]
 
     let(:application_cache) { double('ApplicationCache') }
 
@@ -67,7 +69,10 @@ module JavaBuildpack::Container
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).with(nil).and_return(SUPPORT_DETAILS)
         JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
         application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
-        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
+
+        support_jar_copy = File.join(root, 'stub-support.jar')
+        FileUtils.cp('spec/fixtures/stub-support.jar', support_jar_copy)
+        application_cache.stub(:get).with(SUPPORT_URI).and_yield(File.open(support_jar_copy))
 
         Tomcat.new(
           :app_dir => root,
@@ -86,7 +91,7 @@ module JavaBuildpack::Container
         server = File.join conf_dir, 'server.xml'
         expect(File.exists?(server)).to be_true
 
-        support = File.join tomcat_dir, 'lib', 'stub-support.jar'
+        support = File.join tomcat_dir, 'lib', 'test-support-uri.jar'
         expect(File.exists?(support)).to be_true
       end
     end
