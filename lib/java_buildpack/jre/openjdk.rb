@@ -36,7 +36,6 @@ module JavaBuildpack::Jre
     def initialize(context)
       @app_dir = context[:app_dir]
       @java_opts = context[:java_opts]
-      @java_opts << "-XX:OnOutOfMemoryError='kill -9 %p'"
       @configuration = context[:configuration]
       @version, @uri = OpenJdk.find_openjdk(@configuration)
 
@@ -48,7 +47,6 @@ module JavaBuildpack::Jre
     #
     # @return [String, nil] returns +openjdk-<version>+.
     def detect
-      memory_sizes @configuration # drive out errors early
       id @version
     end
 
@@ -69,7 +67,8 @@ module JavaBuildpack::Jre
     #
     # @return [void]
     def release
-      @java_opts.concat to_java_opts(memory_sizes(@configuration))
+      @java_opts << "-XX:OnOutOfMemoryError='kill -9 %p'"
+      @java_opts.concat memory(@configuration)
     end
 
     private
@@ -78,24 +77,7 @@ module JavaBuildpack::Jre
 
     KEY_MEMORY_HEURISTICS = 'memory_heuristics'
 
-    MAPPINGS = {
-      'heap' => {
-        :switch => '-Xmx',
-        :system_property => 'java.heap.size'.freeze
-        },
-      'metaspace' => {
-        :switch => '-XX:MaxMetaspaceSize=',
-        :system_property => 'java.metaspace.size'.freeze
-        },
-      'permgen' => {
-        :switch => '-XX:MaxPermSize=',
-        :system_property => 'java.permgen.size'.freeze
-        },
-      'stack' => {
-        :switch => '-Xss',
-        :system_property => 'java.stack.size'.freeze
-        }
-    }
+    KEY_MEMORY_SIZES = 'memory_sizes'
 
     def expand(file)
       expand_start_time = Time.now
@@ -122,38 +104,16 @@ module JavaBuildpack::Jre
       File.join @app_dir, JAVA_HOME
     end
 
-    def memory_sizes(configuration)
-      specified_sizes = specified_sizes(configuration)
-      memory_heuristics = configuration[KEY_MEMORY_HEURISTICS]
+    def memory(configuration)
+      heuristics = configuration[KEY_MEMORY_HEURISTICS] || {}
+      sizes = configuration[KEY_MEMORY_SIZES] || {}
 
       heuristic_class = pre_8 ? MemoryHeuristicsOpenJDKPre8 : MemoryHeuristicsOpenJDK
-      heuristic_class.new(specified_sizes, memory_heuristics).output
+      heuristic_class.new(sizes, heuristics).resolve
     end
 
     def pre_8
       @version < JavaBuildpack::Util::TokenizedVersion.new("1.8.0")
-    end
-
-    def specified_sizes(configuration)
-      specified_sizes = {}
-
-      MAPPINGS.each_pair do |key, mapping|
-        system_property = mapping[:system_property]
-        specified_sizes[key] = configuration[system_property] if configuration.has_key? system_property
-      end
-
-      specified_sizes
-    end
-
-    def to_java_opts(memory_values)
-      java_opts = []
-
-      memory_values.each_pair do |key, memory_value|
-        mapping =  MAPPINGS[key]
-        java_opts << "#{mapping[:switch]}#{memory_value}" if mapping
-      end
-
-      java_opts
     end
 
   end

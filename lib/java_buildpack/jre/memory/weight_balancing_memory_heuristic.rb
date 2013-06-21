@@ -24,50 +24,41 @@ module JavaBuildpack::Jre
   # A utility for defaulting Java memory settings.
   class WeightBalancingMemoryHeuristic
 
-    # @!attribute [r] output
-    #   @return [Hash] a hash of memory types and corresponding memory sizes, e.g. {'memory-type' => '1M'}
-    attr_reader :output
-
-    # Creates an instance based on user-specified sizes weightings, and the application's memory size in $MEMORY_LIMIT.
+    # Creates an instance based on a hash containing memory settings, and the application's memory size in
+    # $MEMORY_LIMIT.
     #
-    # @param [Hash<String, Numeric>] specified_sizes any sizings specified by the user
-    # @param [Hash<String, Numeric>] weightings the weightings for this version of the JRE
-    def initialize(specified_sizes, weightings)
+    # @param [Hash<String, Numeric>] sizes any sizings specified by the user
+    # @param [Hash<String, Numeric>] heuristics the memory heuristics specified by the user
+    # @param [Array<String>] valid_sizes the valid size keys
+    # @param [Array<String>] valid_heuristics the valid heuristics keys
+    # @param [Hash<String, String>] java_opts a mapping from a memory type to a +JAVA_OPTS+ option
+    def initialize(sizes, heuristics, valid_sizes, valid_heuristics, java_opts)
+      validate 'size', valid_sizes, sizes.keys
+      validate 'heuristic', valid_heuristics, heuristics.keys
+
+      @sizes = sizes
+      @heuristics = heuristics
+      @java_opts = java_opts
+    end
+
+    def resolve
       memory_limit = MemoryLimit.memory_limit
+      buckets = create_memory_buckets(@sizes, @heuristics, memory_limit)
 
-      buckets = WeightBalancingMemoryHeuristic.create_memory_buckets(specified_sizes, weightings, memory_limit)
+      balance_buckets(@sizes, buckets, memory_limit)
+      issue_memory_wastage_warning(buckets) if memory_limit
 
-      WeightBalancingMemoryHeuristic.balance_buckets(specified_sizes, buckets, memory_limit)
-
-      WeightBalancingMemoryHeuristic.issue_memory_wastage_warning(buckets) if memory_limit
-
-      @output = {}
-      buckets.each_pair do |memory_type, bucket|
-        @output[memory_type] = bucket.size.to_s if bucket.size
-      end
+      buckets.map { |type, bucket| "#{@java_opts[type]}#{bucket.size}" if bucket.size && @java_opts.has_key?(type) }.compact
     end
 
     private
 
-    def self.create_memory_buckets(specified_sizes, weightings, memory_limit)
-      buckets = {}
-      total_weighting = 0
-      weightings.each_pair do |memory_type, weighting|
-        value = specified_sizes[memory_type]
+    NATIVE_MEMORY_WARNING_FACTOR = 3
 
-        buckets[memory_type] = WeightBalancingMemoryHeuristic.create_memory_bucket(
-          memory_type, weighting, value ? MemorySize.new(value) : nil, memory_limit)
-
-        total_weighting += weighting
-      end
-
-      raise "Invalid configuration: sum of weightings is greater than 1" if total_weighting > 1
-      buckets
-    end
-
-    def self.balance_buckets(specified_sizes, buckets, memory_limit)
+    def balance_buckets(sizes, buckets, memory_limit)
       total_excess = MemorySize.ZERO
       total_adjustable_weighting = 0
+
       buckets.each_value do |bucket|
         xs = bucket.excess
         total_excess = total_excess + xs
@@ -76,26 +67,50 @@ module JavaBuildpack::Jre
 
       buckets.each_value do |bucket|
         bucket.adjust(total_excess, total_adjustable_weighting)
-        raise "Total memory #{memory_limit} exceeded by configured memory #{specified_sizes}" if bucket.size && bucket.size < MemorySize.ZERO
+        raise "Total memory #{memory_limit} exceeded by configured memory #{sizes}" if bucket.size && bucket.size < MemorySize.ZERO
       end
     end
 
-    NATIVE_MEMORY_WARNING_FACTOR = 3
-
-    def self.create_memory_bucket(memory_type, weighting, size, total_memory)
-      if memory_type == 'stack'
-        StackMemoryBucket.new(weighting, size, total_memory)
+    def create_memory_bucket(type, weighting, size, memory_limit)
+      if type == 'stack'
+        StackMemoryBucket.new(weighting, size, memory_limit)
       else
-        MemoryBucket.new(memory_type, weighting, size, true, total_memory)
+        MemoryBucket.new(type, weighting, size, true, memory_limit)
       end
     end
 
-    def self.issue_memory_wastage_warning(buckets)
+    def create_memory_buckets(sizes, heuristics, memory_limit)
+      buckets = {}
+      total_weighting = 0
+
+      heuristics.each_pair do |type, weighting|
+        size = nil_safe_size sizes[type]
+        buckets[type] = create_memory_bucket(type, weighting, size, memory_limit)
+        total_weighting += weighting
+      end
+
+      raise "Invalid configuration: sum of weightings is greater than 1" if total_weighting > 1
+
+      buckets
+    end
+
+    def issue_memory_wastage_warning(buckets)
       native_bucket = buckets['native']
       if native_bucket && native_bucket.size > native_bucket.default_size * NATIVE_MEMORY_WARNING_FACTOR
         $stderr.puts "-----> WARNING: there is #{NATIVE_MEMORY_WARNING_FACTOR} times more spare native memory than the default, so configured Java memory may be too small."
       end
     end
 
+    def nil_safe_size(size)
+      size ? MemorySize.new(size) : nil
+    end
+
+    def validate(type, expected, actual)
+      actual.each do |key|
+        raise "'#{key}' is not a valid memory #{type}" unless expected.include? key
+      end
+    end
+
   end
+
 end
