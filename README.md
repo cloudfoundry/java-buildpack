@@ -440,3 +440,11 @@ The repositories that are currently referenced by the buildpack are easily repli
 Simple test applications for various Java application types are provided in the [`java-test-applications`][java_test_applications] respository.  These are not intended to cover all code-paths.  Instead these are constantly changing representations of 'typical' applications.
 
 [java_test_applications]: https://github.com/cloudfoundry/java-test-applications
+
+## Related git Repositories
+
+In addtion to the repository builders, the following git repositories are closely associated with the buildpack.
+
+| Name | Repository
+| ---- | ----------
+| Java Buildpack Support | <https://github.com/cloudfoundry/java-buildpack-support>
