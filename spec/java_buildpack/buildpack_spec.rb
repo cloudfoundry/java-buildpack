@@ -36,8 +36,6 @@ module JavaBuildpack
         'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
         'jres' => ['Test::StubJre1', 'Test::StubJre2'])
 
-      SystemProperties.stub(:new).with(APP_DIR).and_return({})
-
       Test::StubContainer1.stub(:new).and_return(stub_container1)
       Test::StubContainer2.stub(:new).and_return(stub_container2)
 
@@ -101,8 +99,6 @@ module JavaBuildpack
       expect(payload).to eq({'addons' => [], 'config_vars' => {}, 'default_process_types' => { 'web' => 'test-command' }}.to_yaml)
     end
   end
-
-  private
 
 end
 

@@ -14,7 +14,6 @@
 # limitations under the License.
 
 require 'java_buildpack'
-require 'java_buildpack/system_properties'
 require 'java_buildpack/util/constantize'
 require 'pathname'
 require 'yaml'
@@ -120,15 +119,12 @@ module JavaBuildpack
     end
 
     def self.configuration(app_dir, type)
-      configuration = {}
-
       name = type.match(/^(?:.*::)?(.*)$/)[1].downcase
       config_file = File.expand_path("../../config/#{name}.yml", File.dirname(__FILE__))
-      configuration.merge!(YAML.load_file(config_file)) if File.exists? config_file
 
-      configuration.merge!(SystemProperties.new(app_dir))
+      configuration = YAML.load_file(config_file) if File.exists? config_file
 
-      configuration
+      configuration || {}
     end
 
     def self.container_directory

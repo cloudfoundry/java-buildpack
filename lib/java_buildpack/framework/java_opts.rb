@@ -56,7 +56,7 @@ module JavaBuildpack::Framework
 
     private
 
-    CONFIGURATION_PROPERTY = 'java.opts'.freeze
+    CONFIGURATION_PROPERTY = 'java_opts'.freeze
 
     CONTAINER_NAME = 'java-opts'.freeze
 

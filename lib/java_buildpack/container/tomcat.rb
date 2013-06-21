@@ -36,7 +36,8 @@ module JavaBuildpack::Container
       @java_home = context[:java_home]
       @java_opts = context[:java_opts]
       @configuration = context[:configuration]
-      @version, @uri = Tomcat.find_tomcat(@app_dir, @configuration)
+      @tomcat_version, @tomcat_uri = Tomcat.find_tomcat(@app_dir, @configuration)
+      @support_version, @support_uri = Tomcat.find_support(@app_dir, @configuration)
     end
 
     # Detects whether this application is a Tomcat application.
@@ -44,21 +45,15 @@ module JavaBuildpack::Container
     # @return [String] returns +tomcat-<version>+ if and only if the application has a +WEB-INF+ directory, otherwise
     #                  returns +nil+
     def detect
-      @version ? id(@version) : nil
+      @tomcat_version ? id(@tomcat_version) : nil
     end
 
     # Downlaods and unpacks a Tomcat instance
     #
     # @return [void]
     def compile
-      download_start_time = Time.now
-      print "-----> Downloading Tomcat #{@version} from #{@uri} "
-
-      JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file|  # TODO Use global cache #50175265
-        puts "(#{(Time.now - download_start_time).duration})"
-        expand(file, @configuration)
-      end
-
+      download_tomcat
+      download_support
       link_application
     end
 
@@ -75,42 +70,37 @@ module JavaBuildpack::Container
 
     KEY_HTTP_PORT = 'http.port'.freeze
 
+    KEY_SUPPORT = 'support'.freeze
+
     RESOURCES = '../../../resources/tomcat'.freeze
 
     TOMCAT_HOME = '.tomcat'.freeze
 
     WEB_INF_DIRECTORY = 'WEB-INF'.freeze
 
-    SUPPORT_JAR_KEY = 'support_jar'.freeze
-
-    LIB_DIRECTORY = 'lib'.freeze
-
-    def self.add_support_jar(tomcat_home, configuration)
-      version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration[SUPPORT_JAR_KEY])
-
-      download_start_time = Time.now
-      print "-----> Downloading Buildpack Tomcat Support #{version} from #{uri} "
-
-      jar_name = parse_jar_name uri
-      JavaBuildpack::Util::ApplicationCache.new.get(uri) do |file|  # TODO Use global cache #50175265
-        File.rename(File.absolute_path(file.path), "#{tomcat_home}/#{LIB_DIRECTORY}/#{jar_name}")
-      end
-
-      puts "(#{(Time.now - download_start_time).duration})"
-    end
-
-    def self.parse_jar_name(uri)
-      parsed_uri = URI.parse uri
-      File.basename parsed_uri.path
-    end
-
-    def self.check_version_format(version)
-      raise "Malformed Tomcat version #{version}: too many version components" if version[3]
-    end
-
     def copy_resources(tomcat_home)
       resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
       system "cp -r #{resources}/* #{tomcat_home}"
+    end
+
+    def download_tomcat
+      download_start_time = Time.now
+      print "-----> Downloading Tomcat #{@tomcat_version} from #{@tomcat_uri} "
+
+      JavaBuildpack::Util::ApplicationCache.new.get(@tomcat_uri) do |file|  # TODO Use global cache #50175265
+        puts "(#{(Time.now - download_start_time).duration})"
+        expand(file, @configuration)
+      end
+    end
+
+    def download_support
+      download_start_time = Time.now
+      print "-----> Downloading Buildpack Tomcat Support #{@support_version} from #{@support_uri} "
+
+      JavaBuildpack::Util::ApplicationCache.new.get(@support_uri) do |file|  # TODO Use global cache #50175265
+        system "cp #{file.path} #{tomcat_home}/lib/tomcat-buildpack-support.jar"
+        puts "(#{(Time.now - download_start_time).duration})"
+      end
     end
 
     def expand(file, configuration)
@@ -123,14 +113,12 @@ module JavaBuildpack::Container
 
       copy_resources tomcat_home
       puts "(#{(Time.now - expand_start_time).duration})"
-
-      Tomcat.add_support_jar(tomcat_home, configuration)
     end
 
     def self.find_tomcat(app_dir, configuration)
       if web_inf? app_dir
         version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |version|
-          check_version_format version
+          raise "Malformed Tomcat version #{version}: too many version components" if version[3]
         end
       else
         version = nil
@@ -140,6 +128,17 @@ module JavaBuildpack::Container
       return version, uri
     rescue => e
       raise RuntimeError, "Tomcat container error: #{e.message}", e.backtrace
+    end
+
+    def self.find_support(app_dir, configuration)
+      if web_inf? app_dir
+        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration[KEY_SUPPORT])
+      else
+        version = nil
+        uri = nil
+      end
+
+      return version, uri
     end
 
     def id(version)

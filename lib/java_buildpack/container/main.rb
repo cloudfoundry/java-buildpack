@@ -61,7 +61,7 @@ module JavaBuildpack::Container
 
     private
 
-    CONFIGURATION_PROPERTY = 'java.main.class'.freeze
+    CONFIGURATION_PROPERTY = 'java_main_class'.freeze
 
     CONTAINER_NAME = 'java-main'.freeze
 
