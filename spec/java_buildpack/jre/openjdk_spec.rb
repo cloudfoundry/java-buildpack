@@ -124,7 +124,7 @@ module JavaBuildpack::Jre
           :configuration => BASE_CONFIGURATION.merge({'java.heap.size' => HEAP_SIZE})
         ).release
 
-        expect(java_opts.length).to eq(3)
+        expect(java_opts.length).to eq(4)
         expect(java_opts.join(' ')).to match(/-Xmx#{HEAP_SIZE}/)
       end
     end
@@ -141,7 +141,7 @@ module JavaBuildpack::Jre
           :configuration => BASE_CONFIGURATION
         ).release
 
-        expect(java_opts.length).to eq(3)
+        expect(java_opts.length).to eq(4)
         expect(java_opts.join(' ')).to match(/-Xmx/)
       end
     end
@@ -170,7 +170,7 @@ module JavaBuildpack::Jre
           :configuration => BASE_CONFIGURATION.merge({'java.permgen.size' => PERMGEN_SIZE})
         ).release
 
-        expect(java_opts.length).to eq(3)
+        expect(java_opts.length).to eq(4)
         expect(java_opts.join(' ')).to match(/-XX:MaxPermSize=#{PERMGEN_SIZE}/)
       end
     end
@@ -187,7 +187,7 @@ module JavaBuildpack::Jre
           :configuration => BASE_CONFIGURATION
         ).release
 
-        expect(java_opts.length).to eq(3)
+        expect(java_opts.length).to eq(4)
         expect(java_opts.join(' ')).to match(/-XX:MaxPermSize=/)
       end
     end
@@ -216,7 +216,7 @@ module JavaBuildpack::Jre
           :configuration => BASE_CONFIGURATION.merge({'java.stack.size' => STACK_SIZE})
         ).release
 
-        expect(java_opts.length).to eq(3)
+        expect(java_opts.length).to eq(4)
         expect(java_opts.join(' ')).to match(/-Xss#{STACK_SIZE}/)
       end
     end
@@ -233,7 +233,7 @@ module JavaBuildpack::Jre
           :configuration => BASE_CONFIGURATION
         ).release
 
-        expect(java_opts.length).to eq(3)
+        expect(java_opts.length).to eq(4)
         expect(java_opts.join(' ')).to match(/-Xss1M/)
       end
     end
@@ -262,7 +262,7 @@ module JavaBuildpack::Jre
           :configuration => BASE_CONFIGURATION.merge({'java.metaspace.size' => METASPACE_SIZE})
         ).release
 
-        expect(java_opts.length).to eq(3)
+        expect(java_opts.length).to eq(4)
         expect(java_opts.join(' ')).to match(/-XX:MaxMetaspaceSize=#{PERMGEN_SIZE}/)
       end
     end
@@ -279,7 +279,7 @@ module JavaBuildpack::Jre
           :configuration => BASE_CONFIGURATION
         ).release
 
-        expect(java_opts.length).to eq(3)
+        expect(java_opts.length).to eq(4)
         expect(java_opts.join(' ')).to match(/-XX:MaxMetaspaceSize=/)
       end
     end
@@ -296,8 +296,8 @@ module JavaBuildpack::Jre
           :configuration => BASE_CONFIGURATION
         ).release
 
-        expect(java_opts.length).to eq(1)
-        expect(java_opts[0]).to match(/-Xss1M/)
+        expect(java_opts.length).to eq(2)
+        expect(java_opts.join(' ')).to match(/-Xss1M/)
       end
     end
 
@@ -309,6 +309,23 @@ module JavaBuildpack::Jre
         :java_opts => [],
         :configuration => BASE_CONFIGURATION
       ).detect }.to raise_error(/OpenJDK\ JRE\ error:\ test\ error/)
+    end
+
+    it 'adds OnOutOfMemoryError to java_opts' do
+      with_memory_limit(nil) do
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
+
+        java_opts = []
+        OpenJdk.new(
+            :app_dir => '',
+            :java_home => '',
+            :java_opts => java_opts,
+            :configuration => BASE_CONFIGURATION.merge({'java.heap.size' => HEAP_SIZE})
+        ).release
+
+        expect(java_opts.length).to eq(3)
+        expect(java_opts.join(' ')).to match(/-XX:OnOutOfMemoryError='kill -9 %p'/)
+      end
     end
 
     def with_memory_limit(memory_limit)
