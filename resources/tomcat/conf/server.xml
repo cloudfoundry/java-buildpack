@@ -24,7 +24,9 @@
 		<Connector port='${http.port}'/>
 
 		<Engine defaultHost='localhost' name='Catalina'>
-			<Host name='localhost'/>
+			<Host name='localhost'>
+                <Listener className="com.gopivotal.buildpack.support.tomcat.ApplicationStartupFailureDetectingLifecycleListener"/>
+            </Host>
 		</Engine>
 	</Service>
 
