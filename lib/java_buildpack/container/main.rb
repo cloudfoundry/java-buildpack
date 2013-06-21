@@ -56,7 +56,7 @@ module JavaBuildpack::Container
     #
     # @return [String] the command to run the application.
     def release
-      "#{@java_home}/bin/java -cp . #{java_opts} #{main_class}"
+      "#{@java_home}/bin/java -cp . #{java_opts} #{main_class} #{main_args}".strip
     end
 
     private
@@ -66,6 +66,8 @@ module JavaBuildpack::Container
     CONTAINER_NAME = 'java-main'.freeze
 
     MANIFEST_PROPERTY = 'Main-Class'.freeze
+
+    ARGS_PROPERTY = 'java.main.args'.freeze
 
     def java_opts
       @java_opts.compact.sort.join(' ')
@@ -79,6 +81,10 @@ module JavaBuildpack::Container
 
     def main_class
       @configuration[CONFIGURATION_PROPERTY] || manifest[MANIFEST_PROPERTY]
+    end
+
+    def main_args
+      @configuration[ARGS_PROPERTY]
     end
 
   end
