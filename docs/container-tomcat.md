@@ -3,8 +3,8 @@ The Tomcat Container allows web application to be run.  These applications are r
 
 | Detection ||
 | --- | ---
-| **Criteria** | Existence of a `WEB-INF/` folder in the application directory
-| **Tags** | `tomcat-<version>`
+| **Detection Criteria** | Existence of a `WEB-INF/` folder in the application directory
+| **Tags** | `tomcat-<version>` is printed to standard output by the buildpack detect script
 
 ## Configuration
 The container can be configured by modifying the [`config/tomcat.yml`][tomcat_yml] file.  The container uses the [`Repository` utility support][util_repositories] and so it supports the [version syntax][version_syntax] defined there.

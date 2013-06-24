@@ -3,8 +3,8 @@ The `JAVA_OPTS` Framework contributes arbitrary Java options to the application 
 
 | Detection ||
 | --- | ---
-| **Criteria** | `java_opts` set
-| **Tags** | `openjdk-<version>`
+| **Detection Criteria** | `java_opts` set
+| **Tags** | `openjdk-<version>` is printed to standard output by the buildpack detect script
 
 ## Configuration
 The framework can be configured by modifying the [`config/java_opts.yml`][java_opts_yml] file.
