@@ -19,6 +19,9 @@ require 'java_buildpack/jre/memory/memory_size'
 
 module JavaBuildpack::Jre
 
+  # This class represents a memory bucket for stack memory. This is treated differently to other memory buckets
+  # which have absolute sizes since stack memory is specified in terms of the size of an individual stack with no
+  # definition of how many stacks may exist.
   class StackMemoryBucket < MemoryBucket
 
     # Constructs a stack memory bucket.

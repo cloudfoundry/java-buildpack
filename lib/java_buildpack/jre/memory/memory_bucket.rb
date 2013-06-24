@@ -89,6 +89,9 @@ module JavaBuildpack::Jre
 
     protected
 
+    # Sets the size of this memory bucket to the specified value.
+    #
+    # @param [Numeric] size the size of the memory bucket
     def set_size(size)
       @size = size
     end

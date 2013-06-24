@@ -41,6 +41,17 @@ module JavaBuildpack::Jre
       @java_opts = java_opts
     end
 
+    # Computes the JRE memory switch values based on the current state. Essentially, this takes the
+    # specified memory sizes, applies default values to unspecified memory sizes, and then balances the positive or
+    # negative excess of the specified memory sizes among the defaulted memory sizes which can be adjusted (essentially
+    # any other than stack size). Raises an exception if the specified memory is too large. Issues a warning if the
+    # specified memory is significantly smaller than the available memory. This all assumes the available memory is
+    # known, which should be the usual case once Cloud Foundry passes $MEMORY_LIMIT to the buildpack.
+    #
+    # If the available memory is unknown, then perform no defaulting or balancing and do not diagnose the specified
+    # memory as being too large or significantly smaller than the available memory.
+    #
+    # @return [Array<String>] an array of JRE memory switches with values
     def resolve
       memory_limit = MemoryLimit.memory_limit
       buckets = create_memory_buckets(@sizes, @heuristics, memory_limit)

@@ -17,6 +17,7 @@ require 'java_buildpack/jre'
 
 module JavaBuildpack::Jre
 
+  # A class representing the size of a category of memory.
   class MemorySize
     include Comparable
 
@@ -119,6 +120,8 @@ module JavaBuildpack::Jre
 
     protected
 
+    # @!attribute [r] bytes
+    #   @return [Numeric] the size in bytes of this memory size
     attr_reader :bytes
 
     private
