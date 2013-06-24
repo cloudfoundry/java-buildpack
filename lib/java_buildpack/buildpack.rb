@@ -135,7 +135,7 @@ module JavaBuildpack
       @@buildpack_log_file = File.expand_path("buildpack.log", @@diagnostics_dir)
 
       # Create new log file and write current time into it.
-      File.open(@@buildpack_log_file, 'w') do |log_file|
+      File.open(@@buildpack_log_file, 'a') do |log_file|
         log_file.write "#{@@buildpack_log_file} @ #{time_in_millis}\n"
       end
     end
