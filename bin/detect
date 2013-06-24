@@ -29,6 +29,7 @@ begin
     abort
   end
 rescue => e
+  JavaBuildpack::Buildpack.log('Detect failed with exception', "#{e.inspect}, #{e.backtrace}\n")
   abort e.message
 end
 
