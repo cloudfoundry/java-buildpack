@@ -15,7 +15,9 @@
 
 require 'java_buildpack'
 require 'java_buildpack/util/constantize'
+require 'fileutils'
 require 'pathname'
+require 'time'
 require 'yaml'
 
 module JavaBuildpack
@@ -31,6 +33,8 @@ module JavaBuildpack
     #
     # @param [String] app_dir The application directory
     def initialize(app_dir)
+      Buildpack.create_log_file app_dir
+      Buildpack.dump_environment_variables
       Buildpack.require_component_files
       components = Buildpack.components
 
@@ -73,7 +77,7 @@ module JavaBuildpack
     #                         (+[]+).
     def detect
       jre_detections = @jres.map { |jre| jre.detect }.compact
-      raise "Application can be run useing more than one JRE: #{jre_detections.join(', ')}" if jre_detections.size > 1
+      raise "Application can be run using more than one JRE: #{jre_detections.join(', ')}" if jre_detections.size > 1
 
       framework_detections = @frameworks.map { |framework| framework.detect }.compact
 
@@ -110,19 +114,56 @@ module JavaBuildpack
       }.to_yaml
     end
 
+    # Logs data with a given title and the current time in the buildpack's log file.
+    #
+    # @param [String] log_title Title for the log entry
+    # @param [Hash, String] log_data Data to be logged
+    def self.log(log_title, log_data)
+      File.open(@@buildpack_log_file, 'a') do |log_file|
+        log_file.write "#{log_title} @ #{time_in_millis}::\n"
+        log_file.write(log_data.is_a?(Hash) ? log_data.to_yaml: log_data)
+      end
+    end
+
     private
 
     COMPONENTS_CONFIG = '../../config/components.yml'.freeze
 
+    def self.create_log_file(app_dir)
+      @@diagnostics_dir = File.expand_path("buildpack-diagnostics", app_dir)
+      FileUtils.mkdir_p @@diagnostics_dir
+      @@buildpack_log_file = File.expand_path("buildpack.log", @@diagnostics_dir)
+
+      # Create new log file and write current time into it.
+      File.open(@@buildpack_log_file, 'w') do |log_file|
+        log_file.write "#{@@buildpack_log_file} @ #{time_in_millis}\n"
+      end
+    end
+
+    def self.time_in_millis
+      Time.now.xmlschema(3).sub(/T/, ' ')
+    end
+
+    def self.dump_environment_variables
+      env = ENV.to_hash
+      log('Environment variables', env)
+    end
+
     def self.components
-      YAML.load_file(File.expand_path(COMPONENTS_CONFIG, File.dirname(__FILE__)))
+      expanded_path = File.expand_path(COMPONENTS_CONFIG, File.dirname(__FILE__))
+      components = YAML.load_file(expanded_path)
+      log(expanded_path, components)
+      components
     end
 
     def self.configuration(app_dir, type)
       name = type.match(/^(?:.*::)?(.*)$/)[1].downcase
       config_file = File.expand_path("../../config/#{name}.yml", File.dirname(__FILE__))
 
-      configuration = YAML.load_file(config_file) if File.exists? config_file
+      if File.exists? config_file
+        configuration = YAML.load_file(config_file)
+        log(config_file, configuration)
+      end
 
       configuration || {}
     end
