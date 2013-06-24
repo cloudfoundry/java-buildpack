@@ -1,10 +1,16 @@
 # Tomcat Container
 The Tomcat Container allows web application to be run.  These applications are run as the root web application in a Tomcat container.
 
-| Detection ||
-| --- | ---
-| **Detection Criteria** | Existence of a `WEB-INF/` folder in the application directory
-| **Tags** | `tomcat-<version>` is printed to standard output by the buildpack detect script
+<table>
+  <tr>
+    <td><strong>Detection Criterion:</strong></td><td>Existence of a <tt>WEB-INF/</tt> folder in the application directory</td>
+  </tr>
+  <tr>
+    <td><strong>Tags:</strong></td><td><tt>tomcat-&lang;version&rang;</tt></td>
+  </tr>
+</table>
+Tags are printed to standard output by the buildpack detect script
+	
 
 ## Configuration
 The container can be configured by modifying the [`config/tomcat.yml`][tomcat_yml] file.  The container uses the [`Repository` utility support][util_repositories] and so it supports the [version syntax][version_syntax] defined there.
