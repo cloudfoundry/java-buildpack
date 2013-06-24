@@ -6,7 +6,8 @@ The OpenJDK JRE provides Java runtimes from the [OpenJDK][openjdk] project.  Ver
 
 | Detection ||
 | --- | ---
-| **Tags** | `openjdk-<version>`
+| **Detection Criteria** | Unconditional
+| **Tags** | `openjdk-<version>` is printed to standard output by the buildpack detect script
 
 
 ## Configuration

@@ -3,8 +3,8 @@ The Java Main Class Container allows applications that provide a class with a `m
 
 | Detection ||
 | --- | ---
-| **Criteria** | `Main-Class` attribute set in `META-INF/MANIFEST.MF` or `java_main_class` set
-| **Tags** | `java-main`
+| **Detection Criteria** | `Main-Class` attribute set in `META-INF/MANIFEST.MF` or `java_main_class` set
+| **Tags** | `java-main` is printed to standard output by the buildpack detect script
 
 ## Configuration
 The container can be configured by modifying the [`config/main.yml`][main_yml] file.
