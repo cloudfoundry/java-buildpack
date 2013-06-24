@@ -3,10 +3,10 @@ The Tomcat Container allows web application to be run.  These applications are r
 
 <table>
   <tr>
-    <td><strong>Detection Criterion:</strong></td><td>Existence of a <tt>WEB-INF/</tt> folder in the application directory</td>
+    <td><strong>Detection Criterion</strong></td><td>Existence of a <tt>WEB-INF/</tt> folder in the application directory</td>
   </tr>
   <tr>
-    <td><strong>Tags:</strong></td><td><tt>tomcat-&lang;version&rang;</tt></td>
+    <td><strong>Tags</strong></td><td><tt>tomcat-&lang;version&rang;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script

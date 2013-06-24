@@ -3,10 +3,10 @@ The Java Main Class Container allows applications that provide a class with a `m
 
 <table>
   <tr>
-    <td><strong>Detection Criteria:</strong></td><td><tt>Main-Class</tt> attribute set in <tt>META-INF/MANIFEST.MF</tt> or <tt>java_main_class</tt> set</td>
+    <td><strong>Detection Criteria</strong></td><td><tt>Main-Class</tt> attribute set in <tt>META-INF/MANIFEST.MF</tt> or <tt>java_main_class</tt> set</td>
   </tr>
   <tr>
-    <td><strong>Tags:</strong></td><td><tt>java-main</tt></td>
+    <td><strong>Tags</strong></td><td><tt>java-main</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
