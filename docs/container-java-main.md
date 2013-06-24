@@ -1,10 +1,15 @@
 # Java Main Class Container
 The Java Main Class Container allows applications that provide a class with a `main()` method in it to be run.  These applications are run with a command that looks like `./java/bin/java -cp . com.gopivotal.SampleClass`.
 
-| Detection ||
-| --- | ---
-| **Detection Criteria** | `Main-Class` attribute set in `META-INF/MANIFEST.MF` or `java_main_class` set
-| **Tags** | `java-main` is printed to standard output by the buildpack detect script
+<table>
+  <tr>
+    <td><strong>Detection Criteria:</strong></td><td><tt>Main-Class</tt> attribute set in <tt>META-INF/MANIFEST.MF</tt> or <tt>java_main_class</tt> set</td>
+  </tr>
+  <tr>
+    <td><strong>Tags:</strong></td><td><tt>java-main</tt></td>
+  </tr>
+</table>
+Tags are printed to standard output by the buildpack detect script
 
 ## Configuration
 The container can be configured by modifying the [`config/main.yml`][main_yml] file.

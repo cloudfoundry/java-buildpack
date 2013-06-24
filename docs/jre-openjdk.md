@@ -4,11 +4,15 @@ The OpenJDK JRE provides Java runtimes from the [OpenJDK][openjdk] project.  Ver
 [openjdk]: http://openjdk.java.net
 [openjdk_yml]: ../config/openjdk.yml
 
-| Detection ||
-| --- | ---
-| **Detection Criteria** | Unconditional
-| **Tags** | `openjdk-<version>` is printed to standard output by the buildpack detect script
-
+<table>
+  <tr>
+    <td><strong>Detection Criterion:</strong></td><td>Unconditional</td>
+  </tr>
+  <tr>
+    <td><strong>Tags:</strong></td><td><tt>openjdk-&lang;version&rang;</tt></td>
+  </tr>
+</table>
+Tags are printed to standard output by the buildpack detect script
 
 ## Configuration
 The JRE can be configured by modifying the [`config/openjdk.yml`][openjdk_yml] file.  The JRE uses the [`Repository` utility support][util_repositories] and so it supports the [version syntax][version_syntax]  defined there.
