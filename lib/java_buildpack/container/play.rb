@@ -59,7 +59,7 @@ module JavaBuildpack::Container
     def release
       @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
 
-      "JAVA_HOME=#{@java_home} JAVA_OPTS=\"#{java_opts}\" ./#{PLAY_START_SCRIPT}"
+      "PATH=#{@java_home}/bin:$PATH JAVA_HOME=#{@java_home} JAVA_OPTS=\"#{java_opts}\" ./#{PLAY_START_SCRIPT}"
     end
 
     private
