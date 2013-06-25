@@ -47,7 +47,7 @@ module JavaBuildpack::Container
 
     it 'should not detect when WEB-INF is absent' do
       detected = Tomcat.new(
-          :app_dir => 'spec/fixtures/container_none',
+          :app_dir => 'spec/fixtures/container_main',
           :configuration => {}).detect
 
       expect(detected).to be_nil
