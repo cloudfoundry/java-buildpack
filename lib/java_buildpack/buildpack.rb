@@ -84,7 +84,9 @@ module JavaBuildpack
       container_detections = @containers.map { |container| container.detect }.compact
       raise "Application can be run by more than one container: #{container_detections.join(', ')}" if container_detections.size > 1
 
-      container_detections.empty? ? [] : jre_detections.concat(framework_detections).concat(container_detections).flatten.compact
+      tags = container_detections.empty? ? [] : jre_detections.concat(framework_detections).concat(container_detections).flatten.compact
+      Buildpack.log('detect tags', tags)
+      tags
     end
 
     # Transforms the application directory such that the JRE, container, and frameworks can run the application
@@ -105,13 +107,15 @@ module JavaBuildpack
       frameworks.each { |framework| framework.release }
       command = container.release
 
-      {
+      payload = {
           'addons' => [],
           'config_vars' => {},
           'default_process_types' => {
               'web' => command
           }
       }.to_yaml
+      Buildpack.log('release payload', payload)
+      payload
     end
 
     # Logs data with a given title and the current time in the buildpack's log file.
