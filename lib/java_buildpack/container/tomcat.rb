@@ -48,7 +48,7 @@ module JavaBuildpack::Container
       @tomcat_version ? id(@tomcat_version) : nil
     end
 
-    # Downlaods and unpacks a Tomcat instance
+    # Downloads and unpacks a Tomcat instance
     #
     # @return [void]
     def compile
