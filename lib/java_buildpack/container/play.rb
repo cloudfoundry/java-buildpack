@@ -57,9 +57,7 @@ module JavaBuildpack::Container
     #
     # @return [String] the command to run the application.
     def release
-      @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
-
-      "PATH=#{@java_home}/bin:$PATH JAVA_HOME=#{@java_home} JAVA_OPTS=\"#{java_opts}\" ./#{PLAY_START_SCRIPT}"
+      "PATH=#{@java_home}/bin:$PATH JAVA_HOME=#{@java_home} JAVA_OPTS=\"#{java_opts}\" ./#{PLAY_START_SCRIPT} -D#{KEY_HTTP_PORT}=$PORT"
     end
 
     private
