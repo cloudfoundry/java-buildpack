@@ -36,7 +36,7 @@ end
 
 begin
   Kill.log("#{__FILE__} attempting to kill Java processes",
-           `pkill -9 -a -l -f .*-XX:OnOutOfMemoryError=.*#{File.basename(__FILE__)}`)
+           `pkill -9 -f .*-XX:OnOutOfMemoryError=.*#{File.basename(__FILE__)}`)
 rescue => e
   Kill.log("#{__FILE__} failed with exception", "#{e.inspect}, #{e.backtrace}\n")
   abort e.message
