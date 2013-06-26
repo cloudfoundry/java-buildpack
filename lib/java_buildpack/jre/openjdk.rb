@@ -37,6 +37,7 @@ module JavaBuildpack::Jre
       @app_dir = context[:app_dir]
       @java_opts = context[:java_opts]
       @configuration = context[:configuration]
+      @diagnostics_dir = context[:diagnostics][:directory]
       @version, @uri = OpenJdk.find_openjdk(@configuration)
 
       context[:java_home].concat JAVA_HOME
@@ -61,17 +62,20 @@ module JavaBuildpack::Jre
         puts "(#{(Time.now - download_start_time).duration})"
         expand file
       end
+      copy_resources
     end
 
     # Build Java memory options and places then in +context[:java_opts]+
     #
     # @return [void]
     def release
-      @java_opts << "-XX:OnOutOfMemoryError='kill -9 %p'"
+      @java_opts << "-XX:OnOutOfMemoryError=#{@diagnostics_dir}/killjava"
       @java_opts.concat memory(@configuration)
     end
 
     private
+
+    RESOURCES = '../../../resources/openjdk/diagnostics'.freeze
 
     JAVA_HOME = '.java'.freeze
 
@@ -114,6 +118,11 @@ module JavaBuildpack::Jre
 
     def pre_8
       @version < JavaBuildpack::Util::TokenizedVersion.new("1.8.0")
+    end
+
+    def copy_resources
+      resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
+      system "cp -r #{resources}/* #{@diagnostics_dir}/."
     end
 
   end

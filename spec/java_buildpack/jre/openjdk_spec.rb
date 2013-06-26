@@ -33,16 +33,19 @@ module JavaBuildpack::Jre
     end
 
     it 'should detect with id of openjdk-<version>' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
+      Dir.mktmpdir do |root|
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
-      detected = OpenJdk.new(
-        :app_dir => '',
-        :java_home => '',
-        :java_opts => [],
-        :configuration => {}
-      ).detect
+        detected = OpenJdk.new(
+            :app_dir => '',
+            :java_home => '',
+            :java_opts => [],
+            :configuration => {},
+            :diagnostics => {:directory => root}
+        ).detect
 
-      expect(detected).to eq('openjdk-1.7.0')
+        expect(detected).to eq('openjdk-1.7.0')
+      end
     end
 
     it 'should extract Java from a GZipped TAR' do
@@ -52,10 +55,11 @@ module JavaBuildpack::Jre
         application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-java.tar.gz'))
 
         OpenJdk.new(
-          :app_dir => root,
-          :configuration => {},
-          :java_home => '',
-          :java_opts => []
+            :app_dir => root,
+            :configuration => {},
+            :java_home => '',
+            :java_opts => [],
+            :diagnostics => {:directory => root}
         ).compile
 
         java = File.join(root, '.java', 'bin', 'java')
@@ -64,57 +68,69 @@ module JavaBuildpack::Jre
     end
 
     it 'adds the JAVA_HOME to java_home' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
+      Dir.mktmpdir do |root|
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
-      java_home = ''
-      OpenJdk.new(
-        :app_dir => '/application-directory',
-        :java_home => java_home,
-        :java_opts => [],
-        :configuration => {}
-      )
+        java_home = ''
+        OpenJdk.new(
+            :app_dir => '/application-directory',
+            :java_home => java_home,
+            :java_opts => [],
+            :configuration => {},
+            :diagnostics => {:directory => root}
+        )
 
-      expect(java_home).to eq('.java')
+        expect(java_home).to eq('.java')
+      end
     end
 
     it 'should fail when ConfiguredItem.find_item fails' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_raise('test error')
-      expect { OpenJdk.new(
-        :app_dir => '',
-        :java_home => '',
-        :java_opts => [],
-        :configuration => {}
-      ).detect }.to raise_error(/OpenJDK\ JRE\ error:\ test\ error/)
+      Dir.mktmpdir do |root|
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_raise('test error')
+        expect { OpenJdk.new(
+            :app_dir => '',
+            :java_home => '',
+            :java_opts => [],
+            :configuration => {},
+            :diagnostics => {:directory => root}
+        ).detect }.to raise_error(/OpenJDK\ JRE\ error:\ test\ error/)
+      end
     end
 
     it 'should add memory options to java_opts' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
-      MemoryHeuristicsOpenJDKPre8.stub(:new).and_return(memory_heuristic)
+      Dir.mktmpdir do |root|
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
+        MemoryHeuristicsOpenJDKPre8.stub(:new).and_return(memory_heuristic)
 
-      java_opts = []
-      OpenJdk.new(
-        :app_dir => '/application-directory',
-        :java_home => '',
-        :java_opts => java_opts,
-        :configuration => {}
-      ).release
+        java_opts = []
+        OpenJdk.new(
+            :app_dir => '/application-directory',
+            :java_home => '',
+            :java_opts => java_opts,
+            :configuration => {},
+            :diagnostics => {:directory => root}
+        ).release
 
-      expect(java_opts).to include('opt-1')
-      expect(java_opts).to include('opt-2')
+        expect(java_opts).to include('opt-1')
+        expect(java_opts).to include('opt-2')
+      end
     end
 
     it 'adds OnOutOfMemoryError to java_opts' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
+      Dir.mktmpdir do |root|
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
 
-      java_opts = []
-      OpenJdk.new(
-          :app_dir => '',
-          :java_home => '',
-          :java_opts => java_opts,
-          :configuration => {}
-      ).release
+        java_opts = []
+        OpenJdk.new(
+            :app_dir => '',
+            :java_home => '',
+            :java_opts => java_opts,
+            :configuration => {},
+            :diagnostics => {:directory => root}
+        ).release
 
-      expect(java_opts.join(' ')).to match(/-XX:OnOutOfMemoryError='kill -9 %p'/)
+        expect(java_opts.join(' ')).to match(/-XX:OnOutOfMemoryError=#{root}\/killjava/)
+      end
     end
 
   end
