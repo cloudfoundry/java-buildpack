@@ -58,10 +58,7 @@ module JavaBuildpack::Container
     # @return [String] the command to run the application.
     def release
       @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
-      # Expunge the option OnOutOfMemoryError option if it occurs as it does not seem possible to pass
-      # this through to the Play start script correctly.
-      sanitised_java_opts = java_opts.gsub("-XX:OnOutOfMemoryError='kill -9 %p'", '')
-      "PATH=#{@java_home}/bin:$PATH JAVA_HOME=#{@java_home} ./#{PLAY_START_SCRIPT} #{sanitised_java_opts}"
+      "PATH=#{@java_home}/bin:$PATH JAVA_HOME=#{@java_home} ./#{PLAY_START_SCRIPT} #{java_opts}"
     end
 
     private
