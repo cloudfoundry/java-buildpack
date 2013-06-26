@@ -98,6 +98,18 @@ module JavaBuildpack
 
       expect(payload).to eq({'addons' => [], 'config_vars' => {}, 'default_process_types' => { 'web' => 'test-command' }}.to_yaml)
     end
+
+    it 'should load configuration file matching JRE class name' do
+      stub_jre1.stub(:detect).and_return('stub-jre-1')
+      File.stub(:exists?).with(File.expand_path('config/stubjre1.yml')).and_return(true)
+      File.stub(:exists?).with(File.expand_path('config/stubjre2.yml')).and_return(false)
+      File.stub(:exists?).with(File.expand_path('config/stubframework1.yml')).and_return(false)
+      File.stub(:exists?).with(File.expand_path('config/stubframework2.yml')).and_return(false)
+      File.stub(:exists?).with(File.expand_path('config/stubcontainer1.yml')).and_return(false)
+      File.stub(:exists?).with(File.expand_path('config/stubcontainer2.yml')).and_return(false)
+      YAML.stub(:load_file).with(File.expand_path('config/stubjre1.yml')).and_return('x' => 'y')
+      buildpack.detect
+    end
   end
 
 end
