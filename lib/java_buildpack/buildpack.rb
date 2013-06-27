@@ -38,7 +38,7 @@ module JavaBuildpack
       Buildpack.require_component_files
       components = Buildpack.components
 
-      java_home = String.new
+      java_home = ''
       java_opts = Array.new
 
       @jres = components['jres'].map do |jre|
@@ -127,6 +127,7 @@ module JavaBuildpack
     # @param [Hash, String] log_data Data to be logged
     def self.log(log_title, log_data)
       File.open(@@buildpack_log_file, 'a') do |log_file|
+        log_file.sync = true
         log_file.write "#{log_title} @ #{time_in_millis}::\n"
         log_file.write(log_data.is_a?(Hash) ? log_data.to_yaml: log_data)
       end
@@ -147,6 +148,7 @@ module JavaBuildpack
 
       # Create new log file and write current time into it.
       File.open(@@buildpack_log_file, 'a') do |log_file|
+        log_file.sync = true
         log_file.write "#{@@buildpack_log_file} @ #{time_in_millis}\n"
       end
     end
