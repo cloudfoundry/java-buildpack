@@ -69,7 +69,7 @@ module JavaBuildpack::Jre
     #
     # @return [void]
     def release
-      @java_opts << "-XX:OnOutOfMemoryError=#{@diagnostics_dir}/killjava"
+      @java_opts << "-XX:OnOutOfMemoryError=$HOME/buildpack-diagnostics/killjava"
       @java_opts.concat memory(@configuration)
     end
 
