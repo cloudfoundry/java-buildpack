@@ -41,35 +41,18 @@ module JavaBuildpack
       java_home = ''
       java_opts = Array.new
 
-      @jres = components['jres'].map do |jre|
-        jre.constantize.new({
+      basic_context = {
           :app_dir => app_dir,
           :java_home => java_home,
           :java_opts => java_opts,
-          :configuration => Buildpack.configuration(app_dir, jre),
           :diagnostics => {:directory => @@diagnostics_dir, :log_file => @@buildpack_log_file}
-        })
-      end
+      }
 
-      @frameworks = components['frameworks'].map do |framework|
-        framework.constantize.new({
-          :app_dir => app_dir,
-          :java_home => java_home,
-          :java_opts => java_opts,
-          :configuration => Buildpack.configuration(app_dir, framework),
-          :diagnostics => {:directory => @@diagnostics_dir, :log_file => @@buildpack_log_file}
-        })
-      end
+      @jres = Buildpack.construct_components(components, 'jres', basic_context)
 
-      @containers = components['containers'].map do |container|
-        container.constantize.new({
-          :app_dir => app_dir,
-          :java_home => java_home,
-          :java_opts => java_opts,
-          :configuration => Buildpack.configuration(app_dir, container),
-          :diagnostics => {:directory => @@diagnostics_dir, :log_file => @@buildpack_log_file}
-        })
-      end
+      @frameworks = Buildpack.construct_components(components, 'frameworks', basic_context)
+
+      @containers = Buildpack.construct_components(components, 'containers', basic_context)
 
     end
 
@@ -79,12 +62,12 @@ module JavaBuildpack
     #                         this application.  If no container can run the application, the array will be empty
     #                         (+[]+).
     def detect
-      jre_detections = @jres.map { |jre| jre.detect }.compact
+      jre_detections = Buildpack.component_detections @jres
       raise "Application can be run using more than one JRE: #{jre_detections.join(', ')}" if jre_detections.size > 1
 
-      framework_detections = @frameworks.map { |framework| framework.detect }.compact
+      framework_detections = Buildpack.component_detections @frameworks
 
-      container_detections = @containers.map { |container| container.detect }.compact
+      container_detections = Buildpack.component_detections @containers
       raise "Application can be run by more than one container: #{container_detections.join(', ')}" if container_detections.size > 1
 
       tags = container_detections.empty? ? [] : jre_detections.concat(framework_detections).concat(container_detections).flatten.compact
@@ -162,6 +145,10 @@ module JavaBuildpack
       log('Environment variables', env)
     end
 
+    def self.component_detections(components)
+      components.map {|component| component.detect}.compact
+    end
+
     def self.components
       expanded_path = File.expand_path(COMPONENTS_CONFIG, File.dirname(__FILE__))
       components = YAML.load_file(expanded_path)
@@ -179,6 +166,16 @@ module JavaBuildpack
       end
 
       configuration || {}
+    end
+
+    def self.configure_context(basic_context, type)
+      configured_context = basic_context.clone
+      configured_context[:configuration] = Buildpack.configuration(configured_context[:app_dir], type)
+      configured_context
+    end
+
+    def self.construct_components(components, component, basic_context)
+      components[component].map {|component| component.constantize.new(Buildpack.configure_context(basic_context, component))}
     end
 
     def self.container_directory
