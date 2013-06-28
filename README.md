@@ -26,6 +26,7 @@ Additional documentation can be found by following the links below.
 * [Design](docs/design.md)
 * Standard Containers
 	* [Java Main Class](docs/container-java-main.md) ([Configuration](docs/container-java-main.md#configuration))
+	* [Play](docs/container-play.md)
 	* [Tomcat](docs/container-tomcat.md) ([Configuration](docs/container-tomcat.md))
 * Standard Frameworks
 	* [`JAVA_OPTS`](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))

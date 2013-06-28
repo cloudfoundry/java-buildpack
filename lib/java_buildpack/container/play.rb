@@ -43,7 +43,7 @@ module JavaBuildpack::Container
     # @return [String] returns +Play+ if and only if the application has a +start+ script, otherwise
     #                  returns +nil+
     def detect
-      play_script? ? PLAY_TAG : nil
+      play_app? ? PLAY_TAG : nil
     end
 
     # Makes the +start+ script executable.
@@ -69,8 +69,11 @@ module JavaBuildpack::Container
 
     PLAY_TAG = 'Play'.freeze
 
-    def play_script?
-      File.exists?(@start_script_path) && !File.directory?(@start_script_path)
+    PLAY_JAR_PATTERN = 'lib/play.play_*.jar'.freeze
+
+    def play_app?
+      File.exists?(@start_script_path) && !File.directory?(@start_script_path) &&
+          !Dir.glob(File.join(@app_dir, PLAY_JAR_PATTERN)).empty?
     end
 
     def java_opts
