@@ -1,9 +1,9 @@
-# JPlay Container
+# Play Container
 The Play Container allows Play applications to be run.
 
 <table>
   <tr>
-    <td><strong>Detection Criteria</strong></td><td><tt>start</tt> script and <tt>lib/play.play_*.jar</tt> exist in the application</td>
+    <td><strong>Detection Criteria</strong></td><td>The files <tt>start</tt> and <tt>lib/play.play_*.jar</tt> exist in the application</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td><td><tt>Play</tt></td>
