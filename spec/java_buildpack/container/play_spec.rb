@@ -40,12 +40,20 @@ module JavaBuildpack::Container
       expect(detected).to be_nil
     end
 
-    it 'should detect an application with a start script' do
+    it 'should detect an application with a start script and a suitable Play JAR' do
       detected = Play.new(
           :app_dir => 'spec/fixtures/container_play',
           :configuration => {}).detect
 
       expect(detected).to eq('Play')
+    end
+
+    it 'should not detect an application with a start script but no suitable Play JAR' do
+      detected = Play.new(
+          :app_dir => 'spec/fixtures/container_play_like',
+          :configuration => {}).detect
+
+      expect(detected).to be_nil
     end
 
     it 'should make the start script executable in the compile step' do
