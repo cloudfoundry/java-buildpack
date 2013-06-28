@@ -37,14 +37,20 @@ module Kill
     Time.now.xmlschema(3).sub(/T/, ' ')
   end
 
+  def Kill.log_process_tree
+    Kill.log(`ps -AHF`)
+  end
+
 end
 
 begin
+  Kill.log_process_tree
   # Kill all processes whose parameters match -XX:OnOutOfMemoryError and the name of this script.
   # This script can be renamed as necessary without modifying its code.
-  command = "pkill -9 -f .*-XX:OnOutOfMemoryError=.*#{File.basename(__FILE__)}"
+  command = "pkill -9 -f .*-XX:OnOutOfMemoryError=.*#{File.basename(__FILE__)}.*"
   Kill.log("#{__FILE__} attempting to kill Java processes using `#{command}`")
   `#{command}`
+  Kill.log_process_tree
 rescue => e
   Kill.log("#{__FILE__} failed with exception #{e.inspect}, #{e.backtrace}\n")
   abort e.message
