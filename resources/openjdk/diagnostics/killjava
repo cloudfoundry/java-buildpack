@@ -14,6 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Kill script for use as the parameter of OpenJDK's -XX:OnOutOfMemoryError.
+#
+# It should be placed in the buildpack diagnostic directory so it logs to
+# the same log file as the rest of the buildpack.
+
 require 'time'
 
 $stdout.sync = true
@@ -35,6 +40,8 @@ module Kill
 end
 
 begin
+  # Kill all processes whose parameters match -XX:OnOutOfMemoryError and the name of this script.
+  # This script can be renamed as necessary without modifying its code.
   command = "pkill -9 -f .*-XX:OnOutOfMemoryError=.*#{File.basename(__FILE__)}"
   Kill.log("#{__FILE__} attempting to kill Java processes using `#{command}`")
   `#{command}`
