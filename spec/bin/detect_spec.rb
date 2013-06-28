@@ -26,6 +26,14 @@ describe 'detect script' do
     end
   end
 
+  it 'should fail to detect when no containers detect' do
+    with_memory_limit('1G') do
+      Open3.popen3("bin/detect spec/fixtures/integration_no_container") do |stdin, stdout, stderr, wait_thr|
+        expect(wait_thr.value).to_not be_success
+      end
+    end
+  end
+
   def with_memory_limit(memory_limit)
     previous_value = ENV['MEMORY_LIMIT']
     begin

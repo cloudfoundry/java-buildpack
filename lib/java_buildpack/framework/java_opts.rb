@@ -34,7 +34,7 @@ module JavaBuildpack::Framework
 
     # Detects whether this application contributes Java options.
     #
-    # @return [String] returns +java-opts+ if a +java.opts+ system property is set by the user
+    # @return [String] returns +java-opts+ if Java options have been set by the user
     def detect
       @configuration.has_key?(CONFIGURATION_PROPERTY) ? CONTAINER_NAME : nil
     end
