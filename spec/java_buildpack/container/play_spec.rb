@@ -48,6 +48,14 @@ module JavaBuildpack::Container
       expect(detected).to eq('Play')
     end
 
+    it 'should detect a staged application with a start script and a suitable Play JAR' do
+      detected = Play.new(
+          :app_dir => 'spec/fixtures/container_play_staged',
+          :configuration => {}).detect
+
+      expect(detected).to eq('Play')
+    end
+
     it 'should not detect an application with a start script but no suitable Play JAR' do
       detected = Play.new(
           :app_dir => 'spec/fixtures/container_play_like',

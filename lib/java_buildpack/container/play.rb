@@ -70,10 +70,12 @@ module JavaBuildpack::Container
     PLAY_TAG = 'Play'.freeze
 
     PLAY_JAR_PATTERN = 'lib/play.play_*.jar'.freeze
+    PLAY_JAR_STAGED_PATTERN = 'staged/play.play_*.jar'.freeze
 
     def play_app?
       File.exists?(@start_script_path) && !File.directory?(@start_script_path) &&
-          !Dir.glob(File.join(@app_dir, PLAY_JAR_PATTERN)).empty?
+          (!Dir.glob(File.join(@app_dir, PLAY_JAR_PATTERN)).empty? ||
+              !Dir.glob(File.join(@app_dir, PLAY_JAR_STAGED_PATTERN)).empty?)
     end
 
     def java_opts
