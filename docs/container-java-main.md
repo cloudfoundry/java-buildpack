@@ -7,7 +7,7 @@ Command line arguments may optionally be configured.
 
 <table>
   <tr>
-    <td><strong>Detection Criteria</strong></td><td><tt>Main-Class</tt> attribute set in <tt>META-INF/MANIFEST.MF</tt> or <tt>java_main_class</tt> set</td>
+    <td><strong>Detection Criteria</strong></td><td><tt>Main-Class</tt> attribute set in <tt>META-INF/MANIFEST.MF</tt> or <tt>java_main_class</tt> set in [`config/main.yml`][main_yml]</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td><td><tt>java-main</tt></td>

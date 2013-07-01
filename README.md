@@ -8,22 +8,19 @@ The `java-buildpack` is a [Cloud Foundry][cf] buildpack for running Java applica
 [cf]: http://www.cloudfoundry.com
 
 ## Usage
-To use this buildpack specify the URI of the repository when pushing an application to Cloud Foundry.
+To use this buildpack specify the URI of the repository when pushing an application to Cloud Foundry:
 
-```bash
-cf push --buildpack https://github.com/cloudfoundry/java-buildpack
-```
+    cf push --buildpack https://github.com/cloudfoundry/java-buildpack
 
 ## Configuration and Extension
-The buildpack supports configuration and extension through the use of Git repository forking.  The easiest way to accomplish this is to use [GitHub's forking functionality][fork] to create a copy of this repository.  In that copy of the repository, make the required configuration and extension changes.  Then when pushing a Cloud Foundry application, use the URL of the new repository.  If the modifications are applicable to the Cloud Foundry community, please submit a [pull request][pull-request] with the changes.
+The buildpack supports configuration and extension through the use of Git repository forking.  The easiest way to accomplish this is to use [GitHub's forking functionality][fork] to create a copy of this repository.  Make the required configuration and extension changes in the copy of the repository.  Then specify the URL of the new repository when pushing Cloud Foundry applications.  If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][pull-request] with the changes.
 
 [fork]: https://help.github.com/articles/fork-a-repo
 [pull-request]: https://help.github.com/articles/using-pull-requests
 
 ## Additional Documentation
-Additional documentation can be found by following the links below.
-
 * [Design](docs/design.md)
+* [Migrating from the Previous Java Buildpack](docs/migration.md)
 * Standard Containers
 	* [Java Main Class](docs/container-java-main.md) ([Configuration](docs/container-java-main.md#configuration))
 	* [Play](docs/container-play.md)

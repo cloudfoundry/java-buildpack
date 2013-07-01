@@ -48,3 +48,5 @@ If some memory sizes are not specified using the above properties, default value
 If a memory size is specified which is not equal to the default value, the other default values are adjusted proportionately, except that the default stack size is never adjusted.
 
 The default memory size proportions are configured in the `memory_heuristics` mapping of [`config/openjdk.yml`][openjdk_yml]. Each memory size is given a weighting between `0` and `1` corresponding to a proportion of the total memory specified when the application was pushed. The weightings should add up to `1`.
+
+Currently, Cloud Foundry does not make the application memory limit (`$MEMORY_LIMIT`) available to the buildpack, so only the stack size is defaulted.
