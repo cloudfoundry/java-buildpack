@@ -21,12 +21,13 @@ The container can be configured by modifying the [`config/tomcat.yml`][tomcat_ym
 
 | Name | Description
 | ---- | -----------
-| `version` | The version of Tomcat to use.  .  Candidate versions can be found in [this listing][tomcat_index_yml].
+| `repository_root` | The URL of the Tomcat repository index ([details][util_repositories]).
+| `version` | The version of Tomcat to use. Candidate versions can be found in [this listing][tomcat_index_yml].
 
 [tomcat_index_yml]: http://download.pivotal.io.s3.amazonaws.com/tomcat/lucid/x86_64/index.yml
 
 
 ## Supporting Functionality
-Additional supporting functionality can be found in the [`java-buildpack-support][java_buildpack_support] Git repository.
+Additional supporting functionality can be found in the [`java-buildpack-support`][java_buildpack_support] Git repository.
 
 [java_buildpack_support]: https://github.com/cloudfoundry/java-buildpack-support
