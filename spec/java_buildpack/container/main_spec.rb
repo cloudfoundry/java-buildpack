@@ -60,6 +60,17 @@ module JavaBuildpack::Container
 
       expect(command).to eq('test-java-home/bin/java -cp . test-opt-1 test-opt-2 test-java-main-class')
     end
+
+    it 'should return command line arguments when they are specified' do
+      command = Main.new(
+        :java_home => 'test-java-home',
+        :java_opts => [],
+        :configuration => { 'java_main_class' => 'test-java-main-class',
+                            'arguments' => 'some arguments'
+        }).release
+
+      expect(command).to eq('test-java-home/bin/java -cp . test-java-main-class some arguments')
+    end
   end
 
 end

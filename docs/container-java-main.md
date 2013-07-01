@@ -1,5 +1,9 @@
 # Java Main Class Container
-The Java Main Class Container allows applications that provide a class with a `main()` method in it to be run.  These applications are run with a command that looks like `./java/bin/java -cp . com.gopivotal.SampleClass`.
+The Java Main Class Container allows an application that provides a class with a `main()` method to be run.  The application is executed with a command of the form:
+
+    ./java/bin/java -cp . com.gopivotal.SampleClass
+
+Command line arguments may optionally be configured.
 
 <table>
   <tr>
@@ -18,6 +22,7 @@ The container can be configured by modifying the [`config/main.yml`][main_yml] f
 
 | Name | Description
 | ---- | -----------
+| `arguments` | Optional command line arguments to be passed to the Java main class.
 | `java_main_class` | The Java class name to run. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line.  If not specified, the Java Manifest value of `Main-Class` is used.
 
 
