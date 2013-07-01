@@ -2,11 +2,12 @@
 Many components need to have access to multiple versions of binaries.  The buildpack provides a `Repository` abstraction to encapsulate version resolution and download URI creation.
 
 ## Repository Structure
-The repository is an HTTP-accessible collection of files.  The repository root must contain an `index.yml` file ([example][example_index_yml]) that is a mapping of concrete versions to URIs.
-
+The repository is an HTTP-accessible collection of files.  The repository root must contain an `index.yml` file ([example][example_index_yml]) that is a mapping of concrete versions to absolute URIs consisting of a series of lines of the form:
 ```yaml
 <version>: <URI>
 ```
+
+The collection of files may be stored alongside the index file or elsewhere.
 
 An example filesystem might look like:
 
