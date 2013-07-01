@@ -24,7 +24,7 @@ build_dir = ARGV[0]
 begin
   JavaBuildpack::Buildpack.new(build_dir).compile
 rescue => e
-  JavaBuildpack::Buildpack.log('Compile failed with exception', "#{e.inspect}, #{e.backtrace}\n")
+  puts "Compile failed with exception #{e.inspect}, #{e.backtrace}\n"
   abort e.message
 end
 
