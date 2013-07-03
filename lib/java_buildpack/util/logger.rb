@@ -21,9 +21,8 @@ module JavaBuildpack::Util
   # exposed to buildpacks
   class Logger
 
-    # @!attribute [r] diagnostics_directory
-    #   @return [String] the directory that diagnostics are written into
-    attr_reader :diagnostics_directory
+    # The directory that diagnostics are written into
+    DIAGNOSTICS_DIRECTORY = '.buildpack-diagnostics'.freeze
 
     # Creates a new logger
     #
@@ -41,8 +40,6 @@ module JavaBuildpack::Util
     end
 
     private
-
-    DIAGNOSTICS_DIRECTORY = '.buildpack-diagnostics'.freeze
 
     LOG_FILE_NAME = 'buildpack.log'.freeze
 

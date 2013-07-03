@@ -33,11 +33,12 @@ module JavaBuildpack::Jre
     # @option context [String] :java_home the directory that acts as +JAVA_HOME+
     # @option context [Array<String>] :java_opts an array that Java options can be added to
     # @option context [Hash] :configuration the properties provided by the user
+    # @option context [Hash] :diagnostics the diagnostics information provided by the buildpack
     def initialize(context)
       @app_dir = context[:app_dir]
       @java_opts = context[:java_opts]
       @configuration = context[:configuration]
-      @diagnostics_dir = context[:diagnostics][:directory]
+      @diagnostics_directory = context[:diagnostics][:directory]
       @version, @uri = OpenJdk.find_openjdk(@configuration)
 
       context[:java_home].concat JAVA_HOME
@@ -69,7 +70,7 @@ module JavaBuildpack::Jre
     #
     # @return [void]
     def release
-      @java_opts << "-XX:OnOutOfMemoryError=$HOME/buildpack-diagnostics/killjava"
+      @java_opts << "-XX:OnOutOfMemoryError=#{@diagnostics_directory}/killjava"
       @java_opts.concat memory(@configuration)
     end
 
@@ -122,7 +123,7 @@ module JavaBuildpack::Jre
 
     def copy_resources
       resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
-      system "cp -r #{resources}/* #{@diagnostics_dir}/."
+      system "cp -r #{resources}/* #{@diagnostics_directory}"
     end
 
   end

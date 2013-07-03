@@ -47,7 +47,7 @@ module JavaBuildpack
           :app_dir => app_dir,
           :java_home => java_home,
           :java_opts => java_opts,
-          :diagnostics => {:directory => @logger.diagnostics_directory}
+          :diagnostics => {:directory => JavaBuildpack::Util::Logger::DIAGNOSTICS_DIRECTORY}
       }
 
       @jres = Buildpack.construct_components(components, 'jres', basic_context, @logger)
