@@ -36,7 +36,8 @@ module JavaBuildpack::Container
       @app_dir = context[:app_dir]
       @java_home = context[:java_home]
       @java_opts = context[:java_opts]
-      @start_script_path = File.join(@app_dir, PLAY_START_SCRIPT)
+      p = play_dir
+      @start_script_path = p ? File.join(p, PLAY_START_SCRIPT) : nil
     end
 
     # Detects whether this application is a Play application.
@@ -76,9 +77,16 @@ module JavaBuildpack::Container
     PLAY_JAR_STAGED_PATTERN = 'staged/play.play_*.jar'.freeze
 
     def play_app?
-      File.exists?(@start_script_path) && !File.directory?(@start_script_path) &&
-          (!Dir.glob(File.join(@app_dir, PLAY_JAR_PATTERN)).empty? ||
-              !Dir.glob(File.join(@app_dir, PLAY_JAR_STAGED_PATTERN)).empty?)
+      play_dir != nil
+    end
+
+    def play_dir
+      dirs = Dir.glob([@app_dir, File.join(@app_dir, '/*')]).select do |file|
+        File.directory?(file) && File.exists?("#{file}/#{PLAY_START_SCRIPT}") && (!Dir.glob(File.join(file, PLAY_JAR_PATTERN)).empty? ||
+            !Dir.glob(File.join(file, PLAY_JAR_STAGED_PATTERN)).empty?)
+      end
+      raise "Play application detected in multiple directories: #{dirs}" if dirs.size > 1
+      dirs.empty? ? nil : dirs[0]
     end
 
   end

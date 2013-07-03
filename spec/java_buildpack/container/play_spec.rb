@@ -40,6 +40,12 @@ module JavaBuildpack::Container
       expect(detected).to be_nil
     end
 
+    it 'should fail if a Play application is in more than one directory' do
+      expect {Play.new(
+          :app_dir => 'spec/fixtures/container_play_duplicate',
+          :configuration => {})}.to raise_error(/multiple/)
+    end
+
     it 'should detect an application with a start script and a suitable Play JAR' do
       detected = Play.new(
           :app_dir => 'spec/fixtures/container_play',
@@ -68,7 +74,7 @@ module JavaBuildpack::Container
       play = Play.new(
           :app_dir => 'spec/fixtures/container_play',
           :configuration => {})
-      play.should_receive(:`).with('chmod +x spec/fixtures/container_play/start').and_return('')
+      play.should_receive(:`).with('chmod +x spec/fixtures/container_play/application_root/start').and_return('')
       detected = play.compile
     end
 
