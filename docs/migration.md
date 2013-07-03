@@ -24,9 +24,8 @@ for automatic re-binding to such services.
 
 `cloudfoundry-buildpack-java` allowed the Play `start` script (and the application's `lib` directory,
 although this is ignored during detection) to reside in an arbitrary subdirectory of the application directory.
-This buildpack requires the `start` script and the `lib` directory (or, equivalently, the `staged` directory) to reside directly in the application directory.  If it is more convenient
-to push the application from another directory, use the `path` parameter of `cf push` to specify the
-directory containing the `start` script. This avoids needlessly uploading additional files.
+This buildpack requires the `start` script and the `lib` directory (or, equivalently, the `staged` directory) to reside directly in the application directory or in an immediate subdirectory of the
+application directory.
 
 <b>Temporary restriction:</b> this buildpack does not yet support Play applications that use JPA.
 

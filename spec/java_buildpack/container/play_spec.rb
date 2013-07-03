@@ -40,6 +40,14 @@ module JavaBuildpack::Container
       expect(detected).to be_nil
     end
 
+    it 'should not detect an application which is too deeply nested in the application directory' do
+      detected = Play.new(
+          :app_dir => 'spec/fixtures/container_play_too_deep',
+          :configuration => {}).detect
+
+      expect(detected).to be_nil
+    end
+
     it 'should fail if a Play application is in more than one directory' do
       expect {Play.new(
           :app_dir => 'spec/fixtures/container_play_duplicate',
@@ -85,7 +93,7 @@ module JavaBuildpack::Container
           :java_home => TEST_JAVA_HOME,
           :java_opts => TEST_JAVA_OPTS).release
 
-      expect(command).to eq("PATH=#{TEST_JAVA_HOME}/bin:$PATH JAVA_HOME=#{TEST_JAVA_HOME} spec/fixtures/container_play/application_root/start -Dhttp.port=$PORT #{TEST_JAVA_OPTS[0]}")
+      expect(command).to eq("PATH=#{TEST_JAVA_HOME}/bin:$PATH JAVA_HOME=#{TEST_JAVA_HOME} application_root/start -Dhttp.port=$PORT #{TEST_JAVA_OPTS[0]}")
     end
 
   end
