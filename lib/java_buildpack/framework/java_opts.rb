@@ -39,19 +39,20 @@ module JavaBuildpack::Framework
       @configuration.has_key?(CONFIGURATION_PROPERTY) ? CONTAINER_NAME : nil
     end
 
-    # Does nothing as no transformations are required when contributing Java options
+    # Ensures that none of the Java options specify memory configurations
     #
     # @return [void]
     def compile
+      parsed_java_opts.each do |option|
+        raise "Java option '#{option}' configures a memory region.  Use JRE configuration for this instead." if memory_option? option
+      end
     end
 
     # Adds the contents of +java.opts+ to the +context[:java_opts]+ for use when running the application
     #
     # @return [void]
     def release
-      @configuration[CONFIGURATION_PROPERTY].shellsplit.map do |java_opt|
-        @java_opts << java_opt.gsub(/([\s])/, '\\\\\1')
-      end
+      @java_opts.concat parsed_java_opts
     end
 
     private
@@ -59,6 +60,17 @@ module JavaBuildpack::Framework
     CONFIGURATION_PROPERTY = 'java_opts'.freeze
 
     CONTAINER_NAME = 'java-opts'.freeze
+
+    def memory_option?(option)
+      option =~/-Xms/ || option =~ /-Xmx/ || option =~ /-XX:MaxMetaspaceSize/ || option =~ /-XX:MaxPermSize/ ||
+        option =~ /-Xss/
+    end
+
+    def parsed_java_opts
+      @configuration[CONFIGURATION_PROPERTY].shellsplit.map do |java_opt|
+        java_opt.gsub(/([\s])/, '\\\\\1')
+      end
+    end
 
   end
 
