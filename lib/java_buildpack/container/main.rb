@@ -14,6 +14,7 @@
 # limitations under the License.
 
 require 'java_buildpack/container'
+require 'java_buildpack/container/container_utils'
 require 'java_buildpack/util/properties'
 
 module JavaBuildpack::Container
@@ -56,7 +57,11 @@ module JavaBuildpack::Container
     #
     # @return [String] the command to run the application.
     def release
-      "#{@java_home}/bin/java -cp .#{java_opts}#{space main_class}#{arguments}"
+      java_opts_string = ContainerUtils.space(ContainerUtils.to_java_opts_s(@java_opts))
+      main_class_string = ContainerUtils.space(main_class)
+      arguments_string = ContainerUtils.space(arguments)
+
+      "#{@java_home}/bin/java -cp .#{java_opts_string}#{main_class_string}#{arguments_string}"
     end
 
     private
@@ -69,10 +74,6 @@ module JavaBuildpack::Container
 
     MANIFEST_PROPERTY = 'Main-Class'.freeze
 
-    def java_opts
-      space @java_opts.compact.sort.join(' ')
-    end
-
     def manifest
       manifest_file = File.join(@app_dir, 'META-INF', 'MANIFEST.MF')
       manifest_file = File.exists?(manifest_file) ? manifest_file : nil
@@ -84,13 +85,8 @@ module JavaBuildpack::Container
     end
 
     def arguments
-      space @configuration[ARGUMENTS_PROPERTY]
+      @configuration[ARGUMENTS_PROPERTY]
     end
-
-    def space(value)
-      value.nil? || value == '' ? '' : ' ' + value
-    end
-
   end
 
 end

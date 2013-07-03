@@ -15,6 +15,7 @@
 
 require 'uri'
 require 'java_buildpack/container'
+require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
@@ -62,8 +63,9 @@ module JavaBuildpack::Container
     # @return [String] the command to run the application.
     def release
       @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
+      java_opts_string = ContainerUtils.to_java_opts_s(@java_opts)
 
-      "JAVA_HOME=#{@java_home} JAVA_OPTS=\"#{java_opts}\" #{TOMCAT_HOME}/bin/catalina.sh run"
+      "JAVA_HOME=#{@java_home} JAVA_OPTS=\"#{java_opts_string}\" #{TOMCAT_HOME}/bin/catalina.sh run"
     end
 
     private
@@ -143,10 +145,6 @@ module JavaBuildpack::Container
 
     def id(version)
       "tomcat-#{version}"
-    end
-
-    def java_opts
-      @java_opts.compact.sort.join(' ')
     end
 
     def link_application

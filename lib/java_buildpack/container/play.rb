@@ -15,6 +15,7 @@
 
 require 'uri'
 require 'java_buildpack/container'
+require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
@@ -58,7 +59,9 @@ module JavaBuildpack::Container
     # @return [String] the command to run the application.
     def release
       @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
-      "PATH=#{@java_home}/bin:$PATH JAVA_HOME=#{@java_home} ./#{PLAY_START_SCRIPT} #{java_opts}"
+      java_opts_string = ContainerUtils.space(ContainerUtils.to_java_opts_s(@java_opts))
+
+      "PATH=#{@java_home}/bin:$PATH JAVA_HOME=#{@java_home} ./#{PLAY_START_SCRIPT}#{java_opts_string}"
     end
 
     private
@@ -76,10 +79,6 @@ module JavaBuildpack::Container
       File.exists?(@start_script_path) && !File.directory?(@start_script_path) &&
           (!Dir.glob(File.join(@app_dir, PLAY_JAR_PATTERN)).empty? ||
               !Dir.glob(File.join(@app_dir, PLAY_JAR_STAGED_PATTERN)).empty?)
-    end
-
-    def java_opts
-      @java_opts.compact.sort.join(' ')
     end
 
   end
