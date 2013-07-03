@@ -36,10 +36,10 @@ The following optional properties may be specified in the `memory_sizes` mapping
 
 | Name | Description
 | ---- | -----------
-| `heap` | The Java maximum heap size to use. For example, a value of `64m` will result in the java command line option `-Xmx64m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-Xmx`.
-| `metaspace` | The Java maximum Metaspace size to use. This is applicable to versions of OpenJDK from 1.8 onwards. For example, a value of `128m` will result in the java command line option `-XX:MaxMetaspaceSize=128m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-XX:MaxMetaspaceSize=`.
-| `permgen` | The Java maximum PermGen size to use. This is applicable to versions of OpenJDK earlier than 1.8. For example, a value of `128m` will result in the java command line option `-XX:MaxPermSize=128m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-XX:MaxPermSize=`.
-| `stack` | The Java stack size to use. For example, a value of `256k` will result in the java command line option `-Xss256k`. Values containing whitespace are rejected with an error, but all others values appear without modification on the java command line appended to `-Xss`.
+| `heap` | The Java maximum heap size to use. For example, a value of `64m` will result in the Java command line option `-Xmx64m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line appended to `-Xmx`.
+| `metaspace` | The Java maximum Metaspace size to use. This is applicable to versions of OpenJDK from 1.8 onwards. For example, a value of `128m` will result in the Java command line option `-XX:MaxMetaspaceSize=128m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line appended to `-XX:MaxMetaspaceSize=`.
+| `permgen` | The Java maximum PermGen size to use. This is applicable to versions of OpenJDK earlier than 1.8. For example, a value of `128m` will result in the Java command line option `-XX:MaxPermSize=128m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line appended to `-XX:MaxPermSize=`.
+| `stack` | The Java stack size to use. For example, a value of `256k` will result in the Java command line option `-Xss256k`. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line appended to `-Xss`.
 
 ### Default Memory Sizes
 
