@@ -45,6 +45,6 @@ The following optional properties may be specified in the `memory_sizes` mapping
 
 If some memory sizes are not specified using the above properties, default values are provided. For maximum heap, Metaspace, or PermGen size, the default value is based on a proportion of the total memory specified when the application was pushed. For stack size, the default value is one megabyte.
 
-If a memory size is specified which are not equal to the default value, the defaults are adjusted proportionately, except that the default stack size is never adjusted.
+If a memory size is specified which is not equal to the default value, the other default values are adjusted proportionately, except that the default stack size is never adjusted.
 
 The default memory size proportions are configured in the `memory_heuristics` mapping of [`config/openjdk.yml`][openjdk_yml]. Each memory size is given a weighting between `0` and `1` corresponding to a proportion of the total memory specified when the application was pushed. The weightings should add up to `1`.
