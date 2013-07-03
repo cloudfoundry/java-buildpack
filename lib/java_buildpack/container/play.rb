@@ -62,7 +62,7 @@ module JavaBuildpack::Container
       @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
       java_opts_string = ContainerUtils.space(ContainerUtils.to_java_opts_s(@java_opts))
 
-      "PATH=#{@java_home}/bin:$PATH JAVA_HOME=#{@java_home} ./#{PLAY_START_SCRIPT}#{java_opts_string}"
+      "PATH=#{@java_home}/bin:$PATH JAVA_HOME=#{@java_home} #{@start_script_path}#{java_opts_string}"
     end
 
     private

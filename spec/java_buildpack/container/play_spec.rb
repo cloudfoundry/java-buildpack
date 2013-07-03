@@ -85,7 +85,7 @@ module JavaBuildpack::Container
           :java_home => TEST_JAVA_HOME,
           :java_opts => TEST_JAVA_OPTS).release
 
-      expect(command).to eq("PATH=#{TEST_JAVA_HOME}/bin:$PATH JAVA_HOME=#{TEST_JAVA_HOME} ./start -Dhttp.port=$PORT #{TEST_JAVA_OPTS[0]}")
+      expect(command).to eq("PATH=#{TEST_JAVA_HOME}/bin:$PATH JAVA_HOME=#{TEST_JAVA_HOME} spec/fixtures/container_play/application_root/start -Dhttp.port=$PORT #{TEST_JAVA_OPTS[0]}")
     end
 
   end
