@@ -15,6 +15,7 @@
 
 require 'java_buildpack'
 require 'java_buildpack/util/constantize'
+require 'java_buildpack/util/logger'
 require 'fileutils'
 require 'pathname'
 require 'time'
@@ -33,10 +34,11 @@ module JavaBuildpack
     #
     # @param [String] app_dir The application directory
     def initialize(app_dir)
-      Buildpack.create_log_file app_dir
-      Buildpack.dump_environment_variables
+      @logger = JavaBuildpack::Util::Logger.new(app_dir)
+
+      Buildpack.dump_environment_variables @logger
       Buildpack.require_component_files
-      components = Buildpack.components
+      components = Buildpack.components @logger
 
       java_home = ''
       java_opts = Array.new
@@ -45,15 +47,14 @@ module JavaBuildpack
           :app_dir => app_dir,
           :java_home => java_home,
           :java_opts => java_opts,
-          :diagnostics => {:directory => @@diagnostics_dir, :log_file => @@buildpack_log_file}
+          :diagnostics => {:directory => @logger.diagnostics_directory}
       }
 
-      @jres = Buildpack.construct_components(components, 'jres', basic_context)
+      @jres = Buildpack.construct_components(components, 'jres', basic_context, @logger)
 
-      @frameworks = Buildpack.construct_components(components, 'frameworks', basic_context)
+      @frameworks = Buildpack.construct_components(components, 'frameworks', basic_context, @logger)
 
-      @containers = Buildpack.construct_components(components, 'containers', basic_context)
-
+      @containers = Buildpack.construct_components(components, 'containers', basic_context, @logger)
     end
 
     # Iterates over all of the components to detect if this buildpack can be used to run an application
@@ -71,7 +72,7 @@ module JavaBuildpack
       raise "Application can be run by more than one container: #{container_detections.join(', ')}" if container_detections.size > 1
 
       tags = container_detections.empty? ? [] : jre_detections.concat(framework_detections).concat(container_detections).flatten.compact
-      Buildpack.log('detect tags', tags)
+      @logger.log('Detection Tags', tags)
       tags
     end
 
@@ -100,82 +101,57 @@ module JavaBuildpack
               'web' => command
           }
       }.to_yaml
-      Buildpack.log('release payload', payload)
-      payload
-    end
 
-    # Logs data with a given title and the current time in the buildpack's log file.
-    #
-    # @param [String] log_title Title for the log entry
-    # @param [Hash, String] log_data Data to be logged
-    def self.log(log_title, log_data)
-      File.open(@@buildpack_log_file, 'a') do |log_file|
-        log_file.sync = true
-        log_file.write "#{log_title} @ #{time_in_millis}::\n"
-        log_file.write(log_data.is_a?(Hash) ? log_data.to_yaml: log_data)
-      end
+      @logger.log('Release Payload', payload)
+
+      payload
     end
 
     private
 
     COMPONENTS_CONFIG = '../../config/components.yml'.freeze
 
-    DIAGNOSTICS_DIRECTORY = 'buildpack-diagnostics'.freeze
 
-    LOG_FILE_NAME = 'buildpack.log'.freeze
-
-    def self.create_log_file(app_dir)
-      @@diagnostics_dir = File.expand_path(DIAGNOSTICS_DIRECTORY, app_dir)
-      FileUtils.mkdir_p @@diagnostics_dir
-      @@buildpack_log_file = File.expand_path(LOG_FILE_NAME, @@diagnostics_dir)
-
-      # Create new log file and write current time into it.
-      File.open(@@buildpack_log_file, 'a') do |log_file|
-        log_file.sync = true
-        log_file.write "#{@@buildpack_log_file} @ #{time_in_millis}\n"
-      end
-    end
-
-    def self.time_in_millis
-      Time.now.xmlschema(3).sub(/T/, ' ')
-    end
-
-    def self.dump_environment_variables
-      env = ENV.to_hash
-      log('Environment variables', env)
+    def self.dump_environment_variables(logger)
+      logger.log('Environment Variables', ENV.to_hash)
     end
 
     def self.component_detections(components)
-      components.map {|component| component.detect}.compact
+      components.map { |component| component.detect }.compact
     end
 
-    def self.components
+    def self.components(logger)
       expanded_path = File.expand_path(COMPONENTS_CONFIG, File.dirname(__FILE__))
       components = YAML.load_file(expanded_path)
-      log(expanded_path, components)
+
+      logger.log(expanded_path, components)
+
       components
     end
 
-    def self.configuration(app_dir, type)
+    def self.configuration(app_dir, type, logger)
       name = type.match(/^(?:.*::)?(.*)$/)[1].downcase
       config_file = File.expand_path("../../config/#{name}.yml", File.dirname(__FILE__))
 
       if File.exists? config_file
         configuration = YAML.load_file(config_file)
-        log(config_file, configuration)
+
+        logger.log(config_file, configuration)
       end
 
       configuration || {}
     end
 
-    def self.configure_context(basic_context, type)
+    def self.configure_context(basic_context, type, logger)
       configured_context = basic_context.clone
-      configured_context[:configuration] = Buildpack.configuration(configured_context[:app_dir], type)
+      configured_context[:configuration] = Buildpack.configuration(configured_context[:app_dir], type, logger)
       configured_context
     end
 
-    def self.construct_components(components, component, basic_context)
-      components[component].map {|component| component.constantize.new(Buildpack.configure_context(basic_context, component))}
+    def self.construct_components(components, component, basic_context, logger)
+      components[component].map do |component|
+        component.constantize.new(Buildpack.configure_context(basic_context, component, logger))
+      end
     end
 
     def self.container_directory
