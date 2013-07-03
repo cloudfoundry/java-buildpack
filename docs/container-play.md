@@ -7,7 +7,7 @@ The Play Container allows Play applications to be run.
 	directory or one of its immediate subdirectories (but not in both)</td>
   </tr>
   <tr>
-    <td><strong>Tags</strong></td><td><tt>Play</tt></td>
+    <td><strong>Tags</strong></td><td><tt>play</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script

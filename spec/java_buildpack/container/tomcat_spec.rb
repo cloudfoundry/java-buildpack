@@ -94,6 +94,67 @@ module JavaBuildpack::Container
       end
     end
 
+    it 'should link the application directory to the ROOT webapp' do
+      Dir.mktmpdir do |root|
+        Dir.mkdir File.join(root, 'WEB-INF')
+
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
+          .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
+
+        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
+        application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
+        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
+
+        Tomcat.new(
+          :app_dir => root,
+          :configuration => { }
+        ).compile
+
+        root_webapp = File.join root, '.tomcat', 'webapps', 'ROOT'
+        expect(File.exists?(root_webapp)).to be_true
+        expect(File.symlink?(root_webapp)).to be_true
+        expect(File.readlink(root_webapp)).to eq('../..')
+      end
+    end
+
+    it 'should link additional libraries to the ROOT webapp' do
+      Dir.mktmpdir do |root|
+        Dir.mkdir File.join root, 'WEB-INF'
+        lib_directory = File.join root, '.lib'
+        FileUtils.mkdir_p lib_directory
+
+        Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
+
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
+          .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
+
+        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
+        application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
+        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
+
+        Tomcat.new(
+          :app_dir => root,
+          :lib_directory => lib_directory,
+          :configuration => { }
+        ).compile
+
+        lib = File.join root, '.tomcat', 'webapps', 'ROOT', 'WEB-INF', 'lib'
+        test_jar_1 = File.join lib, 'test-jar-1.jar'
+        test_jar_2 = File.join lib, 'test-jar-2.jar'
+        test_text = File.join lib, 'test-text.txt'
+
+        expect(File.exists?(test_jar_1)).to be_true
+        expect(File.symlink?(test_jar_1)).to be_true
+        expect(File.readlink(test_jar_1)).to eq('../../.lib/test-jar-1.jar')
+
+        expect(File.exists?(test_jar_2)).to be_true
+        expect(File.symlink?(test_jar_2)).to be_true
+        expect(File.readlink(test_jar_2)).to eq('../../.lib/test-jar-2.jar')
+
+        expect(File.exists?(test_text)).to be_false
+      end
+    end
+
     it 'should return command' do
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
         .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)

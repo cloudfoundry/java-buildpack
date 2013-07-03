@@ -14,8 +14,8 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'fileutils'
 require 'java_buildpack/jre/openjdk'
-require 'tmpdir'
 
 module JavaBuildpack::Jre
 
@@ -41,7 +41,7 @@ module JavaBuildpack::Jre
             :java_home => '',
             :java_opts => [],
             :configuration => {},
-            :diagnostics => {:directory => root}
+            :diagnostics => {:directory => '.diag'}
         ).detect
 
         expect(detected).to eq('openjdk-1.7.0')
@@ -54,12 +54,14 @@ module JavaBuildpack::Jre
         JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
         application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-java.tar.gz'))
 
+        FileUtils.mkdir_p(File.join(root, '.diag'))
+
         OpenJdk.new(
             :app_dir => root,
             :configuration => {},
             :java_home => '',
             :java_opts => [],
-            :diagnostics => {:directory => root}
+            :diagnostics => {:directory => '.diag'}
         ).compile
 
         java = File.join(root, '.java', 'bin', 'java')
@@ -77,7 +79,7 @@ module JavaBuildpack::Jre
             :java_home => java_home,
             :java_opts => [],
             :configuration => {},
-            :diagnostics => {:directory => root}
+            :diagnostics => {:directory => '.diag'}
         )
 
         expect(java_home).to eq('.java')
@@ -92,7 +94,7 @@ module JavaBuildpack::Jre
             :java_home => '',
             :java_opts => [],
             :configuration => {},
-            :diagnostics => {:directory => root}
+            :diagnostics => {:directory => '.diag'}
         ).detect }.to raise_error(/OpenJDK\ JRE\ error:\ test\ error/)
       end
     end
@@ -108,7 +110,7 @@ module JavaBuildpack::Jre
             :java_home => '',
             :java_opts => java_opts,
             :configuration => {},
-            :diagnostics => {:directory => root}
+            :diagnostics => {:directory => '.diag'}
         ).release
 
         expect(java_opts).to include('opt-1')
@@ -122,14 +124,14 @@ module JavaBuildpack::Jre
 
         java_opts = []
         OpenJdk.new(
-            :app_dir => '',
+            :app_dir => root,
             :java_home => '',
             :java_opts => java_opts,
             :configuration => {},
-            :diagnostics => {:directory => root}
+            :diagnostics => {:directory => '.diag'}
         ).release
 
-        expect(java_opts).to include("-XX:OnOutOfMemoryError=#{root}/killjava")
+        expect(java_opts).to include("-XX:OnOutOfMemoryError=.diag/killjava")
       end
     end
 

@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'fileutils'
 require 'java_buildpack'
 require 'java_buildpack/util/constantize'
 require 'java_buildpack/util/logger'
-require 'fileutils'
 require 'pathname'
 require 'time'
 require 'yaml'
@@ -42,11 +42,13 @@ module JavaBuildpack
 
       java_home = ''
       java_opts = Array.new
+      @lib_directory = Buildpack.lib_directory app_dir
 
       basic_context = {
           :app_dir => app_dir,
           :java_home => java_home,
           :java_opts => java_opts,
+          :lib_directory => @lib_directory,
           :diagnostics => {:directory => JavaBuildpack::Util::Logger::DIAGNOSTICS_DIRECTORY}
       }
 
@@ -80,6 +82,8 @@ module JavaBuildpack
     #
     # @return [void]
     def compile
+      FileUtils.mkdir_p @lib_directory
+
       jre.compile
       frameworks.each { |framework| framework.compile }
       container.compile
@@ -111,6 +115,7 @@ module JavaBuildpack
 
     COMPONENTS_CONFIG = '../../config/components.yml'.freeze
 
+    LIB_DIRECTORY = '.lib'
 
     def self.dump_environment_variables(logger)
       logger.log('Environment Variables', ENV.to_hash)
@@ -164,6 +169,10 @@ module JavaBuildpack
 
     def self.jre_directory
       Pathname.new(File.expand_path('jre', File.dirname(__FILE__)))
+    end
+
+    def self.lib_directory(app_dir)
+      lib_directory = File.join app_dir, LIB_DIRECTORY
     end
 
     def self.require_component_files

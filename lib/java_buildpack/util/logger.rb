@@ -14,6 +14,7 @@
 # limitations under the License.
 
 require 'java_buildpack/util'
+require 'fileutils'
 
 module JavaBuildpack::Util
 

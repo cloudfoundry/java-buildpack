@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'uri'
+require 'fileutils'
 require 'java_buildpack/container'
 require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
@@ -31,11 +31,13 @@ module JavaBuildpack::Container
     # @option context [String] :app_dir the directory that the application exists in
     # @option context [String] :java_home the directory that acts as +JAVA_HOME+
     # @option context [Array<String>] :java_opts an array that Java options can be added to
+    # @option context [String] :lib_directory the directory that additional libraries are placed in
     # @option context [Hash] :configuration the properties provided by the user
     def initialize(context)
       @app_dir = context[:app_dir]
       @java_home = context[:java_home]
       @java_opts = context[:java_opts]
+      @lib_directory = context[:lib_directory]
       @configuration = context[:configuration]
       @tomcat_version, @tomcat_uri = Tomcat.find_tomcat(@app_dir, @configuration)
       @support_version, @support_uri = Tomcat.find_support(@app_dir, @configuration)
@@ -49,13 +51,14 @@ module JavaBuildpack::Container
       @tomcat_version ? id(@tomcat_version) : nil
     end
 
-    # Downloads and unpacks a Tomcat instance
+    # Downloads and unpacks a Tomcat instance and support JAR
     #
     # @return [void]
     def compile
       download_tomcat
       download_support
       link_application
+      link_libs
     end
 
     # Creates the command to run the Tomcat application.
@@ -63,9 +66,12 @@ module JavaBuildpack::Container
     # @return [String] the command to run the application.
     def release
       @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
-      java_opts_string = ContainerUtils.to_java_opts_s(@java_opts)
 
-      "JAVA_HOME=#{@java_home} JAVA_OPTS=\"#{java_opts_string}\" #{TOMCAT_HOME}/bin/catalina.sh run"
+      java_home_string = "JAVA_HOME=#{@java_home}"
+      java_opts_string = ContainerUtils.space("JAVA_OPTS=\"#{ContainerUtils.to_java_opts_s(@java_opts)}\"")
+      start_script_string = ContainerUtils.space(File.join TOMCAT_HOME, 'bin', 'catalina.sh')
+
+      "#{java_home_string}#{java_opts_string}#{start_script_string} run"
     end
 
     private
@@ -74,7 +80,7 @@ module JavaBuildpack::Container
 
     KEY_SUPPORT = 'support'.freeze
 
-    RESOURCES = '../../../resources/tomcat'.freeze
+    RESOURCES = File.join('..', '..', '..', 'resources', 'tomcat').freeze
 
     TOMCAT_HOME = '.tomcat'.freeze
 
@@ -82,7 +88,7 @@ module JavaBuildpack::Container
 
     def copy_resources(tomcat_home)
       resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
-      system "cp -r #{resources}/* #{tomcat_home}"
+      system "cp -r #{File.join resources, '*'} #{tomcat_home}"
     end
 
     def download_tomcat
@@ -100,7 +106,7 @@ module JavaBuildpack::Container
       print "-----> Downloading Buildpack Tomcat Support #{@support_version} from #{@support_uri} "
 
       JavaBuildpack::Util::ApplicationCache.new.get(@support_uri) do |file|  # TODO Use global cache #50175265
-        system "cp #{file.path} #{tomcat_home}/lib/tomcat-buildpack-support.jar"
+        system "cp #{file.path} #{File.join tomcat_home, 'lib', 'tomcat-buildpack-support.jar'}"
         puts "(#{(Time.now - download_start_time).duration})"
       end
     end
@@ -111,7 +117,7 @@ module JavaBuildpack::Container
 
       system "rm -rf #{tomcat_home}"
       system "mkdir -p #{tomcat_home}"
-      system "tar xzf #{file.path} -C #{tomcat_home} --strip 1 --exclude webapps --exclude conf/server.xml --exclude conf/context.xml 2>&1"
+      system "tar xzf #{file.path} -C #{tomcat_home} --strip 1 --exclude webapps --exclude #{File.join 'conf', 'server.xml'} --exclude #{File.join 'conf', 'context.xml'} 2>&1"
 
       copy_resources tomcat_home
       puts "(#{(Time.now - expand_start_time).duration})"
@@ -148,16 +154,34 @@ module JavaBuildpack::Container
     end
 
     def link_application
-      webapps = "#{tomcat_home}/webapps"
-      root = "#{webapps}/ROOT"
-
       system "rm -rf #{root}"
       system "mkdir -p #{webapps}"
-      system "ln -s ../.. #{root}"
+      system "ln -s #{File.join '..', '..'} #{root}"
+    end
+
+    def link_libs
+      libs = ContainerUtils.libs(@app_dir, @lib_directory)
+
+      if libs
+        FileUtils.mkdir_p(web_inf_lib) unless File.exists?(web_inf_lib)
+        libs.each { |lib| system "ln -s #{File.join '..', '..', lib} #{web_inf_lib}" }
+      end
+    end
+
+    def root
+      File.join webapps, 'ROOT'
     end
 
     def tomcat_home
       File.join @app_dir, TOMCAT_HOME
+    end
+
+    def webapps
+      File.join tomcat_home, 'webapps'
+    end
+
+    def web_inf_lib
+      File.join root, 'WEB-INF', 'lib'
     end
 
     def self.web_inf?(app_dir)
