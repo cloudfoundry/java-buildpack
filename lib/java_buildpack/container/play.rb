@@ -81,9 +81,9 @@ module JavaBuildpack::Container
     end
 
     def play_dir
-      dirs = Dir.glob([@app_dir, File.join(@app_dir, '/*')]).select do |file|
-        File.directory?(file) && File.exists?("#{file}/#{PLAY_START_SCRIPT}") && (!Dir.glob(File.join(file, PLAY_JAR_PATTERN)).empty? ||
-            !Dir.glob(File.join(file, PLAY_JAR_STAGED_PATTERN)).empty?)
+      dirs = Dir[@app_dir, File.join(@app_dir, '/*')].select do |file|
+        File.directory?(file) && File.exists?("#{file}/#{PLAY_START_SCRIPT}") && (Dir[File.join(file, PLAY_JAR_PATTERN)].any? ||
+            Dir[File.join(file, PLAY_JAR_STAGED_PATTERN)].any?)
       end
       raise "Play application detected in multiple directories: #{dirs}" if dirs.size > 1
       dirs.empty? ? nil : dirs[0]
