@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for Tomcat
+# Configuration for the Tomcat container
 ---
 version: 7.0.+
 repository_root: "http://download.pivotal.io.s3.amazonaws.com/tomcat/lucid/x86_64"

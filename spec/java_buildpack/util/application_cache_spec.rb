@@ -15,7 +15,6 @@
 
 require 'spec_helper'
 require 'java_buildpack/util/application_cache'
-require 'tmpdir'
 
 module JavaBuildpack::Util
 

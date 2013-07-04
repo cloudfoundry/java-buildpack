@@ -38,7 +38,7 @@ module JavaBuildpack::Jre
       @app_dir = context[:app_dir]
       @java_opts = context[:java_opts]
       @configuration = context[:configuration]
-      @diagnostics_directory = File.join @app_dir, context[:diagnostics][:directory]
+      @diagnostics_directory = context[:diagnostics][:directory]
       @version, @uri = OpenJdk.find_openjdk(@configuration)
 
       context[:java_home].concat JAVA_HOME
@@ -123,9 +123,7 @@ module JavaBuildpack::Jre
 
     def copy_resources
       resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
-
-      FileUtils.mkdir_p @diagnostics_directory
-      system "cp -r #{resources}/* #{@diagnostics_directory}"
+      system "cp -r #{resources}/* #{File.join @app_dir, @diagnostics_directory}"
     end
 
   end

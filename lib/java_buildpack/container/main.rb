@@ -30,11 +30,13 @@ module JavaBuildpack::Container
     # @option context [String] :app_dir the directory that the application exists in
     # @option context [String] :java_home the directory that acts as +JAVA_HOME+
     # @option context [Array<String>] :java_opts an array that Java options can be added to
+    # @option context [String] :lib_directory the directory that additional libraries are placed in
     # @option context [Hash] :configuration the properties provided by the user
     def initialize(context = {})
       @app_dir = context[:app_dir]
       @java_home = context[:java_home]
       @java_opts = context[:java_opts]
+      @lib_directory = context[:lib_directory]
       @configuration = context[:configuration]
     end
 
@@ -57,11 +59,13 @@ module JavaBuildpack::Container
     #
     # @return [String] the command to run the application.
     def release
+      java_string = File.join @java_home, 'bin', 'java'
+      classpath_string = ContainerUtils.space(classpath(@app_dir, @lib_directory))
       java_opts_string = ContainerUtils.space(ContainerUtils.to_java_opts_s(@java_opts))
       main_class_string = ContainerUtils.space(main_class)
       arguments_string = ContainerUtils.space(arguments)
 
-      "#{@java_home}/bin/java -cp .#{java_opts_string}#{main_class_string}#{arguments_string}"
+      "#{java_string}#{classpath_string}#{java_opts_string}#{main_class_string}#{arguments_string}"
     end
 
     private
@@ -73,6 +77,13 @@ module JavaBuildpack::Container
     CONTAINER_NAME = 'java-main'.freeze
 
     MANIFEST_PROPERTY = 'Main-Class'.freeze
+
+    def classpath(app_dir, lib_directory)
+      classpath = ['.']
+      classpath.concat ContainerUtils.libs(app_dir, lib_directory)
+
+      "-cp #{classpath.join(':')}"
+    end
 
     def manifest
       manifest_file = File.join(@app_dir, 'META-INF', 'MANIFEST.MF')

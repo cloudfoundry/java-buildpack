@@ -14,6 +14,7 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'fileutils'
 require 'java_buildpack/container/main'
 
 module JavaBuildpack::Container
@@ -53,29 +54,56 @@ module JavaBuildpack::Container
     end
 
     it 'should return command' do
-      command = Main.new(
-        :java_home => 'test-java-home',
-        :java_opts => [ 'test-opt-2', 'test-opt-1' ],
-        :configuration => { 'java_main_class' => 'test-java-main-class' }).release
+      Dir.mktmpdir do |root|
+        lib_directory = File.join(root, '.lib')
+        FileUtils.mkdir_p lib_directory
 
-      expect(command).to eq('test-java-home/bin/java -cp . test-opt-1 test-opt-2 test-java-main-class')
+        command = Main.new(
+          :app_dir => root,
+          :java_home => 'test-java-home',
+          :java_opts => [ 'test-opt-2', 'test-opt-1' ],
+          :lib_directory => lib_directory,
+          :configuration => { 'java_main_class' => 'test-java-main-class' }).release
+
+        expect(command).to eq("test-java-home/bin/java -cp . test-opt-1 test-opt-2 test-java-main-class")
+      end
     end
 
     it 'should return command line arguments when they are specified' do
-      command = Main.new(
-        :java_home => 'test-java-home',
-        :java_opts => [],
-        :configuration => { 'java_main_class' => 'test-java-main-class',
-                            'arguments' => 'some arguments'
-        }).release
+      Dir.mktmpdir do |root|
+        lib_directory = File.join(root, '.lib')
+        FileUtils.mkdir_p lib_directory
 
-      expect(command).to eq('test-java-home/bin/java -cp . test-java-main-class some arguments')
+        command = Main.new(
+          :app_dir => root,
+          :java_home => 'test-java-home',
+          :java_opts => [],
+          :lib_directory => lib_directory,
+          :configuration => { 'java_main_class' => 'test-java-main-class',
+                              'arguments' => 'some arguments'
+          }).release
+
+        expect(command).to eq('test-java-home/bin/java -cp . test-java-main-class some arguments')
+      end
+    end
+
+    it 'should return additional libs when they are specified' do
+      Dir.mktmpdir do |root|
+        lib_directory = File.join(root, '.lib')
+        FileUtils.mkdir_p lib_directory
+
+        Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
+
+        command = Main.new(
+          :app_dir => root,
+          :java_home => 'test-java-home',
+          :java_opts => [],
+          :lib_directory => lib_directory,
+          :configuration => { 'java_main_class' => 'test-java-main-class' }).release
+
+        expect(command).to eq('test-java-home/bin/java -cp .:.lib/test-jar-1.jar:.lib/test-jar-2.jar test-java-main-class')
+      end
     end
   end
 
-end
-
-module Test
-  class StubContainer
-  end
 end

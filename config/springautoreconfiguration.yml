@@ -13,16 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'simplecov'
-SimpleCov.start do
-  add_filter 'spec'
-end
-
-require 'tmpdir'
-require 'webmock/rspec'
-
-RSpec.configure do |config|
-  config.treat_symbols_as_metadata_keys_with_true_values = true
-  config.run_all_when_everything_filtered = true
-  config.filter_run :focus
-end
+# Configuration for the Spring Auto Reconfiguration framework
+---
+version: 0.6.+
+repository_root: "http://download.pivotal.io.s3.amazonaws.com/auto-reconfiguration/lucid/x86_64"

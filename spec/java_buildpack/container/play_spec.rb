@@ -59,7 +59,7 @@ module JavaBuildpack::Container
           :app_dir => 'spec/fixtures/container_play',
           :configuration => {}).detect
 
-      expect(detected).to eq('Play')
+      expect(detected).to eq('play')
     end
 
     it 'should detect a staged application with a start script and a suitable Play JAR' do
@@ -67,7 +67,7 @@ module JavaBuildpack::Container
           :app_dir => 'spec/fixtures/container_play_staged',
           :configuration => {}).detect
 
-      expect(detected).to eq('Play')
+      expect(detected).to eq('play')
     end
 
     it 'should not detect an application with a start script but no suitable Play JAR' do
@@ -82,8 +82,74 @@ module JavaBuildpack::Container
       play = Play.new(
           :app_dir => 'spec/fixtures/container_play',
           :configuration => {})
-      play.should_receive(:`).with('chmod +x spec/fixtures/container_play/application_root/start').and_return('')
-      detected = play.compile
+
+      play.should_receive(:system).with('chmod +x spec/fixtures/container_play/application_root/start').and_return('')
+
+      play.compile
+    end
+
+    it 'should link additional libraries to staged' do
+      Dir.mktmpdir do |root|
+        additional_lib_directory = File.join root, '.lib'
+        staged_directory = File.join root, 'staged'
+
+        FileUtils.mkdir_p additional_lib_directory
+        FileUtils.mkdir_p staged_directory
+        FileUtils.touch File.join root, 'start'
+        FileUtils.touch File.join staged_directory, 'play_0.0.0.jar'
+        Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{additional_lib_directory}" }
+
+        Play.new(
+          :app_dir => root,
+          :lib_directory => additional_lib_directory,
+          :configuration => {}).compile
+
+        test_jar_1 = File.join staged_directory, 'test-jar-1.jar'
+        test_jar_2 = File.join staged_directory, 'test-jar-2.jar'
+        test_text = File.join staged_directory, 'test-text.txt'
+
+        expect(File.exists?(test_jar_1)).to be_true
+        expect(File.symlink?(test_jar_1)).to be_true
+        expect(File.readlink(test_jar_1)).to eq('../.lib/test-jar-1.jar')
+
+        expect(File.exists?(test_jar_2)).to be_true
+        expect(File.symlink?(test_jar_2)).to be_true
+        expect(File.readlink(test_jar_2)).to eq('../.lib/test-jar-2.jar')
+
+        expect(File.exists?(test_text)).to be_false
+      end
+    end
+
+    it 'should link additional libraries to lib' do
+      Dir.mktmpdir do |root|
+        additional_lib_directory = File.join root, '.lib'
+        lib_directory = File.join root, 'staged'
+
+        FileUtils.mkdir_p additional_lib_directory
+        FileUtils.mkdir_p lib_directory
+        FileUtils.touch File.join root, 'start'
+        FileUtils.touch File.join lib_directory, 'play_0.0.0.jar'
+        Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{additional_lib_directory}" }
+
+        Play.new(
+          :app_dir => root,
+          :lib_directory => additional_lib_directory,
+          :configuration => {}).compile
+
+        test_jar_1 = File.join lib_directory, 'test-jar-1.jar'
+        test_jar_2 = File.join lib_directory, 'test-jar-2.jar'
+        test_text = File.join lib_directory, 'test-text.txt'
+
+        expect(File.exists?(test_jar_1)).to be_true
+        expect(File.symlink?(test_jar_1)).to be_true
+        expect(File.readlink(test_jar_1)).to eq('../.lib/test-jar-1.jar')
+
+        expect(File.exists?(test_jar_2)).to be_true
+        expect(File.symlink?(test_jar_2)).to be_true
+        expect(File.readlink(test_jar_2)).to eq('../.lib/test-jar-2.jar')
+
+        expect(File.exists?(test_text)).to be_false
+      end
     end
 
     it 'should produce the correct command in the release step' do
