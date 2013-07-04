@@ -24,10 +24,7 @@ for automatic re-binding to such services.
 
 `cloudfoundry-buildpack-java` allowed the Play `start` script (and the application's `lib` directory,
 although this is ignored during detection) to reside in an arbitrary subdirectory of the application directory.
-This buildpack requires the `start` script and the `lib` directory (or, equivalently, the `staged` directory) to reside directly in the application directory or in an immediate subdirectory of the
-application directory.
-
-<b>Temporary restriction:</b> this buildpack does not yet support Play applications that use JPA.
+This buildpack requires the `start` script and the `lib` directory (or, equivalently, the `staged` directory) containing a Play JAR to reside directly in the application directory or in an immediate subdirectory of the application directory.
 
 ## Grails Applications
 
