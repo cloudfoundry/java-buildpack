@@ -16,7 +16,7 @@
 require 'spec_helper'
 require 'open3'
 
-describe 'release script' do
+describe 'release script', :integration do
 
   it 'should return zero if success' do
     with_memory_limit('1G') do

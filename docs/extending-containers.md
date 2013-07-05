@@ -11,13 +11,15 @@ To add a container, the class file must be located in [`lib/java_buildpack/conta
 # @option context [String] :app_dir the directory that the application exists in
 # @option context [String] :java_home the directory that acts as +JAVA_HOME+
 # @option context [Array<String>] :java_opts an array that Java options can be added to
+# @option context [String] :lib_directory the directory that additional libraries are placed in
 # @option context [Hash] :configuration the configuration provided by the user
 def initialize(context)
 
 # Determines if the container can be used to run the application.
 #
-# @return [String, nil] If the container can be used to run the application, a +String+ that uniquely identifies the
-#                       container (e.g. +tomcat-7.0.29+).  Otherwise, +nil+.
+# @return [Array<String>, String, nil] If the container can be used to run the application, a +String+ or an
+#                                      +Array<String>+ that uniquely identifies the container (e.g.
+#                                      +tomcat-7.0.29+).  Otherwise, +nil+.
 def detect
 
 # Downloads and unpacks the container.  The container is expected to transform the application in whatever way

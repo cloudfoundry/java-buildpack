@@ -13,9 +13,9 @@ Tags are printed to standard output by the buildpack detect script
 
 
 ## Configuration
-The framework can be configured by modifying the [`config/java_opts.yml`][java_opts_yml] file.
+The framework can be configured by modifying the [`config/javaopts.yml`][javaopts_yml] file.
 
-[java_opts_yml]: ../config/java_opts.yml
+[javaopts_yml]: ../config/javaopts.yml
 
 | Name | Description
 | ---- | -----------

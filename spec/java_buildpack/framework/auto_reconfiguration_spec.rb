@@ -14,17 +14,18 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'java_buildpack/framework/spring_auto_reconfiguration'
+require 'java_buildpack/framework/auto_reconfiguration'
 
 module JavaBuildpack::Framework
 
-  describe SpringAutoReconfiguration do
+  describe AutoReconfiguration do
 
     AUTO_RECONFIGURATION_VERSION = JavaBuildpack::Util::TokenizedVersion.new('0.6.8')
 
     AUTO_RECONFIGURATION_DETAILS = [AUTO_RECONFIGURATION_VERSION, 'test-auto-reconfiguration-uri']
 
     let(:application_cache) { double('ApplicationCache') }
+    let(:web_xml_modifier) { double('WebXmlModifier') }
 
     before do
       $stdout = StringIO.new
@@ -34,15 +35,15 @@ module JavaBuildpack::Framework
     it 'should detect with Spring JAR' do
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(AUTO_RECONFIGURATION_DETAILS)
 
-      detected = SpringAutoReconfiguration.new(
-        :app_dir => 'spec/fixtures/framework_spring_auto_reconfiguration',
+      detected = AutoReconfiguration.new(
+        :app_dir => 'spec/fixtures/framework_auto_reconfiguration_servlet_3',
         :configuration => {}).detect
 
-      expect(detected).to eq('spring-auto-reconfiguration-0.6.8')
+      expect(detected).to eq('auto-reconfiguration-0.6.8')
     end
 
     it 'should not detect without Spring JAR' do
-      detected = SpringAutoReconfiguration.new(
+      detected = AutoReconfiguration.new(
         :app_dir => 'spec/fixtures/framework_none',
         :configuration => {}).detect
 
@@ -52,18 +53,43 @@ module JavaBuildpack::Framework
     it 'should copy additional libraries to the lib directory' do
       Dir.mktmpdir do |root|
         lib_directory = File.join root, '.lib'
-        FileUtils.mkdir_p lib_directory
+        Dir.mkdir lib_directory
 
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(AUTO_RECONFIGURATION_DETAILS)
         JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
         application_cache.stub(:get).with('test-auto-reconfiguration-uri').and_yield(File.open('spec/fixtures/stub-auto-reconfiguration.jar'))
 
-        SpringAutoReconfiguration.new(
-          :app_dir => 'spec/fixtures/framework_spring_auto_reconfiguration',
+        AutoReconfiguration.new(
+          :app_dir => 'spec/fixtures/framework_auto_reconfiguration_servlet_3',
           :lib_directory => lib_directory,
           :configuration => {}).compile
 
-        expect(File.exists? File.join(lib_directory, 'spring-auto-reconfiguration.jar')).to be_true
+        expect(File.exists? File.join(lib_directory, 'auto-reconfiguration-0.6.8.jar')).to be_true
+      end
+    end
+
+    it 'should update web.xml if it exists' do
+      Dir.mktmpdir do |root|
+        lib_directory = File.join root, '.lib'
+        Dir.mkdir lib_directory
+        FileUtils.cp_r 'spec/fixtures/framework_auto_reconfiguration_servlet_2/.', root
+        web_xml = File.join root, 'WEB-INF', 'web.xml'
+
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(AUTO_RECONFIGURATION_DETAILS)
+        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
+        application_cache.stub(:get).with('test-auto-reconfiguration-uri').and_yield(File.open('spec/fixtures/stub-auto-reconfiguration.jar'))
+        JavaBuildpack::Framework::WebXmlModifier.stub(:new).and_return(web_xml_modifier)
+        web_xml_modifier.should_receive(:augment_root_context)
+        web_xml_modifier.should_receive(:augment_servlet_contexts)
+        web_xml_modifier.stub(:to_s).and_return('Test Content')
+
+        AutoReconfiguration.new(
+          :app_dir => root,
+          :lib_directory => lib_directory,
+          :configuration => {}).compile
+
+
+        File.open(web_xml) { |file| expect(file.read).to eq('Test Content') }
       end
     end
 
