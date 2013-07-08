@@ -58,6 +58,7 @@ module JavaBuildpack::Jre
 
       balance_buckets(@sizes, buckets, memory_limit)
       issue_memory_wastage_warning(buckets) if memory_limit
+      issue_close_to_default_warnings(buckets, @heuristics, memory_limit)
 
       buckets.map { |type, bucket| "#{@java_opts[type]}#{bucket.size}" if bucket.size && @java_opts.has_key?(type) }.compact
     end
@@ -65,6 +66,8 @@ module JavaBuildpack::Jre
     private
 
     NATIVE_MEMORY_WARNING_FACTOR = 3
+
+    CLOSE_TO_DEFAULT_FACTOR = 0.1
 
     def balance_buckets(sizes, buckets, memory_limit)
       total_excess = MemorySize.ZERO
@@ -119,6 +122,22 @@ module JavaBuildpack::Jre
     def validate(type, expected, actual)
       actual.each do |key|
         raise "'#{key}' is not a valid memory #{type}" unless expected.include? key
+      end
+    end
+
+    def issue_close_to_default_warnings(buckets, heuristics, memory_limit)
+      # Check each specified memory size to see if it is close to the default.
+      buckets.each do |type, bucket|
+        if @sizes[type]
+          default_size = bucket.default_size
+          actual_size = bucket.size
+          if default_size != MemorySize.ZERO
+            factor = ((actual_size - default_size) / default_size).abs
+          end
+          if (default_size == MemorySize.ZERO && actual_size == MemorySize.ZERO) || factor < CLOSE_TO_DEFAULT_FACTOR
+            $stderr.puts "-----> WARNING: the configured value #{actual_size} of memory size #{type} is close to the default value #{default_size}. Consider deleting the configured value and taking the default."
+          end
+        end
       end
     end
 
