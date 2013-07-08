@@ -183,7 +183,29 @@ module JavaBuildpack::Jre
         expect(output).to include('-Xss2M')
         expect($stderr.string).to match(/WARNING:/)
       end
+    end
+
+    it 'should issue a warning when the specified stack size is close to the default' do
+      with_memory_limit('4096m') do
+        WeightBalancingMemoryHeuristic.new({'stack' => '1025k'}, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
+        expect($stderr.string).to match(/WARNING:.*close to the default/)
       end
+    end
+
+    it 'should issue a warning when the specified maximum heap size is close to the default' do
+      with_memory_limit('4096m') do
+        WeightBalancingMemoryHeuristic.new({'heap' => '2049m'}, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
+        expect($stderr.string).to match(/WARNING:.*close to the default/)
+      end
+    end
+
+   it 'should issue a warning when the specified maximum permgen size is close to the default' do
+      with_memory_limit('4096m') do
+        WeightBalancingMemoryHeuristic.new({'permgen' => '1339m'}, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
+        expect($stderr.string).to match(/WARNING:.*close to the default/)
+      end
+    end
+
 
     it 'should fail when the specified maximum memory is larger than the total memory size' do
       with_memory_limit('4096m') do

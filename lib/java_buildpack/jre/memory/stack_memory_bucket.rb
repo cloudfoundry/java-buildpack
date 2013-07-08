@@ -33,6 +33,8 @@ module JavaBuildpack::Jre
     # @param [Numeric] total_memory the total virtual memory size of the operating system process in KB
     def initialize(weighting, size, total_memory)
       super('stack', weighting, size, false, total_memory)
+      @weighting = weighting
+      @total_memory = total_memory
       set_size(DEFAULT_STACK_SIZE) unless size
     end
 
@@ -40,11 +42,18 @@ module JavaBuildpack::Jre
     #
     # @return [Numeric] the excess memory in KB
     def excess
-      if default_size
-        size ? default_size * ((size - DEFAULT_STACK_SIZE) / DEFAULT_STACK_SIZE) : 0
+      if @total_memory
+        size ? @total_memory * @weighting * ((size - DEFAULT_STACK_SIZE) / DEFAULT_STACK_SIZE) : 0
       else
         MemorySize.ZERO
       end
+    end
+
+    # Returns the default stack size.
+    #
+    # @return [MemorySize, nil] the default memory size or nil if there is no default
+    def default_size
+      DEFAULT_STACK_SIZE
     end
 
     private
