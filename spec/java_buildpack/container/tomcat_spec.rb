@@ -24,7 +24,7 @@ module JavaBuildpack::Container
 
     TOMCAT_DETAILS = [TOMCAT_VERSION, 'test-tomcat-uri']
 
-    SUPPORT_VERSION = JavaBuildpack::Util::TokenizedVersion.new('1.0.+')
+    SUPPORT_VERSION = JavaBuildpack::Util::TokenizedVersion.new('1.0.0')
 
     SUPPORT_DETAILS = [SUPPORT_VERSION, 'test-support-uri']
 
@@ -42,7 +42,8 @@ module JavaBuildpack::Container
           :app_dir => 'spec/fixtures/container_tomcat',
           :configuration => {}).detect
 
-      expect(detected).to eq('tomcat-7.0.40')
+      expect(detected).to include('tomcat-7.0.40')
+      expect(detected).to include('tomcat-buildpack-support-1.0.0')
     end
 
     it 'should not detect when WEB-INF is absent' do
@@ -89,7 +90,7 @@ module JavaBuildpack::Container
         server = File.join conf_dir, 'server.xml'
         expect(File.exists?(server)).to be_true
 
-        support = File.join tomcat_dir, 'lib', 'tomcat-buildpack-support.jar'
+        support = File.join tomcat_dir, 'lib', 'tomcat-buildpack-support-1.0.0.jar'
         expect(File.exists?(support)).to be_true
       end
     end
@@ -121,7 +122,7 @@ module JavaBuildpack::Container
       Dir.mktmpdir do |root|
         Dir.mkdir File.join root, 'WEB-INF'
         lib_directory = File.join root, '.lib'
-        FileUtils.mkdir_p lib_directory
+        Dir.mkdir lib_directory
 
         Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
 

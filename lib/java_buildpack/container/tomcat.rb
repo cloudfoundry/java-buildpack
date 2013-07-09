@@ -48,7 +48,7 @@ module JavaBuildpack::Container
     # @return [String] returns +tomcat-<version>+ if and only if the application has a +WEB-INF+ directory, otherwise
     #                  returns +nil+
     def detect
-      @tomcat_version ? id(@tomcat_version) : nil
+      @tomcat_version ? [tomcat_id(@tomcat_version), tomcat_support_id(@support_version)] : nil
     end
 
     # Downloads and unpacks a Tomcat instance and support JAR
@@ -106,7 +106,7 @@ module JavaBuildpack::Container
       print "-----> Downloading Buildpack Tomcat Support #{@support_version} from #{@support_uri} "
 
       JavaBuildpack::Util::ApplicationCache.new.get(@support_uri) do |file|  # TODO Use global cache #50175265
-        system "cp #{file.path} #{File.join tomcat_home, 'lib', 'tomcat-buildpack-support.jar'}"
+        system "cp #{file.path} #{File.join(tomcat_home, 'lib', support_jar_name(@support_version))}"
         puts "(#{(Time.now - download_start_time).duration})"
       end
     end
@@ -149,8 +149,12 @@ module JavaBuildpack::Container
       return version, uri
     end
 
-    def id(version)
+    def tomcat_id(version)
       "tomcat-#{version}"
+    end
+
+    def tomcat_support_id(version)
+      "tomcat-buildpack-support-#{version}"
     end
 
     def link_application
@@ -170,6 +174,10 @@ module JavaBuildpack::Container
 
     def root
       File.join webapps, 'ROOT'
+    end
+
+    def support_jar_name(version)
+      "#{tomcat_support_id version}.jar"
     end
 
     def tomcat_home

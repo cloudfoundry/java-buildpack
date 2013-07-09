@@ -93,8 +93,8 @@ module JavaBuildpack::Container
         additional_lib_directory = File.join root, '.lib'
         staged_directory = File.join root, 'staged'
 
-        FileUtils.mkdir_p additional_lib_directory
-        FileUtils.mkdir_p staged_directory
+        Dir.mkdir additional_lib_directory
+        Dir.mkdir staged_directory
         FileUtils.touch File.join root, 'start'
         FileUtils.touch File.join staged_directory, 'play_0.0.0.jar'
         Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{additional_lib_directory}" }
@@ -125,8 +125,8 @@ module JavaBuildpack::Container
         additional_lib_directory = File.join root, '.lib'
         lib_directory = File.join root, 'staged'
 
-        FileUtils.mkdir_p additional_lib_directory
-        FileUtils.mkdir_p lib_directory
+        Dir.mkdir additional_lib_directory
+        Dir.mkdir lib_directory
         FileUtils.touch File.join root, 'start'
         FileUtils.touch File.join lib_directory, 'play_0.0.0.jar'
         Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{additional_lib_directory}" }

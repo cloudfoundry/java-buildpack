@@ -11,13 +11,14 @@ To add a JRE, the class file must be located in [`lib/java_buildpack/jre`][jre_d
 # @option context [String] :app_dir the directory that the application exists in
 # @option context [String] :java_home the directory that acts as +JAVA_HOME+
 # @option context [Array<String>] :java_opts an array that Java options can be added to
+# @option context [String] :lib_directory the directory that additional libraries are placed in
 # @option context [Hash] :configuration the configuration provided by the user
 def initialize(context)
 
 # Determines if the JRE can be used to run the application.
 #
-# @return [String, nil] If the JRE can be used to run the application, a +String+ that uniquely identifies the JRE
-#                       (e.g. +openjdk-1.7.0_21+).  Otherwise, +nil+.
+# @return [Array<String>, String, nil] If the JRE can be used to run the application, a +String+ or an +Array<String>+
+#                                      that uniquely identifies the JRE (e.g. +openjdk-1.7.0_21+).  Otherwise, +nil+.
 def detect
 
 # Downloads and unpacks the JRE.  Status output written to +STDOUT+ is expected as part of this invocation.

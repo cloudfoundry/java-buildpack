@@ -56,7 +56,7 @@ module JavaBuildpack::Container
     it 'should return command' do
       Dir.mktmpdir do |root|
         lib_directory = File.join(root, '.lib')
-        FileUtils.mkdir_p lib_directory
+        Dir.mkdir lib_directory
 
         command = Main.new(
           :app_dir => root,
@@ -72,7 +72,7 @@ module JavaBuildpack::Container
     it 'should return command line arguments when they are specified' do
       Dir.mktmpdir do |root|
         lib_directory = File.join(root, '.lib')
-        FileUtils.mkdir_p lib_directory
+        Dir.mkdir lib_directory
 
         command = Main.new(
           :app_dir => root,
@@ -90,7 +90,7 @@ module JavaBuildpack::Container
     it 'should return additional libs when they are specified' do
       Dir.mktmpdir do |root|
         lib_directory = File.join(root, '.lib')
-        FileUtils.mkdir_p lib_directory
+        Dir.mkdir lib_directory
 
         Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
 

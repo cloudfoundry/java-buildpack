@@ -54,7 +54,7 @@ module JavaBuildpack::Jre
         JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
         application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-java.tar.gz'))
 
-        FileUtils.mkdir_p(File.join(root, '.diag'))
+        Dir.mkdir File.join(root, '.diag')
 
         OpenJdk.new(
             :app_dir => root,

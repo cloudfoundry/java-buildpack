@@ -14,15 +14,15 @@
 # limitations under the License.
 
 require 'java_buildpack/framework'
+require 'java_buildpack/framework/auto_reconfiguration/web_xml_modifier'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
 
 module JavaBuildpack::Framework
 
-  # Encapsulates the detect, compile, and release functionality for enabling cloud auto-reconfiguration in Spring
-  # applications.
-  class SpringAutoReconfiguration
+  # Encapsulates the detect, compile, and release functionality for enabling cloud auto-reconfiguration in applications.
+  class AutoReconfiguration
 
     # Creates an instance, passing in an arbitrary collection of options.
     #
@@ -34,28 +34,23 @@ module JavaBuildpack::Framework
       @app_dir = context[:app_dir]
       @lib_directory = context[:lib_directory]
       @configuration = context[:configuration]
-      @auto_reconfiguration_version, @auto_reconfiguration_uri = SpringAutoReconfiguration.find_auto_reconfiguration(@app_dir, @configuration)
+      @auto_reconfiguration_version, @auto_reconfiguration_uri = AutoReconfiguration.find_auto_reconfiguration(@app_dir, @configuration)
     end
 
-    # Detects whether this application is suitable for Spring auto-reconfiguration
+    # Detects whether this application is suitable for auto-reconfiguration
     #
-    # @return [String] returns +spring-auto-reconfiguration-<version>+ if the application is a candidate for Spring
+    # @return [String] returns +auto-reconfiguration-<version>+ if the application is a candidate for
     #                  auto-reconfiguration otherwise returns +nil+
     def detect
       @auto_reconfiguration_version ? id(@auto_reconfiguration_version) : nil
     end
 
-    # Downloads the Spring Auto-reconfiguration JAR
+    # Downloads the Auto-reconfiguration JAR
     #
     # @return [void]
     def compile
-      download_start_time = Time.now
-      print "-----> Downloading Spring Auto Reconfiguration #{@auto_reconfiguration_version} from #{@auto_reconfiguration_uri} "
-
-      JavaBuildpack::Util::ApplicationCache.new.get(@auto_reconfiguration_uri) do |file|  # TODO Use global cache #50175265
-        system "cp #{file.path} #{File.join @lib_directory, 'spring-auto-reconfiguration.jar'}"
-        puts "(#{(Time.now - download_start_time).duration})"
-      end
+      download_auto_reconfiguration
+      modify_web_xml
     end
 
     # Does nothing
@@ -68,6 +63,19 @@ module JavaBuildpack::Framework
 
     SPRING_JAR_PATTERN = 'spring-core*.jar'
 
+    WEB_XML = File.join 'WEB-INF', 'web.xml'
+
+    def download_auto_reconfiguration
+      download_start_time = Time.now
+      print "-----> Downloading Auto Reconfiguration #{@auto_reconfiguration_version} from #{@auto_reconfiguration_uri} "
+
+      JavaBuildpack::Util::ApplicationCache.new.get(@auto_reconfiguration_uri) do |file|  # TODO Use global cache #50175265
+        system "cp #{file.path} #{File.join(@lib_directory, jar_name(@auto_reconfiguration_version))}"
+        puts "(#{(Time.now - download_start_time).duration})"
+      end
+
+    end
+
     def self.find_auto_reconfiguration(app_dir, configuration)
       if spring_application? app_dir
         version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
@@ -78,11 +86,29 @@ module JavaBuildpack::Framework
 
       return version, uri
     rescue => e
-      raise RuntimeError, "Spring Auto Reconfiguration framework error: #{e.message}", e.backtrace
+      raise RuntimeError, "Auto Reconfiguration framework error: #{e.message}", e.backtrace
     end
 
     def id(version)
-      "spring-auto-reconfiguration-#{version}"
+      "auto-reconfiguration-#{version}"
+    end
+
+    def jar_name(version)
+      "#{id version}.jar"
+    end
+
+    def modify_web_xml
+      web_xml = File.join @app_dir, WEB_XML
+
+      if File.exists? web_xml
+        puts "-----> Modifying /WEB-INF/web.xml for Auto Reconfiguration"
+
+        modifier = WebXmlModifier.new(web_xml)
+        modifier.augment_root_context
+        modifier.augment_servlet_contexts
+
+        File.open(web_xml, 'w') { |file| file.write(modifier.to_s) }
+      end
     end
 
     def self.spring_application?(app_dir)

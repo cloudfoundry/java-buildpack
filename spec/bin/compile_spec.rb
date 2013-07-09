@@ -17,6 +17,6 @@ require 'spec_helper'
 require 'open3'
 require 'tmpdir'
 
-describe 'compile script' do
+describe 'compile script', :integration do
 
 end
