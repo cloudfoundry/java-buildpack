@@ -130,12 +130,14 @@ module JavaBuildpack::Jre
       buckets.each do |type, bucket|
         if @sizes[type]
           default_size = bucket.default_size
-          actual_size = bucket.size
-          if default_size != MemorySize.ZERO
-            factor = ((actual_size - default_size) / default_size).abs
-          end
-          if (default_size == MemorySize.ZERO && actual_size == MemorySize.ZERO) || factor < CLOSE_TO_DEFAULT_FACTOR
-            $stderr.puts "-----> WARNING: the configured value #{actual_size} of memory size #{type} is close to the default value #{default_size}. Consider deleting the configured value and taking the default."
+          if default_size
+            actual_size = bucket.size
+            if default_size != MemorySize.ZERO
+              factor = ((actual_size - default_size) / default_size).abs
+            end
+            if (default_size == MemorySize.ZERO && actual_size == MemorySize.ZERO) || factor < CLOSE_TO_DEFAULT_FACTOR
+              $stderr.puts "-----> WARNING: the configured value #{actual_size} of memory size #{type} is close to the default value #{default_size}. Consider deleting the configured value and taking the default."
+            end
           end
         end
       end
