@@ -81,7 +81,7 @@ module JavaBuildpack::Framework
 
     CONTEXT_INITIALIZER_CLASSES = 'contextInitializerClasses'.freeze
 
-    CONTEXT_LOADER_LISTENER = 'org.springframework.web.context.ContextLoaderListener'.freeze
+    CONTEXT_LOADER_LISTENER = 'ContextLoaderListener'.freeze
 
     CONTEXT_LOCATION_ADDITIONAL_ANNOTATION = 'org.cloudfoundry.reconfiguration.spring.web.CloudAppAnnotationConfigAutoReconfig'.freeze
 
@@ -89,7 +89,7 @@ module JavaBuildpack::Framework
 
     CONTEXT_LOCATION_DEFAULT = '/WEB-INF/applicationContext.xml'.freeze
 
-    DISPATCHER_SERVLET = 'org.springframework.web.servlet.DispatcherServlet'.freeze
+    DISPATCHER_SERVLET = 'DispatcherServlet'.freeze
 
     def additional_context_config_location(root, param_type)
       has_annotation_application_context?(root, param_type) ? CONTEXT_LOCATION_ADDITIONAL_ANNOTATION : CONTEXT_LOCATION_ADDITIONAL_XML

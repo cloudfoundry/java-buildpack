@@ -101,9 +101,9 @@ module JavaBuildpack::Framework
       web_xml = File.join @app_dir, WEB_XML
 
       if File.exists? web_xml
-        puts "-----> Modifying /WEB-INF/web.xml for Auto Reconfiguration"
+        puts "       Modifying /WEB-INF/web.xml for Auto Reconfiguration"
 
-        modifier = WebXmlModifier.new(web_xml)
+        modifier = File.open(web_xml) { |file| WebXmlModifier.new(file) }
         modifier.augment_root_context
         modifier.augment_servlet_contexts
 

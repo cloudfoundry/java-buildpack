@@ -22,7 +22,7 @@ module JavaBuildpack::Framework
   describe WebXmlModifier do
 
     it 'should not modify root if there is no ContextLoaderListener' do
-      assert_equality('web_root_no_classLoaderListener') do |modifier|
+      assert_equality('web_root_no_contextLoaderListener') do |modifier|
         modifier.augment_root_context
       end
     end
