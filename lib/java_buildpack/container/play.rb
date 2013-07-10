@@ -122,7 +122,7 @@ module JavaBuildpack::Container
     end
 
     def start_script_relative(app_dir, play_root)
-      Pathname.new(Play.start_script(play_root)).relative_path_from(Pathname.new(app_dir)).to_s
+      "./#{Pathname.new(Play.start_script(play_root)).relative_path_from(Pathname.new(app_dir)).to_s}"
     end
 
   end
