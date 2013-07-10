@@ -103,7 +103,7 @@ module JavaBuildpack::Container
 
     def download_support
       download_start_time = Time.now
-      print "-----> Downloading Buildpack Tomcat Support #{@support_version} from #{@support_uri} "
+      print "       Downloading Buildpack Tomcat Support #{@support_version} from #{@support_uri} "
 
       JavaBuildpack::Util::ApplicationCache.new.get(@support_uri) do |file|  # TODO Use global cache #50175265
         system "cp #{file.path} #{File.join(tomcat_home, 'lib', support_jar_name(@support_version))}"
@@ -113,7 +113,7 @@ module JavaBuildpack::Container
 
     def expand(file, configuration)
       expand_start_time = Time.now
-      print "-----> Expanding Tomcat to #{TOMCAT_HOME} "
+      print "       Expanding Tomcat to #{TOMCAT_HOME} "
 
       system "rm -rf #{tomcat_home}"
       system "mkdir -p #{tomcat_home}"
@@ -160,7 +160,7 @@ module JavaBuildpack::Container
     def link_application
       system "rm -rf #{root}"
       system "mkdir -p #{webapps}"
-      system "ln -s #{File.join '..', '..'} #{root}"
+      system "ln -sfn #{File.join '..', '..'} #{root}"
     end
 
     def link_libs
@@ -168,7 +168,7 @@ module JavaBuildpack::Container
 
       if libs
         FileUtils.mkdir_p(web_inf_lib) unless File.exists?(web_inf_lib)
-        libs.each { |lib| system "ln -s #{File.join '..', '..', lib} #{web_inf_lib}" }
+        libs.each { |lib| system "ln -sfn #{File.join '..', '..', lib} #{web_inf_lib}" }
       end
     end
 

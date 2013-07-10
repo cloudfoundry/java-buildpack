@@ -101,7 +101,7 @@ module JavaBuildpack::Container
 
       if libs
         lib_target = [Play.lib(@play_root), Play.staged(@play_root)].find { |target| Play.play_jar(target) }
-        libs.each { |lib| system "ln -s #{File.join '..', lib} #{lib_target}" }
+        libs.each { |lib| system "ln -sfn #{File.join '..', lib} #{lib_target}" }
       end
     end
 

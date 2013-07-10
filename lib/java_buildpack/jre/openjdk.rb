@@ -86,7 +86,7 @@ module JavaBuildpack::Jre
 
     def expand(file)
       expand_start_time = Time.now
-      print "-----> Expanding JRE to #{JAVA_HOME} "
+      print "       Expanding JRE to #{JAVA_HOME} "
 
       system "rm -rf #{java_home}"
       system "mkdir -p #{java_home}"
