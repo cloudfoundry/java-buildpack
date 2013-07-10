@@ -74,15 +74,26 @@ module JavaBuildpack::Container
 
     ARGUMENTS_PROPERTY = 'arguments'.freeze
 
+    CLASS_PATH_PROPERTY = 'Class-Path'.freeze
+
     CONTAINER_NAME = 'java-main'.freeze
 
     MANIFEST_PROPERTY = 'Main-Class'.freeze
 
+    def arguments
+      @configuration[ARGUMENTS_PROPERTY]
+    end
+
     def classpath(app_dir, lib_directory)
       classpath = ['.']
       classpath.concat ContainerUtils.libs(app_dir, lib_directory)
+      classpath.concat manifest_class_path
 
       "-cp #{classpath.join(':')}"
+    end
+
+    def main_class
+      @configuration[MAIN_CLASS_PROPERTY] || manifest[MANIFEST_PROPERTY]
     end
 
     def manifest
@@ -90,14 +101,11 @@ module JavaBuildpack::Container
       manifest_file = File.exists?(manifest_file) ? manifest_file : nil
       JavaBuildpack::Util::Properties.new(manifest_file)
     end
-
-    def main_class
-      @configuration[MAIN_CLASS_PROPERTY] || manifest[MANIFEST_PROPERTY]
+    def manifest_class_path
+      value = manifest[CLASS_PATH_PROPERTY]
+      value.nil? ? [] : value.split(' ')
     end
 
-    def arguments
-      @configuration[ARGUMENTS_PROPERTY]
-    end
   end
 
 end

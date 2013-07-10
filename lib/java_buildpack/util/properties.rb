@@ -25,7 +25,10 @@ module JavaBuildpack::Util
     # @param [String, nil] file the file to use for initialization.  If no file is passed in, the instance is empty.
     def initialize(file)
       unless file.nil?
-        File.foreach(file) do |line|
+        contents = File.open(file) { |file| file.read }
+        contents.gsub! /[\r\n\f]+ /, ''
+
+        contents.each_line do |line|
           unless blank_line?(line) || comment_line?(line)
             if line =~ /^[\s]*([^:=\s]+)[\s]*[=:]?[\s]*(.*?)\s*$/
               self[$1] = $2

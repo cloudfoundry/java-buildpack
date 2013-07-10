@@ -30,6 +30,7 @@ module JavaBuildpack::Util
       expect(properties['Main-Class']).to eq('com.gopivotal.SimpleJava')
       expect(properties['hotel.india']).to eq('-Djuliet=kilo')
       expect(properties['lima']).to eq('-XX:mike="november oscar"')
+      expect(properties['poppa']).to eq('quebec')
     end
 
   end
