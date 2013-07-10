@@ -38,7 +38,7 @@ module JavaBuildpack::Jre
       @app_dir = context[:app_dir]
       @java_opts = context[:java_opts]
       @configuration = context[:configuration]
-      @diagnostics_directory = context[:diagnostics][:directory]
+      @diagnostics_directory = context[:diagnostics][:directory] # Note this is a relative directory.
       @version, @uri = OpenJdk.find_openjdk(@configuration)
 
       context[:java_home].concat JAVA_HOME
@@ -70,7 +70,7 @@ module JavaBuildpack::Jre
     #
     # @return [void]
     def release
-      @java_opts << "-XX:OnOutOfMemoryError=#{@diagnostics_directory}/killjava"
+      @java_opts << "-XX:OnOutOfMemoryError=./#{@diagnostics_directory}/killjava"
       @java_opts.concat memory(@configuration)
     end
 

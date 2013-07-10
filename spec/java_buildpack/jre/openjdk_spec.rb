@@ -131,7 +131,7 @@ module JavaBuildpack::Jre
             :diagnostics => {:directory => '.diag'}
         ).release
 
-        expect(java_opts).to include("-XX:OnOutOfMemoryError=.diag/killjava")
+        expect(java_opts).to include("-XX:OnOutOfMemoryError=./.diag/killjava")
       end
     end
 
