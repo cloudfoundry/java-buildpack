@@ -15,5 +15,5 @@
 
 # Configuration for the Spring Auto Reconfiguration framework
 ---
-version: 0.6.+
+version: 0.7.+
 repository_root: "http://download.pivotal.io.s3.amazonaws.com/auto-reconfiguration/lucid/x86_64"
