@@ -46,7 +46,7 @@ module JavaBuildpack::Container
     # @return [String] returns +Play+ if and only if the application has a +start+ script, otherwise
     #                  returns +nil+
     def detect
-      @play_root ? 'play' : nil
+      @play_root ? id(version(@play_root)) : nil
     end
 
     # Makes the +start+ script executable.
@@ -79,13 +79,8 @@ module JavaBuildpack::Container
 
     PLAY_JAR = 'play*.jar'.freeze
 
-    def self.play_root(app_dir)
-      roots = Dir[app_dir, File.join(app_dir, '*')].select do |file|
-        start_script(file) && (lib_play_jar(file) || staged_play_jar(file))
-      end
-
-      raise "Play application detected in multiple directories: #{roots}" if roots.size > 1
-      roots.first
+    def id(version)
+      "play-#{version}"
     end
 
     def self.lib(root)
@@ -103,6 +98,15 @@ module JavaBuildpack::Container
         lib_target = [Play.lib(@play_root), Play.staged(@play_root)].find { |target| Play.play_jar(target) }
         libs.each { |lib| system "ln -sfn #{File.join '..', lib} #{lib_target}" }
       end
+    end
+
+    def self.play_root(app_dir)
+      roots = Dir[app_dir, File.join(app_dir, '*')].select do |file|
+        start_script(file) && (lib_play_jar(file) || staged_play_jar(file))
+      end
+
+      raise "Play application detected in multiple directories: #{roots}" if roots.size > 1
+      roots.first
     end
 
     def self.staged(root)
@@ -123,6 +127,11 @@ module JavaBuildpack::Container
 
     def start_script_relative(app_dir, play_root)
       "./#{Pathname.new(Play.start_script(play_root)).relative_path_from(Pathname.new(app_dir)).to_s}"
+    end
+
+    def version(root)
+      play_jar = Play.lib_play_jar(root) || Play.staged_play_jar(root)
+      play_jar.match(/.*play_(.*)\.jar/)[1]
     end
 
   end
