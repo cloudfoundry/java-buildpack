@@ -118,7 +118,7 @@ module JavaBuildpack::Container
     end
 
     def self.play_jar(root)
-      Dir[File.join(root, PLAY_JAR)].first
+      Dir[File.join(root, PLAY_JAR)].find { |candidate| candidate =~ /.*play_[\d\-\.]*\.jar/ }
     end
 
     def self.start_script(root)
