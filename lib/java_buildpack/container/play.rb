@@ -18,6 +18,7 @@ require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
+require 'java_buildpack/util/play/play_directory_locator'
 require 'pathname'
 
 module JavaBuildpack::Container
@@ -38,7 +39,7 @@ module JavaBuildpack::Container
       @java_home = context[:java_home]
       @java_opts = context[:java_opts]
       @lib_directory = context[:lib_directory]
-      @play_root = Play.play_root @app_dir
+      @play_root = JavaBuildpack::Util::Play.locate_play_application(@app_dir)
     end
 
     # Detects whether this application is a Play application.
@@ -54,7 +55,7 @@ module JavaBuildpack::Container
     # @return [void]
     def compile
       system "chmod +x #{Play.start_script @play_root}"
-      link_libs
+      add_libs_to_classpath
     end
 
     # Creates the command to run the Play application.
@@ -91,22 +92,17 @@ module JavaBuildpack::Container
       play_jar(lib(root))
     end
 
-    def link_libs
-      libs = ContainerUtils.libs(@app_dir, @lib_directory)
+    def add_libs_to_classpath
+      script_dir_relative_path = Pathname.new(@app_dir).relative_path_from(Pathname.new(@play_root)).to_s
 
-      if libs
-        lib_target = [Play.lib(@play_root), Play.staged(@play_root)].find { |target| Play.play_jar(target) }
-        libs.each { |lib| system "ln -sfn #{File.join '..', lib} #{lib_target}" }
-      end
-    end
-
-    def self.play_root(app_dir)
-      roots = Dir[app_dir, File.join(app_dir, '*')].select do |file|
-        start_script(file) && (lib_play_jar(file) || staged_play_jar(file))
+      additional_classpath = ContainerUtils.libs(@app_dir, @lib_directory).map do |lib|
+        "$scriptdir/#{script_dir_relative_path}/#{lib}"
       end
 
-      raise "Play application detected in multiple directories: #{roots}" if roots.size > 1
-      roots.first
+      start_script = File.join(@play_root, START_SCRIPT)
+      start_script_content = File.open(start_script, 'r') { |file| file.read }
+      start_script_content.gsub! /^classpath=\"(.*)\"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
+      File.open(start_script, 'w') { |file| file.write start_script_content }
     end
 
     def self.staged(root)
@@ -122,7 +118,7 @@ module JavaBuildpack::Container
     end
 
     def self.start_script(root)
-      Dir[File.join(root, START_SCRIPT)].first
+      root && File.directory?(root) ? Dir[File.join(root, START_SCRIPT)].first : false
     end
 
     def start_script_relative(app_dir, play_root)

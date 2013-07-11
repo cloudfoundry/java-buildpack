@@ -14,7 +14,7 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'java_buildpack/framework/auto_reconfiguration/web_xml_modifier'
+require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
 require 'rexml/document'
 
 module JavaBuildpack::Framework

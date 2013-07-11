@@ -13,16 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for components to use in the buildpack
+# Configuration for the Play Auto Reconfiguration framework.
+# Note that the repository is shared with the Spring Auto Reconfiguration framework and should be kept in step to
+# avoid conflicts.
 ---
-containers:
-  - "JavaBuildpack::Container::Groovy"
-  - "JavaBuildpack::Container::Main"
-  - "JavaBuildpack::Container::Tomcat"
-  - "JavaBuildpack::Container::Play"
-jres:
-  - "JavaBuildpack::Jre::OpenJdk"
-frameworks:
-  - "JavaBuildpack::Framework::JavaOpts"
-  - "JavaBuildpack::Framework::PlayAutoReconfiguration"
-  - "JavaBuildpack::Framework::SpringAutoReconfiguration"
+version: 0.7.+
+repository_root: "http://download.pivotal.io.s3.amazonaws.com/auto-reconfiguration/lucid/x86_64"

@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for the Spring Auto Reconfiguration framework
----
-version: 0.7.+
-repository_root: "http://download.pivotal.io.s3.amazonaws.com/auto-reconfiguration/lucid/x86_64"
+require 'java_buildpack/util'
+
+# A module encapsulating all the utility code for the Play framework.
+module JavaBuildpack::Util::Play
+end
