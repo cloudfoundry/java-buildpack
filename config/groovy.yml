@@ -13,15 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for components to use in the buildpack
+# Configuration for the Groovy container
 ---
-containers:
-  - "JavaBuildpack::Container::Groovy"
-  - "JavaBuildpack::Container::Main"
-  - "JavaBuildpack::Container::Tomcat"
-  - "JavaBuildpack::Container::Play"
-jres:
-  - "JavaBuildpack::Jre::OpenJdk"
-frameworks:
-  - "JavaBuildpack::Framework::JavaOpts"
-  - "JavaBuildpack::Framework::AutoReconfiguration"
+version: 2.1.+
+repository_root: "http://download.pivotal.io.s3.amazonaws.com/groovy/lucid/x86_64"

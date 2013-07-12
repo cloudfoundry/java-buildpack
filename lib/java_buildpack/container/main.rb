@@ -101,6 +101,7 @@ module JavaBuildpack::Container
       manifest_file = File.exists?(manifest_file) ? manifest_file : nil
       JavaBuildpack::Util::Properties.new(manifest_file)
     end
+
     def manifest_class_path
       value = manifest[CLASS_PATH_PROPERTY]
       value.nil? ? [] : value.split(' ')
