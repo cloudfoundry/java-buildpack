@@ -137,7 +137,7 @@ module JavaBuildpack::Container
           :lib_directory => lib_directory,
           :configuration => {}).release
 
-        expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .groovy/bin/groovy -cp .lib/test-jar-1.jar:.lib/test-jar-2.jar Main.groovy Alpha.groovy Bravo.groovy')
+        expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .groovy/bin/groovy -cp .lib/test-jar-1.jar:.lib/test-jar-2.jar Main.groovy Alpha.groovy')
       end
     end
 
