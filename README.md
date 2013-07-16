@@ -22,6 +22,7 @@ The buildpack supports configuration and extension through the use of Git reposi
 * [Design](docs/design.md)
 * [Migrating from the Previous Java Buildpack](docs/migration.md)
 * Standard Containers
+	* [Groovy](docs/container-groovy.md) ([Configuration](docs/container-groovy.md#configuration))
 	* [Java Main Class](docs/container-java-main.md) ([Configuration](docs/container-java-main.md#configuration))
 	* [Play](docs/container-play.md)
 	* [Tomcat](docs/container-tomcat.md) ([Configuration](docs/container-tomcat.md#configuration))

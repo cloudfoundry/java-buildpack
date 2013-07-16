@@ -1,5 +1,5 @@
 # Tomcat Container
-The Tomcat Container allows web application to be run.  These applications are run as the root web application in a Tomcat container.
+The Tomcat Container allows a web application to be run.  These applications are run as the root web application in a Tomcat container.
 
 <table>
   <tr>
