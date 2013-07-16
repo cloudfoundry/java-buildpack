@@ -14,7 +14,7 @@
             <param-name>
                 contextInitializerClasses
             </param-name>
-            <param-value>com.gopivotal.test org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer</param-value>
+            <param-value>com.gopivotal.test,org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer</param-value>
         </init-param>
     </servlet>
 

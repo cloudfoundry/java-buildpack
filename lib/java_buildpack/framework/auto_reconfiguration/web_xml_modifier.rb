@@ -112,7 +112,7 @@ module JavaBuildpack::Framework
       classes = classes_string.value.strip.split(/[,;\s]+/)
       classes << CONTEXT_INITIALIZER_ADDITIONAL
 
-      classes_string.value = classes.join(' ')
+      classes_string.value = classes.join(',')
     end
 
     def create_param(root, param_type, name, value)
