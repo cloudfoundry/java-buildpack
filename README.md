@@ -27,7 +27,8 @@ The buildpack supports configuration and extension through the use of Git reposi
 	* [Play](docs/container-play.md)
 	* [Tomcat](docs/container-tomcat.md) ([Configuration](docs/container-tomcat.md#configuration))
 * Standard Frameworks
-	* [Auto Reconfiguration](docs/framework-auto-reconfiguration.md) ([Configuration](docs/framework-auto-reconfiguration.md#configuration))
+	* [Play Auto Reconfiguration](docs/framework-play-auto-reconfiguration.md) ([Configuration](docs/framework-play-auto-reconfiguration.md#configuration))
+	* [Spring Auto Reconfiguration](docs/framework-spring-auto-reconfiguration.md) ([Configuration](docs/framework-spring-auto-reconfiguration.md#configuration))
 	* [`JAVA_OPTS`](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))
 * Standard JREs
 	* [OpenJDK](docs/jre-openjdk.md) ([Configuration](docs/jre-openjdk.md#configuration))
