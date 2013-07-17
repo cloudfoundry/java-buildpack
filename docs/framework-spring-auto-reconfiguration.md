@@ -1,12 +1,12 @@
-# Auto Reconfiguration Framework
-The Auto Reconfiguration Framework causes an application to be automatically reconfigured to work with configured cloud services.
+# Spring Auto Reconfiguration Framework
+The Spring Auto Reconfiguration Framework causes an application to be automatically reconfigured to work with configured cloud services.
 
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td><td>Existence of a <tt>spring-core*.jar</tt> file in the application directory</td>
   </tr>
   <tr>
-    <td><strong>Tags</strong></td><td><tt>auto-reconfiguration-&lt;version&gt;</tt></td>
+    <td><strong>Tags</strong></td><td><tt>spring-auto-reconfiguration-&lt;version&gt;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
@@ -17,9 +17,9 @@ If a `/WEB-INF/web.xml` file exists, the framework will modify it in addition to
 2. Augmenting `contextInitializerClasses`.  The function starts by enumerating the current `contextInitializerClasses`.  If none exist, a default configuration is created with no value as the default. The `org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer` class is then added to the collection of classes.
 
 ## Configuration
-The container can be configured by modifying the [`config/autoreconfiguration.yml`][autoreconfiguration_yml] file.  The container uses the [`Repository` utility support][util_repositories] and so it supports the [version syntax][version_syntax] defined there.
+The container can be configured by modifying the [`config/springautoreconfiguration.yml`][springgautoreconfiguration_yml] file.  The container uses the [`Repository` utility support][util_repositories] and so it supports the [version syntax][version_syntax] defined there.
 
-[autoreconfiguration_yml]: ../config/autoreconfiguration.yml
+[springautoreconfiguration_yml]: ../config/springautoreconfiguration.yml
 [util_repositories]: util-repositories.md
 [version_syntax]: util-repositories.md#version-syntax-and-ordering
 
