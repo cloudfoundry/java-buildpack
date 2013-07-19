@@ -96,7 +96,7 @@ module JavaBuildpack::Util
     def download(filenames, uri)
       rich_uri = URI(uri)
 
-      Net::HTTP.start(rich_uri.host, rich_uri.port) do |http|
+      Net::HTTP.start(rich_uri.host, rich_uri.port, :use_ssl => (rich_uri.scheme == 'https')) do |http|
         request = Net::HTTP::Get.new(uri)
         http.request request do |response|
           write_response(filenames, response)
@@ -141,7 +141,7 @@ module JavaBuildpack::Util
     def update(filenames, uri)
       rich_uri = URI(uri)
 
-      Net::HTTP.start(rich_uri.host, rich_uri.port) do |http|
+      Net::HTTP.start(rich_uri.host, rich_uri.port, :use_ssl => (rich_uri.scheme == 'https')) do |http|
         request = Net::HTTP::Get.new(uri)
         set_header request, 'If-None-Match', filenames[:etag]
         set_header request, 'If-Modified-Since', filenames[:last_modified]
