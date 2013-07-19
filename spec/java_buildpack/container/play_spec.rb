@@ -54,7 +54,7 @@ module JavaBuildpack::Container
           :configuration => {}) }.to raise_error(/multiple/)
     end
 
-    it 'should detect an application with a start script and a suitable Play JAR' do
+    it 'should detect a dist application with a start script and a suitable Play JAR' do
       detected = Play.new(
           :app_dir => 'spec/fixtures/container_play',
           :configuration => {}).detect
@@ -80,36 +80,41 @@ module JavaBuildpack::Container
 
     it 'should make the start script executable in the compile step' do
       Dir.mktmpdir do |root|
-        lib_directory = File.join root, '.lib'
-        staged_directory = File.join root, 'staged'
-        start_script = File.join root, 'start'
-
-        Dir.mkdir lib_directory
-        Dir.mkdir staged_directory
-        FileUtils.cp 'spec/fixtures/play_start_before', start_script
-        FileUtils.touch File.join staged_directory, 'play_0.0.0.jar'
-        FileUtils.cp 'spec/fixtures/additional_libs/test-jar-1.jar', lib_directory
+        FileUtils.cp_r 'spec/fixtures/container_play/.', root
 
         play = Play.new(
-          :app_dir => 'spec/fixtures/container_play',
+          :app_dir => root,
           :configuration => {})
 
-        play.should_receive(:system).with('chmod +x spec/fixtures/container_play/application_root/start').and_return('')
+        play.should_receive(:system).with("chmod +x #{root}/application_root/start").and_return('')
 
         play.compile
       end
     end
 
-    it 'should add additional libraries to classpath' do
+    it 'should replace the server command in the start script' do
+      Dir.mktmpdir do |root|
+        start_script = File.join root, 'application_root', 'start'
+        FileUtils.cp_r 'spec/fixtures/container_play/.', root
+
+        Play.new(
+            :app_dir => root,
+            :configuration => {}).compile
+
+        actual = File.open(start_script, 'r') { |file| file.read }
+
+        expect(actual).to_not match(/play.core.server.NettyServer/)
+        expect(actual).to match(/org.cloudfoundry.reconfiguration.play.Bootstrap/)
+      end
+    end
+
+    it 'should add additional libraries to classpath in dist application' do
       Dir.mktmpdir do |root|
         lib_directory = File.join root, '.lib'
-        staged_directory = File.join root, 'staged'
-        start_script = File.join root, 'start'
+        start_script = File.join root, 'application_root', 'start'
 
+        FileUtils.cp_r 'spec/fixtures/container_play/.', root
         Dir.mkdir lib_directory
-        Dir.mkdir staged_directory
-        FileUtils.cp 'spec/fixtures/play_start_before', start_script
-        FileUtils.touch File.join staged_directory, 'play_0.0.0.jar'
         FileUtils.cp 'spec/fixtures/additional_libs/test-jar-1.jar', lib_directory
 
         Play.new(
@@ -117,9 +122,31 @@ module JavaBuildpack::Container
             :lib_directory => lib_directory,
             :configuration => {}).compile
 
-        expected = File.open('spec/fixtures/play_start_after', 'r') { |file| file.read }
         actual = File.open(start_script, 'r') { |file| file.read }
 
+        expect(actual).to match(/classpath="\$scriptdir\/.\.\/\.lib\/test-jar-1\.jar:/)
+      end
+    end
+
+    it 'should add additional libraries to directory in staged application' do
+      Dir.mktmpdir do |root|
+        lib_directory = File.join root, '.lib'
+        start_script = File.join root, 'start'
+
+        FileUtils.cp_r 'spec/fixtures/container_play_staged/.', root
+        Dir.mkdir lib_directory
+        FileUtils.cp 'spec/fixtures/additional_libs/test-jar-1.jar', lib_directory
+
+        Play.new(
+            :app_dir => root,
+            :lib_directory => lib_directory,
+            :configuration => {}).compile
+
+        relative = File.readlink(File.join root, 'staged', 'test-jar-1.jar')
+        actual = Pathname.new(File.join root, 'staged', 'test-jar-1.jar').realpath.to_s
+        expected = Pathname.new(File.join lib_directory, 'test-jar-1.jar').realpath.to_s
+
+        expect(relative).to_not eq(expected)
         expect(actual).to eq(expected)
       end
     end

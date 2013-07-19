@@ -55,7 +55,8 @@ module JavaBuildpack::Container
     # @return [void]
     def compile
       system "chmod +x #{Play.start_script @play_root}"
-      add_libs_to_classpath
+      add_libs_to_classpath @play_root
+      replace_bootstrap @play_root
     end
 
     # Creates the command to run the Play application.
@@ -80,6 +81,22 @@ module JavaBuildpack::Container
 
     PLAY_JAR = 'play*.jar'.freeze
 
+    def add_libs_to_classpath(root)
+      if Play.lib_play_jar(root)
+        script_dir_relative_path = Pathname.new(@app_dir).relative_path_from(Pathname.new(@play_root)).to_s
+
+        additional_classpath = ContainerUtils.libs(@app_dir, @lib_directory).map do |lib|
+          "$scriptdir/#{script_dir_relative_path}/#{lib}"
+        end
+
+        update_file Play.start_script(root), /^classpath=\"(.*)\"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
+      else
+        ContainerUtils.libs(@app_dir, @lib_directory).each do |lib|
+          system "ln -nsf ../#{lib} #{Play.staged root}"
+        end
+      end
+    end
+
     def id(version)
       "play-#{version}"
     end
@@ -90,19 +107,6 @@ module JavaBuildpack::Container
 
     def self.lib_play_jar(root)
       play_jar(lib(root))
-    end
-
-    def add_libs_to_classpath
-      script_dir_relative_path = Pathname.new(@app_dir).relative_path_from(Pathname.new(@play_root)).to_s
-
-      additional_classpath = ContainerUtils.libs(@app_dir, @lib_directory).map do |lib|
-        "$scriptdir/#{script_dir_relative_path}/#{lib}"
-      end
-
-      start_script = File.join(@play_root, START_SCRIPT)
-      start_script_content = File.open(start_script, 'r') { |file| file.read }
-      start_script_content.gsub! /^classpath=\"(.*)\"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
-      File.open(start_script, 'w') { |file| file.write start_script_content }
     end
 
     def self.staged(root)
@@ -117,12 +121,22 @@ module JavaBuildpack::Container
       Dir[File.join(root, PLAY_JAR)].find { |candidate| candidate =~ /.*play_[\d\-\.]*\.jar/ }
     end
 
+    def replace_bootstrap(root)
+      update_file Play.start_script(root), /play\.core\.server\.NettyServer/, 'org.cloudfoundry.reconfiguration.play.Bootstrap'
+    end
+
     def self.start_script(root)
-      root && File.directory?(root) ? Dir[File.join(root, START_SCRIPT)].first : false
+      Dir[File.join(root, START_SCRIPT)].first
     end
 
     def start_script_relative(app_dir, play_root)
       "./#{Pathname.new(Play.start_script(play_root)).relative_path_from(Pathname.new(app_dir)).to_s}"
+    end
+
+    def update_file(file, pattern, replacement)
+      content = File.open(file, 'r') { |file| file.read }
+      content.gsub! pattern, replacement
+      File.open(file, 'w') { |file| file.write content }
     end
 
     def version(root)

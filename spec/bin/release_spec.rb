@@ -19,10 +19,15 @@ require 'open3'
 describe 'release script', :integration do
 
   it 'should return zero if success' do
-    with_memory_limit('1G') do
-      Open3.popen3("bin/release spec/fixtures/integration_valid") do |stdin, stdout, stderr, wait_thr|
-        expect(wait_thr.value).to be_success
+    Dir.mktmpdir do |root|
+    FileUtils.cp_r 'spec/fixtures/integration_valid/.', root
+
+      with_memory_limit('1G') do
+        Open3.popen3("bin/release #{root}") do |stdin, stdout, stderr, wait_thr|
+          expect(wait_thr.value).to be_success
+        end
       end
+
     end
   end
 

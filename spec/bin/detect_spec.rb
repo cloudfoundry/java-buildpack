@@ -19,17 +19,24 @@ require 'open3'
 describe 'detect script', :integration do
 
   it 'should return zero if success' do
-    with_memory_limit('1G') do
-      Open3.popen3("bin/detect spec/fixtures/integration_valid") do |stdin, stdout, stderr, wait_thr|
-        expect(wait_thr.value).to be_success
+    Dir.mktmpdir do |root|
+      FileUtils.cp_r 'spec/fixtures/integration_valid/.', root
+
+      with_memory_limit('1G') do
+        Open3.popen3("bin/detect #{root}") do |stdin, stdout, stderr, wait_thr|
+          expect(wait_thr.value).to be_success
+        end
       end
+
     end
   end
 
   it 'should fail to detect when no containers detect' do
-    with_memory_limit('1G') do
-      Open3.popen3("bin/detect spec/fixtures/integration_no_container") do |stdin, stdout, stderr, wait_thr|
-        expect(wait_thr.value).to_not be_success
+    Dir.mktmpdir do |root|
+      with_memory_limit('1G') do
+        Open3.popen3("bin/detect #{root}") do |stdin, stdout, stderr, wait_thr|
+          expect(wait_thr.value).to_not be_success
+        end
       end
     end
   end

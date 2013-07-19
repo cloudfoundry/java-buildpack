@@ -1,5 +1,3 @@
 .yardoc
 coverage
 doc
-pkg
-buildpack.log
