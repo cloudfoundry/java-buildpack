@@ -12,10 +12,6 @@ This buildpack ensures that at most one _container_ (see [Design](design.md) for
 
 This buildpack supports all the types of application that `cloudfoundry-buildpack-java` supported.  However, this buildpack distinguishes between _containers_ and orthogonal _frameworks_ (see [Design](design.md) for the definition of this term) whereas `cloudfoundry-buildpack-java` merged these concepts.
 
-## All Application Types
-
-<b>Temporary restriction:</b> this buildpack does not yet support the Spring `cloud` namespace for direct binding to Cloud Foundry services or Spring auto-reconfiguration for automatic re-binding to such services.
-
 ## Play Applications
 
 `cloudfoundry-buildpack-java` allowed the Play `start` script (and the application's `lib` directory, although this is ignored during detection) to reside in an arbitrary subdirectory of the application directory. This buildpack requires the `start` script and the `lib` directory (or, equivalently, the `staged` directory) containing a Play JAR to reside directly in the application directory or in an immediate subdirectory of the application directory.
