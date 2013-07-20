@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +37,7 @@ module JavaBuildpack::Repository
       tokenized_versions = versions.map { |version| JavaBuildpack::Util::TokenizedVersion.new(version, false) }
 
       version = tokenized_versions
-      .find_all { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
+      .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
       .max { |a, b| a <=> b }
 
       raise "No version resolvable for '#{candidate_version}' in #{versions.join(', ')}" if version.nil?
@@ -45,24 +46,24 @@ module JavaBuildpack::Repository
 
     private
 
-    TOKENIZED_WILDCARD = JavaBuildpack::Util::TokenizedVersion.new('+')
+      TOKENIZED_WILDCARD = JavaBuildpack::Util::TokenizedVersion.new('+')
 
-    def self.safe_candidate_version(candidate_version)
-      if candidate_version.nil? then
-        TOKENIZED_WILDCARD
-      else
-        raise "Invalid TokenizedVersion '#{candidate_version}'" unless candidate_version.is_a?(JavaBuildpack::Util::TokenizedVersion)
-        candidate_version
+      def self.safe_candidate_version(candidate_version)
+        if candidate_version.nil?
+          TOKENIZED_WILDCARD
+        else
+          raise "Invalid TokenizedVersion '#{candidate_version}'" unless candidate_version.is_a?(JavaBuildpack::Util::TokenizedVersion)
+          candidate_version
+        end
       end
-    end
 
-    def self.matches?(tokenized_candidate_version, tokenized_version)
-      (0..3).all? do |i|
-        tokenized_candidate_version[i].nil? ||
+      def self.matches?(tokenized_candidate_version, tokenized_version)
+        (0..3).all? do |i|
+          tokenized_candidate_version[i].nil? ||
             tokenized_candidate_version[i] == JavaBuildpack::Util::TokenizedVersion::WILDCARD ||
             tokenized_candidate_version[i] == tokenized_version[i]
+        end
       end
-    end
 
   end
 

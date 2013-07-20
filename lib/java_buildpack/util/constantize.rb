@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +35,7 @@ class String
   # @return [String] The constantized rendering of this +String+.
   # @raise NameError if the name is not in CamelCase or the constant is unknown.
   def constantize
-    names = self.split('::')
+    names = split('::')
     names.shift if names.empty? || names.first.empty?
 
     constant = Object

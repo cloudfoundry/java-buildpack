@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +19,7 @@ require 'java_buildpack/jre/memory/memory_size'
 
 module JavaBuildpack::Jre
 
-# A MemoryBucket is used to calculate default sizes for various type of memory
+  # A MemoryBucket is used to calculate default sizes for various type of memory
   class MemoryBucket
 
     # @!attribute [r] size
@@ -53,9 +54,9 @@ module JavaBuildpack::Jre
     # @return [Numeric] the excess memory in KB
     def excess
       if @total_memory
-        @size_specified ? @size_specified - default_size : MemorySize.ZERO
+        @size_specified ? @size_specified - default_size : MemorySize::ZERO
       else
-        MemorySize.ZERO
+        MemorySize::ZERO
       end
     end
 
@@ -73,7 +74,7 @@ module JavaBuildpack::Jre
     def adjust(total_excess, total_adjustable_weighting)
       if @adjustable
         if total_adjustable_weighting == 0
-          @size = MemorySize.ZERO
+          @size = MemorySize::ZERO
         else
           @size = default_size - (total_excess - excess) * @weighting / total_adjustable_weighting
         end
@@ -89,48 +90,43 @@ module JavaBuildpack::Jre
 
     protected
 
-    # Sets the size of this memory bucket to the specified value.
-    #
-    # @param [Numeric] size the size of the memory bucket
-    def set_size(size)
-      @size = size
-    end
+      attr_writer :size
 
     private
 
-    def self.validate_name(name)
-      raise "Invalid MemoryBucket name '#{name}'" if name.nil? || name.to_s.size == 0
-      name
-    end
+      def self.validate_name(name)
+        raise "Invalid MemoryBucket name '#{name}'" if name.nil? || name.to_s.size == 0
+        name
+      end
 
-    def validate_weighting(weighting)
-      raise diagnose_weighting(weighting, 'not numeric') unless MemoryBucket.is_numeric weighting
-      raise diagnose_weighting(weighting, 'negative') if weighting < 0
-      raise diagnose_weighting(weighting, 'greater than 1') if weighting > 1
-      weighting
-    end
+      def validate_weighting(weighting)
+        raise diagnose_weighting(weighting, 'not numeric') unless MemoryBucket.is_numeric weighting
+        raise diagnose_weighting(weighting, 'negative') if weighting < 0
+        raise diagnose_weighting(weighting, 'greater than 1') if weighting > 1
+        weighting
+      end
 
-    def diagnose_weighting(weighting, reason)
-      "Invalid weighting '#{@weighting}' for #{identify} : #{reason}"
-    end
+      def diagnose_weighting(weighting, reason)
+        "Invalid weighting '#{@weighting}' for #{identify} : #{reason}"
+      end
 
-    def self.is_numeric(w)
-      Float(w) rescue false
-    end
+      def self.is_numeric(w)
+        Float(w) rescue false
+      end
 
-    def identify
-      "MemoryBucket #{@name}"
-    end
+      def identify
+        "MemoryBucket #{@name}"
+      end
 
-    def validate_memory_size(size, parameter_name)
-      raise "Invalid '#{parameter_name}' parameter of class '#{size.class}' for #{identify} : not a MemorySize" unless size.is_a? MemorySize
-      size
-    end
+      def validate_memory_size(size, parameter_name)
+        raise "Invalid '#{parameter_name}' parameter of class '#{size.class}' for #{identify} : not a MemorySize" unless size.is_a? MemorySize
+        size
+      end
 
-    def validate_adjustable(adjustable)
-      raise "Invalid 'adjustable' parameter for #{identify} : not true or false" unless !!adjustable == adjustable
-      adjustable
-    end
+      def validate_adjustable(adjustable)
+        raise "Invalid 'adjustable' parameter for #{identify} : not true or false" unless !!adjustable == adjustable
+        adjustable
+      end
 
   end
 

@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +29,7 @@ module JavaBuildpack::Jre
       memory_limit = ENV['MEMORY_LIMIT']
       return nil unless memory_limit
       memory_limit_size = MemorySize.new(memory_limit)
-      raise "Invalid negative $MEMORY_LIMIT #{memory_limit}" if memory_limit_size < MemorySize.ZERO
+      raise "Invalid negative $MEMORY_LIMIT #{memory_limit}" if memory_limit_size < MemorySize::ZERO
       memory_limit_size
     end
 

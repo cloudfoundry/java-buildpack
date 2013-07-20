@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +37,7 @@ module JavaBuildpack::Jre
 
     it 'should calculate the excess memory correctly' do
       stack_memory_bucket = StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, TEST_STACK_SIZE, TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY)
-      expect(stack_memory_bucket.excess).to eq(TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY * ((TEST_STACK_SIZE - DEFAULT_STACK_SIZE)/DEFAULT_STACK_SIZE) * TEST_STACK_BUCKET_WEIGHTING)
+      expect(stack_memory_bucket.excess).to eq(TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY * ((TEST_STACK_SIZE - DEFAULT_STACK_SIZE) / DEFAULT_STACK_SIZE) * TEST_STACK_BUCKET_WEIGHTING)
     end
 
     it 'should use the correct default size if size has not been set' do
@@ -51,7 +52,7 @@ module JavaBuildpack::Jre
 
     it 'should return excess of 0 if size has been set and total memory is nil' do
       stack_memory_bucket = StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, TEST_STACK_SIZE, nil)
-      expect(stack_memory_bucket.excess).to eq(MemorySize.ZERO)
+      expect(stack_memory_bucket.excess).to eq(MemorySize::ZERO)
     end
 
   end

@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,10 +51,10 @@ module JavaBuildpack::Container
       if lib_directory
         root_directory = Pathname.new(app_dir)
 
-        libs = Pathname.new(lib_directory).children()
-          .select { |file| file.extname == '.jar' }
-          .map { |file| file.relative_path_from(root_directory) }
-          .sort
+        libs = Pathname.new(lib_directory).children
+        .select { |file| file.extname == '.jar' }
+        .map { |file| file.relative_path_from(root_directory) }
+        .sort
       end
 
       libs

@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,16 +36,18 @@ module JavaBuildpack::Framework
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(PLAY_AUTO_RECONFIGURATION_DETAILS)
 
       detected = PlayAutoReconfiguration.new(
-        :app_dir => 'spec/fixtures/container_play',
-        :configuration => {}).detect
+        app_dir: 'spec/fixtures/container_play',
+        configuration: {}
+      ).detect
 
       expect(detected).to eq('play-auto-reconfiguration-0.6.8')
     end
 
     it 'should not detect without application configuration' do
       detected = PlayAutoReconfiguration.new(
-        :app_dir => 'spec/fixtures/container_play_too_deep',
-        :configuration => {}).detect
+        app_dir: 'spec/fixtures/container_play_too_deep',
+        configuration: {}
+      ).detect
 
       expect(detected).to be_nil
     end
@@ -59,9 +62,10 @@ module JavaBuildpack::Framework
         application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-auto-reconfiguration.jar'))
 
         PlayAutoReconfiguration.new(
-          :app_dir => 'spec/fixtures/container_play',
-          :lib_directory => lib_directory,
-          :configuration => {}).compile
+          app_dir: 'spec/fixtures/container_play',
+          lib_directory: lib_directory,
+          configuration: {}
+        ).compile
 
         expect(File.exists? File.join(lib_directory, 'play-auto-reconfiguration-0.6.8.jar')).to be_true
       end

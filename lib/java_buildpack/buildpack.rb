@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,15 +42,15 @@ module JavaBuildpack
       components = Buildpack.components @logger
 
       java_home = ''
-      java_opts = Array.new
+      java_opts = []
       @lib_directory = Buildpack.lib_directory app_dir
 
       basic_context = {
-          :app_dir => app_dir,
-          :java_home => java_home,
-          :java_opts => java_opts,
-          :lib_directory => @lib_directory,
-          :diagnostics => {:directory => JavaBuildpack::Util::Logger::DIAGNOSTICS_DIRECTORY}
+        app_dir: app_dir,
+        java_home: java_home,
+        java_opts: java_opts,
+        lib_directory: @lib_directory,
+        diagnostics: { directory: JavaBuildpack::Util::Logger::DIAGNOSTICS_DIRECTORY }
       }
 
       @jres = Buildpack.construct_components(components, 'jres', basic_context, @logger)
@@ -99,11 +100,11 @@ module JavaBuildpack
       command = container.release
 
       payload = {
-          'addons' => [],
-          'config_vars' => {},
-          'default_process_types' => {
-              'web' => command
-          }
+        'addons' => [],
+        'config_vars' => {},
+        'default_process_types' => {
+          'web' => command
+        }
       }.to_yaml
 
       @logger.log('Release Payload', payload)
@@ -113,93 +114,93 @@ module JavaBuildpack
 
     private
 
-    COMPONENTS_CONFIG = '../../config/components.yml'.freeze
+      COMPONENTS_CONFIG = '../../config/components.yml'.freeze
 
-    LIB_DIRECTORY = '.lib'
+      LIB_DIRECTORY = '.lib'
 
-    def self.dump_environment_variables(logger)
-      logger.log('Environment Variables', ENV.to_hash)
-    end
-
-    def self.component_detections(components)
-      components.map { |component| component.detect }.compact
-    end
-
-    def self.components(logger)
-      expanded_path = File.expand_path(COMPONENTS_CONFIG, File.dirname(__FILE__))
-      components = YAML.load_file(expanded_path)
-
-      logger.log(expanded_path, components)
-
-      components
-    end
-
-    def self.configuration(app_dir, type, logger)
-      name = type.match(/^(?:.*::)?(.*)$/)[1].downcase
-      config_file = File.expand_path("../../config/#{name}.yml", File.dirname(__FILE__))
-
-      if File.exists? config_file
-        configuration = YAML.load_file(config_file)
-
-        logger.log(config_file, configuration)
+      def self.dump_environment_variables(logger)
+        logger.log('Environment Variables', ENV.to_hash)
       end
 
-      configuration || {}
-    end
-
-    def self.configure_context(basic_context, type, logger)
-      configured_context = basic_context.clone
-      configured_context[:configuration] = Buildpack.configuration(configured_context[:app_dir], type, logger)
-      configured_context
-    end
-
-    def self.construct_components(components, component, basic_context, logger)
-      components[component].map do |component|
-        component.constantize.new(Buildpack.configure_context(basic_context, component, logger))
+      def self.component_detections(components)
+        components.map { |component| component.detect }.compact
       end
-    end
 
-    def self.container_directory
-      Pathname.new(File.expand_path('container', File.dirname(__FILE__)))
-    end
+      def self.components(logger)
+        expanded_path = File.expand_path(COMPONENTS_CONFIG, File.dirname(__FILE__))
+        components = YAML.load_file(expanded_path)
 
-    def self.framework_directory
-      Pathname.new(File.expand_path('framework', File.dirname(__FILE__)))
-    end
+        logger.log(expanded_path, components)
 
-    def self.jre_directory
-      Pathname.new(File.expand_path('jre', File.dirname(__FILE__)))
-    end
-
-    def self.lib_directory(app_dir)
-      lib_directory = File.join app_dir, LIB_DIRECTORY
-    end
-
-    def self.require_component_files
-      component_files = jre_directory.children()
-      component_files.concat framework_directory.children
-      component_files.concat container_directory.children
-
-      component_files.each do |file|
-        require file.relative_path_from(root_directory) unless file.directory?
+        components
       end
-    end
 
-    def self.root_directory
-      Pathname.new(File.expand_path('..', File.dirname(__FILE__)))
-    end
+      def self.configuration(app_dir, type, logger)
+        name = type.match(/^(?:.*::)?(.*)$/)[1].downcase
+        config_file = File.expand_path("../../config/#{name}.yml", File.dirname(__FILE__))
 
-    def container
-      @containers.detect { |container| container.detect }
-    end
+        if File.exists? config_file
+          configuration = YAML.load_file(config_file)
 
-    def frameworks
-      @frameworks.select { |framework| framework.detect }
-    end
+          logger.log(config_file, configuration)
+        end
 
-    def jre
-      @jres.detect { |jre| jre.detect }
-    end
+        configuration || {}
+      end
+
+      def self.configure_context(basic_context, type, logger)
+        configured_context = basic_context.clone
+        configured_context[:configuration] = Buildpack.configuration(configured_context[:app_dir], type, logger)
+        configured_context
+      end
+
+      def self.construct_components(components, type, basic_context, logger)
+        components[type].map do |component|
+          component.constantize.new(Buildpack.configure_context(basic_context, component, logger))
+        end
+      end
+
+      def self.container_directory
+        Pathname.new(File.expand_path('container', File.dirname(__FILE__)))
+      end
+
+      def self.framework_directory
+        Pathname.new(File.expand_path('framework', File.dirname(__FILE__)))
+      end
+
+      def self.jre_directory
+        Pathname.new(File.expand_path('jre', File.dirname(__FILE__)))
+      end
+
+      def self.lib_directory(app_dir)
+        File.join app_dir, LIB_DIRECTORY
+      end
+
+      def self.require_component_files
+        component_files = jre_directory.children
+        component_files.concat framework_directory.children
+        component_files.concat container_directory.children
+
+        component_files.each do |file|
+          require file.relative_path_from(root_directory) unless file.directory?
+        end
+      end
+
+      def self.root_directory
+        Pathname.new(File.expand_path('..', File.dirname(__FILE__)))
+      end
+
+      def container
+        @containers.find { |container| container.detect }
+      end
+
+      def frameworks
+        @frameworks.select { |framework| framework.detect }
+      end
+
+      def jre
+        @jres.find { |jre| jre.detect }
+      end
 
   end
 

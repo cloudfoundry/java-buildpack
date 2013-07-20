@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,7 +60,7 @@ module JavaBuildpack::Jre
       download_start_time = Time.now
       print "-----> Downloading OpenJDK #{@version} JRE from #{@uri} "
 
-      JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file|  # TODO Use global cache #50175265
+      JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file|  # TODO: Use global cache #50175265
         puts "(#{(Time.now - download_start_time).duration})"
         expand file
       end
@@ -76,55 +77,55 @@ module JavaBuildpack::Jre
 
     private
 
-    RESOURCES = '../../../resources/openjdk/diagnostics'.freeze
+      RESOURCES = '../../../resources/openjdk/diagnostics'.freeze
 
-    JAVA_HOME = '.java'.freeze
+      JAVA_HOME = '.java'.freeze
 
-    KEY_MEMORY_HEURISTICS = 'memory_heuristics'
+      KEY_MEMORY_HEURISTICS = 'memory_heuristics'
 
-    KEY_MEMORY_SIZES = 'memory_sizes'
+      KEY_MEMORY_SIZES = 'memory_sizes'
 
-    def expand(file)
-      expand_start_time = Time.now
-      print "       Expanding JRE to #{JAVA_HOME} "
+      def expand(file)
+        expand_start_time = Time.now
+        print "       Expanding JRE to #{JAVA_HOME} "
 
-      system "rm -rf #{java_home}"
-      system "mkdir -p #{java_home}"
-      system "tar xzf #{file.path} -C #{java_home} --strip 1 2>&1"
+        system "rm -rf #{java_home}"
+        system "mkdir -p #{java_home}"
+        system "tar xzf #{file.path} -C #{java_home} --strip 1 2>&1"
 
-      puts "(#{(Time.now - expand_start_time).duration})"
-    end
+        puts "(#{(Time.now - expand_start_time).duration})"
+      end
 
-    def self.find_openjdk(configuration)
-      JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
-    rescue => e
-      raise RuntimeError, "OpenJDK JRE error: #{e.message}", e.backtrace
-    end
+      def self.find_openjdk(configuration)
+        JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
+      rescue => e
+        raise RuntimeError, "OpenJDK JRE error: #{e.message}", e.backtrace
+      end
 
-    def id(version)
-      "openjdk-#{version}"
-    end
+      def id(version)
+        "openjdk-#{version}"
+      end
 
-    def java_home
-      File.join @app_dir, JAVA_HOME
-    end
+      def java_home
+        File.join @app_dir, JAVA_HOME
+      end
 
-    def memory(configuration)
-      heuristics = configuration[KEY_MEMORY_HEURISTICS] || {}
-      sizes = configuration[KEY_MEMORY_SIZES] || {}
+      def memory(configuration)
+        heuristics = configuration[KEY_MEMORY_HEURISTICS] || {}
+        sizes = configuration[KEY_MEMORY_SIZES] || {}
 
-      heuristic_class = pre_8 ? MemoryHeuristicsOpenJDKPre8 : MemoryHeuristicsOpenJDK
-      heuristic_class.new(sizes, heuristics).resolve
-    end
+        heuristic_class = pre_8 ? MemoryHeuristicsOpenJDKPre8 : MemoryHeuristicsOpenJDK
+        heuristic_class.new(sizes, heuristics).resolve
+      end
 
-    def pre_8
-      @version < JavaBuildpack::Util::TokenizedVersion.new("1.8.0")
-    end
+      def pre_8
+        @version < JavaBuildpack::Util::TokenizedVersion.new('1.8.0')
+      end
 
-    def copy_resources
-      resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
-      system "cp -r #{resources}/* #{File.join @app_dir, @diagnostics_directory}"
-    end
+      def copy_resources
+        resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
+        system "cp -r #{resources}/* #{File.join @app_dir, @diagnostics_directory}"
+      end
 
   end
 

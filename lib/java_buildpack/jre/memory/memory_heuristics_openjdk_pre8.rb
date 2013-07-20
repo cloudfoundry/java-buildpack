@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,15 +33,15 @@ module JavaBuildpack::Jre
 
     private
 
-    JAVA_OPTS = {
-      'heap' => '-Xmx',
-      'permgen' => '-XX:MaxPermSize=',
-      'stack' => '-Xss',
-    }.freeze
+      JAVA_OPTS = {
+        'heap' => '-Xmx',
+        'permgen' => '-XX:MaxPermSize=',
+        'stack' => '-Xss',
+      }.freeze
 
-    VALID_HEURISTICS = ['heap', 'permgen', 'stack', 'native']
+      VALID_HEURISTICS = %w(heap permgen stack native)
 
-    VALID_SIZES = ['heap', 'permgen', 'stack']
+      VALID_SIZES = %w(heap permgen stack)
 
   end
 

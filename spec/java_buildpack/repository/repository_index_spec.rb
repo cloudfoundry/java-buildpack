@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,11 +27,11 @@ module JavaBuildpack::Repository
     it 'should load index' do
       JavaBuildpack::Util::DownloadCache.stub(:new).and_return(application_cache)
       application_cache.stub(:get).with('test-uri/index.yml')
-        .and_yield(File.open('spec/fixtures/test-index.yml'))
-      VersionResolver.stub(:resolve).with('test-version', ["resolved-version"]).and_return('resolved-version')
+      .and_yield(File.open('spec/fixtures/test-index.yml'))
+      VersionResolver.stub(:resolve).with('test-version', %w(resolved-version)).and_return('resolved-version')
 
       repository_index = RepositoryIndex.new('test-uri')
-      expect(repository_index.find_item('test-version')).to eq(['resolved-version', 'resolved-uri'])
+      expect(repository_index.find_item('test-version')).to eq(%w(resolved-version resolved-uri))
     end
 
   end

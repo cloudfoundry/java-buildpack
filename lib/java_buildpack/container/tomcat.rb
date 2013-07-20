@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,125 +77,125 @@ module JavaBuildpack::Container
 
     private
 
-    KEY_HTTP_PORT = 'http.port'.freeze
+      KEY_HTTP_PORT = 'http.port'.freeze
 
-    KEY_SUPPORT = 'support'.freeze
+      KEY_SUPPORT = 'support'.freeze
 
-    RESOURCES = File.join('..', '..', '..', 'resources', 'tomcat').freeze
+      RESOURCES = File.join('..', '..', '..', 'resources', 'tomcat').freeze
 
-    TOMCAT_HOME = '.tomcat'.freeze
+      TOMCAT_HOME = '.tomcat'.freeze
 
-    WEB_INF_DIRECTORY = 'WEB-INF'.freeze
+      WEB_INF_DIRECTORY = 'WEB-INF'.freeze
 
-    def copy_resources(tomcat_home)
-      resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
-      system "cp -r #{File.join resources, '*'} #{tomcat_home}"
-    end
-
-    def download_tomcat
-      download_start_time = Time.now
-      print "-----> Downloading Tomcat #{@tomcat_version} from #{@tomcat_uri} "
-
-      JavaBuildpack::Util::ApplicationCache.new.get(@tomcat_uri) do |file|  # TODO Use global cache #50175265
-        puts "(#{(Time.now - download_start_time).duration})"
-        expand(file, @configuration)
+      def copy_resources(tomcat_home)
+        resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
+        system "cp -r #{File.join resources, '*'} #{tomcat_home}"
       end
-    end
 
-    def download_support
-      download_start_time = Time.now
-      print "       Downloading Buildpack Tomcat Support #{@support_version} from #{@support_uri} "
+      def download_tomcat
+        download_start_time = Time.now
+        print "-----> Downloading Tomcat #{@tomcat_version} from #{@tomcat_uri} "
 
-      JavaBuildpack::Util::ApplicationCache.new.get(@support_uri) do |file|  # TODO Use global cache #50175265
-        system "cp #{file.path} #{File.join(tomcat_home, 'lib', support_jar_name(@support_version))}"
-        puts "(#{(Time.now - download_start_time).duration})"
-      end
-    end
-
-    def expand(file, configuration)
-      expand_start_time = Time.now
-      print "       Expanding Tomcat to #{TOMCAT_HOME} "
-
-      system "rm -rf #{tomcat_home}"
-      system "mkdir -p #{tomcat_home}"
-      system "tar xzf #{file.path} -C #{tomcat_home} --strip 1 --exclude webapps --exclude #{File.join 'conf', 'server.xml'} --exclude #{File.join 'conf', 'context.xml'} 2>&1"
-
-      copy_resources tomcat_home
-      puts "(#{(Time.now - expand_start_time).duration})"
-    end
-
-    def self.find_tomcat(app_dir, configuration)
-      if web_inf? app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |version|
-          raise "Malformed Tomcat version #{version}: too many version components" if version[3]
+        JavaBuildpack::Util::ApplicationCache.new.get(@tomcat_uri) do |file|  # TODO: Use global cache #50175265
+          puts "(#{(Time.now - download_start_time).duration})"
+          expand(file, @configuration)
         end
-      else
-        version = nil
-        uri = nil
       end
 
-      return version, uri
-    rescue => e
-      raise RuntimeError, "Tomcat container error: #{e.message}", e.backtrace
-    end
+      def download_support
+        download_start_time = Time.now
+        print "       Downloading Buildpack Tomcat Support #{@support_version} from #{@support_uri} "
 
-    def self.find_support(app_dir, configuration)
-      if web_inf? app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration[KEY_SUPPORT])
-      else
-        version = nil
-        uri = nil
+        JavaBuildpack::Util::ApplicationCache.new.get(@support_uri) do |file|  # TODO: Use global cache #50175265
+          system "cp #{file.path} #{File.join(tomcat_home, 'lib', support_jar_name(@support_version))}"
+          puts "(#{(Time.now - download_start_time).duration})"
+        end
       end
 
-      return version, uri
-    end
+      def expand(file, configuration)
+        expand_start_time = Time.now
+        print "       Expanding Tomcat to #{TOMCAT_HOME} "
 
-    def tomcat_id(version)
-      "tomcat-#{version}"
-    end
+        system "rm -rf #{tomcat_home}"
+        system "mkdir -p #{tomcat_home}"
+        system "tar xzf #{file.path} -C #{tomcat_home} --strip 1 --exclude webapps --exclude #{File.join 'conf', 'server.xml'} --exclude #{File.join 'conf', 'context.xml'} 2>&1"
 
-    def tomcat_support_id(version)
-      "tomcat-buildpack-support-#{version}"
-    end
-
-    def link_application
-      system "rm -rf #{root}"
-      system "mkdir -p #{webapps}"
-      system "ln -sfn #{File.join '..', '..'} #{root}"
-    end
-
-    def link_libs
-      libs = ContainerUtils.libs(@app_dir, @lib_directory)
-
-      if libs
-        FileUtils.mkdir_p(web_inf_lib) unless File.exists?(web_inf_lib)
-        libs.each { |lib| system "ln -sfn #{File.join '..', '..', lib} #{web_inf_lib}" }
+        copy_resources tomcat_home
+        puts "(#{(Time.now - expand_start_time).duration})"
       end
-    end
 
-    def root
-      File.join webapps, 'ROOT'
-    end
+      def self.find_tomcat(app_dir, configuration)
+        if web_inf? app_dir
+          version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |candidate_version|
+            raise "Malformed Tomcat version #{candidate_version}: too many version components" if candidate_version[3]
+          end
+        else
+          version = nil
+          uri = nil
+        end
 
-    def support_jar_name(version)
-      "#{tomcat_support_id version}.jar"
-    end
+        return version, uri # rubocop:disable RedundantReturn
+      rescue => e
+        raise RuntimeError, "Tomcat container error: #{e.message}", e.backtrace
+      end
 
-    def tomcat_home
-      File.join @app_dir, TOMCAT_HOME
-    end
+      def self.find_support(app_dir, configuration)
+        if web_inf? app_dir
+          version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration[KEY_SUPPORT])
+        else
+          version = nil
+          uri = nil
+        end
 
-    def webapps
-      File.join tomcat_home, 'webapps'
-    end
+        return version, uri # rubocop:disable RedundantReturn
+      end
 
-    def web_inf_lib
-      File.join root, 'WEB-INF', 'lib'
-    end
+      def tomcat_id(version)
+        "tomcat-#{version}"
+      end
 
-    def self.web_inf?(app_dir)
-      File.exists? File.join(app_dir, WEB_INF_DIRECTORY)
-    end
+      def tomcat_support_id(version)
+        "tomcat-buildpack-support-#{version}"
+      end
+
+      def link_application
+        system "rm -rf #{root}"
+        system "mkdir -p #{webapps}"
+        system "ln -sfn #{File.join '..', '..'} #{root}"
+      end
+
+      def link_libs
+        libs = ContainerUtils.libs(@app_dir, @lib_directory)
+
+        if libs
+          FileUtils.mkdir_p(web_inf_lib) unless File.exists?(web_inf_lib)
+          libs.each { |lib| system "ln -sfn #{File.join '..', '..', lib} #{web_inf_lib}" }
+        end
+      end
+
+      def root
+        File.join webapps, 'ROOT'
+      end
+
+      def support_jar_name(version)
+        "#{tomcat_support_id version}.jar"
+      end
+
+      def tomcat_home
+        File.join @app_dir, TOMCAT_HOME
+      end
+
+      def webapps
+        File.join tomcat_home, 'webapps'
+      end
+
+      def web_inf_lib
+        File.join root, 'WEB-INF', 'lib'
+      end
+
+      def self.web_inf?(app_dir)
+        File.exists? File.join(app_dir, WEB_INF_DIRECTORY)
+      end
 
   end
 

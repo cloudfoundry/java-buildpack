@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +35,6 @@ module JavaBuildpack::Repository
     it 'resolves the default version if no candidate is supplied' do
       expect(VersionResolver.resolve(nil, VERSIONS).to_s).to eq('2.0.0')
     end
-
 
     it 'resolves a wildcard major version' do
       expect(VersionResolver.resolve(JavaBuildpack::Util::TokenizedVersion.new('+'), VERSIONS).to_s).to eq('2.0.0')

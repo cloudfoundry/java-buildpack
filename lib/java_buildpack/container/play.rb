@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -75,41 +76,41 @@ module JavaBuildpack::Container
 
     private
 
-    KEY_HTTP_PORT = 'http.port'.freeze
+      KEY_HTTP_PORT = 'http.port'.freeze
 
-    def add_libs_to_classpath(root)
-      if JavaBuildpack::Util::PlayUtils.lib_play_jar(root)
-        script_dir_relative_path = Pathname.new(@app_dir).relative_path_from(Pathname.new(@play_root)).to_s
+      def add_libs_to_classpath(root)
+        if JavaBuildpack::Util::PlayUtils.lib_play_jar(root)
+          script_dir_relative_path = Pathname.new(@app_dir).relative_path_from(Pathname.new(@play_root)).to_s
 
-        additional_classpath = ContainerUtils.libs(@app_dir, @lib_directory).map do |lib|
-          "$scriptdir/#{script_dir_relative_path}/#{lib}"
-        end
+          additional_classpath = ContainerUtils.libs(@app_dir, @lib_directory).map do |lib|
+            "$scriptdir/#{script_dir_relative_path}/#{lib}"
+          end
 
-        update_file JavaBuildpack::Util::PlayUtils.start_script(root), /^classpath=\"(.*)\"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
-      else
-        ContainerUtils.libs(@app_dir, @lib_directory).each do |lib|
-          system "ln -nsf ../#{lib} #{JavaBuildpack::Util::PlayUtils.staged root}"
+          update_file JavaBuildpack::Util::PlayUtils.start_script(root), /^classpath=\"(.*)\"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
+        else
+          ContainerUtils.libs(@app_dir, @lib_directory).each do |lib|
+            system "ln -nsf ../#{lib} #{JavaBuildpack::Util::PlayUtils.staged root}"
+          end
         end
       end
-    end
 
-    def id(version)
-      "play-#{version}"
-    end
+      def id(version)
+        "play-#{version}"
+      end
 
-    def replace_bootstrap(root)
-      update_file JavaBuildpack::Util::PlayUtils.start_script(root), /play\.core\.server\.NettyServer/, 'org.cloudfoundry.reconfiguration.play.Bootstrap'
-    end
+      def replace_bootstrap(root)
+        update_file JavaBuildpack::Util::PlayUtils.start_script(root), /play\.core\.server\.NettyServer/, 'org.cloudfoundry.reconfiguration.play.Bootstrap'
+      end
 
-    def start_script_relative(app_dir, play_root)
-      "./#{Pathname.new(JavaBuildpack::Util::PlayUtils.start_script(play_root)).relative_path_from(Pathname.new(app_dir)).to_s}"
-    end
+      def start_script_relative(app_dir, play_root)
+        "./#{Pathname.new(JavaBuildpack::Util::PlayUtils.start_script(play_root)).relative_path_from(Pathname.new(app_dir)).to_s}"
+      end
 
-    def update_file(file, pattern, replacement)
-      content = File.open(file, 'r') { |file| file.read }
-      content.gsub! pattern, replacement
-      File.open(file, 'w') { |file| file.write content }
-    end
+      def update_file(file_name, pattern, replacement)
+        content = File.open(file_name, 'r') { |file| file.read }
+        content.gsub! pattern, replacement
+        File.open(file_name, 'w') { |file| file.write content }
+      end
 
   end
 

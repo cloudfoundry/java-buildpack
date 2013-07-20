@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,35 +64,35 @@ module JavaBuildpack::Framework
 
     private
 
-    def download_auto_reconfiguration
-      download_start_time = Time.now
-      print "-----> Downloading Auto Reconfiguration #{@version} from #{@uri} "
+      def download_auto_reconfiguration
+        download_start_time = Time.now
+        print "-----> Downloading Auto Reconfiguration #{@version} from #{@uri} "
 
-      JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file| # TODO Use global cache #50175265
-        system "cp #{file.path} #{File.join(@lib_directory, jar_name(@version))}"
-        puts "(#{(Time.now - download_start_time).duration})"
+        JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file| # TODO: Use global cache #50175265
+          system "cp #{file.path} #{File.join(@lib_directory, jar_name(@version))}"
+          puts "(#{(Time.now - download_start_time).duration})"
+        end
+
       end
 
-    end
+      def self.find_auto_reconfiguration(app_dir, configuration)
+        if JavaBuildpack::Util::PlayUtils.root app_dir
+          version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
+        else
+          version = nil
+          uri = nil
+        end
 
-    def self.find_auto_reconfiguration(app_dir, configuration)
-      if JavaBuildpack::Util::PlayUtils.root app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
-      else
-        version = nil
-        uri = nil
+        return version, uri # rubocop:disable RedundantReturn
       end
 
-      return version, uri
-    end
+      def id(version)
+        "play-auto-reconfiguration-#{version}"
+      end
 
-    def id(version)
-      "play-auto-reconfiguration-#{version}"
-    end
-
-    def jar_name(version)
-      "#{id version}.jar"
-    end
+      def jar_name(version)
+        "#{id version}.jar"
+      end
 
   end
 

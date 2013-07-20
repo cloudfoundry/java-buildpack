@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -89,79 +90,83 @@ module JavaBuildpack::Util
 
     private
 
-    def delete_file(filename)
-      File.delete filename if File.exists? filename
-    end
+      def delete_file(filename)
+        File.delete filename if File.exists? filename
+      end
 
-    def download(filenames, uri)
-      rich_uri = URI(uri)
+      def download(filenames, uri)
+        rich_uri = URI(uri)
 
-      Net::HTTP.start(rich_uri.host, rich_uri.port, :use_ssl => (rich_uri.scheme == 'https')) do |http|
-        request = Net::HTTP::Get.new(uri)
-        http.request request do |response|
-          write_response(filenames, response)
+        Net::HTTP.start(rich_uri.host, rich_uri.port, use_ssl: use_ssl?(rich_uri)) do |http|
+          request = Net::HTTP::Get.new(uri)
+          http.request request do |response|
+            write_response(filenames, response)
+          end
         end
       end
-    end
 
-    def filenames(uri)
-      key = URI.escape(uri, '/')
-      {
-        :cached => File.join(@cache_root, "#{key}.cached"),
-        :etag => File.join(@cache_root, "#{key}.etag"),
-        :last_modified => File.join(@cache_root, "#{key}.last_modified"),
-        :lock => File.join(@cache_root, "#{key}.lock")
-      }
-    end
+      def filenames(uri)
+        key = URI.escape(uri, '/')
+        {
+          cached: File.join(@cache_root, "#{key}.cached"),
+          etag: File.join(@cache_root, "#{key}.etag"),
+          last_modified: File.join(@cache_root, "#{key}.last_modified"),
+          lock: File.join(@cache_root, "#{key}.lock")
+        }
+      end
 
-    def persist_header(response, header, filename)
-      unless response[header].nil?
-        File.open(filename, File::CREAT|File::WRONLY) do |file|
-          file.write(response[header])
+      def persist_header(response, header, filename)
+        unless response[header].nil?
+          File.open(filename, File::CREAT | File::WRONLY) do |file|
+            file.write(response[header])
+          end
         end
       end
-    end
 
-    def set_header(request, header, filename)
-      if File.exists?(filename)
-        File.open(filename, File::RDONLY) do |file|
-          request[header] = file.read
+      def set_header(request, header, filename)
+        if File.exists?(filename)
+          File.open(filename, File::RDONLY) do |file|
+            request[header] = file.read
+          end
         end
       end
-    end
 
-    def should_download(filenames)
-      !File.exists?(filenames[:cached])
-    end
+      def should_download(filenames)
+        !File.exists?(filenames[:cached])
+      end
 
-    def should_update(filenames)
-      File.exists?(filenames[:cached]) && (File.exists?(filenames[:etag]) || File.exists?(filenames[:last_modified]))
-    end
+      def should_update(filenames)
+        File.exists?(filenames[:cached]) && (File.exists?(filenames[:etag]) || File.exists?(filenames[:last_modified]))
+      end
 
-    def update(filenames, uri)
-      rich_uri = URI(uri)
+      def update(filenames, uri)
+        rich_uri = URI(uri)
 
-      Net::HTTP.start(rich_uri.host, rich_uri.port, :use_ssl => (rich_uri.scheme == 'https')) do |http|
-        request = Net::HTTP::Get.new(uri)
-        set_header request, 'If-None-Match', filenames[:etag]
-        set_header request, 'If-Modified-Since', filenames[:last_modified]
+        Net::HTTP.start(rich_uri.host, rich_uri.port, use_ssl: use_ssl?(rich_uri)) do |http|
+          request = Net::HTTP::Get.new(uri)
+          set_header request, 'If-None-Match', filenames[:etag]
+          set_header request, 'If-Modified-Since', filenames[:last_modified]
 
-        http.request request do |response|
-          write_response(filenames, response) unless response.code == '304'
+          http.request request do |response|
+            write_response(filenames, response) unless response.code == '304'
+          end
         end
       end
-    end
 
-    def write_response(filenames, response)
-      persist_header response, 'Etag', filenames[:etag]
-      persist_header response, 'Last-Modified', filenames[:last_modified]
+      def use_ssl?(uri)
+        uri.scheme == 'https'
+      end
 
-      File.open(filenames[:cached], File::CREAT|File::WRONLY) do |cached_file|
-        response.read_body do |chunk|
-          cached_file.write(chunk)
+      def write_response(filenames, response)
+        persist_header response, 'Etag', filenames[:etag]
+        persist_header response, 'Last-Modified', filenames[:last_modified]
+
+        File.open(filenames[:cached], File::CREAT | File::WRONLY) do |cached_file|
+          response.read_body do |chunk|
+            cached_file.write(chunk)
+          end
         end
       end
-    end
 
   end
 
