@@ -41,6 +41,16 @@ module JavaBuildpack::Container
       expect(detected).to be_nil
     end
 
+    it 'should not detect a .groovy directory' do
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
+      .and_return(DETAILS)
+      detected = Groovy.new(
+          :app_dir => 'spec/fixtures/dot_groovy',
+          :configuration => {}).detect
+
+      expect(detected).to be_nil
+    end
+
     it 'should detect a single Groovy file' do
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
         .and_return(DETAILS)
