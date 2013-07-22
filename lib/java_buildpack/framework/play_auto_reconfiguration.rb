@@ -17,7 +17,7 @@ require 'java_buildpack/framework'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
-require 'java_buildpack/util/play/play_directory_locator'
+require 'java_buildpack/util/play_utils'
 
 module JavaBuildpack::Framework
 
@@ -79,7 +79,7 @@ module JavaBuildpack::Framework
     end
 
     def self.find_auto_reconfiguration(app_dir, configuration)
-      if JavaBuildpack::Util::Play.locate_play_application app_dir
+      if JavaBuildpack::Util::PlayUtils.root app_dir
         version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
       else
         version = nil
