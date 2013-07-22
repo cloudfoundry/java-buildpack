@@ -86,8 +86,6 @@ module JavaBuildpack::Framework
       end
 
       return version, uri
-    rescue => e
-      raise RuntimeError, "Spring Auto Reconfiguration framework error: #{e.message}", e.backtrace
     end
 
     def id(version)

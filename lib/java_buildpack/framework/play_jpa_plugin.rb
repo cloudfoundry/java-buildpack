@@ -22,10 +22,10 @@ require 'java_buildpack/util/play_utils'
 module JavaBuildpack::Framework
 
   # Encapsulates the detect, compile, and release functionality for enabling cloud auto-reconfiguration in Play
-  # applications. Note that Spring auto-reconfiguration is covered by the SpringAutoReconfiguration framework.
-  # The reconfiguration performed here is to override Play application configuration to bind a Play application to
-  # cloud resources.
-  class PlayAutoReconfiguration
+  # applications that use JPA. Note that Spring auto-reconfiguration is covered by the SpringAutoReconfiguration
+  # framework. The reconfiguration performed here is to override Play application configuration to bind a Play
+  # application to cloud resources.
+  class PlayJpaPlugin
 
     # Creates an instance, passing in an arbitrary collection of options.
     #
@@ -37,12 +37,12 @@ module JavaBuildpack::Framework
       @app_dir = context[:app_dir]
       @lib_directory = context[:lib_directory]
       @configuration = context[:configuration]
-      @version, @uri = PlayAutoReconfiguration.find_auto_reconfiguration(@app_dir, @configuration)
+      @version, @uri = PlayJpaPlugin.find_play_jpa_plugin(@app_dir, @configuration)
     end
 
     # Detects whether this application is suitable for auto-reconfiguration
     #
-    # @return [String] returns +play-auto-reconfiguration-<version>+ if the application is a candidate for
+    # @return [String] returns +play-jpa-plugin-<version>+ if the application is a candidate for JPA
     #                  auto-reconfiguration otherwise returns +nil+
     def detect
       @version ? id(@version) : nil
@@ -52,7 +52,7 @@ module JavaBuildpack::Framework
     #
     # @return [void]
     def compile
-      download_auto_reconfiguration
+      download_play_jpa_plugin
     end
 
     # Does nothing
@@ -63,35 +63,56 @@ module JavaBuildpack::Framework
 
     private
 
-    def download_auto_reconfiguration
-      download_start_time = Time.now
-      print "-----> Downloading Auto Reconfiguration #{@version} from #{@uri} "
+    PLAY_JPA_PLUGIN_JAR = '*play-java-jpa*.jar'.freeze
 
-      JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file| # TODO Use global cache #50175265
-        system "cp #{file.path} #{File.join(@lib_directory, jar_name(@version))}"
-        puts "(#{(Time.now - download_start_time).duration})"
+      def self.candidate?(app_dir)
+        candidate = false
+
+        root = JavaBuildpack::Util::PlayUtils.root app_dir
+        candidate =  uses_jpa?(root) || play20?(root) if root
+
+        candidate
       end
 
-    end
+      def download_play_jpa_plugin
+        download_start_time = Time.now
+        print "-----> Downloading Play JPA Plugin #{@version} from #{@uri} "
 
-    def self.find_auto_reconfiguration(app_dir, configuration)
-      if JavaBuildpack::Util::PlayUtils.root app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
-      else
-        version = nil
-        uri = nil
+        JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file| # TODO Use global cache #50175265
+          system "cp #{file.path} #{File.join(@lib_directory, jar_name(@version))}"
+          puts "(#{(Time.now - download_start_time).duration})"
+        end
+
       end
 
-      return version, uri
-    end
+      def self.find_play_jpa_plugin(app_dir, configuration)
+        if candidate? app_dir
+          version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
+        else
+          version = nil
+          uri = nil
+        end
 
-    def id(version)
-      "play-auto-reconfiguration-#{version}"
-    end
+        return version, uri
+      end
 
-    def jar_name(version)
-      "#{id version}.jar"
-    end
+      def id(version)
+        "play-jpa-plugin-#{version}"
+      end
+
+      def jar_name(version)
+        "#{id version}.jar"
+      end
+
+      def self.play20?(root)
+        JavaBuildpack::Util::PlayUtils.version(root) =~ /2.0.[\d]+/
+      end
+
+      def self.uses_jpa?(root)
+        lib = File.join JavaBuildpack::Util::PlayUtils.lib(root), PLAY_JPA_PLUGIN_JAR
+        staged = File.join JavaBuildpack::Util::PlayUtils.staged(root), PLAY_JPA_PLUGIN_JAR
+        Dir[lib, staged].first
+      end
 
   end
 

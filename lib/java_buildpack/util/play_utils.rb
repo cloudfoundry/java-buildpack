@@ -46,6 +46,14 @@ module JavaBuildpack::Util
       Dir[File.join(root, START_SCRIPT)].first
     end
 
+    # The location of the lib directory in a dist Play application
+    #
+    # @param [String] root the root of the Play application
+    # @return [String, nil] the path to the lib directory, or +nil+ if it does not exist
+    def self.lib(root)
+      File.join root, 'lib'
+    end
+
     # The location of the play JAR in a dist Play application
     #
     # @param [String] root the root of the Play application
@@ -84,10 +92,6 @@ module JavaBuildpack::Util
       START_SCRIPT = 'start'.freeze
 
       PLAY_JAR = 'play*.jar'.freeze
-
-      def self.lib(root)
-        File.join root, 'lib'
-      end
 
       def self.play_jar(root)
         Dir[File.join(root, PLAY_JAR)].first
