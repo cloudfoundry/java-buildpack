@@ -91,7 +91,7 @@ module JavaBuildpack::Util
 
       START_SCRIPT = 'start'.freeze
 
-      PLAY_JAR = 'play*.jar'.freeze
+      PLAY_JAR = '*play_*.jar'.freeze
 
       def self.play_jar(root)
         Dir[File.join(root, PLAY_JAR)].first
