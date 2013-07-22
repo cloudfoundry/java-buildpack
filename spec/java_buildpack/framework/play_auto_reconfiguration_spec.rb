@@ -22,7 +22,7 @@ module JavaBuildpack::Framework
 
     PLAY_AUTO_RECONFIGURATION_VERSION = JavaBuildpack::Util::TokenizedVersion.new('0.6.8')
 
-    PLAY_AUTO_RECONFIGURATION_DETAILS = [PLAY_AUTO_RECONFIGURATION_VERSION, 'test-auto-reconfiguration-uri']
+    PLAY_AUTO_RECONFIGURATION_DETAILS = [PLAY_AUTO_RECONFIGURATION_VERSION, 'test-uri']
 
     let(:application_cache) { double('ApplicationCache') }
 
@@ -56,7 +56,7 @@ module JavaBuildpack::Framework
 
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(PLAY_AUTO_RECONFIGURATION_DETAILS)
         JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-auto-reconfiguration-uri').and_yield(File.open('spec/fixtures/stub-auto-reconfiguration.jar'))
+        application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-auto-reconfiguration.jar'))
 
         PlayAutoReconfiguration.new(
           :app_dir => 'spec/fixtures/container_play',
