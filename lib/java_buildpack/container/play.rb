@@ -18,7 +18,7 @@ require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
-require 'java_buildpack/util/play/play_directory_locator'
+require 'java_buildpack/util/play_utils'
 require 'pathname'
 
 module JavaBuildpack::Container
@@ -39,7 +39,7 @@ module JavaBuildpack::Container
       @java_home = context[:java_home]
       @java_opts = context[:java_opts]
       @lib_directory = context[:lib_directory]
-      @play_root = JavaBuildpack::Util::Play.locate_play_application(@app_dir)
+      @play_root = JavaBuildpack::Util::PlayUtils.root(@app_dir)
     end
 
     # Detects whether this application is a Play application.
@@ -47,14 +47,14 @@ module JavaBuildpack::Container
     # @return [String] returns +Play+ if and only if the application has a +start+ script, otherwise
     #                  returns +nil+
     def detect
-      @play_root ? id(version(@play_root)) : nil
+      @play_root ? id(JavaBuildpack::Util::PlayUtils.version(@play_root)) : nil
     end
 
     # Makes the +start+ script executable.
     #
     # @return [void]
     def compile
-      system "chmod +x #{Play.start_script @play_root}"
+      system "chmod +x #{JavaBuildpack::Util::PlayUtils.start_script @play_root}"
       add_libs_to_classpath @play_root
       replace_bootstrap @play_root
     end
@@ -77,22 +77,18 @@ module JavaBuildpack::Container
 
     KEY_HTTP_PORT = 'http.port'.freeze
 
-    START_SCRIPT = 'start'.freeze
-
-    PLAY_JAR = 'play*.jar'.freeze
-
     def add_libs_to_classpath(root)
-      if Play.lib_play_jar(root)
+      if JavaBuildpack::Util::PlayUtils.lib_play_jar(root)
         script_dir_relative_path = Pathname.new(@app_dir).relative_path_from(Pathname.new(@play_root)).to_s
 
         additional_classpath = ContainerUtils.libs(@app_dir, @lib_directory).map do |lib|
           "$scriptdir/#{script_dir_relative_path}/#{lib}"
         end
 
-        update_file Play.start_script(root), /^classpath=\"(.*)\"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
+        update_file JavaBuildpack::Util::PlayUtils.start_script(root), /^classpath=\"(.*)\"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
       else
         ContainerUtils.libs(@app_dir, @lib_directory).each do |lib|
-          system "ln -nsf ../#{lib} #{Play.staged root}"
+          system "ln -nsf ../#{lib} #{JavaBuildpack::Util::PlayUtils.staged root}"
         end
       end
     end
@@ -101,47 +97,18 @@ module JavaBuildpack::Container
       "play-#{version}"
     end
 
-    def self.lib(root)
-      File.join root, 'lib'
-    end
-
-    def self.lib_play_jar(root)
-      play_jar(lib(root))
-    end
-
-    def self.staged(root)
-      File.join root, 'staged'
-    end
-
-    def self.staged_play_jar(root)
-      play_jar(staged(root))
-    end
-
-    def self.play_jar(root)
-      Dir[File.join(root, PLAY_JAR)].find { |candidate| candidate =~ /.*play_[\d\-\.]*\.jar/ }
-    end
-
     def replace_bootstrap(root)
-      update_file Play.start_script(root), /play\.core\.server\.NettyServer/, 'org.cloudfoundry.reconfiguration.play.Bootstrap'
-    end
-
-    def self.start_script(root)
-      Dir[File.join(root, START_SCRIPT)].first
+      update_file JavaBuildpack::Util::PlayUtils.start_script(root), /play\.core\.server\.NettyServer/, 'org.cloudfoundry.reconfiguration.play.Bootstrap'
     end
 
     def start_script_relative(app_dir, play_root)
-      "./#{Pathname.new(Play.start_script(play_root)).relative_path_from(Pathname.new(app_dir)).to_s}"
+      "./#{Pathname.new(JavaBuildpack::Util::PlayUtils.start_script(play_root)).relative_path_from(Pathname.new(app_dir)).to_s}"
     end
 
     def update_file(file, pattern, replacement)
       content = File.open(file, 'r') { |file| file.read }
       content.gsub! pattern, replacement
       File.open(file, 'w') { |file| file.write content }
-    end
-
-    def version(root)
-      play_jar = Play.lib_play_jar(root) || Play.staged_play_jar(root)
-      play_jar.match(/.*play_(.*)\.jar/)[1]
     end
 
   end
