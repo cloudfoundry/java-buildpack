@@ -25,4 +25,5 @@ jres:
 frameworks:
   - "JavaBuildpack::Framework::JavaOpts"
   - "JavaBuildpack::Framework::PlayAutoReconfiguration"
+  - "JavaBuildpack::Framework::PlayJpaPlugin"
   - "JavaBuildpack::Framework::SpringAutoReconfiguration"
