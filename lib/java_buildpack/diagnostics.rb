@@ -1,7 +1,6 @@
-#!/usr/bin/env ruby
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,12 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-$stdout.sync = true
-$stderr.sync = true
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+require 'java_buildpack'
 
-require 'java_buildpack/buildpack'
-
-build_dir = ARGV[0]
-
-puts JavaBuildpack::Buildpack.drive_buildpack_with_logger(build_dir, 'Release failed with exception %s') { |buildpack| buildpack.release }
+# A module encapsulating all of the diagnostics code for the Java buildpack
+module JavaBuildpack::Diagnostics
+end

@@ -27,7 +27,7 @@ $stdout.sync = true
 module Kill
 
   def self.log(log_data)
-    log_file_name = "#{File.dirname(__FILE__)}/buildpack.log"
+    log_file_name = "#{File.dirname(__FILE__)}/@@LOG_FILE_NAME@@"
     File.open(log_file_name, 'a') do |log_file|
       log_file.sync = true
       log_file.write "#{log_data} @ #{Kill.time_in_millis}\n"

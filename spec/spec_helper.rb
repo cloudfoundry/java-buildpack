@@ -27,3 +27,11 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
   config.filter_run :focus
 end
+
+# Ensure a logger exists for any class under test that needs one.
+require 'fileutils'
+require 'java_buildpack/diagnostics/common'
+require 'java_buildpack/diagnostics/logger_factory'
+tmpdir = Dir.tmpdir
+FileUtils::rm_rf File.join(tmpdir, JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY)
+JavaBuildpack::Diagnostics::LoggerFactory.create_logger tmpdir

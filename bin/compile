@@ -16,16 +16,11 @@
 # limitations under the License.
 
 $stdout.sync = true
+$stderr.sync = true
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
 require 'java_buildpack/buildpack'
 
 build_dir = ARGV[0]
 
-begin
-  JavaBuildpack::Buildpack.new(build_dir).compile
-rescue => e
-  puts "Compile failed with exception #{e.inspect}, #{e.backtrace}\n"
-  abort e.message
-end
-
+JavaBuildpack::Buildpack.drive_buildpack_with_logger(build_dir, 'Compile failed with exception %s') { |buildpack| buildpack.compile }

@@ -16,23 +16,18 @@
 # limitations under the License.
 
 $stdout.sync = true
+$stderr.sync = true
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
 require 'java_buildpack/buildpack'
 
 build_dir = ARGV[0]
 
-begin
-  components = JavaBuildpack::Buildpack.new(build_dir).detect.compact
+components = JavaBuildpack::Buildpack.drive_buildpack_with_logger(build_dir, 'Detect failed with exception %s') { |buildpack| buildpack.detect }.compact
 
-  if components.empty?
-    abort
-  else
-    puts components.join(', ')
-  end
-
-rescue => e
-  puts "Detect failed with exception #{e.inspect}, #{e.backtrace}\n"
-  abort e.message
+if components.empty?
+  abort
+else
+  puts components.join(', ')
 end
 

@@ -39,6 +39,7 @@ The buildpack supports configuration and extension through the use of Git reposi
 	* [Frameworks](docs/extending-frameworks.md)
 * Utilities
 	* [Caches](docs/util-caches.md)
+	* [Logging](docs/logging.md)
 	* [Repositories](docs/util-repositories.md)
 	* [Repository Builders](docs/util-repository-builders.md)
 	* [Test Applications](docs/util-test-applications.md)
@@ -50,6 +51,10 @@ To run the tests, do the following:
 bundle install
 bundle exec rake
 ```
+
+If you want to use the RubyMine debugger, you may need to [install additional gems][].
+
+[install additional gems]: http://stackoverflow.com/questions/11732715/how-do-i-install-ruby-debug-base19x-on-mountain-lion-for-intellij
 
 ## Contributing
 [Pull requests][] are welcome; see the [contributor guidelines][] for details.
