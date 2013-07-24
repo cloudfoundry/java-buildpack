@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 group :development do
   gem 'rake'
   gem 'redcarpet'
+  gem 'rubocop'
   gem 'yard'
 end
 

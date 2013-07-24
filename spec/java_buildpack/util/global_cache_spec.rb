@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,23 +30,23 @@ module JavaBuildpack::Util
     end
 
     it 'should raise an error if BUILDPACK_CACHE is not defined' do
-      lambda { GlobalCache.new }.should raise_error
+      -> { GlobalCache.new }.should raise_error
     end
 
     it 'should use BUILDPACK_CACHE directory' do
       stub_request(:get, 'http://foo-uri/').to_return(
-          :status => 200,
-          :body => 'foo-cached',
-          :headers => {
-              :Etag => 'foo-etag',
-              'Last-Modified' => 'foo-last-modified'
-          }
+        status: 200,
+        body: 'foo-cached',
+        headers: {
+          Etag: 'foo-etag',
+          'Last-Modified' => 'foo-last-modified'
+        }
       )
 
       Dir.mktmpdir do |root|
         ENV['BUILDPACK_CACHE'] = root
 
-        GlobalCache.new().get('http://foo-uri/') {}
+        GlobalCache.new.get('http://foo-uri/') {}
 
         expect(Dir[File.join(root, '*.cached')].size).to eq(1)
       end

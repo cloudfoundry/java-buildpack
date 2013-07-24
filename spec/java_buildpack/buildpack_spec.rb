@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,18 +23,19 @@ module JavaBuildpack
 
   describe Buildpack do
 
-    let(:stub_container1) { double('StubContainer1', :detect => nil) }
-    let(:stub_container2) { double('StubContainer2', :detect => nil) }
-    let(:stub_framework1) { double('StubFramework1', :detect => nil) }
-    let(:stub_framework2) { double('StubFramework2', :detect => nil) }
-    let(:stub_jre1) { double('StubJre1', :detect => nil) }
-    let(:stub_jre2) { double('StubJre2', :detect => nil) }
+    let(:stub_container1) { double('StubContainer1', detect: nil) }
+    let(:stub_container2) { double('StubContainer2', detect: nil) }
+    let(:stub_framework1) { double('StubFramework1', detect: nil) }
+    let(:stub_framework2) { double('StubFramework2', detect: nil) }
+    let(:stub_jre1) { double('StubJre1', detect: nil) }
+    let(:stub_jre2) { double('StubJre2', detect: nil) }
 
     before do
       YAML.stub(:load_file).with(File.expand_path('config/components.yml')).and_return(
         'containers' => ['Test::StubContainer1', 'Test::StubContainer2'],
         'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
-        'jres' => ['Test::StubJre1', 'Test::StubJre2'])
+        'jres' => ['Test::StubJre1', 'Test::StubJre2']
+      )
 
       Test::StubContainer1.stub(:new).and_return(stub_container1)
       Test::StubContainer2.stub(:new).and_return(stub_container2)
@@ -95,7 +97,7 @@ module JavaBuildpack
 
       payload = with_buildpack { |buildpack| buildpack.release }
 
-      expect(payload).to eq({'addons' => [], 'config_vars' => {}, 'default_process_types' => { 'web' => 'test-command' }}.to_yaml)
+      expect(payload).to eq({ 'addons' => [], 'config_vars' => {}, 'default_process_types' => { 'web' => 'test-command' } }.to_yaml)
     end
 
     it 'should load configuration file matching JRE class name' do

@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,16 +33,16 @@ module JavaBuildpack::Jre
       v = size.to_i
       # Store the number of kilobytes.
       case unit
-        when 'b', 'B'
-          @bytes = v
-        when 'k', 'K'
-          @bytes = v * KILO
-        when 'm', 'M'
-          @bytes = KILO * KILO * v
-        when 'g', 'G'
-          @bytes = KILO * KILO * KILO * v
-        else
-          raise "Invalid unit '#{unit}' in memory size '#{size}'"
+      when 'b', 'B'
+        @bytes = v
+      when 'k', 'K'
+        @bytes = v * KILO
+      when 'm', 'M'
+        @bytes = KILO * KILO * v
+      when 'g', 'G'
+        @bytes = KILO * KILO * KILO * v
+      else
+        raise "Invalid unit '#{unit}' in memory size '#{size}'"
       end
     end
 
@@ -111,34 +112,32 @@ module JavaBuildpack::Jre
       raise "Cannot divide a MemorySize by an instance of #{other.class}"
     end
 
-    # Returns a zero memory size.
-    #
-    # @return [MemorySize] zero byte memory size
-    def self.ZERO
-      from_numeric 0
-    end
-
     protected
 
-    # @!attribute [r] bytes
-    #   @return [Numeric] the size in bytes of this memory size
-    attr_reader :bytes
+      # @!attribute [r] bytes
+      #   @return [Numeric] the size in bytes of this memory size
+      attr_reader :bytes
 
     private
 
-    KILO = 1024
+      KILO = 1024
 
-    def self.is_integer(v)
-      f = Float(v)
-      f && f.floor == f
-    rescue
-      false
-    end
+      def self.is_integer(v)
+        f = Float(v)
+        f && f.floor == f
+      rescue
+        false
+      end
 
-    def self.from_numeric(n)
-      MemorySize.new("#{n.to_s}B")
-    end
+      def self.from_numeric(n)
+        MemorySize.new("#{n.to_s}B")
+      end
 
+    public
+
+      # Zero byte memory size
+      ZERO = from_numeric 0
 
   end
+
 end

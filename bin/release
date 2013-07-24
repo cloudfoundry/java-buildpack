@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright (c) 2013 the original author or authors.
 #
@@ -15,7 +16,7 @@
 # limitations under the License.
 
 $stdout.sync = true
-$:.unshift File.expand_path("../../lib", __FILE__)
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
 require 'java_buildpack/buildpack'
 

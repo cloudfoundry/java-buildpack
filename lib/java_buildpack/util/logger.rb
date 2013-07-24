@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,32 +37,38 @@ module JavaBuildpack::Util
       Logger.log(@log_file, @log_file)
     end
 
+    # Log a message.
+    #
+    # @param [String] title the title of the log message
+    # @param [Hash, Array, String, nil] data the data to print with the log message.  If the data is a +Hash+ or +Array+
+    #                                        it is converted to YAML first and the printed.
+    # @return [void]
     def log(title, data = nil)
       Logger.log @log_file, title, data
     end
 
     private
 
-    LOG_FILE_NAME = 'buildpack.log'.freeze
+      LOG_FILE_NAME = 'buildpack.log'.freeze
 
-    def self.log(file, title, data = nil)
-      File.open(file, 'a') do |log|
-        log.sync = true
+      def self.log(file, title, data = nil)
+        File.open(file, 'a') do |log|
+          log.sync = true
 
-        log.write "#{time_in_millis}: #{title}\n"
+          log.write "#{time_in_millis}: #{title}\n"
 
-        if data
-          data_string = data.is_a?(Hash) || data.is_a?(Array) ? data.to_yaml: data.to_s
-          data_string.each_line { |line| log.write "\t#{line}" }
+          if data
+            data_string = data.is_a?(Hash) || data.is_a?(Array) ? data.to_yaml : data.to_s
+            data_string.each_line { |line| log.write "\t#{line}" }
+          end
+
+          log.write "\n"
         end
-
-        log.write "\n"
       end
-    end
 
-    def self.time_in_millis
-      Time.now.xmlschema(3).sub(/T/, ' ')
-    end
+      def self.time_in_millis
+        Time.now.xmlschema(3).sub(/T/, ' ')
+      end
 
   end
 

@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +31,7 @@ module JavaBuildpack::Util
       # A Play application may reside directly in the application directory or in a direct subdirectory of the
       # application directory.
       roots = Dir[app_dir, File.join(app_dir, '*')].select do |file|
-        self.start_script(file) && (self.lib_play_jar(file) || self.staged_play_jar(file))
+        start_script(file) && (lib_play_jar(file) || staged_play_jar(file))
       end
 
       raise "Play application detected in multiple directories: #{roots}" if roots.size > 1

@@ -1,5 +1,6 @@
-# Cloud Foundry Buildpack Utilities
-# Copyright (c) 2013 the original author or authors.
+# Encoding: utf-8
+# Cloud Foundry Java Buildpack
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,23 +31,23 @@ module JavaBuildpack::Util
     end
 
     it 'should raise an error if ARGV[1] is not defined' do
-      lambda { ApplicationCache.new }.should raise_error
+      -> { ApplicationCache.new }.should raise_error
     end
 
     it 'should use ARGV[1] directory' do
       stub_request(:get, 'http://foo-uri/').to_return(
-          :status => 200,
-          :body => 'foo-cached',
-          :headers => {
-              :Etag => 'foo-etag',
-              'Last-Modified' => 'foo-last-modified'
-          }
+        status: 200,
+        body: 'foo-cached',
+        headers: {
+          Etag: 'foo-etag',
+          'Last-Modified' => 'foo-last-modified'
+        }
       )
 
       Dir.mktmpdir do |root|
         ARGV[1] = root
 
-        ApplicationCache.new().get('http://foo-uri/') {}
+        ApplicationCache.new.get('http://foo-uri/') {}
 
         expect(Dir[File.join(root, '*.cached')].size).to eq(1)
       end
@@ -55,4 +56,3 @@ module JavaBuildpack::Util
   end
 
 end
-

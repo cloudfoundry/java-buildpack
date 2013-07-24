@@ -19,8 +19,11 @@ RSpec::Core::RakeTask.new
 require 'yard'
 YARD::Rake::YardocTask.new
 
+require 'rubocop/rake_task'
+Rubocop::RakeTask.new
+
 require 'rake/clean'
 CLEAN.include %w(.yardoc coverage)
 CLOBBER.include %w(doc pkg)
 
-task :default => :spec
+task :default => [ :rubocop, :yard, :spec ]

@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,8 +36,9 @@ module JavaBuildpack::Framework
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS)
 
       detected = PlayJpaPlugin.new(
-        :app_dir => 'spec/fixtures/framework_play_jpa_plugin_play20',
-        :configuration => {}).detect
+        app_dir: 'spec/fixtures/framework_play_jpa_plugin_play20',
+        configuration: {}
+      ).detect
 
       expect(detected).to eq('play-jpa-plugin-0.7.1')
     end
@@ -45,8 +47,9 @@ module JavaBuildpack::Framework
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS)
 
       detected = PlayJpaPlugin.new(
-        :app_dir => 'spec/fixtures/framework_play_jpa_plugin_staged',
-        :configuration => {}).detect
+        app_dir: 'spec/fixtures/framework_play_jpa_plugin_staged',
+        configuration: {}
+      ).detect
 
       expect(detected).to eq('play-jpa-plugin-0.7.1')
     end
@@ -55,8 +58,9 @@ module JavaBuildpack::Framework
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS)
 
       detected = PlayJpaPlugin.new(
-        :app_dir => 'spec/fixtures/framework_play_jpa_plugin_dist',
-        :configuration => {}).detect
+        app_dir: 'spec/fixtures/framework_play_jpa_plugin_dist',
+        configuration: {}
+      ).detect
 
       expect(detected).to eq('play-jpa-plugin-0.7.1')
     end
@@ -65,8 +69,9 @@ module JavaBuildpack::Framework
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS)
 
       detected = PlayJpaPlugin.new(
-        :app_dir => 'spec/fixtures/container_play',
-        :configuration => {}).detect
+        app_dir: 'spec/fixtures/container_play',
+        configuration: {}
+      ).detect
 
       expect(detected).to be_nil
     end
@@ -81,9 +86,10 @@ module JavaBuildpack::Framework
         application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-play-jpa-plugin.jar'))
 
         PlayJpaPlugin.new(
-          :app_dir => 'spec/fixtures/framework_play_jpa_plugin_dist',
-          :lib_directory => lib_directory,
-          :configuration => {}).compile
+          app_dir: 'spec/fixtures/framework_play_jpa_plugin_dist',
+          lib_directory: lib_directory,
+          configuration: {}
+        ).compile
 
         expect(File.exists? File.join(lib_directory, 'play-jpa-plugin-0.7.1.jar')).to be_true
       end

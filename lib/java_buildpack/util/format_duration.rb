@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,16 +32,12 @@ class Numeric
     minutes = (remainder / MINUTE).to_int
     remainder -= MINUTE * minutes
 
-    if hours > 0
-      return "#{hours}h #{minutes}m"
-    end
+    return "#{hours}h #{minutes}m" if hours > 0
 
     seconds = (remainder / SECOND).to_int
     remainder -= SECOND * seconds
 
-    if minutes > 0
-      return "#{minutes}m #{seconds}s"
-    end
+    return "#{minutes}m #{seconds}s" if minutes > 0
 
     tenths = (remainder / TENTH).to_int
     "#{seconds}.#{tenths}s"
@@ -48,14 +45,14 @@ class Numeric
 
   private
 
-  MILLISECOND = 0.001.freeze
+    MILLISECOND = 0.001.freeze
 
-  TENTH = (100 * MILLISECOND).freeze
+    TENTH = (100 * MILLISECOND).freeze
 
-  SECOND = (10 * TENTH).freeze
+    SECOND = (10 * TENTH).freeze
 
-  MINUTE = (60 * SECOND).freeze
+    MINUTE = (60 * SECOND).freeze
 
-  HOUR = (60 * MINUTE).freeze
+    HOUR = (60 * MINUTE).freeze
 
 end

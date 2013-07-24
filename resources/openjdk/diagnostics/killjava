@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright (c) 2013 the original author or authors.
 #
@@ -25,19 +26,19 @@ $stdout.sync = true
 
 module Kill
 
-  def Kill.log(log_data)
-    log_file = "#{File.dirname(__FILE__)}/buildpack.log"
-    File.open(log_file, 'a') do |log_file|
+  def self.log(log_data)
+    log_file_name = "#{File.dirname(__FILE__)}/buildpack.log"
+    File.open(log_file_name, 'a') do |log_file|
       log_file.sync = true
       log_file.write "#{log_data} @ #{Kill.time_in_millis}\n"
     end
   end
 
-  def Kill.time_in_millis
+  def self.time_in_millis
     Time.now.xmlschema(3).sub(/T/, ' ')
   end
 
-  def Kill.log_process_tree
+  def self.log_process_tree
     Kill.log(`ps -AHF`)
   end
 
@@ -49,7 +50,7 @@ begin
   # This script can be renamed as necessary without modifying its code.
   command = "pkill -9 -f .*-XX:OnOutOfMemoryError=.*#{File.basename(__FILE__)}.*"
   Kill.log("#{__FILE__} attempting to kill Java processes using `#{command}`")
-  `#{command}`
+  system command
   Kill.log_process_tree
 rescue => e
   Kill.log("#{__FILE__} failed with exception #{e.inspect}, #{e.backtrace}\n")

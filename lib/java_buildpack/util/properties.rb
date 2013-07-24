@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,17 +23,16 @@ module JavaBuildpack::Util
 
     # Create a new instance, populating it with values from a properties file
     #
-    # @param [String, nil] file the file to use for initialization.  If no file is passed in, the instance is empty.
-    def initialize(file)
-      unless file.nil?
-        contents = File.open(file) { |file| file.read }
+    # @param [String, nil] file_name the file to use for initialization. If no file is passed in, the instance is empty.
+    def initialize(file_name)
+      unless file_name.nil?
+        contents = File.open(file_name) { |file| file.read }
         contents.gsub! /[\r\n\f]+ /, ''
 
         contents.each_line do |line|
           unless blank_line?(line) || comment_line?(line)
-            if line =~ /^[\s]*([^:=\s]+)[\s]*[=:]?[\s]*(.*?)\s*$/
-              self[$1] = $2
-            end
+            match_data = /^[\s]*([^:=\s]+)[\s]*[=:]?[\s]*(.*?)\s*$/.match(line)
+            self[match_data[1]] = match_data[2] if match_data
           end
         end
       end
@@ -40,13 +40,13 @@ module JavaBuildpack::Util
 
     private
 
-    def blank_line?(line)
-      line =~ /^[\s]*$/
-    end
+      def blank_line?(line)
+        line =~ /^[\s]*$/
+      end
 
-    def comment_line?(line)
-      line =~ /^[\s]*[#!].*$/
-    end
+      def comment_line?(line)
+        line =~ /^[\s]*[#!].*$/
+      end
 
   end
 

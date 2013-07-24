@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,8 +63,6 @@ module JavaBuildpack::Framework
         modifier.augment_servlet_contexts
       end
     end
-
-    private
 
     def assert_equality(fixture, &block)
       modifier = File.open("spec/fixtures/#{fixture}_before.xml") do |file|

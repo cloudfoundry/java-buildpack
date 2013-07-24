@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -71,84 +72,84 @@ module JavaBuildpack::Framework
 
     private
 
-    CONTEXT_CLASS = 'contextClass'.freeze
+      CONTEXT_CLASS = 'contextClass'.freeze
 
-    CONTEXT_CLASS_ANNOTATION = 'org.springframework.web.context.support.AnnotationConfigWebApplicationContext'.freeze
+      CONTEXT_CLASS_ANNOTATION = 'org.springframework.web.context.support.AnnotationConfigWebApplicationContext'.freeze
 
-    CONTEXT_CONFIG_LOCATION = 'contextConfigLocation'.freeze
+      CONTEXT_CONFIG_LOCATION = 'contextConfigLocation'.freeze
 
-    CONTEXT_INITIALIZER_ADDITIONAL = 'org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer'.freeze
+      CONTEXT_INITIALIZER_ADDITIONAL = 'org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer'.freeze
 
-    CONTEXT_INITIALIZER_CLASSES = 'contextInitializerClasses'.freeze
+      CONTEXT_INITIALIZER_CLASSES = 'contextInitializerClasses'.freeze
 
-    CONTEXT_LOADER_LISTENER = 'ContextLoaderListener'.freeze
+      CONTEXT_LOADER_LISTENER = 'ContextLoaderListener'.freeze
 
-    CONTEXT_LOCATION_ADDITIONAL_ANNOTATION = 'org.cloudfoundry.reconfiguration.spring.web.CloudAppAnnotationConfigAutoReconfig'.freeze
+      CONTEXT_LOCATION_ADDITIONAL_ANNOTATION = 'org.cloudfoundry.reconfiguration.spring.web.CloudAppAnnotationConfigAutoReconfig'.freeze
 
-    CONTEXT_LOCATION_ADDITIONAL_XML = 'classpath:META-INF/cloud/cloudfoundry-auto-reconfiguration-context.xml'.freeze
+      CONTEXT_LOCATION_ADDITIONAL_XML = 'classpath:META-INF/cloud/cloudfoundry-auto-reconfiguration-context.xml'.freeze
 
-    CONTEXT_LOCATION_DEFAULT = '/WEB-INF/applicationContext.xml'.freeze
+      CONTEXT_LOCATION_DEFAULT = '/WEB-INF/applicationContext.xml'.freeze
 
-    DISPATCHER_SERVLET = 'DispatcherServlet'.freeze
+      DISPATCHER_SERVLET = 'DispatcherServlet'.freeze
 
-    def additional_context_config_location(root, param_type)
-      has_annotation_application_context?(root, param_type) ? CONTEXT_LOCATION_ADDITIONAL_ANNOTATION : CONTEXT_LOCATION_ADDITIONAL_XML
-    end
+      def additional_context_config_location(root, param_type)
+        has_annotation_application_context?(root, param_type) ? CONTEXT_LOCATION_ADDITIONAL_ANNOTATION : CONTEXT_LOCATION_ADDITIONAL_XML
+      end
 
-    def augment_context_config_locations(root, param_type, default_location)
-      locations_string = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_CONFIG_LOCATION}')]]/param-value/text()").first
-      locations_string = create_param(root, param_type, CONTEXT_CONFIG_LOCATION, default_location) if !locations_string
+      def augment_context_config_locations(root, param_type, default_location)
+        locations_string = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_CONFIG_LOCATION}')]]/param-value/text()").first
+        locations_string = create_param(root, param_type, CONTEXT_CONFIG_LOCATION, default_location) unless locations_string
 
-      locations = locations_string.value.strip.split(/[,;\s]+/)
-      locations << additional_context_config_location(root, param_type)
+        locations = locations_string.value.strip.split(/[,;\s]+/)
+        locations << additional_context_config_location(root, param_type)
 
-      locations_string.value = locations.join(' ')
-    end
+        locations_string.value = locations.join(' ')
+      end
 
-    def augment_context_initializer_classes(root, param_type)
-      classes_string = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_INITIALIZER_CLASSES}')]]/param-value/text()").first
-      classes_string = create_param(root, param_type, CONTEXT_INITIALIZER_CLASSES, '') if !classes_string
+      def augment_context_initializer_classes(root, param_type)
+        classes_string = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_INITIALIZER_CLASSES}')]]/param-value/text()").first
+        classes_string = create_param(root, param_type, CONTEXT_INITIALIZER_CLASSES, '') unless classes_string
 
-      classes = classes_string.value.strip.split(/[,;\s]+/)
-      classes << CONTEXT_INITIALIZER_ADDITIONAL
+        classes = classes_string.value.strip.split(/[,;\s]+/)
+        classes << CONTEXT_INITIALIZER_ADDITIONAL
 
-      classes_string.value = classes.join(',')
-    end
+        classes_string.value = classes.join(',')
+      end
 
-    def create_param(root, param_type, name, value)
-      param = REXML::Element.new param_type, root
+      def create_param(root, param_type, name, value)
+        param = REXML::Element.new param_type, root
 
-      param_name = REXML::Element.new 'param-name', param
-      REXML::Text.new name, true, param_name
+        param_name = REXML::Element.new 'param-name', param
+        REXML::Text.new name, true, param_name
 
-      param_value = REXML::Element.new 'param-value', param
-      REXML::Text.new value, true, param_value
-    end
+        param_value = REXML::Element.new 'param-value', param
+        REXML::Text.new value, true, param_value
+      end
 
-    def default_servlet_context_location(servlet)
-      name = xpath(servlet, 'servlet-name/text()').first.value.strip
-      "/WEB-INF/#{name}-servlet.xml"
-    end
+      def default_servlet_context_location(servlet)
+        name = xpath(servlet, 'servlet-name/text()').first.value.strip
+        "/WEB-INF/#{name}-servlet.xml"
+      end
 
-    def has_annotation_application_context?(root, param_type)
-      xpath(root, "#{param_type}/param-name[contains(text(), '#{CONTEXT_CLASS}')]").any?
-    end
+      def has_annotation_application_context?(root, param_type)
+        xpath(root, "#{param_type}/param-name[contains(text(), '#{CONTEXT_CLASS}')]").any?
+      end
 
-    def has_context_loader_listener?
-      xpath(@document, "/web-app/listener/listener-class[contains(text(), '#{CONTEXT_LOADER_LISTENER}')]").any?
-    end
+      def has_context_loader_listener?
+        xpath(@document, "/web-app/listener/listener-class[contains(text(), '#{CONTEXT_LOADER_LISTENER}')]").any?
+      end
 
-    def servlets
-      xpath(@document, "/web-app/servlet[servlet-class[contains(text(), '#{DISPATCHER_SERVLET}')]]")
-    end
+      def servlets
+        xpath(@document, "/web-app/servlet[servlet-class[contains(text(), '#{DISPATCHER_SERVLET}')]]")
+      end
 
-    def web_app(root)
-      xpath(root, '/web-app').first
-    end
+      def web_app(root)
+        xpath(root, '/web-app').first
+      end
 
-    def xpath(root, path)
-      REXML::XPath.match(root, path)
-    end
+      def xpath(root, path)
+        REXML::XPath.match(root, path)
+      end
 
   end
 

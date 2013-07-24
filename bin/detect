@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright (c) 2013 the original author or authors.
 #
@@ -15,19 +16,21 @@
 # limitations under the License.
 
 $stdout.sync = true
-$:.unshift File.expand_path("../../lib", __FILE__)
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
 require 'java_buildpack/buildpack'
 
 build_dir = ARGV[0]
 
 begin
-  components = JavaBuildpack::Buildpack.new(build_dir).detect().compact
-  unless components.empty?
-    puts components.join(', ')
-  else
+  components = JavaBuildpack::Buildpack.new(build_dir).detect.compact
+
+  if components.empty?
     abort
+  else
+    puts components.join(', ')
   end
+
 rescue => e
   puts "Detect failed with exception #{e.inspect}, #{e.backtrace}\n"
   abort e.message

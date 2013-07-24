@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,22 +41,22 @@ module JavaBuildpack::Repository
 
     private
 
-    KEY_REPOSITORY_ROOT = 'repository_root'.freeze
+      KEY_REPOSITORY_ROOT = 'repository_root'.freeze
 
-    KEY_VERSION = 'version'.freeze
+      KEY_VERSION = 'version'.freeze
 
-    def self.index(repository_root)
-      RepositoryIndex.new(repository_root)
-    end
+      def self.index(repository_root)
+        RepositoryIndex.new(repository_root)
+      end
 
-    def self.repository_root(configuration)
-      raise "A repository root must be specified as a key-value pair of '#{KEY_REPOSITORY_ROOT}'' to the URI of the repository." unless configuration.has_key? KEY_REPOSITORY_ROOT
-      configuration[KEY_REPOSITORY_ROOT]
-    end
+      def self.repository_root(configuration)
+        raise "A repository root must be specified as a key-value pair of '#{KEY_REPOSITORY_ROOT}'' to the URI of the repository." unless configuration.has_key? KEY_REPOSITORY_ROOT
+        configuration[KEY_REPOSITORY_ROOT]
+      end
 
-    def self.version(configuration)
-      JavaBuildpack::Util::TokenizedVersion.new(configuration[KEY_VERSION])
-    end
+      def self.version(configuration)
+        JavaBuildpack::Util::TokenizedVersion.new(configuration[KEY_VERSION])
+      end
 
   end
 

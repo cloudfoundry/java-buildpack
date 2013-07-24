@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,57 +63,57 @@ module JavaBuildpack::Framework
 
     private
 
-    SPRING_JAR_PATTERN = 'spring-core*.jar'
+      SPRING_JAR_PATTERN = 'spring-core*.jar'
 
-    WEB_XML = File.join 'WEB-INF', 'web.xml'
+      WEB_XML = File.join 'WEB-INF', 'web.xml'
 
-    def download_auto_reconfiguration
-      download_start_time = Time.now
-      print "-----> Downloading Auto Reconfiguration #{@auto_reconfiguration_version} from #{@auto_reconfiguration_uri} "
+      def download_auto_reconfiguration
+        download_start_time = Time.now
+        print "-----> Downloading Auto Reconfiguration #{@auto_reconfiguration_version} from #{@auto_reconfiguration_uri} "
 
-      JavaBuildpack::Util::ApplicationCache.new.get(@auto_reconfiguration_uri) do |file|  # TODO Use global cache #50175265
-        system "cp #{file.path} #{File.join(@lib_directory, jar_name(@auto_reconfiguration_version))}"
-        puts "(#{(Time.now - download_start_time).duration})"
+        JavaBuildpack::Util::ApplicationCache.new.get(@auto_reconfiguration_uri) do |file|  # TODO: Use global cache #50175265
+          system "cp #{file.path} #{File.join(@lib_directory, jar_name(@auto_reconfiguration_version))}"
+          puts "(#{(Time.now - download_start_time).duration})"
+        end
+
       end
 
-    end
+      def self.find_auto_reconfiguration(app_dir, configuration)
+        if spring_application? app_dir
+          version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
+        else
+          version = nil
+          uri = nil
+        end
 
-    def self.find_auto_reconfiguration(app_dir, configuration)
-      if spring_application? app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
-      else
-        version = nil
-        uri = nil
+        return version, uri # rubocop:disable RedundantReturn
       end
 
-      return version, uri
-    end
-
-    def id(version)
-      "spring-auto-reconfiguration-#{version}"
-    end
-
-    def jar_name(version)
-      "#{id version}.jar"
-    end
-
-    def modify_web_xml
-      web_xml = File.join @app_dir, WEB_XML
-
-      if File.exists? web_xml
-        puts "       Modifying /WEB-INF/web.xml for Auto Reconfiguration"
-
-        modifier = File.open(web_xml) { |file| WebXmlModifier.new(file) }
-        modifier.augment_root_context
-        modifier.augment_servlet_contexts
-
-        File.open(web_xml, 'w') { |file| file.write(modifier.to_s) }
+      def id(version)
+        "spring-auto-reconfiguration-#{version}"
       end
-    end
 
-    def self.spring_application?(app_dir)
-      Dir["#{app_dir}/**/#{SPRING_JAR_PATTERN}"].any?
-    end
+      def jar_name(version)
+        "#{id version}.jar"
+      end
+
+      def modify_web_xml
+        web_xml = File.join @app_dir, WEB_XML
+
+        if File.exists? web_xml
+          puts '       Modifying /WEB-INF/web.xml for Auto Reconfiguration'
+
+          modifier = File.open(web_xml) { |file| WebXmlModifier.new(file) }
+          modifier.augment_root_context
+          modifier.augment_servlet_contexts
+
+          File.open(web_xml, 'w') { |file| file.write(modifier.to_s) }
+        end
+      end
+
+      def self.spring_application?(app_dir)
+        Dir["#{app_dir}/**/#{SPRING_JAR_PATTERN}"].any?
+      end
 
   end
 

@@ -42,3 +42,22 @@ The buildpack supports configuration and extension through the use of Git reposi
 	* [Repositories](docs/util-repositories.md)
 	* [Repository Builders](docs/util-repository-builders.md)
 	* [Test Applications](docs/util-test-applications.md)
+
+## Running Tests
+To run the tests, do the following:
+
+```bash
+bundle install
+bundle exec rake
+```
+
+## Contributing
+[Pull requests][] are welcome; see the [contributor guidelines][] for details.
+
+[Pull requests]: http://help.github.com/send-pull-requests
+[contributor guidelines]: CONTRIBUTING.md
+
+## License
+The Tomcat Builder is released under version 2.0 of the [Apache License][].
+
+[Apache License]: http://www.apache.org/licenses/LICENSE-2.0

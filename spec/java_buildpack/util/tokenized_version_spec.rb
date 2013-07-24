@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -86,7 +87,7 @@ module JavaBuildpack::Util
     end
 
     it 'should raise an exception when a major version wildcard is followed by anything' do
-      expect { TokenizedVersion.new('+.6.0_26')}.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('+.6.0_26') }.to raise_error(/Invalid/)
     end
 
     it 'should raise an exception when a minor version wildcard is followed by anything' do
@@ -103,7 +104,7 @@ module JavaBuildpack::Util
     end
 
     it 'should raise an exception when not enough components are specified' do
-      expect {TokenizedVersion.new('_25') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('_25') }.to raise_error(/Invalid/)
     end
 
     it 'should raise an exception when a wildcard is specified but should not be' do

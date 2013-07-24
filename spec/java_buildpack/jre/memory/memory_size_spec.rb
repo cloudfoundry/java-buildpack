@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,7 +41,7 @@ module JavaBuildpack::Jre
       expect { MemorySize.new('1') }.to raise_error(/Invalid/)
     end
 
-  it 'should fail if a memory size has an invalid unit' do
+    it 'should fail if a memory size has an invalid unit' do
       expect { MemorySize.new('1A') }.to raise_error(/Invalid/)
     end
 
@@ -75,7 +76,7 @@ module JavaBuildpack::Jre
 
     it 'should fail when a memory size is multiplied by a memory size' do
       expect { ONE_MEG * ONE_MEG }.to raise_error(/Cannot\ multiply/)
-      end
+    end
 
     it 'should subtract memory values correctly' do
       expect(ONE_MEG - HALF_A_MEG).to eq(HALF_A_MEG)
@@ -85,7 +86,7 @@ module JavaBuildpack::Jre
       expect { ONE_MEG - 1 }.to raise_error(/Cannot\ subtract/)
     end
 
-   it 'should add memory values correctly' do
+    it 'should add memory values correctly' do
       expect(HALF_A_MEG + HALF_A_MEG).to eq(ONE_MEG)
     end
 
@@ -106,7 +107,7 @@ module JavaBuildpack::Jre
     end
 
     it 'should provide a zero memory size' do
-      expect(MemorySize.ZERO).to eq(JavaBuildpack::Jre::MemorySize.new('0B'))
+      expect(MemorySize::ZERO).to eq(JavaBuildpack::Jre::MemorySize.new('0B'))
     end
 
   end

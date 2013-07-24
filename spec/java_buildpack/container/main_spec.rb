@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,32 +24,36 @@ module JavaBuildpack::Container
 
     it 'should detect with main class configuration' do
       detected = Main.new(
-        :app_dir => 'spec/fixtures/container_none',
-        :configuration => { 'java_main_class' => 'test-java-main-class' }).detect
+        app_dir: 'spec/fixtures/container_none',
+        configuration: { 'java_main_class' => 'test-java-main-class' }
+      ).detect
 
       expect(detected).to be_true
     end
 
     it 'should detect with main class manifest entry' do
       detected = Main.new(
-        :app_dir => 'spec/fixtures/container_main',
-        :configuration => { }).detect
+        app_dir: 'spec/fixtures/container_main',
+        configuration: {}
+      ).detect
 
       expect(detected).to be_true
     end
 
     it 'should not detect without main class manifest entry' do
       detected = Main.new(
-        :app_dir => 'spec/fixtures/container_main_no_main_class',
-        :configuration => { }).detect
+        app_dir: 'spec/fixtures/container_main_no_main_class',
+        configuration: {}
+      ).detect
 
       expect(detected).to be_false
     end
 
     it 'should not detect without manifest' do
       detected = Main.new(
-        :app_dir => 'spec/fixtures/container_main_none',
-        :configuration => { }).detect
+        app_dir: 'spec/fixtures/container_main_none',
+        configuration: {}
+      ).detect
 
       expect(detected).to be_false
     end
@@ -59,13 +64,14 @@ module JavaBuildpack::Container
         Dir.mkdir lib_directory
 
         command = Main.new(
-          :app_dir => root,
-          :java_home => 'test-java-home',
-          :java_opts => [ 'test-opt-2', 'test-opt-1' ],
-          :lib_directory => lib_directory,
-          :configuration => { 'java_main_class' => 'test-java-main-class' }).release
+          app_dir: root,
+          java_home: 'test-java-home',
+          java_opts: %w(test-opt-2 test-opt-1),
+          lib_directory: lib_directory,
+          configuration: { 'java_main_class' => 'test-java-main-class' }
+        ).release
 
-        expect(command).to eq("test-java-home/bin/java -cp . test-opt-1 test-opt-2 test-java-main-class")
+        expect(command).to eq('test-java-home/bin/java -cp . test-opt-1 test-opt-2 test-java-main-class')
       end
     end
 
@@ -75,13 +81,14 @@ module JavaBuildpack::Container
         Dir.mkdir lib_directory
 
         command = Main.new(
-          :app_dir => 'spec/fixtures/container_main',
-          :java_home => 'test-java-home',
-          :java_opts => [ ],
-          :lib_directory => lib_directory,
-          :configuration => { }).release
+          app_dir: 'spec/fixtures/container_main',
+          java_home: 'test-java-home',
+          java_opts: [],
+          lib_directory: lib_directory,
+          configuration: {}
+        ).release
 
-        expect(command).to eq("test-java-home/bin/java -cp .:alpha.jar:bravo.jar:charlie.jar test-main-class")
+        expect(command).to eq('test-java-home/bin/java -cp .:alpha.jar:bravo.jar:charlie.jar test-main-class')
       end
     end
 
@@ -91,13 +98,15 @@ module JavaBuildpack::Container
         Dir.mkdir lib_directory
 
         command = Main.new(
-          :app_dir => root,
-          :java_home => 'test-java-home',
-          :java_opts => [],
-          :lib_directory => lib_directory,
-          :configuration => { 'java_main_class' => 'test-java-main-class',
-                              'arguments' => 'some arguments'
-          }).release
+          app_dir: root,
+          java_home: 'test-java-home',
+          java_opts: [],
+          lib_directory: lib_directory,
+          configuration: {
+            'java_main_class' => 'test-java-main-class',
+            'arguments' => 'some arguments'
+          }
+        ).release
 
         expect(command).to eq('test-java-home/bin/java -cp . test-java-main-class some arguments')
       end
@@ -111,16 +120,17 @@ module JavaBuildpack::Container
         Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
 
         command = Main.new(
-          :app_dir => root,
-          :java_home => 'test-java-home',
-          :java_opts => [],
-          :lib_directory => lib_directory,
-          :configuration => { 'java_main_class' => 'test-java-main-class' }).release
+          app_dir: root,
+          java_home: 'test-java-home',
+          java_opts: [],
+          lib_directory: lib_directory,
+          configuration: { 'java_main_class' => 'test-java-main-class' }
+        ).release
 
         expect(command).to eq('test-java-home/bin/java -cp .:.lib/test-jar-1.jar:.lib/test-jar-2.jar test-java-main-class')
       end
-    end
 
+    end
 
   end
 

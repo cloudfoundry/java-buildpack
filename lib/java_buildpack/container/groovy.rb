@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,7 +66,7 @@ module JavaBuildpack::Container
       download_start_time = Time.now
       print "-----> Downloading Groovy #{@version} from #{@uri} "
 
-      JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file|  # TODO Use global cache #50175265
+      JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file|  # TODO: Use global cache #50175265
         puts "(#{(Time.now - download_start_time).duration})"
         expand(file, @configuration)
       end
@@ -87,103 +88,103 @@ module JavaBuildpack::Container
 
     private
 
-    GROOVY_FILE_PATTERN = '**/*.groovy'.freeze
+      GROOVY_FILE_PATTERN = '**/*.groovy'.freeze
 
-    GROOVY_HOME = '.groovy'.freeze
+      GROOVY_HOME = '.groovy'.freeze
 
-    def classpath(app_dir, lib_directory)
-      classpath = ContainerUtils.libs(app_dir, lib_directory)
+      def classpath(app_dir, lib_directory)
+        classpath = ContainerUtils.libs(app_dir, lib_directory)
 
-      classpath.any? ? "-cp #{classpath.join(':')}" : ''
-    end
-
-    def expand(file, configuration)
-      expand_start_time = Time.now
-      print "       Expanding Groovy to #{GROOVY_HOME} "
-
-      Dir.mktmpdir do |root|
-        system "rm -rf #{groovy_home}"
-        system "mkdir -p #{File.dirname groovy_home}"
-        system "unzip -qq #{file.path} -d #{root} 2>&1"
-        system "mv #{root}/$(ls #{root}) #{groovy_home}"
+        classpath.any? ? "-cp #{classpath.join(':')}" : ''
       end
 
-      puts "(#{(Time.now - expand_start_time).duration})"
-    end
+      def expand(file, configuration)
+        expand_start_time = Time.now
+        print "       Expanding Groovy to #{GROOVY_HOME} "
 
-    def self.find_groovy(app_dir, configuration)
-      if main_groovy app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |version|
-          raise "Malformed Groovy version #{version}: too many version components" if version[3]
+        Dir.mktmpdir do |root|
+          system "rm -rf #{groovy_home}"
+          system "mkdir -p #{File.dirname groovy_home}"
+          system "unzip -qq #{file.path} -d #{root} 2>&1"
+          system "mv #{root}/$(ls #{root}) #{groovy_home}"
         end
-      else
-        version = nil
-        uri = nil
+
+        puts "(#{(Time.now - expand_start_time).duration})"
       end
 
-      return version, uri
-    rescue => e
-      raise RuntimeError, "Groovy container error: #{e.message}", e.backtrace
-    end
+      def self.find_groovy(app_dir, configuration)
+        if main_groovy app_dir
+          version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |candidate_version|
+            raise "Malformed Groovy version #{candidate_version}: too many version components" if candidate_version[3]
+          end
+        else
+          version = nil
+          uri = nil
+        end
 
-    def self.groovy_files(root)
-      root_directory = Pathname.new(root)
-      Dir[File.join root, GROOVY_FILE_PATTERN] .reject{ |file| File.directory? file } .map { |file| Pathname.new(file).relative_path_from(root_directory).to_s }
-    end
+        return version, uri # rubocop:disable RedundantReturn
+      rescue => e
+        raise RuntimeError, "Groovy container error: #{e.message}", e.backtrace
+      end
 
-    def groovy_home
-      File.join @app_dir, GROOVY_HOME
-    end
+      def self.groovy_files(root)
+        root_directory = Pathname.new(root)
+        Dir[File.join root, GROOVY_FILE_PATTERN].reject { |file| File.directory? file } .map { |file| Pathname.new(file).relative_path_from(root_directory).to_s }
+      end
 
-    def id(version)
-      "groovy-#{version}"
-    end
+      def groovy_home
+        File.join @app_dir, GROOVY_HOME
+      end
 
-    def self.main_groovy(app_dir)
-      candidates = groovy_files(app_dir)
+      def id(version)
+        "groovy-#{version}"
+      end
 
-      candidate = []
-      candidate << single_groovy(candidates)
-      candidate << named_main(candidates)
-      candidate << main_method(app_dir, candidates)
-      candidate << non_pogo(app_dir, candidates)
-      candidate << shebang(app_dir, candidates)
+      def self.main_groovy(app_dir)
+        candidates = groovy_files(app_dir)
 
-      candidate = Set.new(candidate.flatten.compact).to_a
-      candidate.size == 1 ? candidate[0] : nil
-    end
+        candidate = []
+        candidate << single_groovy(candidates)
+        candidate << named_main(candidates)
+        candidate << main_method(app_dir, candidates)
+        candidate << non_pogo(app_dir, candidates)
+        candidate << shebang(app_dir, candidates)
 
-    def other_groovy(app_dir)
-      other_groovy = Groovy.groovy_files(app_dir)
-      other_groovy.delete(Groovy.main_groovy(app_dir))
-      other_groovy.join(' ')
-    end
+        candidate = Set.new(candidate.flatten.compact).to_a
+        candidate.size == 1 ? candidate[0] : nil
+      end
 
-    def self.single_groovy(candidates)
-      candidates.size == 1 ? candidates[0] : nil
-    end
+      def other_groovy(app_dir)
+        other_groovy = Groovy.groovy_files(app_dir)
+        other_groovy.delete(Groovy.main_groovy(app_dir))
+        other_groovy.join(' ')
+      end
 
-    def self.named_main(candidates)
+      def self.single_groovy(candidates)
+        candidates.size == 1 ? candidates[0] : nil
+      end
+
+      def self.named_main(candidates)
         candidates.select { |candidate| File.basename(candidate, '.groovy') =~ /main/i }
-    end
-
-    def self.main_method(app_dir, candidates)
-      candidates.select do |candidate|
-        File.open(File.join(app_dir, candidate), 'r') { |file| file.read =~ /static void main\(/ }
       end
-    end
 
-    def self.non_pogo(app_dir, candidates)
-      candidates.reject do |candidate|
-        File.open(File.join(app_dir, candidate), 'r') { |file| file.read =~ /class [\w]+ {/ }
+      def self.main_method(app_dir, candidates)
+        candidates.select do |candidate|
+          File.open(File.join(app_dir, candidate), 'r') { |file| file.read =~ /static void main\(/ }
+        end
       end
-    end
 
-    def self.shebang(app_dir, candidates)
-      candidates.select do |candidate|
-        File.open(File.join(app_dir, candidate), 'r') { |file| file.read =~ /#!/ }
+      def self.non_pogo(app_dir, candidates)
+        candidates.reject do |candidate|
+          File.open(File.join(app_dir, candidate), 'r') { |file| file.read =~ /class [\w]+ {/ }
+        end
       end
-    end
+
+      def self.shebang(app_dir, candidates)
+        candidates.select do |candidate|
+          File.open(File.join(app_dir, candidate), 'r') { |file| file.read =~ /#!/ }
+        end
+      end
   end
 
 end

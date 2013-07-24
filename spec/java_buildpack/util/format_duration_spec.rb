@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,18 +44,18 @@ describe 'format duration' do
 
   private
 
-  MILLISECOND = 0.001
+    MILLISECOND = 0.001
 
-  TENTH = 100 * MILLISECOND
+    TENTH = 100 * MILLISECOND
 
-  SECOND = 10 * TENTH
+    SECOND = 10 * TENTH
 
-  MINUTE = 60 * SECOND
+    MINUTE = 60 * SECOND
 
-  HOUR = 60 * MINUTE
+    HOUR = 60 * MINUTE
 
-  def expect_time_string(expected, time)
-    expect(time.duration).to eq(expected)
-  end
+    def expect_time_string(expected, time)
+      expect(time.duration).to eq(expected)
+    end
 
 end

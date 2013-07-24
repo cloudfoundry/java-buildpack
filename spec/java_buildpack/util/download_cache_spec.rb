@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,12 +23,12 @@ module JavaBuildpack::Util
 
     it 'should download from a uri if the cached file does not exist' do
       stub_request(:get, 'http://foo-uri/').to_return(
-          :status => 200,
-          :body => 'foo-cached',
-          :headers => {
-              :Etag => 'foo-etag',
-              'Last-Modified' => 'foo-last-modified'
-          }
+        status: 200,
+        body: 'foo-cached',
+        headers: {
+          Etag: 'foo-etag',
+          'Last-Modified' => 'foo-last-modified'
+        }
       )
 
       Dir.mktmpdir do |root|
@@ -41,16 +42,16 @@ module JavaBuildpack::Util
 
     it 'should download from a uri if the cached file exists and etag exists' do
       stub_request(:get, 'http://foo-uri/').with(
-          :headers => {
-              'If-None-Match' => 'foo-etag'
-          }
+        headers: {
+          'If-None-Match' => 'foo-etag'
+        }
       ).to_return(
-          :status => 200,
-          :body => 'foo-cached',
-          :headers => {
-              :Etag => 'foo-etag',
-              'Last-Modified' => 'foo-last-modified'
-          }
+        status: 200,
+        body: 'foo-cached',
+        headers: {
+          Etag: 'foo-etag',
+          'Last-Modified' => 'foo-last-modified'
+        }
       )
 
       Dir.mktmpdir do |root|
@@ -67,16 +68,16 @@ module JavaBuildpack::Util
 
     it 'should download from a uri if the cached file exists and last modified exists' do
       stub_request(:get, 'http://foo-uri/').with(
-          :headers => {
-              'If-Modified-Since' => 'foo-last-modified'
-          }
+        headers: {
+          'If-Modified-Since' => 'foo-last-modified'
+        }
       ).to_return(
-          :status => 200,
-          :body => 'foo-cached',
-          :headers => {
-              :Etag => 'foo-etag',
-              'Last-Modified' => 'foo-last-modified'
-          }
+        status: 200,
+        body: 'foo-cached',
+        headers: {
+          Etag: 'foo-etag',
+          'Last-Modified' => 'foo-last-modified'
+        }
       )
 
       Dir.mktmpdir do |root|
@@ -93,17 +94,17 @@ module JavaBuildpack::Util
 
     it 'should download from a uri if the cached file exists, etag exists, and last modified exists' do
       stub_request(:get, 'http://foo-uri/').with(
-          :headers => {
-              'If-None-Match' => 'foo-etag',
-              'If-Modified-Since' => 'foo-last-modified'
-          }
+        headers: {
+          'If-None-Match' => 'foo-etag',
+          'If-Modified-Since' => 'foo-last-modified'
+        }
       ).to_return(
-          :status => 200,
-          :body => 'foo-cached',
-          :headers => {
-              :Etag => 'foo-etag',
-              'Last-Modified' => 'foo-last-modified'
-          }
+        status: 200,
+        body: 'foo-cached',
+        headers: {
+          Etag: 'foo-etag',
+          'Last-Modified' => 'foo-last-modified'
+        }
       )
 
       Dir.mktmpdir do |root|
@@ -131,17 +132,17 @@ module JavaBuildpack::Util
 
     it 'should not overwrite existing information if 304 is received' do
       stub_request(:get, 'http://foo-uri/').with(
-          :headers => {
-              'If-None-Match' => 'foo-etag',
-              'If-Modified-Since' => 'foo-last-modified'
-          }
+        headers: {
+          'If-None-Match' => 'foo-etag',
+          'If-Modified-Since' => 'foo-last-modified'
+        }
       ).to_return(
-          :status => 304,
-          :body => 'bar-cached',
-          :headers => {
-              :Etag => 'bar-etag',
-              'Last-Modified' => 'bar-last-modified'
-          }
+        status: 304,
+        body: 'bar-cached',
+        headers: {
+          Etag: 'bar-etag',
+          'Last-Modified' => 'bar-last-modified'
+        }
       )
 
       Dir.mktmpdir do |root|
@@ -159,17 +160,17 @@ module JavaBuildpack::Util
 
     it 'should overwrite existing information if 304 is not received' do
       stub_request(:get, 'http://foo-uri/').with(
-          :headers => {
-              'If-None-Match' => 'foo-etag',
-              'If-Modified-Since' => 'foo-last-modified'
-          }
+        headers: {
+          'If-None-Match' => 'foo-etag',
+          'If-Modified-Since' => 'foo-last-modified'
+        }
       ).to_return(
-          :status => 200,
-          :body => 'bar-cached',
-          :headers => {
-              :Etag => 'bar-etag',
-              'Last-Modified' => 'bar-last-modified'
-          }
+        status: 200,
+        body: 'bar-cached',
+        headers: {
+          Etag: 'bar-etag',
+          'Last-Modified' => 'bar-last-modified'
+        }
       )
 
       Dir.mktmpdir do |root|
@@ -187,18 +188,18 @@ module JavaBuildpack::Util
 
     it 'should pass read-only file to block' do
       stub_request(:get, 'http://foo-uri/').to_return(
-          :status => 200,
-          :body => 'foo-cached',
-          :headers => {
-              :Etag => 'foo-etag',
-              'Last-Modified' => 'foo-last-modified'
-          }
+        status: 200,
+        body: 'foo-cached',
+        headers: {
+          Etag: 'foo-etag',
+          'Last-Modified' => 'foo-last-modified'
+        }
       )
 
       Dir.mktmpdir do |root|
         DownloadCache.new(root).get('http://foo-uri/') do |file|
           expect(file.read).to eq('foo-cached')
-          lambda { file.write('bar') }.should raise_error
+          -> { file.write('bar') }.should raise_error
         end
       end
     end
@@ -218,8 +219,6 @@ module JavaBuildpack::Util
     it 'should delete the lock file if it exists' do
       expect_file_deleted 'lock'
     end
-
-    private
 
     def touch(root, extension, content = '')
       file = File.join(root, "http:%2F%2Ffoo-uri%2F.#{extension}")
@@ -241,7 +240,7 @@ module JavaBuildpack::Util
     def expect_file_content(root, extension, content = '')
       file = File.join(root, "http:%2F%2Ffoo-uri%2F.#{extension}")
       expect(File.exists?(file)).to be_true
-      File.open(file, 'r') { |f| expect(f.read).to eq(content)}
+      File.open(file, 'r') { |f| expect(f.read).to eq(content) }
     end
 
   end
