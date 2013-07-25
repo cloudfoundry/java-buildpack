@@ -120,6 +120,28 @@ module JavaBuildpack::Util
       end
     end
 
+    it 'should download from a uri if the cached file does not exist, etag exists, and last modified exists' do
+      stub_request(:get, 'http://foo-uri/').to_return(
+        status: 200,
+        body: 'foo-cached',
+        headers: {
+          Etag: 'foo-etag',
+          'Last-Modified' => 'foo-last-modified'
+        }
+      )
+
+      Dir.mktmpdir do |root|
+        touch root, 'etag', 'foo-etag'
+        touch root, 'last_modified', 'foo-last-modified'
+
+        DownloadCache.new(root).get('http://foo-uri/') {}
+
+        expect_file_content root, 'cached', 'foo-cached'
+        expect_file_content root, 'etag', 'foo-etag'
+        expect_file_content root, 'last_modified', 'foo-last-modified'
+      end
+    end
+
     it 'should not download from a uri if the cached file exists and the etag and last modified do not exist' do
       Dir.mktmpdir do |root|
         touch root, 'cached', 'foo-cached'
