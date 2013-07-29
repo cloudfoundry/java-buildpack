@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/diagnostics/logger_factory'
 require 'java_buildpack/framework'
 require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
 require 'java_buildpack/repository/configured_item'
@@ -33,6 +34,7 @@ module JavaBuildpack::Framework
     # @option context [String] :lib_directory the directory that additional libraries are placed in
     # @option context [Hash] :configuration the properties provided by the user
     def initialize(context = {})
+      @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
       @app_dir = context[:app_dir]
       @lib_directory = context[:lib_directory]
       @configuration = context[:configuration]
@@ -101,13 +103,15 @@ module JavaBuildpack::Framework
         web_xml = File.join @app_dir, WEB_XML
 
         if File.exists? web_xml
-          puts '       Modifying /WEB-INF/web.xml for Auto Reconfiguration'
+          @logger.info 'Modifying /WEB-INF/web.xml for Auto Reconfiguration'
+          @logger.debug { "  Original web.xml: #{File.read web_xml}" }
 
           modifier = File.open(web_xml) { |file| WebXmlModifier.new(file) }
           modifier.augment_root_context
           modifier.augment_servlet_contexts
 
           File.open(web_xml, 'w') { |file| file.write(modifier.to_s) }
+          @logger.debug { "  Modified web.xml: #{File.read web_xml}" }
         end
       end
 
