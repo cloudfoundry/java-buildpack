@@ -169,22 +169,29 @@ module JavaBuildpack::Container
       end
 
       def self.main_method(app_dir, candidates)
-        candidates.select do |candidate|
-          File.open(File.join(app_dir, candidate), 'r') { |file| file.read =~ /static void main\(/ }
-        end
+        select(app_dir, candidates) { |file| file.read =~ /static void main\(/ }
       end
 
       def self.non_pogo(app_dir, candidates)
-        candidates.reject do |candidate|
-          File.open(File.join(app_dir, candidate), 'r') { |file| file.read =~ /class [\w]+ {/ }
-        end
+        reject(app_dir, candidates) { |file| file.read =~ /class [\w]+ {/ }
       end
 
       def self.shebang(app_dir, candidates)
-        candidates.select do |candidate|
-          File.open(File.join(app_dir, candidate), 'r') { |file| file.read =~ /#!/ }
-        end
+        select(app_dir, candidates) { |file| file.read =~ /#!/ }
       end
+
+      def self.reject(app_dir, candidates, &block)
+        candidates.reject { |candidate| open(app_dir, candidate, &block) }
+      end
+
+      def self.select(app_dir, candidates, &block)
+        candidates.select { |candidate| open(app_dir, candidate, &block) }
+      end
+
+      def self.open(app_dir, candidate, &block)
+        File.open(File.join(app_dir, candidate), 'r', external_encoding: 'UTF-8', &block)
+      end
+
   end
 
 end
