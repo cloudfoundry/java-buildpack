@@ -49,7 +49,6 @@ module JavaBuildpack
       end
     end
 
-
     # Iterates over all of the components to detect if this buildpack can be used to run an application
     #
     # @return [Array<String>] An array of strings that identify the components and versions that will be used to run

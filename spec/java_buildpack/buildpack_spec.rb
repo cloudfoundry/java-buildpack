@@ -101,7 +101,7 @@ module JavaBuildpack
 
       payload = with_buildpack { |buildpack| buildpack.release }
 
-      expect(payload).to eq({'addons' => [], 'config_vars' => {}, 'default_process_types' => {'web' => 'test-command'}}.to_yaml)
+      expect(payload).to eq({ 'addons' => [], 'config_vars' => {}, 'default_process_types' => { 'web' => 'test-command' } }.to_yaml)
     end
 
     it 'should load configuration file matching JRE class name' do

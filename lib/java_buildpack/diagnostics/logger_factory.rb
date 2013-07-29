@@ -31,7 +31,6 @@ module JavaBuildpack::Diagnostics
       diagnostics_directory = JavaBuildpack::Diagnostics.get_diagnostic_directory app_dir
       FileUtils.mkdir_p diagnostics_directory
       log_file = File.join(diagnostics_directory, JavaBuildpack::Diagnostics::LOG_FILE_NAME)
-      logging_configuration = get_configuration
 
       if (defined? @@logger) && (@@logger != nil)
         logger_recreated = true
@@ -40,27 +39,11 @@ module JavaBuildpack::Diagnostics
         logger_recreated = false
       end
 
-      @@monitor.synchronize {
+      @@monitor.synchronize do
         @@logger = Logger.new(LogSplitter.new(File.open(log_file, 'a'), $stderr))
-      }
+      end
 
-      switched_log_level = $VERBOSE || $DEBUG ? DEBUG_SEVERITY_STRING : nil
-      log_level = (ENV[LOG_LEVEL_ENVIRONMENT_VARIABLE] || switched_log_level || logging_configuration[DEFAULT_LOG_LEVEL_CONFIGURATION_KEY]).upcase
-
-      @@logger.sev_threshold = case
-                               when log_level== DEBUG_SEVERITY_STRING then
-                                 ::Logger::DEBUG
-                               when log_level == INFO_SEVERITY_STRING then
-                                 ::Logger::INFO
-                               when log_level == WARN_SEVERITY_STRING then
-                                 ::Logger::WARN
-                               when log_level == ERROR_SEVERITY_STRING then
-                                 ::Logger::ERROR
-                               when log_level == FATAL_SEVERITY_STRING then
-                                 ::Logger::FATAL
-                               else
-                                 ::Logger::DEBUG
-                               end
+      set_log_level
 
       @@logger.debug(log_file)
       if logger_recreated
@@ -73,9 +56,9 @@ module JavaBuildpack::Diagnostics
     #
     # @return [Logger, nil] the current Logger instance or `nil` if there is no such instance
     def self.get_logger
-      @@monitor.synchronize {
+      @@monitor.synchronize do
         @@logger
-      }
+      end
     end
 
     private_class_method :new
@@ -100,15 +83,36 @@ module JavaBuildpack::Diagnostics
 
     @@monitor = Monitor.new
 
+    def self.set_log_level
+      logging_configuration = get_configuration
+      switched_log_level = $VERBOSE || $DEBUG ? DEBUG_SEVERITY_STRING : nil
+      log_level = (ENV[LOG_LEVEL_ENVIRONMENT_VARIABLE] || switched_log_level || logging_configuration[DEFAULT_LOG_LEVEL_CONFIGURATION_KEY]).upcase
+
+      @@logger.sev_threshold = case
+                               when log_level == DEBUG_SEVERITY_STRING then
+                                 ::Logger::DEBUG
+                               when log_level == INFO_SEVERITY_STRING then
+                                 ::Logger::INFO
+                               when log_level == WARN_SEVERITY_STRING then
+                                 ::Logger::WARN
+                               when log_level == ERROR_SEVERITY_STRING then
+                                 ::Logger::ERROR
+                               when log_level == FATAL_SEVERITY_STRING then
+                                 ::Logger::FATAL
+                               else
+                                 ::Logger::DEBUG
+                               end
+    end
+
     def self.get_configuration
       expanded_path = File.expand_path(LOGGING_CONFIG, File.dirname(__FILE__))
       YAML.load_file(expanded_path)
     end
 
     def self.close
-      @@monitor.synchronize {
+      @@monitor.synchronize do
         @@logger = nil
-      }
+      end
     end
 
     class LogSplitter

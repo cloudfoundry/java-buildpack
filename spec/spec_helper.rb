@@ -33,5 +33,5 @@ require 'fileutils'
 require 'java_buildpack/diagnostics/common'
 require 'java_buildpack/diagnostics/logger_factory'
 tmpdir = Dir.tmpdir
-FileUtils::rm_rf File.join(tmpdir, JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY)
+FileUtils.rm_rf File.join(tmpdir, JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY)
 JavaBuildpack::Diagnostics::LoggerFactory.create_logger tmpdir

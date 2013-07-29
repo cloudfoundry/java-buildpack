@@ -222,7 +222,6 @@ module JavaBuildpack::Diagnostics
       end
     end
 
-
     def new_logger(app_dir)
       LoggerFactory.send :close # suppress warnings
       LoggerFactory.create_logger app_dir
