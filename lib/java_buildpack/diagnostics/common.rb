@@ -28,4 +28,8 @@ module JavaBuildpack::Diagnostics
     File.join(app_dir, DIAGNOSTICS_DIRECTORY)
   end
 
+  def self.get_buildpack_log(app_dir)
+    File.join(get_diagnostic_directory(app_dir), LOG_FILE_NAME)
+  end
+
 end
