@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/diagnostics/logger_factory'
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/memory_limit'
 require 'java_buildpack/jre/memory/memory_size'
@@ -34,6 +35,7 @@ module JavaBuildpack::Jre
     # @param [Array<String>] valid_heuristics the valid heuristics keys
     # @param [Hash<String, String>] java_opts a mapping from a memory type to a +JAVA_OPTS+ option
     def initialize(sizes, heuristics, valid_sizes, valid_heuristics, java_opts)
+      @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
       validate 'size', valid_sizes, sizes.keys
       validate 'heuristic', valid_heuristics, heuristics.keys
 
@@ -112,7 +114,7 @@ module JavaBuildpack::Jre
       def issue_memory_wastage_warning(buckets)
         native_bucket = buckets['native']
         if native_bucket && native_bucket.size > native_bucket.default_size * NATIVE_MEMORY_WARNING_FACTOR
-          $stderr.puts "-----> WARNING: there is #{NATIVE_MEMORY_WARNING_FACTOR} times more spare native memory than the default, so configured Java memory may be too small."
+          @logger.warn "There is #{NATIVE_MEMORY_WARNING_FACTOR} times more spare native memory than the default, so configured Java memory may be too small."
         end
       end
 
@@ -137,7 +139,7 @@ module JavaBuildpack::Jre
                 factor = ((actual_size - default_size) / default_size).abs
               end
               if (default_size == MemorySize::ZERO && actual_size == MemorySize::ZERO) || factor < CLOSE_TO_DEFAULT_FACTOR
-                $stderr.puts "-----> WARNING: the configured value #{actual_size} of memory size #{type} is close to the default value #{default_size}. Consider deleting the configured value and taking the default."
+                @logger.warn "The configured value #{actual_size} of memory size #{type} is close to the default value #{default_size}. Consider deleting the configured value and taking the default."
               end
             end
           end

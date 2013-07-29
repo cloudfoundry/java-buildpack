@@ -15,6 +15,8 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'java_buildpack/diagnostics/common'
+require 'java_buildpack/diagnostics/logger_factory'
 require 'java_buildpack/jre/memory/weight_balancing_memory_heuristic'
 
 module JavaBuildpack::Jre
@@ -44,7 +46,9 @@ module JavaBuildpack::Jre
     VALID_SIZES = %w(heap permgen stack)
 
     before do
-      $stderr = StringIO.new
+      File.delete(JavaBuildpack::Diagnostics.get_buildpack_log Dir.tmpdir)
+      JavaBuildpack::Diagnostics::LoggerFactory.send :close # suppress warnings
+      JavaBuildpack::Diagnostics::LoggerFactory.create_logger Dir.tmpdir
     end
 
     it 'should fail if a memory limit is negative' do
@@ -182,28 +186,28 @@ module JavaBuildpack::Jre
         expect(output).to include('-Xmx1M')
         expect(output).to include('-XX:MaxPermSize=1M')
         expect(output).to include('-Xss2M')
-        expect($stderr.string).to match(/WARNING:/)
+        expect(buildpack_log_contents).to match(/WARN/)
       end
     end
 
     it 'should issue a warning when the specified stack size is close to the default' do
       with_memory_limit('4096m') do
         WeightBalancingMemoryHeuristic.new({ 'stack' => '1025k' }, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
-        expect($stderr.string).to match(/WARNING:.*close to the default/)
+        expect(buildpack_log_contents).to match(/WARN.*is close to the default/)
       end
     end
 
     it 'should issue a warning when the specified maximum heap size is close to the default' do
       with_memory_limit('4096m') do
         WeightBalancingMemoryHeuristic.new({ 'heap' => '2049m' }, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
-        expect($stderr.string).to match(/WARNING:.*close to the default/)
+        expect(buildpack_log_contents).to match(/WARN.*is close to the default/)
       end
     end
 
     it 'should issue a warning when the specified maximum permgen size is close to the default' do
       with_memory_limit('4096m') do
         WeightBalancingMemoryHeuristic.new({ 'permgen' => '1339m' }, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
-        expect($stderr.string).to match(/WARNING:.*close to the default/)
+        expect(buildpack_log_contents).to match(/WARN.*is close to the default/)
       end
     end
 
@@ -227,6 +231,10 @@ module JavaBuildpack::Jre
       yield
     ensure
       ENV['MEMORY_LIMIT'] = previous_value
+    end
+
+    def buildpack_log_contents
+      File.read(JavaBuildpack::Diagnostics.get_buildpack_log(Dir.tmpdir))
     end
 
   end
