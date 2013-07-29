@@ -16,6 +16,7 @@
 
 require 'spec_helper'
 require 'java_buildpack/buildpack'
+require 'java_buildpack/diagnostics/logger_factory'
 
 module JavaBuildpack
 
@@ -31,10 +32,13 @@ module JavaBuildpack
     let(:stub_jre2) { double('StubJre2', detect: nil) }
 
     before do
+      YAML.stub(:load_file).with(File.expand_path('config/logging.yml')).and_return(
+          'default_log_level' => 'INFO'
+      )
       YAML.stub(:load_file).with(File.expand_path('config/components.yml')).and_return(
-        'containers' => ['Test::StubContainer1', 'Test::StubContainer2'],
-        'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
-        'jres' => ['Test::StubJre1', 'Test::StubJre2']
+          'containers' => ['Test::StubContainer1', 'Test::StubContainer2'],
+          'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
+          'jres' => ['Test::StubJre1', 'Test::StubJre2']
       )
 
       Test::StubContainer1.stub(:new).and_return(stub_container1)
@@ -63,7 +67,7 @@ module JavaBuildpack
       stub_jre1.stub(:detect).and_return('stub-jre-1')
       stub_jre2.stub(:detect).and_return('stub-jre-2')
 
-      with_buildpack { |buildpack|  expect { buildpack.detect }.to raise_error(/stub-jre-1, stub-jre-2/) }
+      with_buildpack { |buildpack| expect { buildpack.detect }.to raise_error(/stub-jre-1, stub-jre-2/) }
     end
 
     it 'should call compile on matched components' do
@@ -114,7 +118,12 @@ module JavaBuildpack
     end
 
     def with_buildpack(&block)
-      Dir.mktmpdir { |root| block.call(Buildpack.new(File.join root, APP_DIR)) }
+      JavaBuildpack::Diagnostics::LoggerFactory.send :close # suppress warnings
+      Dir.mktmpdir do |root|
+        Buildpack.drive_buildpack_with_logger(File.join(root, APP_DIR), 'Error %s') do |buildpack|
+          block.call buildpack
+        end
+      end
     end
 
   end

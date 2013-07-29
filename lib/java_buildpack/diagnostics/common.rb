@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright (c) 2013 the original author or authors.
@@ -15,12 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-$stdout.sync = true
-$stderr.sync = true
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+require 'java_buildpack/diagnostics'
 
-require 'java_buildpack/buildpack'
+# Common constants and methods for the Diagnostics module.
+module JavaBuildpack::Diagnostics
+  # The directory that diagnostics are written into
+  DIAGNOSTICS_DIRECTORY = '.buildpack-diagnostics'.freeze
 
-build_dir = ARGV[0]
+  # The name of the buildpack diagnostic log file.
+  LOG_FILE_NAME = 'buildpack.log'.freeze
 
-puts JavaBuildpack::Buildpack.drive_buildpack_with_logger(build_dir, 'Release failed with exception %s') { |buildpack| buildpack.release }
+  def self.get_diagnostic_directory(app_dir)
+    File.join(app_dir, DIAGNOSTICS_DIRECTORY)
+  end
+
+end
