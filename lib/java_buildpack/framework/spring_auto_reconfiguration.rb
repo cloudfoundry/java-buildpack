@@ -103,7 +103,7 @@ module JavaBuildpack::Framework
         web_xml = File.join @app_dir, WEB_XML
 
         if File.exists? web_xml
-          @logger.info 'Modifying /WEB-INF/web.xml for Auto Reconfiguration'
+          puts '       Modifying /WEB-INF/web.xml for Auto Reconfiguration'
           @logger.debug { "  Original web.xml: #{File.read web_xml}" }
 
           modifier = File.open(web_xml) { |file| WebXmlModifier.new(file) }
