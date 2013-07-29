@@ -1,4 +1,7 @@
 ---
+AllCops:
+  Excludes:
+    - vendor/**
 Documentation:
   Enabled: false
 LineLength:
