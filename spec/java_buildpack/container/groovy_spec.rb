@@ -54,29 +54,7 @@ module JavaBuildpack::Container
       expect(detected).to be_nil
     end
 
-    it 'should detect a single Groovy file' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
-      .and_return(DETAILS)
-      detected = Groovy.new(
-        app_dir: 'spec/fixtures/container_groovy_single',
-        configuration: {}
-      ).detect
-
-      expect(detected).to include('groovy-2.1.5')
-    end
-
-    it 'should detect a Groovy file named Main.groovy' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
-      .and_return(DETAILS)
-      detected = Groovy.new(
-        app_dir: 'spec/fixtures/container_groovy_main',
-        configuration: {}
-      ).detect
-
-      expect(detected).to include('groovy-2.1.5')
-    end
-
-    it 'should detect a Groovy file with a main() method' do
+     it 'should detect a Groovy file with a main() method' do
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
       .and_return(DETAILS)
       detected = Groovy.new(
@@ -114,7 +92,7 @@ module JavaBuildpack::Container
       .and_return(DETAILS)
       expect do
         Groovy.new(
-          app_dir: 'spec/fixtures/container_groovy_main',
+          app_dir: 'spec/fixtures/container_groovy_main_method',
           configuration: {}
         ).detect
       end.to raise_error(/Malformed\ Groovy\ version/)
@@ -122,7 +100,7 @@ module JavaBuildpack::Container
 
     it 'should extract Groovy from a ZIP' do
       Dir.mktmpdir do |root|
-        Dir['spec/fixtures/container_groovy_main/*'].each { |file| system "cp #{file} #{root}" }
+        Dir['spec/fixtures/container_groovy_main_method/*'].each { |file| system "cp #{file} #{root}" }
 
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
         .and_return(DETAILS)
@@ -146,7 +124,7 @@ module JavaBuildpack::Container
         Dir.mkdir lib_directory
 
         Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
-        Dir['spec/fixtures/container_groovy_main/*'].each { |file| system "cp #{file} #{root}" }
+        Dir['spec/fixtures/container_groovy_main_method/*'].each { |file| system "cp #{file} #{root}" }
 
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
         .and_return(DETAILS)
@@ -159,7 +137,7 @@ module JavaBuildpack::Container
           configuration: {}
         ).release
 
-        expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .groovy/bin/groovy -cp .lib/test-jar-1.jar:.lib/test-jar-2.jar Main.groovy Alpha.groovy')
+        expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .groovy/bin/groovy -cp .lib/test-jar-1.jar:.lib/test-jar-2.jar Application.groovy Alpha.groovy')
       end
     end
 

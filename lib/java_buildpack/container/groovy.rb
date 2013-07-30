@@ -144,8 +144,6 @@ module JavaBuildpack::Container
         candidates = groovy_files(app_dir)
 
         candidate = []
-        candidate << single_groovy(candidates)
-        candidate << named_main(candidates)
         candidate << main_method(app_dir, candidates)
         candidate << non_pogo(app_dir, candidates)
         candidate << shebang(app_dir, candidates)
@@ -158,14 +156,6 @@ module JavaBuildpack::Container
         other_groovy = Groovy.groovy_files(app_dir)
         other_groovy.delete(Groovy.main_groovy(app_dir))
         other_groovy.join(' ')
-      end
-
-      def self.single_groovy(candidates)
-        candidates.size == 1 ? candidates[0] : nil
-      end
-
-      def self.named_main(candidates)
-        candidates.select { |candidate| File.basename(candidate, '.groovy') =~ /main/i }
       end
 
       def self.main_method(app_dir, candidates)
