@@ -16,8 +16,7 @@
 
 require 'java_buildpack/framework'
 require 'java_buildpack/repository/configured_item'
-require 'java_buildpack/util/application_cache'
-require 'java_buildpack/util/format_duration'
+require 'java_buildpack/util/download'
 require 'java_buildpack/util/play_utils'
 
 module JavaBuildpack::Framework
@@ -53,7 +52,7 @@ module JavaBuildpack::Framework
     #
     # @return [void]
     def compile
-      download_auto_reconfiguration
+      JavaBuildpack::Util.download(@version, @uri, 'Auto Reconfiguration', jar_name(@version), @lib_directory)
     end
 
     # Does nothing
@@ -63,17 +62,6 @@ module JavaBuildpack::Framework
     end
 
     private
-
-      def download_auto_reconfiguration
-        download_start_time = Time.now
-        print "-----> Downloading Auto Reconfiguration #{@version} from #{@uri} "
-
-        JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file| # TODO: Use global cache #50175265
-          system "cp #{file.path} #{File.join(@lib_directory, jar_name(@version))}"
-          puts "(#{(Time.now - download_start_time).duration})"
-        end
-
-      end
 
       def self.find_auto_reconfiguration(app_dir, configuration)
         if JavaBuildpack::Util::PlayUtils.root app_dir

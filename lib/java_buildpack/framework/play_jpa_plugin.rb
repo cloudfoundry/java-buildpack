@@ -17,6 +17,7 @@
 require 'java_buildpack/framework'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
+require 'java_buildpack/util/download'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/play_utils'
 
@@ -53,7 +54,7 @@ module JavaBuildpack::Framework
     #
     # @return [void]
     def compile
-      download_play_jpa_plugin
+      JavaBuildpack::Util.download(@version, @uri, 'Play JPA Plugin', jar_name(@version), @lib_directory)
     end
 
     # Does nothing
@@ -73,17 +74,6 @@ module JavaBuildpack::Framework
         candidate =  uses_jpa?(root) || play20?(root) if root
 
         candidate
-      end
-
-      def download_play_jpa_plugin
-        download_start_time = Time.now
-        print "-----> Downloading Play JPA Plugin #{@version} from #{@uri} "
-
-        JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file| # TODO: Use global cache #50175265
-          system "cp #{file.path} #{File.join(@lib_directory, jar_name(@version))}"
-          puts "(#{(Time.now - download_start_time).duration})"
-        end
-
       end
 
       def self.find_play_jpa_plugin(app_dir, configuration)
