@@ -4,11 +4,9 @@ The Groovy Container allows a uncompiled (i.e. `*.groovy`) to be run.
 <table>
 	<tr>
 		<td><strong>Detection Criterion</strong></td><td><ul>
-			<li>A single <tt>.groovy</tt> file exists</li>
-			<li>Mutliple <tt>.groovy</tt> files exist, and one of them is named <tt>main.groovy</tt> or <tt>Main.groovy</tt></li>
-			<li>Mutliple <tt>.groovy</tt> files exist, and one of them has a <tt>main()</tt> method</li>
-			<li>Mutliple <tt>.groovy</tt> files exist, and one of them is not a POGO</li>
-			<li>Mutliple <tt>.groovy</tt> files exist, and one of them has a <tt>#!</tt> declaration</li>
+			<li>A <tt>.groovy</tt> file exists which has a <tt>main()</tt> method</li>
+			<li>A <tt>.groovy</tt> file exists which is not a POGO (a POGO contains one or more classes)</li>
+			<li>A <tt>.groovy</tt> file exists which has a shebang (<tt>#!</tt>) declaration</li>
 		</ul></td>
 	</tr>
 	<tr>
