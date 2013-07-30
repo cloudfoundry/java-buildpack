@@ -19,6 +19,7 @@ require 'java_buildpack/framework'
 require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
+require 'java_buildpack/util/download'
 require 'java_buildpack/util/format_duration'
 
 module JavaBuildpack::Framework
@@ -53,7 +54,7 @@ module JavaBuildpack::Framework
     #
     # @return [void]
     def compile
-      download_auto_reconfiguration
+      JavaBuildpack::Util.download(@auto_reconfiguration_version, @auto_reconfiguration_uri, 'Auto Reconfiguration', jar_name(@auto_reconfiguration_version), @lib_directory)
       modify_web_xml
     end
 
@@ -68,17 +69,6 @@ module JavaBuildpack::Framework
       SPRING_JAR_PATTERN = 'spring-core*.jar'
 
       WEB_XML = File.join 'WEB-INF', 'web.xml'
-
-      def download_auto_reconfiguration
-        download_start_time = Time.now
-        print "-----> Downloading Auto Reconfiguration #{@auto_reconfiguration_version} from #{@auto_reconfiguration_uri} "
-
-        JavaBuildpack::Util::ApplicationCache.new.get(@auto_reconfiguration_uri) do |file|  # TODO: Use global cache #50175265
-          system "cp #{file.path} #{File.join(@lib_directory, jar_name(@auto_reconfiguration_version))}"
-          puts "(#{(Time.now - download_start_time).duration})"
-        end
-
-      end
 
       def self.find_auto_reconfiguration(app_dir, configuration)
         if spring_application? app_dir
