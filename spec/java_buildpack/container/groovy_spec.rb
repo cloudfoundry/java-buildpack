@@ -36,8 +36,8 @@ module JavaBuildpack::Container
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
       .and_return(DETAILS)
       detected = Groovy.new(
-        app_dir: 'spec/fixtures/container_main',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_main',
+          configuration: {}
       ).detect
 
       expect(detected).to be_nil
@@ -47,19 +47,19 @@ module JavaBuildpack::Container
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
       .and_return(DETAILS)
       detected = Groovy.new(
-        app_dir: 'spec/fixtures/dot_groovy',
-        configuration: {}
+          app_dir: 'spec/fixtures/dot_groovy',
+          configuration: {}
       ).detect
 
       expect(detected).to be_nil
     end
 
-     it 'should detect a Groovy file with a main() method' do
+    it 'should detect a Groovy file with a main() method' do
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
       .and_return(DETAILS)
       detected = Groovy.new(
-        app_dir: 'spec/fixtures/container_groovy_main_method',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_groovy_main_method',
+          configuration: {}
       ).detect
 
       expect(detected).to include('groovy-2.1.5')
@@ -69,8 +69,8 @@ module JavaBuildpack::Container
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
       .and_return(DETAILS)
       detected = Groovy.new(
-        app_dir: 'spec/fixtures/container_groovy_non_pogo',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_groovy_non_pogo',
+          configuration: {}
       ).detect
 
       expect(detected).to include('groovy-2.1.5')
@@ -80,8 +80,8 @@ module JavaBuildpack::Container
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
       .and_return(DETAILS)
       detected = Groovy.new(
-        app_dir: 'spec/fixtures/container_groovy_shebang',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_groovy_shebang',
+          configuration: {}
       ).detect
 
       expect(detected).to include('groovy-2.1.5')
@@ -92,8 +92,8 @@ module JavaBuildpack::Container
       .and_return(DETAILS)
       expect do
         Groovy.new(
-          app_dir: 'spec/fixtures/container_groovy_main_method',
-          configuration: {}
+            app_dir: 'spec/fixtures/container_groovy_main_method',
+            configuration: {}
         ).detect
       end.to raise_error(/Malformed\ Groovy\ version/)
     end
@@ -109,8 +109,8 @@ module JavaBuildpack::Container
         application_cache.stub(:get).with('test-groovy-uri').and_yield(File.open('spec/fixtures/stub-groovy.zip'))
 
         Groovy.new(
-          app_dir: root,
-          configuration: {}
+            app_dir: root,
+            configuration: {}
         ).compile
 
         groovy = File.join root, '.groovy', 'bin', 'groovy'
@@ -130,11 +130,11 @@ module JavaBuildpack::Container
         .and_return(DETAILS)
 
         command = Groovy.new(
-          app_dir: root,
-          java_home: 'test-java-home',
-          java_opts: %w(test-opt-2 test-opt-1),
-          lib_directory: lib_directory,
-          configuration: {}
+            app_dir: root,
+            java_home: 'test-java-home',
+            java_opts: %w(test-opt-2 test-opt-1),
+            lib_directory: lib_directory,
+            configuration: {}
         ).release
 
         expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .groovy/bin/groovy -cp .lib/test-jar-1.jar:.lib/test-jar-2.jar Application.groovy Alpha.groovy')
