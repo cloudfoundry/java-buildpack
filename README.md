@@ -25,6 +25,7 @@ The buildpack supports configuration and extension through the use of Git reposi
 	* [Groovy](docs/container-groovy.md) ([Configuration](docs/container-groovy.md#configuration))
 	* [Java Main Class](docs/container-java-main.md) ([Configuration](docs/container-java-main.md#configuration))
 	* [Play](docs/container-play.md)
+	* [Spring Boot CLI](docs/container-spring-boot-cli.md) ([Configuration](docs/container-spring-boot-cli.md#configuration))
 	* [Tomcat](docs/container-tomcat.md) ([Configuration](docs/container-tomcat.md#configuration))
 * Standard Frameworks
 	* [Play Auto Reconfiguration](docs/framework-play-auto-reconfiguration.md) ([Configuration](docs/framework-play-auto-reconfiguration.md#configuration))
