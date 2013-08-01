@@ -46,8 +46,8 @@ module JavaBuildpack::Jre
     VALID_SIZES = %w(heap permgen stack)
 
     before do
-      File.delete(JavaBuildpack::Diagnostics.get_buildpack_log Dir.tmpdir)
       JavaBuildpack::Diagnostics::LoggerFactory.send :close # suppress warnings
+      File.delete(JavaBuildpack::Diagnostics.get_buildpack_log Dir.tmpdir)
       JavaBuildpack::Diagnostics::LoggerFactory.create_logger Dir.tmpdir
     end
 
