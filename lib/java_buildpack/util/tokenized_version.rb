@@ -43,7 +43,7 @@ module JavaBuildpack::Util
 
     # Compare this to another array
     #
-    # @return [Integer] A numerical representation of the comparisong between two instances
+    # @return [Integer] A numerical representation of the comparison between two instances
     def <=>(other)
       comparison = self[0].to_i <=> other[0].to_i
       comparison = self[1].to_i <=> other[1].to_i if comparison == 0
@@ -62,7 +62,7 @@ module JavaBuildpack::Util
 
     private
 
-      COLLATING_SEQUENCE = ['-'] + ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
+      COLLATING_SEQUENCE = ['-', '.'] + ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
 
       def char_compare(c1, c2)
         COLLATING_SEQUENCE.index(c1) <=> COLLATING_SEQUENCE.index(c2)
@@ -134,7 +134,7 @@ module JavaBuildpack::Util
       end
 
       def valid_qualifier(qualifier)
-        qualifier.nil? || qualifier.empty? || qualifier =~ /^[-a-zA-Z\d]*$/ || qualifier =~ /^\+$/
+        qualifier.nil? || qualifier.empty? || qualifier =~ /^[-\.a-zA-Z\d]*$/ || qualifier =~ /^\+$/
       end
   end
 
