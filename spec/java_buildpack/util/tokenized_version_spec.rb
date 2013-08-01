@@ -44,6 +44,10 @@ module JavaBuildpack::Util
       expect(TokenizedVersion.new('1.7.0_28a')).to be > TokenizedVersion.new('1.7.0_28')
     end
 
+    it 'should accept a qualifier with embedded periods and hyphens' do
+      TokenizedVersion.new('0.5.0_BUILD-20120731.141622-16')
+    end
+
     it 'should raise an exception when the major version is not numeric' do
       expect { TokenizedVersion.new('A') }.to raise_error(/Invalid/)
     end
