@@ -21,9 +21,9 @@ module JavaBuildpack::Container
 
   describe Groovy do
 
-    VERSION = JavaBuildpack::Util::TokenizedVersion.new('2.1.5')
+    GROOVY_VERSION = JavaBuildpack::Util::TokenizedVersion.new('2.1.5')
 
-    DETAILS = [VERSION, 'test-groovy-uri']
+    GROOVY_DETAILS = [GROOVY_VERSION, 'test-groovy-uri']
 
     let(:application_cache) { double('ApplicationCache') }
 
@@ -33,8 +33,8 @@ module JavaBuildpack::Container
     end
 
     it 'should not detect a non-Groovy project' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
-      .and_return(DETAILS)
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
+      .and_return(GROOVY_DETAILS)
       detected = Groovy.new(
           app_dir: 'spec/fixtures/container_main',
           configuration: {}
@@ -44,8 +44,8 @@ module JavaBuildpack::Container
     end
 
     it 'should not detect a .groovy directory' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
-      .and_return(DETAILS)
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
+      .and_return(GROOVY_DETAILS)
       detected = Groovy.new(
           app_dir: 'spec/fixtures/dot_groovy',
           configuration: {}
@@ -55,8 +55,8 @@ module JavaBuildpack::Container
     end
 
     it 'should detect a Groovy file with a main() method' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
-      .and_return(DETAILS)
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
+      .and_return(GROOVY_DETAILS)
       detected = Groovy.new(
           app_dir: 'spec/fixtures/container_groovy_main_method',
           configuration: {}
@@ -66,8 +66,8 @@ module JavaBuildpack::Container
     end
 
     it 'should detect a Groovy file with non-POGO' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
-      .and_return(DETAILS)
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
+      .and_return(GROOVY_DETAILS)
       detected = Groovy.new(
           app_dir: 'spec/fixtures/container_groovy_non_pogo',
           configuration: {}
@@ -77,8 +77,8 @@ module JavaBuildpack::Container
     end
 
     it 'should detect a Groovy file with #!' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
-      .and_return(DETAILS)
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
+      .and_return(GROOVY_DETAILS)
       detected = Groovy.new(
           app_dir: 'spec/fixtures/container_groovy_shebang',
           configuration: {}
@@ -89,7 +89,7 @@ module JavaBuildpack::Container
 
     it 'should fail when a malformed version is detected' do
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(JavaBuildpack::Util::TokenizedVersion.new('2.1.5_10')) if block }
-      .and_return(DETAILS)
+      .and_return(GROOVY_DETAILS)
       expect do
         Groovy.new(
             app_dir: 'spec/fixtures/container_groovy_main_method',
@@ -102,8 +102,8 @@ module JavaBuildpack::Container
       Dir.mktmpdir do |root|
         Dir['spec/fixtures/container_groovy_main_method/*'].each { |file| system "cp #{file} #{root}" }
 
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
-        .and_return(DETAILS)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
+        .and_return(GROOVY_DETAILS)
 
         JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
         application_cache.stub(:get).with('test-groovy-uri').and_yield(File.open('spec/fixtures/stub-groovy.zip'))
@@ -126,8 +126,8 @@ module JavaBuildpack::Container
         Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
         Dir['spec/fixtures/container_groovy_main_method/*'].each { |file| system "cp #{file} #{root}" }
 
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(VERSION) if block }
-        .and_return(DETAILS)
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
+        .and_return(GROOVY_DETAILS)
 
         command = Groovy.new(
             app_dir: root,
