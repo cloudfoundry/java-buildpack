@@ -29,7 +29,7 @@ module JavaBuildpack::Framework
         configuration: { 'java_opts' => '-Xmx1024M' }
       ).detect
 
-      expect(detected).to be_true
+      expect(detected).to eq('java-opts')
     end
 
     it 'should not detect without java_opts configuration' do
@@ -38,7 +38,7 @@ module JavaBuildpack::Framework
         configuration: {}
       ).detect
 
-      expect(detected).to be_false
+      expect(detected).to be_nil
     end
 
     it 'should add split java_opts to context' do

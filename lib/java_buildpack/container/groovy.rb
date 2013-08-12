@@ -115,7 +115,7 @@ module JavaBuildpack::Container
       def self.find_groovy(app_dir, configuration)
         if main_groovy app_dir
           version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |candidate_version|
-            raise "Malformed Groovy version #{candidate_version}: too many version components" if candidate_version[3]
+            fail "Malformed Groovy version #{candidate_version}: too many version components" if candidate_version[3]
           end
         else
           version = nil

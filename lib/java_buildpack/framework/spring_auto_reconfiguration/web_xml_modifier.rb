@@ -103,7 +103,7 @@ module JavaBuildpack::Framework
         locations = locations_string.value.strip.split(/[,;\s]+/)
         locations << additional_context_config_location(root, param_type)
 
-        locations_string.value = locations.join(' ')
+        locations_string.value = locations.join(' ') # rubocop:disable UselessAssignment
       end
 
       def augment_context_initializer_classes(root, param_type)
@@ -113,7 +113,7 @@ module JavaBuildpack::Framework
         classes = classes_string.value.strip.split(/[,;\s]+/)
         classes << CONTEXT_INITIALIZER_ADDITIONAL
 
-        classes_string.value = classes.join(',')
+        classes_string.value = classes.join(',') # rubocop:disable UselessAssignment
       end
 
       def create_param(root, param_type, name, value)

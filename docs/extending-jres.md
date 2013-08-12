@@ -12,6 +12,8 @@ To add a JRE, the class file must be located in [`lib/java_buildpack/jre`][jre_d
 # @option context [String] :java_home the directory that acts as +JAVA_HOME+
 # @option context [Array<String>] :java_opts an array that Java options can be added to
 # @option context [String] :lib_directory the directory that additional libraries are placed in
+# @option context [Hash] :vcap_application The contents of the +VCAP_APPLICATION+ environment variable
+# @option context [Hash] :vcap_services The contents of the +VCAP_SERVICES+ environment variable
 # @option context [Hash] :configuration the configuration provided by the user
 def initialize(context)
 

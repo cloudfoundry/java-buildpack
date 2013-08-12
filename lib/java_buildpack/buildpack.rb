@@ -119,18 +119,20 @@ module JavaBuildpack
       java_home = ''
       java_opts = []
       @lib_directory = Buildpack.lib_directory app_dir
+      vcap_application = ENV['VCAP_APPLICATION']
+      vcap_services = ENV['VCAP_SERVICES']
 
       basic_context = {
           app_dir: app_dir,
           java_home: java_home,
           java_opts: java_opts,
-          lib_directory: @lib_directory
+          lib_directory: @lib_directory,
+          vcap_application: vcap_application ? YAML.load(vcap_application) : {},
+          vcap_services: vcap_services ? YAML.load(vcap_services) : {}
       }
 
       @jres = Buildpack.construct_components(components, 'jres', basic_context, @logger)
-
       @frameworks = Buildpack.construct_components(components, 'frameworks', basic_context, @logger)
-
       @containers = Buildpack.construct_components(components, 'containers', basic_context, @logger)
     end
 

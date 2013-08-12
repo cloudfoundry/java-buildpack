@@ -7,6 +7,7 @@ The repositories that are currently referenced by the buildpack are easily repli
 | Auto Reconfiguration | <https://github.com/cloudfoundry/builder-auto-reconfiguration>
 | Groovy | <https://github.com/cloudfoundry/builder-groovy>
 | MySQL JDBC | <https://github.com/cloudfoundry/builder-mysql-jdbc>
+| New Relic | <https://github.com/cloudfoundry/builder-new-relic>
 | OpenJDK | <https://github.com/cloudfoundry/builder-openjdk>
 | PostgreSQL JDBC | <https://github.com/cloudfoundry/builder-postgresql-jdbc>
 | Spring Boot CLI | <https://github.com/cloudfoundry/builder-spring-boot-cli>
