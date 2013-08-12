@@ -17,6 +17,7 @@
 require 'java_buildpack/repository'
 require 'java_buildpack/util/download_cache'
 require 'java_buildpack/repository/version_resolver'
+require 'yaml'
 
 module JavaBuildpack::Repository
 

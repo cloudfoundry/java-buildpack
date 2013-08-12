@@ -15,10 +15,11 @@
 # limitations under the License.
 
 require 'fileutils'
-require 'logger'
-require 'monitor'
 require 'java_buildpack/diagnostics'
 require 'java_buildpack/diagnostics/common'
+require 'logger'
+require 'monitor'
+require 'yaml'
 
 module JavaBuildpack::Diagnostics
 
