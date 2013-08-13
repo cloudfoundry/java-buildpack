@@ -161,7 +161,7 @@ module JavaBuildpack::Container
           configuration: {}
       ).release
 
-      expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .spring-boot-cli/bin/spring run *.groovy -- --server.port=$PORT')
+      expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .spring-boot-cli/bin/spring run --local *.groovy -- --server.port=$PORT')
     end
 
   end
