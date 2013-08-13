@@ -14,7 +14,7 @@ The Spring Boot CLI Container runs one or more Groovy (i.e. `*.groovy`) files us
 		<td><strong>Tags</strong></td><td><tt>spring-boot-cli-&lang;version&rang;</tt></td>
 	</tr>
 </table>
-Tags are printed to standard output by the buildpack detect script
+Tags are printed to standard output by the buildpack detect script.
 
 
 ## Configuration
