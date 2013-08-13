@@ -72,23 +72,12 @@ module JavaBuildpack
     #
     # @return [void]
     def compile
-      the_container = container
-      if the_container
-        FileUtils.mkdir_p @lib_directory
+      the_container = container # diagnose detect failure early
+      FileUtils.mkdir_p @lib_directory
 
-        jre.compile
-        frameworks.each { |framework| framework.compile }
-        container.compile
-      else
-        diagnose_detect_failure
-      end
-    end
-
-    def diagnose_detect_failure
-      logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
-      message = 'no supported application type was detected'
-      logger.error message
-      abort message
+      jre.compile
+      frameworks.each { |framework| framework.compile }
+      the_container.compile
     end
 
     # Generates the payload required to run the application.  The payload format is defined by the
@@ -96,27 +85,22 @@ module JavaBuildpack
     #
     # @return [String] The payload required to run the application.
     def release
-      the_container = container
-      if the_container
-        jre.release
-        frameworks.each { |framework| framework.release }
-        command = the_container.release
+      the_container = container # diagnose detect failure early
+      jre.release
+      frameworks.each { |framework| framework.release }
+      command = the_container.release
 
-        payload = {
-            'addons' => [],
-            'config_vars' => {},
-            'default_process_types' => {
-                'web' => command
-            }
-        }.to_yaml
+      payload = {
+          'addons' => [],
+          'config_vars' => {},
+          'default_process_types' => {
+              'web' => command
+          }
+      }.to_yaml
 
-        @logger.debug { "Release Payload #{payload}" }
+      @logger.debug { "Release Payload #{payload}" }
 
-        payload
-      else
-        diagnose_detect_failure
-      end
-
+      payload
     end
 
     private_class_method :new
@@ -229,7 +213,9 @@ module JavaBuildpack
     end
 
     def container
-      @containers.find { |container| container.detect }
+      found_container = @containers.find { |container| container.detect }
+      raise 'No supported application type was detected' unless found_container
+      found_container
     end
 
     def frameworks
