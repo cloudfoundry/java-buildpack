@@ -1,7 +1,5 @@
 # New Relic Framework
-The New Relic Framework causes an application to be automatically configured to work with a bound [New Relic Service][new_relic].
-
-[new_relic]: https://newrelic.com
+The New Relic Framework causes an application to be automatically configured to work with a bound [New Relic Service][].
 
 <table>
   <tr>
@@ -14,15 +12,15 @@ The New Relic Framework causes an application to be automatically configured to 
 Tags are printed to standard output by the buildpack detect script
 
 ## Configuration
-The container can be configured by modifying the [`config/newrelic.yml`][newrelic_yml] file.  The container uses the [`Repository` utility support][util_repositories] and so it supports the [version syntax][version_syntax] defined there.
-
-[newrelic_yml]: ../config/newrelic.yml
-[util_repositories]: util-repositories.md
-[version_syntax]: util-repositories.md#version-syntax-and-ordering
+The container can be configured by modifying the [`config/newrelic.yml`][] file.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the New Relic repository index ([details][util_repositories]).
-| `version` | The version of New Relic to use. Candidate versions can be found in [this listing][new_relic_index_yml].
+| `repository_root` | The URL of the New Relic repository index ([details][repositories]).
+| `version` | The version of New Relic to use. Candidate versions can be found in [this listing][].
 
-[new_relic_index_yml]: http://download.pivotal.io.s3.amazonaws.com/new-relic/lucid/x86_64/index.yml
+[`config/newrelic.yml`]: ../config/newrelic.yml
+[New Relic Service]: https://newrelic.com
+[repositories]: util-repositories.md
+[this listing]: http://download.pivotal.io.s3.amazonaws.com/new-relic/lucid/x86_64/index.yml
+[version syntax]: util-repositories.md#version-syntax-and-ordering

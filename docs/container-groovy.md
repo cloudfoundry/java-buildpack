@@ -15,17 +15,15 @@ The Groovy Container allows a uncompiled (i.e. `*.groovy`) to be run.
 </table>
 Tags are printed to standard output by the buildpack detect script
 
-
 ## Configuration
-The container can be configured by modifying the [`config/groovy.yml`][groovy_yml] file.  The container uses the [`Repository` utility support][util_repositories] and so it supports the [version syntax][version_syntax] defined there.
-
-[groovy_yml]: ../config/groovy.yml
-[util_repositories]: util-repositories.md
-[version_syntax]: util-repositories.md#version-syntax-and-ordering
+The container can be configured by modifying the [`config/groovy.yml`][] file.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the Groovy repository index ([details][util_repositories]).
-| `version` | The version of Groovy to use. Candidate versions can be found in [this listing][groovy_index_yml].
+| `repository_root` | The URL of the Groovy repository index ([details][repositories]).
+| `version` | The version of Groovy to use. Candidate versions can be found in [this listing][].
 
-[groovy_index_yml]: http://download.pivotal.io.s3.amazonaws.com/groovy/lucid/x86_64/index.yml
+[`config/groovy.yml`]: ../config/groovy.yml
+[repositories]: util-repositories.md
+[this listing]: http://download.pivotal.io.s3.amazonaws.com/groovy/lucid/x86_64/index.yml
+[version syntax]: util-repositories.md#version-syntax-and-ordering

@@ -1,8 +1,5 @@
 # OpenJDK JRE
-The OpenJDK JRE provides Java runtimes from the [OpenJDK][openjdk] project.  Versions of Java from the `1.6`, `1.7`, and `1.8` lines are available.  Unless otherwise configured, the version of Java that will be used is specified in [`config/openjdk.yml`][openjdk_yml].
-
-[openjdk]: http://openjdk.java.net
-[openjdk_yml]: ../config/openjdk.yml
+The OpenJDK JRE provides Java runtimes from the [OpenJDK][] project.  Versions of Java from the `1.6`, `1.7`, and `1.8` lines are available.  Unless otherwise configured, the version of Java that will be used is specified in [`config/openjdk.yml`][].
 
 <table>
   <tr>
@@ -15,20 +12,14 @@ The OpenJDK JRE provides Java runtimes from the [OpenJDK][openjdk] project.  Ver
 Tags are printed to standard output by the buildpack detect script
 
 ## Configuration
-The JRE can be configured by modifying the [`config/openjdk.yml`][openjdk_yml] file.  The JRE uses the [`Repository` utility support][util_repositories] and so it supports the [version syntax][version_syntax]  defined there.
-
-[openjdk_yml]: ../config/openjdk.yml
-[util_repositories]: util-repositories.md
-[version_syntax]: util-repositories.md#version-syntax-and-ordering
+The JRE can be configured by modifying the [`config/openjdk.yml`][] file.  The JRE uses the [`Repository` utility support][repositories] and so it supports the [version syntax][]  defined there.
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the OpenJDK repository index ([details][util_repositories]).
-| `version` | The version of Java runtime to use.  Candidate versions can be found in [this listing][openjdk_index_yml].
+| `repository_root` | The URL of the OpenJDK repository index ([details][repositories]).
+| `version` | The version of Java runtime to use.  Candidate versions can be found in [this listing][].
 | `memory_sizes` | Optional memory sizes, described below under "Memory".
 | `memory_heuristics` | Default memory size proportions, described below under "Default Memory Sizes".
-
-[openjdk_index_yml]: http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml
 
 ### Memory
 
@@ -47,4 +38,10 @@ If some memory sizes are not specified using the above properties, default value
 
 If a memory size is specified which is not equal to the default value, the other default values are adjusted proportionately, except that the default stack size is never adjusted.
 
-The default memory size proportions are configured in the `memory_heuristics` mapping of [`config/openjdk.yml`][openjdk_yml]. Each memory size is given a weighting between `0` and `1` corresponding to a proportion of the total memory specified when the application was pushed. The weightings should add up to `1`.
+The default memory size proportions are configured in the `memory_heuristics` mapping of [`config/openjdk.yml`][]. Each memory size is given a weighting between `0` and `1` corresponding to a proportion of the total memory specified when the application was pushed. The weightings should add up to `1`.
+
+[`config/openjdk.yml`]: ../config/openjdk.yml
+[OpenJDK]: http://openjdk.java.net
+[repositories]: util-repositories.md
+[this listing]: http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml
+[version syntax]: util-repositories.md#version-syntax-and-ordering

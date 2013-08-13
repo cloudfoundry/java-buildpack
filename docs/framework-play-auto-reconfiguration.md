@@ -12,15 +12,15 @@ The Play Auto Reconfiguration Framework causes an application to be automaticall
 Tags are printed to standard output by the buildpack detect script
 
 ## Configuration
-The container can be configured by modifying the [`config/playautoreconfiguration.yml`][playautoreconfiguration_yml] file.  The container uses the [`Repository` utility support][util_repositories] and so it supports the [version syntax][version_syntax] defined there.
+The container can be configured by modifying the [`config/playautoreconfiguration.yml`][] file.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
-[playautoreconfiguration_yml]: ../config/playautoreconfiguration.yml
-[util_repositories]: util-repositories.md
-[version_syntax]: util-repositories.md#version-syntax-and-ordering
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the Auto Reconfiguration repository index ([details][util_repositories]).
-| `version` | The version of Auto Reconfiguration to use. Candidate versions can be found in [this listing][auto_reconfiguration_index_yml].
+| `repository_root` | The URL of the Auto Reconfiguration repository index ([details][repositories]).
+| `version` | The version of Auto Reconfiguration to use. Candidate versions can be found in [this listing][].
 
-[auto_reconfiguration_index_yml]: http://download.pivotal.io.s3.amazonaws.com/auto-reconfiguration/lucid/x86_64/index.yml
+[`config/playautoreconfiguration.yml`]: ../config/playautoreconfiguration.yml
+[repositories]: util-repositories.md
+[this listing]: http://download.pivotal.io.s3.amazonaws.com/auto-reconfiguration/lucid/x86_64/index.yml
+[version syntax]: util-repositories.md#version-syntax-and-ordering

@@ -17,15 +17,14 @@ If a `/WEB-INF/web.xml` file exists, the framework will modify it in addition to
 2. Augmenting `contextInitializerClasses`.  The function starts by enumerating the current `contextInitializerClasses`.  If none exist, a default configuration is created with no value as the default. The `org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer` class is then added to the collection of classes.
 
 ## Configuration
-The container can be configured by modifying the [`config/springautoreconfiguration.yml`][springgautoreconfiguration_yml] file.  The container uses the [`Repository` utility support][util_repositories] and so it supports the [version syntax][version_syntax] defined there.
-
-[springautoreconfiguration_yml]: ../config/springautoreconfiguration.yml
-[util_repositories]: util-repositories.md
-[version_syntax]: util-repositories.md#version-syntax-and-ordering
+The container can be configured by modifying the [`config/springautoreconfiguration.yml`][] file.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the Auto Reconfiguration repository index ([details][util_repositories]).
-| `version` | The version of Auto Reconfiguration to use. Candidate versions can be found in [this listing][auto_reconfiguration_index_yml].
+| `repository_root` | The URL of the Auto Reconfiguration repository index ([details][repositories]).
+| `version` | The version of Auto Reconfiguration to use. Candidate versions can be found in [this listing][].
 
-[auto_reconfiguration_index_yml]: http://download.pivotal.io.s3.amazonaws.com/auto-reconfiguration/lucid/x86_64/index.yml
+[`config/springautoreconfiguration.yml`]: ../config/springautoreconfiguration.yml
+[repositories]: util-repositories.md
+[this listing]: http://download.pivotal.io.s3.amazonaws.com/auto-reconfiguration/lucid/x86_64/index.yml
+[version syntax]: util-repositories.md#version-syntax-and-ordering
