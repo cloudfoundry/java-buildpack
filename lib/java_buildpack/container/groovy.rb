@@ -19,6 +19,7 @@ require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
+require 'java_buildpack/util/groovy_utils'
 require 'pathname'
 require 'set'
 require 'tmpdir'
@@ -159,15 +160,15 @@ module JavaBuildpack::Container
       end
 
       def self.main_method(app_dir, candidates)
-        select(app_dir, candidates) { |file| file.read =~ /static void main\(/ }
+        select(app_dir, candidates) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file }
       end
 
       def self.non_pogo(app_dir, candidates)
-        reject(app_dir, candidates) { |file| file.read =~ /class [\w]+ {/ }
+        reject(app_dir, candidates) { |file| JavaBuildpack::Util::GroovyUtils.pogo? file }
       end
 
       def self.shebang(app_dir, candidates)
-        select(app_dir, candidates) { |file| file.read =~ /#!/ }
+        select(app_dir, candidates) { |file| JavaBuildpack::Util::GroovyUtils.shebang? file }
       end
 
       def self.reject(app_dir, candidates, &block)
