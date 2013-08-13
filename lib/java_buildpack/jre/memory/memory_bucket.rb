@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/diagnostics/logger_factory'
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/memory_size'
 
@@ -47,6 +48,8 @@ module JavaBuildpack::Jre
       @adjustable = (validate_adjustable adjustable) && !@size_specified && total_memory
       @total_memory = total_memory ? validate_memory_size(total_memory, 'total_memory') : nil
       @size = @size_specified || default_size
+      logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
+      logger.debug { inspect }
     end
 
     # Returns the excess memory in this memory bucket.

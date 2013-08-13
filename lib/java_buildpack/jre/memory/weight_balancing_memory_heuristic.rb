@@ -137,6 +137,7 @@ module JavaBuildpack::Jre
               actual_size = bucket.size
               if default_size != MemorySize::ZERO
                 factor = ((actual_size - default_size) / default_size).abs
+                @logger.debug { "factor for memory size #{type} is #{factor}" }
               end
               if (default_size == MemorySize::ZERO && actual_size == MemorySize::ZERO) || factor < CLOSE_TO_DEFAULT_FACTOR
                 @logger.warn "The configured value #{actual_size} of memory size #{type} is close to the default value #{default_size}. Consider deleting the configured value and taking the default."

@@ -98,8 +98,16 @@ module JavaBuildpack::Jre
       expect(ONE_MEG / 2).to eq(HALF_A_MEG)
     end
 
+    it 'should divide a memory size by a numeric using floating point' do
+      expect(MemorySize.new('3B') / 2).to eq(MemorySize.new('2B'))
+    end
+
     it 'should divide a memory size by another memory size correctly' do
       expect(ONE_MEG / HALF_A_MEG).to eq(2)
+    end
+
+    it 'should divide a memory size by another memory size using floating point' do
+      expect(HALF_A_MEG / ONE_MEG).to eq(0.5)
     end
 
     it 'should fail when a memory size is divided by an incorrect type' do

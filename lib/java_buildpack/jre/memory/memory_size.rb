@@ -31,7 +31,7 @@ module JavaBuildpack::Jre
       v = size[0..-2]
       raise "Invalid memory size '#{size}'" unless MemorySize.is_integer v
       v = size.to_i
-      # Store the number of kilobytes.
+      # Store the number of bytes.
       case unit
       when 'b', 'B'
         @bytes = v
@@ -107,8 +107,8 @@ module JavaBuildpack::Jre
     # @param [MemorySize, Numeric] other the memory size or numeric value to divide by
     # @return [MemorySize, Numeric] the result
     def /(other)
-      return @bytes / other.bytes if other.is_a? MemorySize
-      return MemorySize.from_numeric((@bytes / other).round) if other.is_a? Numeric
+      return @bytes / other.bytes.to_f if other.is_a? MemorySize
+      return MemorySize.from_numeric((@bytes / other.to_f).round) if other.is_a? Numeric
       raise "Cannot divide a MemorySize by an instance of #{other.class}"
     end
 
