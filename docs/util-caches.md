@@ -39,7 +39,7 @@ end
 ```
 
 ## `JavaBuildpack::Util::DownloadCache`
-The [`DownloadCache`][download_cache] is the most generic of the three caches.  It allows you to create a cache that persists files any that write access is available.  The constructor signature looks the following:
+The [`DownloadCache`][] is the most generic of the three caches.  It allows you to create a cache that persists files any that write access is available.  The constructor signature looks the following:
 
 ```ruby
 # Creates an instance of the cache that is backed by the filesystem rooted at +cache_root+
@@ -48,10 +48,8 @@ The [`DownloadCache`][download_cache] is the most generic of the three caches.  
 def initialize(cache_root = Dir.tmpdir)
 ```
 
-[download_cache]: ../lib/java_buildpack/util/download_cache.rb
-
 ## `JavaBuildpack::Util::ApplicationCache`
-The [`ApplicationCache`][application_cache] is a cache that persists files into the application cache passed to the `compile` script.  It examines `ARGV[1]` for the cache location and configures itself accordingly.
+The [`ApplicationCache`][] is a cache that persists files into the application cache passed to the `compile` script.  It examines `ARGV[1]` for the cache location and configures itself accordingly.
 
 ```ruby
 # Creates an instance that is configured to use the application cache.  The application cache location is defined by
@@ -61,10 +59,8 @@ The [`ApplicationCache`][application_cache] is a cache that persists files into 
 def initialize
 ```
 
-[application_cache]: ../lib/java_buildpack/util/application_cache.rb
-
 ## `JavaBuildpack::Util::GlobalCache`
-The [`GlobalCache`][global_cache] is a cache that persists files into the global cache passed to all scripts.  It examines `ENV['BUILDPACK_CACHE']` for the cache location and configures itself accordingly.
+The [`GlobalCache`][] is a cache that persists files into the global cache passed to all scripts.  It examines `ENV['BUILDPACK_CACHE']` for the cache location and configures itself accordingly.
 
 ```ruby
 # Creates an instance that is configured to use the global cache.  The global cache location is defined by the
@@ -74,4 +70,6 @@ The [`GlobalCache`][global_cache] is a cache that persists files into the global
 def initialize
 ```
 
-[global_cache]: ../lib/java_buildpack/util/global_cache.rb
+[`ApplicationCache`]: ../lib/java_buildpack/util/application_cache.rb
+[`DownloadCache`]: ../lib/java_buildpack/util/download_cache.rb
+[`GlobalCache`]: ../lib/java_buildpack/util/global_cache.rb

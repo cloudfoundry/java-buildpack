@@ -2,15 +2,15 @@
 
 # Migrating from cloudfoundry-buildpack-java
 
-This buildpack supersedes the buildpack [`cloudfoundry-buildpack-java`](https://github.com/cloudfoundry/cloudfoundry-buildpack-java) but is not backward compatible with it, so users should read the following migration notes.
+This buildpack supersedes the buildpack [`cloudfoundry-buildpack-java`][] but is not backward compatible with it, so users should read the following migration notes.
 
 ## Detect Processing
 
 `cloudfoundry-buildpack-java` had different detection rules to this buildpack.  It performed a sequence of detection checks and acted upon the first check, if any, which passed. So it paid no attention to potentially ambiguous results.
 
-This buildpack ensures that at most one _container_ (see [Design](design.md) for the definition of this term) can be used to run an application and raises an error if more than one container can be used.
+This buildpack ensures that at most one _container_ (see [Design][] for the definition of this term) can be used to run an application and raises an error if more than one container can be used.
 
-This buildpack supports all the types of application that `cloudfoundry-buildpack-java` supported.  However, this buildpack distinguishes between _containers_ and orthogonal _frameworks_ (see [Design](design.md) for the definition of this term) whereas `cloudfoundry-buildpack-java` merged these concepts.
+This buildpack supports all the types of application that `cloudfoundry-buildpack-java` supported.  However, this buildpack distinguishes between _containers_ and orthogonal _frameworks_ (see [Design][] for the definition of this term) whereas `cloudfoundry-buildpack-java` merged these concepts.
 
 ## Play Applications
 
@@ -36,7 +36,12 @@ The support for Grails applications in this buildpack is identical to the suppor
 
 `cloudfoundry-buildpack-java` used a version of OpenJDK specified as the property `java.runtime.version` in a file `system.properties` residing anywhere in the application directory tree. If this property was not specified, `cloudfoundry-buildpack-java` used a hard-coded version of OpenJDK.  This buildpack is configured to use the latest update of a particular version of OpenJDK. If a specific version of OpenJDK is required, configure it in `config/openjdk.yml`. The version of OpenJDK may no longer be specified using a system property.
 
-`cloudfoundry-buildpack-java` configured both the JVM maximum and minimum heap sizes to equal the application memory limit (`$MEMORY_LIMIT`). This buildpack supports a variety of memory size settings and memory heuristic settings for calculating defaults based on the application memory limit.  See [OpenJDK JRE configuration](jre-openjdk.md#configuration) for details.
+`cloudfoundry-buildpack-java` configured both the JVM maximum and minimum heap sizes to equal the application memory limit (`$MEMORY_LIMIT`). This buildpack supports a variety of memory size settings and memory heuristic settings for calculating defaults based on the application memory limit.  See [OpenJDK JRE configuration][] for details.
 
-`cloudfoundry-buildpack-java` used to set the `java.io.tmpdir` Java system property to `$TMPDIR`.  If this is required, configure [`java_opts`](framework-java_opts.md#configuration).
+`cloudfoundry-buildpack-java` used to set the `java.io.tmpdir` Java system property to `$TMPDIR`.  If this is required, configure [`java_opts`][].
 
+
+[`cloudfoundry-buildpack-java`]: https://github.com/cloudfoundry/cloudfoundry-buildpack-java
+[Design]: design.md
+[`java_opts`]: framework-java_opts.md#configuration
+[OpenJDK JRE configuration]: jre-openjdk.md#configuration

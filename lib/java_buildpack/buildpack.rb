@@ -119,11 +119,13 @@ module JavaBuildpack
       java_home = ''
       java_opts = []
       @lib_directory = Buildpack.lib_directory app_dir
-      vcap_application = ENV['VCAP_APPLICATION']
-      vcap_services = ENV['VCAP_SERVICES']
+      environment = ENV.to_hash
+      vcap_application = environment.delete 'VCAP_APPLICATION'
+      vcap_services = environment.delete 'VCAP_SERVICES'
 
       basic_context = {
           app_dir: app_dir,
+          environment: environment,
           java_home: java_home,
           java_opts: java_opts,
           lib_directory: @lib_directory,

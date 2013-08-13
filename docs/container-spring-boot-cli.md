@@ -7,7 +7,7 @@ The Spring Boot CLI Container runs one or more Groovy (i.e. `*.groovy`) files us
 			<li>The application has one or more <tt>.groovy</tt> files in the root directory, and</li>
 			<li>All the application's <tt>.groovy</tt> files in the root directory are POGOs (a POGO contains one or more classes), and</li>
 			<li>None of the application's <tt>.groovy</tt> files in the root directory contain a <tt>main</tt> method, and</li>
-		    <li>The application does not have a <tt>WEB-INF</tt> subdirectory of its root directory.</li>
+			<li>The application does not have a <tt>WEB-INF</tt> subdirectory of its root directory.</li>
 		</ul></td>
 	</tr>
 	<tr>
@@ -16,17 +16,19 @@ The Spring Boot CLI Container runs one or more Groovy (i.e. `*.groovy`) files us
 </table>
 Tags are printed to standard output by the buildpack detect script.
 
+In order to specify [Spring profiles][], set the [`SPRING_PROFILES_ACTIVE`][] environment variable.  This is automatically detected and used by Spring.
 
 ## Configuration
-The container can be configured by modifying the [`config/springbootcli.yml`][springbootcli_yml] file.  The container uses the [`Repository` utility support][util_repositories] and so it supports the [version syntax][version_syntax] defined there.
-
-[springbootcli_yml]: ../config/springbootcli.yml
-[util_repositories]: util-repositories.md
-[version_syntax]: util-repositories.md#version-syntax-and-ordering
+The container can be configured by modifying the [`config/springbootcli.yml`][] file.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the Spring Boot CLI repository index ([details][util_repositories]).
-| `version` | The version of Spring Boot CLI to use. Candidate versions can be found in [this listing][spring_boot_cli_index_yml].
+| `repository_root` | The URL of the Spring Boot CLI repository index ([details][repositories]).
+| `version` | The version of Spring Boot CLI to use. Candidate versions can be found in [this listing][].
 
-[spring_boot_cli_index_yml]: http://download.pivotal.io.s3.amazonaws.com/spring-boot-cli/lucid/x86_64/index.yml
+[`config/springbootcli.yml`]: ../config/springbootcli.yml
+[repositories]: util-repositories.md
+[Spring profiles]:http://blog.springsource.com/2011/02/14/spring-3-1-m1-introducing-profile/
+[`SPRING_PROFILES_ACTIVE`]: http://static.springsource.org/spring/docs/3.1.x/javadoc-api/org/springframework/core/env/AbstractEnvironment.html#ACTIVE_PROFILES_PROPERTY_NAME
+[this listing]: http://download.pivotal.io.s3.amazonaws.com/spring-boot-cli/lucid/x86_64/index.yml
+[version syntax]: util-repositories.md#version-syntax-and-ordering

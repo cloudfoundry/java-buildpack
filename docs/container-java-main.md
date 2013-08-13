@@ -16,13 +16,11 @@ Command line arguments may optionally be configured.
 Tags are printed to standard output by the buildpack detect script
 
 ## Configuration
-The container can be configured by modifying the [`config/main.yml`][main_yml] file.
-
-[main_yml]: ../config/main.yml
+The container can be configured by modifying the [`config/main.yml`][] file.
 
 | Name | Description
 | ---- | -----------
 | `arguments` | Optional command line arguments to be passed to the Java main class. The arguments are specified as a single YAML scalar in plain style or enclosed in single or double quotes.
 | `java_main_class` | The Java class name to run. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line.  If not specified, the Java Manifest value of `Main-Class` is used.
 
-
+[`config/main.yml`]: ../config/main.yml

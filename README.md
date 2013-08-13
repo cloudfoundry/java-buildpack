@@ -3,9 +3,7 @@
 [![Dependency Status](https://gemnasium.com/cloudfoundry/java-buildpack.png)](http://gemnasium.com/cloudfoundry/java-buildpack)
 [![Code Climate](https://codeclimate.com/github/cloudfoundry/java-buildpack.png)](https://codeclimate.com/github/cloudfoundry/java-buildpack)
 
-The `java-buildpack` is a [Cloud Foundry][cf] buildpack for running Java applications.  It is designed to run most Java applications with no additional configuration, but supports configuration of the standard components, and extension to add custom components.
-
-[cf]: http://www.cloudfoundry.com
+The `java-buildpack` is a [Cloud Foundry][] buildpack for running Java applications.  It is designed to run most Java applications with no additional configuration, but supports configuration of the standard components, and extension to add custom components.
 
 ## Usage
 To use this buildpack specify the URI of the repository when pushing an application to Cloud Foundry:
@@ -13,10 +11,7 @@ To use this buildpack specify the URI of the repository when pushing an applicat
     cf push --buildpack https://github.com/cloudfoundry/java-buildpack
 
 ## Configuration and Extension
-The buildpack supports configuration and extension through the use of Git repository forking.  The easiest way to accomplish this is to use [GitHub's forking functionality][fork] to create a copy of this repository.  Make the required configuration and extension changes in the copy of the repository.  Then specify the URL of the new repository when pushing Cloud Foundry applications.  If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][pull-request] with the changes.
-
-[fork]: https://help.github.com/articles/fork-a-repo
-[pull-request]: https://help.github.com/articles/using-pull-requests
+The buildpack supports configuration and extension through the use of Git repository forking.  The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository.  Make the required configuration and extension changes in the copy of the repository.  Then specify the URL of the new repository when pushing Cloud Foundry applications.  If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes.
 
 ## Additional Documentation
 * [Design](docs/design.md)
@@ -56,15 +51,16 @@ bundle exec rake
 
 If you want to use the RubyMine debugger, you may need to [install additional gems][].
 
-[install additional gems]: http://stackoverflow.com/questions/11732715/how-do-i-install-ruby-debug-base19x-on-mountain-lion-for-intellij
-
 ## Contributing
 [Pull requests][] are welcome; see the [contributor guidelines][] for details.
-
-[Pull requests]: http://help.github.com/send-pull-requests
-[contributor guidelines]: CONTRIBUTING.md
 
 ## License
 The Tomcat Builder is released under version 2.0 of the [Apache License][].
 
 [Apache License]: http://www.apache.org/licenses/LICENSE-2.0
+[Cloud Foundry]: http://www.cloudfoundry.com
+[contributor guidelines]: CONTRIBUTING.md
+[GitHub's forking functionality]: https://help.github.com/articles/fork-a-repo
+[install additional gems]: http://stackoverflow.com/questions/11732715/how-do-i-install-ruby-debug-base19x-on-mountain-lion-for-intellij
+[pull request]: https://help.github.com/articles/using-pull-requests
+[Pull requests]: http://help.github.com/send-pull-requests

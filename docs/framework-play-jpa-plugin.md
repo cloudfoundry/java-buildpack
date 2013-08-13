@@ -18,15 +18,14 @@ The Play JPA Plugin Framework causes an application to be automatically reconfig
 Tags are printed to standard output by the buildpack detect script
 
 ## Configuration
-The container can be configured by modifying the [`config/playjpaplugin.yml`][playjpaplugin_yml] file.  The container uses the [`Repository` utility support][util_repositories] and so it supports the [version syntax][version_syntax] defined there.
-
-[playjpaplugin_yml]: ../config/playjpaplugin.yml
-[util_repositories]: util-repositories.md
-[version_syntax]: util-repositories.md#version-syntax-and-ordering
+The container can be configured by modifying the [`config/playjpaplugin.yml`][] file.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the Play JPA Plugin repository index ([details][util_repositories]).
-| `version` | The version of the Play JPA Plugin to use. Candidate versions can be found in [this listing][play_jpa_plugin_index_yml].
+| `repository_root` | The URL of the Play JPA Plugin repository index ([details][repositories]).
+| `version` | The version of the Play JPA Plugin to use. Candidate versions can be found in [this listing][].
 
-[play_jpa_plugin_index_yml]: http://download.pivotal.io.s3.amazonaws.com/play-jpa-plugin/lucid/x86_64/index.yml
+[`config/playjpaplugin.yml`]: ../config/playjpaplugin.yml
+[repositories]: util-repositories.md
+[this listing]: http://download.pivotal.io.s3.amazonaws.com/play-jpa-plugin/lucid/x86_64/index.yml
+[version syntax]: util-repositories.md#version-syntax-and-ordering
