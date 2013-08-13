@@ -211,6 +211,13 @@ module JavaBuildpack::Jre
       end
     end
 
+    it 'should not issue a warning when the specified maximum permgen size is not close to the default' do
+      with_memory_limit('1G') do
+        WeightBalancingMemoryHeuristic.new({ 'permgen' => '128M' }, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
+        expect(buildpack_log_contents).not_to match(/WARN.*is close to the default/)
+      end
+    end
+
     it 'should fail when the specified maximum memory is larger than the total memory size' do
       with_memory_limit('4096m') do
         expect { WeightBalancingMemoryHeuristic.new({ 'heap' => '5g' }, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }.to raise_error(/exceeded/)
