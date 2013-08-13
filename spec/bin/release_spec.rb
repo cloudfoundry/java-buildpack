@@ -32,6 +32,13 @@ describe 'release script', :integration do
     end
   end
 
+  it 'should fail to release when no containers detect' do
+    Dir.mktmpdir do |root|
+      error = Open3.capture3("bin/release #{root}")[1]
+      expect(error).to match(/no supported application type was detected/)
+    end
+  end
+
   def with_memory_limit(memory_limit)
     previous_value = ENV['MEMORY_LIMIT']
     begin

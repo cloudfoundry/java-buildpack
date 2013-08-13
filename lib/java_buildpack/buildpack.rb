@@ -72,11 +72,21 @@ module JavaBuildpack
     #
     # @return [void]
     def compile
-      FileUtils.mkdir_p @lib_directory
+      the_container = container
+      if the_container
+        FileUtils.mkdir_p @lib_directory
 
-      jre.compile
-      frameworks.each { |framework| framework.compile }
-      container.compile
+        jre.compile
+        frameworks.each { |framework| framework.compile }
+        container.compile
+      else
+        diagnose_detect_failure
+      end
+    end
+
+    def diagnose_detect_failure
+      logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
+      logger.error 'no supported application type was detected'
     end
 
     # Generates the payload required to run the application.  The payload format is defined by the
@@ -84,21 +94,27 @@ module JavaBuildpack
     #
     # @return [String] The payload required to run the application.
     def release
-      jre.release
-      frameworks.each { |framework| framework.release }
-      command = container.release
+      the_container = container
+      if the_container
+        jre.release
+        frameworks.each { |framework| framework.release }
+        command = the_container.release
 
-      payload = {
-          'addons' => [],
-          'config_vars' => {},
-          'default_process_types' => {
-              'web' => command
-          }
-      }.to_yaml
+        payload = {
+            'addons' => [],
+            'config_vars' => {},
+            'default_process_types' => {
+                'web' => command
+            }
+        }.to_yaml
 
-      @logger.debug { "Release Payload #{payload}" }
+        @logger.debug { "Release Payload #{payload}" }
 
-      payload
+        payload
+      else
+        diagnose_detect_failure
+      end
+
     end
 
     private_class_method :new
