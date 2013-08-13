@@ -19,6 +19,7 @@ require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
+require 'java_buildpack/util/groovy_utils'
 require 'fileutils'
 require 'pathname'
 require 'set'
@@ -151,7 +152,7 @@ module JavaBuildpack::Container
     end
 
     def self.no_main_method(app_dir, groovy_files)
-      none?(app_dir, groovy_files) { |file| file.read =~ /static void main\(/ } # note that this will scan comments
+      none?(app_dir, groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file } # note that this will scan comments
     end
 
     def self.has_web_inf(app_dir)
@@ -159,7 +160,7 @@ module JavaBuildpack::Container
     end
 
     def self.all_pogo(app_dir, groovy_files)
-      all?(app_dir, groovy_files) { |file| file.read =~ /class [\w]+ {/ } # note that this will scan comments
+      all?(app_dir, groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.pogo? file } # note that this will scan comments
     end
 
     def self.all?(app_dir, groovy_files, &block)
