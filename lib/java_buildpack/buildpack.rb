@@ -86,7 +86,9 @@ module JavaBuildpack
 
     def diagnose_detect_failure
       logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
-      logger.error 'no supported application type was detected'
+      message = 'no supported application type was detected'
+      logger.error message
+      abort message
     end
 
     # Generates the payload required to run the application.  The payload format is defined by the
