@@ -68,84 +68,86 @@ module JavaBuildpack::Jre
 
     private
 
-      NATIVE_MEMORY_WARNING_FACTOR = 3
+    NATIVE_MEMORY_WARNING_FACTOR = 3
 
-      CLOSE_TO_DEFAULT_FACTOR = 0.1
+    CLOSE_TO_DEFAULT_FACTOR = 0.1
 
-      def balance_buckets(sizes, buckets, memory_limit)
-        total_excess = MemorySize::ZERO
-        total_adjustable_weighting = 0
+    def balance_buckets(sizes, buckets, memory_limit)
+      total_excess = MemorySize::ZERO
+      total_adjustable_weighting = 0
 
-        buckets.each_value do |bucket|
-          xs = bucket.excess
-          total_excess = total_excess + xs
-          total_adjustable_weighting += bucket.adjustable_weighting
-        end
-
-        buckets.each_value do |bucket|
-          bucket.adjust(total_excess, total_adjustable_weighting)
-          raise "Total memory #{memory_limit} exceeded by configured memory #{sizes}" if bucket.size && bucket.size < MemorySize::ZERO
-        end
+      buckets.each_value do |bucket|
+        xs = bucket.excess
+        total_excess = total_excess + xs
+        total_adjustable_weighting += bucket.adjustable_weighting
       end
 
-      def create_memory_bucket(type, weighting, size, memory_limit)
-        if type == 'stack'
-          StackMemoryBucket.new(weighting, size, memory_limit)
-        else
-          MemoryBucket.new(type, weighting, size, true, memory_limit)
+      buckets.each_value do |bucket|
+        bucket.adjust(total_excess, total_adjustable_weighting)
+        raise "Total memory #{memory_limit} exceeded by configured memory #{sizes}" if bucket.size && bucket.size < MemorySize::ZERO
+      end
+    end
+
+    def create_memory_bucket(type, weighting, size, memory_limit)
+      if type == 'stack'
+        StackMemoryBucket.new(weighting, size, memory_limit)
+      else
+        MemoryBucket.new(type, weighting, size, true, memory_limit)
+      end
+    end
+
+    def create_memory_buckets(sizes, heuristics, memory_limit)
+      buckets = {}
+      total_weighting = 0
+
+      heuristics.each_pair do |type, weighting|
+        size = nil_safe_size sizes[type]
+        buckets[type] = create_memory_bucket(type, weighting, size, memory_limit)
+        total_weighting += weighting
+      end
+
+      raise 'Invalid configuration: sum of weightings is greater than 1' if total_weighting > 1
+
+      buckets
+    end
+
+    def issue_memory_wastage_warning(buckets)
+      native_bucket = buckets['native']
+      if native_bucket && native_bucket.size > native_bucket.default_size * NATIVE_MEMORY_WARNING_FACTOR
+        @logger.warn "There is #{NATIVE_MEMORY_WARNING_FACTOR} times more spare native memory than the default, so configured Java memory may be too small."
+      end
+    end
+
+    def nil_safe_size(size)
+      size ? MemorySize.new(size) : nil
+    end
+
+    def validate(type, expected, actual)
+      actual.each do |key|
+        raise "'#{key}' is not a valid memory #{type}" unless expected.include? key
+      end
+    end
+
+    def issue_close_to_default_warnings(buckets, heuristics, memory_limit)
+      # Check each specified memory size to see if it is close to the default.
+      buckets.each do |type, bucket|
+        check_close_to_default(type, bucket) if @sizes[type]
+      end
+    end
+
+    def check_close_to_default(type, bucket)
+      default_size = bucket.default_size
+      if default_size
+        actual_size = bucket.size
+        if default_size != MemorySize::ZERO
+          factor = ((actual_size - default_size) / default_size).abs
+          @logger.debug { "factor for memory size #{type} is #{factor}" }
+        end
+        if (default_size == MemorySize::ZERO && actual_size == MemorySize::ZERO) || (factor && (factor < CLOSE_TO_DEFAULT_FACTOR))
+          @logger.warn "The configured value #{actual_size} of memory size #{type} is close to the default value #{default_size}. Consider deleting the configured value and taking the default."
         end
       end
-
-      def create_memory_buckets(sizes, heuristics, memory_limit)
-        buckets = {}
-        total_weighting = 0
-
-        heuristics.each_pair do |type, weighting|
-          size = nil_safe_size sizes[type]
-          buckets[type] = create_memory_bucket(type, weighting, size, memory_limit)
-          total_weighting += weighting
-        end
-
-        raise 'Invalid configuration: sum of weightings is greater than 1' if total_weighting > 1
-
-        buckets
-      end
-
-      def issue_memory_wastage_warning(buckets)
-        native_bucket = buckets['native']
-        if native_bucket && native_bucket.size > native_bucket.default_size * NATIVE_MEMORY_WARNING_FACTOR
-          @logger.warn "There is #{NATIVE_MEMORY_WARNING_FACTOR} times more spare native memory than the default, so configured Java memory may be too small."
-        end
-      end
-
-      def nil_safe_size(size)
-        size ? MemorySize.new(size) : nil
-      end
-
-      def validate(type, expected, actual)
-        actual.each do |key|
-          raise "'#{key}' is not a valid memory #{type}" unless expected.include? key
-        end
-      end
-
-      def issue_close_to_default_warnings(buckets, heuristics, memory_limit)
-        # Check each specified memory size to see if it is close to the default.
-        buckets.each do |type, bucket|
-          if @sizes[type]
-            default_size = bucket.default_size
-            if default_size
-              actual_size = bucket.size
-              if default_size != MemorySize::ZERO
-                factor = ((actual_size - default_size) / default_size).abs
-                @logger.debug { "factor for memory size #{type} is #{factor}" }
-              end
-              if (default_size == MemorySize::ZERO && actual_size == MemorySize::ZERO) || factor < CLOSE_TO_DEFAULT_FACTOR
-                @logger.warn "The configured value #{actual_size} of memory size #{type} is close to the default value #{default_size}. Consider deleting the configured value and taking the default."
-              end
-            end
-          end
-        end
-      end
+    end
 
   end
 
