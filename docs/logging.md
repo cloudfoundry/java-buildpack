@@ -23,6 +23,8 @@ both parameter and block forms:
     logger.debug { "#{costly_method}" }
 
 ## Configuration
+For general information on configuring the buildpack, refer to [Configuration and Extension][].
+
 The log level is configured by setting an environment variable
 `$JBP_LOG_LEVEL` to one of:
 
@@ -40,3 +42,5 @@ specified using any mixture of upper and lower case.
 
 Ruby's verbose and debug modes override the default log level to `DEBUG` unless
 `JBP_LOG_LEVEL` has been set, in which case this takes priority.
+
+[Configuration and Extension]: ../README.md#Configuration-and-Extension

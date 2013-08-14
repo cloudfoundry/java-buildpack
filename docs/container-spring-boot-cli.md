@@ -19,6 +19,8 @@ Tags are printed to standard output by the buildpack detect script.
 In order to specify [Spring profiles][], set the [`SPRING_PROFILES_ACTIVE`][] environment variable.  This is automatically detected and used by Spring.
 
 ## Configuration
+For general information on configuring the buildpack, refer to [Configuration and Extension][].
+
 The container can be configured by modifying the [`config/springbootcli.yml`][] file.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
@@ -26,6 +28,7 @@ The container can be configured by modifying the [`config/springbootcli.yml`][] 
 | `repository_root` | The URL of the Spring Boot CLI repository index ([details][repositories]).
 | `version` | The version of Spring Boot CLI to use. Candidate versions can be found in [this listing][].
 
+[Configuration and Extension]: ../README.md#Configuration-and-Extension
 [`config/springbootcli.yml`]: ../config/springbootcli.yml
 [repositories]: util-repositories.md
 [Spring profiles]:http://blog.springsource.com/2011/02/14/spring-3-1-m1-introducing-profile/

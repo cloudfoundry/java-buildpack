@@ -12,13 +12,16 @@ The New Relic Framework causes an application to be automatically configured to 
 Tags are printed to standard output by the buildpack detect script
 
 ## Configuration
-The container can be configured by modifying the [`config/newrelic.yml`][] file.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+For general information on configuring the buildpack, refer to [Configuration and Extension][].
+
+The framework can be configured by modifying the [`config/newrelic.yml`][] file.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------
 | `repository_root` | The URL of the New Relic repository index ([details][repositories]).
 | `version` | The version of New Relic to use. Candidate versions can be found in [this listing][].
 
+[Configuration and Extension]: ../README.md#Configuration-and-Extension
 [`config/newrelic.yml`]: ../config/newrelic.yml
 [New Relic Service]: https://newrelic.com
 [repositories]: util-repositories.md

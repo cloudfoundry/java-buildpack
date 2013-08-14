@@ -12,6 +12,8 @@ The OpenJDK JRE provides Java runtimes from the [OpenJDK][] project.  Versions o
 Tags are printed to standard output by the buildpack detect script
 
 ## Configuration
+For general information on configuring the buildpack, refer to [Configuration and Extension][].
+
 The JRE can be configured by modifying the [`config/openjdk.yml`][] file.  The JRE uses the [`Repository` utility support][repositories] and so it supports the [version syntax][]  defined there.
 
 | Name | Description
@@ -40,6 +42,7 @@ If a memory size is specified which is not equal to the default value, the other
 
 The default memory size proportions are configured in the `memory_heuristics` mapping of [`config/openjdk.yml`][]. Each memory size is given a weighting between `0` and `1` corresponding to a proportion of the total memory specified when the application was pushed. The weightings should add up to `1`.
 
+[Configuration and Extension]: ../README.md#Configuration-and-Extension
 [`config/openjdk.yml`]: ../config/openjdk.yml
 [OpenJDK]: http://openjdk.java.net
 [repositories]: util-repositories.md
