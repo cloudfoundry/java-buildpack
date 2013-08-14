@@ -14,6 +14,8 @@ Tags are printed to standard output by the buildpack detect script
 In order to specify [Spring profiles][], set the [`SPRING_PROFILES_ACTIVE`][] environment variable.  This is automatically detected and used by Spring.
 
 ## Configuration
+For general information on configuring the buildpack, refer to [Configuration and Extension][].
+
 The container can be configured by modifying the [`config/tomcat.yml`][] file.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
@@ -24,6 +26,7 @@ The container can be configured by modifying the [`config/tomcat.yml`][] file.  
 ## Supporting Functionality
 Additional supporting functionality can be found in the [`java-buildpack-support`][] Git repository.
 
+[Configuration and Extension]: ../README.md#Configuration-and-Extension
 [`config/tomcat.yml`]: ../config/tomcat.yml
 [`java-buildpack-support`]: https://github.com/cloudfoundry/java-buildpack-support
 [repositories]: util-repositories.md
