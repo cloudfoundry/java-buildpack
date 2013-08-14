@@ -8,6 +8,15 @@ If the buildpack fails with an exception, the exception message is logged with a
 log level of `ERROR` whereas the exception stack trace is logged with a log
 level of `DEBUG` to prevent users from seeing stack traces by default.
 
+## Sensitive Information in Logs
+
+The Java buildpack logs sensitive information, such as environment variables which may contain security
+credentials.
+
+_You should be careful not to expose this information
+inadvertently_, for example by posting standard error stream contents or the contents of
+`<app dir>/.buildpack-diagnostics/buildpack.log` to a public discussion list.  
+
 ## Logger Usage
 The `LoggerFactory` class in the `JavaBuildpack::Diagnostics` module
 manages a single instance of a subclass of the standard Ruby `Logger`.
