@@ -107,6 +107,8 @@ module JavaBuildpack
 
     private
 
+    GIT_DIR = File.expand_path('../../.git', File.dirname(__FILE__)).freeze
+
     COMPONENTS_CONFIG = '../../config/components.yml'.freeze
 
     LIB_DIRECTORY = '.lib'
@@ -114,6 +116,7 @@ module JavaBuildpack
     # Instances should only be constructed by this class.
     def initialize(app_dir)
       @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
+      Buildpack.log_git_data @logger
       Buildpack.dump_environment_variables @logger
       Buildpack.require_component_files
       components = Buildpack.components @logger
@@ -192,6 +195,15 @@ module JavaBuildpack
 
     def self.jre_directory
       Pathname.new(File.expand_path('jre', File.dirname(__FILE__)))
+    end
+
+    def self.log_git_data(logger)
+      # Log information about the buildpack's git repository to enable stale forks to be spotted.
+      # Call the debug method passing a parameter rather than a block so that, should the git command
+      # become inaccessible to the buildpack at some point in the future, we find out before someone
+      # happens to switch on debug logging.
+      logger.debug("git remotes: #{`git --git-dir=#{GIT_DIR} remote -v`}")
+      logger.debug("git HEAD commit: #{`git --git-dir=#{GIT_DIR} log HEAD^!`}")
     end
 
     def self.lib_directory(app_dir)
