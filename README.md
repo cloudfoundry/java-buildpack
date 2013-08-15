@@ -39,7 +39,7 @@ The buildpack supports configuration and extension through the use of Git reposi
 	* [Caches](docs/util-caches.md)
 	* [Logging](docs/logging.md)
 	* [Repositories](docs/util-repositories.md)
-	* [Repository Builders](docs/util-repository-builders.md)
+	* [Repository Builder](docs/util-repository-builder.md)
 	* [Test Applications](docs/util-test-applications.md)
 
 ## Running Tests
