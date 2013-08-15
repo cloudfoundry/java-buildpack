@@ -24,8 +24,8 @@ module JavaBuildpack::Container
 
     it 'should detect with main class configuration' do
       detected = Main.new(
-        app_dir: 'spec/fixtures/container_none',
-        configuration: { 'java_main_class' => 'test-java-main-class' }
+          app_dir: 'spec/fixtures/container_none',
+          configuration: { 'java_main_class' => 'test-java-main-class' }
       ).detect
 
       expect(detected).to be_true
@@ -33,8 +33,8 @@ module JavaBuildpack::Container
 
     it 'should detect with main class manifest entry' do
       detected = Main.new(
-        app_dir: 'spec/fixtures/container_main',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_main',
+          configuration: {}
       ).detect
 
       expect(detected).to be_true
@@ -42,8 +42,8 @@ module JavaBuildpack::Container
 
     it 'should not detect without main class manifest entry' do
       detected = Main.new(
-        app_dir: 'spec/fixtures/container_main_no_main_class',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_main_no_main_class',
+          configuration: {}
       ).detect
 
       expect(detected).to be_false
@@ -51,8 +51,8 @@ module JavaBuildpack::Container
 
     it 'should not detect without manifest' do
       detected = Main.new(
-        app_dir: 'spec/fixtures/container_main_none',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_main_none',
+          configuration: {}
       ).detect
 
       expect(detected).to be_false
@@ -64,11 +64,11 @@ module JavaBuildpack::Container
         Dir.mkdir lib_directory
 
         command = Main.new(
-          app_dir: root,
-          java_home: 'test-java-home',
-          java_opts: %w(test-opt-2 test-opt-1),
-          lib_directory: lib_directory,
-          configuration: { 'java_main_class' => 'test-java-main-class' }
+            app_dir: root,
+            java_home: 'test-java-home',
+            java_opts: %w(test-opt-2 test-opt-1),
+            lib_directory: lib_directory,
+            configuration: { 'java_main_class' => 'test-java-main-class' }
         ).release
 
         expect(command).to eq('test-java-home/bin/java -cp . test-opt-1 test-opt-2 test-java-main-class')
@@ -81,11 +81,11 @@ module JavaBuildpack::Container
         Dir.mkdir lib_directory
 
         command = Main.new(
-          app_dir: 'spec/fixtures/container_main',
-          java_home: 'test-java-home',
-          java_opts: [],
-          lib_directory: lib_directory,
-          configuration: {}
+            app_dir: 'spec/fixtures/container_main',
+            java_home: 'test-java-home',
+            java_opts: [],
+            lib_directory: lib_directory,
+            configuration: {}
         ).release
 
         expect(command).to eq('test-java-home/bin/java -cp .:alpha.jar:bravo.jar:charlie.jar test-main-class')
@@ -98,14 +98,14 @@ module JavaBuildpack::Container
         Dir.mkdir lib_directory
 
         command = Main.new(
-          app_dir: root,
-          java_home: 'test-java-home',
-          java_opts: [],
-          lib_directory: lib_directory,
-          configuration: {
-            'java_main_class' => 'test-java-main-class',
-            'arguments' => 'some arguments'
-          }
+            app_dir: root,
+            java_home: 'test-java-home',
+            java_opts: [],
+            lib_directory: lib_directory,
+            configuration: {
+                'java_main_class' => 'test-java-main-class',
+                'arguments' => 'some arguments'
+            }
         ).release
 
         expect(command).to eq('test-java-home/bin/java -cp . test-java-main-class some arguments')
@@ -120,16 +120,78 @@ module JavaBuildpack::Container
         Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
 
         command = Main.new(
-          app_dir: root,
-          java_home: 'test-java-home',
-          java_opts: [],
-          lib_directory: lib_directory,
-          configuration: { 'java_main_class' => 'test-java-main-class' }
+            app_dir: root,
+            java_home: 'test-java-home',
+            java_opts: [],
+            lib_directory: lib_directory,
+            configuration: { 'java_main_class' => 'test-java-main-class' }
         ).release
 
         expect(command).to eq('test-java-home/bin/java -cp .:.lib/test-jar-1.jar:.lib/test-jar-2.jar test-java-main-class')
       end
 
+    end
+
+    it 'should release Spring boot applications with a JarLauncher in the MANIFEST.MF by specifying a port' do
+      command = Main.new(
+          app_dir: 'spec/fixtures/container_main_spring_boot_jar_launcher',
+          java_home: 'test-java-home',
+          java_opts: [],
+          configuration: {}
+      ).release
+
+      expect(command).to eq('test-java-home/bin/java -cp . org.springframework.boot.loader.JarLauncher --server.port=$PORT')
+    end
+
+    it 'should release Spring boot applications with a WarLauncher in the MANIFEST.MF by specifying a port' do
+      command = Main.new(
+          app_dir: 'spec/fixtures/container_main_spring_boot_war_launcher',
+          java_home: 'test-java-home',
+          java_opts: [],
+          configuration: {}
+      ).release
+
+      expect(command).to eq('test-java-home/bin/java -cp . org.springframework.boot.loader.WarLauncher --server.port=$PORT')
+    end
+
+    it 'should release Spring boot applications with a JarLauncher in the configuration by specifying a port' do
+      Dir.mktmpdir do |root|
+        lib_directory = File.join(root, '.lib')
+        Dir.mkdir lib_directory
+
+        command = Main.new(
+            app_dir: root,
+            java_home: 'test-java-home',
+            java_opts: [],
+            lib_directory: lib_directory,
+            configuration: {
+                'java_main_class' => 'org.springframework.boot.loader.JarLauncher',
+                'arguments' => 'some arguments'
+            }
+        ).release
+
+        expect(command).to eq('test-java-home/bin/java -cp . org.springframework.boot.loader.JarLauncher some arguments --server.port=$PORT')
+      end
+    end
+
+    it 'should release Spring boot applications with a WarLauncher in the configuration by specifying a port' do
+      Dir.mktmpdir do |root|
+        lib_directory = File.join(root, '.lib')
+        Dir.mkdir lib_directory
+
+        command = Main.new(
+            app_dir: root,
+            java_home: 'test-java-home',
+            java_opts: [],
+            lib_directory: lib_directory,
+            configuration: {
+                'java_main_class' => 'org.springframework.boot.loader.WarLauncher',
+                'arguments' => 'some arguments'
+            }
+        ).release
+
+        expect(command).to eq('test-java-home/bin/java -cp . org.springframework.boot.loader.WarLauncher some arguments --server.port=$PORT')
+      end
     end
 
   end
