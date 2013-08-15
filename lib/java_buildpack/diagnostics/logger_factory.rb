@@ -23,6 +23,7 @@ require 'yaml'
 
 module JavaBuildpack::Diagnostics
 
+  # Factory for the buildpack diagnostic logger.
   class LoggerFactory
     # Create a Logger for the given application directory.
     #
@@ -116,11 +117,17 @@ module JavaBuildpack::Diagnostics
       end
     end
 
+    # A +Logger+ destination which delegates to multiple underlying destinations.
     class LogSplitter
+      # Initializes a +LogSplitter+ with a given array of destinations.
+      # @param [Array] destinations an array of destinations
       def initialize(*destinations)
         @destinations = destinations
       end
 
+      # Writes to the underlying destinations.
+      #
+      # @param [Array] args the arguments for the delegated call
       def write(*args)
         @destinations.each do |destination|
           destination.write(*args)
@@ -128,6 +135,7 @@ module JavaBuildpack::Diagnostics
         end
       end
 
+      # Closes the underlying destinations.
       def close
         @destinations.each do |destination|
           destination.close
@@ -136,11 +144,19 @@ module JavaBuildpack::Diagnostics
 
     end
 
+    # A subclass of the standard +Logger+ which determines the caller from the stack.
     class Logger < ::Logger
+      # Initializes a Logger.
+      # @param [Object] log_dev the destination 'device' to log to
       def initialize(log_dev)
         super
       end
 
+      # Logs a message with a given severity.
+      #
+      # @param [String] severity the severity of the log message
+      # @param [Object, nil] message the message to be logged
+      # @param [String, nil] progname the name of the program logging the message
       def add(severity, message = nil, progname = nil, &block)
 
         if message || block_given?
@@ -158,6 +174,7 @@ module JavaBuildpack::Diagnostics
         super(severity, message_text, program_name, &block)
       end
 
+      # Closes the logger.
       def close
         warn(caller[0]) { 'logger is being closed' }
         super

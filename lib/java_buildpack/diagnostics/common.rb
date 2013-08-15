@@ -24,10 +24,18 @@ module JavaBuildpack::Diagnostics
   # The name of the buildpack diagnostic log file.
   LOG_FILE_NAME = 'buildpack.log'.freeze
 
+  # Returns the full path of the buildpack diagnostics directory.
+  #
+  # @param [String] app_dir the application root directory
+  # @return [String] the full path of the buildpack diagnostics directory
   def self.get_diagnostic_directory(app_dir)
     File.join(app_dir, DIAGNOSTICS_DIRECTORY)
   end
 
+  # Returns the full path of the buildpack log file.
+  #
+  # @param [String] app_dir the application root directory
+  # @return [String] the full path of the buildpack log file
   def self.get_buildpack_log(app_dir)
     File.join(get_diagnostic_directory(app_dir), LOG_FILE_NAME)
   end
