@@ -98,6 +98,8 @@ module JavaBuildpack::Util
         Dir[File.join(root, PLAY_JAR)].first
       end
 
+    private_class_method :new
+
   end
 
 end

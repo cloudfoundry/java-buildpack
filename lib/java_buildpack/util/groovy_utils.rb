@@ -45,6 +45,8 @@ module JavaBuildpack::Util
       file.read =~ /#!/
     end
 
+    private_class_method :new
+
   end
 
 end
