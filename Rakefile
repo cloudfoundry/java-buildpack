@@ -17,13 +17,27 @@ require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new
 
 require 'yard'
-YARD::Rake::YardocTask.new
+YARD::Rake::YardocTask.new do |t|
+  t.options = ['--no-stats']
+end
 
 require 'rubocop/rake_task'
 Rubocop::RakeTask.new
+
+require 'open3'
+task :check_api_doc do
+  puts "\nChecking API documentation..."
+  output = Open3.capture3("yard stats --list-undoc")[0]
+  if output !~ /100.00% documented/
+  	puts "\nFailed due to undocumented public API:\n\n#{output}"
+  	exit 1
+  else
+  	puts "\n#{output}\n"
+  end
+end
 
 require 'rake/clean'
 CLEAN.include %w(.yardoc coverage)
 CLOBBER.include %w(doc pkg)
 
-task :default => [ :rubocop, :yard, :spec ]
+task :default => [ :rubocop, :check_api_doc, :yard, :spec ]

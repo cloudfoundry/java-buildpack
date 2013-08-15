@@ -20,6 +20,13 @@ require 'java_buildpack/util/format_duration'
 
 module JavaBuildpack::Util
 
+  # Downloads a given item using the application cache.
+  #
+  # @param [JavaBuildpack::Util::TokenizedVersion] version the version of the item
+  # @param [String] uri the URI of the item
+  # @param [String] description a description of the item
+  # @param [String] jar_name the filename of the item
+  # @param [String] target_directory the path of the directory into which to download the item
   def self.download(version, uri, description, jar_name, target_directory)
 
     download_start_time = Time.now
