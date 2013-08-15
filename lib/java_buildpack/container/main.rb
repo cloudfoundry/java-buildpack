@@ -65,8 +65,9 @@ module JavaBuildpack::Container
       java_opts_string = ContainerUtils.space(ContainerUtils.to_java_opts_s(@java_opts))
       main_class_string = ContainerUtils.space(main_class)
       arguments_string = ContainerUtils.space(arguments)
+      port_string = ContainerUtils.space(port)
 
-      "#{java_string}#{classpath_string}#{java_opts_string}#{main_class_string}#{arguments_string}"
+      "#{java_string}#{classpath_string}#{java_opts_string}#{main_class_string}#{arguments_string}#{port_string}"
     end
 
     private
@@ -106,6 +107,10 @@ module JavaBuildpack::Container
       def manifest_class_path
         value = manifest[CLASS_PATH_PROPERTY]
         value.nil? ? [] : value.split(' ')
+      end
+
+      def port
+        main_class =~ /^org\.springframework\.boot\.loader\.[JW]arLauncher$/ ? '--server.port=$PORT' : nil
       end
 
   end

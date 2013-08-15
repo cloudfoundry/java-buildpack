@@ -15,6 +15,11 @@ Command line arguments may optionally be configured.
 </table>
 Tags are printed to standard output by the buildpack detect script
 
+## Spring Boot
+
+If the main class is Spring Boot's `JarLauncher` or `WarLauncher`, the Java Main Class Container adds a `--server.port` argument to the command so that the
+application uses the correct port. 
+
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
