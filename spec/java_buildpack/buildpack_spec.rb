@@ -63,6 +63,14 @@ module JavaBuildpack
       expect(detected).to be_empty
     end
 
+    it 'should raise an error on compile if no container can run an application' do
+      with_buildpack { |buildpack| expect { buildpack.compile }.to raise_error(/No supported application type/) }
+    end
+
+    it 'should raise an error on release if no container can run an application' do
+      with_buildpack { |buildpack| expect { buildpack.release }.to raise_error(/No supported application type/) }
+    end
+
     it 'should raise an error if more than one JRE can run an application' do
       stub_jre1.stub(:detect).and_return('stub-jre-1')
       stub_jre2.stub(:detect).and_return('stub-jre-2')

@@ -44,7 +44,7 @@ module JavaBuildpack
         yield new(app_dir)
       rescue => e
         logger.error(message % e.inspect)
-        logger.debug("Exception #{e.inspect} backtrace: #{e.backtrace}")
+        logger.debug("Exception #{e.inspect} backtrace:\n#{e.backtrace.join("\n")}")
         abort e.message
       end
     end
