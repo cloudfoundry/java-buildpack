@@ -108,7 +108,7 @@ module JavaBuildpack::Container
         .and_return(SPRING_BOOT_CLI_DETAILS)
 
         JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with(SPRING_BOOT_CLI_URI).and_yield(File.open('spec/fixtures/stub-spring-boot-cli.zip'))
+        application_cache.stub(:get).with(SPRING_BOOT_CLI_URI).and_yield(File.open('spec/fixtures/stub-spring-boot-cli.tar.gz'))
 
         SpringBootCli.new(
             app_dir: root,
@@ -132,7 +132,7 @@ module JavaBuildpack::Container
         .and_return(SPRING_BOOT_CLI_DETAILS)
 
         JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with(SPRING_BOOT_CLI_URI).and_yield(File.open('spec/fixtures/stub-spring-boot-cli.zip'))
+        application_cache.stub(:get).with(SPRING_BOOT_CLI_URI).and_yield(File.open('spec/fixtures/stub-spring-boot-cli.tar.gz'))
 
         SpringBootCli.new(
             app_dir: root,

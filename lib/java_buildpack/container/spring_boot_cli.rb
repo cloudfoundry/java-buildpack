@@ -107,9 +107,8 @@ module JavaBuildpack::Container
 
       Dir.mktmpdir do |tmpdir_root|
         system "rm -rf #{spring_boot_cli_home}"
-        system "mkdir -p #{File.dirname spring_boot_cli_home}"
-        system "unzip -qq #{file.path} -d #{tmpdir_root} 2>&1"
-        system "mv #{tmpdir_root}/$(ls #{tmpdir_root}) #{spring_boot_cli_home}"
+        system "mkdir -p #{spring_boot_cli_home}"
+        system "tar xzf #{file.path} -C #{spring_boot_cli_home} --strip 1 2>&1"
       end
 
       puts "(#{(Time.now - expand_start_time).duration})"
