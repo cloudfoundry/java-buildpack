@@ -149,6 +149,22 @@ module JavaBuildpack::Jre
       end
     end
 
+    it 'adds java.io.tmpdir to java_opts' do
+      Dir.mktmpdir do |root|
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
+
+        java_opts = []
+        OpenJdk.new(
+            app_dir: root,
+            java_home: '',
+            java_opts: java_opts,
+            configuration: {}
+        ).release
+
+        expect(java_opts).to include('-Djava.io.tmpdir=$TMPDIR')
+      end
+    end
+
   end
 
 end
