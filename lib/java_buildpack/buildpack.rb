@@ -107,8 +107,6 @@ module JavaBuildpack
 
     private
 
-    GIT_DIR = File.expand_path('../../.git', File.dirname(__FILE__)).freeze
-
     COMPONENTS_CONFIG = '../../config/components.yml'.freeze
 
     LIB_DIRECTORY = '.lib'
@@ -193,6 +191,10 @@ module JavaBuildpack
       Pathname.new(File.expand_path('framework', File.dirname(__FILE__)))
     end
 
+    def self.git_dir
+      File.expand_path('../../.git', File.dirname(__FILE__))
+    end
+
     def self.jre_directory
       Pathname.new(File.expand_path('jre', File.dirname(__FILE__)))
     end
@@ -202,8 +204,12 @@ module JavaBuildpack
       # Call the debug method passing a parameter rather than a block so that, should the git command
       # become inaccessible to the buildpack at some point in the future, we find out before someone
       # happens to switch on debug logging.
-      logger.debug("git remotes: #{`git --git-dir=#{GIT_DIR} remote -v`}")
-      logger.debug("git HEAD commit: #{`git --git-dir=#{GIT_DIR} log HEAD^!`}")
+      if system("git --git-dir=#{git_dir} status 2>/dev/null 1>/dev/null")
+       logger.debug("git remotes: #{`git --git-dir=#{git_dir} remote -v`}")
+       logger.debug("git HEAD commit: #{`git --git-dir=#{git_dir} log HEAD^!`}")
+      else
+        logger.debug('Buildpack is not stored in a git repository')
+      end
     end
 
     def self.lib_directory(app_dir)
