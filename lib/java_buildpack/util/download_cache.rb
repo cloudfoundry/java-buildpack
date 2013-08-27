@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/diagnostics'
 require 'java_buildpack/util'
 require 'net/http'
 require 'tmpdir'
@@ -32,6 +33,7 @@ module JavaBuildpack::Util
     def initialize(cache_root = Dir.tmpdir)
       Dir.mkdir(cache_root) unless File.exists? cache_root
       @cache_root = cache_root
+      @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
     end
 
     # Retrieves an item from the cache.  Retrieval of the item uses the following algorithm:
@@ -90,6 +92,21 @@ module JavaBuildpack::Util
 
     private
 
+      HTTP_ERRORS = [
+        EOFError,
+        Errno::ECONNREFUSED,
+        Errno::ECONNRESET,
+        Errno::EHOSTUNREACH,
+        Errno::EINVAL,
+        Errno::EPIPE,
+        Errno::ETIMEDOUT,
+        Net::HTTPBadResponse,
+        Net::HTTPHeaderSyntaxError,
+        Net::ProtocolError,
+        SocketError,
+        Timeout::Error
+      ]
+
       def delete_file(filename)
         File.delete filename if File.exists? filename
       end
@@ -103,6 +120,10 @@ module JavaBuildpack::Util
             write_response(filenames, response)
           end
         end
+
+      rescue *HTTP_ERRORS
+        puts 'FAIL'
+        raise "Unable to download from #{uri}"
       end
 
       def filenames(uri)
@@ -151,6 +172,9 @@ module JavaBuildpack::Util
             write_response(filenames, response) unless response.code == '304'
           end
         end
+
+      rescue *HTTP_ERRORS
+        @logger.warn "Unable to update from #{uri}. Using cached version."
       end
 
       def use_ssl?(uri)

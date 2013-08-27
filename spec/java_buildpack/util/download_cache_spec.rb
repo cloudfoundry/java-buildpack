@@ -21,6 +21,10 @@ module JavaBuildpack::Util
 
   describe DownloadCache do
 
+    before do
+      $stderr = StringIO.new
+    end
+
     it 'should download from a uri if the cached file does not exist' do
       stub_request(:get, 'http://foo-uri/').to_return(
         status: 200,
@@ -37,6 +41,14 @@ module JavaBuildpack::Util
         expect_file_content root, 'cached', 'foo-cached'
         expect_file_content root, 'etag', 'foo-etag'
         expect_file_content root, 'last_modified', 'foo-last-modified'
+      end
+    end
+
+    it 'should raise error if download cannot be completed' do
+      stub_request(:get, 'http://foo-uri/').to_raise(SocketError)
+
+      Dir.mktmpdir do |root|
+        expect { DownloadCache.new(root).get('http://foo-uri/') {} }.to raise_error
       end
     end
 
@@ -63,6 +75,17 @@ module JavaBuildpack::Util
         expect_file_content root, 'cached', 'foo-cached'
         expect_file_content root, 'etag', 'foo-etag'
         expect_file_content root, 'last_modified', 'foo-last-modified'
+      end
+    end
+
+    it 'should use cached copy if update cannot be completed' do
+      stub_request(:get, 'http://foo-uri/').to_raise(SocketError)
+
+      Dir.mktmpdir do |root|
+        touch root, 'cached', 'foo-cached'
+        touch root, 'etag', 'foo-etag'
+
+        DownloadCache.new(root).get('http://foo-uri/') {}
       end
     end
 
