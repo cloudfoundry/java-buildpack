@@ -24,18 +24,27 @@ CodeClimate::TestReporter.start
 
 require 'tmpdir'
 require 'webmock/rspec'
+require 'fileutils'
+require 'java_buildpack/diagnostics/common'
+require 'java_buildpack/diagnostics/logger_factory'
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.run_all_when_everything_filtered = true
   config.filter_run :focus
+  config.before(:all) do
+    # Ensure a logger exists before each example group is run. Example groups then do not need to tidy up if they
+    # have created a special logger.
+    JavaBuildpack::Diagnostics::LoggerFactory.send :close # avoid warning if logger already exists
+    tmpdir = Dir.tmpdir
+    diagnostics_directory = File.join(tmpdir, JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY)
+    FileUtils.rm_rf diagnostics_directory
+    JavaBuildpack::Diagnostics::LoggerFactory.create_logger tmpdir
+  end
+  config.after(:all) do
+    # Reset stream variables that tests may have modified.
+    $stderr = STDERR
+    $stdout = STDOUT
+  end
 end
 
-# Ensure a logger exists for any class under test that needs one.
-require 'fileutils'
-require 'java_buildpack/diagnostics/common'
-require 'java_buildpack/diagnostics/logger_factory'
-tmpdir = Dir.tmpdir
-diagnostics_directory = File.join(tmpdir, JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY)
-FileUtils.rm_rf diagnostics_directory
-JavaBuildpack::Diagnostics::LoggerFactory.create_logger tmpdir

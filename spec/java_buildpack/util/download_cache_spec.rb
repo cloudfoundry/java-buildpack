@@ -23,7 +23,13 @@ module JavaBuildpack::Util
   describe DownloadCache do
 
     before do
+      JavaBuildpack::Diagnostics::LoggerFactory.send :close
       $stderr = StringIO.new
+      tmpdir = Dir.tmpdir
+      diagnostics_directory = File.join(tmpdir, JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY)
+      FileUtils.rm_rf diagnostics_directory
+      JavaBuildpack::Diagnostics::LoggerFactory.create_logger tmpdir
+      $stdout = StringIO.new
     end
 
     it 'should download from a uri if the cached file does not exist' do

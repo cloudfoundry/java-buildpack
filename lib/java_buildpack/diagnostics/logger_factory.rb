@@ -34,9 +34,9 @@ module JavaBuildpack::Diagnostics
       FileUtils.mkdir_p diagnostics_directory
       log_file = File.join(diagnostics_directory, JavaBuildpack::Diagnostics::LOG_FILE_NAME)
 
-      if (defined? @@logger) && (!@@logger.nil?)
+      if (defined? @@logger) && !@@logger.nil?
         logger_recreated = true
-        @@logger.warn("Logger is being re-created by #{caller[0]}")
+        get_logger.warn("Logger is being re-created by #{caller[0]}")
       else
         logger_recreated = false
       end
@@ -47,20 +47,25 @@ module JavaBuildpack::Diagnostics
 
       set_log_level
 
-      @@logger.debug(log_file)
+      get_logger.debug(log_file)
+      get_logger.debug { "Logger creation stack: #{caller.join("\n")}" }
       if logger_recreated
-        @@logger.warn("Logger was re-created by #{caller[0]}")
+        get_logger.warn("Logger was re-created by #{caller[0]}")
       end
-      @@logger
+      get_logger
     end
 
     # Gets the current logger instance.
     #
-    # @return [Logger, nil] the current Logger instance or `nil` if there is no such instance
+    # @return [Logger] the current Logger instance
+    # @raise if there is no current logger instance
     def self.get_logger
-      @@monitor.synchronize do
-        @@logger
+      logger = get_logger_internal
+      unless logger
+        STDERR.puts "Attempt to get nil logger from: #{caller}"
+        raise 'no logger'
       end
+      logger
     end
 
     private_class_method :new
@@ -85,25 +90,31 @@ module JavaBuildpack::Diagnostics
 
     @@monitor = Monitor.new
 
+    def self.get_logger_internal
+      @@monitor.synchronize do
+        (defined? @@logger) ? @@logger : nil # rubocop:disable ParenthesesAroundCondition
+      end
+    end
+
     def self.set_log_level
       logging_configuration = get_configuration
       switched_log_level = $VERBOSE || $DEBUG ? DEBUG_SEVERITY_STRING : nil
       log_level = (ENV[LOG_LEVEL_ENVIRONMENT_VARIABLE] || switched_log_level || logging_configuration[DEFAULT_LOG_LEVEL_CONFIGURATION_KEY]).upcase
 
-      @@logger.sev_threshold = case
-                               when log_level == DEBUG_SEVERITY_STRING then
-                                 ::Logger::DEBUG
-                               when log_level == INFO_SEVERITY_STRING then
-                                 ::Logger::INFO
-                               when log_level == WARN_SEVERITY_STRING then
-                                 ::Logger::WARN
-                               when log_level == ERROR_SEVERITY_STRING then
-                                 ::Logger::ERROR
-                               when log_level == FATAL_SEVERITY_STRING then
-                                 ::Logger::FATAL
-                               else
-                                 ::Logger::DEBUG
-                               end
+      get_logger.sev_threshold = case
+                                 when log_level == DEBUG_SEVERITY_STRING then
+                                   ::Logger::DEBUG
+                                 when log_level == INFO_SEVERITY_STRING then
+                                   ::Logger::INFO
+                                 when log_level == WARN_SEVERITY_STRING then
+                                   ::Logger::WARN
+                                 when log_level == ERROR_SEVERITY_STRING then
+                                   ::Logger::ERROR
+                                 when log_level == FATAL_SEVERITY_STRING then
+                                   ::Logger::FATAL
+                                 else
+                                   ::Logger::DEBUG
+                                 end
     end
 
     def self.get_configuration
@@ -113,7 +124,10 @@ module JavaBuildpack::Diagnostics
 
     def self.close
       @@monitor.synchronize do
-        @@logger = nil
+        if (defined? @@logger) && @@logger
+          @@logger.debug { "Logger close stack: #{caller.join("\n")}" }
+          @@logger = nil
+        end
       end
     end
 
