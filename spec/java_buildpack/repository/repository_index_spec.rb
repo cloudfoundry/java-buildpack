@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/repository/repository_index'
 require 'spec_helper'
 require 'java_buildpack/util/download_cache'
-require 'java_buildpack/repository/repository_index'
+require 'java_buildpack/util/tokenized_version'
 
 module JavaBuildpack::Repository
 
@@ -32,6 +33,35 @@ module JavaBuildpack::Repository
 
       repository_index = RepositoryIndex.new('test-uri')
       expect(repository_index.find_item('test-version')).to eq(%w(resolved-version resolved-uri))
+    end
+
+    it 'should use the read-only buildpack cache when the download of index.yaml fails' do
+      stub_request(:get, 'http://foo.com/index.yml').to_raise(SocketError)
+
+      Dir.mktmpdir do |buildpack_cache|
+        java_buildpack_cache = File.join(buildpack_cache, 'java-buildpack')
+        FileUtils.mkdir_p java_buildpack_cache
+        FileUtils.cp('spec/fixtures/stashed_repository_index.yml', File.join(java_buildpack_cache, 'http:%2F%2Ffoo.com%2Findex.yml.cached'))
+        with_buildpack_cache(buildpack_cache) do
+          repository_index = RepositoryIndex.new('http://foo.com')
+          version, uri = repository_index.find_item(JavaBuildpack::Util::TokenizedVersion.new('1.0.+'))
+          expect(version).to eq(JavaBuildpack::Util::TokenizedVersion.new('1.0.1'))
+          expect(uri).to eq('http://foo.com/test.txt')
+        end
+      end
+    end
+
+    def with_buildpack_cache(directory)
+      previous_value, ENV['BUILDPACK_CACHE'] = ENV['BUILDPACK_CACHE'], directory
+      yield
+    ensure
+      ENV['BUILDPACK_CACHE'] = previous_value
+    end
+
+    def touch(root, extension, content = '')
+      file = File.join(root, "http:%2F%2Ffoo.com%2Ftest.txt%2F.#{extension}")
+      File.open(file, 'w') { |f| f.write(content) }
+      file
     end
 
   end
