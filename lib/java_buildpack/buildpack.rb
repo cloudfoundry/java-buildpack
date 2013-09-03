@@ -205,8 +205,8 @@ module JavaBuildpack
       # become inaccessible to the buildpack at some point in the future, we find out before someone
       # happens to switch on debug logging.
       if system("git --git-dir=#{git_dir} status 2>/dev/null 1>/dev/null")
-       logger.debug("git remotes: #{`git --git-dir=#{git_dir} remote -v`}")
-       logger.debug("git HEAD commit: #{`git --git-dir=#{git_dir} log HEAD^!`}")
+        logger.debug("git remotes: #{`git --git-dir=#{git_dir} remote -v`}")
+        logger.debug("git HEAD commit: #{`git --git-dir=#{git_dir} log HEAD^!`}")
       else
         logger.debug('Buildpack is not stored in a git repository')
       end

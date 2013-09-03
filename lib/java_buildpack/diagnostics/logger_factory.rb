@@ -34,7 +34,7 @@ module JavaBuildpack::Diagnostics
       FileUtils.mkdir_p diagnostics_directory
       log_file = File.join(diagnostics_directory, JavaBuildpack::Diagnostics::LOG_FILE_NAME)
 
-      if (defined? @@logger) && (@@logger != nil)
+      if (defined? @@logger) && (!@@logger.nil?)
         logger_recreated = true
         @@logger.warn("Logger is being re-created by #{caller[0]}")
       else

@@ -37,7 +37,7 @@ module JavaBuildpack::Framework
     #
     # @return [String] returns +java-opts+ if Java options have been set by the user
     def detect
-      @configuration.has_key?(CONFIGURATION_PROPERTY) ? CONTAINER_NAME : nil
+      @configuration.key?(CONFIGURATION_PROPERTY) ? CONTAINER_NAME : nil
     end
 
     # Ensures that none of the Java options specify memory configurations

@@ -28,5 +28,5 @@ The container can be configured by modifying the [`config/groovy.yml`][] file.  
 [Configuration and Extension]: ../README.md#Configuration-and-Extension
 [`config/groovy.yml`]: ../config/groovy.yml
 [repositories]: util-repositories.md
-[this listing]: http://download.pivotal.io.s3.amazonaws.com/groovy/lucid/x86_64/index.yml
+[this listing]: http://download.pivotal.io.s3.amazonaws.com/groovy/index.yml
 [version syntax]: util-repositories.md#version-syntax-and-ordering

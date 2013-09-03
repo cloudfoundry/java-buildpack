@@ -17,6 +17,7 @@
 require 'java_buildpack/repository'
 require 'java_buildpack/util/download_cache'
 require 'java_buildpack/repository/version_resolver'
+require 'rbconfig'
 require 'yaml'
 
 module JavaBuildpack::Repository
@@ -29,7 +30,7 @@ module JavaBuildpack::Repository
     # @param [String] repository_root the root of the repository to create the index for
     def initialize(repository_root)
       @index = {}
-      JavaBuildpack::Util::DownloadCache.new.get("#{repository_root}#{INDEX_PATH}") do |file| # TODO: Use global cache #50175265
+      JavaBuildpack::Util::DownloadCache.new.get("#{canonical repository_root}#{INDEX_PATH}") do |file| # TODO: Use global cache #50175265
         @index.merge! YAML.load_file(file)
       end
     end
@@ -47,7 +48,39 @@ module JavaBuildpack::Repository
 
     private
 
-      INDEX_PATH = '/index.yml'
+    INDEX_PATH = '/index.yml'
+
+    def architecture
+      RbConfig::CONFIG['host_cpu']
+    end
+
+    def canonical(raw)
+      raw
+        .gsub(/\{platform\}/, platform)
+        .gsub(/\{architecture\}/, architecture)
+    end
+
+    def linux_platform
+      `lsb_release -cs`.strip
+    end
+
+    def osx_platform
+      version = `sw_vers -productVersion`
+
+      if version =~ /^10.8/
+        return 'mountainlion'
+      else
+        raise "Unsupported OS X version '#{version}'"
+      end
+    end
+
+    def platform
+      if RbConfig::CONFIG['host_os'] =~ /darwin/i
+        osx_platform
+      else
+        linux_platform
+      end
+    end
 
   end
 

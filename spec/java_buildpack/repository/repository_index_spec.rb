@@ -27,11 +27,11 @@ module JavaBuildpack::Repository
 
     it 'should load index' do
       JavaBuildpack::Util::DownloadCache.stub(:new).and_return(application_cache)
-      application_cache.stub(:get).with('test-uri/index.yml')
+      application_cache.stub(:get).with(canonical '{platform}/{architecture}/test-uri/index.yml')
       .and_yield(File.open('spec/fixtures/test-index.yml'))
       VersionResolver.stub(:resolve).with('test-version', %w(resolved-version)).and_return('resolved-version')
 
-      repository_index = RepositoryIndex.new('test-uri')
+      repository_index = RepositoryIndex.new('{platform}/{architecture}/test-uri')
       expect(repository_index.find_item('test-version')).to eq(%w(resolved-version resolved-uri))
     end
 
@@ -62,6 +62,38 @@ module JavaBuildpack::Repository
       file = File.join(root, "http:%2F%2Ffoo.com%2Ftest.txt%2F.#{extension}")
       File.open(file, 'w') { |f| f.write(content) }
       file
+    end
+
+    def architecture
+      RbConfig::CONFIG['host_cpu']
+    end
+
+    def canonical(raw)
+      raw
+        .gsub(/\{platform\}/, platform)
+        .gsub(/\{architecture\}/, architecture)
+    end
+
+    def linux_platform
+      `lsb_release -cs`.strip
+    end
+
+    def osx_platform
+      version = `sw_vers -productVersion`
+
+      if version =~ /^10.8/
+        return 'mountainlion'
+      else
+        raise "Unsupported OS X version '#{version}'"
+      end
+    end
+
+    def platform
+      if RbConfig::CONFIG['host_os'] =~ /darwin/i
+        osx_platform
+      else
+        linux_platform
+      end
     end
 
   end
