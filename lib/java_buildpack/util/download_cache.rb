@@ -145,12 +145,14 @@ module JavaBuildpack::Util
         @logger.warn "Unable to download from #{uri}. Looking in buildpack cache."
         key = URI.escape(uri, '/')
         stashed = File.join(ENV['BUILDPACK_CACHE'], 'java-buildpack', "#{key}.cached")
+        @logger.debug { "Looking in buildpack cache for file '#{stashed}'" }
         if File.exist? stashed
           FileUtils.cp(stashed, filenames[:cached])
           @logger.info "Using copy of #{uri} from buildpack cache."
           true
         else
-          @logger.warn "Buidpack cache does not contain #{uri}. Failing the download."
+          @logger.warn "Buildpack cache does not contain #{uri}. Failing the download."
+          @logger.debug { "Buildpack cache contents:\n#{`ls -lR #{File.join(ENV['BUILDPACK_CACHE'], 'java-buildpack')}`}" }
           false
         end
       end
