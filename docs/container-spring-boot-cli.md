@@ -33,5 +33,5 @@ The container can be configured by modifying the [`config/springbootcli.yml`][] 
 [repositories]: util-repositories.md
 [Spring profiles]:http://blog.springsource.com/2011/02/14/spring-3-1-m1-introducing-profile/
 [`SPRING_PROFILES_ACTIVE`]: http://static.springsource.org/spring/docs/3.1.x/javadoc-api/org/springframework/core/env/AbstractEnvironment.html#ACTIVE_PROFILES_PROPERTY_NAME
-[this listing]: http://download.pivotal.io.s3.amazonaws.com/spring-boot-cli/lucid/x86_64/index.yml
+[this listing]: http://download.pivotal.io.s3.amazonaws.com/spring-boot-cli/index.yml
 [version syntax]: util-repositories.md#version-syntax-and-ordering

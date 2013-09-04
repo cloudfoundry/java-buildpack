@@ -16,4 +16,4 @@
 # Configuration for the Play JPA Plugin framework
 ---
 version: 0.+
-repository_root: "http://download.pivotal.io.s3.amazonaws.com/play-jpa-plugin/lucid/x86_64"
+repository_root: "http://download.pivotal.io.s3.amazonaws.com/play-jpa-plugin"

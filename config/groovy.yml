@@ -16,4 +16,4 @@
 # Configuration for the Groovy container
 ---
 version: 2.1.+
-repository_root: "http://download.pivotal.io.s3.amazonaws.com/groovy/lucid/x86_64"
+repository_root: "http://download.pivotal.io.s3.amazonaws.com/groovy"

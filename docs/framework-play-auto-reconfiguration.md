@@ -25,5 +25,5 @@ The framework can be configured by modifying the [`config/playautoreconfiguratio
 [Configuration and Extension]: ../README.md#Configuration-and-Extension
 [`config/playautoreconfiguration.yml`]: ../config/playautoreconfiguration.yml
 [repositories]: util-repositories.md
-[this listing]: http://download.pivotal.io.s3.amazonaws.com/auto-reconfiguration/lucid/x86_64/index.yml
+[this listing]: http://download.pivotal.io.s3.amazonaws.com/auto-reconfiguration/index.yml
 [version syntax]: util-repositories.md#version-syntax-and-ordering

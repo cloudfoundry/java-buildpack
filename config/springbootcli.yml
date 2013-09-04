@@ -18,4 +18,4 @@
 # avoid conflicts.
 ---
 version: 0.5.0_+
-repository_root: "http://download.pivotal.io.s3.amazonaws.com/spring-boot-cli/lucid/x86_64"
+repository_root: "http://download.pivotal.io.s3.amazonaws.com/spring-boot-cli"

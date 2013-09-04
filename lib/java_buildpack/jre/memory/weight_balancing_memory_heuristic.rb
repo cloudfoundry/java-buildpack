@@ -63,7 +63,7 @@ module JavaBuildpack::Jre
       issue_memory_wastage_warning(buckets) if memory_limit
       issue_close_to_default_warnings(buckets, @heuristics, memory_limit)
 
-      buckets.map { |type, bucket| "#{@java_opts[type]}#{bucket.size}" if bucket.size && @java_opts.has_key?(type) }.compact
+      buckets.map { |type, bucket| "#{@java_opts[type]}#{bucket.size}" if bucket.size && @java_opts.key?(type) }.compact
     end
 
     private
