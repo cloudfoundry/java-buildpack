@@ -120,7 +120,7 @@ module JavaBuildpack::Container
       end
     end
 
-    it 'should add additional libraries to classpath in dist application' do
+    it 'should add additional libraries to classpath in (e.g. Play 2.1.3) dist application' do
       Dir.mktmpdir do |root|
         lib_directory = File.join root, '.lib'
         start_script = File.join root, 'application_root', 'start'
@@ -141,7 +141,30 @@ module JavaBuildpack::Container
       end
     end
 
-    it 'should add additional libraries to directory in staged application' do
+    it 'should add additional libraries to lib directory in Play 2.0 dist application' do
+      Dir.mktmpdir do |root|
+        lib_directory = File.join root, '.lib'
+
+        FileUtils.cp_r 'spec/fixtures/container_play_2.0/.', root
+        Dir.mkdir lib_directory
+        FileUtils.cp 'spec/fixtures/additional_libs/test-jar-1.jar', lib_directory
+
+        Play.new(
+            app_dir: root,
+            lib_directory: lib_directory,
+            configuration: {}
+        ).compile
+
+        relative = File.readlink(File.join root, 'application_root', 'lib', 'test-jar-1.jar')
+        actual = Pathname.new(File.join root, 'application_root', 'lib', 'test-jar-1.jar').realpath.to_s
+        expected = Pathname.new(File.join lib_directory, 'test-jar-1.jar').realpath.to_s
+
+        expect(relative).to_not eq(expected)
+        expect(actual).to eq(expected)
+      end
+    end
+
+    it 'should add additional libraries to staged directory in staged application' do
       Dir.mktmpdir do |root|
         lib_directory = File.join root, '.lib'
 
