@@ -142,13 +142,13 @@ module JavaBuildpack::Util
       # A download has failed, so check the read-only buildpack cache for the file
       # and use the copy there if it exists.
       def look_aside(filenames, uri)
-        @logger.warn "Unable to download from #{uri}. Looking in buildpack cache."
+        @logger.debug "Unable to download from #{uri}. Looking in buildpack cache."
         key = URI.escape(uri, '/')
         stashed = File.join(ENV['BUILDPACK_CACHE'], 'java-buildpack', "#{key}.cached")
         @logger.debug { "Looking in buildpack cache for file '#{stashed}'" }
         if File.exist? stashed
           FileUtils.cp(stashed, filenames[:cached])
-          @logger.info "Using copy of #{uri} from buildpack cache."
+          @logger.debug "Using copy of #{uri} from buildpack cache."
           true
         else
           @logger.warn "Buildpack cache does not contain #{uri}. Failing the download."
