@@ -80,14 +80,22 @@ module JavaBuildpack::Container
 
       def add_libs_to_classpath(root)
         if JavaBuildpack::Util::PlayUtils.lib_play_jar(root)
+          # Dist applications either list JARs in a classpath variable (e.g. in Play 2.1.3) or on a -cp parameter (e.g. in Play 2.0),
+          # so add to the appropriate list.
           script_dir_relative_path = Pathname.new(@app_dir).relative_path_from(Pathname.new(@play_root)).to_s
 
           additional_classpath = ContainerUtils.libs(@app_dir, @lib_directory).map do |lib|
             "$scriptdir/#{script_dir_relative_path}/#{lib}"
           end
 
-          update_file JavaBuildpack::Util::PlayUtils.start_script(root), /^classpath=\"(.*)\"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
+          result = update_file JavaBuildpack::Util::PlayUtils.start_script(root), /^classpath=\"(.*)\"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
+          unless result
+            ContainerUtils.libs(@app_dir, @lib_directory).each do |lib|
+              system "ln -nsf ../../#{lib} #{JavaBuildpack::Util::PlayUtils.lib root}"
+            end
+          end
         else
+          # Staged applications add all the JARs in the staged directory to the classpath, so add symbolic links to the staged directory.
           ContainerUtils.libs(@app_dir, @lib_directory).each do |lib|
             system "ln -nsf ../#{lib} #{JavaBuildpack::Util::PlayUtils.staged root}"
           end
@@ -108,8 +116,9 @@ module JavaBuildpack::Container
 
       def update_file(file_name, pattern, replacement)
         content = File.open(file_name, 'r') { |file| file.read }
-        content.gsub! pattern, replacement
+        result = content.gsub! pattern, replacement
         File.open(file_name, 'w') { |file| file.write content }
+        result
       end
 
   end
