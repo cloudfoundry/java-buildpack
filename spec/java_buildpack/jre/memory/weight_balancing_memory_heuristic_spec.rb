@@ -47,6 +47,7 @@ module JavaBuildpack::Jre
 
     before do
       JavaBuildpack::Diagnostics::LoggerFactory.send :close # suppress warnings
+      $stderr = StringIO.new
       File.delete(JavaBuildpack::Diagnostics.get_buildpack_log Dir.tmpdir)
       JavaBuildpack::Diagnostics::LoggerFactory.create_logger Dir.tmpdir
     end

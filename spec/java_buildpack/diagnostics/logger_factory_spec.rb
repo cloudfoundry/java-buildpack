@@ -24,7 +24,12 @@ module JavaBuildpack::Diagnostics
     LOG_MESSAGE = 'a log message'
 
     before do
+      JavaBuildpack::Diagnostics::LoggerFactory.send :close
       $stderr = StringIO.new
+      tmpdir = Dir.tmpdir
+      diagnostics_directory = File.join(tmpdir, JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY)
+      FileUtils.rm_rf diagnostics_directory
+      JavaBuildpack::Diagnostics::LoggerFactory.create_logger tmpdir
     end
 
     it 'should create a logger' do
@@ -146,10 +151,15 @@ module JavaBuildpack::Diagnostics
     it 'should take the default log level from a YAML file' do
       YAML.stub(:load_file).with(File.expand_path('config/logging.yml')).and_return(
           'default_log_level' => 'DEBUG')
-      Dir.mktmpdir do |app_dir|
-        logger = new_logger app_dir
-        logger.debug(LOG_MESSAGE)
-        expect($stderr.string).to match(/#{LOG_MESSAGE}/)
+      begin
+        Dir.mktmpdir do |app_dir|
+          logger = new_logger app_dir
+          logger.debug(LOG_MESSAGE)
+          expect($stderr.string).to match(/#{LOG_MESSAGE}/)
+        end
+      ensure
+        YAML.stub(:load_file).with(File.expand_path('config/logging.yml')).and_return(
+            'default_log_level' => 'INFO')
       end
     end
 
