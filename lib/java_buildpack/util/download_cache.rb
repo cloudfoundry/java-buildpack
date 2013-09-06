@@ -93,7 +93,7 @@ module JavaBuildpack::Util
 
     private
 
-      HTTP_ERRORS = [
+    HTTP_ERRORS = [
         EOFError,
         Errno::ECONNREFUSED,
         Errno::ECONNRESET,
@@ -106,112 +106,139 @@ module JavaBuildpack::Util
         Net::ProtocolError,
         SocketError,
         Timeout::Error
-      ]
+    ]
 
-      def delete_file(filename)
-        File.delete filename if File.exists? filename
-      end
+    TEST_URI = 'http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml'.freeze
 
-      def download(filenames, uri)
-        rich_uri = URI(uri)
+    HTTP_OK = '200'
 
-        Net::HTTP.start(rich_uri.host, rich_uri.port, use_ssl: use_ssl?(rich_uri)) do |http|
-          request = Net::HTTP::Get.new(uri)
-          http.request request do |response|
-            write_response(filenames, response)
-          end
+    def self.internet_available?
+      uri = TEST_URI
+      rich_uri = URI(uri)
+
+      # Beware known problems with timeouts: https://www.ruby-forum.com/topic/143840
+      Net::HTTP.start(rich_uri.host, rich_uri.port, read_timeout: 10) do |http|
+        request = Net::HTTP::Get.new(uri)
+        http.request request do |response|
+          return response.code == HTTP_OK
         end
+      end
+    rescue *HTTP_ERRORS
+      false
+    end
 
-      rescue *HTTP_ERRORS
-        unless look_aside(filenames, uri)
+    @@internet_up = DownloadCache.internet_available?
+
+    def delete_file(filename)
+      File.delete filename if File.exists? filename
+    end
+
+    def self.internet_up
+      @@internet_up
+    end
+
+    def download(filenames, uri)
+      if DownloadCache.internet_up
+        begin
+          rich_uri = URI(uri)
+
+          Net::HTTP.start(rich_uri.host, rich_uri.port, use_ssl: use_ssl?(rich_uri)) do |http|
+            request = Net::HTTP::Get.new(uri)
+            http.request request do |response|
+              write_response(filenames, response)
+            end
+          end
+
+        rescue *HTTP_ERRORS
           puts 'FAIL'
           raise "Unable to download from #{uri}"
         end
+      else
+        look_aside(filenames, uri)
       end
+    end
 
-      def filenames(uri)
-        key = URI.escape(uri, '/')
-        {
+    def filenames(uri)
+      key = URI.escape(uri, '/')
+      {
           cached: File.join(@cache_root, "#{key}.cached"),
           etag: File.join(@cache_root, "#{key}.etag"),
           last_modified: File.join(@cache_root, "#{key}.last_modified"),
           lock: File.join(@cache_root, "#{key}.lock")
-        }
-      end
+      }
+    end
 
-      # A download has failed, so check the read-only buildpack cache for the file
-      # and use the copy there if it exists.
-      def look_aside(filenames, uri)
-        @logger.debug "Unable to download from #{uri}. Looking in buildpack cache."
-        key = URI.escape(uri, '/')
-        stashed = File.join(ENV['BUILDPACK_CACHE'], 'java-buildpack', "#{key}.cached")
-        @logger.debug { "Looking in buildpack cache for file '#{stashed}'" }
-        if File.exist? stashed
-          FileUtils.cp(stashed, filenames[:cached])
-          @logger.debug "Using copy of #{uri} from buildpack cache."
-          true
-        else
-          @logger.warn "Buildpack cache does not contain #{uri}. Failing the download."
-          @logger.debug { "Buildpack cache contents:\n#{`ls -lR #{File.join(ENV['BUILDPACK_CACHE'], 'java-buildpack')}`}" }
-          false
+    # A download has failed, so check the read-only buildpack cache for the file
+    # and use the copy there if it exists.
+    def look_aside(filenames, uri)
+      @logger.debug "Unable to download from #{uri}. Looking in buildpack cache."
+      key = URI.escape(uri, '/')
+      stashed = File.join(ENV['BUILDPACK_CACHE'], 'java-buildpack', "#{key}.cached")
+      @logger.debug { "Looking in buildpack cache for file '#{stashed}'" }
+      if File.exist? stashed
+        FileUtils.cp(stashed, filenames[:cached])
+        @logger.debug "Using copy of #{uri} from buildpack cache."
+      else
+        @logger.warn "Buildpack cache does not contain #{uri}. Failing the download."
+        @logger.debug { "Buildpack cache contents:\n#{`ls -lR #{File.join(ENV['BUILDPACK_CACHE'], 'java-buildpack')}`}" }
+      end
+    end
+
+    def persist_header(response, header, filename)
+      unless response[header].nil?
+        File.open(filename, File::CREAT | File::WRONLY) do |file|
+          file.write(response[header])
+        end
+      end
+    end
+
+    def set_header(request, header, filename)
+      if File.exists?(filename)
+        File.open(filename, File::RDONLY) do |file|
+          request[header] = file.read
+        end
+      end
+    end
+
+    def should_download(filenames)
+      !File.exists?(filenames[:cached])
+    end
+
+    def should_update(filenames)
+      File.exists?(filenames[:cached]) && (File.exists?(filenames[:etag]) || File.exists?(filenames[:last_modified]))
+    end
+
+    def update(filenames, uri)
+      rich_uri = URI(uri)
+
+      Net::HTTP.start(rich_uri.host, rich_uri.port, use_ssl: use_ssl?(rich_uri)) do |http|
+        request = Net::HTTP::Get.new(uri)
+        set_header request, 'If-None-Match', filenames[:etag]
+        set_header request, 'If-Modified-Since', filenames[:last_modified]
+
+        http.request request do |response|
+          write_response(filenames, response) unless response.code == '304'
         end
       end
 
-      def persist_header(response, header, filename)
-        unless response[header].nil?
-          File.open(filename, File::CREAT | File::WRONLY) do |file|
-            file.write(response[header])
-          end
+    rescue *HTTP_ERRORS
+      @logger.warn "Unable to update from #{uri}. Using cached version."
+    end
+
+    def use_ssl?(uri)
+      uri.scheme == 'https'
+    end
+
+    def write_response(filenames, response)
+      persist_header response, 'Etag', filenames[:etag]
+      persist_header response, 'Last-Modified', filenames[:last_modified]
+
+      File.open(filenames[:cached], File::CREAT | File::WRONLY) do |cached_file|
+        response.read_body do |chunk|
+          cached_file.write(chunk)
         end
       end
-
-      def set_header(request, header, filename)
-        if File.exists?(filename)
-          File.open(filename, File::RDONLY) do |file|
-            request[header] = file.read
-          end
-        end
-      end
-
-      def should_download(filenames)
-        !File.exists?(filenames[:cached])
-      end
-
-      def should_update(filenames)
-        File.exists?(filenames[:cached]) && (File.exists?(filenames[:etag]) || File.exists?(filenames[:last_modified]))
-      end
-
-      def update(filenames, uri)
-        rich_uri = URI(uri)
-
-        Net::HTTP.start(rich_uri.host, rich_uri.port, use_ssl: use_ssl?(rich_uri)) do |http|
-          request = Net::HTTP::Get.new(uri)
-          set_header request, 'If-None-Match', filenames[:etag]
-          set_header request, 'If-Modified-Since', filenames[:last_modified]
-
-          http.request request do |response|
-            write_response(filenames, response) unless response.code == '304'
-          end
-        end
-
-      rescue *HTTP_ERRORS
-        @logger.warn "Unable to update from #{uri}. Using cached version."
-      end
-
-      def use_ssl?(uri)
-        uri.scheme == 'https'
-      end
-
-      def write_response(filenames, response)
-        persist_header response, 'Etag', filenames[:etag]
-        persist_header response, 'Last-Modified', filenames[:last_modified]
-
-        File.open(filenames[:cached], File::CREAT | File::WRONLY) do |cached_file|
-          response.read_body do |chunk|
-            cached_file.write(chunk)
-          end
-        end
-      end
+    end
 
   end
 
