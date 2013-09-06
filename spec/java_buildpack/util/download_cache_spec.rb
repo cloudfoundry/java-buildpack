@@ -281,6 +281,7 @@ module JavaBuildpack::Util
           FileUtils.mkdir_p java_buildpack_cache
           touch java_buildpack_cache, 'cached', 'foo-stashed'
           with_buildpack_cache(buildpack_cache) do
+            DownloadCache.stub(:internet_up).and_return(false)
             DownloadCache.new(root).get('http://foo-uri/') do |file|
               expect(file.read).to eq('foo-stashed')
             end
