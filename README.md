@@ -50,7 +50,11 @@ bundle install
 bundle exec rake
 ```
 
-If you want to use the RubyMine debugger, you may need to [install additional gems][].
+If you want to use the RubyMine debugger, you may need to [install additional gems][] by issuing:
+
+```bash
+bundle install --gemfile Gemfile.rubymine-debug
+```
 
 ## Contributing
 [Pull requests][] are welcome; see the [contributor guidelines][] for details.
