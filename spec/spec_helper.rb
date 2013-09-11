@@ -47,9 +47,10 @@ RSpec.configure do |config|
     JavaBuildpack::Diagnostics::LoggerFactory.create_logger tmpdir
   end
   config.after(:all) do
-    # Reset stream variables that tests may have modified.
     $stderr = STDERR
     $stdout = STDOUT
+
+    WebMock.allow_net_connect!
   end
 end
 
