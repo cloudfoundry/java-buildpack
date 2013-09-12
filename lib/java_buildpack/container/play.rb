@@ -18,7 +18,6 @@ require 'java_buildpack/container'
 require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
-require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/play_utils'
 require 'pathname'
 

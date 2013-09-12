@@ -16,7 +16,7 @@
 
 require 'java_buildpack/framework'
 require 'java_buildpack/repository/configured_item'
-require 'java_buildpack/util/download'
+require 'java_buildpack/util/application_cache'
 
 module JavaBuildpack::Framework
 
@@ -56,7 +56,7 @@ module JavaBuildpack::Framework
       system "mkdir -p #{new_relic_home}"
       system "mkdir -p #{File.join new_relic_home, 'logs'}"
 
-      JavaBuildpack::Util.download(@version, @uri, 'New Relic Agent', jar_name(@version), new_relic_home)
+      JavaBuildpack::Util::ApplicationCache.download_jar(@version, @uri, 'New Relic Agent', jar_name(@version), new_relic_home)
       copy_resources new_relic_home
     end
 

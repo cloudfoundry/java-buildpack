@@ -98,23 +98,13 @@ module JavaBuildpack::Container
     end
 
     def download_tomcat
-      download_start_time = Time.now
-      print "-----> Downloading Tomcat #{@tomcat_version} from #{@tomcat_uri} "
-
-      JavaBuildpack::Util::ApplicationCache.new.get(@tomcat_uri) do |file| # TODO: Use global cache #50175265
-        puts "(#{(Time.now - download_start_time).duration})"
+      JavaBuildpack::Util::ApplicationCache.download('Tomcat', @tomcat_version, @tomcat_uri) do |file|
         expand(file, @configuration)
       end
     end
 
     def download_support
-      download_start_time = Time.now
-      print "       Downloading Buildpack Tomcat Support #{@support_version} from #{@support_uri} "
-
-      JavaBuildpack::Util::ApplicationCache.new.get(@support_uri) do |file| # TODO: Use global cache #50175265
-        system "cp #{file.path} #{File.join(tomcat_home, 'lib', support_jar_name(@support_version))}"
-        puts "(#{(Time.now - download_start_time).duration})"
-      end
+      JavaBuildpack::Util::ApplicationCache.download_jar(@support_version, @support_uri, 'Buildpack Tomcat Support', support_jar_name(@support_version), File.join(tomcat_home, 'lib'))
     end
 
     def expand(file, configuration)

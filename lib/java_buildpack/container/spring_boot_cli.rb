@@ -64,11 +64,7 @@ module JavaBuildpack::Container
     #
     # @return [void]
     def compile
-      download_start_time = Time.now
-      print "-----> Downloading Spring Boot CLI #{@version} from #{@uri} "
-
-      JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file| # TODO: Use global cache #50175265
-        puts "(#{(Time.now - download_start_time).duration})"
+      JavaBuildpack::Util::ApplicationCache.download('Spring Boot CLI', @version, @uri) do |file|
         expand(file, @configuration)
       end
       link_classpath_jars
