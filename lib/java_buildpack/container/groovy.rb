@@ -44,7 +44,7 @@ module JavaBuildpack::Container
       @java_opts = context[:java_opts]
       @lib_directory = context[:lib_directory]
       @configuration = context[:configuration]
-      @version, @uri = Groovy.find_groovy(@app_dir, @configuration)
+      @version, @uri = Groovy.main_groovy(@app_dir) ? Groovy.find_groovy(@configuration) : [nil, nil]
     end
 
     # Detects whether this application is Groovy application.
@@ -113,17 +113,10 @@ module JavaBuildpack::Container
       puts "(#{(Time.now - expand_start_time).duration})"
     end
 
-    def self.find_groovy(app_dir, configuration)
-      if main_groovy app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |candidate_version|
-          fail "Malformed Groovy version #{candidate_version}: too many version components" if candidate_version[3]
-        end
-      else
-        version = nil
-        uri = nil
+    def self.find_groovy(configuration)
+      JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |candidate_version|
+        fail "Malformed Groovy version #{candidate_version}: too many version components" if candidate_version[3]
       end
-
-      return version, uri # rubocop:disable RedundantReturn
     rescue => e
       raise RuntimeError, "Groovy container error: #{e.message}", e.backtrace
     end
