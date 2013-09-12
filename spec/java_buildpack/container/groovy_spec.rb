@@ -95,7 +95,7 @@ module JavaBuildpack::Container
             app_dir: 'spec/fixtures/container_groovy_main_method',
             configuration: {}
         ).detect
-      end.to raise_error(/Malformed\ Groovy\ version/)
+      end.to raise_error(/Malformed\ version/)
     end
 
     it 'should extract Groovy from a ZIP' do

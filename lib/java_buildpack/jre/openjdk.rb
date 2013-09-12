@@ -97,9 +97,7 @@ module JavaBuildpack::Jre
     end
 
     def self.find_openjdk(configuration)
-      JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
-    rescue => e
-      raise RuntimeError, "OpenJDK JRE error: #{e.message}", e.backtrace
+      JavaBuildpack::Repository::ConfiguredItem.find_and_wrap_exceptions('OpenJDK JRE', configuration)
     end
 
     def id(version)

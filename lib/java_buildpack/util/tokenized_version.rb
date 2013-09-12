@@ -63,6 +63,14 @@ module JavaBuildpack::Util
       @version
     end
 
+    # Check that this version has at most the given number of components.
+    #
+    # @param [Integer] maximum_components the maximum number of components this version is allowed to have
+    # @raise if this version has more than the given number of components
+    def check_size(maximum_components)
+      fail "Malformed version #{self}: too many version components" if self[maximum_components]
+    end
+
     private
 
     COLLATING_SEQUENCE = ['-', '.'] + ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a

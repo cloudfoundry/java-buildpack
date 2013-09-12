@@ -39,6 +39,20 @@ module JavaBuildpack::Repository
       index.find_item version
     end
 
+    # Finds an instance of the file based on the configuration and wraps any exceptions
+    # to identify the component.
+    #
+    # See find_item for details.
+    def self.find_and_wrap_exceptions(component_name, configuration)
+      JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |candidate_version|
+        yield candidate_version if block_given?
+      end
+    rescue => e
+      raise RuntimeError, "#{component_name} error: #{e.message}", e.backtrace
+    end
+
+    private_class_method :new
+
     private
 
     KEY_REPOSITORY_ROOT = 'repository_root'.freeze
