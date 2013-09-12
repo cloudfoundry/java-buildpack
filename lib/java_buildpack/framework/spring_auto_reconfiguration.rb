@@ -66,48 +66,48 @@ module JavaBuildpack::Framework
 
     private
 
-      SPRING_JAR_PATTERN = 'spring-core*.jar'
+    SPRING_JAR_PATTERN = 'spring-core*.jar'
 
-      WEB_XML = File.join 'WEB-INF', 'web.xml'
+    WEB_XML = File.join 'WEB-INF', 'web.xml'
 
-      def self.find_auto_reconfiguration(app_dir, configuration)
-        if spring_application? app_dir
-          version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
-        else
-          version = nil
-          uri = nil
-        end
-
-        return version, uri # rubocop:disable RedundantReturn
+    def self.find_auto_reconfiguration(app_dir, configuration)
+      if spring_application? app_dir
+        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
+      else
+        version = nil
+        uri = nil
       end
 
-      def id(version)
-        "spring-auto-reconfiguration-#{version}"
+      return version, uri # rubocop:disable RedundantReturn
+    end
+
+    def id(version)
+      "spring-auto-reconfiguration-#{version}"
+    end
+
+    def jar_name(version)
+      "#{id version}.jar"
+    end
+
+    def modify_web_xml
+      web_xml = File.join @app_dir, WEB_XML
+
+      if File.exists? web_xml
+        puts '       Modifying /WEB-INF/web.xml for Auto Reconfiguration'
+        @logger.debug { "  Original web.xml: #{File.read web_xml}" }
+
+        modifier = File.open(web_xml) { |file| WebXmlModifier.new(file) }
+        modifier.augment_root_context
+        modifier.augment_servlet_contexts
+
+        File.open(web_xml, 'w') { |file| file.write(modifier.to_s) }
+        @logger.debug { "  Modified web.xml: #{File.read web_xml}" }
       end
+    end
 
-      def jar_name(version)
-        "#{id version}.jar"
-      end
-
-      def modify_web_xml
-        web_xml = File.join @app_dir, WEB_XML
-
-        if File.exists? web_xml
-          puts '       Modifying /WEB-INF/web.xml for Auto Reconfiguration'
-          @logger.debug { "  Original web.xml: #{File.read web_xml}" }
-
-          modifier = File.open(web_xml) { |file| WebXmlModifier.new(file) }
-          modifier.augment_root_context
-          modifier.augment_servlet_contexts
-
-          File.open(web_xml, 'w') { |file| file.write(modifier.to_s) }
-          @logger.debug { "  Modified web.xml: #{File.read web_xml}" }
-        end
-      end
-
-      def self.spring_application?(app_dir)
-        Dir["#{app_dir}/**/#{SPRING_JAR_PATTERN}"].any?
-      end
+    def self.spring_application?(app_dir)
+      Dir["#{app_dir}/**/#{SPRING_JAR_PATTERN}"].any?
+    end
 
   end
 

@@ -65,45 +65,45 @@ module JavaBuildpack::Framework
 
     private
 
-      PLAY_JPA_PLUGIN_JAR = '*play-java-jpa*.jar'.freeze
+    PLAY_JPA_PLUGIN_JAR = '*play-java-jpa*.jar'.freeze
 
-      def self.candidate?(app_dir)
-        candidate = false
+    def self.candidate?(app_dir)
+      candidate = false
 
-        root = JavaBuildpack::Util::PlayUtils.root app_dir
-        candidate =  uses_jpa?(root) || play20?(root) if root
+      root = JavaBuildpack::Util::PlayUtils.root app_dir
+      candidate = uses_jpa?(root) || play20?(root) if root
 
-        candidate
+      candidate
+    end
+
+    def self.find_play_jpa_plugin(app_dir, configuration)
+      if candidate? app_dir
+        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
+      else
+        version = nil
+        uri = nil
       end
 
-      def self.find_play_jpa_plugin(app_dir, configuration)
-        if candidate? app_dir
-          version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
-        else
-          version = nil
-          uri = nil
-        end
+      return version, uri # rubocop:disable RedundantReturn
+    end
 
-        return version, uri # rubocop:disable RedundantReturn
-      end
+    def id(version)
+      "play-jpa-plugin-#{version}"
+    end
 
-      def id(version)
-        "play-jpa-plugin-#{version}"
-      end
+    def jar_name(version)
+      "#{id version}.jar"
+    end
 
-      def jar_name(version)
-        "#{id version}.jar"
-      end
+    def self.play20?(root)
+      JavaBuildpack::Util::PlayUtils.version(root) =~ /2.0.[\d]+/
+    end
 
-      def self.play20?(root)
-        JavaBuildpack::Util::PlayUtils.version(root) =~ /2.0.[\d]+/
-      end
-
-      def self.uses_jpa?(root)
-        lib = File.join JavaBuildpack::Util::PlayUtils.lib(root), PLAY_JPA_PLUGIN_JAR
-        staged = File.join JavaBuildpack::Util::PlayUtils.staged(root), PLAY_JPA_PLUGIN_JAR
-        Dir[lib, staged].first
-      end
+    def self.uses_jpa?(root)
+      lib = File.join JavaBuildpack::Util::PlayUtils.lib(root), PLAY_JPA_PLUGIN_JAR
+      staged = File.join JavaBuildpack::Util::PlayUtils.staged(root), PLAY_JPA_PLUGIN_JAR
+      Dir[lib, staged].first
+    end
 
   end
 

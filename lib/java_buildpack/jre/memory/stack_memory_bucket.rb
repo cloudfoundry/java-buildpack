@@ -59,7 +59,7 @@ module JavaBuildpack::Jre
 
     private
 
-      DEFAULT_STACK_SIZE = MemorySize.new('1024K') # 1 MB
+    DEFAULT_STACK_SIZE = MemorySize.new('1024K') # 1 MB
 
   end
 

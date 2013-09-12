@@ -27,8 +27,8 @@ module JavaBuildpack::Container
 
     it 'should not detect an application without a start script' do
       detected = Play.new(
-        app_dir: 'spec/fixtures/container_main',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_main',
+          configuration: {}
       ).detect
 
       expect(detected).to be_nil
@@ -36,8 +36,8 @@ module JavaBuildpack::Container
 
     it 'should not detect an application with a start directory' do
       detected = Play.new(
-        app_dir: 'spec/fixtures/container_play_invalid',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_play_invalid',
+          configuration: {}
       ).detect
 
       expect(detected).to be_nil
@@ -45,8 +45,8 @@ module JavaBuildpack::Container
 
     it 'should not detect an application which is too deeply nested in the application directory' do
       detected = Play.new(
-        app_dir: 'spec/fixtures/container_play_too_deep',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_play_too_deep',
+          configuration: {}
       ).detect
 
       expect(detected).to be_nil
@@ -55,16 +55,16 @@ module JavaBuildpack::Container
     it 'should fail if a Play application is in more than one directory' do
       expect do
         Play.new(
-          app_dir: 'spec/fixtures/container_play_duplicate',
-          configuration: {}
+            app_dir: 'spec/fixtures/container_play_duplicate',
+            configuration: {}
         )
       end.to raise_error(/multiple/)
     end
 
     it 'should detect a dist application with a start script and a suitable Play JAR' do
       detected = Play.new(
-        app_dir: 'spec/fixtures/container_play',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_play',
+          configuration: {}
       ).detect
 
       expect(detected).to eq('play-0.0-0.0.0')
@@ -72,8 +72,8 @@ module JavaBuildpack::Container
 
     it 'should detect a staged application with a start script and a suitable Play JAR' do
       detected = Play.new(
-        app_dir: 'spec/fixtures/container_play_staged',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_play_staged',
+          configuration: {}
       ).detect
 
       expect(detected).to eq('play-0.0')
@@ -81,8 +81,8 @@ module JavaBuildpack::Container
 
     it 'should not detect an application with a start script but no suitable Play JAR' do
       detected = Play.new(
-        app_dir: 'spec/fixtures/container_play_like',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_play_like',
+          configuration: {}
       ).detect
 
       expect(detected).to be_nil
@@ -93,8 +93,8 @@ module JavaBuildpack::Container
         FileUtils.cp_r 'spec/fixtures/container_play/.', root
 
         play = Play.new(
-          app_dir: root,
-          configuration: {}
+            app_dir: root,
+            configuration: {}
         )
 
         play.should_receive(:system).with("chmod +x #{root}/application_root/start").and_return('')
@@ -109,8 +109,8 @@ module JavaBuildpack::Container
         FileUtils.cp_r 'spec/fixtures/container_play/.', root
 
         Play.new(
-          app_dir: root,
-          configuration: {}
+            app_dir: root,
+            configuration: {}
         ).compile
 
         actual = File.open(start_script, 'r') { |file| file.read }
@@ -130,9 +130,9 @@ module JavaBuildpack::Container
         FileUtils.cp 'spec/fixtures/additional_libs/test-jar-1.jar', lib_directory
 
         Play.new(
-          app_dir: root,
-          lib_directory: lib_directory,
-          configuration: {}
+            app_dir: root,
+            lib_directory: lib_directory,
+            configuration: {}
         ).compile
 
         actual = File.open(start_script, 'r') { |file| file.read }
@@ -173,9 +173,9 @@ module JavaBuildpack::Container
         FileUtils.cp 'spec/fixtures/additional_libs/test-jar-1.jar', lib_directory
 
         Play.new(
-          app_dir: root,
-          lib_directory: lib_directory,
-          configuration: {}
+            app_dir: root,
+            lib_directory: lib_directory,
+            configuration: {}
         ).compile
 
         relative = File.readlink(File.join root, 'staged', 'test-jar-1.jar')
@@ -189,10 +189,10 @@ module JavaBuildpack::Container
 
     it 'should produce the correct command in the release step' do
       command = Play.new(
-        app_dir: TEST_PLAY_APP,
-        configuration: {},
-        java_home: TEST_JAVA_HOME,
-        java_opts: TEST_JAVA_OPTS
+          app_dir: TEST_PLAY_APP,
+          configuration: {},
+          java_home: TEST_JAVA_HOME,
+          java_opts: TEST_JAVA_OPTS
       ).release
 
       expect(command).to eq("PATH=#{TEST_JAVA_HOME}/bin:$PATH JAVA_HOME=#{TEST_JAVA_HOME} ./application_root/start -Dhttp.port=$PORT #{TEST_JAVA_OPTS[0]}")

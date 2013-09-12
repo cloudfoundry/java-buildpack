@@ -40,7 +40,7 @@ module JavaBuildpack::Framework
       vcap_services['newrelic-n/a'] = [{ 'credentials' => { 'licenseKey' => 'test-license-key' } }]
 
       detected = NewRelic.new(
-        vcap_services: vcap_services
+          vcap_services: vcap_services
       ).detect
 
       expect(detected).to eq('new-relic-2.21.2')
@@ -48,7 +48,7 @@ module JavaBuildpack::Framework
 
     it 'should not detect without newrelic-n/a service' do
       detected = NewRelic.new(
-        vcap_services: vcap_services
+          vcap_services: vcap_services
       ).detect
 
       expect(detected).to be_nil
@@ -57,13 +57,13 @@ module JavaBuildpack::Framework
     it 'should fail with multiple newrelic-n/a services' do
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(NEW_RELIC_DETAILS)
       vcap_services['newrelic-n/a'] = [
-        { 'credentials' => { 'licenseKey' => 'test-license-key' } },
-        { 'credentials' => { 'licenseKey' => 'test-license-key' } }
+          { 'credentials' => { 'licenseKey' => 'test-license-key' } },
+          { 'credentials' => { 'licenseKey' => 'test-license-key' } }
       ]
 
       expect do
         NewRelic.new(
-          vcap_services: vcap_services
+            vcap_services: vcap_services
         ).detect
       end.to raise_error
     end
@@ -74,7 +74,7 @@ module JavaBuildpack::Framework
 
       expect do
         NewRelic.new(
-          vcap_services: vcap_services
+            vcap_services: vcap_services
         ).detect
       end.to raise_error
     end
@@ -87,8 +87,8 @@ module JavaBuildpack::Framework
         vcap_services['newrelic-n/a'] = [{ 'credentials' => { 'licenseKey' => 'test-license-key' } }]
 
         NewRelic.new(
-          app_dir: root,
-          vcap_services: vcap_services
+            app_dir: root,
+            vcap_services: vcap_services
         ).compile
 
         expect(File.exists? File.join(root, '.new-relic', 'new-relic-2.21.2.jar')).to be_true
@@ -104,8 +104,8 @@ module JavaBuildpack::Framework
         vcap_services['newrelic-n/a'] = [{ 'credentials' => { 'licenseKey' => 'test-license-key' } }]
 
         NewRelic.new(
-          app_dir: root,
-          vcap_services: vcap_services
+            app_dir: root,
+            vcap_services: vcap_services
         ).compile
 
         expect(File.exists? File.join(root, '.new-relic', 'newrelic.yml')).to be_true
@@ -117,17 +117,17 @@ module JavaBuildpack::Framework
       vcap_application['application_name'] = 'test-application-name'
       vcap_services['newrelic-n/a'] = [{ 'credentials' => { 'licenseKey' => 'test-license-key' } }]
 
-        NewRelic.new(
+      NewRelic.new(
           java_opts: java_opts,
           vcap_application: vcap_application,
           vcap_services: vcap_services
-        ).release
+      ).release
 
-        expect(java_opts).to include('-javaagent:.new-relic/new-relic-2.21.2.jar')
-        expect(java_opts).to include('-Dnewrelic.home=.new-relic')
-        expect(java_opts).to include('-Dnewrelic.config.license_key=test-license-key')
-        expect(java_opts).to include("-Dnewrelic.config.app_name='test-application-name'")
-        expect(java_opts).to include('-Dnewrelic.config.log_file_path=.new-relic/logs')
+      expect(java_opts).to include('-javaagent:.new-relic/new-relic-2.21.2.jar')
+      expect(java_opts).to include('-Dnewrelic.home=.new-relic')
+      expect(java_opts).to include('-Dnewrelic.config.license_key=test-license-key')
+      expect(java_opts).to include("-Dnewrelic.config.app_name='test-application-name'")
+      expect(java_opts).to include('-Dnewrelic.config.log_file_path=.new-relic/logs')
     end
 
   end

@@ -71,8 +71,8 @@ module JavaBuildpack::Repository
 
     def canonical(raw)
       raw
-        .gsub(/\{platform\}/, platform)
-        .gsub(/\{architecture\}/, architecture)
+      .gsub(/\{platform\}/, platform)
+      .gsub(/\{architecture\}/, architecture)
     end
 
     def linux_platform

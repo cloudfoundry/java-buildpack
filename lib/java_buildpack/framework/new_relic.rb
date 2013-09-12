@@ -73,53 +73,53 @@ module JavaBuildpack::Framework
 
     private
 
-      NAME_KEY = 'application_name'
+    NAME_KEY = 'application_name'
 
-      RESOURCES = File.join('..', '..', '..', 'resources', 'new-relic').freeze
+    RESOURCES = File.join('..', '..', '..', 'resources', 'new-relic').freeze
 
-      NEW_RELIC_HOME = '.new-relic'.freeze
+    NEW_RELIC_HOME = '.new-relic'.freeze
 
-      def copy_resources(new_relic_home)
-        resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
-        system "cp -r #{File.join resources, '*'} #{new_relic_home}"
+    def copy_resources(new_relic_home)
+      resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
+      system "cp -r #{File.join resources, '*'} #{new_relic_home}"
+    end
+
+    def self.find_new_relic_agent(vcap_services, configuration)
+      if license_key(vcap_services)
+        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
+      else
+        version = nil
+        uri = nil
       end
 
-      def self.find_new_relic_agent(vcap_services, configuration)
-        if license_key(vcap_services)
-          version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
-        else
-          version = nil
-          uri = nil
-        end
+      return version, uri # rubocop:disable RedundantReturn
+    end
 
-        return version, uri # rubocop:disable RedundantReturn
+    def id(version)
+      "new-relic-#{version}"
+    end
+
+    def jar_name(version)
+      "#{id version}.jar"
+    end
+
+    def self.license_key(vcap_services)
+      license_key = nil
+
+      type = vcap_services.keys.find { |key| key =~ /newrelic/ }
+      if type
+        services = vcap_services[type]
+        fail "Only one New Relic service can be bound.  Found '#{services.length}'" if services.length != 1
+
+        license_key = services[0]['credentials']['licenseKey']
       end
 
-      def id(version)
-        "new-relic-#{version}"
-      end
+      return license_key
+    end
 
-      def jar_name(version)
-        "#{id version}.jar"
-      end
-
-      def self.license_key(vcap_services)
-        license_key = nil
-
-        type = vcap_services.keys.find { |key| key =~ /newrelic/ }
-        if type
-          services = vcap_services[type]
-          fail "Only one New Relic service can be bound.  Found '#{services.length}'" if services.length != 1
-
-          license_key = services[0]['credentials']['licenseKey']
-        end
-
-        return license_key
-      end
-
-      def new_relic_home
-        File.join @app_dir, NEW_RELIC_HOME
-      end
+    def new_relic_home
+      File.join @app_dir, NEW_RELIC_HOME
+    end
 
   end
 

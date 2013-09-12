@@ -40,8 +40,8 @@ module JavaBuildpack::Container
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
       .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
       detected = Tomcat.new(
-        app_dir: 'spec/fixtures/container_tomcat',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_tomcat',
+          configuration: {}
       ).detect
 
       expect(detected).to include('tomcat-7.0.40')
@@ -50,8 +50,8 @@ module JavaBuildpack::Container
 
     it 'should not detect when WEB-INF is absent' do
       detected = Tomcat.new(
-        app_dir: 'spec/fixtures/container_main',
-        configuration: {}
+          app_dir: 'spec/fixtures/container_main',
+          configuration: {}
       ).detect
 
       expect(detected).to be_nil
@@ -62,8 +62,8 @@ module JavaBuildpack::Container
       .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
       expect do
         Tomcat.new(
-          app_dir: 'spec/fixtures/container_tomcat',
-          configuration: {}
+            app_dir: 'spec/fixtures/container_tomcat',
+            configuration: {}
         ).detect
       end.to raise_error(/Malformed\ Tomcat\ version/)
     end
@@ -80,8 +80,8 @@ module JavaBuildpack::Container
         application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
 
         Tomcat.new(
-          app_dir: root,
-          configuration: {}
+            app_dir: root,
+            configuration: {}
         ).compile
 
         tomcat_dir = File.join root, '.tomcat'
@@ -113,8 +113,8 @@ module JavaBuildpack::Container
         application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
 
         Tomcat.new(
-          app_dir: root,
-          configuration: {}
+            app_dir: root,
+            configuration: {}
         ).compile
 
         root_webapp = File.join root, '.tomcat', 'webapps', 'ROOT'
@@ -140,9 +140,9 @@ module JavaBuildpack::Container
         application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
 
         Tomcat.new(
-          app_dir: root,
-          lib_directory: lib_directory,
-          configuration: {}
+            app_dir: root,
+            lib_directory: lib_directory,
+            configuration: {}
         ).compile
 
         lib = File.join root, '.tomcat', 'webapps', 'ROOT', 'WEB-INF', 'lib'
@@ -167,10 +167,10 @@ module JavaBuildpack::Container
       .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
 
       command = Tomcat.new(
-        app_dir: 'spec/fixtures/container_tomcat',
-        java_home: 'test-java-home',
-        java_opts: %w(test-opt-2 test-opt-1),
-        configuration: {}
+          app_dir: 'spec/fixtures/container_tomcat',
+          java_home: 'test-java-home',
+          java_opts: %w(test-opt-2 test-opt-1),
+          configuration: {}
       ).release
 
       expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="-Dhttp.port=$PORT test-opt-1 test-opt-2" .tomcat/bin/catalina.sh run')

@@ -90,13 +90,13 @@ module JavaBuildpack::Util
 
     private
 
-      START_SCRIPT = 'start'.freeze
+    START_SCRIPT = 'start'.freeze
 
-      PLAY_JAR = '*play_*.jar'.freeze
+    PLAY_JAR = '*play_*.jar'.freeze
 
-      def self.play_jar(root)
-        Dir[File.join(root, PLAY_JAR)].first
-      end
+    def self.play_jar(root)
+      Dir[File.join(root, PLAY_JAR)].first
+    end
 
     private_class_method :new
 

@@ -114,29 +114,29 @@ module JavaBuildpack::Jre
 
     protected
 
-      # @!attribute [r] bytes
-      #   @return [Numeric] the size in bytes of this memory size
-      attr_reader :bytes
+    # @!attribute [r] bytes
+    #   @return [Numeric] the size in bytes of this memory size
+    attr_reader :bytes
 
     private
 
-      KILO = 1024
+    KILO = 1024
 
-      def self.is_integer(v)
-        f = Float(v)
-        f && f.floor == f
-      rescue
-        false
-      end
+    def self.is_integer(v)
+      f = Float(v)
+      f && f.floor == f
+    rescue
+      false
+    end
 
-      def self.from_numeric(n)
-        MemorySize.new("#{n.to_s}B")
-      end
+    def self.from_numeric(n)
+      MemorySize.new("#{n.to_s}B")
+    end
 
     public
 
-      # Zero byte memory size
-      ZERO = from_numeric 0
+    # Zero byte memory size
+    ZERO = from_numeric 0
 
   end
 

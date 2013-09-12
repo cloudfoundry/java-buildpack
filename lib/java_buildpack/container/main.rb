@@ -72,46 +72,46 @@ module JavaBuildpack::Container
 
     private
 
-      MAIN_CLASS_PROPERTY = 'java_main_class'.freeze
+    MAIN_CLASS_PROPERTY = 'java_main_class'.freeze
 
-      ARGUMENTS_PROPERTY = 'arguments'.freeze
+    ARGUMENTS_PROPERTY = 'arguments'.freeze
 
-      CLASS_PATH_PROPERTY = 'Class-Path'.freeze
+    CLASS_PATH_PROPERTY = 'Class-Path'.freeze
 
-      CONTAINER_NAME = 'java-main'.freeze
+    CONTAINER_NAME = 'java-main'.freeze
 
-      MANIFEST_PROPERTY = 'Main-Class'.freeze
+    MANIFEST_PROPERTY = 'Main-Class'.freeze
 
-      def arguments
-        @configuration[ARGUMENTS_PROPERTY]
-      end
+    def arguments
+      @configuration[ARGUMENTS_PROPERTY]
+    end
 
-      def classpath(app_dir, lib_directory)
-        classpath = ['.']
-        classpath.concat ContainerUtils.libs(app_dir, lib_directory)
-        classpath.concat manifest_class_path
+    def classpath(app_dir, lib_directory)
+      classpath = ['.']
+      classpath.concat ContainerUtils.libs(app_dir, lib_directory)
+      classpath.concat manifest_class_path
 
-        "-cp #{classpath.join(':')}"
-      end
+      "-cp #{classpath.join(':')}"
+    end
 
-      def main_class
-        @configuration[MAIN_CLASS_PROPERTY] || manifest[MANIFEST_PROPERTY]
-      end
+    def main_class
+      @configuration[MAIN_CLASS_PROPERTY] || manifest[MANIFEST_PROPERTY]
+    end
 
-      def manifest
-        manifest_file = File.join(@app_dir, 'META-INF', 'MANIFEST.MF')
-        manifest_file = File.exists?(manifest_file) ? manifest_file : nil
-        JavaBuildpack::Util::Properties.new(manifest_file)
-      end
+    def manifest
+      manifest_file = File.join(@app_dir, 'META-INF', 'MANIFEST.MF')
+      manifest_file = File.exists?(manifest_file) ? manifest_file : nil
+      JavaBuildpack::Util::Properties.new(manifest_file)
+    end
 
-      def manifest_class_path
-        value = manifest[CLASS_PATH_PROPERTY]
-        value.nil? ? [] : value.split(' ')
-      end
+    def manifest_class_path
+      value = manifest[CLASS_PATH_PROPERTY]
+      value.nil? ? [] : value.split(' ')
+    end
 
-      def port
-        main_class =~ /^org\.springframework\.boot\.loader\.[JW]arLauncher$/ ? '--server.port=$PORT' : nil
-      end
+    def port
+      main_class =~ /^org\.springframework\.boot\.loader\.[JW]arLauncher$/ ? '--server.port=$PORT' : nil
+    end
 
   end
 

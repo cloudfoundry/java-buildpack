@@ -37,9 +37,9 @@ module JavaBuildpack::Repository
 
     it 'resolves a system.properties version if specified' do
       details = ConfiguredItem.find_item(
-        'repository_root' => 'test-repository-root',
-        'java.runtime.version' => 'test-java-runtime-version',
-        'version' => '1.7.0'
+          'repository_root' => 'test-repository-root',
+          'java.runtime.version' => 'test-java-runtime-version',
+          'version' => '1.7.0'
       )
 
       expect(details[0]).to eq(RESOLVED_VERSION)
@@ -48,8 +48,8 @@ module JavaBuildpack::Repository
 
     it 'resolves a configuration version if specified' do
       details = ConfiguredItem.find_item(
-        'repository_root' => 'test-repository-root',
-        'version' => '1.7.0'
+          'repository_root' => 'test-repository-root',
+          'version' => '1.7.0'
       )
 
       expect(details[0]).to eq(RESOLVED_VERSION)
@@ -58,8 +58,8 @@ module JavaBuildpack::Repository
 
     it 'drives the version validator block if supplied' do
       ConfiguredItem.find_item(
-        'repository_root' => 'test-repository-root',
-        'version' => '1.7.0'
+          'repository_root' => 'test-repository-root',
+          'version' => '1.7.0'
       ) do |version|
         expect(version).to eq(JavaBuildpack::Util::TokenizedVersion.new('1.7.0'))
       end
@@ -67,7 +67,7 @@ module JavaBuildpack::Repository
 
     it 'resolves nil if no version is specified' do
       details = ConfiguredItem.find_item(
-        'repository_root' => 'test-repository-root'
+          'repository_root' => 'test-repository-root'
       )
 
       expect(details[0]).to eq(RESOLVED_VERSION)

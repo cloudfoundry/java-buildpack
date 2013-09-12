@@ -58,20 +58,20 @@ module JavaBuildpack::Framework
 
     private
 
-      CONFIGURATION_PROPERTY = 'java_opts'.freeze
+    CONFIGURATION_PROPERTY = 'java_opts'.freeze
 
-      CONTAINER_NAME = 'java-opts'.freeze
+    CONTAINER_NAME = 'java-opts'.freeze
 
-      def memory_option?(option)
-        option =~ /-Xms/ || option =~ /-Xmx/ || option =~ /-XX:MaxMetaspaceSize/ || option =~ /-XX:MaxPermSize/ ||
+    def memory_option?(option)
+      option =~ /-Xms/ || option =~ /-Xmx/ || option =~ /-XX:MaxMetaspaceSize/ || option =~ /-XX:MaxPermSize/ ||
           option =~ /-Xss/
-      end
+    end
 
-      def parsed_java_opts
-        @configuration[CONFIGURATION_PROPERTY].shellsplit.map do |java_opt|
-          java_opt.gsub(/([\s])/, '\\\\\1')
-        end
+    def parsed_java_opts
+      @configuration[CONFIGURATION_PROPERTY].shellsplit.map do |java_opt|
+        java_opt.gsub(/([\s])/, '\\\\\1')
       end
+    end
 
   end
 

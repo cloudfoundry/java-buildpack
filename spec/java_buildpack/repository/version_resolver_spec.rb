@@ -22,14 +22,14 @@ module JavaBuildpack::Repository
   describe VersionResolver do
 
     VERSIONS = [
-      '1.6.0_26',
-      '1.6.0_27',
-      '1.6.1_14',
-      '1.7.0_19',
-      '1.7.0_21',
-      '1.8.0_M-7',
-      '1.8.0_05',
-      '2.0.0'
+        '1.6.0_26',
+        '1.6.0_27',
+        '1.6.1_14',
+        '1.7.0_19',
+        '1.7.0_21',
+        '1.8.0_M-7',
+        '1.8.0_05',
+        '2.0.0'
     ]
 
     it 'resolves the default version if no candidate is supplied' do

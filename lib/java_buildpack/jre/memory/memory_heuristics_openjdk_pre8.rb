@@ -33,15 +33,15 @@ module JavaBuildpack::Jre
 
     private
 
-      JAVA_OPTS = {
+    JAVA_OPTS = {
         'heap' => '-Xmx',
         'permgen' => '-XX:MaxPermSize=',
         'stack' => '-Xss',
-      }.freeze
+    }.freeze
 
-      VALID_HEURISTICS = %w(heap permgen stack native)
+    VALID_HEURISTICS = %w(heap permgen stack native)
 
-      VALID_SIZES = %w(heap permgen stack)
+    VALID_SIZES = %w(heap permgen stack)
 
   end
 
