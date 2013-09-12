@@ -19,8 +19,6 @@ require 'java_buildpack/framework'
 require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
-require 'java_buildpack/util/download'
-require 'java_buildpack/util/format_duration'
 
 module JavaBuildpack::Framework
 
@@ -54,7 +52,7 @@ module JavaBuildpack::Framework
     #
     # @return [void]
     def compile
-      JavaBuildpack::Util.download(@auto_reconfiguration_version, @auto_reconfiguration_uri, 'Auto Reconfiguration', jar_name(@auto_reconfiguration_version), @lib_directory)
+      JavaBuildpack::Util::ApplicationCache.download_jar(@auto_reconfiguration_version, @auto_reconfiguration_uri, 'Auto Reconfiguration', jar_name(@auto_reconfiguration_version), @lib_directory)
       modify_web_xml
     end
 

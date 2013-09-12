@@ -60,11 +60,7 @@ module JavaBuildpack::Jre
     #
     # @return [void]
     def compile
-      download_start_time = Time.now
-      print "-----> Downloading OpenJDK #{@version} JRE from #{@uri} "
-
-      JavaBuildpack::Util::ApplicationCache.new.get(@uri) do |file| # TODO: Use global cache #50175265
-        puts "(#{(Time.now - download_start_time).duration})"
+      JavaBuildpack::Util::ApplicationCache.download('OpenJDK JRE', @version, @uri) do |file|
         expand file
       end
       copy_killjava_script

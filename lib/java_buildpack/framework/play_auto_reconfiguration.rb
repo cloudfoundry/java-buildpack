@@ -16,7 +16,7 @@
 
 require 'java_buildpack/framework'
 require 'java_buildpack/repository/configured_item'
-require 'java_buildpack/util/download'
+require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/play_utils'
 
 module JavaBuildpack::Framework
@@ -52,7 +52,7 @@ module JavaBuildpack::Framework
     #
     # @return [void]
     def compile
-      JavaBuildpack::Util.download(@version, @uri, 'Auto Reconfiguration', jar_name(@version), @lib_directory)
+      JavaBuildpack::Util::ApplicationCache.download_jar(@version, @uri, 'Auto Reconfiguration', jar_name(@version), @lib_directory)
     end
 
     # Does nothing
