@@ -40,13 +40,13 @@ module JavaBuildpack::Util
 
     private
 
-      def blank_line?(line)
-        line =~ /^[\s]*$/
-      end
+    def blank_line?(line)
+      line =~ /^[\s]*$/
+    end
 
-      def comment_line?(line)
-        line =~ /^[\s]*[#!].*$/
-      end
+    def comment_line?(line)
+      line =~ /^[\s]*[#!].*$/
+    end
 
   end
 

@@ -36,12 +36,12 @@ module JavaBuildpack::Util
 
     it 'should use ARGV[1] directory' do
       stub_request(:get, 'http://foo-uri/').to_return(
-        status: 200,
-        body: 'foo-cached',
-        headers: {
-          Etag: 'foo-etag',
-          'Last-Modified' => 'foo-last-modified'
-        }
+          status: 200,
+          body: 'foo-cached',
+          headers: {
+              Etag: 'foo-etag',
+              'Last-Modified' => 'foo-last-modified'
+          }
       )
 
       Dir.mktmpdir do |root|

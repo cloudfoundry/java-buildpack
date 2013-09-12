@@ -25,8 +25,8 @@ module JavaBuildpack::Framework
 
     it 'should detect with java.opts configuration' do
       detected = JavaOpts.new(
-        java_opts: java_opts,
-        configuration: { 'java_opts' => '-Xmx1024M' }
+          java_opts: java_opts,
+          configuration: { 'java_opts' => '-Xmx1024M' }
       ).detect
 
       expect(detected).to eq('java-opts')
@@ -34,8 +34,8 @@ module JavaBuildpack::Framework
 
     it 'should not detect without java_opts configuration' do
       detected = JavaOpts.new(
-        java_opts: java_opts,
-        configuration: {}
+          java_opts: java_opts,
+          configuration: {}
       ).detect
 
       expect(detected).to be_nil
@@ -43,8 +43,8 @@ module JavaBuildpack::Framework
 
     it 'should add split java_opts to context' do
       JavaOpts.new(
-        java_opts: java_opts,
-        configuration: { 'java_opts' => "-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y -XX:OnOutOfMemoryError='kill -9 %p'" }
+          java_opts: java_opts,
+          configuration: { 'java_opts' => "-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y -XX:OnOutOfMemoryError='kill -9 %p'" }
       ).release
 
       expect(java_opts).to include('-Xdebug')

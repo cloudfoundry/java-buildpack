@@ -87,7 +87,7 @@ module JavaBuildpack::Jre
     end
 
     it 'should return a zero excess if total_memory is nil' do
-      expect(MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, TEST_SIZE, true, nil).excess) .to eq(MemorySize::ZERO)
+      expect(MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, TEST_SIZE, true, nil).excess).to eq(MemorySize::ZERO)
     end
 
     it 'should return a zero adjustable weighting if total_memory is nil' do

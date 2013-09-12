@@ -93,43 +93,43 @@ module JavaBuildpack::Jre
 
     protected
 
-      attr_writer :size
+    attr_writer :size
 
     private
 
-      def self.validate_name(name)
-        raise "Invalid MemoryBucket name '#{name}'" if name.nil? || name.to_s.size == 0
-        name
-      end
+    def self.validate_name(name)
+      raise "Invalid MemoryBucket name '#{name}'" if name.nil? || name.to_s.size == 0
+      name
+    end
 
-      def validate_weighting(weighting)
-        raise diagnose_weighting(weighting, 'not numeric') unless MemoryBucket.is_numeric weighting
-        raise diagnose_weighting(weighting, 'negative') if weighting < 0
-        raise diagnose_weighting(weighting, 'greater than 1') if weighting > 1
-        weighting
-      end
+    def validate_weighting(weighting)
+      raise diagnose_weighting(weighting, 'not numeric') unless MemoryBucket.is_numeric weighting
+      raise diagnose_weighting(weighting, 'negative') if weighting < 0
+      raise diagnose_weighting(weighting, 'greater than 1') if weighting > 1
+      weighting
+    end
 
-      def diagnose_weighting(weighting, reason)
-        "Invalid weighting '#{@weighting}' for #{identify} : #{reason}"
-      end
+    def diagnose_weighting(weighting, reason)
+      "Invalid weighting '#{@weighting}' for #{identify} : #{reason}"
+    end
 
-      def self.is_numeric(w)
-        Float(w) rescue false
-      end
+    def self.is_numeric(w)
+      Float(w) rescue false
+    end
 
-      def identify
-        "MemoryBucket #{@name}"
-      end
+    def identify
+      "MemoryBucket #{@name}"
+    end
 
-      def validate_memory_size(size, parameter_name)
-        raise "Invalid '#{parameter_name}' parameter of class '#{size.class}' for #{identify} : not a MemorySize" unless size.is_a? MemorySize
-        size
-      end
+    def validate_memory_size(size, parameter_name)
+      raise "Invalid '#{parameter_name}' parameter of class '#{size.class}' for #{identify} : not a MemorySize" unless size.is_a? MemorySize
+      size
+    end
 
-      def validate_adjustable(adjustable)
-        raise "Invalid 'adjustable' parameter for #{identify} : not true or false" unless !!adjustable == adjustable
-        adjustable
-      end
+    def validate_adjustable(adjustable)
+      raise "Invalid 'adjustable' parameter for #{identify} : not true or false" unless !!adjustable == adjustable
+      adjustable
+    end
 
   end
 

@@ -22,7 +22,7 @@ module JavaBuildpack::Jre
   describe MemoryHeuristicsOpenJDKPre8 do
 
     it 'should raise an error if an invalid size is specified' do
-      expect { MemoryHeuristicsOpenJDKPre8.new({ 'native' => 'test-value' }, { }) }.to raise_error("'native' is not a valid memory size")
+      expect { MemoryHeuristicsOpenJDKPre8.new({ 'native' => 'test-value' }, {}) }.to raise_error("'native' is not a valid memory size")
     end
 
     it 'should raise an error if an invalid heuristic is specified' do
@@ -32,8 +32,8 @@ module JavaBuildpack::Jre
     it 'should map memory size to JAVA_OPTS' do
       with_memory_limit('1G') do
         output = MemoryHeuristicsOpenJDKPre8.new(
-          {},
-          { 'heap' => 0.75, 'permgen' => 0.1, 'stack' => 0.05, 'native' => 0.1 }
+            {},
+            { 'heap' => 0.75, 'permgen' => 0.1, 'stack' => 0.05, 'native' => 0.1 }
         ).resolve
 
         expect(output.length).to eq(3)

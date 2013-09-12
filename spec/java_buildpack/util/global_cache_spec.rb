@@ -35,12 +35,12 @@ module JavaBuildpack::Util
 
     it 'should use BUILDPACK_CACHE directory' do
       stub_request(:get, 'http://foo-uri/').to_return(
-        status: 200,
-        body: 'foo-cached',
-        headers: {
-          Etag: 'foo-etag',
-          'Last-Modified' => 'foo-last-modified'
-        }
+          status: 200,
+          body: 'foo-cached',
+          headers: {
+              Etag: 'foo-etag',
+              'Last-Modified' => 'foo-last-modified'
+          }
       )
 
       Dir.mktmpdir do |root|

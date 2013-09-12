@@ -33,15 +33,15 @@ module JavaBuildpack::Jre
 
     private
 
-      JAVA_OPTS = {
+    JAVA_OPTS = {
         'heap' => '-Xmx',
         'metaspace' => '-XX:MaxMetaspaceSize=',
         'stack' => '-Xss',
-      }.freeze
+    }.freeze
 
-      VALID_HEURISTICS = %w(heap metaspace stack native)
+    VALID_HEURISTICS = %w(heap metaspace stack native)
 
-      VALID_SIZES = %w(heap metaspace stack)
+    VALID_SIZES = %w(heap metaspace stack)
 
   end
 end

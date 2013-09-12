@@ -29,16 +29,16 @@ module JavaBuildpack::Jre
     TEST_NATIVE_WEIGHTING = 0.1
     TEST_SMALL_NATIVE_WEIGHTING = 0.05
     TEST_WEIGHTINGS = {
-      'heap' => TEST_HEAP_WEIGHTING,
-      'permgen' => TEST_PERMGEN_WEIGHTING,
-      'stack' => TEST_STACK_WEIGHTING,
-      'native' => TEST_NATIVE_WEIGHTING
+        'heap' => TEST_HEAP_WEIGHTING,
+        'permgen' => TEST_PERMGEN_WEIGHTING,
+        'stack' => TEST_STACK_WEIGHTING,
+        'native' => TEST_NATIVE_WEIGHTING
     }
 
     JAVA_OPTS = {
-      'heap' => '-Xmx',
-      'permgen' => '-XX:MaxPermSize=',
-      'stack' => '-Xss',
+        'heap' => '-Xmx',
+        'permgen' => '-XX:MaxPermSize=',
+        'stack' => '-Xss',
     }.freeze
 
     VALID_HEURISTICS = %w(heap permgen stack native)
@@ -54,55 +54,55 @@ module JavaBuildpack::Jre
 
     it 'should fail if a memory limit is negative' do
       with_memory_limit('-1m') do
-        expect { WeightBalancingMemoryHeuristic.new({ }, { }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }.to raise_error(/Invalid/)
+        expect { WeightBalancingMemoryHeuristic.new({}, {}, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }.to raise_error(/Invalid/)
       end
     end
 
     it 'should fail if the configured weightings sum to more than 1' do
       with_memory_limit('1m') do
-        expect { WeightBalancingMemoryHeuristic.new({ }, { 'heap' => 0.5, 'permgen' => 0.4, 'stack' => 0.1, 'native' => 0.1 }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }
+        expect { WeightBalancingMemoryHeuristic.new({}, { 'heap' => 0.5, 'permgen' => 0.4, 'stack' => 0.1, 'native' => 0.1 }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }
         .to raise_error(/Invalid/)
       end
     end
 
     it 'should fail if the heap weighting is less than 0' do
       with_memory_limit('1m') do
-        expect { WeightBalancingMemoryHeuristic.new({ }, { 'heap' => -0.1, 'permgen' => 0.3, 'stack' => 0.1, 'native' => 0.1 }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }
+        expect { WeightBalancingMemoryHeuristic.new({}, { 'heap' => -0.1, 'permgen' => 0.3, 'stack' => 0.1, 'native' => 0.1 }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }
         .to raise_error(/Invalid/)
       end
     end
 
     it 'should fail if the permgen weighting is less than 0' do
       with_memory_limit('1m') do
-        expect { WeightBalancingMemoryHeuristic.new({ }, { 'heap' => 0.5, 'permgen' => -0.3, 'stack' => 0.1, 'native' => 0.1 }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }
+        expect { WeightBalancingMemoryHeuristic.new({}, { 'heap' => 0.5, 'permgen' => -0.3, 'stack' => 0.1, 'native' => 0.1 }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }
         .to raise_error(/Invalid/)
       end
     end
 
     it 'should fail if the stack weighting is less than 0' do
       with_memory_limit('1m') do
-        expect { WeightBalancingMemoryHeuristic.new({ }, { 'heap' => 0.5, 'permgen' => 0.3, 'stack' => -0.1, 'native' => 0.1 }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }
+        expect { WeightBalancingMemoryHeuristic.new({}, { 'heap' => 0.5, 'permgen' => 0.3, 'stack' => -0.1, 'native' => 0.1 }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }
         .to raise_error(/Invalid/)
       end
     end
 
     it 'should fail if the native weighting is less than 0' do
       with_memory_limit('1m') do
-        expect { WeightBalancingMemoryHeuristic.new({ }, { 'heap' => 0.5, 'permgen' => 0.3, 'stack' => 0.1, 'native' => -0.1 }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }
+        expect { WeightBalancingMemoryHeuristic.new({}, { 'heap' => 0.5, 'permgen' => 0.3, 'stack' => 0.1, 'native' => -0.1 }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }
         .to raise_error(/Invalid/)
       end
     end
 
     it 'should fail if a configured weighting is invalid' do
       with_memory_limit('1m') do
-        expect { WeightBalancingMemoryHeuristic.new({ }, { 'heap' => TEST_HEAP_WEIGHTING, 'permgen' => TEST_PERMGEN_WEIGHTING, 'stack' => TEST_STACK_WEIGHTING, 'native' => 'x' }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }
+        expect { WeightBalancingMemoryHeuristic.new({}, { 'heap' => TEST_HEAP_WEIGHTING, 'permgen' => TEST_PERMGEN_WEIGHTING, 'stack' => TEST_STACK_WEIGHTING, 'native' => 'x' }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve }
         .to raise_error(/Invalid/)
       end
     end
 
     it 'should default maximum heap size and permgen size according to the configured weightings' do
       with_memory_limit('1024m') do
-        output = WeightBalancingMemoryHeuristic.new({ }, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
+        output = WeightBalancingMemoryHeuristic.new({}, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
         expect(output).to include("-Xmx#{(1024 * TEST_HEAP_WEIGHTING).to_i.to_s}M")
         expect(output).to include("-XX:MaxPermSize=#{(1024 * 1024 * TEST_PERMGEN_WEIGHTING).to_i.to_s}K")
       end
@@ -110,14 +110,14 @@ module JavaBuildpack::Jre
 
     it 'should default the stack size regardless of the memory limit' do
       with_memory_limit('0m') do
-        output = WeightBalancingMemoryHeuristic.new({ }, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
+        output = WeightBalancingMemoryHeuristic.new({}, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
         expect(output).to include('-Xss1M')
       end
     end
 
     it 'should default maximum heap size and permgen size according to the configured weightings when the weightings sum to less than 1' do
       with_memory_limit('1024m') do
-        output = WeightBalancingMemoryHeuristic.new({ }, { 'heap' => TEST_HEAP_WEIGHTING, 'permgen' => TEST_PERMGEN_WEIGHTING, 'stack' => TEST_STACK_WEIGHTING, 'native' => TEST_SMALL_NATIVE_WEIGHTING }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
+        output = WeightBalancingMemoryHeuristic.new({}, { 'heap' => TEST_HEAP_WEIGHTING, 'permgen' => TEST_PERMGEN_WEIGHTING, 'stack' => TEST_STACK_WEIGHTING, 'native' => TEST_SMALL_NATIVE_WEIGHTING }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
         expect(output).to include("-Xmx#{(1024 * TEST_HEAP_WEIGHTING).to_i.to_s}M")
         expect(output).to include("-XX:MaxPermSize=#{(1024 * 1024 * TEST_PERMGEN_WEIGHTING).to_i.to_s}K")
       end
@@ -154,7 +154,7 @@ module JavaBuildpack::Jre
         # The heap size is 1G more than the default, so this should be taken from permgen according to the weightings
         # The stack size is double the default, so this will consume an extra 409.6m, some of which should be taken from permgen according to the weightings
         expect(output).to include("-XX:MaxPermSize=#{(1024 * 4096 * TEST_PERMGEN_WEIGHTING - 1024 * 1024 * TEST_PERMGEN_WEIGHTING / (TEST_PERMGEN_WEIGHTING + TEST_NATIVE_WEIGHTING) -
-                                                      1024 * 409.6 * TEST_PERMGEN_WEIGHTING / (TEST_PERMGEN_WEIGHTING + TEST_NATIVE_WEIGHTING)).to_i.to_s}K")
+            1024 * 409.6 * TEST_PERMGEN_WEIGHTING / (TEST_PERMGEN_WEIGHTING + TEST_NATIVE_WEIGHTING)).to_i.to_s}K")
       end
     end
 
@@ -169,14 +169,14 @@ module JavaBuildpack::Jre
 
     it 'should work correctly with a single memory type' do
       with_memory_limit('4096m') do
-        output = WeightBalancingMemoryHeuristic.new({ }, { 'heap' => TEST_HEAP_WEIGHTING }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
+        output = WeightBalancingMemoryHeuristic.new({}, { 'heap' => TEST_HEAP_WEIGHTING }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
         expect(output).to include('-Xmx2G')
       end
     end
 
     it 'should work correctly with no memory types' do
       with_memory_limit('4096m') do
-        output = WeightBalancingMemoryHeuristic.new({ }, { }, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
+        output = WeightBalancingMemoryHeuristic.new({}, {}, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
         expect(output).to eq([])
       end
     end
@@ -227,7 +227,7 @@ module JavaBuildpack::Jre
 
     it 'should only default the stack size when the total memory size is not available' do
       with_memory_limit(nil) do
-        output = WeightBalancingMemoryHeuristic.new({ }, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
+        output = WeightBalancingMemoryHeuristic.new({}, TEST_WEIGHTINGS, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS).resolve
         output.should_not include(/-Xmx/)
         output.should_not include(/-XX:MaxPermSize=/)
         expect(output).to include('-Xss1M')
