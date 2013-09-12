@@ -40,8 +40,13 @@ module JavaBuildpack::Container
       @java_opts = context[:java_opts]
       @lib_directory = context[:lib_directory]
       @configuration = context[:configuration]
-      @tomcat_version, @tomcat_uri = Tomcat.find_tomcat(@app_dir, @configuration)
-      @support_version, @support_uri = Tomcat.find_support(@app_dir, @configuration)
+      if Tomcat.web_inf? @app_dir
+        @tomcat_version, @tomcat_uri = Tomcat.find_tomcat(@configuration)
+        @support_version, @support_uri = Tomcat.find_support(@configuration)
+      else
+        @tomcat_version, @tomcat_uri = nil, nil
+        @support_version, @support_uri = nil, nil
+      end
     end
 
     # Detects whether this application is a Tomcat application.
@@ -124,30 +129,16 @@ module JavaBuildpack::Container
       puts "(#{(Time.now - expand_start_time).duration})"
     end
 
-    def self.find_tomcat(app_dir, configuration)
-      if web_inf? app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |candidate_version|
-          fail "Malformed Tomcat version #{candidate_version}: too many version components" if candidate_version[3]
-        end
-      else
-        version = nil
-        uri = nil
+    def self.find_tomcat(configuration)
+      JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |candidate_version|
+        fail "Malformed Tomcat version #{candidate_version}: too many version components" if candidate_version[3]
       end
-
-      return version, uri # rubocop:disable RedundantReturn
     rescue => e
       raise RuntimeError, "Tomcat container error: #{e.message}", e.backtrace
     end
 
-    def self.find_support(app_dir, configuration)
-      if web_inf? app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration[KEY_SUPPORT])
-      else
-        version = nil
-        uri = nil
-      end
-
-      return version, uri # rubocop:disable RedundantReturn
+    def self.find_support(configuration)
+      JavaBuildpack::Repository::ConfiguredItem.find_item(configuration[KEY_SUPPORT])
     end
 
     def tomcat_id(version)
