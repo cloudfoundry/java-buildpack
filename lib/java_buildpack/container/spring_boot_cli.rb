@@ -83,8 +83,6 @@ module JavaBuildpack::Container
 
     private
 
-    GROOVY_FILE_PATTERN = '*.groovy'.freeze
-
     SPRING_BOOT_CLI_HOME = '.spring-boot-cli'.freeze
 
     def link_classpath_jars
@@ -112,20 +110,12 @@ module JavaBuildpack::Container
 
     def self.find_spring_boot_cli(app_dir, configuration)
       if spring_boot_cli app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
+        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_and_wrap_exceptions('Spring Boot CLI container', configuration)
       else
         version = nil
         uri = nil
       end
-
       return version, uri # rubocop:disable RedundantReturn
-    rescue => e
-      raise RuntimeError, "Spring Boot CLI container error: #{e.message}", e.backtrace
-    end
-
-    def self.groovy_files(root)
-      root_directory = Pathname.new(root)
-      Dir[File.join root, GROOVY_FILE_PATTERN].reject { |file| File.directory? file }.map { |file| Pathname.new(file).relative_path_from(root_directory).to_s }
     end
 
     def spring_boot_cli_home
@@ -142,7 +132,7 @@ module JavaBuildpack::Container
 
     # Determine whether or not the Spring Boot CLI container recognises the application.
     def self.spring_boot_cli(app_dir)
-      gf = groovy_files(app_dir)
+      gf = JavaBuildpack::Util::GroovyUtils.groovy_files(app_dir)
       gf.length > 0 && all_pogo(app_dir, gf) && no_main_method(app_dir, gf) && !has_web_inf(app_dir)
     end
 

@@ -120,11 +120,9 @@ module JavaBuildpack::Container
     end
 
     def self.find_tomcat(configuration)
-      JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |candidate_version|
-        fail "Malformed Tomcat version #{candidate_version}: too many version components" if candidate_version[3]
+      JavaBuildpack::Repository::ConfiguredItem.find_and_wrap_exceptions('Tomcat container', configuration) do |candidate_version|
+        candidate_version.check_size(3)
       end
-    rescue => e
-      raise RuntimeError, "Tomcat container error: #{e.message}", e.backtrace
     end
 
     def self.find_support(configuration)

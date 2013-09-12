@@ -124,6 +124,14 @@ module JavaBuildpack::Util
       expect { TokenizedVersion.new('1.7.0_') }.to raise_error(/Invalid/)
     end
 
+    it 'should accept a version has a number of components acceptable to check_size' do
+      TokenizedVersion.new('1.2.3_4').check_size(4)
+    end
+
+    it 'should raise an exception when a version has too many components for check_size' do
+      expect { TokenizedVersion.new('1.2.3_4').check_size(3) }.to raise_error(/too many version components/)
+    end
+
   end
 
 end

@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'pathname'
 require 'java_buildpack/util'
 
 module JavaBuildpack::Util
@@ -45,7 +46,20 @@ module JavaBuildpack::Util
       file.read =~ /#!/
     end
 
+    # Returns all the Ruby files in the given directory
+    #
+    # @param [String] root a directory to search
+    # @return [Array] a possibly empty list of files
+    def self.groovy_files(root)
+      root_directory = Pathname.new(root)
+      Dir[File.join root, GROOVY_FILE_PATTERN].reject { |file| File.directory? file }.map { |file| Pathname.new(file).relative_path_from(root_directory).to_s }
+    end
+
     private_class_method :new
+
+    private
+
+    GROOVY_FILE_PATTERN = '**/*.groovy'.freeze
 
   end
 

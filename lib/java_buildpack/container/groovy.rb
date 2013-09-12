@@ -85,8 +85,6 @@ module JavaBuildpack::Container
 
     private
 
-    GROOVY_FILE_PATTERN = '**/*.groovy'.freeze
-
     GROOVY_HOME = '.groovy'.freeze
 
     def classpath(app_dir, lib_directory)
@@ -110,16 +108,9 @@ module JavaBuildpack::Container
     end
 
     def self.find_groovy(configuration)
-      JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |candidate_version|
-        fail "Malformed Groovy version #{candidate_version}: too many version components" if candidate_version[3]
+      JavaBuildpack::Repository::ConfiguredItem.find_and_wrap_exceptions('Groovy container', configuration) do |candidate_version|
+        candidate_version.check_size(3)
       end
-    rescue => e
-      raise RuntimeError, "Groovy container error: #{e.message}", e.backtrace
-    end
-
-    def self.groovy_files(root)
-      root_directory = Pathname.new(root)
-      Dir[File.join root, GROOVY_FILE_PATTERN].reject { |file| File.directory? file }.map { |file| Pathname.new(file).relative_path_from(root_directory).to_s }
     end
 
     def groovy_home
@@ -131,7 +122,7 @@ module JavaBuildpack::Container
     end
 
     def self.main_groovy(app_dir)
-      candidates = groovy_files(app_dir)
+      candidates = JavaBuildpack::Util::GroovyUtils.groovy_files(app_dir)
 
       candidate = []
       candidate << main_method(app_dir, candidates)
@@ -143,7 +134,7 @@ module JavaBuildpack::Container
     end
 
     def other_groovy(app_dir)
-      other_groovy = Groovy.groovy_files(app_dir)
+      other_groovy = JavaBuildpack::Util::GroovyUtils.groovy_files(app_dir)
       other_groovy.delete(Groovy.main_groovy(app_dir))
       other_groovy.join(' ')
     end

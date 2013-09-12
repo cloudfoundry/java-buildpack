@@ -65,7 +65,7 @@ module JavaBuildpack::Container
             app_dir: 'spec/fixtures/container_tomcat',
             configuration: {}
         ).detect
-      end.to raise_error(/Malformed\ Tomcat\ version/)
+      end.to raise_error(/Malformed\ version/)
     end
 
     it 'should extract Tomcat from a GZipped TAR' do
