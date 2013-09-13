@@ -28,20 +28,20 @@ module JavaBuildpack::Jre
     # @param [Hash<String, Numeric>] sizes any sizings specified by the user
     # @param [Hash<String, Numeric>] heuristics the memory heuristics for OpenJDK
     def initialize(sizes, heuristics)
-      super(sizes, heuristics, VALID_SIZES, VALID_HEURISTICS, JAVA_OPTS)
+      super(sizes, heuristics, PRE8_VALID_SIZES, PRE8_VALID_HEURISTICS, PRE8_JAVA_OPTS)
     end
 
     private
 
-    JAVA_OPTS = {
+    PRE8_JAVA_OPTS = {
         'heap' => '-Xmx',
         'permgen' => '-XX:MaxPermSize=',
         'stack' => '-Xss',
     }.freeze
 
-    VALID_HEURISTICS = %w(heap permgen stack native)
+    PRE8_VALID_HEURISTICS = %w(heap permgen stack native)
 
-    VALID_SIZES = %w(heap permgen stack)
+    PRE8_VALID_SIZES = %w(heap permgen stack)
 
   end
 
