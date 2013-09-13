@@ -17,6 +17,7 @@
 require 'java_buildpack/framework'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
+require 'java_buildpack/util/resource_utils'
 
 module JavaBuildpack::Framework
 
@@ -57,7 +58,7 @@ module JavaBuildpack::Framework
       system "mkdir -p #{File.join new_relic_home, 'logs'}"
 
       JavaBuildpack::Util::ApplicationCache.download_jar(@version, @uri, 'New Relic Agent', jar_name(@version), new_relic_home)
-      copy_resources new_relic_home
+      JavaBuildpack::Util::ResourceUtils.copy_resources('new-relic', new_relic_home)
     end
 
     # Adds configuration information to +JAVA_OPTS+
@@ -75,24 +76,10 @@ module JavaBuildpack::Framework
 
     NAME_KEY = 'application_name'
 
-    RESOURCES = File.join('..', '..', '..', 'resources', 'new-relic').freeze
-
     NEW_RELIC_HOME = '.new-relic'.freeze
 
-    def copy_resources(new_relic_home)
-      resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
-      system "cp -r #{File.join resources, '*'} #{new_relic_home}"
-    end
-
     def self.find_new_relic_agent(vcap_services, configuration)
-      if license_key(vcap_services)
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
-      else
-        version = nil
-        uri = nil
-      end
-
-      return version, uri # rubocop:disable RedundantReturn
+      license_key(vcap_services) ? JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) : [nil, nil]
     end
 
     def id(version)
@@ -114,7 +101,7 @@ module JavaBuildpack::Framework
         license_key = services[0]['credentials']['licenseKey']
       end
 
-      return license_key
+      license_key
     end
 
     def new_relic_home

@@ -20,6 +20,7 @@ require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
+require 'java_buildpack/util/resource_utils'
 
 module JavaBuildpack::Container
 
@@ -86,16 +87,9 @@ module JavaBuildpack::Container
 
     KEY_SUPPORT = 'support'.freeze
 
-    RESOURCES = File.join('..', '..', '..', 'resources', 'tomcat').freeze
-
     TOMCAT_HOME = '.tomcat'.freeze
 
     WEB_INF_DIRECTORY = 'WEB-INF'.freeze
-
-    def copy_resources(tomcat_home)
-      resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
-      system "cp -r #{File.join resources, '*'} #{tomcat_home}"
-    end
 
     def download_tomcat
       JavaBuildpack::Util::ApplicationCache.download('Tomcat', @tomcat_version, @tomcat_uri) do |file|
@@ -115,7 +109,7 @@ module JavaBuildpack::Container
       system "mkdir -p #{tomcat_home}"
       system "tar xzf #{file.path} -C #{tomcat_home} --strip 1 --exclude webapps --exclude #{File.join 'conf', 'server.xml'} --exclude #{File.join 'conf', 'context.xml'} 2>&1"
 
-      copy_resources tomcat_home
+      JavaBuildpack::Util::ResourceUtils.copy_resources('tomcat', tomcat_home)
       puts "(#{(Time.now - expand_start_time).duration})"
     end
 
