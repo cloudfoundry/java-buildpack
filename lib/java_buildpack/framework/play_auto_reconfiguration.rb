@@ -64,14 +64,7 @@ module JavaBuildpack::Framework
     private
 
     def self.find_auto_reconfiguration(app_dir, configuration)
-      if JavaBuildpack::Util::PlayUtils.root app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
-      else
-        version = nil
-        uri = nil
-      end
-
-      return version, uri # rubocop:disable RedundantReturn
+      JavaBuildpack::Util::PlayUtils.root(app_dir) ? JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) : [nil, nil]
     end
 
     def id(version)

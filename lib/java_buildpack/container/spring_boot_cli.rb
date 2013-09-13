@@ -109,13 +109,7 @@ module JavaBuildpack::Container
     end
 
     def self.find_spring_boot_cli(app_dir, configuration)
-      if spring_boot_cli app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_and_wrap_exceptions('Spring Boot CLI container', configuration)
-      else
-        version = nil
-        uri = nil
-      end
-      return version, uri # rubocop:disable RedundantReturn
+      spring_boot_cli(app_dir) ? JavaBuildpack::Repository::ConfiguredItem.find_and_wrap_exceptions('Spring Boot CLI container', configuration) : [nil, nil]
     end
 
     def spring_boot_cli_home
