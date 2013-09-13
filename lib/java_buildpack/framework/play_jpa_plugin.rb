@@ -75,14 +75,7 @@ module JavaBuildpack::Framework
     end
 
     def self.find_play_jpa_plugin(app_dir, configuration)
-      if candidate? app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
-      else
-        version = nil
-        uri = nil
-      end
-
-      return version, uri # rubocop:disable RedundantReturn
+      candidate?(app_dir) ? JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) : [nil, nil]
     end
 
     def id(version)

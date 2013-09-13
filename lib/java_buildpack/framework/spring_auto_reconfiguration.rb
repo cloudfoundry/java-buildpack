@@ -69,14 +69,7 @@ module JavaBuildpack::Framework
     WEB_XML = File.join 'WEB-INF', 'web.xml'
 
     def self.find_auto_reconfiguration(app_dir, configuration)
-      if spring_application? app_dir
-        version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration)
-      else
-        version = nil
-        uri = nil
-      end
-
-      return version, uri # rubocop:disable RedundantReturn
+      spring_application?(app_dir) ? JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) : [nil, nil]
     end
 
     def id(version)

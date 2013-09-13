@@ -22,6 +22,7 @@ require 'java_buildpack/jre/memory/memory_heuristics_openjdk'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
+require 'java_buildpack/util/resource_utils'
 require 'java_buildpack/util/tokenized_version'
 
 module JavaBuildpack::Jre
@@ -77,8 +78,6 @@ module JavaBuildpack::Jre
 
     private
 
-    RESOURCES = '../../../resources/openjdk/diagnostics'.freeze
-
     JAVA_HOME = '.java'.freeze
 
     KEY_MEMORY_HEURISTICS = 'memory_heuristics'
@@ -121,7 +120,7 @@ module JavaBuildpack::Jre
     end
 
     def copy_killjava_script
-      resources = File.expand_path(RESOURCES, File.dirname(__FILE__))
+      resources = JavaBuildpack::Util::ResourceUtils.get_resources(File.join('openjdk', 'diagnostics'))
       killjava_file_content = File.read(File.join resources, KILLJAVA_FILE_NAME)
       updated_content = killjava_file_content.gsub(/@@LOG_FILE_NAME@@/, JavaBuildpack::Diagnostics::LOG_FILE_NAME)
       diagnostic_dir = JavaBuildpack::Diagnostics.get_diagnostic_directory @app_dir
