@@ -102,38 +102,6 @@ module JavaBuildpack::Repository
       file
     end
 
-    def architecture
-      RbConfig::CONFIG['host_cpu']
-    end
-
-    def canonical(raw)
-      raw
-      .gsub(/\{platform\}/, platform)
-      .gsub(/\{architecture\}/, architecture)
-    end
-
-    def linux_platform
-      `lsb_release -cs`.strip
-    end
-
-    def osx_platform
-      version = `sw_vers -productVersion`
-
-      if version =~ /^10.8/
-        return 'mountainlion'
-      else
-        raise "Unsupported OS X version '#{version}'"
-      end
-    end
-
-    def platform
-      if RbConfig::CONFIG['host_os'] =~ /darwin/i
-        osx_platform
-      else
-        linux_platform
-      end
-    end
-
   end
 
 end
