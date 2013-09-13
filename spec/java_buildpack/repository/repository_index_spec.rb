@@ -27,7 +27,7 @@ module JavaBuildpack::Repository
 
     it 'should load index' do
       JavaBuildpack::Util::DownloadCache.stub(:new).and_return(application_cache)
-      application_cache.stub(:get).with(canonical '{platform}/{architecture}/test-uri/index.yml')
+      application_cache.stub(:get).with(%r(/test-uri/index\.yml))
       .and_yield(File.open('spec/fixtures/test-index.yml'))
       VersionResolver.stub(:resolve).with('test-version', %w(resolved-version)).and_return('resolved-version')
 
@@ -50,6 +50,43 @@ module JavaBuildpack::Repository
           expect(uri).to eq('http://foo.com/test.txt')
         end
       end
+    end
+
+    it 'should handle Mac OS X correctly' do
+      with_host('darwin12.3.0', 'x86_64') do
+        JavaBuildpack::Util::DownloadCache.stub(:new).and_return(application_cache)
+        RepositoryIndex.any_instance.stub(:`).with('sw_vers -productVersion').and_return('10.8.4')
+        application_cache.stub(:get).with('mountainlion/x86_64/test-uri/index.yml').and_yield(File.open('spec/fixtures/test-index.yml'))
+        RepositoryIndex.new('{platform}/{architecture}/test-uri')
+        expect(application_cache).to have_received(:get).with(%r(mountainlion/x86_64/test-uri/index\.yml))
+      end
+    end
+
+    it 'should handle incorrect Mac OS X version correctly' do
+      with_host('darwin12.3.0', 'x86_64') do
+        JavaBuildpack::Util::DownloadCache.stub(:new).and_return(application_cache)
+        RepositoryIndex.any_instance.stub(:`).with('sw_vers -productVersion').and_return('10.7.1')
+        expect { RepositoryIndex.new('{platform}/{architecture}/test-uri') }.to raise_error(/Unsupported OS X version/)
+      end
+    end
+
+    it 'should handle Linux correctly' do
+      with_host('linux-gnu', 'x86_64') do
+        JavaBuildpack::Util::DownloadCache.stub(:new).and_return(application_cache)
+        RepositoryIndex.any_instance.stub(:`).with('lsb_release -cs').and_return('precise')
+        application_cache.stub(:get).with('precise/x86_64/test-uri/index.yml').and_yield(File.open('spec/fixtures/test-index.yml'))
+        RepositoryIndex.new('{platform}/{architecture}/test-uri')
+        expect(application_cache).to have_received(:get).with(%r(precise/x86_64/test-uri/index\.yml))
+      end
+    end
+
+    def with_host(host_os, host_cpu)
+      previous_host_os, RbConfig::CONFIG['host_os'] = RbConfig::CONFIG['host_os'], host_os
+      previous_host_cpu, RbConfig::CONFIG['host_cpu'] = RbConfig::CONFIG['host_cpu'], host_cpu
+      yield
+    ensure
+      RbConfig::CONFIG['host_os'] = previous_host_os
+      RbConfig::CONFIG['host_cpu'] = previous_host_cpu
     end
 
     def with_buildpack_cache(directory)
