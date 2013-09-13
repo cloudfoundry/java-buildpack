@@ -40,16 +40,16 @@ module JavaBuildpack::Container
     end
 
     # Returns an +Array+ containing the relative paths of the JARs located in the additional libraries directory.  The
-    # paths of these JARs are relative to the +app_dir+.
+    # paths of these JARs are relative to the +root_dir+.
     #
-    # @param [String] app_dir the directory that the application exists in
+    # @param [String] root_dir the directory relative to which the resultant are calculated
     # @param [String] lib_directory the directory that additional libraries are placed in
     # @return [Array<String>] the relative paths of the JARs located in the additional libraries directory
-    def self.libs(app_dir, lib_directory)
+    def self.libs(root_dir, lib_directory)
       libs = []
 
       if lib_directory
-        root_directory = Pathname.new(app_dir)
+        root_directory = Pathname.new(root_dir)
 
         libs = Pathname.new(lib_directory).children
         .select { |file| file.extname == '.jar' }
