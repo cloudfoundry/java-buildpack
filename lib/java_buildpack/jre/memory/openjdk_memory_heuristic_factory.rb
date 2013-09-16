@@ -27,7 +27,7 @@ module JavaBuildpack::Jre
     #
     # @param [Hash<String, Numeric>] sizes any sizes specified by the user
     # @param [Hash<String, Numeric>] heuristics the memory heuristics specified by the user
-    # @param [JavaBuildpack::Util::TokenizedVersion] the version of OpenJDK
+    # @param [JavaBuildpack::Util::TokenizedVersion] version the version of OpenJDK
     # @return [WeightBalancingMemoryHeuristic] the memory heuristics instance
     def self.create_memory_heuristic(sizes, heuristics, version)
       extra = permgen_or_metaspace(version)
