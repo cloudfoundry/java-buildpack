@@ -17,13 +17,11 @@
 require 'fileutils'
 require 'java_buildpack/diagnostics/common'
 require 'java_buildpack/jre'
-require 'java_buildpack/jre/memory/memory_heuristics_openjdk_pre8'
-require 'java_buildpack/jre/memory/memory_heuristics_openjdk'
+require 'java_buildpack/jre/memory/openjdk_memory_heuristic_factory'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/resource_utils'
-require 'java_buildpack/util/tokenized_version'
 
 module JavaBuildpack::Jre
 
@@ -108,15 +106,9 @@ module JavaBuildpack::Jre
     end
 
     def memory(configuration)
-      heuristics = configuration[KEY_MEMORY_HEURISTICS] || {}
       sizes = configuration[KEY_MEMORY_SIZES] || {}
-
-      heuristic_class = pre_8 ? MemoryHeuristicsOpenJDKPre8 : MemoryHeuristicsOpenJDK
-      heuristic_class.new(sizes, heuristics).resolve
-    end
-
-    def pre_8
-      @version < JavaBuildpack::Util::TokenizedVersion.new('1.8.0')
+      heuristics = configuration[KEY_MEMORY_HEURISTICS] || {}
+      OpenJDKMemoryHeuristicFactory.create_memory_heuristic(sizes, heuristics, @version).resolve
     end
 
     def copy_killjava_script

@@ -99,7 +99,7 @@ module JavaBuildpack::Jre
     it 'should add memory options to java_opts' do
       Dir.mktmpdir do |root|
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS_PRE_8)
-        MemoryHeuristicsOpenJDKPre8.stub(:new).and_return(memory_heuristic)
+        WeightBalancingMemoryHeuristic.stub(:new).and_return(memory_heuristic)
 
         java_opts = []
         OpenJdk.new(
