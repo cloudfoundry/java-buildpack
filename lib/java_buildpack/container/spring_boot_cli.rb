@@ -112,10 +112,6 @@ module JavaBuildpack::Container
       File.join @app_dir, SPRING_BOOT_CLI_HOME
     end
 
-    def spring_boot_cli_invocation
-      " -jar #{}"
-    end
-
     def id(version)
       "spring-boot-cli-#{version}"
     end
