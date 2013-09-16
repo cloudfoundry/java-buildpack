@@ -232,6 +232,28 @@ module JavaBuildpack::Diagnostics
       end
     end
 
+    it 'should issue warnings if the logger is re-created' do
+      Dir.mktmpdir do |app_dir|
+        with_log_level('WARN') do
+          new_logger app_dir
+          LoggerFactory.create_logger app_dir
+          expect($stderr.string).to match(/Logger is being re-created/)
+          expect($stderr.string).to match(/Logger was re-created by/)
+        end
+      end
+    end
+
+    it 'should fail if a non-existent logger is requested' do
+      JavaBuildpack::Diagnostics::LoggerFactory.send :close
+      previous_standard_error, STDERR = STDERR, StringIO.new
+      begin
+        expect { LoggerFactory.get_logger }.to raise_error(/no logger/)
+        expect(STDERR.string).to match(/Attempt to get nil logger from: /)
+      ensure
+        STDERR = previous_standard_error
+      end
+    end
+
     def new_logger(app_dir)
       LoggerFactory.send :close # suppress warnings
       LoggerFactory.create_logger app_dir
