@@ -36,11 +36,7 @@ module JavaBuildpack::Container
     # @option context [String] :lib_directory the directory that additional libraries are placed in
     # @option context [Hash] :configuration the properties provided by the user
     def initialize(context)
-      @app_dir = context[:app_dir]
-      @java_home = context[:java_home]
-      @java_opts = context[:java_opts]
-      @lib_directory = context[:lib_directory]
-      @configuration = context[:configuration]
+      context.each { |key, value| instance_variable_set("@#{key}", value) }
       if Tomcat.web_inf? @app_dir
         @tomcat_version, @tomcat_uri = Tomcat.find_tomcat(@configuration)
         @support_version, @support_uri = Tomcat.find_support(@configuration)

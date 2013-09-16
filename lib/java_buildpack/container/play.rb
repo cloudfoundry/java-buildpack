@@ -35,10 +35,7 @@ module JavaBuildpack::Container
     # @option context [String] :lib_directory the directory that additional libraries are placed in
     # @option context [Hash] :configuration the properties provided by the user
     def initialize(context)
-      @app_dir = context[:app_dir]
-      @java_home = context[:java_home]
-      @java_opts = context[:java_opts]
-      @lib_directory = context[:lib_directory]
+      context.each { |key, value| instance_variable_set("@#{key}", value) }
       @play_root = JavaBuildpack::Util::PlayUtils.root(@app_dir)
     end
 
