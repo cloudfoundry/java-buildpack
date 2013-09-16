@@ -29,8 +29,7 @@ module JavaBuildpack::Framework
     # @option context [Array<String>] :java_opts an array that Java options can be added to
     # @option context [Hash] :configuration the properties provided by the user
     def initialize(context = {})
-      @java_opts = context[:java_opts]
-      @configuration = context[:configuration]
+      context.each { |key, value| instance_variable_set("@#{key}", value) }
     end
 
     # Detects whether this application contributes Java options.

@@ -34,9 +34,7 @@ module JavaBuildpack::Framework
     # @option context [String] :lib_directory the directory that additional libraries are placed in
     # @option context [Hash] :configuration the properties provided by the user
     def initialize(context = {})
-      @app_dir = context[:app_dir]
-      @lib_directory = context[:lib_directory]
-      @configuration = context[:configuration]
+      context.each { |key, value| instance_variable_set("@#{key}", value) }
       @version, @uri = PlayAutoReconfiguration.find_auto_reconfiguration(@app_dir, @configuration)
     end
 
