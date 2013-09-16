@@ -33,11 +33,7 @@ module JavaBuildpack::Framework
     # @option context [Hash] :vcap_services The contents of the +VCAP_SERVICES+ environment variable
     # @option context [Hash] :configuration the properties provided by the user
     def initialize(context = {})
-      @app_dir = context[:app_dir]
-      @java_opts = context[:java_opts]
-      @vcap_application = context[:vcap_application]
-      @vcap_services = context[:vcap_services]
-      @configuration = context[:configuration]
+      context.each { |key, value| instance_variable_set("@#{key}", value) }
       @version, @uri = NewRelic.find_new_relic_agent(@vcap_services, @configuration)
     end
 

@@ -34,9 +34,7 @@ module JavaBuildpack::Framework
     # @option context [Hash] :configuration the properties provided by the user
     def initialize(context = {})
       @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
-      @app_dir = context[:app_dir]
-      @lib_directory = context[:lib_directory]
-      @configuration = context[:configuration]
+      context.each { |key, value| instance_variable_set("@#{key}", value) }
       @auto_reconfiguration_version, @auto_reconfiguration_uri = SpringAutoReconfiguration.find_auto_reconfiguration(@app_dir, @configuration)
     end
 
