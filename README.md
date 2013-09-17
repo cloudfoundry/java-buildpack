@@ -56,7 +56,7 @@ If you want to use the RubyMine debugger, you may need to [install additional ge
 bundle install --gemfile Gemfile.rubymine-debug
 ```
 
-[Installing Cloud Foundry on Vagrant] is useful for privately testing new features.
+[Installing Cloud Foundry on Vagrant][] is useful for privately testing new features.
 
 ## Contributing
 [Pull requests][] are welcome; see the [contributor guidelines][] for details.
@@ -71,4 +71,4 @@ The Tomcat Builder is released under version 2.0 of the [Apache License][].
 [install additional gems]: http://stackoverflow.com/questions/11732715/how-do-i-install-ruby-debug-base19x-on-mountain-lion-for-intellij
 [pull request]: https://help.github.com/articles/using-pull-requests
 [Pull requests]: http://help.github.com/send-pull-requests
-[Installing Cloud Foundry on Vagrant]" http://blog.cloudfoundry.com/2013/06/27/installing-cloud-foundry-on-vagrant/
+[Installing Cloud Foundry on Vagrant]: http://blog.cloudfoundry.com/2013/06/27/installing-cloud-foundry-on-vagrant/
