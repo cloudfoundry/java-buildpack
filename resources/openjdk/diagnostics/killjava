@@ -56,4 +56,3 @@ rescue => e
   Kill.log("#{__FILE__} failed with exception #{e.inspect}, #{e.backtrace}\n")
   abort e.message
 end
-

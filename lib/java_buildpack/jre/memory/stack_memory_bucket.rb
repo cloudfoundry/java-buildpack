@@ -36,7 +36,6 @@ module JavaBuildpack::Jre
       super('stack', weighting, size, false, total_memory)
       @weighting = weighting
       @total_memory = total_memory
-      size = DEFAULT_STACK_SIZE unless size
     end
 
     # Returns the excess memory in this memory bucket.

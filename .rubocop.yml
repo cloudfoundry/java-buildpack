@@ -10,5 +10,5 @@ MethodLength:
   Max: 25
 ParameterLists:
   Max: 6
-AvoidClassVars:
+ClassVars:
   Enabled: false

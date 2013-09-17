@@ -30,4 +30,3 @@ if components.empty?
 else
   puts components.join(', ')
 end
-
