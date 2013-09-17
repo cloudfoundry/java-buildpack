@@ -3,6 +3,7 @@ language: ruby
 rvm:
   - 2.0.0
   - 1.9.3
+before_script: "if [[ $TRAVIS_RUBY_VERSION != '1.9.3' || $TRAVIS_SECURE_ENV_VARS != 'true' ]]; then unset CODECLIMATE_REPO_TOKEN; fi"
 notifications:
   webhooks: http://ec2-54-229-6-54.eu-west-1.compute.amazonaws.com/projects/b7a8069c-f991-409e-8953-1b4365824fec/status
 env:
