@@ -16,6 +16,7 @@
 
 require 'fileutils'
 require 'java_buildpack/diagnostics'
+require 'java_buildpack/diagnostics/logger_factory'
 require 'java_buildpack/util'
 require 'net/http'
 require 'tmpdir'
@@ -149,9 +150,10 @@ module JavaBuildpack::Util
             end
           end
 
-        rescue *HTTP_ERRORS
+        rescue *HTTP_ERRORS => ex
           puts 'FAIL'
-          raise "Unable to download from #{uri}"
+          error_message = "Unable to download from #{uri} due to #{ex}"
+          raise error_message
         end
       else
         look_aside(filenames, uri)
@@ -221,8 +223,8 @@ module JavaBuildpack::Util
         end
       end
 
-    rescue *HTTP_ERRORS
-      @logger.warn "Unable to update from #{uri}. Using cached version."
+    rescue *HTTP_ERRORS => ex
+      @logger.warn "Unable to update from #{uri} due to #{ex}. Using cached version."
     end
 
     def use_ssl?(uri)
