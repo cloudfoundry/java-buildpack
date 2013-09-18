@@ -16,7 +16,7 @@
 # Configuration for JRE repositories keyed by vendor
 ---
 repository_root: "http://download.pivotal.io.s3.amazonaws.com/openjdk/{platform}/{architecture}"
-version: 1.7.0_21
+version: 1.7.0_+
 memory_sizes:
 memory_heuristics:
   heap: 0.75
