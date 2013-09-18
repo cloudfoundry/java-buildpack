@@ -132,7 +132,9 @@ module JavaBuildpack::Framework
     end
 
     def has_annotation_application_context?(root, param_type)
-      xpath(root, "#{param_type}/param-name[contains(text(), '#{CONTEXT_CLASS}')]").any?
+      context_class_name = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_CLASS}')]]/param-value/text()").first
+      context_class_name_value = context_class_name ? context_class_name.value.strip : nil
+      CONTEXT_CLASS_ANNOTATION == context_class_name_value
     end
 
     def has_context_loader_listener?

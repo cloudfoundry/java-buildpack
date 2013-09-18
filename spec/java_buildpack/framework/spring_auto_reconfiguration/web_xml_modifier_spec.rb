@@ -64,6 +64,12 @@ module JavaBuildpack::Framework
       end
     end
 
+    it 'should ignore contextClass with wrong value' do
+      assert_equality('web_root_annotation_wrong_class') do |modifier|
+        modifier.augment_root_context
+      end
+    end
+
     def assert_equality(fixture, &block)
       modifier = File.open("spec/fixtures/#{fixture}_before.xml") do |file|
         WebXmlModifier.new(file)
