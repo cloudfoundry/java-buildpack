@@ -26,10 +26,17 @@ module JavaBuildpack::Util
       @previous_value = ARGV[1]
       ARGV[1] = nil
       $stdout = StringIO.new
+
+      stub_request(:get, 'http://foo-uri/')
+      .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+      .to_return(status: 200, body: '', headers: {})
+
+      DownloadCache.class_variable_set :@@internet_checked, false
     end
 
     after do
       ARGV[1] = @previous_value
+      DownloadCache.class_variable_set :@@internet_checked, false
     end
 
     TEST_URI = 'http://foo-uri/'

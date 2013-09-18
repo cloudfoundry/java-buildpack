@@ -29,11 +29,6 @@ require 'fileutils'
 require 'java_buildpack/diagnostics/common'
 require 'java_buildpack/diagnostics/logger_factory'
 
-# Following required for class variable initialisation in DownloadCache.
-WebMock::API.stub_request(:get, 'http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml')
-.with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
-.to_return(status: 200, body: '', headers: {})
-
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.run_all_when_everything_filtered = true
