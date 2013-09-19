@@ -37,7 +37,6 @@ module JavaBuildpack::Repository
 
     it 'should use the read-only buildpack cache when index.yaml cannot be downloaded because the internet is not available' do
       stub_request(:get, 'http://foo.com/index.yml').to_raise(SocketError)
-      JavaBuildpack::Util::DownloadCache.stub(:internet_up).and_return(false)
 
       Dir.mktmpdir do |buildpack_cache|
         java_buildpack_cache = File.join(buildpack_cache, 'java-buildpack')

@@ -18,9 +18,11 @@ require 'fileutils'
 require 'java_buildpack/diagnostics'
 require 'java_buildpack/diagnostics/logger_factory'
 require 'java_buildpack/util'
+require 'monitor'
 require 'net/http'
 require 'tmpdir'
 require 'uri'
+require 'yaml'
 
 module JavaBuildpack::Util
 
@@ -58,14 +60,16 @@ module JavaBuildpack::Util
     #                    deleted while it is being used, the cached item can only be accessed as part of a block.
     # @return [void]
     def get(uri)
+      internet_up = DownloadCache.internet_available? uri
+
       filenames = filenames(uri)
       File.open(filenames[:lock], File::CREAT) do |lock_file|
         lock_file.flock(File::LOCK_EX)
 
-        if should_update(filenames)
+        if internet_up && should_update(filenames)
           update(filenames, uri)
         elsif should_download(filenames)
-          download(filenames, uri)
+          download(filenames, uri, internet_up)
         end
 
         lock_file.flock(File::LOCK_SH)
@@ -94,6 +98,8 @@ module JavaBuildpack::Util
 
     private
 
+    CACHE_CONFIG = '../../../config/cache.yml'.freeze
+
     HTTP_ERRORS = [
         EOFError,
         Errno::ECONNREFUSED,
@@ -107,39 +113,62 @@ module JavaBuildpack::Util
         Net::ProtocolError,
         SocketError,
         Timeout::Error
-    ]
+    ].freeze
 
-    TEST_URI = 'http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml'.freeze
+    HTTP_OK = '200'.freeze
 
-    HTTP_OK = '200'
+    @@monitor = Monitor.new
+    @@internet_checked = false
+    @@internet_up = true
 
-    def self.internet_available?
-      uri = TEST_URI
-      rich_uri = URI(uri)
-
-      # Beware known problems with timeouts: https://www.ruby-forum.com/topic/143840
-      Net::HTTP.start(rich_uri.host, rich_uri.port, read_timeout: 10, connect_timeout: 10, open_timeout: 10) do |http|
-        request = Net::HTTP::Get.new(uri)
-        http.request request do |response|
-          return response.code == HTTP_OK
-        end
-      end
-    rescue *HTTP_ERRORS
-      false
+    def self.get_configuration
+      expanded_path = File.expand_path(CACHE_CONFIG, File.dirname(__FILE__))
+      YAML.load_file(expanded_path)
     end
 
-    @@internet_up = DownloadCache.internet_available?
+    TIMEOUT_SECONDS = 10
+
+    def self.internet_available?(uri)
+      @@monitor.synchronize do
+        return @@internet_up if @@internet_checked
+      end
+      cache_configuration = get_configuration
+      if cache_configuration['remote_downloads'] == 'disabled'
+        store_internet_availability false
+      elsif cache_configuration['remote_downloads'] == 'enabled'
+        begin
+          rich_uri = URI(uri)
+
+          # Beware known problems with timeouts: https://www.ruby-forum.com/topic/143840
+          Net::HTTP.start(rich_uri.host, rich_uri.port, read_timeout: TIMEOUT_SECONDS, connect_timeout: TIMEOUT_SECONDS, open_timeout: TIMEOUT_SECONDS) do |http|
+            request = Net::HTTP::Get.new(uri)
+            http.request request do |response|
+              internet_up = response.code == HTTP_OK
+              store_internet_availability internet_up
+            end
+          end
+        rescue *HTTP_ERRORS
+          store_internet_availability false
+        end
+      else
+        raise "Invalid remote_downloads property in cache configuration: #{cache_configuration}"
+      end
+    end
+
+    def self.store_internet_availability(internet_up)
+      @@monitor.synchronize do
+        @@internet_up = internet_up
+        @@internet_checked = true
+      end
+      internet_up
+    end
 
     def delete_file(filename)
       File.delete filename if File.exists? filename
     end
 
-    def self.internet_up
-      @@internet_up
-    end
-
-    def download(filenames, uri)
-      if DownloadCache.internet_up
+    def download(filenames, uri, internet_up)
+      if internet_up
         begin
           rich_uri = URI(uri)
 
@@ -181,8 +210,10 @@ module JavaBuildpack::Util
         FileUtils.cp(stashed, filenames[:cached])
         @logger.debug "Using copy of #{uri} from buildpack cache."
       else
-        @logger.warn "Buildpack cache does not contain #{uri}. Failing the download."
+        message = "Buildpack cache does not contain #{uri}. Failing the download."
+        @logger.error message
         @logger.debug { "Buildpack cache contents:\n#{`ls -lR #{File.join(ENV['BUILDPACK_CACHE'], 'java-buildpack')}`}" }
+        raise message
       end
     end
 

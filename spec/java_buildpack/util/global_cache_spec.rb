@@ -23,10 +23,17 @@ module JavaBuildpack::Util
 
     before do
       @previous_value = ENV.delete 'BUILDPACK_CACHE'
+
+      stub_request(:get, 'http://foo-uri/')
+      .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+      .to_return(status: 200, body: '', headers: {})
+
+      DownloadCache.class_variable_set :@@internet_checked, false
     end
 
     after do
       ENV['BUILDPACK_CACHE'] = @previous_value
+      DownloadCache.class_variable_set :@@internet_checked, false
     end
 
     it 'should raise an error if BUILDPACK_CACHE is not defined' do
