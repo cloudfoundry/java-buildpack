@@ -34,8 +34,6 @@ both parameter and block forms:
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-Logging can be configured by modifying the [`config/logging.yml`][] file.
-
 The log level is configured by setting an environment variable
 `$JBP_LOG_LEVEL` to one of:
 
@@ -46,7 +44,7 @@ For example:
     cf set-env <app name> JBP_LOG_LEVEL DEBUG
 
 If `JBP_LOG_LEVEL` is not set, the default log level is read from the configuration in
-`config/logging.yml`.
+[`config/logging.yml`][].
 
 The logging levels in `JBP_LOG_LEVEL` and `config/logging.yml` may be
 specified using any mixture of upper and lower case.
