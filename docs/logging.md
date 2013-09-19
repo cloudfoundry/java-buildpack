@@ -34,6 +34,8 @@ both parameter and block forms:
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
+Logging can be configured by modifying the [`config/logging.yml`][] file.
+
 The log level is configured by setting an environment variable
 `$JBP_LOG_LEVEL` to one of:
 
@@ -53,3 +55,4 @@ Ruby's verbose and debug modes override the default log level to `DEBUG` unless
 `JBP_LOG_LEVEL` has been set, in which case this takes priority.
 
 [Configuration and Extension]: ../README.md#Configuration-and-Extension
+[`config/logging.yml`]: ../config/logging.yml
