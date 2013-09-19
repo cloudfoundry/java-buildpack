@@ -24,6 +24,7 @@ CodeClimate::TestReporter.start
 
 require 'tmpdir'
 require 'webmock/rspec'
+WebMock.disable_net_connect!(allow: 'codeclimate.com')
 require 'fileutils'
 require 'java_buildpack/diagnostics/common'
 require 'java_buildpack/diagnostics/logger_factory'
@@ -49,7 +50,5 @@ RSpec.configure do |config|
   config.after(:all) do
     $stderr = STDERR
     $stdout = STDOUT
-
-    WebMock.allow_net_connect!
   end
 end
