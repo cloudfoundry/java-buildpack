@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/diagnostics/logger_factory'
 require 'java_buildpack/repository'
 require 'java_buildpack/util/download_cache'
 require 'java_buildpack/repository/version_resolver'
@@ -30,8 +31,11 @@ module JavaBuildpack::Repository
     # @param [String] repository_root the root of the repository to create the index for
     def initialize(repository_root)
       @index = {}
+      @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
       JavaBuildpack::Util::DownloadCache.new.get("#{canonical repository_root}#{INDEX_PATH}") do |file| # TODO: Use global cache #50175265
-        @index.merge! YAML.load_file(file)
+        index_content = YAML.load_file(file)
+        @logger.debug { index_content }
+        @index.merge! index_content
       end
     end
 
@@ -55,9 +59,11 @@ module JavaBuildpack::Repository
     end
 
     def canonical(raw)
-      raw
+      cooked = raw
       .gsub(/\{platform\}/, platform)
       .gsub(/\{architecture\}/, architecture)
+      @logger.debug { "#{raw} expanded to #{cooked}" }
+      cooked
     end
 
     def linux_platform

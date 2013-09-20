@@ -60,7 +60,7 @@ module JavaBuildpack::Util
     #                    deleted while it is being used, the cached item can only be accessed as part of a block.
     # @return [void]
     def get(uri)
-      internet_up = DownloadCache.internet_available? uri
+      internet_up = DownloadCache.internet_available? uri, @logger
 
       filenames = filenames(uri)
       File.open(filenames[:lock], File::CREAT) do |lock_file|
@@ -128,7 +128,7 @@ module JavaBuildpack::Util
 
     TIMEOUT_SECONDS = 10
 
-    def self.internet_available?(uri)
+    def self.internet_available?(uri, logger)
       @@monitor.synchronize do
         return @@internet_up if @@internet_checked
       end
@@ -147,7 +147,8 @@ module JavaBuildpack::Util
               store_internet_availability internet_up
             end
           end
-        rescue *HTTP_ERRORS
+        rescue *HTTP_ERRORS => ex
+          logger.debug { "Internet detection failed with #{ex}" }
           store_internet_availability false
         end
       else
