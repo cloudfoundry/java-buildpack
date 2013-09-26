@@ -15,6 +15,7 @@
 # limitations under the License.
 
 require 'fileutils'
+require 'java_buildpack/base_component'
 require 'java_buildpack/container'
 require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
@@ -25,38 +26,24 @@ require 'java_buildpack/util/resource_utils'
 module JavaBuildpack::Container
 
   # Encapsulates the detect, compile, and release functionality for Tomcat applications.
-  class Tomcat
+  class Tomcat < JavaBuildpack::BaseComponent
 
-    # Creates an instance, passing in an arbitrary collection of options.
-    #
-    # @param [Hash] context the context that is provided to the instance
-    # @option context [String] :app_dir the directory that the application exists in
-    # @option context [String] :java_home the directory that acts as +JAVA_HOME+
-    # @option context [Array<String>] :java_opts an array that Java options can be added to
-    # @option context [String] :lib_directory the directory that additional libraries are placed in
-    # @option context [Hash] :configuration the properties provided by the user
     def initialize(context)
-      context.each { |key, value| instance_variable_set("@#{key}", value) }
-      if Tomcat.web_inf? @app_dir
-        @tomcat_version, @tomcat_uri = Tomcat.find_tomcat(@configuration)
-        @support_version, @support_uri = Tomcat.find_support(@configuration)
+      super('Tomcat', context)
+
+      if supports?
+        @tomcat_version, @tomcat_uri = JavaBuildpack::Repository::ConfiguredItem.find_item('Tomcat container', @configuration) { |candidate_version| candidate_version.check_size(3) }
+        @support_version, @support_uri = JavaBuildpack::Repository::ConfiguredItem.find_item(@component_name, @configuration[KEY_SUPPORT])
       else
         @tomcat_version, @tomcat_uri = nil, nil
         @support_version, @support_uri = nil, nil
       end
     end
 
-    # Detects whether this application is a Tomcat application.
-    #
-    # @return [String] returns +tomcat-<version>+ if and only if the application has a +WEB-INF+ directory, otherwise
-    #                  returns +nil+
     def detect
-      @tomcat_version ? [tomcat_id(@tomcat_version), tomcat_support_id(@support_version)] : nil
+      @tomcat_version && @support_version ? [tomcat_id(@tomcat_version), support_id(@support_version)] : nil
     end
 
-    # Downloads and unpacks a Tomcat instance and support JAR
-    #
-    # @return [void]
     def compile
       download_tomcat
       download_support
@@ -64,9 +51,6 @@ module JavaBuildpack::Container
       link_libs
     end
 
-    # Creates the command to run the Tomcat application.
-    #
-    # @return [String] the command to run the application.
     def release
       @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
 
@@ -75,6 +59,31 @@ module JavaBuildpack::Container
       start_script_string = ContainerUtils.space(File.join TOMCAT_HOME, 'bin', 'catalina.sh')
 
       "#{java_home_string}#{java_opts_string}#{start_script_string} run"
+    end
+
+    protected
+
+    # The unique indentifier of the component, incorporating the version of the dependency (e.g. +tomcat-7.0.42+)
+    #
+    # @param [String] version the version of the dependency
+    # @return [String] the unique identifier of the component
+    def tomcat_id(version)
+      "tomcat-#{version}"
+    end
+
+    # The unique indentifier of the component, incorporating the version of the dependency (e.g. +tomcat-buildpack-support-1.1.0+)
+    #
+    # @param [String] version the version of the dependency
+    # @return [String] the unique identifier of the component
+    def support_id(version)
+      "tomcat-buildpack-support-#{version}"
+    end
+
+    # Whether or not this component supports this application
+    #
+    # @return [Boolean] whether or not this component supports this application
+    def supports?
+      web_inf?
     end
 
     private
@@ -88,16 +97,14 @@ module JavaBuildpack::Container
     WEB_INF_DIRECTORY = 'WEB-INF'.freeze
 
     def download_tomcat
-      JavaBuildpack::Util::ApplicationCache.download('Tomcat', @tomcat_version, @tomcat_uri) do |file|
-        expand(file, @configuration)
-      end
+      download(@tomcat_version, @tomcat_uri) { |file| expand file }
     end
 
     def download_support
-      JavaBuildpack::Util::ApplicationCache.download_jar(@support_version, @support_uri, 'Buildpack Tomcat Support', support_jar_name(@support_version), File.join(tomcat_home, 'lib'))
+      download_jar(@support_version, @support_uri, support_jar_name, File.join(tomcat_home, 'lib'), 'Buildpack Tomcat Support')
     end
 
-    def expand(file, configuration)
+    def expand(file)
       expand_start_time = Time.now
       print "       Expanding Tomcat to #{TOMCAT_HOME} "
 
@@ -107,24 +114,6 @@ module JavaBuildpack::Container
 
       JavaBuildpack::Util::ResourceUtils.copy_resources('tomcat', tomcat_home)
       puts "(#{(Time.now - expand_start_time).duration})"
-    end
-
-    def self.find_tomcat(configuration)
-      JavaBuildpack::Repository::ConfiguredItem.find_and_wrap_exceptions('Tomcat container', configuration) do |candidate_version|
-        candidate_version.check_size(3)
-      end
-    end
-
-    def self.find_support(configuration)
-      JavaBuildpack::Repository::ConfiguredItem.find_item(configuration[KEY_SUPPORT])
-    end
-
-    def tomcat_id(version)
-      "tomcat-#{version}"
-    end
-
-    def tomcat_support_id(version)
-      "tomcat-buildpack-support-#{version}"
     end
 
     def link_application
@@ -146,8 +135,8 @@ module JavaBuildpack::Container
       File.join webapps, 'ROOT'
     end
 
-    def support_jar_name(version)
-      "#{tomcat_support_id version}.jar"
+    def support_jar_name
+      "#{support_id @support_version}.jar"
     end
 
     def tomcat_home
@@ -162,8 +151,8 @@ module JavaBuildpack::Container
       File.join root, 'WEB-INF', 'lib'
     end
 
-    def self.web_inf?(app_dir)
-      File.exists? File.join(app_dir, WEB_INF_DIRECTORY)
+    def web_inf?
+      File.exists? File.join(@app_dir, WEB_INF_DIRECTORY)
     end
 
   end

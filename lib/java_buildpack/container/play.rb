@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/base_component'
 require 'java_buildpack/container'
 require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
@@ -24,50 +25,44 @@ require 'pathname'
 module JavaBuildpack::Container
 
   # Encapsulates the detect, compile, and release functionality for Play applications.
-  class Play
+  class Play < JavaBuildpack::BaseComponent
 
-    # Creates an instance, passing in an arbitrary collection of options.
-    #
-    # @param [Hash] context the context that is provided to the instance
-    # @option context [String] :app_dir the directory that the application exists in
-    # @option context [String] :java_home the directory that acts as +JAVA_HOME+
-    # @option context [Array<String>] :java_opts an array that Java options can be added to
-    # @option context [String] :lib_directory the directory that additional libraries are placed in
-    # @option context [Hash] :configuration the properties provided by the user
     def initialize(context)
-      context.each { |key, value| instance_variable_set("@#{key}", value) }
+      super('Play Framework', context)
+
       @play_root = JavaBuildpack::Util::PlayUtils.root(@app_dir)
+      @version = @play_root ? JavaBuildpack::Util::PlayUtils.version(@play_root) : nil
     end
 
-    # Detects whether this application is a Play application.
-    #
-    # @return [String] returns +Play+ if and only if the application has a +start+ script, otherwise
-    #                  returns +nil+
     def detect
-      @play_root ? id(JavaBuildpack::Util::PlayUtils.version(@play_root)) : nil
+      @version ? id(@version) : nil
     end
 
-    # Makes the +start+ script executable.
-    #
-    # @return [void]
     def compile
       system "chmod +x #{JavaBuildpack::Util::PlayUtils.start_script @play_root}"
       add_libs_to_classpath
       replace_bootstrap @play_root
     end
 
-    # Creates the command to run the Play application.
-    #
-    # @return [String] the command to run the application.
     def release
       @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
 
       path_string = "PATH=#{File.join @java_home, 'bin'}:$PATH"
       java_home_string = ContainerUtils.space("JAVA_HOME=#{@java_home}")
-      start_script_string = ContainerUtils.space(start_script_relative @app_dir, @play_root)
+      start_script_string = ContainerUtils.space(start_script_relative @play_root)
       java_opts_string = ContainerUtils.space(ContainerUtils.to_java_opts_s(@java_opts))
 
       "#{path_string}#{java_home_string}#{start_script_string}#{java_opts_string}"
+    end
+
+    protected
+
+    # The unique indentifier of the component, incorporating the version of the dependency (e.g. +play-2.2.0+)
+    #
+    # @param [String] version the version of the dependency
+    # @return [String] the unique identifier of the component
+    def id(version)
+      "play-#{version}"
     end
 
     private
@@ -110,16 +105,12 @@ module JavaBuildpack::Container
       end
     end
 
-    def id(version)
-      "play-#{version}"
-    end
-
     def replace_bootstrap(root)
       update_file JavaBuildpack::Util::PlayUtils.start_script(root), /play\.core\.server\.NettyServer/, 'org.cloudfoundry.reconfiguration.play.Bootstrap'
     end
 
-    def start_script_relative(app_dir, play_root)
-      "./#{Pathname.new(JavaBuildpack::Util::PlayUtils.start_script(play_root)).relative_path_from(Pathname.new(app_dir)).to_s}"
+    def start_script_relative(play_root)
+      "./#{Pathname.new(JavaBuildpack::Util::PlayUtils.start_script(play_root)).relative_path_from(Pathname.new(@app_dir)).to_s}"
     end
 
     def update_file(file_name, pattern, replacement)

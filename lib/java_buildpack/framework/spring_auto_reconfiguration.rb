@@ -18,64 +18,45 @@ require 'java_buildpack/diagnostics/logger_factory'
 require 'java_buildpack/framework'
 require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
 require 'java_buildpack/repository/configured_item'
-require 'java_buildpack/util/application_cache'
+require 'java_buildpack/versioned_dependency_component'
 
 module JavaBuildpack::Framework
 
   # Encapsulates the detect, compile, and release functionality for enabling cloud auto-reconfiguration in Spring
   # applications.
-  class SpringAutoReconfiguration
+  class SpringAutoReconfiguration < JavaBuildpack::VersionedDependencyComponent
 
-    # Creates an instance, passing in an arbitrary collection of options.
-    #
-    # @param [Hash] context the context that is provided to the instance
-    # @option context [String] :app_dir the directory that the application exists in
-    # @option context [String] :lib_directory the directory that additional libraries are placed in
-    # @option context [Hash] :configuration the properties provided by the user
-    def initialize(context = {})
+    def initialize(context)
+      super('Spring Auto-reconfiguration', context)
       @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
-      context.each { |key, value| instance_variable_set("@#{key}", value) }
-      @auto_reconfiguration_version, @auto_reconfiguration_uri = SpringAutoReconfiguration.find_auto_reconfiguration(@app_dir, @configuration)
     end
 
-    # Detects whether this application is suitable for auto-reconfiguration
-    #
-    # @return [String] returns +spring-auto-reconfiguration-<version>+ if the application is a candidate for
-    #                  auto-reconfiguration otherwise returns +nil+
-    def detect
-      @auto_reconfiguration_version ? id(@auto_reconfiguration_version) : nil
-    end
-
-    # Downloads the Auto-reconfiguration JAR
-    #
-    # @return [void]
     def compile
-      JavaBuildpack::Util::ApplicationCache.download_jar(@auto_reconfiguration_version, @auto_reconfiguration_uri, 'Auto Reconfiguration', jar_name(@auto_reconfiguration_version), @lib_directory)
+      download_jar jar_name
       modify_web_xml
     end
 
-    # Does nothing
-    #
-    # @return [void]
     def release
     end
 
-    private
-
-    SPRING_JAR_PATTERN = 'spring-core*.jar'
-
-    WEB_XML = File.join 'WEB-INF', 'web.xml'
-
-    def self.find_auto_reconfiguration(app_dir, configuration)
-      spring_application?(app_dir) ? JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) : [nil, nil]
-    end
+    protected
 
     def id(version)
       "spring-auto-reconfiguration-#{version}"
     end
 
-    def jar_name(version)
-      "#{id version}.jar"
+    def supports?
+      Dir["#{@app_dir}/**/#{SPRING_JAR_PATTERN}"].any?
+    end
+
+    private
+
+    SPRING_JAR_PATTERN = 'spring-core*.jar'.freeze
+
+    WEB_XML = File.join 'WEB-INF', 'web.xml'.freeze
+
+    def jar_name
+      "#{id @version}.jar"
     end
 
     def modify_web_xml
@@ -92,10 +73,6 @@ module JavaBuildpack::Framework
         File.open(web_xml, 'w') { |file| file.write(modifier.to_s) }
         @logger.debug { "  Modified web.xml: #{File.read web_xml}" }
       end
-    end
-
-    def self.spring_application?(app_dir)
-      Dir["#{app_dir}/**/#{SPRING_JAR_PATTERN}"].any?
     end
 
   end
