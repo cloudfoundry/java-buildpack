@@ -32,14 +32,14 @@ module JavaBuildpack::Repository
     end
 
     it 'raises an error if no repository root is specified' do
-      expect { ConfiguredItem.find_item({}) }.to raise_error
+      expect { ConfiguredItem.find_item('Test', {}) }.to raise_error
     end
 
     it 'resolves a system.properties version if specified' do
-      details = ConfiguredItem.find_item(
-          'repository_root' => 'test-repository-root',
-          'java.runtime.version' => 'test-java-runtime-version',
-          'version' => '1.7.0'
+      details = ConfiguredItem.find_item('Test',
+                                         'repository_root' => 'test-repository-root',
+                                         'java.runtime.version' => 'test-java-runtime-version',
+                                         'version' => '1.7.0'
       )
 
       expect(details[0]).to eq(RESOLVED_VERSION)
@@ -47,9 +47,9 @@ module JavaBuildpack::Repository
     end
 
     it 'resolves a configuration version if specified' do
-      details = ConfiguredItem.find_item(
-          'repository_root' => 'test-repository-root',
-          'version' => '1.7.0'
+      details = ConfiguredItem.find_item('Test',
+                                         'repository_root' => 'test-repository-root',
+                                         'version' => '1.7.0'
       )
 
       expect(details[0]).to eq(RESOLVED_VERSION)
@@ -57,17 +57,17 @@ module JavaBuildpack::Repository
     end
 
     it 'drives the version validator block if supplied' do
-      ConfiguredItem.find_item(
-          'repository_root' => 'test-repository-root',
-          'version' => '1.7.0'
+      ConfiguredItem.find_item('Test',
+                               'repository_root' => 'test-repository-root',
+                               'version' => '1.7.0'
       ) do |version|
         expect(version).to eq(JavaBuildpack::Util::TokenizedVersion.new('1.7.0'))
       end
     end
 
     it 'resolves nil if no version is specified' do
-      details = ConfiguredItem.find_item(
-          'repository_root' => 'test-repository-root'
+      details = ConfiguredItem.find_item('Test',
+                                         'repository_root' => 'test-repository-root'
       )
 
       expect(details[0]).to eq(RESOLVED_VERSION)

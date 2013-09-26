@@ -18,6 +18,7 @@ require 'java_buildpack/framework'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/play_utils'
+require 'java_buildpack/versioned_dependency_component'
 
 module JavaBuildpack::Framework
 
@@ -25,70 +26,47 @@ module JavaBuildpack::Framework
   # applications that use JPA. Note that Spring auto-reconfiguration is covered by the SpringAutoReconfiguration
   # framework. The reconfiguration performed here is to override Play application configuration to bind a Play
   # application to cloud resources.
-  class PlayJpaPlugin
+  class PlayJpaPlugin < JavaBuildpack::VersionedDependencyComponent
 
-    # Creates an instance, passing in an arbitrary collection of options.
-    #
-    # @param [Hash] context the context that is provided to the instance
-    # @option context [String] :app_dir the directory that the application exists in
-    # @option context [String] :lib_directory the directory that additional libraries are placed in
-    # @option context [Hash] :configuration the properties provided by the user
-    def initialize(context = {})
-      context.each { |key, value| instance_variable_set("@#{key}", value) }
-      @version, @uri = PlayJpaPlugin.find_play_jpa_plugin(@app_dir, @configuration)
+    def initialize(context)
+      super('Play JPA Plugin', context)
     end
 
-    # Detects whether this application is suitable for auto-reconfiguration
-    #
-    # @return [String] returns +play-jpa-plugin-<version>+ if the application is a candidate for JPA
-    #                  auto-reconfiguration otherwise returns +nil+
-    def detect
-      @version ? id(@version) : nil
-    end
-
-    # Downloads the Auto-reconfiguration JAR
-    #
-    # @return [void]
     def compile
-      JavaBuildpack::Util::ApplicationCache.download_jar(@version, @uri, 'Play JPA Plugin', jar_name(@version), @lib_directory)
+      download_jar jar_name
     end
 
-    # Does nothing
-    #
-    # @return [void]
     def release
+    end
+
+    protected
+
+    def id(version)
+      "play-jpa-plugin-#{version}"
+    end
+
+    def supports?
+      candidate = false
+
+      root = JavaBuildpack::Util::PlayUtils.root @app_dir
+      candidate = uses_jpa?(root) || play20?(root) if root
+
+      candidate
     end
 
     private
 
     PLAY_JPA_PLUGIN_JAR = '*play-java-jpa*.jar'.freeze
 
-    def self.candidate?(app_dir)
-      candidate = false
-
-      root = JavaBuildpack::Util::PlayUtils.root app_dir
-      candidate = uses_jpa?(root) || play20?(root) if root
-
-      candidate
+    def jar_name
+      "#{id @version}.jar"
     end
 
-    def self.find_play_jpa_plugin(app_dir, configuration)
-      candidate?(app_dir) ? JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) : [nil, nil]
-    end
-
-    def id(version)
-      "play-jpa-plugin-#{version}"
-    end
-
-    def jar_name(version)
-      "#{id version}.jar"
-    end
-
-    def self.play20?(root)
+    def play20?(root)
       JavaBuildpack::Util::PlayUtils.version(root) =~ /2.0.[\d]+/
     end
 
-    def self.uses_jpa?(root)
+    def uses_jpa?(root)
       lib = File.join JavaBuildpack::Util::PlayUtils.lib(root), PLAY_JPA_PLUGIN_JAR
       staged = File.join JavaBuildpack::Util::PlayUtils.staged(root), PLAY_JPA_PLUGIN_JAR
       Dir[lib, staged].first

@@ -17,9 +17,9 @@
 require 'java_buildpack/container'
 require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
-require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/groovy_utils'
+require 'java_buildpack/versioned_dependency_component'
 require 'pathname'
 require 'set'
 require 'tmpdir'
@@ -28,68 +28,47 @@ module JavaBuildpack::Container
 
   # Encapsulates the detect, compile, and release functionality for applications running non-compiled Groovy
   # applications.
-  class Groovy
+  class Groovy < JavaBuildpack::VersionedDependencyComponent
 
-    # Creates an instance, passing in an arbitrary collection of options.
-    #
-    # @param [Hash] context the context that is provided to the instance
-    # @option context [String] :app_dir the directory that the application exists in
-    # @option context [String] :java_home the directory that acts as +JAVA_HOME+
-    # @option context [Array<String>] :java_opts an array that Java options can be added to
-    # @option context [String] :lib_directory the directory that additional libraries are placed in
-    # @option context [Hash] :configuration the properties provided by the user
-    def initialize(context = {})
-      context.each { |key, value| instance_variable_set("@#{key}", value) }
-      @version, @uri = Groovy.main_groovy(@app_dir) ? Groovy.find_groovy(@configuration) : [nil, nil]
+    def initialize(context)
+      super('Groovy', context) { |candidate_version| candidate_version.check_size(3) }
     end
 
-    # Detects whether this application is Groovy application.
-    #
-    # @return [String] returns +groovy-<version>+ if and only if:
-    #                  * a single +.groovy+ file exists
-    #                  * multiple +.groovy+ files exist and one of them is named +main.groovy+ or +Main.groovy+
-    #                  * multiple +.groovy+ files exist and one of them has a +main()+ method
-    #                  * multiple +.groovy+ files exist and one of them is not a POGO
-    #                  * multiple +.groovy+ files exist and one of them has a #! declaration
-    #                  otherwise it returns +nil+.
-    def detect
-      @version ? id(@version) : nil
-    end
-
-    # Downloads and unpacks a Groovy distribution
-    #
-    # @return [void]
     def compile
-      JavaBuildpack::Util::ApplicationCache.download('Groovy', @version, @uri) do |file|
-        expand(file, @configuration)
-      end
+      download { |file| expand file }
     end
 
-    # Creates the command to run the Java +main()+ application.
-    #
-    # @return [String] the command to run the application.
     def release
       java_home_string = "JAVA_HOME=#{@java_home}"
       java_opts_string = ContainerUtils.space("JAVA_OPTS=\"#{ContainerUtils.to_java_opts_s(@java_opts)}\"")
       groovy_string = ContainerUtils.space(File.join GROOVY_HOME, 'bin', 'groovy')
-      classpath_string = ContainerUtils.space(classpath(@app_dir, @lib_directory))
-      main_groovy_string = ContainerUtils.space(Groovy.main_groovy @app_dir)
-      other_groovy_string = ContainerUtils.space(other_groovy @app_dir)
+      classpath_string = ContainerUtils.space(classpath)
+      main_groovy_string = ContainerUtils.space(main_groovy)
+      other_groovy_string = ContainerUtils.space(other_groovy)
 
       "#{java_home_string}#{java_opts_string}#{groovy_string}#{classpath_string}#{main_groovy_string}#{other_groovy_string}"
+    end
+
+    protected
+
+    def id(version)
+      "groovy-#{version}"
+    end
+
+    def supports?
+      main_groovy
     end
 
     private
 
     GROOVY_HOME = '.groovy'.freeze
 
-    def classpath(app_dir, lib_directory)
-      classpath = ContainerUtils.libs(app_dir, lib_directory)
-
+    def classpath
+      classpath = ContainerUtils.libs(@app_dir, @lib_directory)
       classpath.any? ? "-cp #{classpath.join(':')}" : ''
     end
 
-    def expand(file, configuration)
+    def expand(file)
       expand_start_time = Time.now
       print "       Expanding Groovy to #{GROOVY_HOME} "
 
@@ -103,60 +82,50 @@ module JavaBuildpack::Container
       puts "(#{(Time.now - expand_start_time).duration})"
     end
 
-    def self.find_groovy(configuration)
-      JavaBuildpack::Repository::ConfiguredItem.find_and_wrap_exceptions('Groovy container', configuration) do |candidate_version|
-        candidate_version.check_size(3)
-      end
-    end
-
     def groovy_home
       File.join @app_dir, GROOVY_HOME
     end
 
-    def id(version)
-      "groovy-#{version}"
-    end
-
-    def self.main_groovy(app_dir)
-      candidates = JavaBuildpack::Util::GroovyUtils.groovy_files(app_dir)
+    def main_groovy
+      candidates = JavaBuildpack::Util::GroovyUtils.groovy_files(@app_dir)
 
       candidate = []
-      candidate << main_method(app_dir, candidates)
-      candidate << non_pogo(app_dir, candidates)
-      candidate << shebang(app_dir, candidates)
+      candidate << main_method(candidates)
+      candidate << non_pogo(candidates)
+      candidate << shebang(candidates)
 
       candidate = Set.new(candidate.flatten.compact).to_a
       candidate.size == 1 ? candidate[0] : nil
     end
 
-    def other_groovy(app_dir)
-      other_groovy = JavaBuildpack::Util::GroovyUtils.groovy_files(app_dir)
-      other_groovy.delete(Groovy.main_groovy(app_dir))
+    def other_groovy
+      other_groovy = JavaBuildpack::Util::GroovyUtils.groovy_files(@app_dir)
+      other_groovy.delete(main_groovy)
       other_groovy.join(' ')
     end
 
-    def self.main_method(app_dir, candidates)
-      select(app_dir, candidates) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file }
+    def main_method(candidates)
+      select(candidates) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file }
     end
 
-    def self.non_pogo(app_dir, candidates)
-      reject(app_dir, candidates) { |file| JavaBuildpack::Util::GroovyUtils.pogo? file }
+    def non_pogo(candidates)
+      reject(candidates) { |file| JavaBuildpack::Util::GroovyUtils.pogo? file }
     end
 
-    def self.shebang(app_dir, candidates)
-      select(app_dir, candidates) { |file| JavaBuildpack::Util::GroovyUtils.shebang? file }
+    def shebang(candidates)
+      select(candidates) { |file| JavaBuildpack::Util::GroovyUtils.shebang? file }
     end
 
-    def self.reject(app_dir, candidates, &block)
-      candidates.reject { |candidate| open(app_dir, candidate, &block) }
+    def reject(candidates, &block)
+      candidates.reject { |candidate| open(candidate, &block) }
     end
 
-    def self.select(app_dir, candidates, &block)
-      candidates.select { |candidate| open(app_dir, candidate, &block) }
+    def select(candidates, &block)
+      candidates.select { |candidate| open(candidate, &block) }
     end
 
-    def self.open(app_dir, candidate, &block)
-      File.open(File.join(app_dir, candidate), 'r', external_encoding: 'UTF-8', &block)
+    def open(candidate, &block)
+      File.open(File.join(@app_dir, candidate), 'r', external_encoding: 'UTF-8', &block)
     end
 
   end

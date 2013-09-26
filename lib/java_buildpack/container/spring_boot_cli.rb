@@ -14,13 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'fileutils'
 require 'java_buildpack/container'
 require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/groovy_utils'
-require 'fileutils'
+require 'java_buildpack/versioned_dependency_component'
 require 'pathname'
 require 'set'
 require 'tmpdir'
@@ -29,46 +30,17 @@ module JavaBuildpack::Container
 
   # Encapsulates the detect, compile, and release functionality for applications running Spring Boot CLI
   # applications.
-  class SpringBootCli
+  class SpringBootCli < JavaBuildpack::VersionedDependencyComponent
 
-    # Creates an instance, passing in an arbitrary collection of options.
-    #
-    # @param [Hash] context the context that is provided to the instance
-    # @option context [String] :app_dir the directory that the application exists in
-    # @option context [String] :java_home the directory that acts as +JAVA_HOME+
-    # @option context [Array<String>] :java_opts an array that Java options can be added to
-    # @option context [String] :lib_directory the directory that additional libraries are placed in
-    # @option context [Hash] :configuration the properties provided by the user
-    def initialize(context = {})
-      context.each { |key, value| instance_variable_set("@#{key}", value) }
-      @version, @uri = SpringBootCli.find_spring_boot_cli(@app_dir, @configuration)
+    def initialize(context)
+      super('Spring Boot CLI', context)
     end
 
-    # Detects whether this application is a Spring Boot CLI application.
-    #
-    # @return [String] returns +spring-boot-cli-<version>+ if and only if:
-    #                  * The application has one or more +.groovy+ files in the root directory, and
-    #                  * All the application's +.groovy+ files in the root directory are POGOs (a POGO contains one or more classes), and
-    #                  * None of the application's +.groovy+ files in the root directory contain a +main+ method, and
-    #                  * The application does not have a +WEB-INF+ subdirectory of its root directory
-    #                  otherwise it returns +nil+.
-    def detect
-      @version ? id(@version) : nil
-    end
-
-    # Downloads and unpacks a Spring Boot CLI distribution and copies classpath JARs to its +lib+ directory.
-    #
-    # @return [void]
     def compile
-      JavaBuildpack::Util::ApplicationCache.download('Spring Boot CLI', @version, @uri) do |file|
-        expand(file, @configuration)
-      end
+      download { |file| expand file }
       link_classpath_jars
     end
 
-    # Creates the command to run the Java +main()+ application.
-    #
-    # @return [String] the command to run the application.
     def release
       java_home_string = "JAVA_HOME=#{@java_home}"
       java_opts_string = ContainerUtils.space("JAVA_OPTS=\"#{ContainerUtils.to_java_opts_s(@java_opts)}\"")
@@ -77,21 +49,22 @@ module JavaBuildpack::Container
       "#{java_home_string}#{java_opts_string}#{spring_boot_script} run --local *.groovy -- --server.port=$PORT"
     end
 
+    protected
+
+    def id(version)
+      "spring-boot-cli-#{version}"
+    end
+
+    def supports?
+      gf = JavaBuildpack::Util::GroovyUtils.groovy_files(@app_dir)
+      gf.length > 0 && all_pogo(gf) && no_main_method(gf) && !has_web_inf
+    end
+
     private
 
     SPRING_BOOT_CLI_HOME = '.spring-boot-cli'.freeze
 
-    def link_classpath_jars
-      ContainerUtils.libs(@app_dir, @lib_directory).each do |lib|
-        system "ln -nsf ../../#{lib} #{spring_lib_dir}"
-      end
-    end
-
-    def spring_lib_dir
-      File.join(spring_boot_cli_home, 'lib')
-    end
-
-    def expand(file, configuration)
+    def expand(file)
       expand_start_time = Time.now
       print "       Expanding Spring Boot CLI to #{SPRING_BOOT_CLI_HOME} "
 
@@ -104,46 +77,42 @@ module JavaBuildpack::Container
       puts "(#{(Time.now - expand_start_time).duration})"
     end
 
-    def self.find_spring_boot_cli(app_dir, configuration)
-      spring_boot_cli(app_dir) ? JavaBuildpack::Repository::ConfiguredItem.find_and_wrap_exceptions('Spring Boot CLI container', configuration) : [nil, nil]
+    def link_classpath_jars
+      ContainerUtils.libs(@app_dir, @lib_directory).each do |lib|
+        system "ln -nsf ../../#{lib} #{spring_lib_dir}"
+      end
     end
 
     def spring_boot_cli_home
       File.join @app_dir, SPRING_BOOT_CLI_HOME
     end
 
-    def id(version)
-      "spring-boot-cli-#{version}"
+    def spring_lib_dir
+      File.join(spring_boot_cli_home, 'lib')
     end
 
-    # Determine whether or not the Spring Boot CLI container recognises the application.
-    def self.spring_boot_cli(app_dir)
-      gf = JavaBuildpack::Util::GroovyUtils.groovy_files(app_dir)
-      gf.length > 0 && all_pogo(app_dir, gf) && no_main_method(app_dir, gf) && !has_web_inf(app_dir)
+    def no_main_method(groovy_files)
+      none?(groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file } # note that this will scan comments
     end
 
-    def self.no_main_method(app_dir, groovy_files)
-      none?(app_dir, groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file } # note that this will scan comments
+    def has_web_inf
+      File.exist?(File.join(@app_dir, 'WEB-INF'))
     end
 
-    def self.has_web_inf(app_dir)
-      File.exist?(File.join(app_dir, 'WEB-INF'))
+    def all_pogo(groovy_files)
+      all?(groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.pogo? file } # note that this will scan comments
     end
 
-    def self.all_pogo(app_dir, groovy_files)
-      all?(app_dir, groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.pogo? file } # note that this will scan comments
+    def all?(groovy_files, &block)
+      groovy_files.all? { |file| open(file, &block) }
     end
 
-    def self.all?(app_dir, groovy_files, &block)
-      groovy_files.all? { |file| open(app_dir, file, &block) }
+    def none?(groovy_files, &block)
+      groovy_files.none? { |file| open(file, &block) }
     end
 
-    def self.none?(app_dir, groovy_files, &block)
-      groovy_files.none? { |file| open(app_dir, file, &block) }
-    end
-
-    def self.open(app_dir, file, &block)
-      File.open(File.join(app_dir, file), 'r', external_encoding: 'UTF-8', &block)
+    def open(file, &block)
+      File.open(File.join(@app_dir, file), 'r', external_encoding: 'UTF-8', &block)
     end
 
   end

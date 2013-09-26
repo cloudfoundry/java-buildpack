@@ -31,14 +31,12 @@ The buildpack supports configuration and extension through the use of Git reposi
 	* [Spring Auto Reconfiguration](docs/framework-spring-auto-reconfiguration.md) ([Configuration](docs/framework-spring-auto-reconfiguration.md#configuration))
 * Standard JREs
 	* [OpenJDK](docs/jre-openjdk.md) ([Configuration](docs/jre-openjdk.md#configuration))
-* Extending
-	* [Containers](docs/extending-containers.md)
-	* [JREs](docs/extending-jres.md)
-	* [Frameworks](docs/extending-frameworks.md)
+* [Extending](docs/extending.md)
 * Utilities
 	* [Caches](docs/util-caches.md) ([Configuration](docs/util-caches.md#configuration))
-	* [Logging](docs/logging.md) ([Configuration](docs/logging.md#configuration)) 
+	* [Logging](docs/logging.md) ([Configuration](docs/logging.md#configuration))
 	* [Repositories](docs/util-repositories.md)
+	* [Other Utiltities](docs/util-other.md)
 	* [Repository Builder](docs/util-repository-builder.md)
 	* [Test Applications](docs/util-test-applications.md)
 

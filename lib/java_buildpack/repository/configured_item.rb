@@ -23,30 +23,24 @@ module JavaBuildpack::Repository
   # A class encapsulating details of a file stored in a versioned repository.
   class ConfiguredItem
 
-    # Finds an instance of the file based on the configuration.
+    # Finds an instance of the file based on the configuration and wraps any exceptions
+    # to identify the component.
     #
+    # @param [String] component_name the name of the component
     # @param [Hash] configuration the configuration
     # @option configuration [String] :repository_root the root directory of the repository
     # @option configuration [String] :version the version of the file to resolve
     # @param [Block, nil] version_validator an optional version validation block
     # @return [String] the URI of the chosen version of the file
     # @return [JavaBuildpack::Util::TokenizedVersion] the chosen version of the file
-    def self.find_item(configuration, &version_validator)
+    def self.find_item(component_name, configuration, &version_validator)
       repository_root = ConfiguredItem.repository_root(configuration)
       version = ConfiguredItem.version(configuration)
-      version_validator.call(version) if version_validator
+
+      yield version if block_given?
+
       index = ConfiguredItem.index(repository_root)
       index.find_item version
-    end
-
-    # Finds an instance of the file based on the configuration and wraps any exceptions
-    # to identify the component.
-    #
-    # See find_item for details.
-    def self.find_and_wrap_exceptions(component_name, configuration)
-      JavaBuildpack::Repository::ConfiguredItem.find_item(configuration) do |candidate_version|
-        yield candidate_version if block_given?
-      end
     rescue => e
       raise RuntimeError, "#{component_name} error: #{e.message}", e.backtrace
     end

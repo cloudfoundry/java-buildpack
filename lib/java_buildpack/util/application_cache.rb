@@ -27,41 +27,6 @@ module JavaBuildpack::Util
   # <b>WARNING: This cache should only by used by code run by the +compile+ script</b>
   class ApplicationCache < DownloadCache
 
-    # Downloads an item with the given name and version from the given URI, then yields the resultant
-    # file to the given block. The application cache location is defined by
-    # the second argument (<tt>ARGV[1]</tt>) to the +compile+ script.
-    #
-    # @param [String] name
-    # @param [JavaBuildpack::Util::TokenizedVersion] version
-    # @param [String] uri
-    # @raise if the second argument (<tt>ARGV[1]</tt>) to the +compile+ script is +nil+
-    def self.download(name, version, uri)
-      download_start_time = Time.now
-      print "-----> Downloading #{name} #{version} from #{uri} "
-
-      new.get(uri) do |file| # TODO: Use global cache #50175265
-        puts "(#{(Time.now - download_start_time).duration})"
-        yield file
-      end
-    end
-
-    # Downloads a given JAR and copies it to a given destination. The application cache location is defined by
-    # the second argument (<tt>ARGV[1]</tt>) to the +compile+ script.
-    #
-    # @param [JavaBuildpack::Util::TokenizedVersion] version the version of the item
-    # @param [String] uri the URI of the item
-    # @param [String] description a description of the item
-    # @param [String] jar_name the filename of the item
-    # @param [String] target_directory the path of the directory into which to download the item
-    # @raise if the second argument (<tt>ARGV[1]</tt>) to the +compile+ script is +nil+
-    def self.download_jar(version, uri, description, jar_name, target_directory)
-      download(description, version, uri) do |file|
-        system "cp #{file.path} #{File.join(target_directory, jar_name)}"
-      end
-    end
-
-    private_class_method :new
-
     def initialize
       application_cache_directory = ARGV[1]
       raise 'Application cache directory is undefined' if application_cache_directory.nil?
