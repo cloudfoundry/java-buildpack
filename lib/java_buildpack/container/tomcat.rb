@@ -32,7 +32,7 @@ module JavaBuildpack::Container
       super('Tomcat', context)
 
       if supports?
-        @tomcat_version, @tomcat_uri = JavaBuildpack::Repository::ConfiguredItem.find_item('Tomcat container', @configuration) { |candidate_version| candidate_version.check_size(3) }
+        @tomcat_version, @tomcat_uri = JavaBuildpack::Repository::ConfiguredItem.find_item(@component_name, @configuration) { |candidate_version| candidate_version.check_size(3) }
         @support_version, @support_uri = JavaBuildpack::Repository::ConfiguredItem.find_item(@component_name, @configuration[KEY_SUPPORT])
       else
         @tomcat_version, @tomcat_uri = nil, nil
