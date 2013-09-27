@@ -5,7 +5,7 @@ rvm:
   - 1.9.3
 before_script: "if [[ $TRAVIS_RUBY_VERSION != '1.9.3' || $TRAVIS_SECURE_ENV_VARS != 'true' ]]; then unset CODECLIMATE_REPO_TOKEN; fi"
 notifications:
-  webhooks: http://ec2-54-229-6-54.eu-west-1.compute.amazonaws.com/projects/b7a8069c-f991-409e-8953-1b4365824fec/status
+  webhooks: http://build-monitor.cfapps.io/projects/JBP/webhook
 env:
   global:
     secure: chtqT1mTsdgd7WFeieNcMnwK4bI+4kzpNbzHo18ITOEsjrTxHinYGRitS+CbJ0sVivOlfunWkF2mcEs1941LCSGsUzNVv8tEYfAS94HO/dK/WJMEtpH8r1JTXoP4yY2rb86ynSB79LuIzjBHpEv4FohrxdScLaoy88+Aw3boauM= #CODECLIMATE_REPO_TOKEN
