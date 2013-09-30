@@ -126,7 +126,7 @@ module JavaBuildpack::Container
         Dir.mkdir lib_directory
 
         Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
-        Dir['spec/fixtures/container_spring_boot_cli_valid_app/*'].each { |file| system "cp #{file} #{root}" }
+        Dir['spec/fixtures/container_spring_boot_cli_valid_app/*'].each { |file| system "cp -r #{file} #{root}" }
 
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(SPRING_BOOT_CLI_VERSION) if block }
         .and_return(SPRING_BOOT_CLI_DETAILS)
@@ -161,7 +161,7 @@ module JavaBuildpack::Container
           configuration: {}
       ).release
 
-      expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .spring-boot-cli/bin/spring run --local *.groovy -- --server.port=$PORT')
+      expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .spring-boot-cli/bin/spring run --local directory/pogo_4.groovy pogo_1.groovy pogo_2.groovy pogo_3.groovy -- --server.port=$PORT')
     end
 
   end

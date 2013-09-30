@@ -124,7 +124,7 @@ module JavaBuildpack::Container
         Dir.mkdir lib_directory
 
         Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
-        Dir['spec/fixtures/container_groovy_main_method/*'].each { |file| system "cp #{file} #{root}" }
+        Dir['spec/fixtures/container_groovy_main_method/*'].each { |file| system "cp -r #{file} #{root}" }
 
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
         .and_return(GROOVY_DETAILS)
@@ -137,7 +137,7 @@ module JavaBuildpack::Container
             configuration: {}
         ).release
 
-        expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .groovy/bin/groovy -cp .lib/test-jar-1.jar:.lib/test-jar-2.jar Application.groovy Alpha.groovy')
+        expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .groovy/bin/groovy -cp .lib/test-jar-1.jar:.lib/test-jar-2.jar Application.groovy Alpha.groovy directory/Beta.groovy')
       end
     end
 
