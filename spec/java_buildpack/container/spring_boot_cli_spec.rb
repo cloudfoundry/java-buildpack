@@ -102,7 +102,7 @@ module JavaBuildpack::Container
 
     it 'should extract Spring Boot CLI from a ZIP' do
       Dir.mktmpdir do |root|
-        Dir['spec/fixtures/container_spring_boot_cli_valid_app/*'].each { |file| system "cp #{file} #{root}" }
+        Dir['spec/fixtures/container_spring_boot_cli_valid_app/*'].each { |file| system "cp -r #{file} #{root}" }
 
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(SPRING_BOOT_CLI_VERSION) if block }
         .and_return(SPRING_BOOT_CLI_DETAILS)

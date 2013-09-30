@@ -100,7 +100,7 @@ module JavaBuildpack::Container
 
     it 'should extract Groovy from a ZIP' do
       Dir.mktmpdir do |root|
-        Dir['spec/fixtures/container_groovy_main_method/*'].each { |file| system "cp #{file} #{root}" }
+        Dir['spec/fixtures/container_groovy_main_method/*'].each { |file| system "cp -r #{file} #{root}" }
 
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
         .and_return(GROOVY_DETAILS)
