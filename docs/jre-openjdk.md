@@ -19,7 +19,7 @@ The JRE can be configured by modifying the [`config/openjdk.yml`][] file.  The J
 | Name | Description
 | ---- | -----------
 | `repository_root` | The URL of the OpenJDK repository index ([details][repositories]).
-| `version` | The version of Java runtime to use.  Candidate versions can be found in [this listing][].
+| `version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [lucid][], [mountainlion][], and [precise][].
 | `memory_sizes` | Optional memory sizes, described below under "Memory".
 | `memory_heuristics` | Default memory size proportions, described below under "Default Memory Sizes".
 
@@ -42,9 +42,12 @@ If a memory size is specified which is not equal to the default value, the other
 
 The default memory size proportions are configured in the `memory_heuristics` mapping of [`config/openjdk.yml`][]. Each memory size is given a weighting between `0` and `1` corresponding to a proportion of the total memory specified when the application was pushed. The weightings should add up to `1`.
 
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
+
 [`config/openjdk.yml`]: ../config/openjdk.yml
+[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[lucid]: http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml
+[mountainlion]: http://download.pivotal.io.s3.amazonaws.com/openjdk/mountainlion/x86_64/index.yml
 [OpenJDK]: http://openjdk.java.net
+[precise]: http://download.pivotal.io.s3.amazonaws.com/openjdk/precise/x86_64/index.yml
 [repositories]: util-repositories.md
-[this listing]: http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml
 [version syntax]: util-repositories.md#version-syntax-and-ordering
