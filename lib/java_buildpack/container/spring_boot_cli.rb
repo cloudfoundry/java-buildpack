@@ -45,8 +45,9 @@ module JavaBuildpack::Container
       java_home_string = "JAVA_HOME=#{@java_home}"
       java_opts_string = ContainerUtils.space("JAVA_OPTS=\"#{ContainerUtils.to_java_opts_s(@java_opts)}\"")
       spring_boot_script = ContainerUtils.space(File.join SPRING_BOOT_CLI_HOME, 'bin', 'spring')
+      groovy_string = ContainerUtils.space(groovy)
 
-      "#{java_home_string}#{java_opts_string}#{spring_boot_script} run --local *.groovy -- --server.port=$PORT"
+      "#{java_home_string}#{java_opts_string}#{spring_boot_script} run --local#{groovy_string} -- --server.port=$PORT"
     end
 
     protected
@@ -75,6 +76,11 @@ module JavaBuildpack::Container
       end
 
       puts "(#{(Time.now - expand_start_time).duration})"
+    end
+
+    def groovy
+      other_groovy = JavaBuildpack::Util::GroovyUtils.groovy_files(@app_dir)
+      other_groovy.join(' ')
     end
 
     def link_classpath_jars
