@@ -70,7 +70,7 @@ module JavaBuildpack::Container
     end
 
     def relative_lib_directory
-      @lib_directory.sub! "#{@app_dir}/", ''
+      @lib_directory.sub! "#{@app_dir}/", './'
     end
 
   end
