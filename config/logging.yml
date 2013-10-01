@@ -15,4 +15,4 @@
 
 # Logging configuration
 ---
-default_log_level: DEBUG
+default_log_level: INFO
