@@ -46,7 +46,7 @@ module JavaBuildpack::Container
       java_bin = File.join @java_home, 'bin'
       java_opts_string = "JAVA_OPTS=\"#{ContainerUtils.to_java_opts_s(@java_opts)}\""
       path_string = "PATH=#{java_bin}:$PATH"
-      foreman_string = "#{relative_lib_directory}/forego start"
+      foreman_string = "#{relative_lib_directory}/forego start --port $PORT"
 
       "#{path_string} #{java_opts_string} #{foreman_string}"
     end

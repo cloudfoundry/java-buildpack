@@ -45,7 +45,7 @@ module JavaBuildpack::Container
 
         expect(command).to include('PATH=test-java-home/bin:$PATH')
 				expect(command).to match('.*JAVA_OPTS="test-opt-1 test-opt-2".*')
-				expect(command).to include('./.lib/forego start')
+				expect(command).to include('./.lib/forego start --port $PORT')
       end
     end
 
