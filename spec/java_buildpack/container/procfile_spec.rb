@@ -44,9 +44,8 @@ module JavaBuildpack::Container
         ).release
 
         expect(command).to include('PATH=test-java-home/bin:$PATH')
-				expect(command).to include('GEM_HOME=./.lib/.gem')
 				expect(command).to match('.*JAVA_OPTS="test-opt-1 test-opt-2".*')
-				expect(command).to include('./.lib/.gem/bin/foreman start')
+				expect(command).to include('./.lib/forego start')
       end
     end
 

@@ -36,22 +36,19 @@ module JavaBuildpack::Container
     end
 
     def compile 
-      gem_home = "#{@lib_directory}/.gem"
-      puts "-----> Fetching foreman into #{gem_home}"
-      FileUtils.mkdir_p gem_home
-      puts system "GEM_HOME=#{gem_home} gem install foreman --no-ri"
-      @logger.debug system "ls -lah #{gem_home}"
+      puts "-----> Fetching forego (Foreman in Go) into #{@lib_directory}"
+      system "curl --location -o #{@lib_directory}/forego https://godist.herokuapp.com/projects/ddollar/forego/releases/current/linux-amd64/forego"
+      system "chmod +x #{@lib_directory}/forego"
+      @logger.debug `ls -lah #{@lib_directory}`
     end
 
     def release
       java_bin = File.join @java_home, 'bin'
-      relative_gem_home= "#{relative_lib_directory}/.gem"
       java_opts_string = "JAVA_OPTS=\"#{ContainerUtils.to_java_opts_s(@java_opts)}\""
-      gem_home_string = "GEM_HOME=#{relative_gem_home}"
       path_string = "PATH=#{java_bin}:$PATH"
-      foreman_string = "#{relative_gem_home}/bin/foreman start"
+      foreman_string = "#{relative_lib_directory}/forego start"
 
-      "#{path_string} #{gem_home_string} #{java_opts_string} #{foreman_string}"
+      "#{path_string} #{java_opts_string} #{foreman_string}"
     end
 
     private
