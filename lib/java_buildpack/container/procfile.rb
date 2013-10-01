@@ -37,7 +37,7 @@ module JavaBuildpack::Container
     def compile 
       gem_home = "#{@lib_directory}/.gem"
       puts "-----> Fetching foreman into #{gem_home}"
-      Dir.mkdir_p gem_home
+      FileUtils.mkdir_p gem_home
       puts system "GEM_HOME=#{gem_home} gem install foreman --no-ri"
       @logger.debug system "ls -lah #{gem_home}"
     end
