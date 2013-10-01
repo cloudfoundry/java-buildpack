@@ -35,8 +35,9 @@ module JavaBuildpack::Container
     end
 
     def compile 
-      #fetch Foreman
-      system "GEM_HOME=#{@lib_directory}/.gem gem install foreman --no-ri"
+      gem_home = "#{@lib_directory}/.gem"
+      puts "-----> Fetching foreman into #{gem_home}"
+      system "GEM_HOME=#{gem_home} gem install foreman --no-ri"
     end
 
     def release
@@ -45,7 +46,7 @@ module JavaBuildpack::Container
       gem_home_string = "GEM_HOME=#{@lib_directory}/.gem"
       path_string = "PATH=#{java_bin}:$PATH"
       foreman_string = "#{@lib_directory}/.gem/bin/foreman start"
-      
+
       "#{path_string} #{gem_home_string} #{java_opts_string} #{foreman_string}"
     end
 
