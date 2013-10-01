@@ -36,7 +36,7 @@ module JavaBuildpack::Container
     end
 
     def compile 
-      download "forego", "https://godist.herokuapp.com/projects/ddollar/forego/releases/current/linux-amd64/forego", "forego (Foreman in Go)" do |file|
+      download "forego", "https://godist.herokuapp.com/projects/ddollar/forego/releases/current/linux-amd64/forego", "Foreman in Go" do |file|
         system "chmod +x #{file.path}"
         system "mv #{file.path} #{@lib_directory}/forego"  
       end
@@ -46,7 +46,7 @@ module JavaBuildpack::Container
       java_bin = File.join @java_home, 'bin'
       java_opts_string = "JAVA_OPTS=\"#{ContainerUtils.to_java_opts_s(@java_opts)}\""
       path_string = "PATH=#{java_bin}:$PATH"
-      foreman_string = "#{relative_lib_directory}/forego start --port $PORT"
+      foreman_string = "#{relative_lib_directory}/forego start -p $PORT"
 
       "#{path_string} #{java_opts_string} #{foreman_string}"
     end
