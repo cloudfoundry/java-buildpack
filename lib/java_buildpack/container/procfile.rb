@@ -28,6 +28,7 @@ module JavaBuildpack::Container
 
     def initialize(context)
       super('Java Procfile', context)
+      @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
     end
 
     def detect
