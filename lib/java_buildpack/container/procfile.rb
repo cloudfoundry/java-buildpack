@@ -42,10 +42,11 @@ module JavaBuildpack::Container
 
     def release
       java_bin = File.join @java_home, 'bin'
-      java_opts_string = "JAVA_OPTS=#{ContainerUtils.to_java_opts_s(@java_opts)}"
-      gem_home_string = "GEM_HOME=#{@lib_directory}/.gem"
+      relative_gem_home= "#{relative_lib_directory}/.gem"
+      java_opts_string = "JAVA_OPTS=\"#{ContainerUtils.to_java_opts_s(@java_opts)}\""
+      gem_home_string = "GEM_HOME=#{relative_gem_home}"
       path_string = "PATH=#{java_bin}:$PATH"
-      foreman_string = "#{@lib_directory}/.gem/bin/foreman start"
+      foreman_string = "#{relative_gem_home}/bin/foreman start"
 
       "#{path_string} #{gem_home_string} #{java_opts_string} #{foreman_string}"
     end
@@ -66,6 +67,10 @@ module JavaBuildpack::Container
       filepath = File.join(@app_dir, filename)
       filepath = File.exists?(filepath) ? filepath : nil
       JavaBuildpack::Util::Properties.new(filepath)
+    end
+
+    def relative_lib_directory
+      @lib_directory.sub! "#{@app_dir}/", ''
     end
 
   end

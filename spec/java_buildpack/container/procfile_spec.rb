@@ -20,7 +20,7 @@ require 'java_buildpack/container/procfile'
 
 module JavaBuildpack::Container
 
-  describe Procfile, :focus => true do
+  describe Procfile do
 
     it 'should detect with Procfile' do
       detected = Main.new(
@@ -43,11 +43,10 @@ module JavaBuildpack::Container
             lib_directory: lib_directory
         ).release
 
-        puts command
         expect(command).to include('PATH=test-java-home/bin:$PATH')
-				expect(command).to match('.*GEM_HOME=.*\.lib/\.gem.*')
-				expect(command).to match('.*JAVA_OPTS=test-opt-1 test-opt-2.*')
-				expect(command).to match('.*\.lib/\.gem/bin/foreman start$')
+				expect(command).to include('GEM_HOME=.lib/.gem')
+				expect(command).to match('.*JAVA_OPTS="test-opt-1 test-opt-2".*')
+				expect(command).to include('.lib/.gem/bin/foreman start')
       end
     end
 
