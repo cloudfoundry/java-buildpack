@@ -38,7 +38,7 @@ module JavaBuildpack::Container
     def compile 
       download "current.linux-amd64", "https://godist.herokuapp.com/projects/ddollar/forego/releases/current/linux-amd64/forego", "forego (Foreman in Go)" do |file|
         system "chmod +x #{file.path}"
-        system "mv #{file.path} #{@lib_directory}/forego"  
+        system "cp #{file.path} #{@lib_directory}/forego"  
       end
     end
 
