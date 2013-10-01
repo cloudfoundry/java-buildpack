@@ -36,11 +36,10 @@ module JavaBuildpack::Container
     end
 
     def compile 
-      puts "-----> Fetching forego (Foreman in Go) into #{@lib_directory}"
-      download "v.current", "https://godist.herokuapp.com/projects/ddollar/forego/releases/current/linux-amd64/forego" do |file| 
+      download "v.current", "https://godist.herokuapp.com/projects/ddollar/forego/releases/current/linux-amd64/forego", "forego (Foreman in Go)" { |file| 
         system "chmod +x #{file}"
         system "mv #{file} #{@lib_directory}/forego"  
-      end
+      }
     end
 
     def release
