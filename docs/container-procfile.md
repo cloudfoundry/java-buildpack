@@ -2,7 +2,7 @@
 The Java Procfile Container runs applications defined in a `Procfile` using [forego (Foreman in Go)](https://github.com/ddollar/forego).
 
 This is useful when running a third party packaged java application that comes packaged in a `jar`
-that is intended to be running using a command like: `java -jar the_packaged_app.jar`
+that is intended to be run using a command like: `java -jar the_packaged_app.jar`
 
 Examples would be [jena-fuseki](http://jena.apache.org/documentation/serving_data/) or [elasticsearch](http://www.elasticsearch.org/).
 
@@ -31,4 +31,5 @@ You can set additional environment variables by having a `.env` file alongside t
 
 ```
 FUSEKI_HOME=vendor/jena-fuseki-1.0.0
+FOO=bar
 ```
