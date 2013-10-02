@@ -23,6 +23,7 @@ The buildpack supports configuration and extension through the use of Git reposi
 	* [Play](docs/container-play.md)
 	* [Spring Boot CLI](docs/container-spring-boot-cli.md) ([Configuration](docs/container-spring-boot-cli.md#configuration))
 	* [Tomcat](docs/container-tomcat.md) ([Configuration](docs/container-tomcat.md#configuration))
+	* [Procfile](docs/container-procfile.md)
 * Standard Frameworks
 	* [`JAVA_OPTS`](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))
 	* [New Relic](docs/framework-new-relic.md) ([Configuration](docs/framework-new-relic.md#configuration))
