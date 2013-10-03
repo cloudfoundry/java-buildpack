@@ -70,7 +70,11 @@ module JavaBuildpack::Framework
         modifier.augment_root_context
         modifier.augment_servlet_contexts
 
-        File.open(web_xml, 'w') { |file| file.write(modifier.to_s) }
+        File.open(web_xml, 'w') do |file|
+          file.write(modifier.to_s)
+          file.fsync
+        end
+
         @logger.debug { "  Modified web.xml: #{File.read web_xml}" }
       end
     end

@@ -116,7 +116,12 @@ module JavaBuildpack::Container
     def update_file(file_name, pattern, replacement)
       content = File.open(file_name, 'r') { |file| file.read }
       result = content.gsub! pattern, replacement
-      File.open(file_name, 'w') { |file| file.write content }
+
+      File.open(file_name, 'w') do |file|
+        file.write content
+        file.fsync
+      end
+
       result
     end
 

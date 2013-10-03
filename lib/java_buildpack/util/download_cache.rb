@@ -222,6 +222,7 @@ module JavaBuildpack::Util
       unless response[header].nil?
         File.open(filename, File::CREAT | File::WRONLY) do |file|
           file.write(response[header])
+          file.fsync
         end
       end
     end
