@@ -95,6 +95,7 @@ module JavaBuildpack::Jre
       FileUtils.mkdir_p diagnostic_dir
       File.open(File.join(diagnostic_dir, KILLJAVA_FILE_NAME), 'w', 0755) do |file|
         file.write updated_content
+        file.fsync
       end
     end
 

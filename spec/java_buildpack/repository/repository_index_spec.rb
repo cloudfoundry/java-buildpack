@@ -97,7 +97,10 @@ module JavaBuildpack::Repository
 
     def touch(root, extension, content = '')
       file = File.join(root, "http:%2F%2Ffoo.com%2Ftest.txt%2F.#{extension}")
-      File.open(file, 'w') { |f| f.write(content) }
+      File.open(file, 'w') do |f|
+        f.write(content)
+        f.fsync
+      end
       file
     end
 
