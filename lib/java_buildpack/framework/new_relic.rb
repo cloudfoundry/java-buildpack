@@ -30,9 +30,9 @@ module JavaBuildpack::Framework
     end
 
     def compile
-      system "rm -rf #{new_relic_home}"
-      system "mkdir -p #{new_relic_home}"
-      system "mkdir -p #{File.join new_relic_home, 'logs'}"
+      shell "rm -rf #{new_relic_home}"
+      shell "mkdir -p #{new_relic_home}"
+      shell "mkdir -p #{File.join new_relic_home, 'logs'}"
 
       download_jar jar_name, new_relic_home
       JavaBuildpack::Util::ResourceUtils.copy_resources('new-relic', new_relic_home)

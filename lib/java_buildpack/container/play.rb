@@ -39,7 +39,7 @@ module JavaBuildpack::Container
     end
 
     def compile
-      system "chmod +x #{JavaBuildpack::Util::PlayUtils.start_script @play_root}"
+      shell "chmod +x #{JavaBuildpack::Util::PlayUtils.start_script @play_root}"
       add_libs_to_classpath
       replace_bootstrap @play_root
     end
@@ -85,7 +85,7 @@ module JavaBuildpack::Container
 
     def link_libs_to_classpath_directory(classpath_directory)
       ContainerUtils.libs(@play_root, @lib_directory).each do |lib|
-        system "ln -nsf ../#{lib} #{classpath_directory}"
+        shell "ln -nsf ../#{lib} #{classpath_directory}"
       end
     end
 

@@ -97,7 +97,7 @@ module JavaBuildpack::Container
             configuration: {}
         )
 
-        play.should_receive(:system).with("chmod +x #{root}/application_root/start").and_return('')
+        play.should_receive(:shell).with("chmod +x #{root}/application_root/start").and_return('')
 
         play.compile
       end

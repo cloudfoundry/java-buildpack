@@ -108,18 +108,18 @@ module JavaBuildpack::Container
       expand_start_time = Time.now
       print "       Expanding Tomcat to #{TOMCAT_HOME} "
 
-      system "rm -rf #{tomcat_home}"
-      system "mkdir -p #{tomcat_home}"
-      system "tar xzf #{file.path} -C #{tomcat_home} --strip 1 --exclude webapps --exclude #{File.join 'conf', 'server.xml'} --exclude #{File.join 'conf', 'context.xml'} 2>&1"
+      shell "rm -rf #{tomcat_home}"
+      shell "mkdir -p #{tomcat_home}"
+      shell "tar xzf #{file.path} -C #{tomcat_home} --strip 1 --exclude webapps --exclude #{File.join 'conf', 'server.xml'} --exclude #{File.join 'conf', 'context.xml'} 2>&1"
 
       JavaBuildpack::Util::ResourceUtils.copy_resources('tomcat', tomcat_home)
       puts "(#{(Time.now - expand_start_time).duration})"
     end
 
     def link_application
-      system "rm -rf #{root}"
-      system "mkdir -p #{webapps}"
-      system "ln -sfn #{File.join '..', '..'} #{root}"
+      shell "rm -rf #{root}"
+      shell "mkdir -p #{webapps}"
+      shell "ln -sfn #{File.join '..', '..'} #{root}"
     end
 
     def link_libs
@@ -127,7 +127,7 @@ module JavaBuildpack::Container
 
       if libs
         FileUtils.mkdir_p(web_inf_lib) unless File.exists?(web_inf_lib)
-        libs.each { |lib| system "ln -sfn #{File.join '..', '..', lib} #{web_inf_lib}" }
+        libs.each { |lib| shell "ln -sfn #{File.join '..', '..', lib} #{web_inf_lib}" }
       end
     end
 

@@ -19,6 +19,7 @@ require 'java_buildpack'
 require 'java_buildpack/util/constantize'
 require 'java_buildpack/diagnostics/logger_factory'
 require 'java_buildpack/diagnostics/common'
+require 'java_buildpack/util/shell'
 require 'pathname'
 require 'time'
 require 'yaml'
@@ -27,6 +28,7 @@ module JavaBuildpack
 
   # Encapsulates the detection, compile, and release functionality for Java application
   class Buildpack
+    include JavaBuildpack::Util::Shell
 
     # +Buildpack+ driver method. Creates a logger and yields a new instance of +Buildpack+
     # to the given block catching any exceptions and logging diagnostics. As part of initialisation,

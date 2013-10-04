@@ -73,7 +73,7 @@ module JavaBuildpack
     #                                  +@lib_directory+
     # @param [String] description an optional description for the download.  Defaults to +@component_name+.
     def download_jar(jar_name, target_directory = @lib_directory, description = @component_name)
-      download(description) { |file| system "cp #{file.path} #{File.join(target_directory, jar_name)}" }
+      download(description) { |file| shell "cp #{file.path} #{File.join(target_directory, jar_name)}" }
     end
 
   end
