@@ -73,10 +73,10 @@ module JavaBuildpack::Container
       print "       Expanding Groovy to #{GROOVY_HOME} "
 
       Dir.mktmpdir do |root|
-        system "rm -rf #{groovy_home}"
-        system "mkdir -p #{File.dirname groovy_home}"
-        system "unzip -qq #{file.path} -d #{root} 2>&1"
-        system "mv #{root}/$(ls #{root}) #{groovy_home}"
+        shell "rm -rf #{groovy_home}"
+        shell "mkdir -p #{File.dirname groovy_home}"
+        shell "unzip -qq #{file.path} -d #{root} 2>&1"
+        shell "mv #{root}/$(ls #{root}) #{groovy_home}"
       end
 
       puts "(#{(Time.now - expand_start_time).duration})"

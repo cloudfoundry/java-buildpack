@@ -70,9 +70,9 @@ module JavaBuildpack::Container
       print "       Expanding Spring Boot CLI to #{SPRING_BOOT_CLI_HOME} "
 
       Dir.mktmpdir do |tmpdir_root|
-        system "rm -rf #{spring_boot_cli_home}"
-        system "mkdir -p #{spring_boot_cli_home}"
-        system "tar xzf #{file.path} -C #{spring_boot_cli_home} --strip 1 2>&1"
+        shell "rm -rf #{spring_boot_cli_home}"
+        shell "mkdir -p #{spring_boot_cli_home}"
+        shell "tar xzf #{file.path} -C #{spring_boot_cli_home} --strip 1 2>&1"
       end
 
       puts "(#{(Time.now - expand_start_time).duration})"
@@ -85,7 +85,7 @@ module JavaBuildpack::Container
 
     def link_classpath_jars
       ContainerUtils.libs(@app_dir, @lib_directory).each do |lib|
-        system "ln -nsf ../../#{lib} #{spring_lib_dir}"
+        shell "ln -nsf ../../#{lib} #{spring_lib_dir}"
       end
     end
 

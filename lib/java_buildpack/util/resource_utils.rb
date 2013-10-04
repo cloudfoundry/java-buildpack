@@ -15,6 +15,7 @@
 # limitations under the License.
 
 require 'java_buildpack/util'
+require 'open3'
 
 module JavaBuildpack::Util
 
@@ -26,7 +27,14 @@ module JavaBuildpack::Util
     # @param [String] subdirectory the subdirectory of the resources directory
     # @param [String] target the target directory
     def self.copy_resources(subdirectory, target)
-      system "cp -r #{File.join(get_resources(subdirectory), '*')} #{target}"
+      Open3.popen3("cp -r #{File.join(get_resources(subdirectory), '*')} #{target}") do |stdin, stdout, stderr, wait_thr|
+        if wait_thr.value != 0
+          puts "STDOUT: #{stdout.gets}"
+          puts "STDERR: #{stderr.gets}"
+
+          fail
+        end
+      end
     end
 
     # Returns the path of the given subdirectory of the buildpack resources directory.

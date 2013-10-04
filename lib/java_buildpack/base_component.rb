@@ -16,6 +16,7 @@
 
 require 'java_buildpack'
 require 'java_buildpack/util/application_cache'
+require 'java_buildpack/util/shell'
 
 module JavaBuildpack
 
@@ -23,6 +24,7 @@ module JavaBuildpack
   # +context+ are assigned to instance variables matching their keys.  It also ensures that all contract methods are
   # implemented.
   class BaseComponent
+    include JavaBuildpack::Util::Shell
 
     # Creates an instance.  The contents of +context+ are assigned to instance variables matching their keys.
     # +component_name+ and +context+ are exposed via +@component_name+ and +@context+ respectively for any component
@@ -93,7 +95,7 @@ module JavaBuildpack
     #                                  +@lib_directory+
     # @param [String] description an optional description for the download.  Defaults to +@component_name+.
     def download_jar(version, uri, jar_name, target_directory = @lib_directory, description = @component_name)
-      download(version, uri, description) { |file| system "cp #{file.path} #{File.join(target_directory, jar_name)}" }
+      download(version, uri, description) { |file| shell "cp #{file.path} #{File.join(target_directory, jar_name)}" }
     end
 
   end
