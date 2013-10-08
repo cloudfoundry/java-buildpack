@@ -33,7 +33,7 @@ module JavaBuildpack::Jre
     # @param [String] name a non-empty, human-readable name for this memory bucket, used only in diagnostics
     # @param [Numeric] weighting a number between 0 and 1 corresponding to the proportion of total memory which this
     #                  memory bucket should consume by default
-    # @param [Numeric, nil] size a user-specified size of the memory bucket in KB or nil if the user did not specify a
+    # @param [MemorySize, nil] size a user-specified size of the memory bucket or nil if the user did not specify a
     #                            size
     # @param [Boolean] adjustable whether the size of this memory bucket can grow/shrink or is fixed. If the user
     #                             specified the size of the memory bucket, the size is fixed, regardless of the value of

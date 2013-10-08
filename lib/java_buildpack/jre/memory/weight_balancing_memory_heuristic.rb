@@ -29,7 +29,7 @@ module JavaBuildpack::Jre
     # Creates an instance based on a hash containing memory settings, and the application's memory size in
     # $MEMORY_LIMIT.
     #
-    # @param [Hash<String, Numeric>] sizes any sizings specified by the user
+    # @param [Hash<String, String>] sizes any sizes specified by the user
     # @param [Hash<String, Numeric>] heuristics the memory heuristics specified by the user
     # @param [Array<String>] valid_sizes the valid size keys
     # @param [Array<String>] valid_heuristics the valid heuristics keys

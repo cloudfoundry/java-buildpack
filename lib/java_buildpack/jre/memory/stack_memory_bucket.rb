@@ -29,7 +29,7 @@ module JavaBuildpack::Jre
     #
     # @param [Numeric] weighting a number between 0 and 1 corresponding to the proportion of total memory which this
     #                            memory bucket should consume by default
-    # @param [Numeric, nil] size a user-specified size of the memory bucket in KB or nil if the user did not specify a
+    # @param [MemorySize, nil] size a user-specified size of the memory bucket or nil if the user did not specify a
     #                            size
     # @param [Numeric] total_memory the total virtual memory size of the operating system process in KB
     def initialize(weighting, size, total_memory)
