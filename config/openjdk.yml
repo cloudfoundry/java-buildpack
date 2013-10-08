@@ -18,8 +18,9 @@
 repository_root: "http://download.pivotal.io.s3.amazonaws.com/openjdk/{platform}/{architecture}"
 version: 1.7.0_+
 memory_sizes:
+  permgen: 64m..
 memory_heuristics:
-  heap: 0.75
-  permgen: 0.1
-  stack: 0.05
-  native: 0.1
+  heap: 75
+  permgen: 10
+  stack: 5
+  native: 10

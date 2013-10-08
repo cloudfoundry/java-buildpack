@@ -31,7 +31,7 @@ module JavaBuildpack::Jre
     # @return [WeightBalancingMemoryHeuristic] the memory heuristics instance
     def self.create_memory_heuristic(sizes, heuristics, version)
       extra = permgen_or_metaspace(version)
-      WeightBalancingMemoryHeuristic.new(sizes, heuristics, VALID_SIZES.dup << extra, VALID_HEURISTICS.dup << extra, JAVA_OPTS)
+      WeightBalancingMemoryHeuristic.new(sizes, heuristics, VALID_TYPES.dup << extra, JAVA_OPTS)
     end
 
     private
@@ -40,9 +40,7 @@ module JavaBuildpack::Jre
       version < JavaBuildpack::Util::TokenizedVersion.new('1.8.0') ? 'permgen' : 'metaspace'
     end
 
-    VALID_SIZES = %w(heap stack).freeze
-
-    VALID_HEURISTICS = (VALID_SIZES.dup << 'native').freeze
+    VALID_TYPES = %w(heap stack native).freeze
 
     JAVA_OPTS = {
         'heap' => '-Xmx',

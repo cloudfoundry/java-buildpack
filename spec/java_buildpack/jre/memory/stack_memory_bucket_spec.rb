@@ -26,33 +26,12 @@ module JavaBuildpack::Jre
     TEST_STACK_BUCKET_NAME = 'stack-bucket'
     TEST_STACK_BUCKET_WEIGHTING = 0.05
     TEST_STACK_SIZE = MemorySize.new('2M')
-    TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY = MemorySize.new('1G')
-    DEFAULT_STACK_SIZE = MemorySize.new('1M')
+    TEST_STACK_SIZE_RANGE = MemoryRange.new(TEST_STACK_SIZE, TEST_STACK_SIZE)
 
     it 'should call the superclass constructor correctly' do
       # since we can't easily stub the superclass, test the superclass behaves as expected
-      stack_memory_bucket = StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, TEST_STACK_SIZE, TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY)
-      expect(stack_memory_bucket.size).to eq(TEST_STACK_SIZE)
-    end
-
-    it 'should calculate the excess memory correctly' do
-      stack_memory_bucket = StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, TEST_STACK_SIZE, TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY)
-      expect(stack_memory_bucket.excess).to eq(TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY * ((TEST_STACK_SIZE - DEFAULT_STACK_SIZE) / DEFAULT_STACK_SIZE) * TEST_STACK_BUCKET_WEIGHTING)
-    end
-
-    it 'should use the correct default size if size has not been set' do
-      stack_memory_bucket = StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, nil, TEST_STACK_MEMORY_BUCKET_TOTAL_MEMORY)
-      expect(stack_memory_bucket.size).to eq(DEFAULT_STACK_SIZE)
-    end
-
-    it 'should use the correct default size if size has not been set and total memory is nil' do
-      stack_memory_bucket = StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, nil, nil)
-      expect(stack_memory_bucket.size).to eq(DEFAULT_STACK_SIZE)
-    end
-
-    it 'should return excess of 0 if size has been set and total memory is nil' do
-      stack_memory_bucket = StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, TEST_STACK_SIZE, nil)
-      expect(stack_memory_bucket.excess).to eq(MemorySize::ZERO)
+      stack_memory_bucket = StackMemoryBucket.new(TEST_STACK_BUCKET_WEIGHTING, TEST_STACK_SIZE_RANGE)
+      expect(stack_memory_bucket.range).to eq(TEST_STACK_SIZE_RANGE)
     end
 
   end

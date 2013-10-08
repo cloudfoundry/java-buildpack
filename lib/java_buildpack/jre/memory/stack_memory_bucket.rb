@@ -29,36 +29,23 @@ module JavaBuildpack::Jre
     #
     # @param [Numeric] weighting a number between 0 and 1 corresponding to the proportion of total memory which this
     #                            memory bucket should consume by default
-    # @param [MemorySize, nil] size a user-specified size of the memory bucket or nil if the user did not specify a
-    #                            size
-    # @param [Numeric] total_memory the total virtual memory size of the operating system process in KB
-    def initialize(weighting, size, total_memory)
-      super('stack', weighting, size, false, total_memory)
-      @weighting = weighting
-      @total_memory = total_memory
-    end
-
-    # Returns the excess memory in this memory bucket.
-    #
-    # @return [Numeric] the excess memory in KB
-    def excess
-      if @total_memory
-        size ? @total_memory * @weighting * ((size - DEFAULT_STACK_SIZE) / DEFAULT_STACK_SIZE) : 0
-      else
-        MemorySize::ZERO
-      end
+    # @param [MemoryRange, nil] range a user-specified range for the memory bucket or nil if the user did not specify a
+    #                            range
+    def initialize(weighting, range)
+      super('stack', weighting, range)
     end
 
     # Returns the default stack size.
     #
-    # @return [MemorySize, nil] the default memory size or nil if there is no default
+    # @return [MemorySize] the default stack size
     def default_size
-      DEFAULT_STACK_SIZE
+      range.floor == 0 ? JVM_DEFAULT_STACK_SIZE : range.floor
     end
 
     private
 
-    DEFAULT_STACK_SIZE = MemorySize.new('1024K') # 1 MB
+    # JVM default stack size.
+    JVM_DEFAULT_STACK_SIZE = MemorySize.new('1M')
 
   end
 
