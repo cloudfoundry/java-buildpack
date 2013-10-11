@@ -51,30 +51,12 @@ module JavaBuildpack::Jre
       buckets = create_memory_buckets(@sizes, @heuristics)
 
       if @memory_limit
-        stack_bucket = buckets['stack']
-        if stack_bucket
-          # Convert stack range from range of stack sizes to range of total stack memory
-          buckets['stack'], num_threads = normalise_stack_bucket(stack_bucket, buckets)
-        end
-
-        balance_buckets(buckets)
-
-        issue_memory_wastage_warning(buckets)
-        issue_close_to_default_warnings(buckets)
-
-        if stack_bucket
-          # Convert stack size from total stack memory to stack size
-          stack_bucket.size = buckets['stack'].size / num_threads
-          buckets['stack'] = stack_bucket
-        end
+        allocate_by_balancing(buckets)
       else
-        # Allocate the lower bound of each memory bucket.
-        buckets.each_value do |bucket|
-          bucket.size = bucket.range.floor
-        end
+        allocate_lower_bounds(buckets)
       end
 
-      buckets.map { |type, bucket| "#{@java_opts[type]}#{bucket.size}" if bucket.size && bucket.size > 0 && @java_opts.key?(type) }.compact
+      set_switches(buckets)
     end
 
     private
@@ -83,12 +65,41 @@ module JavaBuildpack::Jre
 
     CLOSE_TO_DEFAULT_FACTOR = 0.1
 
-    def weighted_proportion(bucket, buckets)
-      apply_weighting(bucket, calculate_total_weighting(buckets))
+    def allocate_lower_bounds(buckets)
+      buckets.each_value do |bucket|
+        bucket.size = bucket.range.floor
+      end
     end
 
-    def apply_weighting(bucket, total_weighting)
-      (@memory_limit * bucket.weighting) / total_weighting
+    def weighted_proportion(bucket, buckets)
+      apply_weighting_to_memory_limit(bucket, calculate_total_weighting(buckets))
+    end
+
+    def apply_weighting_to_memory_limit(bucket, total_weighting)
+      apply_weighting(@memory_limit, bucket, total_weighting)
+    end
+
+    def apply_weighting(memory, bucket, total_weighting)
+      (memory * bucket.weighting) / total_weighting
+    end
+
+    def allocate_by_balancing(buckets)
+      stack_bucket = buckets['stack']
+      if stack_bucket
+        # Convert stack range from range of stack sizes to range of total stack memory
+        buckets['stack'], num_threads = normalise_stack_bucket(stack_bucket, buckets)
+      end
+
+      balance_buckets(buckets)
+
+      issue_memory_wastage_warning(buckets)
+      issue_close_to_default_warnings(buckets)
+
+      if stack_bucket
+        # Convert stack size from total stack memory to stack size
+        stack_bucket.size = buckets['stack'].size / num_threads
+        buckets['stack'] = stack_bucket
+      end
     end
 
     def normalise_stack_bucket(stack_bucket, buckets)
@@ -103,25 +114,34 @@ module JavaBuildpack::Jre
       remaining_memory = @memory_limit
       deleted = true
       while !remaining_buckets.empty? && deleted
-        deleted = false
-        total_weighting = calculate_total_weighting remaining_buckets
-
-        allocated_memory = MemorySize::ZERO
-        remaining_buckets.each do |type, bucket|
-          size = (remaining_memory * bucket.weighting) / total_weighting
-          if bucket.range.contains? size
-            bucket.size = size
-          else
-            constrained_size = bucket.range.constrain(size)
-            bucket.size = constrained_size
-            allocated_memory += constrained_size
-            remaining_buckets.delete type
-            deleted = true
-          end
-        end
-        remaining_memory -= allocated_memory
-        raise "Total memory #{@memory_limit} exceeded by configured memory #{@sizes}" if remaining_memory < 0
+        remaining_memory, deleted = balance_remainder(remaining_buckets, remaining_memory)
       end
+    end
+
+    def balance_remainder(remaining_buckets, remaining_memory)
+      deleted = false
+      total_weighting = calculate_total_weighting remaining_buckets
+
+      allocated_memory = MemorySize::ZERO
+      remaining_buckets.each do |type, bucket|
+        size = apply_weighting(remaining_memory, bucket, total_weighting)
+        if bucket.range.contains? size
+          bucket.size = size
+        else
+          allocated_memory = constrain_bucket_size(allocated_memory, bucket, size)
+          remaining_buckets.delete type
+          deleted = true
+        end
+      end
+      remaining_memory -= allocated_memory
+      raise "Total memory #{@memory_limit} exceeded by configured memory #{@sizes}" if remaining_memory < 0
+      return remaining_memory, deleted  # rubocop:disable RedundantReturn
+    end
+
+    def constrain_bucket_size(allocated_memory, bucket, size)
+      constrained_size = bucket.range.constrain(size)
+      bucket.size = constrained_size
+      allocated_memory + constrained_size
     end
 
     def calculate_total_weighting(buckets)
@@ -179,7 +199,7 @@ module JavaBuildpack::Jre
 
     def check_close_to_default(type, bucket, total_weighting)
       if bucket.range.degenerate?
-        default_size = apply_weighting(bucket, total_weighting)
+        default_size = apply_weighting_to_memory_limit(bucket, total_weighting)
         actual_size = bucket.size
         if default_size > 0
           factor = ((actual_size - default_size) / default_size).abs
@@ -189,6 +209,10 @@ module JavaBuildpack::Jre
           @logger.warn "The computed value #{actual_size} of memory size #{type} is close to the default value #{default_size}. Consider taking the default."
         end
       end
+    end
+
+    def set_switches(buckets)
+      buckets.map { |type, bucket| "#{@java_opts[type]}#{bucket.size}" if bucket.size && bucket.size > 0 && @java_opts.key?(type) }.compact
     end
 
   end
