@@ -29,12 +29,12 @@ module JavaBuildpack::Jre
     EXPECTED_JAVA_MEMORY_OPTIONS = { 'heap' => '-Xmx', 'metaspace' => '-XX:MaxMetaspaceSize=', 'permgen' => '-XX:MaxPermSize=', 'stack' => '-Xss' }
 
     it 'should pass the appropriate constructor parameters for versions prior to 1.8' do
-      WeightBalancingMemoryHeuristic.stub(:new).with(SIZES, HEURISTICS, %w(heap stack permgen), %w(heap stack native permgen), EXPECTED_JAVA_MEMORY_OPTIONS)
+      WeightBalancingMemoryHeuristic.stub(:new).with(SIZES, HEURISTICS, %w(heap stack native permgen), EXPECTED_JAVA_MEMORY_OPTIONS)
       OpenJDKMemoryHeuristicFactory.create_memory_heuristic(SIZES, HEURISTICS, PRE_8)
     end
 
     it 'should pass the appropriate constructor parameters for versions 1.8 and higher' do
-      WeightBalancingMemoryHeuristic.stub(:new).with(SIZES, HEURISTICS, %w(heap stack metaspace), %w(heap stack native metaspace), EXPECTED_JAVA_MEMORY_OPTIONS)
+      WeightBalancingMemoryHeuristic.stub(:new).with(SIZES, HEURISTICS, %w(heap stack native metaspace), EXPECTED_JAVA_MEMORY_OPTIONS)
       OpenJDKMemoryHeuristicFactory.create_memory_heuristic(SIZES, HEURISTICS, POST_8)
     end
   end

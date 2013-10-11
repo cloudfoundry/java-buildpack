@@ -21,7 +21,7 @@ The JRE can be configured by modifying the [`config/openjdk.yml`][] file.  The J
 | `repository_root` | The URL of the OpenJDK repository index ([details][repositories]).
 | `version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [lucid][], [mountainlion][], and [precise][].
 | `memory_sizes` | Optional memory sizes, described below under "Memory".
-| `memory_heuristics` | Default memory size proportions, described below under "Default Memory Sizes".
+| `memory_heuristics` | Default memory size weightings, described below under "Default Memory Sizes".
 
 ### Memory
 
@@ -29,19 +29,46 @@ The following optional properties may be specified in the `memory_sizes` mapping
 
 | Name | Description
 | ---- | -----------
-| `heap` | The Java maximum heap size to use. For example, a value of `64m` will result in the Java command line option `-Xmx64m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line appended to `-Xmx`.
-| `metaspace` | The Java maximum Metaspace size to use. This is applicable to versions of OpenJDK from 1.8 onwards. For example, a value of `128m` will result in the Java command line option `-XX:MaxMetaspaceSize=128m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line appended to `-XX:MaxMetaspaceSize=`.
-| `permgen` | The Java maximum PermGen size to use. This is applicable to versions of OpenJDK earlier than 1.8. For example, a value of `128m` will result in the Java command line option `-XX:MaxPermSize=128m`. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line appended to `-XX:MaxPermSize=`.
-| `stack` | The Java stack size to use. For example, a value of `256k` will result in the Java command line option `-Xss256k`. Values containing whitespace are rejected with an error, but all others values appear without modification on the Java command line appended to `-Xss`.
+| `heap` | The maximum heap size to use. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line option `-Xmx`.
+| `metaspace` | The maximum Metaspace size to use. It is applicable to versions of OpenJDK from 1.8 onwards. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line option `-XX:MaxMetaspaceSize=`.
+| `permgen` | The maximum PermGen size to use. It is applicable to versions of OpenJDK earlier than 1.8. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line option `-XX:MaxPermSize=`.
+| `stack` | The stack size to use. It may be a single value such as `2m` or a range of acceptable values such as `2m..4m`. It is used to calculate the value of the Java command line option `-Xss`.
+| `native` | The amount of memory to reserve for native memory allocation. It should normally be omitted or specified as a range with no upper bound such as `100m..`. It does not correspond to a switch on the Java command line.
 
-### Default Memory Sizes
+#### Memory Sizes and Ranges
 
-If some memory sizes are not specified using the above properties, default values are provided. For maximum heap, Metaspace, or PermGen size, the default value is based on a proportion of the total memory specified when the application was pushed. For stack size, the default value is one megabyte.
+Memory sizes together with _memory weightings_ (described in the next section) are used to calculate the amount of memory for each memory type. The calculation is described later.
 
-If a memory size is specified which is not equal to the default value, the other default values are adjusted proportionately, except that the default stack size is never adjusted.
+Memory sizes consist of a non-negative integer followed by a unit (`k` for kilobytes, `m` for megabytes, `g` for gigabytes; the case is not significant). Only the memory size `0` may be specified without a unit.
 
-The default memory size proportions are configured in the `memory_heuristics` mapping of [`config/openjdk.yml`][]. Each memory size is given a weighting between `0` and `1` corresponding to a proportion of the total memory specified when the application was pushed. The weightings should add up to `1`.
+The above memory size properties may be omitted, specified as a single value, or specified as a range. Ranges use the syntax `<lower bound>..<upper bound>`, although either bound may be omitted in which case the defaults of zero and the total available memory are used for the lower bound and upper bound, respectively. Examples of ranges are `100m..200m` (any value between 100 and 200 megabytes, inclusive) and `100m..` (any value greater than or equal to 100 megabytes).
+	
+Each form of memory size is equivalent to a range. Omitting a memory size is equivalent to specifying the range `0..`. Specifying a single value is equivalent to specifying the range with that value as both the lower and upper bound, for example `128m` is equivalent to the range `128m..128m`.
 
+#### Memory Weightings
+
+Memory weightings are configured in the `memory_heuristics` mapping of [`config/openjdk.yml`][]. Each weighting is a non-negative number and represents a proportion of the total available memory (represented by the sum of all the weightings). For example, the following weightings:
+
+```
+memory_heuristics:
+  heap: 15
+  permgen: 5
+  stack: 1
+  native: 2
+```
+
+represent a maximum heap size three times as large as the maximum PermGen size, and so on.
+
+Memory weightings are used together with memory ranges to calculate the amount of memory for each memory type, as follows. 
+
+#### Memory Calculation
+
+The total available memory is allocated into heap, Metaspace or PermGen (depending on the version of OpenJDK), stack, and native memory types. 
+
+The total available memory is allocated to each memory type in proportion to its weighting. If the resultant size of a memory type lies outside its range, the size is constrained to
+the range, the constrained size is excluded from the remaining memory, and no further calculation is required for the memory type. If the resultant size of a memory size lies within its range, the size is included in the remaining memory. The remaining memory is then allocated to the remaining memory types in a similar fashion. Allocation terminates when none of the sizes of the remaining memory types is constrained by the corresponding range. 
+
+Termination is guaranteed since there is a finite number of memory types and in each iteration either none of the remaining memory sizes is constrained by the corresponding range and allocation terminates or at least one memory size is constrained by the corresponding range and is omitted from the next iteration.
 
 [`config/openjdk.yml`]: ../config/openjdk.yml
 [Configuration and Extension]: ../README.md#Configuration-and-Extension

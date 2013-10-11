@@ -37,7 +37,11 @@ module JavaBuildpack::Jre
       expect { MemorySize.new(nil) }.to raise_error(/Invalid/)
     end
 
-    it 'should fail if a memory size does not have a unit' do
+    it 'should accept a zero memory size with no unit' do
+      expect(MemorySize.new('0')).to eq(MemorySize.new('0k'))
+    end
+
+    it 'should fail if a non-zero memory size does not have a unit' do
       expect { MemorySize.new('1') }.to raise_error(/Invalid/)
     end
 
@@ -66,7 +70,11 @@ module JavaBuildpack::Jre
       expect(MemorySize.new('1025K')).to be > ONE_MEG
     end
 
-    it 'should fail when a memory size is compared to a numeric' do
+    it 'should compare a MemorySize to 0' do
+      expect(ONE_MEG).to be > 0
+    end
+
+    it 'should fail when a memory size is compared to a non-zero numeric' do
       expect { MemorySize.new('1B') < 2 }.to raise_error(/Cannot\ compare/)
     end
 
@@ -116,6 +124,16 @@ module JavaBuildpack::Jre
 
     it 'should provide a zero memory size' do
       expect(MemorySize::ZERO).to eq(JavaBuildpack::Jre::MemorySize.new('0B'))
+    end
+
+    it 'should correctly convert the memory size to a string' do
+      expect(MemorySize::ZERO.to_s).to eq('0')
+      expect(MemorySize.new('1K').to_s).to eq('1K')
+      expect(MemorySize.new('1k').to_s).to eq('1K')
+      expect(MemorySize.new('1M').to_s).to eq('1M')
+      expect(MemorySize.new('1m').to_s).to eq('1M')
+      expect(MemorySize.new('1G').to_s).to eq('1G')
+      expect(MemorySize.new('1g').to_s).to eq('1G')
     end
 
   end

@@ -26,23 +26,28 @@ module JavaBuildpack::Jre
     #
     # @param [String] size a memory size including a unit
     def initialize(size)
-      raise "Invalid memory size '#{size}'" if !size || size.length < 2
-      unit = size[-1]
-      v = size[0..-2]
-      raise "Invalid memory size '#{size}'" unless MemorySize.is_integer v
-      v = size.to_i
-      # Store the number of bytes.
-      case unit
-      when 'b', 'B'
-        @bytes = v
-      when 'k', 'K'
-        @bytes = v * KILO
-      when 'm', 'M'
-        @bytes = KILO * KILO * v
-      when 'g', 'G'
-        @bytes = KILO * KILO * KILO * v
+      if size == '0'
+        @bytes = 0
       else
-        raise "Invalid unit '#{unit}' in memory size '#{size}'"
+        raise "Invalid memory size '#{size}'" if !size || size.length < 2
+        unit = size[-1]
+        v = size[0..-2]
+        raise "Invalid memory size '#{size}'" unless MemorySize.is_integer v
+        v = size.to_i
+
+        # Store the number of bytes.
+        case unit
+        when 'b', 'B'
+          @bytes = v
+        when 'k', 'K'
+          @bytes = v * KILO
+        when 'm', 'M'
+          @bytes = KILO * KILO * v
+        when 'g', 'G'
+          @bytes = KILO * KILO * KILO * v
+        else
+          raise "Invalid unit '#{unit}' in memory size '#{size}'"
+        end
       end
     end
 
@@ -52,7 +57,9 @@ module JavaBuildpack::Jre
     # @return [String] the memory size as a string, e.g. "10K"
     def to_s
       kilobytes = (@bytes / KILO).round
-      if kilobytes % KILO == 0
+      if kilobytes == 0
+        '0'
+      elsif kilobytes % KILO == 0
         megabytes = kilobytes / KILO
         if megabytes % KILO == 0
           gigabytes = megabytes / KILO
@@ -67,11 +74,15 @@ module JavaBuildpack::Jre
 
     # Compare this memory size with another memory size
     #
-    # @param [MemorySize] other
+    # @param [MemorySize, 0] other
     # @return [Numeric] the result
     def <=>(other)
-      raise "Cannot compare a MemorySize to an instance of #{other.class}" unless other.is_a? MemorySize
-      @bytes <=> other.bytes
+      if other == 0
+        @bytes <=> 0
+      else
+        raise "Cannot compare a MemorySize to an instance of #{other.class}" unless other.is_a? MemorySize
+        @bytes <=> other.bytes
+      end
     end
 
     # Add a memory size to this memory size.
