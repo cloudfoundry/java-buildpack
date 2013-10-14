@@ -35,7 +35,7 @@ module JavaBuildpack::Jre
     # @param [MemorySize, nil] ceiling the upper bound of the range
     def initialize(value, ceiling = nil)
       if value.is_a? String
-        raise "Invalid combination of parameter types #{value.class} and #{ceiling.class}" unless ceiling.nil?
+        fail "Invalid combination of parameter types #{value.class} and #{ceiling.class}" unless ceiling.nil?
         lower_bound, upper_bound = MemoryRange.get_bounds(value)
         @floor = create_memory_size lower_bound
         @ceiling = upper_bound ? create_memory_size(upper_bound) : nil
@@ -45,7 +45,7 @@ module JavaBuildpack::Jre
         @floor = value
         @ceiling = ceiling
       end
-      raise "Invalid range: floor #{@floor} is higher than ceiling #{@ceiling}" if @ceiling && @floor > @ceiling
+      fail "Invalid range: floor #{@floor} is higher than ceiling #{@ceiling}" if @ceiling && @floor > @ceiling
     end
 
     # Determines whether or not this range is bounded. Reads better than testing for a +nil+ ceiling.
@@ -89,8 +89,8 @@ module JavaBuildpack::Jre
     # @param [Numeric] other the factor to multiply by
     # @return [MemoryRange] the result
     def *(other)
-      raise "Cannot multiply a MemoryRange by an instance of #{other.class}" unless other.is_a? Numeric
-      raise 'Cannot multiply an unbounded MemoryRange by 0' if !bounded? && other == 0
+      fail "Cannot multiply a MemoryRange by an instance of #{other.class}" unless other.is_a? Numeric
+      fail 'Cannot multiply an unbounded MemoryRange by 0' if !bounded? && other == 0
       MemoryRange.new(@floor * other, bounded? ? @ceiling * other : nil)
     end
 
@@ -128,7 +128,7 @@ module JavaBuildpack::Jre
     end
 
     def self.validate_memory_size(size)
-      raise "Invalid MemorySize parameter of type #{size.class}" unless size.is_a? MemorySize
+      fail "Invalid MemorySize parameter of type #{size.class}" unless size.is_a? MemorySize
     end
 
   end

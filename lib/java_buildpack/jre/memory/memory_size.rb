@@ -29,10 +29,10 @@ module JavaBuildpack::Jre
       if size == '0'
         @bytes = 0
       else
-        raise "Invalid memory size '#{size}'" if !size || size.length < 2
+        fail "Invalid memory size '#{size}'" if !size || size.length < 2
         unit = size[-1]
         v = size[0..-2]
-        raise "Invalid memory size '#{size}'" unless MemorySize.is_integer v
+        fail "Invalid memory size '#{size}'" unless MemorySize.is_integer v
         v = size.to_i
 
         # Store the number of bytes.
@@ -46,7 +46,7 @@ module JavaBuildpack::Jre
         when 'g', 'G'
           @bytes = KILO * KILO * KILO * v
         else
-          raise "Invalid unit '#{unit}' in memory size '#{size}'"
+          fail "Invalid unit '#{unit}' in memory size '#{size}'"
         end
       end
     end
@@ -80,7 +80,7 @@ module JavaBuildpack::Jre
       if other == 0
         @bytes <=> 0
       else
-        raise "Cannot compare a MemorySize to an instance of #{other.class}" unless other.is_a? MemorySize
+        fail "Cannot compare a MemorySize to an instance of #{other.class}" unless other.is_a? MemorySize
         @bytes <=> other.bytes
       end
     end
@@ -100,7 +100,7 @@ module JavaBuildpack::Jre
     # @param [Numeric] other the factor to multiply by
     # @return [MemorySize] the result
     def *(other)
-      raise "Cannot multiply a Memory size by an instance of #{other.class}" unless other.is_a? Numeric
+      fail "Cannot multiply a Memory size by an instance of #{other.class}" unless other.is_a? Numeric
       MemorySize.from_numeric((@bytes * other).round)
     end
 
@@ -122,7 +122,7 @@ module JavaBuildpack::Jre
     def /(other)
       return @bytes / other.bytes.to_f if other.is_a? MemorySize
       return MemorySize.from_numeric((@bytes / other.to_f).round) if other.is_a? Numeric
-      raise "Cannot divide a MemorySize by an instance of #{other.class}"
+      fail "Cannot divide a MemorySize by an instance of #{other.class}"
     end
 
     protected
@@ -136,7 +136,7 @@ module JavaBuildpack::Jre
     KILO = 1024
 
     def memory_size_operation(other)
-      raise "Invalid parameter: instance of #{other.class} is not a MemorySize" unless other.is_a? MemorySize
+      fail "Invalid parameter: instance of #{other.class} is not a MemorySize" unless other.is_a? MemorySize
       MemorySize.from_numeric(yield @bytes, other.bytes)
     end
 

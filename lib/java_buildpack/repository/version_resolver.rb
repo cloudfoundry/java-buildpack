@@ -40,7 +40,7 @@ module JavaBuildpack::Repository
       .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
       .max { |a, b| a <=> b }
 
-      raise "No version resolvable for '#{candidate_version}' in #{versions.join(', ')}" if version.nil?
+      fail "No version resolvable for '#{candidate_version}' in #{versions.join(', ')}" if version.nil?
       version
     end
 
@@ -52,7 +52,7 @@ module JavaBuildpack::Repository
       if candidate_version.nil?
         TOKENIZED_WILDCARD
       else
-        raise "Invalid TokenizedVersion '#{candidate_version}'" unless candidate_version.is_a?(JavaBuildpack::Util::TokenizedVersion)
+        fail "Invalid TokenizedVersion '#{candidate_version}'" unless candidate_version.is_a?(JavaBuildpack::Util::TokenizedVersion)
         candidate_version
       end
     end

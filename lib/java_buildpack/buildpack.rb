@@ -58,12 +58,12 @@ module JavaBuildpack
     #                         (+[]+).
     def detect
       jre_detections = Buildpack.component_detections @jres
-      raise "Application can be run using more than one JRE: #{jre_detections.join(', ')}" if jre_detections.size > 1
+      fail "Application can be run using more than one JRE: #{jre_detections.join(', ')}" if jre_detections.size > 1
 
       framework_detections = Buildpack.component_detections @frameworks
 
       container_detections = Buildpack.component_detections @containers
-      raise "Application can be run by more than one container: #{container_detections.join(', ')}" if container_detections.size > 1
+      fail "Application can be run by more than one container: #{container_detections.join(', ')}" if container_detections.size > 1
 
       tags = container_detections.empty? ? [] : jre_detections.concat(framework_detections).concat(container_detections).flatten.compact
       @logger.debug { "Detection Tags: #{tags}" }
@@ -234,7 +234,7 @@ module JavaBuildpack
 
     def container
       found_container = @containers.find { |container| container.detect }
-      raise 'No supported application type was detected' unless found_container
+      fail 'No supported application type was detected' unless found_container
       found_container
     end
 

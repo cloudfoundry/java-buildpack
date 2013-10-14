@@ -51,7 +51,17 @@ module JavaBuildpack::Repository
       end
     end
 
-    it 'should handle Mac OS X correctly' do
+    it 'should handle Mac OS X 10.9 correctly' do
+      with_host('darwin12.4.0', 'x86_64') do
+        JavaBuildpack::Util::DownloadCache.stub(:new).and_return(application_cache)
+        RepositoryIndex.any_instance.stub(:`).with('sw_vers -productVersion').and_return('10.9')
+        application_cache.stub(:get).with('mountainlion/x86_64/test-uri/index.yml').and_yield(File.open('spec/fixtures/test-index.yml'))
+        RepositoryIndex.new('{platform}/{architecture}/test-uri')
+        expect(application_cache).to have_received(:get).with(%r(mountainlion/x86_64/test-uri/index\.yml))
+      end
+    end
+
+    it 'should handle Mac OS X 10.8 correctly' do
       with_host('darwin12.3.0', 'x86_64') do
         JavaBuildpack::Util::DownloadCache.stub(:new).and_return(application_cache)
         RepositoryIndex.any_instance.stub(:`).with('sw_vers -productVersion').and_return('10.8.4')

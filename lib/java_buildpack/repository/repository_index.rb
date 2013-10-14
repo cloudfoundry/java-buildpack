@@ -73,10 +73,10 @@ module JavaBuildpack::Repository
     def osx_platform
       version = `sw_vers -productVersion`
 
-      if version =~ /^10.8/
+      if version =~ /^10\.8/ || version =~ /^10\.9/
         return 'mountainlion'
       else
-        raise "Unsupported OS X version '#{version}'"
+        fail "Unsupported OS X version '#{version}'"
       end
     end
 

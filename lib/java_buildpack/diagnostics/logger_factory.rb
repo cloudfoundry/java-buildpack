@@ -63,7 +63,7 @@ module JavaBuildpack::Diagnostics
       logger = get_logger_internal
       unless logger
         STDERR.puts "Attempt to get nil logger from: #{caller}"
-        raise 'no logger'
+        fail 'no logger'
       end
       logger
     end

@@ -148,7 +148,7 @@ module JavaBuildpack
     end
 
     it 'handles exceptions correctly' do
-      expect { with_buildpack { |buildpack| raise 'an exception' } }.to raise_error SystemExit
+      expect { with_buildpack { |buildpack| fail 'an exception' } }.to raise_error SystemExit
       expect($stderr.string).to match(/an exception/)
     end
 
