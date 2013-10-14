@@ -34,7 +34,7 @@ module JavaBuildpack::Util
         start_script(file) && (lib_play_jar(file) || staged_play_jar(file))
       end
 
-      raise "Play application detected in multiple directories: #{roots}" if roots.size > 1
+      fail "Play application detected in multiple directories: #{roots}" if roots.size > 1
 
       roots.first
     end

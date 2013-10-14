@@ -83,13 +83,13 @@ module JavaBuildpack::Util
       if s.nil? || s.empty?
         major_or_minor, tail = nil, nil
       else
-        raise "Invalid version '#{s}': must not end in '.'" if s[-1] == '.'
-        raise "Invalid version '#{s}': missing component" if s =~ /\.[\._]/
+        fail "Invalid version '#{s}': must not end in '.'" if s[-1] == '.'
+        fail "Invalid version '#{s}': missing component" if s =~ /\.[\._]/
         tokens = s.match(/^([^\.]+)(?:\.(.*))?/)
 
         major_or_minor, tail = tokens[1..-1]
 
-        raise "Invalid major or minor version '#{major_or_minor}'" unless valid_major_minor_or_micro major_or_minor
+        fail "Invalid major or minor version '#{major_or_minor}'" unless valid_major_minor_or_micro major_or_minor
       end
 
       return major_or_minor, tail # rubocop:disable RedundantReturn
@@ -99,13 +99,13 @@ module JavaBuildpack::Util
       if s.nil? || s.empty?
         micro, qualifier = nil, nil
       else
-        raise "Invalid version '#{s}': must not end in '_'" if s[-1] == '_'
+        fail "Invalid version '#{s}': must not end in '_'" if s[-1] == '_'
         tokens = s.match(/^([^\_]+)(?:_(.*))?/)
 
         micro, qualifier = tokens[1..-1]
 
-        raise "Invalid micro version '#{micro}'" unless valid_major_minor_or_micro micro
-        raise "Invalid qualifier '#{qualifier}'" unless valid_qualifier qualifier
+        fail "Invalid micro version '#{micro}'" unless valid_major_minor_or_micro micro
+        fail "Invalid qualifier '#{qualifier}'" unless valid_qualifier qualifier
       end
 
       return micro, qualifier # rubocop:disable RedundantReturn
@@ -136,12 +136,12 @@ module JavaBuildpack::Util
     def validate(allow_wildcards)
       wildcarded = false
       each do |value|
-        raise "Invalid version '#{@version}': wildcards are not allowed this context" if value == WILDCARD && !allow_wildcards
+        fail "Invalid version '#{@version}': wildcards are not allowed this context" if value == WILDCARD && !allow_wildcards
 
-        raise "Invalid version '#{@version}': no characters are allowed after a wildcard" if wildcarded && !value.nil?
+        fail "Invalid version '#{@version}': no characters are allowed after a wildcard" if wildcarded && !value.nil?
         wildcarded = true if value == WILDCARD
       end
-      raise "Invalid version '#{@version}': missing component" if !wildcarded && compact.length < 3
+      fail "Invalid version '#{@version}': missing component" if !wildcarded && compact.length < 3
     end
 
     def valid_major_minor_or_micro(major_minor_or_micro)

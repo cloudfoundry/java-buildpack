@@ -152,7 +152,7 @@ module JavaBuildpack::Util
           store_internet_availability false
         end
       else
-        raise "Invalid remote_downloads property in cache configuration: #{cache_configuration}"
+        fail "Invalid remote_downloads property in cache configuration: #{cache_configuration}"
       end
     end
 
@@ -214,7 +214,7 @@ module JavaBuildpack::Util
         message = "Buildpack cache does not contain #{uri}. Failing the download."
         @logger.error message
         @logger.debug { "Buildpack cache contents:\n#{`ls -lR #{File.join(ENV['BUILDPACK_CACHE'], 'java-buildpack')}`}" }
-        raise message
+        fail message
       end
     end
 

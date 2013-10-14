@@ -56,13 +56,13 @@ module JavaBuildpack::Jre
     private
 
     def self.validate_name(name)
-      raise "Invalid MemoryBucket name '#{name}'" if name.nil? || name.to_s.size == 0
+      fail "Invalid MemoryBucket name '#{name}'" if name.nil? || name.to_s.size == 0
       name
     end
 
     def validate_weighting(weighting)
-      raise diagnose_weighting(weighting, 'not numeric') unless MemoryBucket.is_numeric weighting
-      raise diagnose_weighting(weighting, 'negative') if weighting < 0
+      fail diagnose_weighting(weighting, 'not numeric') unless MemoryBucket.is_numeric weighting
+      fail diagnose_weighting(weighting, 'negative') if weighting < 0
       weighting
     end
 
@@ -79,7 +79,7 @@ module JavaBuildpack::Jre
     end
 
     def validate_memory_range(range)
-      raise "Invalid 'range' parameter of class '#{range.class}' for #{identify} : not a MemoryRange" unless range.is_a? MemoryRange
+      fail "Invalid 'range' parameter of class '#{range.class}' for #{identify} : not a MemoryRange" unless range.is_a? MemoryRange
       range
     end
 

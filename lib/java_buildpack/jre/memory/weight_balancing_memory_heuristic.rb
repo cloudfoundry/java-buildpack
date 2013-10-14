@@ -134,7 +134,7 @@ module JavaBuildpack::Jre
         end
       end
       remaining_memory -= allocated_memory
-      raise "Total memory #{@memory_limit} exceeded by configured memory #{@sizes}" if remaining_memory < 0
+      fail "Total memory #{@memory_limit} exceeded by configured memory #{@sizes}" if remaining_memory < 0
       return remaining_memory, deleted  # rubocop:disable RedundantReturn
     end
 
@@ -186,7 +186,7 @@ module JavaBuildpack::Jre
 
     def validate(type, expected, actual)
       actual.each do |key|
-        raise "'#{key}' is not a valid memory #{type}" unless expected.include? key
+        fail "'#{key}' is not a valid memory #{type}" unless expected.include? key
       end
     end
 

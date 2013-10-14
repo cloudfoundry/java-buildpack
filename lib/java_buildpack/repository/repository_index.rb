@@ -76,7 +76,7 @@ module JavaBuildpack::Repository
       if version =~ /^10.8/
         return 'mountainlion'
       else
-        raise "Unsupported OS X version '#{version}'"
+        fail "Unsupported OS X version '#{version}'"
       end
     end
 

@@ -2,6 +2,8 @@
 AllCops:
   Excludes:
     - vendor/**
+ClassLength:
+  Max: 200
 Documentation:
   Enabled: false
 LineLength:

@@ -29,7 +29,7 @@ module JavaBuildpack::Util
     # @raise if the +BUILDPACK_CACHE+ environment variable is +nil+
     def initialize
       global_cache_directory = ENV['BUILDPACK_CACHE']
-      raise 'Global cache directory is undefined' if global_cache_directory.nil?
+      fail 'Global cache directory is undefined' if global_cache_directory.nil?
       super(global_cache_directory)
     end
 

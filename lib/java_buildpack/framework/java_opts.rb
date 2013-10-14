@@ -33,7 +33,7 @@ module JavaBuildpack::Framework
 
     def compile
       parsed_java_opts.each do |option|
-        raise "Java option '#{option}' configures a memory region.  Use JRE configuration for this instead." if memory_option? option
+        fail "Java option '#{option}' configures a memory region.  Use JRE configuration for this instead." if memory_option? option
       end
     end
 
