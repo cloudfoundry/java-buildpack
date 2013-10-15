@@ -17,6 +17,7 @@
 require 'java_buildpack/base_component'
 require 'java_buildpack/container'
 require 'java_buildpack/container/container_utils'
+require 'java_buildpack/util/java_main_utils'
 require 'java_buildpack/util/properties'
 
 module JavaBuildpack::Container
@@ -50,13 +51,9 @@ module JavaBuildpack::Container
 
     private
 
-    MAIN_CLASS_PROPERTY = 'java_main_class'.freeze
-
     ARGUMENTS_PROPERTY = 'arguments'.freeze
 
     CLASS_PATH_PROPERTY = 'Class-Path'.freeze
-
-    MANIFEST_PROPERTY = 'Main-Class'.freeze
 
     def arguments
       @configuration[ARGUMENTS_PROPERTY]
@@ -75,17 +72,11 @@ module JavaBuildpack::Container
     end
 
     def main_class
-      @configuration[MAIN_CLASS_PROPERTY] || manifest[MANIFEST_PROPERTY]
-    end
-
-    def manifest
-      manifest_file = File.join(@app_dir, 'META-INF', 'MANIFEST.MF')
-      manifest_file = File.exists?(manifest_file) ? manifest_file : nil
-      JavaBuildpack::Util::Properties.new(manifest_file)
+      JavaBuildpack::Util::JavaMainUtils.main_class(@app_dir, @configuration)
     end
 
     def manifest_class_path
-      value = manifest[CLASS_PATH_PROPERTY]
+      value = JavaBuildpack::Util::JavaMainUtils.manifest(@app_dir)[CLASS_PATH_PROPERTY]
       value.nil? ? [] : value.split(' ')
     end
 

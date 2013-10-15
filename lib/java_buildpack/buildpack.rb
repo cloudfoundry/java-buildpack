@@ -57,13 +57,11 @@ module JavaBuildpack
     #                         this application.  If no container can run the application, the array will be empty
     #                         (+[]+).
     def detect
-      jre_detections = Buildpack.component_detections @jres
-      fail "Application can be run using more than one JRE: #{jre_detections.join(', ')}" if jre_detections.size > 1
+      jre_detections = jre_detect_tags
 
       framework_detections = Buildpack.component_detections @frameworks
 
-      container_detections = Buildpack.component_detections @containers
-      fail "Application can be run by more than one container: #{container_detections.join(', ')}" if container_detections.size > 1
+      container_detections = container_detect_tags
 
       tags = container_detections.empty? ? [] : jre_detections.concat(framework_detections).concat(container_detections).flatten.compact
       @logger.debug { "Detection Tags: #{tags}" }
@@ -103,6 +101,24 @@ module JavaBuildpack
       @logger.debug { "Release Payload #{payload}" }
 
       payload
+    end
+
+    # Returns the configuration hash of the given type or the empty hash if the type has no such configuration.
+    #
+    # @param [String] type the class name of the type whose configuration is required
+    # @param [Logger] logger a +Logger+
+    # @return [Hash] the type's configuration
+    def self.configuration(type, logger)
+      name = type.match(/^(?:.*::)?(.*)$/)[1].downcase
+      config_file = File.expand_path("../../config/#{name}.yml", File.dirname(__FILE__))
+
+      if File.exists? config_file
+        configuration = YAML.load_file(config_file)
+
+        logger.debug { "#{config_file} contents: #{configuration}" }
+      end
+
+      configuration || {}
     end
 
     private_class_method :new
@@ -160,22 +176,9 @@ module JavaBuildpack
       components
     end
 
-    def self.configuration(app_dir, type, logger)
-      name = type.match(/^(?:.*::)?(.*)$/)[1].downcase
-      config_file = File.expand_path("../../config/#{name}.yml", File.dirname(__FILE__))
-
-      if File.exists? config_file
-        configuration = YAML.load_file(config_file)
-
-        logger.debug { "#{config_file} contents: #{configuration}" }
-      end
-
-      configuration || {}
-    end
-
     def self.configure_context(basic_context, type, logger)
       configured_context = basic_context.clone
-      configured_context[:configuration] = Buildpack.configuration(configured_context[:app_dir], type, logger)
+      configured_context[:configuration] = Buildpack.configuration(type, logger)
       configured_context
     end
 
@@ -233,9 +236,32 @@ module JavaBuildpack
     end
 
     def container
-      found_container = @containers.find { |container| container.detect }
-      fail 'No supported application type was detected' unless found_container
-      found_container
+      containers = @containers.select { |container| container.detect }
+      diagnose_overlapping_containers containers if containers.size > 1
+      fail 'No supported application type was detected' if containers.empty?
+      containers[0]
+    end
+
+    def container_detect_tags
+      container_detections = Buildpack.component_detections @containers
+      diagnose_overlapping_containers @containers if container_detections.size > 1
+      container_detections
+    end
+
+    def diagnose_overlapping_components(component_type, components)
+      fail "Application can be run by more than one #{component_type}: #{component_names components}"
+    end
+
+    def diagnose_overlapping_containers(containers)
+      diagnose_overlapping_components('container', containers)
+    end
+
+    def diagnose_overlapping_jres(jres)
+      diagnose_overlapping_components('JRE', jres)
+    end
+
+    def component_names(components)
+      components.map { |component| component.component_name }.join(', ')
     end
 
     def frameworks
@@ -243,7 +269,16 @@ module JavaBuildpack
     end
 
     def jre
-      @jres.find { |jre| jre.detect }
+      jres = @jres.select { |jre| jre.detect }
+      diagnose_overlapping_jres jres if jres.size > 1
+      fail 'No JRE can run the application' if jres.empty?
+      jres[0]
+    end
+
+    def jre_detect_tags
+      jre_detections = Buildpack.component_detections @jres
+      diagnose_overlapping_jres @jres if jre_detections.size > 1
+      jre_detections
     end
 
   end
