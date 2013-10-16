@@ -78,11 +78,11 @@ module JavaBuildpack
     end
 
     it 'should raise an error on compile if no container can run an application' do
-      with_buildpack { |buildpack| expect { buildpack.compile }.to raise_error(/No supported application type/) }
+      with_buildpack { |buildpack| expect { buildpack.compile }.to raise_error(/No container can run the application/) }
     end
 
     it 'should raise an error on release if no container can run an application' do
-      with_buildpack { |buildpack| expect { buildpack.release }.to raise_error(/No supported application type/) }
+      with_buildpack { |buildpack| expect { buildpack.release }.to raise_error(/No container can run the application/) }
     end
 
     it 'should raise an error if more than one JRE can run an application' do
