@@ -21,7 +21,7 @@ require 'java_buildpack/repository/configured_item'
 module JavaBuildpack
 
   # A convenience base class for all components that have a versioned dependency.  In addition to the functionality
-  # inherited from +BaseComponent+ this class also ensures that mangaged dependencies are handled in a uniform manner.
+  # inherited from +BaseComponent+ this class also ensures that managed dependencies are handled in a uniform manner.
   class VersionedDependencyComponent < BaseComponent
 
     # Creates an instance.  In addition to the functionality inherited from +BaseComponent+, +@version+ and +@uri+

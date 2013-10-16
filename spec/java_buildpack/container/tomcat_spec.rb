@@ -57,6 +57,17 @@ module JavaBuildpack::Container
       expect(detected).to be_nil
     end
 
+    it 'should not detect when WEB-INF is present in a Java main application' do
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
+      .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
+      detected = Tomcat.new(
+          app_dir: 'spec/fixtures/container_main_with_web_inf',
+          configuration: {}
+      ).detect
+
+      expect(detected).to be_nil
+    end
+
     it 'should fail when a malformed version is detected' do
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(JavaBuildpack::Util::TokenizedVersion.new('7.0.40_0')) if block }
       .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)

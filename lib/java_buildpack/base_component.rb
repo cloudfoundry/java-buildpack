@@ -26,10 +26,15 @@ module JavaBuildpack
   class BaseComponent
     include JavaBuildpack::Util::Shell
 
+    # @!attribute [r] size
+    #   @return [String] the name of this component
+    attr_reader :component_name
+
     # Creates an instance.  The contents of +context+ are assigned to instance variables matching their keys.
     # +component_name+ and +context+ are exposed via +@component_name+ and +@context+ respectively for any component
     # that wishes to use them.
     #
+    # @param [String] component_name The name of the component
     # @param [Hash] context A shared context provided to all components
     def initialize(component_name, context)
       @component_name = component_name

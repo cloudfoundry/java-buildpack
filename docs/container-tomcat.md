@@ -3,7 +3,7 @@ The Tomcat Container allows a web application to be run.  These applications are
 
 <table>
   <tr>
-    <td><strong>Detection Criterion</strong></td><td>Existence of a <tt>WEB-INF/</tt> folder in the application directory</td>
+    <td><strong>Detection Criterion</strong></td><td>Existence of a <tt>WEB-INF/</tt> folder in the application directory and <a href="container-java-main.md">Java Main Class</a> not detected</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td><td><tt>tomcat-&lang;version&rang;</tt>, <tt>tomcat-buildpack-support-&lang;version&rang;</tt></td>

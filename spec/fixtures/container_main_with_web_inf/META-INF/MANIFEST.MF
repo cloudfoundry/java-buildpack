@@ -1,0 +1,2 @@
+Main-Class: test-main-class
+Class-Path: alpha.jar bravo.jar charlie.jar

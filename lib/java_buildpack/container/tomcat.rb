@@ -21,6 +21,7 @@ require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
+require 'java_buildpack/util/java_main_utils'
 require 'java_buildpack/util/resource_utils'
 
 module JavaBuildpack::Container
@@ -83,7 +84,7 @@ module JavaBuildpack::Container
     #
     # @return [Boolean] whether or not this component supports this application
     def supports?
-      web_inf?
+      web_inf? && !JavaBuildpack::Util::JavaMainUtils.main_class(@app_dir)
     end
 
     private
