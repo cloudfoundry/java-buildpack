@@ -23,7 +23,7 @@ describe 'compile script', :integration do
   it 'should fail to compile when no containers detect' do
     Dir.mktmpdir do |root|
       error = Open3.capture3("bin/compile #{root} #{root}")[1]
-      expect(error).to match(/No supported application type was detected/)
+      expect(error).to match(/No container can run the application/)
     end
   end
 

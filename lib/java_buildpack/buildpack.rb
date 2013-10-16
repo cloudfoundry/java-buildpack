@@ -236,28 +236,15 @@ module JavaBuildpack
     end
 
     def container
-      containers = @containers.select { |container| container.detect }
-      diagnose_overlapping_containers containers if containers.size > 1
-      fail 'No supported application type was detected' if containers.empty?
-      containers[0]
+      the_detecting_component('container', @containers)
     end
 
     def container_detect_tags
-      container_detections = Buildpack.component_detections @containers
-      diagnose_overlapping_containers @containers if container_detections.size > 1
-      container_detections
+      detecting_component_tags('container', @containers)
     end
 
     def diagnose_overlapping_components(component_type, components)
       fail "Application can be run by more than one #{component_type}: #{component_names components}"
-    end
-
-    def diagnose_overlapping_containers(containers)
-      diagnose_overlapping_components('container', containers)
-    end
-
-    def diagnose_overlapping_jres(jres)
-      diagnose_overlapping_components('JRE', jres)
     end
 
     def component_names(components)
@@ -269,16 +256,24 @@ module JavaBuildpack
     end
 
     def jre
-      jres = @jres.select { |jre| jre.detect }
-      diagnose_overlapping_jres jres if jres.size > 1
-      fail 'No JRE can run the application' if jres.empty?
-      jres[0]
+      the_detecting_component('JRE', @jres)
     end
 
     def jre_detect_tags
-      jre_detections = Buildpack.component_detections @jres
-      diagnose_overlapping_jres @jres if jre_detections.size > 1
-      jre_detections
+      detecting_component_tags('JRE', @jres)
+    end
+
+    def detecting_component_tags(component_type, components)
+      component_detections = Buildpack.component_detections components
+      diagnose_overlapping_components(component_type, components) if component_detections.size > 1
+      component_detections
+    end
+
+    def the_detecting_component(component_type, components)
+      components = components.select { |component| component.detect }
+      diagnose_overlapping_components(component_type, components) if components.size > 1
+      fail "No #{component_type} can run the application" if components.empty?
+      components[0]
     end
 
   end
