@@ -186,13 +186,22 @@ module JavaBuildpack::Jre
       end
     end
 
-    it 'should issue a warning when the specified maximum memory sizes imply the total memory size may be too large' do
+    it 'should issue a warning when the specified maximum memory sizes imply the total memory size may be too large', :focus do
       with_memory_limit('4096m') do
-        output = WeightBalancingMemoryHeuristic.new({ 'heap' => '1m', 'permgen' => '1m', 'stack' => '2m' }, TEST_WEIGHTINGS, PRE8_VALID_TYPES, PRE8_JAVA_OPTS).resolve
+        output = WeightBalancingMemoryHeuristic.new({ 'heap' => '800m', 'permgen' => '800m' }, TEST_WEIGHTINGS, PRE8_VALID_TYPES, PRE8_JAVA_OPTS).resolve
+        expect(output).to include('-Xmx800M')
+        expect(output).to include('-XX:MaxPermSize=800M')
+        expect(buildpack_log_contents).to match(/There is more than .* times more spare native memory than the default/)
+      end
+    end
+
+    it 'should issue a warning when the specified maximum memory sizes, including native, imply the total memory size may be too large' do
+      with_memory_limit('4096m') do
+        output = WeightBalancingMemoryHeuristic.new({ 'heap' => '1m', 'permgen' => '1m', 'stack' => '2m', 'native' => '2000m' }, TEST_WEIGHTINGS, PRE8_VALID_TYPES, PRE8_JAVA_OPTS).resolve
         expect(output).to include('-Xmx1M')
         expect(output).to include('-XX:MaxPermSize=1M')
         expect(output).to include('-Xss2M')
-        expect(buildpack_log_contents).to match(/WARN/)
+        expect(buildpack_log_contents).to match(/allocated Java memory sizes total .* which is less than/)
       end
     end
 
@@ -211,13 +220,6 @@ module JavaBuildpack::Jre
         expect(output).to include('-Xmx3753369K')
         expect(output).to include('-XX:MaxPermSize=1M')
         expect(output).to include('-Xss2M')
-      end
-    end
-
-    it 'should issue a warning when the specified stack size is close to the default' do
-      with_memory_limit('4096m') do
-        WeightBalancingMemoryHeuristic.new({ 'stack' => '1025k' }, TEST_WEIGHTINGS, PRE8_VALID_TYPES, PRE8_JAVA_OPTS).resolve
-        expect(buildpack_log_contents).to match(/WARN.*is close to the default/)
       end
     end
 
