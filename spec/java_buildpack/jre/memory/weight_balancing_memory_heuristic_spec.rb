@@ -186,7 +186,7 @@ module JavaBuildpack::Jre
       end
     end
 
-    it 'should issue a warning when the specified maximum memory sizes imply the total memory size may be too large', :focus do
+    it 'should issue a warning when the specified maximum memory sizes imply the total memory size may be too large' do
       with_memory_limit('4096m') do
         output = WeightBalancingMemoryHeuristic.new({ 'heap' => '800m', 'permgen' => '800m' }, TEST_WEIGHTINGS, PRE8_VALID_TYPES, PRE8_JAVA_OPTS).resolve
         expect(output).to include('-Xmx800M')
