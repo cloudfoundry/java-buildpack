@@ -63,6 +63,8 @@ module JavaBuildpack::Jre
 
     NATIVE_MEMORY_WARNING_FACTOR = 3
 
+    TOTAL_MEMORY_WARNING_FACTOR = 0.8
+
     CLOSE_TO_DEFAULT_FACTOR = 0.1
 
     def allocate_lower_bounds(buckets)
@@ -175,8 +177,14 @@ module JavaBuildpack::Jre
       native_bucket = buckets['native']
       if native_bucket && native_bucket.range.floor == 0
         if native_bucket.size > weighted_proportion(native_bucket, buckets) * NATIVE_MEMORY_WARNING_FACTOR
-          @logger.warn "There is #{NATIVE_MEMORY_WARNING_FACTOR} times more spare native memory than the default, so configured Java memory may be too small."
+          @logger.warn "There is more than #{NATIVE_MEMORY_WARNING_FACTOR} times more spare native memory than the default, so configured Java memory may be too small or available memory may be too large"
         end
+      end
+
+      total_size = MemorySize::ZERO
+      buckets.each_value { |bucket| total_size += bucket.size }
+      if @memory_limit * TOTAL_MEMORY_WARNING_FACTOR > total_size
+        @logger.warn "The allocated Java memory sizes total #{total_size} which is less than #{TOTAL_MEMORY_WARNING_FACTOR} of the available memory, so configured Java memory sizes may be too small or available memory may be too large"
       end
     end
 
@@ -193,7 +201,7 @@ module JavaBuildpack::Jre
     def issue_close_to_default_warnings(buckets)
       total_weighting = calculate_total_weighting buckets
       buckets.each do |type, bucket|
-        check_close_to_default(type, bucket, total_weighting) if @sizes[type]
+        check_close_to_default(type, bucket, total_weighting) if type != 'stack' && @sizes[type]
       end
     end
 
