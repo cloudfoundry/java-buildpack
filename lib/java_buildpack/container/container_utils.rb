@@ -33,7 +33,7 @@ module JavaBuildpack::Container
     # Evaluates a value and if it is not +nil+ or empty, prepends it with a space.  This can be used to create BASH
     # command lines that do not have ugly extra spacing.
     #
-    # @param [String, nil] value the value to evalutate for extra spacing
+    # @param [String, nil] value the value to evaluate for extra spacing
     # @return [String] an empty string if +value+ is +nil+ or empty, otherwise the value prepended with a space
     def self.space(value)
       value = value.to_s if value.respond_to?(:to_s)
@@ -47,18 +47,18 @@ module JavaBuildpack::Container
     # @param [String] lib_directory the directory that additional libraries are placed in
     # @return [Array<String>] the relative paths of the JARs located in the additional libraries directory
     def self.libs(root_dir, lib_directory)
-      libs = []
+      relative_paths(root_dir, JavaBuildpack::Util::LibraryUtils.lib_jars(lib_directory))
+    end
 
-      if lib_directory
-        root_directory = Pathname.new(root_dir)
-
-        libs = Pathname.new(lib_directory).children
-        .select { |file| file.extname == '.jar' }
-        .map { |file| file.relative_path_from(root_directory) }
-        .sort
-      end
-
-      libs
+    # Returns an +Array+ containing the relative paths of the given files.  The
+    # paths of these files are relative to the +root_dir+.
+    #
+    # @param [String] root_dir the directory relative to which the resultant are calculated
+    # @param [Array<String>] libs an array of file paths
+    # @return [Array<String>] the relative paths of the given file paths
+    def self.relative_paths(root_dir, libs)
+      root_directory = Pathname.new(root_dir)
+      libs.map { |lib| lib.relative_path_from(root_directory) }
     end
 
   end

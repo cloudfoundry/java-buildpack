@@ -16,186 +16,47 @@
 
 require 'spec_helper'
 require 'java_buildpack/container/play'
+require 'java_buildpack/util/play_app_factory'
 
 module JavaBuildpack::Container
 
-  TEST_JAVA_HOME = 'test-java-home'
-  TEST_JAVA_OPTS = ['test-java-opt']
-  TEST_PLAY_APP = 'spec/fixtures/container_play'
-
   describe Play do
 
-    it 'should not detect an application without a start script' do
-      detected = Play.new(
-          app_dir: 'spec/fixtures/container_main',
-          configuration: {}
-      ).detect
+    let(:play_instance) { double('PlayApp') }
 
-      expect(detected).to be_nil
+    it 'should construct an instance using the PlayAppFactory' do
+      JavaBuildpack::Util::PlayAppFactory.stub(:create).with('test-app-dir').and_return(play_instance)
+      Play.new('app_dir' => 'test-app-dir')
     end
 
-    it 'should not detect an application with a start directory' do
-      detected = Play.new(
-          app_dir: 'spec/fixtures/container_play_invalid',
-          configuration: {}
-      ).detect
-
-      expect(detected).to be_nil
+    it 'should used nil returned by the PlayAppFactory to determine the version' do
+      JavaBuildpack::Util::PlayAppFactory.stub(:create).with('test-app-dir').and_return(nil)
+      play = Play.new('app_dir' => 'test-app-dir')
+      expect(play.detect).to be_nil
     end
 
-    it 'should not detect an application which is too deeply nested in the application directory' do
-      detected = Play.new(
-          app_dir: 'spec/fixtures/container_play_too_deep',
-          configuration: {}
-      ).detect
-
-      expect(detected).to be_nil
+    it 'should use the PlayApp returned by the PlayAppFactory to determine the version' do
+      JavaBuildpack::Util::PlayAppFactory.stub(:create).with('test-app-dir').and_return(play_instance)
+      play_instance.should_receive(:version).and_return('test-version')
+      play = Play.new('app_dir' => 'test-app-dir')
+      expect(play.detect).to eq('play-framework=test-version')
     end
 
-    it 'should fail if a Play application is in more than one directory' do
-      expect do
-        Play.new(
-            app_dir: 'spec/fixtures/container_play_duplicate',
-            configuration: {}
-        )
-      end.to raise_error(/multiple/)
+    it 'should use the PlayApp returned by the PlayAppFactory to perform compilation' do
+      JavaBuildpack::Util::PlayAppFactory.stub(:create).with('test-app-dir').and_return(play_instance)
+      play_instance.should_receive(:set_executable)
+      play_instance.should_receive(:add_libs_to_classpath)
+      play_instance.should_receive(:replace_bootstrap)
+      play = Play.new('app_dir' => 'test-app-dir')
+      play.compile
     end
 
-    it 'should detect a dist application with a start script and a suitable Play JAR' do
-      detected = Play.new(
-          app_dir: 'spec/fixtures/container_play',
-          configuration: {}
-      ).detect
-
-      expect(detected).to eq('play-framework=0.0-0.0.0')
-    end
-
-    it 'should detect a staged application with a start script and a suitable Play JAR' do
-      detected = Play.new(
-          app_dir: 'spec/fixtures/container_play_staged',
-          configuration: {}
-      ).detect
-
-      expect(detected).to eq('play-framework=0.0')
-    end
-
-    it 'should not detect an application with a start script but no suitable Play JAR' do
-      detected = Play.new(
-          app_dir: 'spec/fixtures/container_play_like',
-          configuration: {}
-      ).detect
-
-      expect(detected).to be_nil
-    end
-
-    it 'should make the start script executable in the compile step' do
-      Dir.mktmpdir do |root|
-        FileUtils.cp_r 'spec/fixtures/container_play/.', root
-
-        play = Play.new(
-            app_dir: root,
-            configuration: {}
-        )
-
-        play.should_receive(:shell).with("chmod +x #{root}/application_root/start").and_return('')
-
-        play.compile
-      end
-    end
-
-    it 'should replace the server command in the start script' do
-      Dir.mktmpdir do |root|
-        start_script = File.join root, 'application_root', 'start'
-        FileUtils.cp_r 'spec/fixtures/container_play/.', root
-
-        Play.new(
-            app_dir: root,
-            configuration: {}
-        ).compile
-
-        actual = File.open(start_script, 'r') { |file| file.read }
-
-        expect(actual).to_not match(/play.core.server.NettyServer/)
-        expect(actual).to match(/org.cloudfoundry.reconfiguration.play.Bootstrap/)
-      end
-    end
-
-    it 'should add additional libraries to classpath in (e.g. Play 2.1.3) dist application' do
-      Dir.mktmpdir do |root|
-        lib_directory = File.join root, '.lib'
-        start_script = File.join root, 'application_root', 'start'
-
-        FileUtils.cp_r 'spec/fixtures/container_play/.', root
-        Dir.mkdir lib_directory
-        FileUtils.cp 'spec/fixtures/additional_libs/test-jar-1.jar', lib_directory
-
-        Play.new(
-            app_dir: root,
-            lib_directory: lib_directory,
-            configuration: {}
-        ).compile
-
-        actual = File.open(start_script, 'r') { |file| file.read }
-
-        expect(actual).to match(%r(classpath="\$scriptdir/.\./\.lib/test-jar-1\.jar:))
-      end
-    end
-
-    it 'should add additional libraries to lib directory in Play 2.0 dist application' do
-      Dir.mktmpdir do |root|
-        lib_directory = File.join root, '.lib'
-
-        FileUtils.cp_r 'spec/fixtures/container_play_2.0/.', root
-        Dir.mkdir lib_directory
-        FileUtils.cp 'spec/fixtures/additional_libs/test-jar-1.jar', lib_directory
-
-        Play.new(
-            app_dir: root,
-            lib_directory: lib_directory,
-            configuration: {}
-        ).compile
-
-        relative = File.readlink(File.join root, 'application_root', 'lib', 'test-jar-1.jar')
-        actual = Pathname.new(File.join root, 'application_root', 'lib', 'test-jar-1.jar').realpath.to_s
-        expected = Pathname.new(File.join lib_directory, 'test-jar-1.jar').realpath.to_s
-
-        expect(relative).to_not eq(expected)
-        expect(actual).to eq(expected)
-      end
-    end
-
-    it 'should add additional libraries to staged directory in staged application' do
-      Dir.mktmpdir do |root|
-        lib_directory = File.join root, '.lib'
-
-        FileUtils.cp_r 'spec/fixtures/container_play_staged/.', root
-        Dir.mkdir lib_directory
-        FileUtils.cp 'spec/fixtures/additional_libs/test-jar-1.jar', lib_directory
-
-        Play.new(
-            app_dir: root,
-            lib_directory: lib_directory,
-            configuration: {}
-        ).compile
-
-        relative = File.readlink(File.join root, 'staged', 'test-jar-1.jar')
-        actual = Pathname.new(File.join root, 'staged', 'test-jar-1.jar').realpath.to_s
-        expected = Pathname.new(File.join lib_directory, 'test-jar-1.jar').realpath.to_s
-
-        expect(relative).to_not eq(expected)
-        expect(actual).to eq(expected)
-      end
-    end
-
-    it 'should produce the correct command in the release step' do
-      command = Play.new(
-          app_dir: TEST_PLAY_APP,
-          configuration: {},
-          java_home: TEST_JAVA_HOME,
-          java_opts: TEST_JAVA_OPTS
-      ).release
-
-      expect(command).to eq("PATH=#{TEST_JAVA_HOME}/bin:$PATH JAVA_HOME=#{TEST_JAVA_HOME} ./application_root/start -Dhttp.port=$PORT #{TEST_JAVA_OPTS[0]}")
+    it 'should use the PlayApp returned by the PlayAppFactory to perform release' do
+      JavaBuildpack::Util::PlayAppFactory.stub(:create).with('test-app-dir').and_return(play_instance)
+      play_instance.should_receive(:start_script_relative).and_return('test-start-script-relative')
+      play_instance.should_receive(:decorate_java_opts).with(['some-option', '-Dhttp.port=$PORT']).and_return(['-Jsome-option', '-J-Dhttp.port=$PORT'])
+      play = Play.new('app_dir' => 'test-app-dir', 'java_opts' => ['some-option'], 'java_home' => 'test-java-home')
+      expect(play.release).to eq('PATH=test-java-home/bin:$PATH JAVA_HOME=test-java-home test-start-script-relative -J-Dhttp.port=$PORT -Jsome-option')
     end
 
   end
