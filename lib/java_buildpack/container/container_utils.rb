@@ -36,6 +36,7 @@ module JavaBuildpack::Container
     # @param [String, nil] value the value to evalutate for extra spacing
     # @return [String] an empty string if +value+ is +nil+ or empty, otherwise the value prepended with a space
     def self.space(value)
+      value = value.to_s if value.respond_to?(:to_s)
       value.nil? || value.empty? ? '' : " #{value}"
     end
 

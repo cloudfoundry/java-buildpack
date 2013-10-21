@@ -57,7 +57,7 @@ module JavaBuildpack::Container
 
       java_home_string = "JAVA_HOME=#{@java_home}"
       java_opts_string = ContainerUtils.space("JAVA_OPTS=\"#{ContainerUtils.to_java_opts_s(@java_opts)}\"")
-      start_script_string = ContainerUtils.space(File.join TOMCAT_HOME, 'bin', 'catalina.sh')
+      start_script_string = ContainerUtils.space(@application.relative_path_to(tomcat_home + 'bin' + 'catalina.sh'))
 
       "#{java_home_string}#{java_opts_string}#{start_script_string} run"
     end
@@ -93,8 +93,6 @@ module JavaBuildpack::Container
 
     KEY_SUPPORT = 'support'.freeze
 
-    TOMCAT_HOME = '.tomcat'.freeze
-
     WEB_INF_DIRECTORY = 'WEB-INF'.freeze
 
     def download_tomcat
@@ -107,7 +105,7 @@ module JavaBuildpack::Container
 
     def expand(file)
       expand_start_time = Time.now
-      print "       Expanding Tomcat to #{TOMCAT_HOME} "
+      print "       Expanding Tomcat to #{@application.relative_path_to(tomcat_home)} "
 
       shell "rm -rf #{tomcat_home}"
       shell "mkdir -p #{tomcat_home}"
@@ -118,22 +116,22 @@ module JavaBuildpack::Container
     end
 
     def link_application
-      shell "rm -rf #{root}"
-      shell "mkdir -p #{webapps}"
-      shell "ln -sfn #{File.join '..', '..'} #{root}"
+      FileUtils.rm_rf root
+      FileUtils.mkdir_p root
+      @application.children.each { |child| FileUtils.ln_sf child.relative_path_from(root), root }
     end
 
     def link_libs
       libs = ContainerUtils.libs(@app_dir, @lib_directory)
 
       if libs
-        FileUtils.mkdir_p(web_inf_lib) unless File.exists?(web_inf_lib)
+        FileUtils.mkdir_p(web_inf_lib) unless web_inf_lib.exist?
         libs.each { |lib| shell "ln -sfn #{File.join '..', '..', lib} #{web_inf_lib}" }
       end
     end
 
     def root
-      File.join webapps, 'ROOT'
+      webapps + 'ROOT'
     end
 
     def support_jar_name
@@ -141,19 +139,19 @@ module JavaBuildpack::Container
     end
 
     def tomcat_home
-      File.join @app_dir, TOMCAT_HOME
+      @application.component_directory 'tomcat'
     end
 
     def webapps
-      File.join tomcat_home, 'webapps'
+      tomcat_home + 'webapps'
     end
 
     def web_inf_lib
-      File.join root, 'WEB-INF', 'lib'
+      root + 'WEB-INF' + 'lib'
     end
 
     def web_inf?
-      File.exists? File.join(@app_dir, WEB_INF_DIRECTORY)
+      @application.child(WEB_INF_DIRECTORY).exist?
     end
 
   end
