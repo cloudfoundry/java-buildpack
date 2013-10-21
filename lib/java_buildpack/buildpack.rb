@@ -16,9 +16,10 @@
 
 require 'fileutils'
 require 'java_buildpack'
-require 'java_buildpack/util/constantize'
-require 'java_buildpack/diagnostics/logger_factory'
+require 'java_buildpack/application'
 require 'java_buildpack/diagnostics/common'
+require 'java_buildpack/diagnostics/logger_factory'
+require 'java_buildpack/util/constantize'
 require 'java_buildpack/util/shell'
 require 'pathname'
 require 'time'
@@ -131,6 +132,8 @@ module JavaBuildpack
 
     # Instances should only be constructed by this class.
     def initialize(app_dir)
+      application = Application.new app_dir
+
       @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
       Buildpack.log_git_data @logger
       Buildpack.dump_environment_variables @logger
@@ -146,6 +149,7 @@ module JavaBuildpack
 
       basic_context = {
           app_dir: app_dir,
+          application: application,
           environment: environment,
           java_home: java_home,
           java_opts: java_opts,

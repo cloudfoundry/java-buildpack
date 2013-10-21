@@ -15,6 +15,8 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'fileutils'
+require 'java_buildpack/application'
 require 'java_buildpack/container/tomcat'
 
 module JavaBuildpack::Container
@@ -41,6 +43,7 @@ module JavaBuildpack::Container
       .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
       detected = Tomcat.new(
           app_dir: 'spec/fixtures/container_tomcat',
+          application: JavaBuildpack::Application.new('spec/fixtures/container_tomcat'),
           configuration: {}
       ).detect
 
@@ -51,6 +54,7 @@ module JavaBuildpack::Container
     it 'should not detect when WEB-INF is absent' do
       detected = Tomcat.new(
           app_dir: 'spec/fixtures/container_main',
+          application: JavaBuildpack::Application.new('spec/fixtures/container_main'),
           configuration: {}
       ).detect
 
@@ -62,6 +66,7 @@ module JavaBuildpack::Container
       .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
       detected = Tomcat.new(
           app_dir: 'spec/fixtures/container_main_with_web_inf',
+          application: JavaBuildpack::Application.new('spec/fixtures/container_main_with_web_inf'),
           configuration: {}
       ).detect
 
@@ -74,6 +79,7 @@ module JavaBuildpack::Container
       expect do
         Tomcat.new(
             app_dir: 'spec/fixtures/container_tomcat',
+            application: JavaBuildpack::Application.new('spec/fixtures/container_tomcat'),
             configuration: {}
         ).detect
       end.to raise_error(/Malformed\ version/)
@@ -92,6 +98,7 @@ module JavaBuildpack::Container
 
         Tomcat.new(
             app_dir: root,
+            application: JavaBuildpack::Application.new(root),
             configuration: {}
         ).compile
 
@@ -112,9 +119,10 @@ module JavaBuildpack::Container
       end
     end
 
-    it 'should link the application directory to the ROOT webapp' do
+    it 'should link only the application files and directories to the ROOT webapp' do
       Dir.mktmpdir do |root|
         Dir.mkdir File.join(root, 'WEB-INF')
+        FileUtils.touch File.join(root, 'index.html')
 
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
         .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
@@ -123,15 +131,28 @@ module JavaBuildpack::Container
         application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
         application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
 
+        application = JavaBuildpack::Application.new(root)
+
+        FileUtils.touch File.join(root, '.test-file')
+
         Tomcat.new(
             app_dir: root,
+            application: application,
             configuration: {}
         ).compile
 
         root_webapp = File.join root, '.tomcat', 'webapps', 'ROOT'
-        expect(File.exists?(root_webapp)).to be_true
-        expect(File.symlink?(root_webapp)).to be_true
-        expect(File.readlink(root_webapp)).to eq('../..')
+
+        web_inf = File.join root_webapp, 'WEB-INF'
+        expect(File.exists?(web_inf)).to be_true
+        expect(File.readlink(web_inf)).to eq('../../../WEB-INF')
+
+        index = File.join root_webapp, 'index.html'
+        expect(File.exists?(index)).to be_true
+        expect(File.readlink(index)).to eq('../../../index.html')
+
+        test_file = File.join root_webapp, '.test_file'
+        expect(File.exists?(test_file)).to be_false
       end
     end
 
@@ -152,6 +173,7 @@ module JavaBuildpack::Container
 
         Tomcat.new(
             app_dir: root,
+            application: JavaBuildpack::Application.new(root),
             lib_directory: lib_directory,
             configuration: {}
         ).compile
@@ -179,6 +201,7 @@ module JavaBuildpack::Container
 
       command = Tomcat.new(
           app_dir: 'spec/fixtures/container_tomcat',
+          application: JavaBuildpack::Application.new('spec/fixtures/container_tomcat'),
           java_home: 'test-java-home',
           java_opts: %w(test-opt-2 test-opt-1),
           configuration: {}
