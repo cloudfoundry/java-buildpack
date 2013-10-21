@@ -55,7 +55,7 @@ module JavaBuildpack::Repository
     INDEX_PATH = '/index.yml'
 
     def architecture
-      RbConfig::CONFIG['host_cpu']
+      `uname -m`.strip
     end
 
     def canonical(raw)
@@ -66,25 +66,15 @@ module JavaBuildpack::Repository
       cooked
     end
 
-    def linux_platform
-      `lsb_release -cs`.strip
-    end
-
-    def osx_platform
-      version = `sw_vers -productVersion`
-
-      if version =~ /^10\.8/ || version =~ /^10\.9/
-        return 'mountainlion'
-      else
-        fail "Unsupported OS X version '#{version}'"
-      end
-    end
-
     def platform
-      if RbConfig::CONFIG['host_os'] =~ /darwin/i
-        osx_platform
+      if File.exists? '/etc/redhat-release'
+        File.open('/etc/redhat-release', 'r') { |f| "centos#{f.read.match(/CentOS release (\d)/)[1]}" }
+      elsif `uname -s` =~ /Darwin/
+        'mountainlion'
+      elsif !`which lsb_release 2> /dev/null`.empty?
+        `lsb_release -cs`.strip
       else
-        linux_platform
+        fail 'Unable to determine platform'
       end
     end
 
