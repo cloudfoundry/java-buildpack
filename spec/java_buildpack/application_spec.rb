@@ -41,7 +41,7 @@ module JavaBuildpack
     end
 
     it 'should return a child path if it exists and is in the initial contents' do
-       Dir.mktmpdir do |root|
+      Dir.mktmpdir do |root|
         FileUtils.touch File.join(root, 'test_file')
 
         application = Application.new(root)
@@ -81,7 +81,7 @@ module JavaBuildpack
       Dir.mktmpdir do |root|
         application = Application.new(root)
 
-        expect(application.component_directory('Test-Component').to_s).to eq(File.join root, ".test-component")
+        expect(application.component_directory('Test-Component').to_s).to eq(File.join root, '.test-component')
       end
     end
 
