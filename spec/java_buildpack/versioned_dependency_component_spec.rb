@@ -26,7 +26,6 @@ module JavaBuildpack
     it 'should fail if methods are unimplemented' do
       expect { versioned_dependency_component.compile }.to raise_error
       expect { versioned_dependency_component.release }.to raise_error
-      expect { versioned_dependency_component.id('version') }.to raise_error
       expect { versioned_dependency_component.alpha? }.to raise_error
     end
 

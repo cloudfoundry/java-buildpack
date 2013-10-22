@@ -6,7 +6,7 @@ The Play Auto Reconfiguration Framework causes an application to be automaticall
     <td><strong>Detection Criterion</strong></td><td>An application is a Play application</td>
   </tr>
   <tr>
-    <td><strong>Tags</strong></td><td><tt>play-auto-reconfiguration-&lt;version&gt;</tt></td>
+    <td><strong>Tags</strong></td><td><tt>play-auto-reconfiguration=&lt;version&gt;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script

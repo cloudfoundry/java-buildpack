@@ -10,7 +10,7 @@ The Groovy Container allows a uncompiled (i.e. `*.groovy`) to be run.
 		</ul></td>
 	</tr>
 	<tr>
-		<td><strong>Tags</strong></td><td><tt>groovy-&lang;version&rang;</tt></td>
+		<td><strong>Tags</strong></td><td><tt>groovy=&lang;version&rang;</tt></td>
 	</tr>
 </table>
 Tags are printed to standard output by the buildpack detect script

@@ -52,10 +52,6 @@ module JavaBuildpack::Container
 
     protected
 
-    def id(version)
-      "spring-boot-cli-#{version}"
-    end
-
     def supports?
       gf = JavaBuildpack::Util::GroovyUtils.groovy_files(@app_dir)
       gf.length > 0 && all_pogo(gf) && no_main_method(gf) && !has_web_inf

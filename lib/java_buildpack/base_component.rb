@@ -38,6 +38,8 @@ module JavaBuildpack
     # @param [Hash] context A shared context provided to all components
     def initialize(component_name, context)
       @component_name = component_name
+      @parsable_component_name = component_name.gsub(/ /, '-').downcase
+
       @context = context
       @context.each { |key, value| instance_variable_set("@#{key}", value) }
     end
@@ -46,7 +48,7 @@ module JavaBuildpack
     #
     # @return [Array<String>, String, nil] If the component should be used when staging the application, a +String+ or
     #                                      an +Array<String>+ that uniquely identifies the component (e.g.
-    #                                      +openjdk-1.7.0_40+).  Otherwise, +nil+.
+    #                                      +openjdk=1.7.0_40+).  Otherwise, +nil+.
     def detect
       fail "Method 'detect' must be defined"
     end

@@ -47,8 +47,8 @@ module JavaBuildpack::Container
           configuration: {}
       ).detect
 
-      expect(detected).to include('tomcat-7.0.40')
-      expect(detected).to include('tomcat-buildpack-support-1.0.0')
+      expect(detected).to include('tomcat=7.0.40')
+      expect(detected).to include('tomcat-buildpack-support=1.0.0')
     end
 
     it 'should not detect when WEB-INF is absent' do

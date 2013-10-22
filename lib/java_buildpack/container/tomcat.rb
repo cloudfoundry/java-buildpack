@@ -64,20 +64,20 @@ module JavaBuildpack::Container
 
     protected
 
-    # The unique indentifier of the component, incorporating the version of the dependency (e.g. +tomcat-7.0.42+)
+    # The unique indentifier of the component, incorporating the version of the dependency (e.g. +tomcat=7.0.42+)
     #
     # @param [String] version the version of the dependency
     # @return [String] the unique identifier of the component
     def tomcat_id(version)
-      "tomcat-#{version}"
+      "#{@parsable_component_name}=#{version}"
     end
 
-    # The unique indentifier of the component, incorporating the version of the dependency (e.g. +tomcat-buildpack-support-1.1.0+)
+    # The unique indentifier of the component, incorporating the version of the dependency (e.g. +tomcat-buildpack-support=1.1.0+)
     #
     # @param [String] version the version of the dependency
     # @return [String] the unique identifier of the component
     def support_id(version)
-      "tomcat-buildpack-support-#{version}"
+      "tomcat-buildpack-support=#{version}"
     end
 
     # Whether or not this component supports this application
@@ -135,7 +135,7 @@ module JavaBuildpack::Container
     end
 
     def support_jar_name
-      "#{support_id @support_version}.jar"
+      "tomcat-buildpack-support-#{@support_version}.jar"
     end
 
     def tomcat_home

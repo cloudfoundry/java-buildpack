@@ -62,7 +62,7 @@ module JavaBuildpack::Container
           configuration: {}
       ).detect
 
-      expect(detected).to include('groovy-2.1.5')
+      expect(detected).to include('groovy=2.1.5')
     end
 
     it 'should detect a Groovy file with non-POGO' do
@@ -73,7 +73,7 @@ module JavaBuildpack::Container
           configuration: {}
       ).detect
 
-      expect(detected).to include('groovy-2.1.5')
+      expect(detected).to include('groovy=2.1.5')
     end
 
     it 'should detect a Groovy file with #!' do
@@ -84,7 +84,7 @@ module JavaBuildpack::Container
           configuration: {}
       ).detect
 
-      expect(detected).to include('groovy-2.1.5')
+      expect(detected).to include('groovy=2.1.5')
     end
 
     it 'should fail when a malformed version is detected' do

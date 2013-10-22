@@ -33,7 +33,7 @@ module JavaBuildpack::Jre
     KILLJAVA_FILE_NAME = 'killjava'.freeze
 
     def initialize(context)
-      super('OpenJDK JRE', context)
+      super('OpenJDK', context)
       @java_home.concat JAVA_HOME
     end
 
@@ -49,10 +49,6 @@ module JavaBuildpack::Jre
     end
 
     protected
-
-    def id(version)
-      "openjdk-#{version}"
-    end
 
     def supports?
       true

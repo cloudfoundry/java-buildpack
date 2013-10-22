@@ -51,10 +51,6 @@ module JavaBuildpack::Container
 
     protected
 
-    def id(version)
-      "groovy-#{version}"
-    end
-
     def supports?
       main_groovy
     end

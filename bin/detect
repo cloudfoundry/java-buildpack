@@ -28,5 +28,5 @@ components = JavaBuildpack::Buildpack.drive_buildpack_with_logger(build_dir, 'De
 if components.empty?
   abort
 else
-  puts components.join(', ')
+  puts components.join(' ')
 end

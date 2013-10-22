@@ -12,7 +12,7 @@ The Play JPA Plugin Framework causes an application to be automatically reconfig
     </td>
   </tr>
   <tr>
-    <td><strong>Tags</strong></td><td><tt>play-jpa-plugin-&lt;version&gt;</tt></td>
+    <td><strong>Tags</strong></td><td><tt>play-jpa-plugin=&lt;version&gt;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
