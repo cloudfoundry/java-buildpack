@@ -55,16 +55,6 @@ module JavaBuildpack::Container
       "#{path_string}#{java_home_string}#{start_script_string}#{java_opts_string}"
     end
 
-    protected
-
-    # The unique indentifier of the component, incorporating the version of the dependency (e.g. +play-2.2.0+)
-    #
-    # @param [String] version the version of the dependency
-    # @return [String] the unique identifier of the component
-    def id(version)
-      "play-#{version}"
-    end
-
     private
 
     KEY_HTTP_PORT = 'http.port'.freeze
@@ -103,6 +93,10 @@ module JavaBuildpack::Container
       unless result
         link_libs_to_classpath_directory(JavaBuildpack::Util::PlayUtils.lib @play_root)
       end
+    end
+
+    def id(version)
+      "#{@parsable_component_name}=#{version}"
     end
 
     def replace_bootstrap(root)

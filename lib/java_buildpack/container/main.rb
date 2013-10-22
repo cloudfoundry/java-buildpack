@@ -32,7 +32,7 @@ module JavaBuildpack::Container
     end
 
     def detect
-      main_class ? id : nil
+      main_class ? @parsable_component_name : nil
     end
 
     def compile
@@ -65,10 +65,6 @@ module JavaBuildpack::Container
       classpath.concat manifest_class_path
 
       "-cp #{classpath.join(':')}"
-    end
-
-    def id
-      'java-main'
     end
 
     def main_class

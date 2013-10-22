@@ -6,7 +6,7 @@ The New Relic Framework causes an application to be automatically configured to 
     <td><strong>Detection Criterion</strong></td><td>Existence of a single bound New Relic service</td>
   </tr>
   <tr>
-    <td><strong>Tags</strong></td><td><tt>new-relic-&lt;version&gt;</tt></td>
+    <td><strong>Tags</strong></td><td><tt>new-relic-agent=&lt;version&gt;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script

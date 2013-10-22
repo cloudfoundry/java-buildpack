@@ -40,10 +40,6 @@ module JavaBuildpack::Framework
 
     protected
 
-    def id(version)
-      "play-auto-reconfiguration-#{version}"
-    end
-
     def supports?
       JavaBuildpack::Util::PlayUtils.root(@app_dir)
     end
@@ -51,7 +47,7 @@ module JavaBuildpack::Framework
     private
 
     def jar_name
-      "#{id @version}.jar"
+      "#{@parsable_component_name}-#{@version}.jar"
     end
 
   end

@@ -41,10 +41,6 @@ module JavaBuildpack::Framework
 
     protected
 
-    def id(version)
-      "spring-auto-reconfiguration-#{version}"
-    end
-
     def supports?
       Dir["#{@app_dir}/**/#{SPRING_JAR_PATTERN}"].any?
     end
@@ -56,7 +52,7 @@ module JavaBuildpack::Framework
     WEB_XML = File.join 'WEB-INF', 'web.xml'.freeze
 
     def jar_name
-      "#{id @version}.jar"
+      "#{@parsable_component_name}-#{@version}.jar"
     end
 
     def modify_web_xml

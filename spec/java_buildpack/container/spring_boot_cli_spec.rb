@@ -97,7 +97,7 @@ module JavaBuildpack::Container
           configuration: {}
       ).detect
 
-      expect(detected).to include("spring-boot-cli-#{SPRING_BOOT_CLI_VERSION}")
+      expect(detected).to include("spring-boot-cli=#{SPRING_BOOT_CLI_VERSION}")
     end
 
     it 'should extract Spring Boot CLI from a ZIP' do

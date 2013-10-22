@@ -28,7 +28,7 @@ module JavaBuildpack::Framework
     end
 
     def detect
-      @configuration.key?(CONFIGURATION_PROPERTY) ? id : nil
+      @configuration.key?(CONFIGURATION_PROPERTY) ? @parsable_component_name : nil
     end
 
     def compile
@@ -44,10 +44,6 @@ module JavaBuildpack::Framework
     private
 
     CONFIGURATION_PROPERTY = 'java_opts'.freeze
-
-    def id
-      'java-opts'
-    end
 
     def memory_option?(option)
       option =~ /-Xms/ || option =~ /-Xmx/ || option =~ /-XX:MaxMetaspaceSize/ || option =~ /-XX:MaxPermSize/ ||

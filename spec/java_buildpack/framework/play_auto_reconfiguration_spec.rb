@@ -40,7 +40,7 @@ module JavaBuildpack::Framework
           configuration: {}
       ).detect
 
-      expect(detected).to eq('play-auto-reconfiguration-0.6.8')
+      expect(detected).to eq('play-auto-reconfiguration=0.6.8')
     end
 
     it 'should not detect without application configuration' do

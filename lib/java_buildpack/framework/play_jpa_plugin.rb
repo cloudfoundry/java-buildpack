@@ -41,10 +41,6 @@ module JavaBuildpack::Framework
 
     protected
 
-    def id(version)
-      "play-jpa-plugin-#{version}"
-    end
-
     def supports?
       candidate = false
 

@@ -41,7 +41,7 @@ module JavaBuildpack::Framework
           configuration: {}
       ).detect
 
-      expect(detected).to eq('spring-auto-reconfiguration-0.6.8')
+      expect(detected).to eq('spring-auto-reconfiguration=0.6.8')
     end
 
     it 'should not detect without Spring JAR' do

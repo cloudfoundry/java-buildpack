@@ -67,7 +67,7 @@ module JavaBuildpack::Container
           configuration: {}
       ).detect
 
-      expect(detected).to eq('play-0.0-0.0.0')
+      expect(detected).to eq('play-framework=0.0-0.0.0')
     end
 
     it 'should detect a staged application with a start script and a suitable Play JAR' do
@@ -76,7 +76,7 @@ module JavaBuildpack::Container
           configuration: {}
       ).detect
 
-      expect(detected).to eq('play-0.0')
+      expect(detected).to eq('play-framework=0.0')
     end
 
     it 'should not detect an application with a start script but no suitable Play JAR' do

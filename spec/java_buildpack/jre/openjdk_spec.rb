@@ -44,7 +44,7 @@ module JavaBuildpack::Jre
             configuration: {}
         ).detect
 
-        expect(detected).to eq('openjdk-1.7.0')
+        expect(detected).to eq('openjdk=1.7.0')
       end
     end
 

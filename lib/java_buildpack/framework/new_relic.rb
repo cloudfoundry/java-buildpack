@@ -48,10 +48,6 @@ module JavaBuildpack::Framework
 
     protected
 
-    def id(version)
-      "new-relic-#{version}"
-    end
-
     def supports?
       JavaBuildpack::Util::ServiceUtils.find_service(@vcap_services, SERVICE_NAME)
     end
@@ -65,7 +61,7 @@ module JavaBuildpack::Framework
     SERVICE_NAME = /newrelic/.freeze
 
     def jar_name
-      "#{id @version}.jar"
+      "#{@parsable_component_name}-#{@version}.jar"
     end
 
     def license_key

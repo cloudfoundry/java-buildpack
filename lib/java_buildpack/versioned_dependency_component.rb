@@ -35,20 +35,12 @@ module JavaBuildpack
     #
     # @return [Array<String>, String, nil] If the component should be used when staging the application, a +String+ or
     #                                      an +Array<String>+ that uniquely identifies the component (e.g.
-    #                                      +openjdk-1.7.0_40+).  Otherwise, +nil+.
+    #                                      +openjdk=1.7.0_40+).  Otherwise, +nil+.
     def detect
       @version ? id(@version) : nil
     end
 
     protected
-
-    # The unique indentifier of the component, incorporating the version of the dependency (e.g. +openjdk-1.7.0_40+)
-    #
-    # @param [String] version the version of the dependency
-    # @return [String] the unique identifier of the component
-    def id(version)
-      fail "Method 'id(version)' must be defined"
-    end
 
     # Whether or not this component supports this application
     #
@@ -74,6 +66,12 @@ module JavaBuildpack
     # @param [String] description an optional description for the download.  Defaults to +@component_name+.
     def download_jar(jar_name, target_directory = @lib_directory, description = @component_name)
       download(description) { |file| shell "cp #{file.path} #{File.join(target_directory, jar_name)}" }
+    end
+
+    private
+
+    def id(version)
+      "#{@parsable_component_name}=#{version}"
     end
 
   end
