@@ -164,6 +164,12 @@ module JavaBuildpack::Util
       internet_up
     end
 
+    def self.clear_internet_availability
+      @@monitor.synchronize do
+        @@internet_checked = false
+      end
+    end
+
     def delete_file(filename)
       File.delete filename if File.exists? filename
     end

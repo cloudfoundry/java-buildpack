@@ -28,6 +28,7 @@ WebMock.disable_net_connect!(allow: 'codeclimate.com')
 require 'fileutils'
 require 'java_buildpack/diagnostics/common'
 require 'java_buildpack/diagnostics/logger_factory'
+require 'java_buildpack/util/download_cache'
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
@@ -41,6 +42,8 @@ RSpec.configure do |config|
     diagnostics_directory = File.join(tmpdir, JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY)
     FileUtils.rm_rf diagnostics_directory
     JavaBuildpack::Diagnostics::LoggerFactory.create_logger tmpdir
+    # Reset internet availability check before each test.
+    JavaBuildpack::Util::DownloadCache.send :clear_internet_availability
   end
   config.after(:all) do
     $stderr = STDERR
