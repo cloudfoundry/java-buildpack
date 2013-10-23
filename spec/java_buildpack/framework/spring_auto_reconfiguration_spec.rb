@@ -44,6 +44,17 @@ module JavaBuildpack::Framework
       expect(detected).to eq('spring-auto-reconfiguration=0.6.8')
     end
 
+    it 'should detect with Spring JAR which has a long name' do
+      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(SPRING_AUTO_RECONFIGURATION_DETAILS)
+
+      detected = SpringAutoReconfiguration.new(
+          app_dir: 'spec/fixtures/framework_auto_reconfiguration_long_spring_jar_name',
+          configuration: {}
+      ).detect
+
+      expect(detected).to eq('spring-auto-reconfiguration=0.6.8')
+    end
+
     it 'should not detect without Spring JAR' do
       detected = SpringAutoReconfiguration.new(
           app_dir: 'spec/fixtures/framework_none',

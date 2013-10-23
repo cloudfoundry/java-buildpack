@@ -47,7 +47,7 @@ module JavaBuildpack::Framework
 
     private
 
-    SPRING_JAR_PATTERN = 'spring-core*.jar'.freeze
+    SPRING_JAR_PATTERN = '*spring-core*.jar'.freeze
 
     WEB_XML = File.join 'WEB-INF', 'web.xml'.freeze
 
