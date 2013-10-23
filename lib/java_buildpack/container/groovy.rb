@@ -16,7 +16,6 @@
 
 require 'java_buildpack/container'
 require 'java_buildpack/container/container_utils'
-require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/groovy_utils'
 require 'java_buildpack/versioned_dependency_component'
@@ -35,7 +34,7 @@ module JavaBuildpack::Container
     end
 
     def compile
-      download { |file| expand file }
+      download_zip groovy_home
     end
 
     def release
@@ -62,20 +61,6 @@ module JavaBuildpack::Container
     def classpath
       classpath = ContainerUtils.libs(@app_dir, @lib_directory)
       classpath.any? ? "-cp #{classpath.join(':')}" : ''
-    end
-
-    def expand(file)
-      expand_start_time = Time.now
-      print "       Expanding Groovy to #{GROOVY_HOME} "
-
-      Dir.mktmpdir do |root|
-        shell "rm -rf #{groovy_home}"
-        shell "mkdir -p #{File.dirname groovy_home}"
-        shell "unzip -qq #{file.path} -d #{root} 2>&1"
-        shell "mv #{root}/$(ls #{root}) #{groovy_home}"
-      end
-
-      puts "(#{(Time.now - expand_start_time).duration})"
     end
 
     def groovy_home

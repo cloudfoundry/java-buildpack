@@ -79,7 +79,7 @@ module JavaBuildpack::Framework
       end.to raise_error
     end
 
-    it 'should copy additional libraries to the lib directory' do
+    it 'should download New Relic agent JAR' do
       Dir.mktmpdir do |root|
         JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(NEW_RELIC_DETAILS)
         JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)

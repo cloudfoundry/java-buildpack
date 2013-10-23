@@ -14,16 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'fileutils'
 require 'java_buildpack/container'
 require 'java_buildpack/container/container_utils'
-require 'java_buildpack/repository/configured_item'
-require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/groovy_utils'
 require 'java_buildpack/versioned_dependency_component'
-require 'pathname'
-require 'set'
 require 'tmpdir'
 
 module JavaBuildpack::Container

@@ -44,6 +44,7 @@ Each component class must have an `initialize` method that takes a `Hash` contai
 | Name | Type | Description
 | ---- | ---- | -----------
 | `app_dir` | `String` | The directory that the application exists in
+| `application` | [`JavaBuildpack::Application`][] | An abstraction around the application
 | `configuration` | `Hash` | The component configuration provided by the user via `config/<component-name>.yml`
 | `environment` | `Hash` | A hash containing all environment variables except `VCAP_APPLICATION` and `VCAP_SERVICES`.  Those values are available separately in parsed form.
 | `java_home` | `String` | The directory that acts as `JAVA_HOME`
@@ -56,16 +57,17 @@ Each component class must have an `initialize` method that takes a `Hash` contai
 ## Base Classes
 The buildpack provides a collection of base classes that may help you implement a component.
 
-### [`lib/java_buildpack/base_component`][]
+### [`lib/java_buildpack/base_component.rb`][]
 This base class is recommended for use by all components.  It ensures that each component has a name, that the context is available at `@context` and that each key in the `context` is exposed as an instance variable (e.g. `context[:java_home]` is available as `@java_home`).  In addition it provides two helper methods for downloading files as part of the component's operation.
 
-### [`lib/java_buildpack/versioned_dependency_component`][]
+### [`lib/java_buildpack/versioned_dependency_component.rb`][]
 This base class is recommended for use by any component that uses the buildpack [repository support][] to download a dependency.  It ensures that each component has a `@version` and `@uri` that were resolved from the repository specified in the component's configuration.  It also implements the `detect` method with an standard implementation.
 
 [`config/components.yml`]: ../config/components.yml
-[`lib/java_buildpack/base_component`]: ../lib/java_buildpack/base_component
+[`JavaBuildpack::Application`]: ../lib/java_buildpack/application.rb
+[`lib/java_buildpack/base_component.rb`]: ../lib/java_buildpack/base_component.rb
 [`lib/java_buildpack/container`]: ../lib/java_buildpack/container
 [`lib/java_buildpack/framework`]: ../lib/java_buildpack/framework
 [`lib/java_buildpack/jre`]: ../lib/java_buildpack/jre
-[`lib/java_buildpack/versioned_dependency_component`]: ../lib/java_buildpack/versioned_dependency_component
+[`lib/java_buildpack/versioned_dependency_component.rb`]: ../lib/java_buildpack/versioned_dependency_component.rb
 [repository support]: util-repositories.md

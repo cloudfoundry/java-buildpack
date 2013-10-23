@@ -17,8 +17,6 @@
 require 'java_buildpack/base_component'
 require 'java_buildpack/container'
 require 'java_buildpack/container/container_utils'
-require 'java_buildpack/repository/configured_item'
-require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/play_app_factory'
 require 'pathname'
 

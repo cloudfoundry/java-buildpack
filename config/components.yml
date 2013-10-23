@@ -18,12 +18,13 @@
 containers:
   - "JavaBuildpack::Container::Groovy"
   - "JavaBuildpack::Container::Main"
+  - "JavaBuildpack::Container::Play"
   - "JavaBuildpack::Container::SpringBootCli"
   - "JavaBuildpack::Container::Tomcat"
-  - "JavaBuildpack::Container::Play"
 jres:
   - "JavaBuildpack::Jre::OpenJdk"
 frameworks:
+  - "JavaBuildpack::Framework::AppDynamics"
   - "JavaBuildpack::Framework::JavaOpts"
   - "JavaBuildpack::Framework::NewRelic"
   - "JavaBuildpack::Framework::SpringInsight"
