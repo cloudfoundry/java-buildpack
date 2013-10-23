@@ -29,17 +29,31 @@ module JavaBuildpack::Util
     def self.find_service(services, filter)
       service = nil
 
-      types = services.keys.select { |key| key =~ filter }
-      fail "Exactly one service type matching '#{filter.source}' can be bound.  Found #{types.length}." if types.length > 1
+      matching_services = services.select { |key, service_instances| key =~ filter || service_instances_match(service_instances, filter) }
+      fail "Exactly one service type matching '#{filter.source}' can be bound.  Found #{matching_services.length}." if matching_services.length > 1
 
-      if types.length > 0
-        instances = services[types[0]]
+      unless matching_services.empty?
+        instances = matching_services.values[0]
         fail "Exactly one service instance matching '#{filter.source}' can be bound.  Found #{instances.length}." if instances.length != 1
-
         service = instances[0]
       end
 
       service
+    end
+
+    private
+
+    def self.service_instances_match(service_instances, filter)
+      service_instances.any? do |service_instance|
+        match = service_instance['name'] =~ filter || service_instance['label'] =~ filter
+
+        unless match
+          tags = service_instance['tags']
+          match = tags.any? { |tag| match = tag =~ filter } unless tags.nil?
+        end
+
+        match
+      end
     end
 
   end

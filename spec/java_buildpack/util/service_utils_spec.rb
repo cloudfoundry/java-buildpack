@@ -23,13 +23,45 @@ module JavaBuildpack::Util
 
     let(:vcap_services) do
       {
-        'newrelic-n/a' => [
-          { 'name' => 'new-relic' }
-        ],
-        'elephantsql-n/a' => [
-          { 'name' => 'db1' },
-          { 'name' => 'db2' }
-        ]
+          'newrelic-n/a' => [
+              { 'name' => 'new-relic' }
+          ],
+          'elephantsql-n/a' => [
+              { 'name' => 'db1' },
+              { 'name' => 'db2' }
+          ]
+      }
+    end
+
+    let(:vcap_services_with_name) do
+      {
+          'name-n/a' => [
+              { 'name' => 'xnewrelicx' }
+          ]
+      }
+    end
+
+    let(:vcap_services_with_label) do
+      {
+          'name-n/a' => [
+              { 'label' => 'xnewrelicx' }
+          ]
+      }
+    end
+
+    let(:vcap_services_with_tags) do
+      {
+          'name-n/a' => [
+              { 'tags' => %w(y xnewrelicx z) }
+          ]
+      }
+    end
+
+    let(:vcap_services_with_plan) do
+      {
+          'name-n/a' => [
+              { 'plan' => 'xnewrelicx' }
+          ]
       }
     end
 
@@ -47,6 +79,22 @@ module JavaBuildpack::Util
 
     it 'should return the contents of the service if matched' do
       expect(ServiceUtils.find_service(vcap_services, /newrelic/)).to eq(vcap_services['newrelic-n/a'][0])
+    end
+
+    it 'should return the contents of the service if name matched' do
+      expect(ServiceUtils.find_service(vcap_services_with_name, /newrelic/)).to eq(vcap_services_with_name['name-n/a'][0])
+    end
+
+    it 'should return the contents of the service if label matched' do
+      expect(ServiceUtils.find_service(vcap_services_with_label, /newrelic/)).to eq(vcap_services_with_label['name-n/a'][0])
+    end
+
+    it 'should return the contents of the service if a tag matched' do
+      expect(ServiceUtils.find_service(vcap_services_with_tags, /newrelic/)).to eq(vcap_services_with_tags['name-n/a'][0])
+    end
+
+    it 'should return nil if plan would have matched' do
+      expect(ServiceUtils.find_service(vcap_services_with_plan, /newrelic/)).to be_nil
     end
 
   end
