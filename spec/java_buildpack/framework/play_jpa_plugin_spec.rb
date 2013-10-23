@@ -69,7 +69,7 @@ module JavaBuildpack::Framework
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS)
 
       detected = PlayJpaPlugin.new(
-          app_dir: 'spec/fixtures/container_play',
+          app_dir: 'spec/fixtures/container_play_2.1_dist',
           configuration: {}
       ).detect
 

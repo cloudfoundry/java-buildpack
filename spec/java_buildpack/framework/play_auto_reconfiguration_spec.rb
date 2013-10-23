@@ -36,7 +36,7 @@ module JavaBuildpack::Framework
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(PLAY_AUTO_RECONFIGURATION_DETAILS)
 
       detected = PlayAutoReconfiguration.new(
-          app_dir: 'spec/fixtures/container_play',
+          app_dir: 'spec/fixtures/container_play_2.1_dist',
           configuration: {}
       ).detect
 
@@ -62,7 +62,7 @@ module JavaBuildpack::Framework
         application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-auto-reconfiguration.jar'))
 
         PlayAutoReconfiguration.new(
-            app_dir: 'spec/fixtures/container_play',
+            app_dir: 'spec/fixtures/container_play_2.1_dist',
             lib_directory: lib_directory,
             configuration: {}
         ).compile

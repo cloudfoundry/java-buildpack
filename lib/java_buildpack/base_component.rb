@@ -16,6 +16,7 @@
 
 require 'java_buildpack'
 require 'java_buildpack/util/application_cache'
+require 'java_buildpack/util/library_utils'
 require 'java_buildpack/util/shell'
 
 module JavaBuildpack
@@ -69,7 +70,7 @@ module JavaBuildpack
     # are expected to read the +context+ values and take them into account when creating the command.
     #
     # @return [void, String] components other than containers are not expected to return any value.  Container
-    #                        compoonents are expected to return the command required to run the application.
+    #                        components are expected to return the command required to run the application.
     def release
       fail "Method 'release' must be defined"
     end
@@ -103,6 +104,13 @@ module JavaBuildpack
     # @param [String] description an optional description for the download.  Defaults to +@component_name+.
     def download_jar(version, uri, jar_name, target_directory = @lib_directory, description = @component_name)
       download(version, uri, description) { |file| shell "cp #{file.path} #{File.join(target_directory, jar_name)}" }
+    end
+
+    # Returns the additional libraries.
+    #
+    # @param [Array<String>] the paths of JARs in the additional libraries directory
+    def additional_libraries
+      JavaBuildpack::Util::LibraryUtils.lib_jars @lib_directory
     end
 
   end

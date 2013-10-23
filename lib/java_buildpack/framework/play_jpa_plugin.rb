@@ -17,7 +17,7 @@
 require 'java_buildpack/framework'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/application_cache'
-require 'java_buildpack/util/play_utils'
+require 'java_buildpack/util/play_app_factory'
 require 'java_buildpack/versioned_dependency_component'
 
 module JavaBuildpack::Framework
@@ -44,8 +44,8 @@ module JavaBuildpack::Framework
     def supports?
       candidate = false
 
-      root = JavaBuildpack::Util::PlayUtils.root @app_dir
-      candidate = uses_jpa?(root) || play20?(root) if root
+      play_app = JavaBuildpack::Util::PlayAppFactory.create @app_dir
+      candidate = uses_jpa?(play_app) || play20?(play_app.version) if play_app
 
       candidate
     end
@@ -58,14 +58,12 @@ module JavaBuildpack::Framework
       "#{id @version}.jar"
     end
 
-    def play20?(root)
-      JavaBuildpack::Util::PlayUtils.version(root) =~ /2.0.[\d]+/
+    def play20?(play_version)
+      play_version =~ /^2\.0(\.[\d]+)?$/
     end
 
-    def uses_jpa?(root)
-      lib = File.join JavaBuildpack::Util::PlayUtils.lib(root), PLAY_JPA_PLUGIN_JAR
-      staged = File.join JavaBuildpack::Util::PlayUtils.staged(root), PLAY_JPA_PLUGIN_JAR
-      Dir[lib, staged].first
+    def uses_jpa?(play_app)
+      play_app.contains? PLAY_JPA_PLUGIN_JAR
     end
 
   end
