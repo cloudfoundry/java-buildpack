@@ -13,20 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for components to use in the buildpack
+# Configuration for the Spring Insight framework
 ---
-containers:
-  - "JavaBuildpack::Container::Groovy"
-  - "JavaBuildpack::Container::Main"
-  - "JavaBuildpack::Container::SpringBootCli"
-  - "JavaBuildpack::Container::Tomcat"
-  - "JavaBuildpack::Container::Play"
-jres:
-  - "JavaBuildpack::Jre::OpenJdk"
-frameworks:
-  - "JavaBuildpack::Framework::JavaOpts"
-  - "JavaBuildpack::Framework::NewRelic"
-  - "JavaBuildpack::Framework::SpringInsight"
-  - "JavaBuildpack::Framework::PlayAutoReconfiguration"
-  - "JavaBuildpack::Framework::PlayJpaPlugin"
-  - "JavaBuildpack::Framework::SpringAutoReconfiguration"
