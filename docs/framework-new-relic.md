@@ -3,13 +3,20 @@ The New Relic Framework causes an application to be automatically configured to 
 
 <table>
   <tr>
-    <td><strong>Detection Criterion</strong></td><td>Existence of a single bound New Relic service</td>
+    <td><strong>Detection Criterion</strong></td><td>Existence of a single bound New Relic service.  The existence of an New Relic service defined by the <a href="http://docs.cloudfoundry.com/docs/using/deploying-apps/environment-variable.html#VCAP_SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service name-version, name, label or tag with <code>newrelic</code> as a substring.</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td><td><tt>new-relic-agent=&lt;version&gt;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
+
+## User-Provided Service
+When binding New Relic using a user-provided service, it must have a name or tag with <code>newrelic</code> in it.  The credential payload can contain the following entries:
+
+| Name | Description
+| ---- | -----------
+| `licenseKey` | The license key to use when authenticating
 
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].

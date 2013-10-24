@@ -17,7 +17,6 @@
 require 'java_buildpack/diagnostics/logger_factory'
 require 'java_buildpack/framework'
 require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
-require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/versioned_dependency_component'
 
 module JavaBuildpack::Framework

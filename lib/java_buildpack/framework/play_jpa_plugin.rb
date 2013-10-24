@@ -15,8 +15,6 @@
 # limitations under the License.
 
 require 'java_buildpack/framework'
-require 'java_buildpack/repository/configured_item'
-require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/play_app_factory'
 require 'java_buildpack/versioned_dependency_component'
 

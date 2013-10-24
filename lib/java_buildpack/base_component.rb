@@ -33,7 +33,8 @@ module JavaBuildpack
 
     # Creates an instance.  The contents of +context+ are assigned to instance variables matching their keys.
     # +component_name+ and +context+ are exposed via +@component_name+ and +@context+ respectively for any component
-    # that wishes to use them.
+    # that wishes to use them.  An additional +@parsable_component_name+ is exposed that is a lowercased and space-
+    # removed version of +component_name+.
     #
     # @param [String] component_name The name of the component
     # @param [Hash] context A shared context provided to all components

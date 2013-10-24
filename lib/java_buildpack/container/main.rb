@@ -18,7 +18,6 @@ require 'java_buildpack/base_component'
 require 'java_buildpack/container'
 require 'java_buildpack/container/container_utils'
 require 'java_buildpack/util/java_main_utils'
-require 'java_buildpack/util/properties'
 
 module JavaBuildpack::Container
 
