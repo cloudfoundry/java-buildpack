@@ -43,8 +43,8 @@ module JavaBuildpack::Framework
       weaver_jar =  @application.relative_path_to(Pathname.new Dir[File.join(insight_home, 'weaver', 'insight-weaver-*.jar')][0])
 
       @java_opts << "-javaagent:#{weaver_jar}"
-      @java_opts << "-Dinsight.base=#{File.join insight_home, 'insight'}"
-      @java_opts << "-Dinsight.logs=#{File.join insight_home, 'insight' , 'logs'}"
+      @java_opts << "-Dinsight.base=#{File.join INSIGHT_HOME, 'insight'}"
+      @java_opts << "-Dinsight.logs=#{File.join INSIGHT_HOME, 'insight', 'logs'}"
       @java_opts << '-Daspectj.overweaving=true'
       @java_opts << '-Dorg.aspectj.tracing.factory=default'
       @java_opts << '-Dagent.http.protocol=http'
@@ -117,12 +117,12 @@ module JavaBuildpack::Framework
       insight_analyser_directory = File.join extra_applications_directory, 'insight-agent'
       uber_agent_directory = File.join agent_dir, 'springsource-insight-uber-agent-*'
 
-      shell "rm -rf #{insight_home}"
-      shell "rm -rf #{insight_analyser_directory}"
-      FileUtils.mkdir_p(container_libs_directory)
-      FileUtils.mkdir_p(extra_applications_directory)
-      FileUtils.mkdir_p(weaver_directory)
-      FileUtils.mkdir_p(insight_directory)
+      FileUtils.rm_rf insight_home
+      FileUtils.rm_rf insight_analyser_directory
+      FileUtils.mkdir_p container_libs_directory
+      FileUtils.mkdir_p extra_applications_directory
+      FileUtils.mkdir_p weaver_directory
+      FileUtils.mkdir_p insight_directory
 
       shell "mv #{File.join uber_agent_directory, 'agents', 'common', 'insight-weaver-*.jar'} #{weaver_directory}"
       shell "mv #{File.join uber_agent_directory, 'agents', 'common', 'insight-bootstrap-generic-*.jar'} #{container_libs_directory}"
