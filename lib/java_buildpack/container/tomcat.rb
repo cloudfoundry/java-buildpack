@@ -49,6 +49,8 @@ module JavaBuildpack::Container
       download_tomcat
       download_support
       link_application
+      link_container_libs
+      link_extra_applications
       link_libs
     end
 
@@ -95,6 +97,10 @@ module JavaBuildpack::Container
 
     WEB_INF_DIRECTORY = 'WEB-INF'.freeze
 
+    def container_libs_directory
+      @application.component_directory 'container-libs'
+    end
+
     def download_tomcat
       download(@tomcat_version, @tomcat_uri) { |file| expand file }
     end
@@ -115,10 +121,38 @@ module JavaBuildpack::Container
       puts "(#{(Time.now - expand_start_time).duration})"
     end
 
+    def extra_applications_directory
+      @application.component_directory 'extra-applications'
+    end
+
     def link_application
       FileUtils.rm_rf root
       FileUtils.mkdir_p root
       @application.children.each { |child| FileUtils.ln_sf child.relative_path_from(root), root }
+    end
+
+    # Support for container libs in addition to the users application in temporay and will go away in the future.
+    def link_container_libs
+      if container_libs_directory.exist?
+        container_libs = ContainerUtils.libs(@app_dir, container_libs_directory)
+
+        if container_libs
+          FileUtils.mkdir_p(tomcat_lib) unless tomcat_lib.exist?
+          container_libs.each { |lib| FileUtils.ln_sf(File.join('..', '..', lib), tomcat_lib) }
+        end
+      end
+    end
+
+    # Support for extra applications in addition to the users application in temporay and will go away in the future.
+    def link_extra_applications
+      if extra_applications_directory.exist?
+        extra_applications = ContainerUtils.relative_paths(@app_dir, extra_applications_directory.children) { |file| file.directory? }
+
+        if extra_applications
+          FileUtils.mkdir_p webapps
+          extra_applications.each { |extra_application| FileUtils.ln_sf(File.join('..', '..',  extra_application), webapps) }
+        end
+      end
     end
 
     def link_libs
@@ -126,7 +160,7 @@ module JavaBuildpack::Container
 
       if libs
         FileUtils.mkdir_p(web_inf_lib) unless web_inf_lib.exist?
-        libs.each { |lib| shell "ln -sfn #{File.join '..', '..', lib} #{web_inf_lib}" }
+        libs.each { |lib| FileUtils.ln_sf(File.join('..', '..', lib), web_inf_lib) }
       end
     end
 
@@ -140,6 +174,10 @@ module JavaBuildpack::Container
 
     def tomcat_home
       @application.component_directory 'tomcat'
+    end
+
+    def tomcat_lib
+      tomcat_home + 'lib'
     end
 
     def webapps
