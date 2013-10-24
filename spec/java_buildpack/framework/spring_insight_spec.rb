@@ -84,8 +84,8 @@ module JavaBuildpack::Framework
       ).release
 
       expect(java_opts).to include('-javaagent:.insight/weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar')
-      expect(java_opts).to include('-Dinsight.base=spec/fixtures/framework_spring_insight/.insight/insight')
-      expect(java_opts).to include('-Dinsight.logs=spec/fixtures/framework_spring_insight/.insight/insight/logs')
+      expect(java_opts).to include('-Dinsight.base=.insight/insight')
+      expect(java_opts).to include('-Dinsight.logs=.insight/insight/logs')
       expect(java_opts).to include('-Daspectj.overweaving=true')
       expect(java_opts).to include('-Dorg.aspectj.tracing.factory=default')
       expect(java_opts).to include('-Dagent.name.override=test-application-name')
