@@ -17,9 +17,7 @@ require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new
 
 require 'yard'
-YARD::Rake::YardocTask.new do |t|
-  t.options = ['--no-stats']
-end
+YARD::Rake::YardocTask.new
 
 require 'rubocop/rake_task'
 Rubocop::RakeTask.new
@@ -40,4 +38,4 @@ require 'rake/clean'
 CLEAN.include %w(.yardoc coverage)
 CLOBBER.include %w(doc pkg)
 
-task :default => [ :rubocop, :check_api_doc, :yard, :spec ]
+task :default => [ :rubocop, :check_api_doc, :spec ]
