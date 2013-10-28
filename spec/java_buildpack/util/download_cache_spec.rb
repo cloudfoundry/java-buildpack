@@ -22,6 +22,10 @@ module JavaBuildpack::Util
 
   describe DownloadCache do
 
+    def suppress_internet_availability_check
+      DownloadCache.send :store_internet_availability, true
+    end
+
     before do
       JavaBuildpack::Diagnostics::LoggerFactory.send :close
       $stderr = StringIO.new
@@ -42,7 +46,28 @@ module JavaBuildpack::Util
       DownloadCache.class_variable_set :@@internet_checked, false
     end
 
-    it 'should download from a uri if the cached file does not exist' do
+    it 'should download (during internet availability checking) from a uri if the cached file does not exist' do
+      stub_request(:get, 'http://foo-uri/').to_return(
+          status: 200,
+          body: 'foo-cached',
+          headers: {
+              Etag: 'foo-etag',
+              'Last-Modified' => 'foo-last-modified'
+          }
+      )
+
+      Dir.mktmpdir do |root|
+        DownloadCache.new(root).get('http://foo-uri/') { }
+
+        expect_file_content root, 'cached', 'foo-cached'
+        expect_file_content root, 'etag', 'foo-etag'
+        expect_file_content root, 'last_modified', 'foo-last-modified'
+      end
+    end
+
+    it 'should download (after internet availability checking) from a uri if the cached file does not exist' do
+      suppress_internet_availability_check
+
       stub_request(:get, 'http://foo-uri/').to_return(
           status: 200,
           body: 'foo-cached',
@@ -70,6 +95,8 @@ module JavaBuildpack::Util
     end
 
     it 'should download from a uri if the cached file exists and etag exists' do
+      suppress_internet_availability_check
+
       stub_request(:get, 'http://foo-uri/').with(
           headers: {
               'If-None-Match' => 'foo-etag'
@@ -107,6 +134,8 @@ module JavaBuildpack::Util
     end
 
     it 'should download from a uri if the cached file exists and last modified exists' do
+      suppress_internet_availability_check
+
       stub_request(:get, 'http://foo-uri/').with(
           headers: {
               'If-Modified-Since' => 'foo-last-modified'
@@ -221,6 +250,8 @@ module JavaBuildpack::Util
     end
 
     it 'should overwrite existing information if 304 is not received' do
+      suppress_internet_availability_check
+
       stub_request(:get, 'http://foo-uri/').with(
           headers: {
               'If-None-Match' => 'foo-etag',
@@ -249,6 +280,8 @@ module JavaBuildpack::Util
     end
 
     it 'should not overwrite existing information if the update request fails' do
+      suppress_internet_availability_check
+
       stub_request(:get, 'http://foo-uri/').with(
           headers: {
               'If-None-Match' => 'foo-etag',
