@@ -30,6 +30,7 @@ The buildpack supports configuration and extension through the use of Git reposi
 	* [Play Auto Reconfiguration](docs/framework-play-auto-reconfiguration.md) ([Configuration](docs/framework-play-auto-reconfiguration.md#configuration))
 	* [Play JPA Plugin](docs/framework-play-jpa-plugin.md) ([Configuration](docs/framework-play-jpa-plugin.md#configuration))
 	* [Spring Auto Reconfiguration](docs/framework-spring-auto-reconfiguration.md) ([Configuration](docs/framework-spring-auto-reconfiguration.md#configuration))
+	* [Spring Insight](docs/framework-spring-insight.md) ([Configuration](docs/framework-spring-insight.md#configuration))
 * Standard JREs
 	* [OpenJDK](docs/jre-openjdk.md) ([Configuration](docs/jre-openjdk.md#configuration))
 * [Extending](docs/extending.md)
