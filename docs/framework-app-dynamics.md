@@ -21,7 +21,7 @@ When binding AppDynamics using a user-provided service, it must have name or tag
 | `account-name` | (Optional) The account name to use when authenticating with the controller
 | `host-name` | The controller host name
 | `port` | (Optional) The controller port
-| `use-ssl` | (Optional) Whether or not to use an SSL connection to the controller
+| `ssl-enabled` | (Optional) Whether or not to use an SSL connection to the controller
 
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
