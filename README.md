@@ -41,6 +41,7 @@ The buildpack supports configuration and extension through the use of Git reposi
 	* [Other Utiltities](docs/util-other.md)
 	* [Repository Builder](docs/util-repository-builder.md)
 	* [Test Applications](docs/util-test-applications.md)
+	* [System Tests](docs/util-system-tests.md)
 
 ## Running Tests
 To run the tests, do the following:
