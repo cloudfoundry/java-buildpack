@@ -156,6 +156,70 @@ module JavaBuildpack::Container
       end
     end
 
+    it 'should link the Tomcat datasource JAR to the ROOT webapp when that JAR is present' do
+      Dir.mktmpdir do |root|
+        Dir.mkdir File.join(root, 'WEB-INF')
+        lib_directory = File.join(root, '.lib')
+        Dir.mkdir lib_directory
+
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
+        .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
+
+        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
+        application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat7.tar.gz'))
+        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
+
+        application = JavaBuildpack::Application.new(root)
+
+        Tomcat.new(
+            app_dir: root,
+            application: application,
+            configuration: {},
+            lib_directory: lib_directory
+        ).compile
+
+        root_webapp = File.join root, '.tomcat', 'webapps', 'ROOT'
+
+        tomcat_datasource_jar = File.join root_webapp, 'WEB-INF', 'lib', 'tomcat-jdbc.jar'
+        expect(File.exists?(tomcat_datasource_jar)).to be_true
+        expect(File.readlink(tomcat_datasource_jar)).to eq('../../.lib/tomcat-jdbc.jar')
+
+        tomcat_datasource_link_in_lib_directory = File.join lib_directory, 'tomcat-jdbc.jar'
+        expect(File.exists?(tomcat_datasource_link_in_lib_directory))
+        expect(File.readlink(tomcat_datasource_link_in_lib_directory)).to eq('../.tomcat/lib/tomcat-jdbc.jar')
+      end
+    end
+
+    it 'should not link the Tomcat datasource JAR to the ROOT webapp when that JAR is absent' do
+      Dir.mktmpdir do |root|
+        Dir.mkdir File.join(root, 'WEB-INF')
+        lib_directory = File.join(root, '.lib')
+        Dir.mkdir lib_directory
+
+        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
+        .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
+
+        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
+        application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
+        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
+
+        application = JavaBuildpack::Application.new(root)
+
+        Tomcat.new(
+            app_dir: root,
+            application: application,
+            configuration: {},
+            lib_directory: lib_directory
+        ).compile
+
+        root_webapp = File.join root, '.tomcat', 'webapps', 'ROOT'
+
+        tomcat_datasource_jar = File.join root_webapp, 'WEB-INF', 'lib', 'tomcat-jdbc.jar'
+        expect(File.exists?(tomcat_datasource_jar)).to be_false
+      end
+    end
+
+
     it 'should link additional libraries to the ROOT webapp' do
       Dir.mktmpdir do |root|
         Dir.mkdir File.join root, 'WEB-INF'
