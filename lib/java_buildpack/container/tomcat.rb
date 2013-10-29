@@ -47,6 +47,7 @@ module JavaBuildpack::Container
     def compile
       download_tomcat
       download_support
+      link_tomcat_datasource
       link_application
       link_container_libs
       link_extra_applications
@@ -94,6 +95,8 @@ module JavaBuildpack::Container
 
     KEY_SUPPORT = 'support'.freeze
 
+    TOMCAT_DATASOURCE_JAR = 'tomcat-jdbc.jar'.freeze
+
     WEB_INF_DIRECTORY = 'WEB-INF'.freeze
 
     def container_libs_directory
@@ -130,7 +133,7 @@ module JavaBuildpack::Container
       @application.children.each { |child| FileUtils.ln_sf child.relative_path_from(root), root }
     end
 
-    # Support for container libs in addition to the users application in temporay and will go away in the future.
+    # Support for container libs in addition to the user's application is temporary and will go away in the future.
     def link_container_libs
       if container_libs_directory.exist?
         container_libs = ContainerUtils.libs(@app_dir, container_libs_directory)
@@ -142,14 +145,14 @@ module JavaBuildpack::Container
       end
     end
 
-    # Support for extra applications in addition to the users application in temporay and will go away in the future.
+    # Support for extra applications in addition to the user's application is temporary and will go away in the future.
     def link_extra_applications
       if extra_applications_directory.exist?
         extra_applications = ContainerUtils.relative_paths(@app_dir, extra_applications_directory.children) { |file| file.directory? }
 
         if extra_applications
           FileUtils.mkdir_p webapps
-          extra_applications.each { |extra_application| FileUtils.ln_sf(File.join('..', '..',  extra_application), webapps) }
+          extra_applications.each { |extra_application| FileUtils.ln_sf(File.join('..', '..', extra_application), webapps) }
         end
       end
     end
@@ -160,6 +163,18 @@ module JavaBuildpack::Container
       if libs
         FileUtils.mkdir_p(web_inf_lib) unless web_inf_lib.exist?
         libs.each { |lib| FileUtils.ln_sf(File.join('..', '..', lib), web_inf_lib) }
+      end
+    end
+
+
+    def link_tomcat_datasource
+      tomcat_datasource_jar = tomcat_lib + TOMCAT_DATASOURCE_JAR
+      if tomcat_datasource_jar.exist?
+        # Link Tomcat datasource JAR into .lib
+        lib_directory_pathname = Pathname.new(@lib_directory)
+        symlink_source = tomcat_datasource_jar.relative_path_from(lib_directory_pathname)
+        symlink_target = lib_directory_pathname + TOMCAT_DATASOURCE_JAR
+        symlink_target.make_symlink symlink_source
       end
     end
 
