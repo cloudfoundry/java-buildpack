@@ -166,7 +166,6 @@ module JavaBuildpack::Container
       end
     end
 
-
     def link_tomcat_datasource
       tomcat_datasource_jar = tomcat_lib + TOMCAT_DATASOURCE_JAR
       if tomcat_datasource_jar.exist?
