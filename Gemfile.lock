@@ -12,7 +12,7 @@ GEM
     parser (2.0.0)
       ast (~> 1.1)
       slop (~> 3.4, >= 3.4.5)
-    powerpack (0.0.8)
+    powerpack (0.0.9)
     rainbow (1.1.4)
     rake (10.1.0)
     redcarpet (3.0.0)

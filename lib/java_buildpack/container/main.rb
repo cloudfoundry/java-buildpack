@@ -76,7 +76,7 @@ module JavaBuildpack::Container
     end
 
     def port
-      main_class =~ /^org\.springframework\.boot\.loader\.[JW]arLauncher$/ ? '--server.port=$PORT' : nil
+      main_class =~ /^org\.springframework\.boot\.loader\.(?:[JW]ar|Properties)Launcher$/ ? '--server.port=$PORT' : nil
     end
 
   end

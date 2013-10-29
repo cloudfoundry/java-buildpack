@@ -154,6 +154,17 @@ module JavaBuildpack::Container
       expect(command).to eq('test-java-home/bin/java -cp . org.springframework.boot.loader.WarLauncher --server.port=$PORT')
     end
 
+    it 'should release Spring boot applications with a PropertiesLauncher in the MANIFEST.MF by specifying a port' do
+      command = Main.new(
+          app_dir: 'spec/fixtures/container_main_spring_boot_properties_launcher',
+          java_home: 'test-java-home',
+          java_opts: [],
+          configuration: {}
+      ).release
+
+      expect(command).to eq('test-java-home/bin/java -cp . org.springframework.boot.loader.PropertiesLauncher --server.port=$PORT')
+    end
+
     it 'should release Spring boot applications with a JarLauncher in the configuration by specifying a port' do
       Dir.mktmpdir do |root|
         lib_directory = File.join(root, '.lib')
@@ -191,6 +202,26 @@ module JavaBuildpack::Container
         ).release
 
         expect(command).to eq('test-java-home/bin/java -cp . org.springframework.boot.loader.WarLauncher some arguments --server.port=$PORT')
+      end
+    end
+
+    it 'should release Spring boot applications with a PropertiesLauncher in the configuration by specifying a port' do
+      Dir.mktmpdir do |root|
+        lib_directory = File.join(root, '.lib')
+        Dir.mkdir lib_directory
+
+        command = Main.new(
+            app_dir: root,
+            java_home: 'test-java-home',
+            java_opts: [],
+            lib_directory: lib_directory,
+            configuration: {
+                'java_main_class' => 'org.springframework.boot.loader.PropertiesLauncher',
+                'arguments' => 'some arguments'
+            }
+        ).release
+
+        expect(command).to eq('test-java-home/bin/java -cp . org.springframework.boot.loader.PropertiesLauncher some arguments --server.port=$PORT')
       end
     end
 
