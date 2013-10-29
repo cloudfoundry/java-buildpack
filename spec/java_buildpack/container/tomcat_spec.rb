@@ -219,7 +219,6 @@ module JavaBuildpack::Container
       end
     end
 
-
     it 'should link additional libraries to the ROOT webapp' do
       Dir.mktmpdir do |root|
         Dir.mkdir File.join root, 'WEB-INF'
