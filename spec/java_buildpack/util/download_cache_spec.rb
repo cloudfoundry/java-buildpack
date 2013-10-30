@@ -355,6 +355,23 @@ module JavaBuildpack::Util
       end
     end
 
+    it 'should use the buildpack cache if the download cannot be completed because Errno::ENETUNREACH is raised' do
+      stub_request(:get, 'http://foo-uri/').to_raise(Errno::ENETUNREACH)
+
+      Dir.mktmpdir do |root|
+        Dir.mktmpdir do |buildpack_cache|
+          java_buildpack_cache = File.join(buildpack_cache, 'java-buildpack')
+          FileUtils.mkdir_p java_buildpack_cache
+          touch java_buildpack_cache, 'cached', 'foo-stashed'
+          with_buildpack_cache(buildpack_cache) do
+            DownloadCache.new(root).get('http://foo-uri/') do |file|
+              expect(file.read).to eq('foo-stashed')
+            end
+          end
+        end
+      end
+    end
+
     it 'should use the buildpack cache if the cache configuration disables remote downloads' do
       YAML.stub(:load_file).with(File.expand_path('config/cache.yml')).and_return(
           'remote_downloads' => 'disabled')
