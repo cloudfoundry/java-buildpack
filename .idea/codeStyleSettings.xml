@@ -4,6 +4,9 @@
     <option name="PER_PROJECT_SETTINGS">
       <value>
         <option name="PARENTHESES_AROUND_METHOD_ARGUMENTS" value="false" />
+        <XML>
+          <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
+        </XML>
         <codeStyleSettings language="ruby">
           <option name="INDENT_WHEN_CASES" value="false" />
           <option name="SPACE_WITHIN_BRACES" value="true" />
