@@ -38,8 +38,8 @@ module JavaBuildpack::Framework
       vcap_application['application_name'] = 'test-application-name'
 
       detected = SpringInsight.new(
-              vcap_application: vcap_application,
-              vcap_services: vcap_services
+          vcap_application: vcap_application,
+          vcap_services: vcap_services
       ).detect
 
       expect(detected).to eq('spring-insight=1.0')
@@ -56,9 +56,9 @@ module JavaBuildpack::Framework
         extra_apps_directory = File.join root, '.extra-applications'
 
         SpringInsight.new(
-                app_dir: root,
-                vcap_application: vcap_application,
-                vcap_services: vcap_services
+            app_dir: root,
+            vcap_application: vcap_application,
+            vcap_services: vcap_services
         ).compile
 
         insight_home = File.join root, '.insight'
@@ -76,11 +76,11 @@ module JavaBuildpack::Framework
       vcap_services['insight-n/a'] = [{ 'label' => 'insight-1.0', 'credentials' => { 'dashboard_url' => 'test-uri' } }]
 
       SpringInsight.new(
-              app_dir: 'spec/fixtures/framework_spring_insight',
-              application: JavaBuildpack::Application.new('spec/fixtures/framework_spring_insight'),
-              java_opts: java_opts,
-              vcap_application: vcap_application,
-              vcap_services: vcap_services
+          app_dir: 'spec/fixtures/framework_spring_insight',
+          application: JavaBuildpack::Application.new('spec/fixtures/framework_spring_insight'),
+          java_opts: java_opts,
+          vcap_application: vcap_application,
+          vcap_services: vcap_services
       ).release
 
       expect(java_opts).to include('-javaagent:.insight/weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar')

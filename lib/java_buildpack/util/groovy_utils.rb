@@ -53,7 +53,7 @@ module JavaBuildpack::Util
     def self.groovy_files(root)
       root_directory = Pathname.new(root)
       Dir[File.join root, GROOVY_FILE_PATTERN].reject { |file| File.directory? file }
-          .map { |file| Pathname.new(file).relative_path_from(root_directory).to_s }.sort
+      .map { |file| Pathname.new(file).relative_path_from(root_directory).to_s }.sort
     end
 
     private_class_method :new

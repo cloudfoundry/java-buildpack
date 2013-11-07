@@ -137,7 +137,7 @@ module JavaBuildpack::Jre
       end
       remaining_memory -= allocated_memory
       fail "Total memory #{@memory_limit} exceeded by configured memory #{@sizes}" if remaining_memory < 0
-      return remaining_memory, deleted  # rubocop:disable RedundantReturn
+      return remaining_memory, deleted # rubocop:disable RedundantReturn
     end
 
     def constrain_bucket_size(allocated_memory, bucket, size)

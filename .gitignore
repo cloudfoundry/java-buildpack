@@ -1,3 +1,5 @@
 .yardoc
 coverage
 doc
+tasks.xml
+workspace.xml
