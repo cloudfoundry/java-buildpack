@@ -53,7 +53,7 @@ module JavaBuildpack::Util
       Dir.mktmpdir do |root|
         ARGV[1] = root
 
-        ApplicationCache.new.get('http://foo-uri/') { }
+        ApplicationCache.new.get('http://foo-uri/') {}
 
         expect(Dir[File.join(root, '*.cached')].size).to eq(1)
       end

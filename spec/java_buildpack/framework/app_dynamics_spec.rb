@@ -120,7 +120,7 @@ module JavaBuildpack::Framework
     it 'should raise error if host-name not specified' do
       JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(APP_DYNAMICS_DETAILS)
       vcap_application['application_name'] = 'test-application-name'
-      vcap_services['app-dynamics-n/a'] = [{ 'credentials' => { } }]
+      vcap_services['app-dynamics-n/a'] = [{ 'credentials' => {} }]
 
       expect do
         AppDynamics.new(

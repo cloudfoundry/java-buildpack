@@ -53,7 +53,7 @@ module JavaBuildpack::Util
       Dir.mktmpdir do |root|
         ENV['BUILDPACK_CACHE'] = root
 
-        GlobalCache.new.get('http://foo-uri/') { }
+        GlobalCache.new.get('http://foo-uri/') {}
 
         expect(Dir[File.join(root, '*.cached')].size).to eq(1)
       end

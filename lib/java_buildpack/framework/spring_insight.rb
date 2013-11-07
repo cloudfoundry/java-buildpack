@@ -40,7 +40,7 @@ module JavaBuildpack::Framework
     end
 
     def release
-      weaver_jar =  @application.relative_path_to(Pathname.new Dir[File.join(insight_home, 'weaver', 'insight-weaver-*.jar')][0])
+      weaver_jar = @application.relative_path_to(Pathname.new Dir[File.join(insight_home, 'weaver', 'insight-weaver-*.jar')][0])
 
       @java_opts << "-javaagent:#{weaver_jar}"
       @java_opts << "-Dinsight.base=#{File.join INSIGHT_HOME, 'insight'}"

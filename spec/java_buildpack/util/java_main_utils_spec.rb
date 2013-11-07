@@ -33,7 +33,7 @@ module JavaBuildpack::Util
     end
 
     it 'should use a main class configuration in a configuration parameter' do
-      JavaBuildpack::Util::JavaMainUtils.main_class('', { 'java_main_class' => TEST_CLASS_NAME }).should eq(TEST_CLASS_NAME)
+      JavaBuildpack::Util::JavaMainUtils.main_class('', 'java_main_class' => TEST_CLASS_NAME).should eq(TEST_CLASS_NAME)
     end
 
     it 'should use a main class in the manifest of the application' do
