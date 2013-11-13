@@ -150,7 +150,7 @@ module JavaBuildpack::Util
           rich_uri = URI(uri)
 
           # Beware known problems with timeouts: https://www.ruby-forum.com/topic/143840
-          Net::HTTP.start(rich_uri.host, rich_uri.port, read_timeout: TIMEOUT_SECONDS, connect_timeout: TIMEOUT_SECONDS, open_timeout: TIMEOUT_SECONDS) do |http|
+          Net::HTTP.start(rich_uri.host, rich_uri.port, use_ssl: DownloadCache.use_ssl?(rich_uri), read_timeout: TIMEOUT_SECONDS, connect_timeout: TIMEOUT_SECONDS, open_timeout: TIMEOUT_SECONDS) do |http|
             request = Net::HTTP::Get.new(uri)
             http.request request do |response|
               internet_up = response.code == HTTP_OK
