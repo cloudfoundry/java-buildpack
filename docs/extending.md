@@ -1,4 +1,7 @@
 # Extending
+
+For general information on extending the buildpack, refer to [Configuration and Extension](../README.md#Configuration-and-Extension).
+
 To add a component, its class file must be put in a specific location and the class name added to [`config/components.yml`][].
 
 | Component Type | Location
@@ -39,7 +42,7 @@ def release
 
 
 ## Component Context
-Each component class must have an `initialize` method that takes a `Hash` containg contextual information about the application.  It is this "whiteboard" that is used by the components to communicate with one another.  The context contains the following entries:
+Each component class must have an `initialize` method that takes a `Hash` containing contextual information about the application.  It is this "whiteboard" that is used by the components to communicate with one another.  The context contains the following entries:
 
 | Name | Type | Description
 | ---- | ---- | -----------
@@ -71,3 +74,20 @@ This base class is recommended for use by any component that uses the buildpack 
 [`lib/java_buildpack/jre`]: ../lib/java_buildpack/jre
 [`lib/java_buildpack/versioned_dependency_component.rb`]: ../lib/java_buildpack/versioned_dependency_component.rb
 [repository support]: util-repositories.md
+
+## Examples
+The following example components are relatively simple and good for copying as the basis for a new component.
+
+### `JAVA_OPTS` Framework
+
+The [`JAVA_OPTS` Framework](framework-java_opts.md) ([`lib/java_buildpack/framework/java_opts.rb`](../lib/java_buildpack/framework/java_opts.rb)) extends the [`BaseComponent`](../lib/java_buildpack/base_component.rb) base class described above.
+
+### Java Main Class Container
+
+The [Java Main Class Container](container-java-main.md) ([`lib/java_buildpack/container/main.rb`](../lib/java_buildpack/container/main.rb)) extends the [`BaseComponent`](../lib/java_buildpack/base_component.rb) base class described above.
+
+### Spring Boot CLI Container
+
+The [Spring Boot CLI Container](container-spring-boot-cli.md) ([`lib/java_buildpack/container/spring_boot_cli.rb`](../lib/java_buildpack/container/spring_boot_cli.rb)) extends the [`VersionedDependencyComponent`](../lib/java_buildpack/versioned_dependency_component.rb) base class described above.
+
+
