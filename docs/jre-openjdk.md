@@ -19,7 +19,7 @@ The JRE can be configured by modifying the [`config/openjdk.yml`][] file.  The J
 | Name | Description
 | ---- | -----------
 | `repository_root` | The URL of the OpenJDK repository index ([details][repositories]).
-| `version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [centos6][], [lucid][], [mountainlion][], and [precise][].
+| `version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [centos6][], [lucid][], [mountainlion][], and [precise][]. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
 | `memory_sizes` | Optional memory sizes, described below under "Memory".
 | `memory_heuristics` | Default memory size weightings, described below under "Default Memory Sizes".
 
