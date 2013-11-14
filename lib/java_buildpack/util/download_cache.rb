@@ -29,7 +29,7 @@ module JavaBuildpack::Util
   # A cache for downloaded files that is configured to use a filesystem as the backing store. This cache uses standard
   # file locking (<tt>File.flock()</tt>) in order ensure that mutation of files in the cache is non-concurrent across
   # processes.  Reading files (once they've been downloaded) happens concurrently so read performance is not impacted.
-  class DownloadCache
+  class DownloadCache # rubocop:disable ClassLength
 
     # Creates an instance of the cache that is backed by the filesystem rooted at +cache_root+
     #
@@ -127,6 +127,12 @@ module JavaBuildpack::Util
 
     HTTP_OK = '200'.freeze
 
+    TIMEOUT_SECONDS = 10
+
+    INTERNET_DETECTION_RETRY_LIMIT = 5
+
+    DOWNLOAD_RETRY_LIMIT = 5
+
     @@monitor = Monitor.new
     @@internet_checked = false
     @@internet_up = true
@@ -135,8 +141,6 @@ module JavaBuildpack::Util
       expanded_path = File.expand_path(CACHE_CONFIG, File.dirname(__FILE__))
       YAML.load_file(expanded_path)
     end
-
-    TIMEOUT_SECONDS = 10
 
     def self.internet_available?(filenames, uri, logger)
       @@monitor.synchronize do
@@ -147,16 +151,12 @@ module JavaBuildpack::Util
         return store_internet_availability(false), false # rubocop:disable RedundantReturn
       elsif cache_configuration['remote_downloads'] == 'enabled'
         begin
-          rich_uri = URI(uri)
-
           # Beware known problems with timeouts: https://www.ruby-forum.com/topic/143840
-          Net::HTTP.start(rich_uri.host, rich_uri.port, use_ssl: DownloadCache.use_ssl?(rich_uri), read_timeout: TIMEOUT_SECONDS, connect_timeout: TIMEOUT_SECONDS, open_timeout: TIMEOUT_SECONDS) do |http|
-            request = Net::HTTP::Get.new(uri)
-            http.request request do |response|
-              internet_up = response.code == HTTP_OK
-              write_response(filenames, response) if internet_up
-              return store_internet_availability(internet_up), internet_up # rubocop:disable RedundantReturn
-            end
+          opts = { read_timeout: TIMEOUT_SECONDS, connect_timeout: TIMEOUT_SECONDS, open_timeout: TIMEOUT_SECONDS }
+          return http_get(uri, INTERNET_DETECTION_RETRY_LIMIT, logger, opts) do |response|
+            internet_up = response.code == HTTP_OK
+            write_response(filenames, response) if internet_up
+            return store_internet_availability(internet_up), internet_up # rubocop:disable RedundantReturn
           end
         rescue *HTTP_ERRORS => ex
           logger.debug { "Internet detection failed with #{ex}" }
@@ -164,6 +164,26 @@ module JavaBuildpack::Util
         end
       else
         fail "Invalid remote_downloads property in cache configuration: #{cache_configuration}"
+      end
+    end
+
+    def self.http_get(uri, retry_limit, logger, opts = {})
+      rich_uri = URI(uri)
+      options = opts.merge(use_ssl: DownloadCache.use_ssl?(rich_uri))
+      Net::HTTP.start(rich_uri.host, rich_uri.port, options) do |http|
+        request = Net::HTTP::Get.new(uri)
+        1.upto(retry_limit) do |try|
+          begin
+            http.request request do |response|
+              if response.code == HTTP_OK || try == retry_limit
+                return yield response
+              end
+            end
+          rescue *HTTP_ERRORS => ex
+            logger.debug { "HTTP get attempt #{try} of #{retry_limit} failed: #{ex}" }
+            raise ex if try == retry_limit
+          end
+        end
       end
     end
 
@@ -188,15 +208,9 @@ module JavaBuildpack::Util
     def download(filenames, uri, internet_up)
       if internet_up
         begin
-          rich_uri = URI(uri)
-
-          Net::HTTP.start(rich_uri.host, rich_uri.port, use_ssl: DownloadCache.use_ssl?(rich_uri)) do |http|
-            request = Net::HTTP::Get.new(uri)
-            http.request request do |response|
-              DownloadCache.write_response(filenames, response)
-            end
+          DownloadCache.http_get(uri, DOWNLOAD_RETRY_LIMIT, @logger) do |response|
+            DownloadCache.write_response(filenames, response)
           end
-
         rescue *HTTP_ERRORS => ex
           puts 'FAIL'
           error_message = "Unable to download from #{uri} due to #{ex}"

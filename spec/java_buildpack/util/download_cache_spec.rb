@@ -94,6 +94,25 @@ module JavaBuildpack::Util
       end
     end
 
+    it 'should not raise error if download cannot be completed but retrying succeeds' do
+      stub_request(:get, 'http://foo-uri/').to_raise(SocketError).then.to_return(
+          status: 200,
+          body: 'foo-cached',
+          headers: {
+              Etag: 'foo-etag',
+              'Last-Modified' => 'foo-last-modified'
+          }
+      )
+
+      Dir.mktmpdir do |root|
+        DownloadCache.new(root).get('http://foo-uri/') {}
+
+        expect_file_content root, 'cached', 'foo-cached'
+        expect_file_content root, 'etag', 'foo-etag'
+        expect_file_content root, 'last_modified', 'foo-last-modified'
+      end
+    end
+
     it 'should download from a uri if the cached file exists and etag exists' do
       suppress_internet_availability_check
 
@@ -349,6 +368,30 @@ module JavaBuildpack::Util
           with_buildpack_cache(buildpack_cache) do
             DownloadCache.new(root).get('http://foo-uri/') do |file|
               expect(file.read).to eq('foo-stashed')
+            end
+          end
+        end
+      end
+    end
+
+    it 'should not use the buildpack cache if the download cannot be completed but a retry succeeds' do
+      stub_request(:get, 'http://foo-uri/').to_raise(SocketError).then.to_return(
+          status: 200,
+          body: 'foo-cached',
+          headers: {
+              Etag: 'foo-etag',
+              'Last-Modified' => 'foo-last-modified'
+          }
+      )
+
+      Dir.mktmpdir do |root|
+        Dir.mktmpdir do |buildpack_cache|
+          java_buildpack_cache = File.join(buildpack_cache, 'java-buildpack')
+          FileUtils.mkdir_p java_buildpack_cache
+          touch java_buildpack_cache, 'cached', 'foo-stashed'
+          with_buildpack_cache(buildpack_cache) do
+            DownloadCache.new(root).get('http://foo-uri/') do |file|
+              expect(file.read).to eq('foo-cached')
             end
           end
         end
