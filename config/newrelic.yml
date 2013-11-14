@@ -15,5 +15,5 @@
 
 # Configuration for the New Relic framework
 ---
-version: 2.21.+
+version: 3.1.+
 repository_root: "http://download.pivotal.io.s3.amazonaws.com/new-relic"
