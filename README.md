@@ -13,6 +13,8 @@ To use this buildpack specify the URI of the repository when pushing an applicat
 ## Configuration and Extension
 The buildpack supports configuration and extension through the use of Git repository forking.  The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository.  Make the required configuration and extension changes in the copy of the repository.  Then specify the URL of the new repository when pushing Cloud Foundry applications.  If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes.
 
+To learn how to configure various properties of the buildpack, follow the "Configuration" links below. More information on extending the buildpack is available [here](docs/extending.md).
+
 ## Additional Documentation
 * [Design](docs/design.md)
 * [Migrating from the Previous Java Buildpack](docs/migration.md)
