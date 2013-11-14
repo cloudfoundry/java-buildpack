@@ -62,6 +62,7 @@ module JavaBuildpack::Repository
       cooked = raw
       .gsub(/\{platform\}/, platform)
       .gsub(/\{architecture\}/, architecture)
+      .chomp('/')
       @logger.debug { "#{raw} expanded to #{cooked}" }
       cooked
     end

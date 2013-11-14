@@ -35,6 +35,16 @@ module JavaBuildpack::Repository
       expect(repository_index.find_item('test-version')).to eq(%w(resolved-version resolved-uri))
     end
 
+    it 'should cope with trailing slash in repository URI' do
+      JavaBuildpack::Util::DownloadCache.stub(:new).and_return(application_cache)
+      application_cache.stub(:get).with(%r(/test-uri/index\.yml))
+      .and_yield(File.open('spec/fixtures/test-index.yml'))
+      VersionResolver.stub(:resolve).with('test-version', %w(resolved-version)).and_return('resolved-version')
+
+      repository_index = RepositoryIndex.new('{platform}/{architecture}/test-uri/')
+      expect(repository_index.find_item('test-version')).to eq(%w(resolved-version resolved-uri))
+    end
+
     it 'should use the read-only buildpack cache when index.yaml cannot be downloaded because the internet is not available' do
       stub_request(:get, 'http://foo.com/index.yml').to_raise(SocketError)
 
