@@ -167,22 +167,26 @@ module JavaBuildpack::Util
       end
     end
 
-    def self.http_get(uri, retry_limit, logger, opts = {})
+    def self.http_get(uri, retry_limit, logger, opts = {}, &block)
       rich_uri = URI(uri)
       options = opts.merge(use_ssl: DownloadCache.use_ssl?(rich_uri))
       Net::HTTP.start(rich_uri.host, rich_uri.port, options) do |http|
         request = Net::HTTP::Get.new(uri)
-        1.upto(retry_limit) do |try|
-          begin
-            http.request request do |response|
-              if response.code == HTTP_OK || try == retry_limit
-                return yield response
-              end
+        return retry_http_request(http, request, retry_limit, logger, &block)
+      end
+    end
+
+    def self.retry_http_request(http, request, retry_limit, logger)
+      1.upto(retry_limit) do |try|
+        begin
+          http.request request do |response|
+            if response.code == HTTP_OK || try == retry_limit
+              return yield response
             end
-          rescue *HTTP_ERRORS => ex
-            logger.debug { "HTTP get attempt #{try} of #{retry_limit} failed: #{ex}" }
-            raise ex if try == retry_limit
           end
+        rescue *HTTP_ERRORS => ex
+          logger.debug { "HTTP get attempt #{try} of #{retry_limit} failed: #{ex}" }
+          raise ex if try == retry_limit
         end
       end
     end
