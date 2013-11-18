@@ -20,10 +20,16 @@ The JRE can be configured by modifying the [`config/openjdk.yml`][] file.  The J
 | ---- | -----------
 | `repository_root` | The URL of the OpenJDK repository index ([details][repositories]).
 | `version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [centos6][], [lucid][], [mountainlion][], and [precise][]. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
-| `memory_sizes` | Optional memory sizes, described below under "Memory".
-| `memory_heuristics` | Default memory size weightings, described below under "Default Memory Sizes".
+| `memory_sizes` | Optional memory sizes, described below under "Memory Sizes".
+| `memory_heuristics` | Default memory size weightings, described below under "Memory Weightings.
 
 ### Memory
+
+The total available memory is specified when an application is pushed. The Java buildpack uses this value to control the JRE's use of various regions of memory. The JRE memory settings can be influenced by configuring the `memory_sizes` and/or `memory_heuristics` mappings.
+
+Note: if the total available memory is scaled up or down, the Java buildpack does not re-calculate the JRE memory settings until the next time the appication is pushed.
+
+#### Memory Sizes
 
 The following optional properties may be specified in the `memory_sizes` mapping.
 
@@ -34,8 +40,6 @@ The following optional properties may be specified in the `memory_sizes` mapping
 | `permgen` | The maximum PermGen size to use. It is applicable to versions of OpenJDK earlier than 1.8. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line option `-XX:MaxPermSize=`.
 | `stack` | The stack size to use. It may be a single value such as `2m` or a range of acceptable values such as `2m..4m`. It is used to calculate the value of the Java command line option `-Xss`.
 | `native` | The amount of memory to reserve for native memory allocation. It should normally be omitted or specified as a range with no upper bound such as `100m..`. It does not correspond to a switch on the Java command line.
-
-#### Memory Sizes and Ranges
 
 Memory sizes together with _memory weightings_ (described in the next section) are used to calculate the amount of memory for each memory type. The calculation is described later.
 

@@ -10,6 +10,8 @@ To use this buildpack specify the URI of the repository when pushing an applicat
 
     cf push --buildpack https://github.com/cloudfoundry/java-buildpack
 
+The total amount of memory available is specified when the application is pushed. See [Memory](docs/jre-openjdk.md#Memory) for information on how this determines the memory available to a Java application.
+
 ## Configuration and Extension
 The buildpack supports configuration and extension through the use of Git repository forking.  The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository.  Make the required configuration and extension changes in the copy of the repository.  Then specify the URL of the new repository when pushing Cloud Foundry applications.  If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes.
 
