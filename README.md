@@ -28,7 +28,7 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 	* [Spring Boot CLI](docs/container-spring-boot-cli.md) ([Configuration](docs/container-spring-boot-cli.md#configuration))
 	* [Tomcat](docs/container-tomcat.md) ([Configuration](docs/container-tomcat.md#configuration))
 * Standard Frameworks
-	* [`JAVA_OPTS`](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))
+	* [Java Options](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))
 	* [AppDynamics](docs/framework-app-dynamics.md) ([Configuration](docs/framework-app-dynamics.md#configuration))
 	* [New Relic](docs/framework-new-relic.md) ([Configuration](docs/framework-new-relic.md#configuration))
 	* [Play Auto Reconfiguration](docs/framework-play-auto-reconfiguration.md) ([Configuration](docs/framework-play-auto-reconfiguration.md#configuration))
