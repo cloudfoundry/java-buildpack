@@ -27,10 +27,10 @@ module JavaBuildpack::Jre
     PRE_8 = JavaBuildpack::Util::TokenizedVersion.new('1.7.0')
     POST_8 = JavaBuildpack::Util::TokenizedVersion.new('1.8.0')
     EXPECTED_JAVA_MEMORY_OPTIONS = {
-        'heap' => ->(v) { "-Xmx#{v} -Xms#{v}" },
-        'metaspace' => ->(v) { "-XX:MaxMetaspaceSize=#{v} -XX:MetaspaceSize=#{v}" },
-        'permgen' => ->(v) { "-XX:MaxPermSize=#{v} -XX:PermSize=#{v}" },
-        'stack' => ->(v) { "-Xss#{v}" }
+        'heap' => ->(v) { ["-Xmx#{v}", "-Xms#{v}"] },
+        'metaspace' => ->(v) { ["-XX:MaxMetaspaceSize=#{v}", "-XX:MetaspaceSize=#{v}"] },
+        'permgen' => ->(v) { ["-XX:MaxPermSize=#{v}", "-XX:PermSize=#{v}"] },
+        'stack' => ->(v) { ["-Xss#{v}"] }
     }
 
     class HashOfLambdasMatching

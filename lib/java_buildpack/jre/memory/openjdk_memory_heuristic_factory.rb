@@ -43,10 +43,10 @@ module JavaBuildpack::Jre
     VALID_TYPES = %w(heap stack native).freeze
 
     JAVA_OPTS = {
-        'heap' => ->(v) { "-Xmx#{v} -Xms#{v}" },
-        'metaspace' => ->(v) { "-XX:MaxMetaspaceSize=#{v} -XX:MetaspaceSize=#{v}" },
-        'permgen' => ->(v) { "-XX:MaxPermSize=#{v} -XX:PermSize=#{v}" },
-        'stack' => ->(v) { "-Xss#{v}" }
+        'heap' => ->(v) { ["-Xmx#{v}", "-Xms#{v}"] },
+        'metaspace' => ->(v) { ["-XX:MaxMetaspaceSize=#{v}", "-XX:MetaspaceSize=#{v}"] },
+        'permgen' => ->(v) { ["-XX:MaxPermSize=#{v}", "-XX:PermSize=#{v}"] },
+        'stack' => ->(v) { ["-Xss#{v}"] }
     }.freeze
 
   end

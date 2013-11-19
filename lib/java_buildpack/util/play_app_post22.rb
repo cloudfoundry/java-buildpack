@@ -42,7 +42,7 @@ module JavaBuildpack::Util
     def decorate_java_opts(java_opts)
       decorated_java_opts = []
       java_opts.each { |java_opt| decorated_java_opts << "-J#{java_opt}" }
-      decorated_java_opts << '-J-Xms2M'
+      decorated_java_opts
     end
 
     private

@@ -57,8 +57,14 @@ module JavaBuildpack::Framework
       expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-Xms1024M' }).compile }.to raise_error(/-Xms/)
       expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-Xmx1024M' }).compile }.to raise_error(/-Xmx/)
       expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-XX:MaxMetaspaceSize=128M' }).compile }.to raise_error(/-XX:MaxMetaspaceSize/)
+      expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-XX:MetaspaceSize=128M' }).compile }.to raise_error(/-XX:MetaspaceSize/)
       expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-XX:MaxPermSize=128M' }).compile }.to raise_error(/-XX:MaxPermSize/)
+      expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-XX:PermSize=128M' }).compile }.to raise_error(/-XX:PermSize/)
       expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-Xss1M' }).compile }.to raise_error(/-Xss/)
+    end
+
+    it 'should not allow multiple options in a single array entry' do
+      expect { JavaOpts.new(java_opts: ['-Xmx30m -Xms30m'], configuration: {}).release }.to raise_error(/Invalid Java option contains more than one option/)
     end
 
   end
