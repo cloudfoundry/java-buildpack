@@ -35,9 +35,9 @@ The following optional properties may be specified in the `memory_sizes` mapping
 
 | Name | Description
 | ---- | -----------
-| `heap` | The maximum heap size to use. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line option `-Xmx`.
-| `metaspace` | The maximum Metaspace size to use. It is applicable to versions of OpenJDK from 1.8 onwards. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line option `-XX:MaxMetaspaceSize=`.
-| `permgen` | The maximum PermGen size to use. It is applicable to versions of OpenJDK earlier than 1.8. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line option `-XX:MaxPermSize=`.
+| `heap` | The maximum heap size to use. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line options `-Xmx` and `-Xms`.
+| `metaspace` | The maximum Metaspace size to use. It is applicable to versions of OpenJDK from 1.8 onwards. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line options `-XX:MaxMetaspaceSize=` and `-XX:MetaspaceSize=`.
+| `permgen` | The maximum PermGen size to use. It is applicable to versions of OpenJDK earlier than 1.8. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line options `-XX:MaxPermSize=` and `-XX:PermSize=`.
 | `stack` | The stack size to use. It may be a single value such as `2m` or a range of acceptable values such as `2m..4m`. It is used to calculate the value of the Java command line option `-Xss`.
 | `native` | The amount of memory to reserve for native memory allocation. It should normally be omitted or specified as a range with no upper bound such as `100m..`. It does not correspond to a switch on the Java command line.
 

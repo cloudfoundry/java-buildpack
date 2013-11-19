@@ -44,7 +44,7 @@ module JavaBuildpack::Jre
 
     JAVA_OPTS = {
         'heap' => ->(v) { "-Xmx#{v} -Xms#{v}" },
-        'metaspace' => ->(v) { "-XX:MaxMetaspaceSize=#{v}" },
+        'metaspace' => ->(v) { "-XX:MaxMetaspaceSize=#{v} -XX:MetaspaceSize=#{v}" },
         'permgen' => ->(v) { "-XX:MaxPermSize=#{v} -XX:PermSize=#{v}" },
         'stack' => ->(v) { "-Xss#{v}" }
     }.freeze
