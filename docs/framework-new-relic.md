@@ -11,8 +11,11 @@ The New Relic Framework causes an application to be automatically configured to 
 </table>
 Tags are printed to standard output by the buildpack detect script
 
-## User-Provided Service
-When binding New Relic using a user-provided service, it must have a name or tag with <code>newrelic</code> in it.  The credential payload can contain the following entries:
+## User-Provided Service (Optional)
+
+Users may optionally provide their own New Relic service. A user-provided New Relic service must have a name or tag with <code>newrelic</code> in it so that the New Relic Framework will automatically configure the application to work with the service.
+
+The credential payload of the service may contain the following entries:
 
 | Name | Description
 | ---- | -----------
