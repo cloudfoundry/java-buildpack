@@ -15,60 +15,33 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'component_helper'
 require 'java_buildpack/framework/play_auto_reconfiguration'
 
 module JavaBuildpack::Framework
 
   describe PlayAutoReconfiguration do
+    include_context 'component_helper'
 
-    PLAY_AUTO_RECONFIGURATION_VERSION = JavaBuildpack::Util::TokenizedVersion.new('0.6.8')
+    it 'should detect with application configuration',
+       app_fixture: 'container_play_2.1_dist' do
 
-    PLAY_AUTO_RECONFIGURATION_DETAILS = [PLAY_AUTO_RECONFIGURATION_VERSION, 'test-uri']
-
-    let(:application_cache) { double('ApplicationCache') }
-
-    before do
-      $stdout = StringIO.new
-      $stderr = StringIO.new
+      expect(component.detect).to eq('play-auto-reconfiguration=0.0.0')
     end
 
-    it 'should detect with application configuration' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(PLAY_AUTO_RECONFIGURATION_DETAILS)
+    it 'should not detect without application configuration',
+       app_fixture: 'container_play_too_deep' do
 
-      detected = PlayAutoReconfiguration.new(
-          app_dir: 'spec/fixtures/container_play_2.1_dist',
-          configuration: {}
-      ).detect
-
-      expect(detected).to eq('play-auto-reconfiguration=0.6.8')
+      expect(component.detect).to be_nil
     end
 
-    it 'should not detect without application configuration' do
-      detected = PlayAutoReconfiguration.new(
-          app_dir: 'spec/fixtures/container_play_too_deep',
-          configuration: {}
-      ).detect
+    it 'should copy additional libraries to the lib directory',
+       app_fixture: 'container_play_2.1_dist',
+       cache_fixture: 'stub-auto-reconfiguration.jar' do
 
-      expect(detected).to be_nil
-    end
+      component.compile
 
-    it 'should copy additional libraries to the lib directory' do
-      Dir.mktmpdir do |root|
-        lib_directory = File.join root, '.lib'
-        Dir.mkdir lib_directory
-
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(PLAY_AUTO_RECONFIGURATION_DETAILS)
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-auto-reconfiguration.jar'))
-
-        PlayAutoReconfiguration.new(
-            app_dir: 'spec/fixtures/container_play_2.1_dist',
-            lib_directory: lib_directory,
-            configuration: {}
-        ).compile
-
-        expect(File.exists? File.join(lib_directory, 'play-auto-reconfiguration-0.6.8.jar')).to be_true
-      end
+      expect(additional_libs_dir + 'play-auto-reconfiguration-0.0.0.jar').to exist
     end
 
   end

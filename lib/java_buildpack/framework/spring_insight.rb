@@ -36,7 +36,7 @@ module JavaBuildpack::Framework
     end
 
     def compile
-      download(@version, @uri + AGENT_DOWNLOAD_URI_SUFFIX) { |file| expand file } # TODO: AGENT_DOWNLOAD_URI_SUFFIX To be removed once the full path is included in VCAP_SERVICES see issue 58873498
+      download(@version, @uri.chomp('/') + AGENT_DOWNLOAD_URI_SUFFIX) { |file| expand file } # TODO: AGENT_DOWNLOAD_URI_SUFFIX To be removed once the full path is included in VCAP_SERVICES see issue 58873498
     end
 
     def release
@@ -75,7 +75,7 @@ module JavaBuildpack::Framework
 
     private
 
-    AGENT_DOWNLOAD_URI_SUFFIX = 'services/config/agent-download'.freeze # TODO: To be removed once the full path is included in VCAP_SERVICES see issue 58873498
+    AGENT_DOWNLOAD_URI_SUFFIX = '/services/config/agent-download'.freeze # TODO: To be removed once the full path is included in VCAP_SERVICES see issue 58873498
 
     EXTRA_APPLICATIONS_DIRECTORY = '.extra-applications'.freeze
 

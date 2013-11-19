@@ -15,314 +15,209 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'component_helper'
 require 'fileutils'
-require 'java_buildpack/application'
 require 'java_buildpack/container/tomcat'
 
 module JavaBuildpack::Container
 
   describe Tomcat do
+    include_context 'component_helper'
 
-    TOMCAT_VERSION = JavaBuildpack::Util::TokenizedVersion.new('7.0.40')
-
-    TOMCAT_DETAILS = [TOMCAT_VERSION, 'test-tomcat-uri']
-
-    SUPPORT_VERSION = JavaBuildpack::Util::TokenizedVersion.new('1.0.0')
-
-    SUPPORT_DETAILS = [SUPPORT_VERSION, 'test-support-uri']
-
-    let(:application_cache) { double('ApplicationCache') }
+    let(:configuration) { { 'support' => support_configuration } }
+    let(:support_configuration) { {} }
+    let(:support_uri) { 'test-support-uri' }
+    let(:support_version) { '1.1.1' }
 
     before do
-      $stdout = StringIO.new
-      $stderr = StringIO.new
+      allow(application_cache).to receive(:get).with(support_uri)
+                                  .and_yield(File.open('spec/fixtures/stub-support.jar'))
     end
 
-    it 'should detect WEB-INF' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
-      .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
-      detected = Tomcat.new(
-          app_dir: 'spec/fixtures/container_tomcat',
-          application: JavaBuildpack::Application.new('spec/fixtures/container_tomcat'),
-          configuration: {}
-      ).detect
+    before do
+      tokenized_version = JavaBuildpack::Util::TokenizedVersion.new(support_version)
 
-      expect(detected).to include('tomcat=7.0.40')
-      expect(detected).to include('tomcat-buildpack-support=1.0.0')
+      allow(JavaBuildpack::Repository::ConfiguredItem).to receive(:find_item).with(an_instance_of(String),
+                                                                                   support_configuration) do |&block|
+        block.call(tokenized_version) if block
+      end.and_return([tokenized_version, support_uri])
     end
 
-    it 'should not detect when WEB-INF is absent' do
-      detected = Tomcat.new(
-          app_dir: 'spec/fixtures/container_main',
-          application: JavaBuildpack::Application.new('spec/fixtures/container_main'),
-          configuration: {}
-      ).detect
+    it 'should detect WEB-INF',
+       app_fixture: 'container_tomcat' do
 
-      expect(detected).to be_nil
+      detected = component.detect
+
+      expect(detected).to include("tomcat=#{version}")
+      expect(detected).to include("tomcat-buildpack-support=#{support_version}")
     end
 
-    it 'should not detect when WEB-INF is present in a Java main application' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
-      .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
-      detected = Tomcat.new(
-          app_dir: 'spec/fixtures/container_main_with_web_inf',
-          application: JavaBuildpack::Application.new('spec/fixtures/container_main_with_web_inf'),
-          configuration: {}
-      ).detect
+    it 'should not detect when WEB-INF is absent',
+       app_fixture: 'container_main' do
 
-      expect(detected).to be_nil
+      expect(component.detect).to be_nil
     end
 
-    it 'should fail when a malformed version is detected' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(JavaBuildpack::Util::TokenizedVersion.new('7.0.40_0')) if block }
-      .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
-      expect do
-        Tomcat.new(
-            app_dir: 'spec/fixtures/container_tomcat',
-            application: JavaBuildpack::Application.new('spec/fixtures/container_tomcat'),
-            configuration: {}
-        ).detect
-      end.to raise_error(/Malformed\ version/)
+    it 'should not detect when WEB-INF is present in a Java main application',
+       app_fixture: 'container_main_with_web_inf' do
+
+      expect(component.detect).to be_nil
     end
 
-    it 'should extract Tomcat from a GZipped TAR' do
-      Dir.mktmpdir do |root|
-        Dir.mkdir File.join(root, 'WEB-INF')
+    context do
+      let(:version) { '7.0.47_10' }
 
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
-        .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
+      it 'should fail when a malformed version is detected',
+         app_fixture: 'container_tomcat' do
 
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
-        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
-
-        Tomcat.new(
-            app_dir: root,
-            application: JavaBuildpack::Application.new(root),
-            configuration: {}
-        ).compile
-
-        tomcat_dir = File.join root, '.tomcat'
-        conf_dir = File.join tomcat_dir, 'conf'
-
-        catalina = File.join tomcat_dir, 'bin', 'catalina.sh'
-        expect(File.exists?(catalina)).to be_true
-
-        context = File.join conf_dir, 'context.xml'
-        expect(File.exists?(context)).to be_true
-
-        server = File.join conf_dir, 'server.xml'
-        expect(File.exists?(server)).to be_true
-
-        support = File.join tomcat_dir, 'lib', 'tomcat-buildpack-support-1.0.0.jar'
-        expect(File.exists?(support)).to be_true
+        expect { component.detect }.to raise_error /Malformed version/
       end
     end
 
-    it 'should link only the application files and directories to the ROOT webapp' do
-      Dir.mktmpdir do |root|
-        Dir.mkdir File.join(root, 'WEB-INF')
-        FileUtils.touch File.join(root, 'index.html')
+    it 'should extract Tomcat from a GZipped TAR',
+       app_fixture: 'container_tomcat',
+       cache_fixture: 'stub-tomcat.tar.gz' do
 
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
-        .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
+      component.compile
 
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
-        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
+      tomcat_dir = app_dir + '.tomcat'
+      conf_dir = tomcat_dir + 'conf'
 
-        application = JavaBuildpack::Application.new(root)
+      expect(tomcat_dir + 'bin/catalina.sh').to exist
+      expect(conf_dir + 'context.xml').to exist
+      expect(conf_dir + 'server.xml').to exist
+      expect(tomcat_dir + 'lib/tomcat-buildpack-support-1.1.1.jar').to exist
+    end
 
-        FileUtils.touch File.join(root, '.test-file')
+    it 'should link only the application files and directories to the ROOT webapp',
+       app_fixture: 'container_tomcat_with_index',
+       cache_fixture: 'stub-tomcat.tar.gz' do
 
-        Tomcat.new(
-            app_dir: root,
-            application: application,
-            configuration: {}
-        ).compile
+      FileUtils.touch(app_dir + '.test-file')
 
-        root_webapp = File.join root, '.tomcat', 'webapps', 'ROOT'
+      component.compile
 
-        web_inf = File.join root_webapp, 'WEB-INF'
-        expect(File.exists?(web_inf)).to be_true
-        expect(File.readlink(web_inf)).to eq('../../../WEB-INF')
+      root_webapp = app_dir + '.tomcat/webapps/ROOT'
 
-        index = File.join root_webapp, 'index.html'
-        expect(File.exists?(index)).to be_true
-        expect(File.readlink(index)).to eq('../../../index.html')
+      web_inf = root_webapp + 'WEB-INF'
+      expect(web_inf).to exist
+      expect(web_inf).to be_symlink
+      expect(web_inf.readlink).to eq((app_dir + 'WEB-INF').relative_path_from(root_webapp))
 
-        test_file = File.join root_webapp, '.test_file'
-        expect(File.exists?(test_file)).to be_false
+      index = root_webapp + 'index.html'
+      expect(index).to exist
+      expect(index).to be_symlink
+      expect(index.readlink).to eq((app_dir + 'index.html').relative_path_from(root_webapp))
+
+      expect(root_webapp + '.test-file').not_to exist
+    end
+
+    it 'should link the Tomcat datasource JAR to the ROOT webapp when that JAR is present',
+       app_fixture: 'container_tomcat',
+       cache_fixture: 'stub-tomcat7.tar.gz' do
+
+      component.compile
+
+      web_inf_lib = app_dir + 'WEB-INF/lib'
+      app_jar = web_inf_lib + 'tomcat-jdbc.jar'
+      expect(app_jar).to exist
+      expect(app_jar).to be_symlink
+      expect(app_jar.readlink).to eq((additional_libs_dir + 'tomcat-jdbc.jar').relative_path_from(web_inf_lib))
+
+      additional_jar = additional_libs_dir + 'tomcat-jdbc.jar'
+      expect(additional_jar).to exist
+      expect(additional_jar).to be_symlink
+      expect(additional_jar.readlink).to eq((app_dir + '.tomcat/lib/tomcat-jdbc.jar').relative_path_from(additional_libs_dir))
+    end
+
+    it 'should not link the Tomcat datasource JAR to the ROOT webapp when that JAR is absent',
+       app_fixture: 'container_tomcat',
+       cache_fixture: 'stub-tomcat.tar.gz' do
+
+      component.compile
+
+      app_jar = app_dir + 'WEB-INF/lib/tomcat-jdbc.jar'
+      expect(app_jar).not_to exist
+    end
+
+    it 'should link additional libraries to the ROOT webapp',
+       app_fixture: 'container_tomcat',
+       cache_fixture: 'stub-tomcat.tar.gz' do
+
+      component.compile
+
+      web_inf_lib = app_dir + 'WEB-INF/lib'
+
+      test_jar_1 = web_inf_lib + 'test-jar-1.jar'
+      test_jar_2 = web_inf_lib + 'test-jar-2.jar'
+      expect(test_jar_1).to exist
+      expect(test_jar_1).to be_symlink
+      expect(test_jar_1.readlink).to eq((additional_libs_dir + 'test-jar-1.jar').relative_path_from(web_inf_lib))
+
+      expect(test_jar_2).to exist
+      expect(test_jar_2).to be_symlink
+      expect(test_jar_2.readlink).to eq((additional_libs_dir + 'test-jar-2.jar').relative_path_from(web_inf_lib))
+
+      expect(web_inf_lib + 'test-text.txt').not_to exist
+    end
+
+    context do
+      let(:extra_applications_dir) { app_dir + '.extra-applications' }
+
+      before do
+        FileUtils.mkdir_p extra_applications_dir
+        FileUtils.cp_r 'spec/fixtures/framework_spring_insight', extra_applications_dir
+      end
+
+      it 'should link extra applications to the applications directory',
+         app_fixture: 'container_tomcat',
+         cache_fixture: 'stub-tomcat.tar.gz' do
+
+        component.compile
+
+        webapps_dir = app_dir + '.tomcat/webapps'
+
+        insight_test_dir = webapps_dir + 'framework_spring_insight'
+        expect(insight_test_dir).to exist
+        expect(insight_test_dir).to be_symlink
+        expect(insight_test_dir.readlink).to eq((extra_applications_dir + 'framework_spring_insight')
+                                                .relative_path_from(webapps_dir))
       end
     end
 
-    it 'should link the Tomcat datasource JAR to the ROOT webapp when that JAR is present' do
-      Dir.mktmpdir do |root|
-        Dir.mkdir File.join(root, 'WEB-INF')
-        lib_directory = File.join(root, '.lib')
-        Dir.mkdir lib_directory
+    context do
+      let(:container_libs_dir) { app_dir + '.container-libs' }
 
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
-        .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
+      before do
+        FileUtils.mkdir_p container_libs_dir
+        FileUtils.cp_r 'spec/fixtures/framework_spring_insight/.insight/weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar',
+                       container_libs_dir
+      end
 
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat7.tar.gz'))
-        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
+      it 'should link container libs to the tomcat lib directory',
+         app_fixture: 'container_tomcat',
+         cache_fixture: 'stub-tomcat.tar.gz' do
 
-        application = JavaBuildpack::Application.new(root)
+        component.compile
 
-        Tomcat.new(
-            app_dir: root,
-            application: application,
-            configuration: {},
-            lib_directory: lib_directory
-        ).compile
+        lib_dir = app_dir + '.tomcat/lib'
+        insight_test_lib = lib_dir + 'insight-weaver-1.2.4-CI-SNAPSHOT.jar'
 
-        root_webapp = File.join root, '.tomcat', 'webapps', 'ROOT'
-
-        tomcat_datasource_jar = File.join root_webapp, 'WEB-INF', 'lib', 'tomcat-jdbc.jar'
-        expect(File.exists?(tomcat_datasource_jar)).to be_true
-        expect(File.readlink(tomcat_datasource_jar)).to eq('../../.lib/tomcat-jdbc.jar')
-
-        tomcat_datasource_link_in_lib_directory = File.join lib_directory, 'tomcat-jdbc.jar'
-        expect(File.exists?(tomcat_datasource_link_in_lib_directory))
-        expect(File.readlink(tomcat_datasource_link_in_lib_directory)).to eq('../.tomcat/lib/tomcat-jdbc.jar')
+        expect(insight_test_lib).to exist
+        expect(insight_test_lib).to be_symlink
+        expect(insight_test_lib.readlink).to eq((container_libs_dir + 'insight-weaver-1.2.4-CI-SNAPSHOT.jar')
+                                                .relative_path_from(lib_dir))
       end
     end
 
-    it 'should not link the Tomcat datasource JAR to the ROOT webapp when that JAR is absent' do
-      Dir.mktmpdir do |root|
-        Dir.mkdir File.join(root, 'WEB-INF')
-        lib_directory = File.join(root, '.lib')
-        Dir.mkdir lib_directory
+    it 'should return command',
+       app_fixture: 'container_tomcat' do
 
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
-        .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
-
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
-        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
-
-        application = JavaBuildpack::Application.new(root)
-
-        Tomcat.new(
-            app_dir: root,
-            application: application,
-            configuration: {},
-            lib_directory: lib_directory
-        ).compile
-
-        root_webapp = File.join root, '.tomcat', 'webapps', 'ROOT'
-
-        tomcat_datasource_jar = File.join root_webapp, 'WEB-INF', 'lib', 'tomcat-jdbc.jar'
-        expect(File.exists?(tomcat_datasource_jar)).to be_false
-      end
+      expect(component.release).to eq("JAVA_HOME=#{java_home} JAVA_OPTS=#{java_opts_str} .tomcat/bin/catalina.sh run")
     end
 
-    it 'should link additional libraries to the ROOT webapp' do
-      Dir.mktmpdir do |root|
-        Dir.mkdir File.join root, 'WEB-INF'
-        lib_directory = File.join root, '.lib'
-        Dir.mkdir lib_directory
-
-        Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
-
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
-        .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
-
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
-        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
-
-        Tomcat.new(
-            app_dir: root,
-            application: JavaBuildpack::Application.new(root),
-            lib_directory: lib_directory,
-            configuration: {}
-        ).compile
-
-        lib = File.join root, '.tomcat', 'webapps', 'ROOT', 'WEB-INF', 'lib'
-        test_jar_1 = File.join lib, 'test-jar-1.jar'
-        test_jar_2 = File.join lib, 'test-jar-2.jar'
-        test_text = File.join lib, 'test-text.txt'
-
-        expect(File.exists?(test_jar_1)).to be_true
-        expect(File.symlink?(test_jar_1)).to be_true
-        expect(File.readlink(test_jar_1)).to eq('../../.lib/test-jar-1.jar')
-
-        expect(File.exists?(test_jar_2)).to be_true
-        expect(File.symlink?(test_jar_2)).to be_true
-        expect(File.readlink(test_jar_2)).to eq('../../.lib/test-jar-2.jar')
-
-        expect(File.exists?(test_text)).to be_false
-      end
-    end
-
-    it 'should link extra applications to the applications directory' do
-      Dir.mktmpdir do |root|
-        extra_applications_dir = File.join(root, '.extra-applications')
-        Dir.mkdir extra_applications_dir
-        Dir.mkdir File.join root, 'WEB-INF'
-        system "cp -r spec/fixtures/framework_spring_insight #{extra_applications_dir}"
-
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
-        .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
-
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
-        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
-
-        Tomcat.new(
-            app_dir: root,
-            application: JavaBuildpack::Application.new(root),
-            configuration: {}
-        ).compile
-
-        insight_test_dir = File.join root, '.tomcat', 'webapps', 'framework_spring_insight'
-        expect(File.exists?(insight_test_dir)).to be_true
-        expect(File.symlink?(insight_test_dir)).to be_true
-      end
-    end
-
-    it 'should link container libs to the tomcat lib directory' do
-      Dir.mktmpdir do |root|
-        container_libs_directory = File.join(root, '.container-libs')
-        Dir.mkdir container_libs_directory
-        Dir.mkdir File.join root, 'WEB-INF'
-        system "cp -r spec/fixtures/framework_spring_insight/.insight/weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar #{container_libs_directory}"
-
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
-        .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
-
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-tomcat-uri').and_yield(File.open('spec/fixtures/stub-tomcat.tar.gz'))
-        application_cache.stub(:get).with('test-support-uri').and_yield(File.open('spec/fixtures/stub-support.jar'))
-
-        Tomcat.new(
-            app_dir: root,
-            application: JavaBuildpack::Application.new(root),
-            configuration: {}
-        ).compile
-
-        insight_test_lib = File.join root, '.tomcat', 'lib', 'insight-weaver-1.2.4-CI-SNAPSHOT.jar'
-        expect(File.exists?(insight_test_lib)).to be_true
-        expect(File.symlink?(insight_test_lib)).to be_true
-      end
-    end
-
-    it 'should return command' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(TOMCAT_VERSION) if block }
-      .and_return(TOMCAT_DETAILS, SUPPORT_DETAILS)
-
-      command = Tomcat.new(
-          app_dir: 'spec/fixtures/container_tomcat',
-          application: JavaBuildpack::Application.new('spec/fixtures/container_tomcat'),
-          java_home: 'test-java-home',
-          java_opts: %w(test-opt-2 test-opt-1),
-          configuration: {}
-      ).release
-
-      expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="-Dhttp.port=$PORT test-opt-1 test-opt-2" .tomcat/bin/catalina.sh run')
+    def java_opts_str
+      "\"#{java_opts.sort.join(' ')}\""
     end
 
   end

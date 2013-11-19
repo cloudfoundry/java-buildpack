@@ -15,186 +15,114 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'java_buildpack/application'
+require 'component_helper'
 require 'java_buildpack/framework/app_dynamics'
 
 module JavaBuildpack::Framework
 
-  describe AppDynamics do
+  describe AppDynamics, service_type: 'app-dynamics-n/a' do
+    include_context 'component_helper'
 
-    APP_DYNAMICS_VERSION = JavaBuildpack::Util::TokenizedVersion.new('3.7.11')
-
-    APP_DYNAMICS_DETAILS = [APP_DYNAMICS_VERSION, 'test-uri']
-
-    let(:application_cache) { double('ApplicationCache') }
-    let(:java_opts) { [] }
-    let(:vcap_application) { {} }
-    let(:vcap_services) { {} }
-
-    before do
-      $stdout = StringIO.new
-      $stderr = StringIO.new
-    end
+    let(:configuration) { { 'tier_name' => 'test-tier-name' } }
+    let(:service_credentials) { { 'host-name' => 'test-host-name' } }
 
     it 'should detect with app-dynamics-n/a service' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(APP_DYNAMICS_DETAILS)
-      vcap_services['app-dynamics-n/a'] = [{ 'credentials' => { 'host-naMe' => 'test-host-name' } }]
-
-      detected = AppDynamics.new(
-          vcap_services: vcap_services
-      ).detect
-
-      expect(detected).to eq('appdynamics-agent=3.7.11')
+      expect(component.detect).to eq("appdynamics-agent=#{version}")
     end
 
-    it 'should not detect without app-dynamics-n/a service' do
-      detected = AppDynamics.new(
-          vcap_services: vcap_services
-      ).detect
+    context do
+      let(:vcap_services) { {} }
 
-      expect(detected).to be_nil
-    end
-
-    it 'should fail with multiple app-dynamics-n/a services' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(APP_DYNAMICS_DETAILS)
-      vcap_services['app-dynamics-n/a'] = [
-          { 'credentials' => { 'host-naMe' => 'test-host-name' } },
-          { 'credentials' => { 'host-naMe' => 'test-host-name' } }
-      ]
-
-      expect do
-        AppDynamics.new(
+      it 'should not detect without app-dynamics-n/a service' do
+        detected = AppDynamics.new(
             vcap_services: vcap_services
         ).detect
-      end.to raise_error
-    end
 
-    it 'should fail with zero app-dynamics-n/a services' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(APP_DYNAMICS_DETAILS)
-      vcap_services['app-dynamics-n/a'] = []
-
-      expect do
-        AppDynamics.new(
-            vcap_services: vcap_services
-        ).detect
-      end.to raise_error
-    end
-
-    it 'should expand AppDynamics agent zip' do
-      Dir.mktmpdir do |root|
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(APP_DYNAMICS_DETAILS)
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-app-dynamics-agent.zip'))
-        vcap_services['app-dynamics-n/a'] = [{ 'credentials' => { 'host-name' => 'test-host-name' } }]
-
-        AppDynamics.new(
-            app_dir: root,
-            application: JavaBuildpack::Application.new(root),
-            vcap_services: vcap_services
-        ).compile
-
-        expect(File.exists? File.join(root, '.app-dynamics', 'javaagent.jar')).to be_true
+        expect(detected).to be_nil
       end
     end
 
-    it 'should update JAVA_OPTS' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(APP_DYNAMICS_DETAILS)
-      vcap_application['application_name'] = 'test-application-name'
-      vcap_services['app-dynamics-n/a'] = [{ 'credentials' => { 'host-name' => 'test-host-name' } }]
+    context do
+      let(:service_payload) { [{ 'credentials' => service_credentials }, { 'credentials' => service_credentials }] }
 
-      AppDynamics.new(
-          java_opts: java_opts,
-          vcap_application: vcap_application,
-          application: JavaBuildpack::Application.new('/tmp'),
-          vcap_services: vcap_services,
-          configuration: { 'tier_name' => 'test-tier-name' }
-      ).release
+      it 'should fail with multiple app-dynamics-n/a services' do
+        expect { component.detect }.to raise_error /Exactly one service/
+      end
+    end
+
+    context do
+      let(:service_payload) { [] }
+
+      it 'should fail with zero app-dynamics-n/a services' do
+        expect { component.detect }.to raise_error /Exactly one service/
+      end
+    end
+
+    it 'should expand AppDynamics agent zip',
+       cache_fixture: 'stub-app-dynamics-agent.zip' do
+
+      component.compile
+
+      expect(app_dir + '.app-dynamics/javaagent.jar').to exist
+    end
+
+    it 'should update JAVA_OPTS' do
+      component.release
 
       expect(java_opts).to include('-javaagent:.app-dynamics/javaagent.jar')
       expect(java_opts).to include('-Dappdynamics.controller.hostName=test-host-name')
       expect(java_opts).to include("-Dappdynamics.agent.applicationName='test-application-name'")
       expect(java_opts).to include("-Dappdynamics.agent.tierName='test-tier-name'")
-      expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : \'.*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
+      expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' +
+                                       '\'.*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
     end
 
-    it 'should raise error if host-name not specified' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(APP_DYNAMICS_DETAILS)
-      vcap_application['application_name'] = 'test-application-name'
-      vcap_services['app-dynamics-n/a'] = [{ 'credentials' => {} }]
+    context do
+      let(:service_credentials) { {} }
 
-      expect do
-        AppDynamics.new(
-            java_opts: java_opts,
-            vcap_application: vcap_application,
-            application: JavaBuildpack::Application.new('/tmp'),
-            vcap_services: vcap_services,
-            configuration: { 'tier_name' => 'test-tier-name' }
-        ).release
-      end.to raise_error("'host-name' credential must be set")
+      it 'should raise error if host-name not specified' do
+        expect { component.release }.to raise_error /'host-name' credential must be set/
+      end
     end
 
-    it 'should add port to JAVA_OPTS if specified' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(APP_DYNAMICS_DETAILS)
-      vcap_application['application_name'] = 'test-application-name'
-      vcap_services['app-dynamics-n/a'] = [{ 'credentials' => { 'host-name' => 'test-host-name', 'port' => 'test-port' } }]
+    context do
+      let(:service_credentials) { super().merge 'port' => 'test-port' }
 
-      AppDynamics.new(
-          java_opts: java_opts,
-          vcap_application: vcap_application,
-          application: JavaBuildpack::Application.new('/tmp'),
-          vcap_services: vcap_services,
-          configuration: { 'tier_name' => 'test-tier-name' }
-      ).release
+      it 'should add port to JAVA_OPTS if specified' do
+        component.release
 
-      expect(java_opts).to include('-Dappdynamics.controller.port=test-port')
+        expect(java_opts).to include('-Dappdynamics.controller.port=test-port')
+      end
     end
 
-    it 'should add ssl_enabled to JAVA_OPTS if specified' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(APP_DYNAMICS_DETAILS)
-      vcap_application['application_name'] = 'test-application-name'
-      vcap_services['app-dynamics-n/a'] = [{ 'credentials' => { 'host-name' => 'test-host-name', 'ssl-enabled' => 'test-ssl-enabled' } }]
+    context do
+      let(:service_credentials) { super().merge 'ssl-enabled' => 'test-ssl-enabled' }
 
-      AppDynamics.new(
-          java_opts: java_opts,
-          vcap_application: vcap_application,
-          application: JavaBuildpack::Application.new('/tmp'),
-          vcap_services: vcap_services,
-          configuration: { 'tier_name' => 'test-tier-name' }
-      ).release
+      it 'should add ssl_enabled to JAVA_OPTS if specified' do
+        component.release
 
-      expect(java_opts).to include('-Dappdynamics.controller.ssl.enabled=test-ssl-enabled')
+        expect(java_opts).to include('-Dappdynamics.controller.ssl.enabled=test-ssl-enabled')
+      end
     end
 
-    it 'should add account_name to JAVA_OPTS if specified' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(APP_DYNAMICS_DETAILS)
-      vcap_application['application_name'] = 'test-application-name'
-      vcap_services['app-dynamics-n/a'] = [{ 'credentials' => { 'host-name' => 'test-host-name', 'account-name' => 'test-account-name' } }]
+    context do
+      let(:service_credentials) { super().merge 'account-name' => 'test-account-name' }
 
-      AppDynamics.new(
-          java_opts: java_opts,
-          vcap_application: vcap_application,
-          application: JavaBuildpack::Application.new('/tmp'),
-          vcap_services: vcap_services,
-          configuration: { 'tier_name' => 'test-tier-name' }
-      ).release
+      it 'should add account_name to JAVA_OPTS if specified' do
+        component.release
 
-      expect(java_opts).to include('-Dappdynamics.agent.accountName=test-account-name')
+        expect(java_opts).to include('-Dappdynamics.agent.accountName=test-account-name')
+      end
     end
 
-    it 'should add account_access_key to JAVA_OPTS if specified' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(APP_DYNAMICS_DETAILS)
-      vcap_application['application_name'] = 'test-application-name'
-      vcap_services['app-dynamics-n/a'] = [{ 'credentials' => { 'host-name' => 'test-host-name', 'account-access-key' => 'test-account-access-key' } }]
+    context do
+      let(:service_credentials) { super().merge 'account-access-key' => 'test-account-access-key' }
 
-      AppDynamics.new(
-          java_opts: java_opts,
-          vcap_application: vcap_application,
-          application: JavaBuildpack::Application.new('/tmp'),
-          vcap_services: vcap_services,
-          configuration: { 'tier_name' => 'test-tier-name' }
-      ).release
+      it 'should add account_access_key to JAVA_OPTS if specified' do
+        component.release
 
-      expect(java_opts).to include('-Dappdynamics.agent.accountAccessKey=test-account-access-key')
+        expect(java_opts).to include('-Dappdynamics.agent.accountAccessKey=test-account-access-key')
+      end
     end
 
   end

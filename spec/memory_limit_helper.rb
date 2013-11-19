@@ -15,23 +15,18 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'application_helper'
-require 'open3'
 
-describe 'compile script', :integration do
-  include_context 'application_helper'
+shared_context 'memory_limit_helper' do
 
-  it 'should return zero if success',
-     app_fixture: 'integration_valid' do
+  previous_memory_limit = ENV['MEMORY_LIMIT']
 
-    Open3.popen3("bin/compile #{app_dir} #{app_dir}") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to be_success
-    end
+  before do |example|
+    memory_limit = example.metadata[:memory_limit]
+    ENV['MEMORY_LIMIT'] = memory_limit if memory_limit
   end
 
-  it 'should fail to compile when no containers detect' do
-    error = Open3.capture3("bin/compile #{app_dir} #{app_dir}")[1]
-    expect(error).to match /No container can run the application/
+  after do
+    ENV['MEMORY_LIMIT'] = previous_memory_limit
   end
 
 end

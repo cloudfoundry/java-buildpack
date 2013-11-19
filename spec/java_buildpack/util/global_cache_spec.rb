@@ -15,47 +15,34 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'buildpack_cache_helper'
+require 'diagnostics_helper'
 require 'java_buildpack/util/global_cache'
 
 module JavaBuildpack::Util
 
   describe GlobalCache do
+    include_context 'diagnostics_helper'
 
     before do
-      @previous_value = ENV.delete 'BUILDPACK_CACHE'
-
-      stub_request(:get, 'http://foo-uri/')
-      .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+      stub_request(:get, 'http://foo-uri/').with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
       .to_return(status: 200, body: '', headers: {})
-
-      DownloadCache.class_variable_set :@@internet_checked, false
-    end
-
-    after do
-      ENV['BUILDPACK_CACHE'] = @previous_value
-      DownloadCache.class_variable_set :@@internet_checked, false
     end
 
     it 'should raise an error if BUILDPACK_CACHE is not defined' do
-      -> { GlobalCache.new }.should raise_error
+      expect { GlobalCache.new }.to raise_error
     end
 
-    it 'should use BUILDPACK_CACHE directory' do
-      stub_request(:get, 'http://foo-uri/').to_return(
-          status: 200,
-          body: 'foo-cached',
-          headers: {
-              Etag: 'foo-etag',
-              'Last-Modified' => 'foo-last-modified'
-          }
-      )
+    context do
+      include_context 'buildpack_cache_helper'
 
-      Dir.mktmpdir do |root|
-        ENV['BUILDPACK_CACHE'] = root
+      it 'should use BUILDPACK_CACHE directory' do
+        stub_request(:get, 'http://foo-uri/')
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
         GlobalCache.new.get('http://foo-uri/') {}
 
-        expect(Dir[File.join(root, '*.cached')].size).to eq(1)
+        expect(Dir[buildpack_cache_dir + '*.cached'].size).to eq(1)
       end
     end
 

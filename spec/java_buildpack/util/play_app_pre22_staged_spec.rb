@@ -15,93 +15,122 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'additional_libs_helper'
+require 'application_helper'
 require 'java_buildpack/util/library_utils'
 require 'java_buildpack/util/play_app_pre22_staged'
 
 module JavaBuildpack::Util
 
   describe PlayAppPre22Staged do
+    include_context 'application_helper'
 
-    it 'should not recognize Play 2.0 dist applications' do
-      expect(PlayAppPre22Staged.recognizes? 'spec/fixtures/container_play_2.0_dist').to be_false
+    context do
+
+      let(:trigger) { PlayAppPre22Staged.recognizes? app_dir }
+
+      it 'should not recognize Play 2.0 dist applications',
+         app_fixture: 'container_play_2.0_dist' do
+
+        expect(trigger).not_to be
+      end
+
+      it 'should not recognize Play 2.1 dist applications',
+         app_fixture: 'container_play_2.1_dist' do
+
+        expect(trigger).not_to be
+      end
+
+      it 'should recognize Play 2.1 staged (or equivalently 2.0 staged) applications',
+         app_fixture: 'container_play_2.1_staged' do
+
+        expect(trigger).to be
+      end
+
+      it 'should not recognize Play 2.2 applications',
+         app_fixture: 'container_play_2.2' do
+
+        expect(trigger).not_to be
+      end
     end
 
-    it 'should not recognize Play 2.1 dist applications' do
-      expect(PlayAppPre22Staged.recognizes? 'spec/fixtures/container_play_2.1_dist').to be_false
-    end
+    context do
 
-    it 'should recognize Play 2.1 staged (or equivalently 2.0 staged) applications' do
-      expect(PlayAppPre22Staged.recognizes? 'spec/fixtures/container_play_2.1_staged').to be_true
-    end
+      let(:play_app) { PlayAppPre22Staged.new app_dir }
 
-    it 'should not recognize Play 2.2 applications' do
-      expect(PlayAppPre22Staged.recognizes? 'spec/fixtures/container_play_2.2').to be_false
-    end
+      it 'should fail to construct a Play 2.0 dist application',
+         app_fixture: 'container_play_2.0_dist' do
 
-    it 'should fail to construct a Play 2.0 dist application' do
-      expect { PlayAppPre22Staged.new 'spec/fixtures/container_play_2.0_dist' }.to raise_error(/Unrecognized Play application/)
-    end
+        expect { play_app }.to raise_error /Unrecognized Play application/
+      end
 
-    it 'should fail to construct a Play 2.1 dist application' do
-      expect { PlayAppPre22Staged.new 'spec/fixtures/container_play_2.1_dist' }.to raise_error(/Unrecognized Play application/)
-    end
+      it 'should fail to construct a Play 2.1 dist application',
+         app_fixture: 'container_play_2.1_dist' do
 
-    it 'should construct a Play 2.1 staged (or equivalently 2.0 staged) application' do
-      PlayAppPre22Staged.new 'spec/fixtures/container_play_2.1_staged'
-    end
+        expect { play_app }.to raise_error /Unrecognized Play application/
+      end
 
-    it 'should fail to construct a Play 2.2 application' do
-      expect { PlayAppPre22Staged.new 'spec/fixtures/container_play_2.2' }.to raise_error(/Unrecognized Play application/)
-    end
+      it 'should construct a Play 2.1 staged (or equivalently 2.0 staged) application',
+         app_fixture: 'container_play_2.1_staged' do
 
-    it 'should correctly determine the version of a Play 2.1 staged (or equivalently 2.0 staged) application' do
-      play_app = PlayAppPre22Staged.new 'spec/fixtures/container_play_2.1_staged'
-      expect(play_app.version).to eq('2.1.4')
-    end
+        play_app
+      end
 
-    it 'should make the start script executable' do
-      Dir.mktmpdir do |root|
-        FileUtils.cp_r 'spec/fixtures/container_play_2.1_staged/.', root
+      it 'should fail to construct a Play 2.2 application',
+         app_fixture: 'container_play_2.2' do
 
-        play_app = PlayAppPre22Staged.new root
+        expect { play_app }.to raise_error /Unrecognized Play application/
+      end
 
-        JavaBuildpack::Util::PlayAppPre22Staged.any_instance.should_receive(:shell).with("chmod +x #{root}/start").and_return('')
+      it 'should correctly determine the version of a Play 2.1 staged (or equivalently 2.0 staged) application',
+         app_fixture: 'container_play_2.1_staged' do
+
+        expect(play_app.version).to eq('2.1.4')
+      end
+
+      it 'should make the start script executable',
+         app_fixture: 'container_play_2.1_staged' do
+
+        allow(play_app).to receive(:shell).with("chmod +x #{app_dir}/start").and_return('')
 
         play_app.set_executable
       end
-    end
 
-    it 'should add additional libraries to staged directory of a Play 2.1 staged (or equivalently 2.0 staged) application' do
-      Dir.mktmpdir do |root|
-        lib_dir = File.join(root, '.lib')
-        FileUtils.mkdir_p lib_dir
-        FileUtils.cp 'spec/fixtures/additional_libs/test-jar-1.jar', lib_dir
+      context do
+        include_context 'additional_libs_helper'
 
-        FileUtils.cp_r 'spec/fixtures/container_play_2.1_staged/.', root
+        it 'should add additional libraries to staged directory of a Play 2.1 staged (or equivalently 2.0 staged) application',
+           app_fixture: 'container_play_2.1_staged' do
 
-        play_app = PlayAppPre22Staged.new root
+          play_app.add_libs_to_classpath LibraryUtils.lib_jars(additional_libs_dir)
 
-        play_app.add_libs_to_classpath JavaBuildpack::Util::LibraryUtils.lib_jars(lib_dir)
+          staged_dir = app_dir + 'staged'
+          test_jar_1 = staged_dir + 'test-jar-1.jar'
+          test_jar_2 = staged_dir + 'test-jar-2.jar'
 
-        relative = File.readlink(File.join root, 'staged', 'test-jar-1.jar')
-        actual = Pathname.new(File.join root, 'staged', 'test-jar-1.jar').realpath.to_s
-        expected = Pathname.new(File.join lib_dir, 'test-jar-1.jar').realpath.to_s
+          expect(test_jar_1).to exist
+          expect(test_jar_1).to be_symlink
+          expect(test_jar_1.readlink).to eq((additional_libs_dir + 'test-jar-1.jar').relative_path_from(staged_dir))
 
-        expect(relative).to_not eq(expected)
-        expect(actual).to eq(expected)
+          expect(test_jar_2).to exist
+          expect(test_jar_2).to be_symlink
+          expect(test_jar_2.readlink).to eq((additional_libs_dir + 'test-jar-2.jar').relative_path_from(staged_dir))
+        end
       end
-    end
 
-    it 'should correctly determine the relative path of the start script of a Play 2.1 staged (or equivalently 2.0 staged) application' do
-      play_app = PlayAppPre22Staged.new 'spec/fixtures/container_play_2.1_staged'
-      expect(play_app.start_script_relative).to eq('./start')
-    end
+      it 'should correctly determine the relative path of the start script of a Play 2.1 staged (or equivalently 2.0 staged) application',
+         app_fixture: 'container_play_2.1_staged' do
 
-    it 'should correctly determine whether or not certain JARs are present in the lib directory of a Play 2.1 staged (or equivalently 2.0 staged) application' do
-      play_app = PlayAppPre22Staged.new 'spec/fixtures/container_play_2.1_staged'
-      expect(play_app.contains? 'so*st.jar').to be_true
-      expect(play_app.contains? 'some.test.jar').to be_true
-      expect(play_app.contains? 'nosuch.jar').to be_false
+        expect(play_app.start_script_relative).to eq('./start')
+      end
+
+      it 'should correctly determine whether or not certain JARs are present in the lib directory of a Play 2.1 staged (or equivalently 2.0 staged) application',
+         app_fixture: 'container_play_2.1_staged' do
+
+        expect(play_app.contains? 'so*st.jar').to be
+        expect(play_app.contains? 'some.test.jar').to be
+        expect(play_app.contains? 'nosuch.jar').not_to be
+      end
     end
 
   end

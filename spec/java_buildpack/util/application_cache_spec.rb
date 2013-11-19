@@ -15,48 +15,41 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'application_helper'
+require 'diagnostics_helper'
 require 'java_buildpack/util/application_cache'
 
 module JavaBuildpack::Util
 
   describe ApplicationCache do
+    include_context 'application_helper'
+    include_context 'diagnostics_helper'
+
+    previous_arg_value = ARGV[1]
 
     before do
-      @previous_value = ARGV[1]
       ARGV[1] = nil
 
-      stub_request(:get, 'http://foo-uri/')
-      .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
-      .to_return(status: 200, body: '', headers: {})
+      stub_request(:get, 'http://foo-uri/').with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
-      DownloadCache.class_variable_set :@@internet_checked, false
+      JavaBuildpack::Util::DownloadCache.clear_internet_availability
     end
 
     after do
-      ARGV[1] = @previous_value
+      ARGV[1] = previous_arg_value
     end
 
     it 'should raise an error if ARGV[1] is not defined' do
-      -> { ApplicationCache.new }.should raise_error
+      expect { ApplicationCache.new }.to raise_error
     end
 
     it 'should use ARGV[1] directory' do
-      stub_request(:get, 'http://foo-uri/').to_return(
-          status: 200,
-          body: 'foo-cached',
-          headers: {
-              Etag: 'foo-etag',
-              'Last-Modified' => 'foo-last-modified'
-          }
-      )
+      ARGV[1] = app_dir
 
-      Dir.mktmpdir do |root|
-        ARGV[1] = root
+      ApplicationCache.new.get('http://foo-uri/') {}
 
-        ApplicationCache.new.get('http://foo-uri/') {}
-
-        expect(Dir[File.join(root, '*.cached')].size).to eq(1)
-      end
+      expect(Dir[app_dir + '*.cached'].size).to eq(1)
     end
 
   end

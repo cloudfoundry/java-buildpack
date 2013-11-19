@@ -15,75 +15,77 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'application_helper'
 require 'java_buildpack/util/base_play_app'
 
 module JavaBuildpack::Util
 
   describe BasePlayApp do
+    include_context 'application_helper'
 
-    TEST_DIRECTORY_NAME = 'test-dir'
+    let(:base_play_app) { StubBasePlayApp.new app_dir }
 
-    MISSING_METHOD_REGEX = /Method .* must be defined/
+    let(:base_play_app_raw) { StubBasePlayAppRaw.new app_dir }
 
-    TEST_JAVA_OPTS = %w(test-option1 test-option2)
+    it 'should recognize a Play application',
+       app_fixture: 'container_play_2.2' do
 
-    let(:base_play_app) { StubBasePlayApp.new TEST_DIRECTORY_NAME }
-
-    let(:base_play_app_raw) { StubBasePlayAppRaw.new TEST_DIRECTORY_NAME }
-
-    it 'should recognize a Play application' do
-      expect(StubBasePlayApp.recognizes? 'spec/fixtures/container_play_2.2').to be_true
+      expect(StubBasePlayApp.recognizes? app_dir).to be
     end
 
-    it 'should not recognize a non-Play application' do
-      expect(StubBasePlayApp.recognizes? 'spec/fixtures/container_main').to be_false
+    it 'should not recognize a non-Play application',
+       app_fixture: 'container_main' do
+
+      expect(StubBasePlayApp.recognizes? app_dir).not_to be
     end
 
     it 'should assign application directory to an instance variable' do
-      expect(base_play_app_raw.app_dir).to eq(TEST_DIRECTORY_NAME)
+      expect(base_play_app_raw.app_dir).to eq(app_dir)
     end
 
     it 'should fail if methods are unimplemented' do
-      expect { base_play_app_raw.add_libs_to_classpath [] }.to raise_error(MISSING_METHOD_REGEX)
-      expect { base_play_app_raw.start_script_relative }.to raise_error(MISSING_METHOD_REGEX)
+      expect { base_play_app_raw.add_libs_to_classpath [] }.to raise_error /Method .* must be defined/
+      expect { base_play_app_raw.start_script_relative }.to raise_error /Method .* must be defined/
     end
 
     it 'should set the Play script to be executable' do
-      app = base_play_app
-      base_play_app.stub(:shell)
-      base_play_app.should_receive(:shell).with('chmod +x test-dir/application_root/start')
-      app.set_executable
+      expect(base_play_app).to receive(:shell).with("chmod +x #{app_dir + 'application_root/start'}")
+
+      base_play_app.set_executable
     end
 
-    it 'should correctly replace the bootstrap class in the start script' do
-      Dir.mktmpdir do |root|
-        FileUtils.cp_r 'spec/fixtures/container_play_2.1_dist/.', root
+    it 'should correctly replace the bootstrap class in the start script',
+       app_fixture: 'container_play_2.1_dist' do
 
-        play_app = StubBasePlayApp.new root
+      play_app = StubBasePlayApp.new app_dir
+      play_app.replace_bootstrap 'test.class.name'
 
-        play_app.replace_bootstrap 'test.class.name'
+      actual = (app_dir + 'application_root/start').read
 
-        actual = File.open(File.join(root, 'application_root', 'start'), 'r') { |file| file.read }
-
-        expect(actual).to_not match(/play.core.server.NettyServer/)
-        expect(actual).to match(/test.class.name/)
-      end
+      expect(actual).not_to match /play.core.server.NettyServer/
+      expect(actual).to match /test.class.name/
     end
 
-    it 'should be able to find JARs in the classpath directory' do
-      play_app = StubBasePlayApp.new 'spec/fixtures/container_play_2.1_dist'
-      expect(play_app.contains?('some.test.jar')).to be_true
+    it 'should be able to find JARs in the classpath directory',
+       app_fixture: 'container_play_2.1_dist' do
+
+      play_app = StubBasePlayApp.new app_dir
+      expect(play_app.contains? 'some.test.jar').to be
     end
 
-    it 'should be able to find root and version' do
-      root, version = StubBasePlayApp.test_root_and_version 'spec/fixtures/container_play_2.1_dist'
-      expect(root).to eq('spec/fixtures/container_play_2.1_dist/application_root')
+    it 'should be able to find root and version',
+       app_fixture: 'container_play_2.1_dist' do
+
+      root, version = StubBasePlayApp.test_root_and_version app_dir
+      expect(root).to eq((app_dir + 'application_root').to_s)
       expect(version).to eq('2.1.4')
     end
 
-    it 'should not decorate Java options' do
-      play_app = StubBasePlayApp.new 'spec/fixtures/container_play_2.1_dist'
-      expect(play_app.decorate_java_opts(TEST_JAVA_OPTS)).to eq(TEST_JAVA_OPTS)
+    it 'should not decorate Java options',
+       app_fixture: 'container_play_2.1_dist' do
+
+      play_app = StubBasePlayApp.new app_dir
+      expect(play_app.decorate_java_opts(%w(test-opt-2 test-opt-1))).to eq(%w(test-opt-2 test-opt-1))
     end
 
   end

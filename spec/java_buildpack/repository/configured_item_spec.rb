@@ -16,19 +16,21 @@
 
 require 'spec_helper'
 require 'java_buildpack/repository/configured_item'
+require 'java_buildpack/repository/repository_index'
+require 'java_buildpack/util/tokenized_version'
 
 module JavaBuildpack::Repository
 
   describe ConfiguredItem do
 
-    RESOLVED_VERSION = 'resolved-version'
-    RESOLVED_URI = 'resolved-uri'
-    VERSION_KEY = 'version'
-    REPOSITORY_ROOT_KEY = 'repository_root'
-    RESOLVED_ROOT = 'resolved-root'
+    let(:repository_index) { double('RepositoryIndex', find_item: [resolved_version, resolved_uri]) }
+
+    let(:resolved_uri) { 'resolved-uri' }
+
+    let(:resolved_version) { 'resolved-version' }
 
     before do
-      JavaBuildpack::Repository::RepositoryIndex.stub(:new).and_return(double('repository index', find_item: [RESOLVED_VERSION, RESOLVED_URI]))
+      allow(JavaBuildpack::Repository::RepositoryIndex).to receive(:new).and_return(repository_index)
     end
 
     it 'raises an error if no repository root is specified' do
@@ -42,8 +44,8 @@ module JavaBuildpack::Repository
                                          'version' => '1.7.0'
       )
 
-      expect(details[0]).to eq(RESOLVED_VERSION)
-      expect(details[1]).to eq(RESOLVED_URI)
+      expect(details[0]).to eq(resolved_version)
+      expect(details[1]).to eq(resolved_uri)
     end
 
     it 'resolves a configuration version if specified' do
@@ -52,8 +54,8 @@ module JavaBuildpack::Repository
                                          'version' => '1.7.0'
       )
 
-      expect(details[0]).to eq(RESOLVED_VERSION)
-      expect(details[1]).to eq(RESOLVED_URI)
+      expect(details[0]).to eq(resolved_version)
+      expect(details[1]).to eq(resolved_uri)
     end
 
     it 'drives the version validator block if supplied' do
@@ -70,8 +72,8 @@ module JavaBuildpack::Repository
                                          'repository_root' => 'test-repository-root'
       )
 
-      expect(details[0]).to eq(RESOLVED_VERSION)
-      expect(details[1]).to eq(RESOLVED_URI)
+      expect(details[0]).to eq(resolved_version)
+      expect(details[1]).to eq(resolved_uri)
     end
 
   end

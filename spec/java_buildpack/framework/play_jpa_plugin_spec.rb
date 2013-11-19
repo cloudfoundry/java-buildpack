@@ -15,84 +15,45 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'component_helper'
 require 'java_buildpack/framework/play_jpa_plugin'
 
 module JavaBuildpack::Framework
 
   describe PlayJpaPlugin do
+    include_context 'component_helper'
 
-    VERSION = JavaBuildpack::Util::TokenizedVersion.new('0.7.1')
+    it 'should detect Play 2.0 application',
+       app_fixture: 'framework_play_jpa_plugin_play20' do
 
-    DETAILS = [VERSION, 'test-uri']
-
-    let(:application_cache) { double('ApplicationCache') }
-
-    before do
-      $stdout = StringIO.new
-      $stderr = StringIO.new
+      expect(component.detect).to eq("play-jpa-plugin=#{version}")
     end
 
-    it 'should detect Play 2.0 application' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS)
+    it 'should detect staged application',
+       app_fixture: 'framework_play_jpa_plugin_staged' do
 
-      detected = PlayJpaPlugin.new(
-          app_dir: 'spec/fixtures/framework_play_jpa_plugin_play20',
-          configuration: {}
-      ).detect
-
-      expect(detected).to eq('play-jpa-plugin=0.7.1')
+      expect(component.detect).to eq("play-jpa-plugin=#{version}")
     end
 
-    it 'should detect staged application' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS)
+    it 'should detect dist application',
+       app_fixture: 'framework_play_jpa_plugin_dist' do
 
-      detected = PlayJpaPlugin.new(
-          app_dir: 'spec/fixtures/framework_play_jpa_plugin_staged',
-          configuration: {}
-      ).detect
-
-      expect(detected).to eq('play-jpa-plugin=0.7.1')
+      expect(component.detect).to eq("play-jpa-plugin=#{version}")
     end
 
-    it 'should detect dist application' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS)
+    it 'should not detect non-JPA application',
+       app_fixture: 'container_play_2.1_dist' do
 
-      detected = PlayJpaPlugin.new(
-          app_dir: 'spec/fixtures/framework_play_jpa_plugin_dist',
-          configuration: {}
-      ).detect
-
-      expect(detected).to eq('play-jpa-plugin=0.7.1')
+      expect(component.detect).to be_nil
     end
 
-    it 'should not detect non-JPA application' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS)
+    it 'should copy additional libraries to the lib directory',
+       app_fixture: 'framework_play_jpa_plugin_dist',
+       cache_fixture: 'stub-play-jpa-plugin.jar' do
 
-      detected = PlayJpaPlugin.new(
-          app_dir: 'spec/fixtures/container_play_2.1_dist',
-          configuration: {}
-      ).detect
+      component.compile
 
-      expect(detected).to be_nil
-    end
-
-    it 'should copy additional libraries to the lib directory' do
-      Dir.mktmpdir do |root|
-        lib_directory = File.join root, '.lib'
-        Dir.mkdir lib_directory
-
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(DETAILS)
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-play-jpa-plugin.jar'))
-
-        PlayJpaPlugin.new(
-            app_dir: 'spec/fixtures/framework_play_jpa_plugin_dist',
-            lib_directory: lib_directory,
-            configuration: {}
-        ).compile
-
-        expect(File.exists? File.join(lib_directory, 'play-jpa-plugin=0.7.1.jar')).to be_true
-      end
+      expect(additional_libs_dir + "play-jpa-plugin-#{version}.jar").to exist
     end
 
   end

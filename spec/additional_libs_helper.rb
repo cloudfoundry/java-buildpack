@@ -16,22 +16,15 @@
 
 require 'spec_helper'
 require 'application_helper'
-require 'open3'
 
-describe 'compile script', :integration do
+shared_context 'additional_libs_helper' do
   include_context 'application_helper'
 
-  it 'should return zero if success',
-     app_fixture: 'integration_valid' do
+  let(:additional_libs_dir) { app_dir + '.lib' }
 
-    Open3.popen3("bin/compile #{app_dir} #{app_dir}") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to be_success
-    end
-  end
-
-  it 'should fail to compile when no containers detect' do
-    error = Open3.capture3("bin/compile #{app_dir} #{app_dir}")[1]
-    expect(error).to match /No container can run the application/
+  before do
+    FileUtils.mkdir_p additional_libs_dir
+    FileUtils.cp_r 'spec/fixtures/additional_libs/.', additional_libs_dir
   end
 
 end

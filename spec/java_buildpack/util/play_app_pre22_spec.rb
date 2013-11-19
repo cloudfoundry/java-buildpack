@@ -22,15 +22,17 @@ module JavaBuildpack::Util
 
   describe PlayAppPre22 do
 
-    let(:play_app_pre22) { StubPlayAppPre22.new 'test-dir' }
+    let(:play_app) { StubPlayAppPre22.new 'test-dir' }
+
+    before do
+      allow(JavaBuildpack::Container::ContainerUtils).to receive(:relative_paths).with('test-dir', %w(test.jar))
+                                                         .and_return(%w(./test-jar))
+
+      allow(play_app).to receive(:shell).with('ln -nsf .././test-jar test-dir/lib')
+    end
 
     it 'should fail if methods are unimplemented' do
-      JavaBuildpack::Container::ContainerUtils.stub(:relative_paths).and_return(['./test-jar'])
-      JavaBuildpack::Container::ContainerUtils.should_receive(:relative_paths).with('test-dir', ['test.jar'])
-      app = play_app_pre22
-      app.stub(:shell)
-      app.should_receive(:shell).with('ln -nsf .././test-jar test-dir/lib')
-      app.test_link_libs_from_classpath_dir ['test.jar']
+      play_app.test_link_libs_from_classpath_dir %w(test.jar)
     end
 
   end

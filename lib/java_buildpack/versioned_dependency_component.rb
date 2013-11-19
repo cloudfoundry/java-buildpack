@@ -28,7 +28,14 @@ module JavaBuildpack
     # instance variables are exposed.
     def initialize(component_name, context, &version_validator)
       super(component_name, context)
-      @version, @uri = supports? ? JavaBuildpack::Repository::ConfiguredItem.find_item(@component_name, @configuration, &version_validator) : [nil, nil]
+
+      if supports?
+        @version, @uri = JavaBuildpack::Repository::ConfiguredItem.find_item(@component_name, @configuration,
+                                                                             &version_validator)
+      else
+        @version = nil
+        @uri = nil
+      end
     end
 
     # If the component should be used when stagingin an application

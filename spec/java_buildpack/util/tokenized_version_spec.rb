@@ -49,79 +49,79 @@ module JavaBuildpack::Util
     end
 
     it 'should raise an exception when the major version is not numeric' do
-      expect { TokenizedVersion.new('A') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('A') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when the minor version is not numeric' do
-      expect { TokenizedVersion.new('1.A') }.to raise_error(/Invalid/)
-      expect { TokenizedVersion.new('1..0') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('1.A') }.to raise_error /Invalid/
+      expect { TokenizedVersion.new('1..0') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when the micro version is not numeric' do
-      expect { TokenizedVersion.new('1.6.A') }.to raise_error(/Invalid/)
-      expect { TokenizedVersion.new('1.6..') }.to raise_error(/Invalid/)
-      expect { TokenizedVersion.new('1.6._0') }.to raise_error(/Invalid/)
-      expect { TokenizedVersion.new('1.6_26') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('1.6.A') }.to raise_error /Invalid/
+      expect { TokenizedVersion.new('1.6..') }.to raise_error /Invalid/
+      expect { TokenizedVersion.new('1.6._0') }.to raise_error /Invalid/
+      expect { TokenizedVersion.new('1.6_26') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when micro version is missing' do
-      expect { TokenizedVersion.new('1.6') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('1.6') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when major version is not legal' do
-      expect { TokenizedVersion.new('1+') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('1+') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when minor version is not legal' do
-      expect { TokenizedVersion.new('1.6+') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('1.6+') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when micro version is not legal' do
-      expect { TokenizedVersion.new('1.6.0+') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('1.6.0+') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when qualifier version is not legal' do
-      expect { TokenizedVersion.new('1.6.0_05+') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('1.6.0_05+') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when the qualifier is not letter, number, or hyphen' do
-      expect { TokenizedVersion.new('1.6.0_?') }.to raise_error(/Invalid/)
-      expect { TokenizedVersion.new('1.6.0__5') }.to raise_error(/Invalid/)
-      expect { TokenizedVersion.new('1.6.0_A.') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('1.6.0_?') }.to raise_error /Invalid/
+      expect { TokenizedVersion.new('1.6.0__5') }.to raise_error /Invalid/
+      expect { TokenizedVersion.new('1.6.0_A.') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when a major version wildcard is followed by anything' do
-      expect { TokenizedVersion.new('+.6.0_26') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('+.6.0_26') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when a minor version wildcard is followed by anything' do
-      expect { TokenizedVersion.new('1.+.0_26') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('1.+.0_26') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when a micro version wildcard is followed by anything' do
-      expect { TokenizedVersion.new('1.6.+_26') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('1.6.+_26') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when too many components are specified' do
-      expect { TokenizedVersion.new('1.6.0.25') }.to raise_error(/Invalid/)
-      expect { TokenizedVersion.new('1.6.0.25_27') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('1.6.0.25') }.to raise_error /Invalid/
+      expect { TokenizedVersion.new('1.6.0.25_27') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when not enough components are specified' do
-      expect { TokenizedVersion.new('_25') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('_25') }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when a wildcard is specified but should not be' do
-      expect { TokenizedVersion.new('+', false) }.to raise_error(/Invalid/)
-      expect { TokenizedVersion.new('1.+', false) }.to raise_error(/Invalid/)
-      expect { TokenizedVersion.new('1.1.+', false) }.to raise_error(/Invalid/)
-      expect { TokenizedVersion.new('1.1.1_+', false) }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('+', false) }.to raise_error /Invalid/
+      expect { TokenizedVersion.new('1.+', false) }.to raise_error /Invalid/
+      expect { TokenizedVersion.new('1.1.+', false) }.to raise_error /Invalid/
+      expect { TokenizedVersion.new('1.1.1_+', false) }.to raise_error /Invalid/
     end
 
     it 'should raise an exception when a version ends with a component separator' do
-      expect { TokenizedVersion.new('1.') }.to raise_error(/Invalid/)
-      expect { TokenizedVersion.new('1.7.') }.to raise_error(/Invalid/)
-      expect { TokenizedVersion.new('1.7.0_') }.to raise_error(/Invalid/)
+      expect { TokenizedVersion.new('1.') }.to raise_error /Invalid/
+      expect { TokenizedVersion.new('1.7.') }.to raise_error /Invalid/
+      expect { TokenizedVersion.new('1.7.0_') }.to raise_error /Invalid/
     end
 
     it 'should accept a version has a number of components acceptable to check_size' do
@@ -129,7 +129,7 @@ module JavaBuildpack::Util
     end
 
     it 'should raise an exception when a version has too many components for check_size' do
-      expect { TokenizedVersion.new('1.2.3_4').check_size(3) }.to raise_error(/too many version components/)
+      expect { TokenizedVersion.new('1.2.3_4').check_size(3) }.to raise_error /too many version components/
     end
 
   end

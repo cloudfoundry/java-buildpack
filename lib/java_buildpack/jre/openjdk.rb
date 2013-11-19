@@ -41,7 +41,7 @@ module JavaBuildpack::Jre
     end
 
     def release
-      @java_opts << "-XX:OnOutOfMemoryError=./#{JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY}/#{KILLJAVA_FILE_NAME}"
+      @java_opts << "-XX:OnOutOfMemoryError=#{JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY}/#{KILLJAVA_FILE_NAME}"
       @java_opts << '-Djava.io.tmpdir=$TMPDIR'
       @java_opts.concat memory
     end

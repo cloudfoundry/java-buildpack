@@ -70,15 +70,13 @@ module JavaBuildpack::Framework
       end
     end
 
-    def assert_equality(fixture, &block)
-      modifier = File.open("spec/fixtures/#{fixture}_before.xml") do |file|
-        WebXmlModifier.new(file)
-      end
+    def assert_equality(fixture)
+      modifier = described_class.new(Pathname.new("spec/fixtures/#{fixture}_before.xml").read)
 
-      block.call modifier
+      yield modifier
 
-      expected = File.open("spec/fixtures/#{fixture}_after.xml") { |file| file.read }
       actual = modifier.to_s
+      expected = Pathname.new("spec/fixtures/#{fixture}_after.xml").read
 
       expect(actual).to eq(expected)
     end

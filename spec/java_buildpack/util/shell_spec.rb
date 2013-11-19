@@ -15,17 +15,14 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'console_helper'
 require 'java_buildpack/util/shell'
 
 module JavaBuildpack::Util
 
   describe Shell do
     include JavaBuildpack::Util::Shell
-
-    before do
-      $stdout = StringIO.new
-      $stderr = StringIO.new
-    end
+    include_context 'console_helper'
 
     it 'should return if command returns a zero exit code' do
       shell 'true'

@@ -15,16 +15,13 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'console_helper'
 require 'java_buildpack/util/resource_utils'
 
 module JavaBuildpack::Util
 
   describe ResourceUtils do
-
-    before do
-      $stdout = StringIO.new
-      $stderr = StringIO.new
-    end
+    include_context 'console_helper'
 
     it 'should return if copy is successful' do
       ResourceUtils.copy_resources 'new-relic', Dir.tmpdir

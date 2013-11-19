@@ -55,12 +55,6 @@ bundle install
 bundle exec rake
 ```
 
-If you want to use the RubyMine debugger, you may need to [install additional gems][] by issuing:
-
-```bash
-bundle install --gemfile Gemfile.rubymine-debug
-```
-
 [Installing Cloud Foundry on Vagrant][] is useful for privately testing new features.
 
 ## Contributing
@@ -73,7 +67,6 @@ This buildpack is released under version 2.0 of the [Apache License][].
 [Cloud Foundry]: http://www.cloudfoundry.com
 [contributor guidelines]: CONTRIBUTING.md
 [GitHub's forking functionality]: https://help.github.com/articles/fork-a-repo
-[install additional gems]: http://stackoverflow.com/questions/11732715/how-do-i-install-ruby-debug-base19x-on-mountain-lion-for-intellij
 [pull request]: https://help.github.com/articles/using-pull-requests
 [Pull requests]: http://help.github.com/send-pull-requests
 [Installing Cloud Foundry on Vagrant]: http://blog.cloudfoundry.com/2013/06/27/installing-cloud-foundry-on-vagrant/
