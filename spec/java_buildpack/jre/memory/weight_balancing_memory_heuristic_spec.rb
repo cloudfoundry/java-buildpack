@@ -35,9 +35,9 @@ module JavaBuildpack::Jre
     }
 
     PRE8_JAVA_OPTS = {
-        'heap' => '-Xmx',
-        'permgen' => '-XX:MaxPermSize=',
-        'stack' => '-Xss',
+        'heap' => ->(v) { "-Xmx#{v}" },
+        'permgen' => ->(v) { "-XX:MaxPermSize=#{v}" },
+        'stack' => ->(v) { "-Xss#{v}" }
     }.freeze
 
     PRE8_VALID_TYPES = %w(heap permgen stack native)

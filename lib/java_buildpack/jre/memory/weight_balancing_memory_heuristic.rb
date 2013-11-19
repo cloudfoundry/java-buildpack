@@ -220,7 +220,7 @@ module JavaBuildpack::Jre
     end
 
     def set_switches(buckets)
-      buckets.map { |type, bucket| "#{@java_opts[type]}#{bucket.size}" if bucket.size && bucket.size > 0 && @java_opts.key?(type) }.compact
+      buckets.map { |type, bucket| @java_opts[type][bucket.size] if bucket.size && bucket.size > 0 && @java_opts.key?(type) }.compact
     end
 
   end
