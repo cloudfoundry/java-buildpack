@@ -33,11 +33,12 @@ module JavaBuildpack::Framework
 
     def compile
       parsed_java_opts.each do |option|
-        fail "Java option '#{option}' configures a memory region.  Use JRE configuration for this instead." if memory_option? option
+        fail "Java option '#{option}' configures a memory region.  Use JRE configuration for this instead." if JavaOpts.memory_option? option
       end
     end
 
     def release
+      JavaOpts.check_single_options @java_opts
       @java_opts.concat parsed_java_opts
     end
 
@@ -45,14 +46,25 @@ module JavaBuildpack::Framework
 
     CONFIGURATION_PROPERTY = 'java_opts'.freeze
 
-    def memory_option?(option)
+    def self.check_single_options(opts)
+      opts.each do |option|
+        fail "Invalid Java option contains more than one option: '#{option}'" if option.shellsplit.length > 1
+      end
+    end
+
+    def self.memory_option?(option)
       option =~ /-Xms/ || option =~ /-Xmx/ || option =~ /-XX:MaxMetaspaceSize/ || option =~ /-XX:MaxPermSize/ ||
-          option =~ /-Xss/
+          option =~ /-Xss/ || option =~ /-XX:MetaspaceSize/ || option =~ /-XX:PermSize/
     end
 
     def parsed_java_opts
-      @configuration[CONFIGURATION_PROPERTY].shellsplit.map do |java_opt|
-        java_opt.gsub(/([\s])/, '\\\\\1')
+      configured_java_opts = @configuration[CONFIGURATION_PROPERTY]
+      if configured_java_opts
+        configured_java_opts.shellsplit.map do |java_opt|
+          java_opt.gsub(/([\s])/, '\\\\\1')
+        end
+      else
+        []
       end
     end
 

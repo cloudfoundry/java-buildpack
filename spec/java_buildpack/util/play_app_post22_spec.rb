@@ -119,7 +119,7 @@ module JavaBuildpack::Util
 
     it 'should decorate Java options with -J' do
       play_app = PlayAppPost22.new 'spec/fixtures/container_play_2.2'
-      expect(play_app.decorate_java_opts(TEST_JAVA_OPTIONS)).to eq(%w(-Jtest-option1 -Jtest-option2 -J-Xms2M))
+      expect(play_app.decorate_java_opts(TEST_JAVA_OPTIONS)).to eq(%w(-Jtest-option1 -Jtest-option2))
     end
 
   end

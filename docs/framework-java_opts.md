@@ -1,5 +1,7 @@
-# `JAVA_OPTS` Framework
-The `JAVA_OPTS` Framework contributes arbitrary Java options to the application at runtime.
+# Java Options Framework
+The Java Options Framework contributes arbitrary Java options to the application at runtime.
+
+Note: passing Java options using a `JAVA_OPTS` environment variable is not supported and does not work.
 
 <table>
   <tr>
