@@ -15,25 +15,23 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'application_helper'
-require 'fileutils'
+require 'java_buildpack/util/internet_availability'
 
-shared_context 'buildpack_cache_helper' do
-  include_context 'application_helper'
+shared_context 'internet_availability_helper' do
 
-  previous_buildpack_cache = ENV['BUILDPACK_CACHE']
-
-  let(:buildpack_cache_dir) { app_dir }
-
-  let(:java_buildpack_cache_dir) { buildpack_cache_dir + 'java-buildpack' }
-
-  before do
-    FileUtils.mkdir_p java_buildpack_cache_dir
-    ENV['BUILDPACK_CACHE'] = buildpack_cache_dir.to_s
+  # Reset cache and honour example metadata for cache.
+  before do |example|
+    JavaBuildpack::Util::InternetAvailability.clear_internet_availability
+    JavaBuildpack::Util::InternetAvailability.store_internet_availability true if example.metadata[:skip_availability_check]
   end
 
+  ############
+  # Run test #
+  ############
+
+  # Reset cache
   after do
-    ENV['BUILDPACK_CACHE'] = previous_buildpack_cache
+    JavaBuildpack::Util::InternetAvailability.clear_internet_availability
   end
 
 end

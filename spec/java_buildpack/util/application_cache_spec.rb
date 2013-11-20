@@ -17,6 +17,7 @@
 require 'spec_helper'
 require 'application_helper'
 require 'diagnostics_helper'
+require 'internet_availability_helper'
 require 'java_buildpack/util/application_cache'
 
 module JavaBuildpack::Util
@@ -24,6 +25,7 @@ module JavaBuildpack::Util
   describe ApplicationCache do
     include_context 'application_helper'
     include_context 'diagnostics_helper'
+    include_context 'internet_availability_helper'
 
     previous_arg_value = ARGV[1]
 
@@ -32,8 +34,9 @@ module JavaBuildpack::Util
 
       stub_request(:get, 'http://foo-uri/').with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
       .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
-
-      JavaBuildpack::Util::DownloadCache.clear_internet_availability
+      stub_request(:head, 'http://foo-uri/')
+      .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
+      .to_return(status: 304, body: '', headers: {})
     end
 
     after do

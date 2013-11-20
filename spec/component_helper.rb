@@ -19,6 +19,7 @@ require 'additional_libs_helper'
 require 'application_helper'
 require 'console_helper'
 require 'diagnostics_helper'
+require 'internet_availability_helper'
 require 'fileutils'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/tokenized_version'
@@ -61,6 +62,8 @@ shared_context 'component_helper' do
 
   include_context 'console_helper'
 
+  include_context 'internet_availability_helper'
+
   # Mock application cache with cache fixture
   before do |example|
     allow(JavaBuildpack::Util::ApplicationCache).to receive(:new).and_return(application_cache)
@@ -88,10 +91,5 @@ shared_context 'component_helper' do
   ############
   # Run test #
   ############
-
-  # Reset cache
-  after do
-    JavaBuildpack::Util::DownloadCache.clear_internet_availability
-  end
 
 end
