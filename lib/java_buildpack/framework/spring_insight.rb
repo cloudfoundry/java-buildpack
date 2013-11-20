@@ -40,22 +40,13 @@ module JavaBuildpack::Framework
     end
 
     def release
-      weaver_jar = @application.relative_path_to(Pathname.new Dir[File.join(insight_home, 'weaver', 'insight-weaver-*.jar')][0])
-
-      @java_opts << "-javaagent:#{weaver_jar}"
+      # Spring Insight depends on the following options being in a particular order.
+      add_agent_weaver_option
       @java_opts << "-Dinsight.base=#{File.join INSIGHT_HOME, 'insight'}"
       @java_opts << "-Dinsight.logs=#{File.join INSIGHT_HOME, 'insight', 'logs'}"
       @java_opts << '-Daspectj.overweaving=true'
       @java_opts << '-Dorg.aspectj.tracing.factory=default'
-      @java_opts << '-Dagent.http.protocol=http'
-      @java_opts << "-Dagent.http.host=#{URI(@uri).host}"
-      @java_opts << '-Dagent.http.port=80'
-      @java_opts << '-Dagent.http.context.path=insight'
-      @java_opts << '-Dagent.http.username=spring'
-      @java_opts << '-Dagent.http.password=insight'
-      @java_opts << '-Dagent.http.send.json=false'
-      @java_opts << '-Dagent.http.use.proxy=false'
-      @java_opts << '-Dinsight.transport.type=HTTP'
+      add_agent_http_options
       @java_opts << "-Dagent.name.override=#{@vcap_application[NAME_KEY]}"
     end
 
@@ -112,25 +103,42 @@ module JavaBuildpack::Framework
     end
 
     def install_insight(agent_dir)
-      weaver_directory = File.join insight_home, 'weaver'
-      insight_directory = File.join insight_home, 'insight'
-      insight_analyser_directory = File.join extra_applications_directory, 'insight-agent'
       uber_agent_directory = File.join agent_dir, 'springsource-insight-uber-agent-*'
-
       FileUtils.rm_rf insight_home
-      FileUtils.rm_rf insight_analyser_directory
-      FileUtils.mkdir_p container_libs_directory
-      FileUtils.mkdir_p extra_applications_directory
-      FileUtils.mkdir_p weaver_directory
-      FileUtils.mkdir_p insight_directory
 
-      FileUtils.mv Dir[File.join(uber_agent_directory, 'agents', 'common', 'insight-weaver-*.jar')][0], weaver_directory
-      FileUtils.mv Dir[File.join(uber_agent_directory, 'agents', 'common', 'insight-bootstrap-generic-*.jar')][0], container_libs_directory
-      FileUtils.mv Dir[File.join(uber_agent_directory, 'agents', 'tomcat', '7', 'lib', 'insight-bootstrap-tomcat-common-*.jar')][0], container_libs_directory
-      FileUtils.mv Dir[File.join(uber_agent_directory, 'insight', 'collection-plugins')][0], insight_directory
-      FileUtils.mv Dir[File.join(uber_agent_directory, 'insight', 'conf')][0], insight_directory
-      FileUtils.mv Dir[File.join(uber_agent_directory, 'insight-agent')][0], insight_analyser_directory
-      FileUtils.mv Dir[File.join(uber_agent_directory, 'transport', 'http', 'insight-agent-http-*.jar')][0], File.join(insight_analyser_directory, 'WEB-INF', 'lib')
+      initialise_weaver_directory uber_agent_directory
+      add_container_libs uber_agent_directory
+      initialise_insight_directory uber_agent_directory
+      initialise_insight_analyser_directory uber_agent_directory
+    end
+
+    def initialise_weaver_directory(uber_agent_directory)
+      weaver_directory = File.join insight_home, 'weaver'
+      FileUtils.rm_rf weaver_directory
+      FileUtils.mkdir_p weaver_directory
+      shell "mv #{File.join uber_agent_directory, 'agents', 'common', 'insight-weaver-*.jar'} #{weaver_directory}"
+    end
+
+    def add_container_libs(uber_agent_directory)
+      FileUtils.mkdir_p container_libs_directory
+      shell "mv #{File.join uber_agent_directory, 'agents', 'common', 'insight-bootstrap-generic-*.jar'} #{container_libs_directory}"
+      shell "mv #{File.join uber_agent_directory, 'agents', 'tomcat', '7', 'lib', 'insight-bootstrap-tomcat-common-*.jar'} #{container_libs_directory}"
+    end
+
+    def initialise_insight_directory(uber_agent_directory)
+      insight_directory = File.join insight_home, 'insight'
+      FileUtils.rm_rf insight_directory
+      FileUtils.mkdir_p insight_directory
+      shell "mv #{File.join uber_agent_directory, 'insight', 'collection-plugins'} #{insight_directory}"
+      shell "mv #{File.join uber_agent_directory, 'insight', 'conf'} #{insight_directory}"
+    end
+
+    def initialise_insight_analyser_directory(uber_agent_directory)
+      insight_analyser_directory = File.join extra_applications_directory, 'insight-agent'
+      FileUtils.rm_rf insight_analyser_directory
+      FileUtils.mkdir_p extra_applications_directory
+      shell "mv #{File.join uber_agent_directory, 'insight-agent'} #{insight_analyser_directory}"
+      shell "mv #{File.join uber_agent_directory, 'transport', 'http', 'insight-agent-http-*.jar'} #{File.join insight_analyser_directory, 'WEB-INF', 'lib'} "
     end
 
     def container_libs_directory
@@ -157,6 +165,23 @@ module JavaBuildpack::Framework
 
     def insight_home
       File.join @app_dir, INSIGHT_HOME
+    end
+
+    def add_agent_weaver_option
+      weaver_jar = @application.relative_path_to(Pathname.new Dir[File.join(insight_home, 'weaver', 'insight-weaver-*.jar')][0])
+      @java_opts << "-javaagent:#{weaver_jar}"
+    end
+
+    def add_agent_http_options
+      @java_opts << '-Dagent.http.protocol=http'
+      @java_opts << "-Dagent.http.host=#{URI(@uri).host}"
+      @java_opts << '-Dagent.http.port=80'
+      @java_opts << '-Dagent.http.context.path=insight'
+      @java_opts << '-Dagent.http.username=spring'
+      @java_opts << '-Dagent.http.password=insight'
+      @java_opts << '-Dagent.http.send.json=false'
+      @java_opts << '-Dagent.http.use.proxy=false'
+      @java_opts << '-Dinsight.transport.type=HTTP'
     end
 
   end
