@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'fileutils'
 require 'java_buildpack'
 require 'java_buildpack/util/application_cache'
 require 'java_buildpack/util/library_utils'
@@ -104,7 +105,7 @@ module JavaBuildpack
     #                                  +@lib_directory+
     # @param [String] description an optional description for the download.  Defaults to +@component_name+.
     def download_jar(version, uri, jar_name, target_directory = @lib_directory, description = @component_name)
-      download(version, uri, description) { |file| shell "cp #{file.path} #{File.join(target_directory, jar_name)}" }
+      download(version, uri, description) { |file| FileUtils.cp file.path, File.join(target_directory, jar_name) }
     end
 
     # Returns the additional libraries.

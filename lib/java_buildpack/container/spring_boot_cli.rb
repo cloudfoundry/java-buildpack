@@ -14,12 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'fileutils'
 require 'java_buildpack/container'
 require 'java_buildpack/container/container_utils'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/groovy_utils'
 require 'java_buildpack/versioned_dependency_component'
-require 'tmpdir'
 
 module JavaBuildpack::Container
 
@@ -60,11 +60,9 @@ module JavaBuildpack::Container
       expand_start_time = Time.now
       print "       Expanding Spring Boot CLI to #{SPRING_BOOT_CLI_HOME} "
 
-      Dir.mktmpdir do |tmpdir_root|
-        shell "rm -rf #{spring_boot_cli_home}"
-        shell "mkdir -p #{spring_boot_cli_home}"
-        shell "tar xzf #{file.path} -C #{spring_boot_cli_home} --strip 1 2>&1"
-      end
+      FileUtils.rm_rf spring_boot_cli_home
+      FileUtils.mkdir_p spring_boot_cli_home
+      shell "tar xzf #{file.path} -C #{spring_boot_cli_home} --strip 1 2>&1"
 
       puts "(#{(Time.now - expand_start_time).duration})"
     end

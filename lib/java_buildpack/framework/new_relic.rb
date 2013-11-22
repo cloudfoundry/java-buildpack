@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'fileutils'
 require 'java_buildpack/framework'
 require 'java_buildpack/util/resource_utils'
 require 'java_buildpack/util/service_utils'
@@ -29,9 +30,9 @@ module JavaBuildpack::Framework
     end
 
     def compile
-      shell "rm -rf #{new_relic_home}"
-      shell "mkdir -p #{new_relic_home}"
-      shell "mkdir -p #{File.join new_relic_home, 'logs'}"
+      FileUtils.rm_rf new_relic_home
+      FileUtils.mkdir_p new_relic_home
+      FileUtils.mkdir_p File.join(new_relic_home, 'logs')
 
       download_jar jar_name, new_relic_home
       JavaBuildpack::Util::ResourceUtils.copy_resources('new-relic', new_relic_home)

@@ -14,9 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'fileutils'
 require 'java_buildpack'
 require 'java_buildpack/base_component'
 require 'java_buildpack/repository/configured_item'
+require 'tmpdir'
 
 module JavaBuildpack
 
@@ -72,7 +74,7 @@ module JavaBuildpack
     #                                  +@lib_directory+
     # @param [String] description an optional description for the download.  Defaults to +@component_name+.
     def download_jar(jar_name, target_directory = @lib_directory, description = @component_name)
-      download(description) { |file| shell "cp #{file.path} #{File.join(target_directory, jar_name)}" }
+      download(description) { |file| FileUtils.cp file.path, File.join(target_directory, jar_name) }
     end
 
     # Downloads a given ZIP file and expands it to a given destination.
@@ -91,7 +93,7 @@ module JavaBuildpack
         if strip_top_level_directory
           Dir.mktmpdir do |root|
             shell "unzip -qq #{file.path} -d #{root} 2>&1"
-            shell "mv #{root}/$(ls #{root}) #{target_directory}"
+            FileUtils.mv Dir[root + '/*'][0], target_directory
           end
         else
           shell "unzip -qq #{file.path} -d #{target_directory} 2>&1"
