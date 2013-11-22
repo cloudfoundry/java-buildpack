@@ -64,8 +64,8 @@ module JavaBuildpack::Jre
       expand_start_time = Time.now
       print "       Expanding JRE to #{JAVA_HOME} "
 
-      shell "rm -rf #{java_home}"
-      shell "mkdir -p #{java_home}"
+      FileUtils.rm_rf java_home
+      FileUtils.mkdir_p java_home
       shell "tar xzf #{file.path} -C #{java_home} --strip 1 2>&1"
 
       puts "(#{(Time.now - expand_start_time).duration})"

@@ -115,8 +115,8 @@ module JavaBuildpack::Container
       expand_start_time = Time.now
       print "       Expanding Tomcat to #{@application.relative_path_to(tomcat_home)} "
 
-      shell "rm -rf #{tomcat_home}"
-      shell "mkdir -p #{tomcat_home}"
+      FileUtils.rm_rf tomcat_home
+      FileUtils.mkdir_p tomcat_home
       shell "tar xzf #{file.path} -C #{tomcat_home} --strip 1 --exclude webapps --exclude #{File.join 'conf', 'server.xml'} --exclude #{File.join 'conf', 'context.xml'} 2>&1"
 
       JavaBuildpack::Util::ResourceUtils.copy_resources('tomcat', tomcat_home)

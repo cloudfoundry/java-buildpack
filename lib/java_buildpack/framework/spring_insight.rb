@@ -124,13 +124,13 @@ module JavaBuildpack::Framework
       FileUtils.mkdir_p weaver_directory
       FileUtils.mkdir_p insight_directory
 
-      shell "mv #{File.join uber_agent_directory, 'agents', 'common', 'insight-weaver-*.jar'} #{weaver_directory}"
-      shell "mv #{File.join uber_agent_directory, 'agents', 'common', 'insight-bootstrap-generic-*.jar'} #{container_libs_directory}"
-      shell "mv #{File.join uber_agent_directory, 'agents', 'tomcat', '7', 'lib', 'insight-bootstrap-tomcat-common-*.jar'} #{container_libs_directory}"
-      shell "mv #{File.join uber_agent_directory, 'insight', 'collection-plugins'} #{insight_directory}"
-      shell "mv #{File.join uber_agent_directory, 'insight', 'conf'} #{insight_directory}"
-      shell "mv #{File.join uber_agent_directory, 'insight-agent'} #{insight_analyser_directory}"
-      shell "mv #{File.join uber_agent_directory, 'transport', 'http', 'insight-agent-http-*.jar'} #{File.join insight_analyser_directory, 'WEB-INF', 'lib'} "
+      FileUtils.mv Dir[File.join(uber_agent_directory, 'agents', 'common', 'insight-weaver-*.jar')][0], weaver_directory
+      FileUtils.mv Dir[File.join(uber_agent_directory, 'agents', 'common', 'insight-bootstrap-generic-*.jar')][0], container_libs_directory
+      FileUtils.mv Dir[File.join(uber_agent_directory, 'agents', 'tomcat', '7', 'lib', 'insight-bootstrap-tomcat-common-*.jar')][0], container_libs_directory
+      FileUtils.mv Dir[File.join(uber_agent_directory, 'insight', 'collection-plugins')][0], insight_directory
+      FileUtils.mv Dir[File.join(uber_agent_directory, 'insight', 'conf')][0], insight_directory
+      FileUtils.mv Dir[File.join(uber_agent_directory, 'insight-agent')][0], insight_analyser_directory
+      FileUtils.mv Dir[File.join(uber_agent_directory, 'transport', 'http', 'insight-agent-http-*.jar')][0], File.join(insight_analyser_directory, 'WEB-INF', 'lib')
     end
 
     def container_libs_directory
