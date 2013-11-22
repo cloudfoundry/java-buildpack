@@ -16,22 +16,24 @@
 
 require 'spec_helper'
 require 'application_helper'
-require 'open3'
+require 'java_buildpack/util/download_cache'
 
-describe 'compile script', :integration do
+shared_context 'buildpack_cache_helper' do
   include_context 'application_helper'
 
-  it 'should return zero if success',
-     app_fixture: 'integration_valid' do
+  previous_buildpack_cache = ENV['BUILDPACK_CACHE']
 
-    Open3.popen3("bin/compile #{app_dir} #{app_dir}") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to be_success
-    end
+  let(:buildpack_cache_dir) { app_dir }
+
+  let(:java_buildpack_cache_dir) { buildpack_cache_dir + 'java-buildpack' }
+
+  before do
+    ENV['BUILDPACK_CACHE'] = buildpack_cache_dir.to_s
+    JavaBuildpack::Util::DownloadCache.clear_internet_availability
   end
 
-  it 'should fail to compile when no containers detect' do
-    error = Open3.capture3("bin/compile #{app_dir} #{app_dir}")[1]
-    expect(error).to match /No container can run the application/
+  after do
+    ENV['BUILDPACK_CACHE'] = previous_buildpack_cache
   end
 
 end

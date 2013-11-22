@@ -22,6 +22,7 @@ module JavaBuildpack
   describe BaseComponent do
 
     let(:context) { { 'foo' => 'bar' } }
+
     let(:base_component) { StubBaseComponent.new 'test-name', context }
 
     it 'should assign component name to an instance variable' do

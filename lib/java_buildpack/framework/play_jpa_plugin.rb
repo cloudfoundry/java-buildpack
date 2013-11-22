@@ -53,7 +53,7 @@ module JavaBuildpack::Framework
     PLAY_JPA_PLUGIN_JAR = '*play-java-jpa*.jar'.freeze
 
     def jar_name
-      "#{id @version}.jar"
+      "#{@parsable_component_name}-#{@version}.jar"
     end
 
     def play20?(play_version)

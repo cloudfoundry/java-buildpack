@@ -15,266 +15,188 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'console_helper'
+require 'diagnostics_helper'
+require 'java_buildpack/diagnostics'
 require 'java_buildpack/diagnostics/logger_factory'
+require 'yaml'
 
 module JavaBuildpack::Diagnostics
 
   describe LoggerFactory do
+    include_context 'console_helper'
+    include_context 'diagnostics_helper'
 
-    LOG_MESSAGE = 'a log message'
-
-    before do
-      JavaBuildpack::Diagnostics::LoggerFactory.send :close
-      $stderr = StringIO.new
-      tmpdir = Dir.tmpdir
-      diagnostics_directory = File.join(tmpdir, JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY)
-      FileUtils.rm_rf diagnostics_directory
-      JavaBuildpack::Diagnostics::LoggerFactory.create_logger tmpdir
-    end
+    let(:log_message) { 'a log message' }
 
     it 'should create a logger' do
-      Dir.mktmpdir do |app_dir|
-        logger = new_logger app_dir
-        expect(logger).to_not be_nil
-      end
+      expect(logger).not_to be_nil
     end
 
     it 'should act as a singleton' do
-      Dir.mktmpdir do |app_dir|
-        initial_logger = new_logger app_dir
-        logger = LoggerFactory.get_logger
-        expect(logger).to equal(initial_logger)
-        expect(LoggerFactory.get_logger).to equal(logger)
+      expect(LoggerFactory.get_logger).to equal(logger)
+      expect(LoggerFactory.get_logger).to equal(LoggerFactory.get_logger)
+    end
+
+    it 'should send debug logs to standard output when debug is enabled',
+       log_level: 'DEBUG' do
+
+      logger.debug { log_message }
+      expect(stderr.string).to match /#{log_message}/
+    end
+
+    it 'should not send debug logs to standard output when debug is disabled',
+       log_level: 'INFO' do
+
+      logger.debug { log_message }
+      expect(stderr.string).to_not match /#{log_message}/
+    end
+
+    it 'should send info logs to standard output when info is enabled',
+       log_level: 'INFO' do
+
+      logger.info(log_message)
+      expect(stderr.string).to match /#{log_message}/
+    end
+
+    it 'should not send info logs to standard output when info is disabled',
+       log_level: 'WARN' do
+
+      logger.info(log_message)
+      expect(stderr.string).to_not match /#{log_message}/
+    end
+
+    it 'should send warn logs to standard error when warn is enabled',
+       log_level: 'WARN' do
+
+      logger.warn(log_message)
+      expect(stderr.string).to match /#{log_message}/
+    end
+
+    it 'should not send warn logs to standard error when warn is disabled',
+       log_level: 'ERROR' do
+
+      logger.info(log_message)
+      expect(stderr.string).to_not match /#{log_message}/
+    end
+
+    it 'should send error logs to standard error when error is enabled',
+       log_level: 'ERROR' do
+
+      logger.error(log_message)
+      expect(stderr.string).to match /#{log_message}/
+    end
+
+    it 'should not send error logs to standard error when error is disabled',
+       log_level: 'FATAL' do
+
+      logger.error(log_message)
+      expect(stderr.string).to_not match /#{log_message}/
+    end
+
+    it 'should send fatal logs to standard error when fatal is enabled',
+       log_level: 'FATAL' do
+
+      logger.fatal(log_message)
+      expect(stderr.string).to match /#{log_message}/
+    end
+
+    it 'should send debug logs to standard output when an unknown log level is specified',
+       log_level: 'XXX' do
+
+      logger.debug(log_message)
+      expect(stderr.string).to match /#{log_message}/
+    end
+
+    context do
+
+      before do
+        allow(YAML).to receive(:load_file).with(File.expand_path('config/logging.yml'))
+                       .and_return('default_log_level' => 'DEBUG')
+      end
+
+      it 'should take the default log level from a YAML file' do
+        JavaBuildpack::Diagnostics::LoggerFactory.create_logger(app_dir).debug(log_message)
+        expect(stderr.string).to match /#{log_message}/
       end
     end
 
-    it 'should send debug logs to standard output when debug is enabled' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('DEBUG') do
-          logger = new_logger app_dir
-          logger.debug { LOG_MESSAGE }
-          expect($stderr.string).to match(/#{LOG_MESSAGE}/)
-        end
-      end
-    end
+    it 'should warn if the logger is closed',
+       log_level: 'WARN' do
 
-    it 'should not send debug logs to standard output when debug is disabled' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('INFO') do
-          logger = new_logger app_dir
-          logger.debug { LOG_MESSAGE }
-          expect($stderr.string).to_not match(/#{LOG_MESSAGE}/)
-        end
-      end
-    end
-
-    it 'should send info logs to standard output when info is enabled' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('info') do
-          logger = new_logger app_dir
-          logger.info(LOG_MESSAGE)
-          expect($stderr.string).to match(/#{LOG_MESSAGE}/)
-        end
-      end
-    end
-
-    it 'should not send info logs to standard output when info is disabled' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('WARN') do
-          logger = new_logger app_dir
-          logger.info(LOG_MESSAGE)
-          expect($stderr.string).to_not match(/#{LOG_MESSAGE}/)
-        end
-      end
-    end
-
-    it 'should send warn logs to standard error when warn is enabled' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('warn') do
-          logger = new_logger app_dir
-          logger.warn(LOG_MESSAGE)
-          expect($stderr.string).to match(/#{LOG_MESSAGE}/)
-        end
-      end
-    end
-
-    it 'should not send warn logs to standard error when warn is disabled' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('ERROR') do
-          logger = new_logger app_dir
-          logger.info(LOG_MESSAGE)
-          expect($stderr.string).to_not match(/#{LOG_MESSAGE}/)
-        end
-      end
-    end
-
-    it 'should send error logs to standard error when error is enabled' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('ERROR') do
-          logger = new_logger app_dir
-          logger.error(LOG_MESSAGE)
-          expect($stderr.string).to match(/#{LOG_MESSAGE}/)
-        end
-      end
-    end
-
-    it 'should not send error logs to standard error when error is disabled' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('FATAL') do
-          logger = new_logger app_dir
-          logger.error(LOG_MESSAGE)
-          expect($stderr.string).to_not match(/#{LOG_MESSAGE}/)
-        end
-      end
-    end
-
-    it 'should send fatal logs to standard error when fatal is enabled' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('FATAL') do
-          logger = new_logger app_dir
-          logger.fatal(LOG_MESSAGE)
-          expect($stderr.string).to match(/#{LOG_MESSAGE}/)
-        end
-      end
-    end
-
-    it 'should send debug logs to standard output when an unknown log level is specified' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('XXX') do
-          logger = new_logger app_dir
-          logger.debug(LOG_MESSAGE)
-          expect($stderr.string).to match(/#{LOG_MESSAGE}/)
-        end
-      end
-    end
-
-    it 'should take the default log level from a YAML file' do
-      YAML.stub(:load_file).with(File.expand_path('config/logging.yml')).and_return(
-          'default_log_level' => 'DEBUG')
-      begin
-        Dir.mktmpdir do |app_dir|
-          logger = new_logger app_dir
-          logger.debug(LOG_MESSAGE)
-          expect($stderr.string).to match(/#{LOG_MESSAGE}/)
-        end
-      ensure
-        YAML.stub(:load_file).with(File.expand_path('config/logging.yml')).and_return(
-            'default_log_level' => 'INFO')
-      end
-    end
-
-    it 'should warn if the logger is closed' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('WARN') do
-          logger = new_logger app_dir
-          logger.close
-          expect($stderr.string).to match(/logger is being closed/)
-        end
-      end
+      logger.close
+      expect(stderr.string).to match /logger is being closed/
     end
 
     it 'should log the calling method name when Logger.add is not called' do
-      Dir.mktmpdir do |app_dir|
-        logger = new_logger app_dir
-        info_method_caller logger
-        expect($stderr.string).to match(/info_method_caller/)
-      end
+      info_method_caller logger
+      expect(stderr.string).to match /info_method_caller/
     end
 
     it 'should log the calling method name when Logger.add is called' do
-      Dir.mktmpdir do |app_dir|
-        logger = new_logger app_dir
-        add_method_caller logger
-        expect($stderr.string).to match(/add_method_caller/)
-      end
+      add_method_caller logger
+      expect(stderr.string).to match /add_method_caller/
     end
 
     it 'should fail if a LoggerFactory is constructed' do
-      expect { LoggerFactory.new }.to raise_error(/private method `new'/)
+      expect { LoggerFactory.new }.to raise_error /private method `new'/
     end
 
-    it 'should send debug logs to standard output when $VERBOSE is true' do
-      Dir.mktmpdir do |app_dir|
-        previous_value = $VERBOSE
-        begin
-          $VERBOSE = true
-          logger = new_logger app_dir
-          logger.debug(LOG_MESSAGE)
-          expect($stderr.string).to match(/#{LOG_MESSAGE}/)
-        ensure
-          $VERBOSE = previous_value
-        end
+    it 'should send debug logs to standard output when $VERBOSE is true',
+       :verbose do
+
+      logger.debug(log_message)
+      expect(stderr.string).to match /#{log_message}/
+    end
+
+    it 'should send debug logs to standard output when $DEBUG is true',
+       :debug do
+
+      logger.debug(log_message)
+      expect(stderr.string).to match /#{log_message}/
+    end
+
+    it 'should send info logs to buildpack.log when info is enabled',
+       log_level: 'INFO' do
+
+      logger.info(log_message)
+      expect((diagnostics_dir + JavaBuildpack::Diagnostics::LOG_FILE_NAME).read).to match /#{log_message}/
+    end
+
+    it 'should issue warnings if the logger is re-created',
+       log_level: 'WARN' do
+
+      LoggerFactory.create_logger app_dir
+      expect(stderr.string).to match /Logger is being re-created/
+      expect(stderr.string).to match /Logger was re-created by/
+    end
+
+    context do
+
+      previous_standard_error = nil
+
+      before do
+        previous_standard_error, STDERR = STDERR, stderr
+        JavaBuildpack::Diagnostics::LoggerFactory.close
       end
-    end
 
-    it 'should send debug logs to standard output when $DEBUG is true' do
-      Dir.mktmpdir do |app_dir|
-        previous_value = $DEBUG
-        begin
-          $DEBUG = true
-          logger = new_logger app_dir
-          logger.debug(LOG_MESSAGE)
-          expect($stderr.string).to match(/#{LOG_MESSAGE}/)
-        ensure
-          $DEBUG = previous_value
-        end
-      end
-    end
-
-    it 'should send info logs to buildpack.log when info is enabled' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('info') do
-          logger = new_logger app_dir
-          logger.info(LOG_MESSAGE)
-          file_contents = File.read File.join(JavaBuildpack::Diagnostics.get_diagnostic_directory(app_dir), JavaBuildpack::Diagnostics::LOG_FILE_NAME)
-          expect(file_contents).to match(/#{LOG_MESSAGE}/)
-        end
-      end
-    end
-
-    it 'should issue warnings if the logger is re-created' do
-      Dir.mktmpdir do |app_dir|
-        with_log_level('WARN') do
-          new_logger app_dir
-          LoggerFactory.create_logger app_dir
-          expect($stderr.string).to match(/Logger is being re-created/)
-          expect($stderr.string).to match(/Logger was re-created by/)
-        end
-      end
-    end
-
-    it 'should fail if a non-existent logger is requested' do
-      JavaBuildpack::Diagnostics::LoggerFactory.send :close
-      previous_standard_error, STDERR = STDERR, StringIO.new
-      begin
-        expect { LoggerFactory.get_logger }.to raise_error(/no logger/)
-        expect(STDERR.string).to match(/Attempt to get nil logger from: /)
-      ensure
+      after do
         STDERR = previous_standard_error
       end
-    end
 
-    def new_logger(app_dir)
-      LoggerFactory.send :close # suppress warnings
-      LoggerFactory.create_logger app_dir
-    end
-
-    def with_log_level(log_level)
-      previous_value = ENV['JBP_LOG_LEVEL']
-      begin
-        ENV['JBP_LOG_LEVEL'] = log_level
-        yield
-      ensure
-        ENV['JBP_LOG_LEVEL'] = previous_value
+      it 'should fail if a non-existent logger is requested' do
+        expect { LoggerFactory.get_logger }.to raise_error /no logger/
+        expect(stderr.string).to match /Attempt to get nil logger from: /
       end
+
     end
 
     def info_method_caller(logger)
-      logger.info(LOG_MESSAGE)
+      logger.info(log_message)
     end
 
     def add_method_caller(logger)
-      logger.add(::Logger::INFO, LOG_MESSAGE)
+      logger.add(::Logger::INFO, log_message)
     end
 
   end

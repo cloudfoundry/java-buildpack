@@ -15,6 +15,7 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'diagnostics_helper'
 require 'java_buildpack/jre/memory/memory_bucket'
 require 'java_buildpack/jre/memory/memory_range'
 require 'java_buildpack/jre/memory/memory_size'
@@ -22,46 +23,39 @@ require 'java_buildpack/jre/memory/memory_size'
 module JavaBuildpack::Jre
 
   describe MemoryBucket do
+    include_context 'diagnostics_helper'
 
-    TEST_NAME = 'bucket-name'
-    TEST_WEIGHTING = 0.5
-    TEST_RANGE = MemoryRange.new('10M..10M')
-    TEST_TOTAL_MEMORY = MemorySize.new('1G')
-    TEST_TOTAL_EXCESS = MemorySize.new('200B')
+    let(:test_name) { 'bucket-name' }
+    let(:test_weighting) { 0.5 }
+    let(:test_range) { MemoryRange.new('10M..10M') }
 
     it 'should fail to construct if name is nil' do
-      expect { MemoryBucket.new(nil, TEST_WEIGHTING, TEST_RANGE) }
-      .to raise_error(/Invalid MemoryBucket name/)
+      expect { MemoryBucket.new(nil, test_weighting, test_range) }.to raise_error /Invalid MemoryBucket name/
     end
 
     it 'should fail to construct if name is the empty string' do
-      expect { MemoryBucket.new('', TEST_WEIGHTING, TEST_RANGE) }
-      .to raise_error(/Invalid MemoryBucket name/)
+      expect { MemoryBucket.new('', test_weighting, test_range) }.to raise_error /Invalid MemoryBucket name/
     end
 
     it 'should fail to construct if weighting is nil' do
-      expect { MemoryBucket.new(TEST_NAME, nil, TEST_RANGE) }
-      .to raise_error(/Invalid weighting/)
+      expect { MemoryBucket.new(test_name, nil, test_range) }.to raise_error /Invalid weighting/
     end
 
     it 'should fail to construct if weighting is not numeric' do
-      expect { MemoryBucket.new(TEST_NAME, 'x', TEST_RANGE) }
-      .to raise_error(/Invalid weighting/)
+      expect { MemoryBucket.new(test_name, 'x', test_range) }.to raise_error /Invalid weighting/
     end
 
     it 'should fail to construct if weighting is negative' do
-      expect { MemoryBucket.new(TEST_NAME, -0.1, TEST_RANGE) }
-      .to raise_error(/Invalid weighting/)
+      expect { MemoryBucket.new(test_name, -0.1, test_range) }.to raise_error /Invalid weighting/
     end
 
     it 'should initialise size to nil' do
-      memory_bucket = MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, TEST_RANGE)
+      memory_bucket = MemoryBucket.new(test_name, test_weighting, test_range)
       expect(memory_bucket.size).to eq(nil)
     end
 
     it 'should fail to construct if range is invalid' do
-      expect { MemoryBucket.new(TEST_NAME, TEST_WEIGHTING, 'x') }
-      .to raise_error(/Invalid\ 'range'\ parameter/)
+      expect { MemoryBucket.new(test_name, test_weighting, 'x') }.to raise_error /Invalid\ 'range'\ parameter/
     end
 
   end

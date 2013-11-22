@@ -15,31 +15,41 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'application_helper'
+require 'fileutils'
 require 'java_buildpack/util/play_app_factory'
 
 module JavaBuildpack::Util
 
   describe PlayAppFactory do
+    include_context 'application_helper'
 
-    it 'should successfully create a Play 2.0 application' do
-      PlayAppFactory.create 'spec/fixtures/container_play_2.0_dist'
+    let(:trigger) { PlayAppFactory.create app_dir }
+
+    it 'should successfully create a Play 2.0 application',
+       app_fixture: 'container_play_2.0_dist' do
+
+      trigger
     end
 
-    it 'should successfully create a Play 2.1 application' do
-      PlayAppFactory.create 'spec/fixtures/container_play_2.1_dist'
+    it 'should successfully create a Play 2.1 application',
+       app_fixture: 'container_play_2.1_dist' do
+
+      trigger
     end
 
-    it 'should successfully create a Play 2.2 application' do
-      PlayAppFactory.create 'spec/fixtures/container_play_2.2'
+    it 'should successfully create a Play 2.2 application',
+       app_fixture: 'container_play_2.2' do
+
+      trigger
     end
 
-    it 'should fail to create an application which is a hybrid of Play 2.1 and 2.2' do
-      Dir.mktmpdir do |root|
-        FileUtils.cp_r 'spec/fixtures/container_play_2.1_dist/.', root
-        FileUtils.cp_r 'spec/fixtures/container_play_2.2/.', root
+    it 'should fail to create an application which is a hybrid of Play 2.1 and 2.2',
+       app_fixture: 'container_play_2.1_dist' do
 
-        expect { PlayAppFactory.create root }.to raise_error(/Play application in .* is recognized by more than one Play application class/)
-      end
+      FileUtils.cp_r 'spec/fixtures/container_play_2.2/.', app_dir
+
+      expect { trigger }.to raise_error /Play application in .* is recognized by more than one Play application class/
     end
 
   end

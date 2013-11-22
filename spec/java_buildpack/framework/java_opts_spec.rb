@@ -15,56 +15,104 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'component_helper'
 require 'java_buildpack/framework/java_opts'
 
 module JavaBuildpack::Framework
 
   describe JavaOpts do
+    include_context 'component_helper'
 
-    let(:java_opts) { [] }
+    context do
+      let(:configuration) { super().merge('java_opts' => '-Xmx1024M') }
 
-    it 'should detect with java.opts configuration' do
-      detected = JavaOpts.new(
-          java_opts: java_opts,
-          configuration: { 'java_opts' => '-Xmx1024M' }
-      ).detect
-
-      expect(detected).to eq('java_opts')
+      it 'should detect with java.opts configuration' do
+        expect(component.detect).to eq('java_opts')
+      end
     end
 
     it 'should not detect without java_opts configuration' do
-      detected = JavaOpts.new(
-          java_opts: java_opts,
-          configuration: {}
-      ).detect
-
-      expect(detected).to be_nil
+      expect(component.detect).to be_nil
     end
 
-    it 'should add split java_opts to context' do
-      JavaOpts.new(
-          java_opts: java_opts,
-          configuration: { 'java_opts' => "-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y -XX:OnOutOfMemoryError='kill -9 %p'" }
-      ).release
+    context do
+      let(:configuration) do
+        super().merge('java_opts' => '-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y ' +
+            "-XX:OnOutOfMemoryError='kill -9 %p'")
+      end
 
-      expect(java_opts).to include('-Xdebug')
-      expect(java_opts).to include('-Xnoagent')
-      expect(java_opts).to include('-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y')
-      expect(java_opts).to include('-XX:OnOutOfMemoryError=kill\ -9\ %p')
+      it 'should add split java_opts to context' do
+        component.release
+
+        expect(java_opts).to include('-Xdebug')
+        expect(java_opts).to include('-Xnoagent')
+        expect(java_opts).to include('-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y')
+        expect(java_opts).to include('-XX:OnOutOfMemoryError=kill\ -9\ %p')
+      end
     end
 
-    it 'should raise an error if a memory region is configured' do
-      expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-Xms1024M' }).compile }.to raise_error(/-Xms/)
-      expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-Xmx1024M' }).compile }.to raise_error(/-Xmx/)
-      expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-XX:MaxMetaspaceSize=128M' }).compile }.to raise_error(/-XX:MaxMetaspaceSize/)
-      expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-XX:MetaspaceSize=128M' }).compile }.to raise_error(/-XX:MetaspaceSize/)
-      expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-XX:MaxPermSize=128M' }).compile }.to raise_error(/-XX:MaxPermSize/)
-      expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-XX:PermSize=128M' }).compile }.to raise_error(/-XX:PermSize/)
-      expect { JavaOpts.new(java_opts: java_opts, configuration: { 'java_opts' => '-Xss1M' }).compile }.to raise_error(/-Xss/)
+    context do
+      let(:configuration) { super().merge('java_opts' => '-Xms1024M') }
+
+      it 'should raise an error if a -Xms is configured' do
+        expect { component.compile }.to raise_error /-Xms/
+      end
     end
 
-    it 'should not allow multiple options in a single array entry' do
-      expect { JavaOpts.new(java_opts: ['-Xmx30m -Xms30m'], configuration: {}).release }.to raise_error(/Invalid Java option contains more than one option/)
+    context do
+      let(:configuration) { super().merge('java_opts' => '-Xmx1024M') }
+
+      it 'should raise an error if a -Xmx is configured' do
+        expect { component.compile }.to raise_error /-Xmx/
+      end
+    end
+
+    context do
+      let(:configuration) { super().merge('java_opts' => '-XX:MaxMetaspaceSize=128M') }
+
+      it 'should raise an error if a -XX:MaxMetaspaceSize is configured' do
+        expect { component.compile }.to raise_error /-XX:MaxMetaspaceSize/
+      end
+    end
+
+    context do
+      let(:configuration) { super().merge('java_opts' => '-XX:MetaspaceSize=128M') }
+
+      it 'should raise an error if a -XX:MetaspaceSize is configured' do
+        expect { component.compile }.to raise_error /-XX:MetaspaceSize/
+      end
+    end
+
+    context do
+      let(:configuration) { super().merge('java_opts' => '-XX:MaxPermSize=128M') }
+
+      it 'should raise an error if a -XX:MaxPermSize is configured' do
+        expect { component.compile }.to raise_error /-XX:MaxPermSize/
+      end
+    end
+
+    context do
+      let(:configuration) { super().merge('java_opts' => '-XX:PermSize=128M') }
+
+      it 'should raise an error if a -XX:PermSize is configured' do
+        expect { component.compile }.to raise_error /-XX:PermSize/
+      end
+    end
+
+    context do
+      let(:configuration) { super().merge('java_opts' => '-Xss1M') }
+
+      it 'should raise an error if a -Xss is configured' do
+        expect { component.compile }.to raise_error /-Xss/
+      end
+    end
+
+    context do
+      let(:java_opts) { super() << '-Xmx30m -Xms30m' }
+
+      it 'should not allow multiple options in a single array entry' do
+        expect { component.release }.to raise_error /Invalid Java option contains more than one option/
+      end
     end
 
   end

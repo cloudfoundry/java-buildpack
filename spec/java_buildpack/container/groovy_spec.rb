@@ -15,130 +15,73 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'component_helper'
 require 'java_buildpack/container/groovy'
 
 module JavaBuildpack::Container
 
   describe Groovy do
+    include_context 'component_helper'
 
-    GROOVY_VERSION = JavaBuildpack::Util::TokenizedVersion.new('2.1.5')
+    it 'should not detect a non-Groovy project',
+       app_fixture: 'container_main' do
 
-    GROOVY_DETAILS = [GROOVY_VERSION, 'test-groovy-uri']
-
-    let(:application_cache) { double('ApplicationCache') }
-
-    before do
-      $stdout = StringIO.new
-      $stderr = StringIO.new
+      expect(component.detect).to be_nil
     end
 
-    it 'should not detect a non-Groovy project' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
-      .and_return(GROOVY_DETAILS)
-      detected = Groovy.new(
-          app_dir: 'spec/fixtures/container_main',
-          configuration: {}
-      ).detect
+    it 'should not detect a .groovy directory',
+       app_fixture: 'dot_groovy' do
 
-      expect(detected).to be_nil
+      expect(component.detect).to be_nil
     end
 
-    it 'should not detect a .groovy directory' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
-      .and_return(GROOVY_DETAILS)
-      detected = Groovy.new(
-          app_dir: 'spec/fixtures/dot_groovy',
-          configuration: {}
-      ).detect
+    it 'should detect a Groovy file with a main() method',
+       app_fixture: 'container_groovy_main_method' do
 
-      expect(detected).to be_nil
+      expect(component.detect).to eq("groovy=#{version}")
     end
 
-    it 'should detect a Groovy file with a main() method' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
-      .and_return(GROOVY_DETAILS)
-      detected = Groovy.new(
-          app_dir: 'spec/fixtures/container_groovy_main_method',
-          configuration: {}
-      ).detect
+    it 'should detect a Groovy file with non-POGO',
+       app_fixture: 'container_groovy_non_pogo' do
 
-      expect(detected).to include('groovy=2.1.5')
+      expect(component.detect).to eq("groovy=#{version}")
     end
 
-    it 'should detect a Groovy file with non-POGO' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
-      .and_return(GROOVY_DETAILS)
-      detected = Groovy.new(
-          app_dir: 'spec/fixtures/container_groovy_non_pogo',
-          configuration: {}
-      ).detect
+    it 'should detect a Groovy file with #!',
+       app_fixture: 'container_groovy_shebang' do
 
-      expect(detected).to include('groovy=2.1.5')
+      expect(component.detect).to eq("groovy=#{version}")
     end
 
-    it 'should detect a Groovy file with #!' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
-      .and_return(GROOVY_DETAILS)
-      detected = Groovy.new(
-          app_dir: 'spec/fixtures/container_groovy_shebang',
-          configuration: {}
-      ).detect
+    context do
+      let(:version) { '2.1.5_10' }
 
-      expect(detected).to include('groovy=2.1.5')
-    end
+      it 'should fail when a malformed version is detected',
+         app_fixture: 'container_groovy_main_method' do
 
-    it 'should fail when a malformed version is detected' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(JavaBuildpack::Util::TokenizedVersion.new('2.1.5_10')) if block }
-      .and_return(GROOVY_DETAILS)
-      expect do
-        Groovy.new(
-            app_dir: 'spec/fixtures/container_groovy_main_method',
-            configuration: {}
-        ).detect
-      end.to raise_error(/Malformed\ version/)
-    end
-
-    it 'should extract Groovy from a ZIP' do
-      Dir.mktmpdir do |root|
-        Dir['spec/fixtures/container_groovy_main_method/*'].each { |file| system "cp -r #{file} #{root}" }
-
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
-        .and_return(GROOVY_DETAILS)
-
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-groovy-uri').and_yield(File.open('spec/fixtures/stub-groovy.zip'))
-
-        Groovy.new(
-            app_dir: root,
-            configuration: {}
-        ).compile
-
-        groovy = File.join root, '.groovy', 'bin', 'groovy'
-        expect(File.exists?(groovy)).to be_true
+        expect { component.detect }.to raise_error /Malformed version/
       end
     end
 
-    it 'should return command' do
-      Dir.mktmpdir do |root|
-        lib_directory = File.join root, '.lib'
-        Dir.mkdir lib_directory
+    it 'should extract Groovy from a ZIP',
+       app_fixture: 'container_groovy_main_method',
+       cache_fixture: 'stub-groovy.zip' do
 
-        Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
-        Dir['spec/fixtures/container_groovy_main_method/*'].each { |file| system "cp -r #{file} #{root}" }
+      component.compile
 
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(GROOVY_VERSION) if block }
-        .and_return(GROOVY_DETAILS)
+      expect(app_dir + '.groovy/bin/groovy').to exist
+    end
 
-        command = Groovy.new(
-            app_dir: root,
-            java_home: 'test-java-home',
-            java_opts: %w(test-opt-2 test-opt-1),
-            lib_directory: lib_directory,
-            configuration: {}
-        ).release
+    it 'should return command',
+       app_fixture: 'container_groovy_main_method' do
 
-        expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .groovy/bin/groovy -cp .lib/test-jar-1.jar:.lib/test-jar-2.jar Application.groovy Alpha.groovy directory/Beta.groovy')
-      end
+      expect(component.release).to eq("JAVA_HOME=#{java_home} JAVA_OPTS=#{java_opts_str} " +
+                                          '.groovy/bin/groovy -cp .lib/test-jar-1.jar:.lib/test-jar-2.jar ' +
+                                          'Application.groovy Alpha.groovy directory/Beta.groovy')
+    end
+
+    def java_opts_str
+      "\"#{java_opts.sort.join(' ')}\""
     end
 
   end

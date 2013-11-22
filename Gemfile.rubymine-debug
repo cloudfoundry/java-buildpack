@@ -1,9 +1,0 @@
-source 'https://rubygems.org'
-
-# gems for debugging with RubyMine under Ruby 1.9.x
-# Install using:
-# bundle install --gemfile Gemfile.rubymine-debug
-group :debug do
- gem 'ruby-debug-base19x', '>= 0.11.30.pre10'
- gem 'ruby-debug-ide', '>= 0.4.17.beta14'
-end

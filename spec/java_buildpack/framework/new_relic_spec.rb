@@ -15,115 +15,64 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'component_helper'
 require 'java_buildpack/framework/new_relic'
 
 module JavaBuildpack::Framework
 
-  describe NewRelic do
+  describe NewRelic, service_type: 'newrelic-n/a' do
+    include_context 'component_helper'
 
-    NEW_RELIC_VERSION = JavaBuildpack::Util::TokenizedVersion.new('2.21.2')
-
-    NEW_RELIC_DETAILS = [NEW_RELIC_VERSION, 'test-uri']
-
-    let(:application_cache) { double('ApplicationCache') }
-    let(:java_opts) { [] }
-    let(:vcap_application) { {} }
-    let(:vcap_services) { {} }
-
-    before do
-      $stdout = StringIO.new
-      $stderr = StringIO.new
-    end
+    let(:service_credentials) { { 'licenseKey' => 'test-license-key' } }
 
     it 'should detect with newrelic-n/a service' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(NEW_RELIC_DETAILS)
-      vcap_services['newrelic-n/a'] = [{ 'credentials' => { 'licenseKey' => 'test-license-key' } }]
-
-      detected = NewRelic.new(
-          vcap_services: vcap_services
-      ).detect
-
-      expect(detected).to eq('new-relic-agent=2.21.2')
+      expect(component.detect).to eq("new-relic-agent=#{version}")
     end
 
-    it 'should not detect without newrelic-n/a service' do
-      detected = NewRelic.new(
-          vcap_services: vcap_services
-      ).detect
+    context do
+      let(:vcap_services) { {} }
 
-      expect(detected).to be_nil
-    end
-
-    it 'should fail with multiple newrelic-n/a services' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(NEW_RELIC_DETAILS)
-      vcap_services['newrelic-n/a'] = [
-          { 'credentials' => { 'licenseKey' => 'test-license-key' } },
-          { 'credentials' => { 'licenseKey' => 'test-license-key' } }
-      ]
-
-      expect do
-        NewRelic.new(
-            vcap_services: vcap_services
-        ).detect
-      end.to raise_error
-    end
-
-    it 'should fail with zero newrelic-n/a services' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(NEW_RELIC_DETAILS)
-      vcap_services['newrelic-n/a'] = []
-
-      expect do
-        NewRelic.new(
-            vcap_services: vcap_services
-        ).detect
-      end.to raise_error
-    end
-
-    it 'should download New Relic agent JAR' do
-      Dir.mktmpdir do |root|
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(NEW_RELIC_DETAILS)
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-new-relic.jar'))
-        vcap_services['newrelic-n/a'] = [{ 'credentials' => { 'licenseKey' => 'test-license-key' } }]
-
-        NewRelic.new(
-            app_dir: root,
-            vcap_services: vcap_services
-        ).compile
-
-        expect(File.exists? File.join(root, '.new-relic', 'new-relic-agent-2.21.2.jar')).to be_true
+      it 'should not detect without newrelic-n/a service' do
+        expect(component.detect).to be_nil
       end
     end
 
-    it 'should copy resources' do
-      Dir.mktmpdir do |root|
+    context do
+      let(:service_payload) { [{ 'credentials' => service_credentials }, { 'credentials' => service_credentials }] }
 
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(NEW_RELIC_DETAILS)
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with('test-uri').and_yield(File.open('spec/fixtures/stub-new-relic.jar'))
-        vcap_services['newrelic-n/a'] = [{ 'credentials' => { 'licenseKey' => 'test-license-key' } }]
-
-        NewRelic.new(
-            app_dir: root,
-            vcap_services: vcap_services
-        ).compile
-
-        expect(File.exists? File.join(root, '.new-relic', 'newrelic.yml')).to be_true
+      it 'should fail with multiple newrelic-n/a services' do
+        expect { component.detect }.to raise_error /Exactly one service/
       end
+    end
+
+    context do
+      let(:service_payload) { [] }
+
+      it 'should fail with zero newrelic-n/a services' do
+        expect { component.detect }.to raise_error /Exactly one service/
+      end
+    end
+
+    it 'should download New Relic agent JAR',
+       cache_fixture: 'stub-new-relic.jar' do
+
+      component.compile
+
+      expect(app_dir + ".new-relic/new-relic-agent-#{version}.jar").to exist
+    end
+
+    it 'should copy resources',
+       cache_fixture: 'stub-new-relic.jar' do
+
+      component.compile
+
+      expect(app_dir + '.new-relic/newrelic.yml').to exist
     end
 
     it 'should update JAVA_OPTS' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item).and_return(NEW_RELIC_DETAILS)
-      vcap_application['application_name'] = 'test-application-name'
-      vcap_services['newrelic-n/a'] = [{ 'credentials' => { 'licenseKey' => 'test-license-key' } }]
+      component.release
 
-      NewRelic.new(
-          java_opts: java_opts,
-          vcap_application: vcap_application,
-          vcap_services: vcap_services
-      ).release
-
-      expect(java_opts).to include('-javaagent:.new-relic/new-relic-agent-2.21.2.jar')
+      expect(java_opts).to include("-javaagent:.new-relic/new-relic-agent-#{version}.jar")
       expect(java_opts).to include('-Dnewrelic.home=.new-relic')
       expect(java_opts).to include('-Dnewrelic.config.license_key=test-license-key')
       expect(java_opts).to include("-Dnewrelic.config.app_name='test-application-name'")

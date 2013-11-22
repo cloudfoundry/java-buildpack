@@ -15,153 +15,88 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'component_helper'
 require 'java_buildpack/container/spring_boot_cli'
 
 module JavaBuildpack::Container
 
   describe SpringBootCli do
+    include_context 'component_helper'
 
-    SPRING_BOOT_CLI_VERSION = JavaBuildpack::Util::TokenizedVersion.new('0.5.0_x-y.z')
+    it 'should not detect a non-Groovy project',
+       app_fixture: 'container_main' do
 
-    SPRING_BOOT_CLI_URI = 'test-spring-boot-cli-uri'
-
-    SPRING_BOOT_CLI_DETAILS = [SPRING_BOOT_CLI_VERSION, SPRING_BOOT_CLI_URI]
-
-    let(:application_cache) { double('ApplicationCache') }
-
-    before do
-      $stdout = StringIO.new
-      $stderr = StringIO.new
+      expect(component.detect).to be_nil
     end
 
-    it 'should not detect a non-Groovy project' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(SPRING_BOOT_CLI_VERSION) if block }
-      .and_return(SPRING_BOOT_CLI_DETAILS)
-      detected = SpringBootCli.new(
-          app_dir: 'spec/fixtures/container_main',
-          configuration: {}
-      ).detect
+    it 'should not detect a .groovy directory',
+       app_fixture: 'dot_groovy' do
 
-      expect(detected).to be_nil
+      expect(component.detect).to be_nil
     end
 
-    it 'should not detect a .groovy directory' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(SPRING_BOOT_CLI_VERSION) if block }
-      .and_return(SPRING_BOOT_CLI_DETAILS)
-      detected = SpringBootCli.new(
-          app_dir: 'spec/fixtures/dot_groovy',
-          configuration: {}
-      ).detect
+    it 'should not detect if the application has a WEB-INF directory',
+       app_fixture: 'container_spring_boot_cli_groovy_with_web_inf' do
 
-      expect(detected).to be_nil
+      expect(component.detect).to be_nil
     end
 
-    it 'should not detect if the application has a WEB-INF directory' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(SPRING_BOOT_CLI_VERSION) if block }
-      .and_return(SPRING_BOOT_CLI_DETAILS)
-      detected = SpringBootCli.new(
-          app_dir: 'spec/fixtures/container_spring_boot_cli_groovy_with_web_inf',
-          configuration: {}
-      ).detect
+    it 'should not detect if one of the Groovy files is not a POGO',
+       app_fixture: 'container_spring_boot_cli_non_pogo' do
 
-      expect(detected).to be_nil
+      expect(component.detect).to be_nil
     end
 
-    it 'should not detect if one of the Groovy files is not a POGO' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(SPRING_BOOT_CLI_VERSION) if block }
-      .and_return(SPRING_BOOT_CLI_DETAILS)
-      detected = SpringBootCli.new(
-          app_dir: 'spec/fixtures/container_spring_boot_cli_non_pogo',
-          configuration: {}
-      ).detect
+    it 'should not detect if one of the Groovy files has a main() method',
+       app_fixture: 'container_spring_boot_cli_main_method' do
 
-      expect(detected).to be_nil
+      expect(component.detect).to be_nil
     end
 
-    it 'should not detect if one of the Groovy files has a main() method' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(SPRING_BOOT_CLI_VERSION) if block }
-      .and_return(SPRING_BOOT_CLI_DETAILS)
-      detected = SpringBootCli.new(
-          app_dir: 'spec/fixtures/container_spring_boot_cli_main_method',
-          configuration: {}
-      ).detect
+    it 'should detect if there are Groovy files and they are all POGOs with no main method and there is no WEB-INF directory',
+       app_fixture: 'container_spring_boot_cli_valid_app' do
 
-      expect(detected).to be_nil
+      expect(component.detect).to eq("spring-boot-cli=#{version}")
     end
 
-    it 'should detect if there are Groovy files and they are all POGOs with no main method and there is no WEB-INF directory' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(SPRING_BOOT_CLI_VERSION) if block }
-      .and_return(SPRING_BOOT_CLI_DETAILS)
-      detected = SpringBootCli.new(
-          app_dir: 'spec/fixtures/container_spring_boot_cli_valid_app',
-          configuration: {}
-      ).detect
+    it 'should extract Spring Boot CLI from a ZIP',
+       app_fixture: 'container_spring_boot_cli_valid_app',
+       cache_fixture: 'stub-spring-boot-cli.tar.gz' do
 
-      expect(detected).to include("spring-boot-cli=#{SPRING_BOOT_CLI_VERSION}")
+      component.compile
+
+      expect(app_dir + '.spring-boot-cli/bin/spring').to exist
     end
 
-    it 'should extract Spring Boot CLI from a ZIP' do
-      Dir.mktmpdir do |root|
-        Dir['spec/fixtures/container_spring_boot_cli_valid_app/*'].each { |file| system "cp -r #{file} #{root}" }
+    it 'should link classpath JARs',
+       app_fixture: 'container_spring_boot_cli_valid_app',
+       cache_fixture: 'stub-spring-boot-cli.tar.gz' do
 
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(SPRING_BOOT_CLI_VERSION) if block }
-        .and_return(SPRING_BOOT_CLI_DETAILS)
+      component.compile
 
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with(SPRING_BOOT_CLI_URI).and_yield(File.open('spec/fixtures/stub-spring-boot-cli.tar.gz'))
+      lib = app_dir + '.spring-boot-cli/lib'
 
-        SpringBootCli.new(
-            app_dir: root,
-            configuration: {}
-        ).compile
+      jar_1 = lib + 'test-jar-1.jar'
+      expect(jar_1).to exist
+      expect(jar_1).to be_symlink
 
-        spring = File.join root, '.spring-boot-cli', 'bin', 'spring'
-        expect(File.exists?(spring)).to be_true
-      end
+      jar_2 = lib + 'test-jar-2.jar'
+      expect(jar_2).to exist
+      expect(jar_2).to be_symlink
+
+      expect(lib + 'test-text.txt').not_to exist
     end
 
-    it 'should link classpath JARs' do
-      Dir.mktmpdir do |root|
-        lib_directory = File.join root, '.lib'
-        Dir.mkdir lib_directory
+    it 'should return command',
+       app_fixture: 'container_spring_boot_cli_valid_app' do
 
-        Dir['spec/fixtures/additional_libs/*'].each { |file| system "cp #{file} #{lib_directory}" }
-        Dir['spec/fixtures/container_spring_boot_cli_valid_app/*'].each { |file| system "cp -r #{file} #{root}" }
-
-        JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(SPRING_BOOT_CLI_VERSION) if block }
-        .and_return(SPRING_BOOT_CLI_DETAILS)
-
-        JavaBuildpack::Util::ApplicationCache.stub(:new).and_return(application_cache)
-        application_cache.stub(:get).with(SPRING_BOOT_CLI_URI).and_yield(File.open('spec/fixtures/stub-spring-boot-cli.tar.gz'))
-
-        SpringBootCli.new(
-            app_dir: root,
-            lib_directory: lib_directory,
-            configuration: {}
-        ).compile
-
-        lib = File.join root, '.spring-boot-cli', 'lib'
-        jar_1 = File.join(lib, 'test-jar-1.jar')
-        expect(File.exist?(jar_1)).to be_true
-        expect(File.symlink?(jar_1)).to be_true
-        jar_2 = File.join(lib, 'test-jar-2.jar')
-        expect(File.exist?(jar_2)).to be_true
-        expect(File.symlink?(jar_2)).to be_true
-        expect(File.exist?(File.join(lib, 'test-text.txt'))).to be_false
-      end
+      expect(component.release).to eq("JAVA_HOME=#{java_home} JAVA_OPTS=#{java_opts_str} " +
+                                          '.spring-boot-cli/bin/spring run --local directory/pogo_4.groovy ' +
+                                          'pogo_1.groovy pogo_2.groovy pogo_3.groovy -- --server.port=$PORT')
     end
 
-    it 'should return command' do
-      JavaBuildpack::Repository::ConfiguredItem.stub(:find_item) { |&block| block.call(SPRING_BOOT_CLI_VERSION) if block }
-      .and_return(SPRING_BOOT_CLI_DETAILS)
-      command = SpringBootCli.new(
-          app_dir: 'spec/fixtures/container_spring_boot_cli_valid_app',
-          java_home: 'test-java-home',
-          java_opts: %w(test-opt-2 test-opt-1),
-          configuration: {}
-      ).release
-
-      expect(command).to eq('JAVA_HOME=test-java-home JAVA_OPTS="test-opt-1 test-opt-2" .spring-boot-cli/bin/spring run --local directory/pogo_4.groovy pogo_1.groovy pogo_2.groovy pogo_3.groovy -- --server.port=$PORT')
+    def java_opts_str
+      "\"#{java_opts.sort.join(' ')}\""
     end
 
   end

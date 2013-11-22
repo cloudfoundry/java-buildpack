@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="RUBY_MODULE" version="4">
-  <component name="NewModuleRootManager">
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/lib/java_buildpack" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/bin" isTestSource="false" />
@@ -16,29 +16,34 @@
     <orderEntry type="library" scope="PROVIDED" name="addressable (v2.3.5, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ast (v1.1.0, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="bundler (v1.3.5, rbenv: 1.9.3-p448) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="codeclimate-test-reporter (v0.1.1, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="codeclimate-test-reporter (v0.2.0, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="crack (v0.4.1, rbenv: 1.9.3-p448) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.2.4, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="debugger-ruby_core_source (v1.2.3, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.2.5, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="docile (v1.1.0, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="multi_json (v1.8.2, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="parser (v2.0.0, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="powerpack (v0.0.9, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rainbow (v1.1.4, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rake (v10.1.0, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="redcarpet (v3.0.0, rbenv: 1.9.3-p448) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec (v2.14.1, rbenv: 1.9.3-p448) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-core (v2.14.7, rbenv: 1.9.3-p448) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v2.14.4, rbenv: 1.9.3-p448) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v2.14.4, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec (v3.0.0.beta1, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.0.0.beta1, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v3.0.0.beta1, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v3.0.0.beta1, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.0.0.beta1, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rubocop (v0.15.0, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ruby-debug-base19x (v0.11.30.pre15, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ruby-debug-ide (v0.4.22, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="safe_yaml (v0.9.7, rbenv: 1.9.3-p448) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="simplecov (v0.7.1, rbenv: 1.9.3-p448) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="simplecov-html (v0.7.1, rbenv: 1.9.3-p448) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="slop (v3.4.6, rbenv: 1.9.3-p448) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="webmock (v1.15.2, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="simplecov (v0.8.2, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="simplecov-html (v0.8.0, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="slop (v3.4.7, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="webmock (v1.16.0, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="yard (v0.8.7.3, rbenv: 1.9.3-p448) [gem]" level="application" />
   </component>
   <component name="RModuleSettingsStorage">
-    <LOAD_PATH number="1" string0="$MODULE_DIR$/lib" />
+    <LOAD_PATH number="2" string0="$MODULE_DIR$/lib" string1="$MODULE_DIR$/spec" />
     <I18N_FOLDERS number="0" />
   </component>
 </module>

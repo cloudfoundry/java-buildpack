@@ -22,26 +22,29 @@ module JavaBuildpack::Jre
 
   describe MemoryRange do
 
-    TEST_LOWER_BOUND = MemorySize.new('3m')
-    TEST_UPPER_BOUND = MemorySize.new('5m')
-    LOW = MemorySize.new('1m')
-    TEST_MID = MemorySize.new('4m')
+    let(:low) { MemorySize.new('1m') }
+
+    let(:mid) { MemorySize.new('4m') }
+
+    let(:test_lower_bound) { MemorySize.new('3m') }
+
+    let(:test_upper_bound) { MemorySize.new('5m') }
 
     it 'should accept an absolute memory size and produce the corresponding tight range' do
       range = MemoryRange.new('3m')
-      expect(range.floor).to eq(TEST_LOWER_BOUND)
-      expect(range.ceiling).to eq(TEST_LOWER_BOUND)
+      expect(range.floor).to eq(test_lower_bound)
+      expect(range.ceiling).to eq(test_lower_bound)
     end
 
     it 'should accept a range with specified lower and upper bounds' do
       range = MemoryRange.new('3m..5m')
-      expect(range.floor).to eq(TEST_LOWER_BOUND)
-      expect(range.ceiling).to eq(TEST_UPPER_BOUND)
+      expect(range.floor).to eq(test_lower_bound)
+      expect(range.ceiling).to eq(test_upper_bound)
     end
 
     it 'should accept a range with specified lower bound, but no upper bound' do
       range = MemoryRange.new('3m..')
-      expect(range.floor).to eq(TEST_LOWER_BOUND)
+      expect(range.floor).to eq(test_lower_bound)
       expect(range.bounded?).to be(false)
       expect(range.ceiling).to be_nil
     end
@@ -49,7 +52,7 @@ module JavaBuildpack::Jre
     it 'should accept a range with specified upper bound, but no lower bound' do
       range = MemoryRange.new('..5m')
       expect(range.floor).to eq(0)
-      expect(range.ceiling).to eq(TEST_UPPER_BOUND)
+      expect(range.ceiling).to eq(test_upper_bound)
     end
 
     it 'should accept a range with no lower or upper bounds' do
@@ -66,27 +69,27 @@ module JavaBuildpack::Jre
 
     it 'should detect a memory size higher than a range to lie outside the range' do
       range = MemoryRange.new('3m..5m')
-      expect(range.contains?(TEST_UPPER_BOUND * 2)).to eq(false)
+      expect(range.contains?(test_upper_bound * 2)).to eq(false)
     end
 
     it 'should detect a memory size within a range as lying inside the range' do
       range = MemoryRange.new('3m..5m')
-      expect(range.contains?(TEST_MID)).to eq(true)
+      expect(range.contains?(mid)).to eq(true)
     end
 
     it 'should constrain a memory size lower than a range to the lower bound of the range' do
       range = MemoryRange.new('3m..5m')
-      expect(range.constrain(LOW)).to eq(TEST_LOWER_BOUND)
+      expect(range.constrain(low)).to eq(test_lower_bound)
     end
 
     it 'should constrain a memory size higher than a range to the upper bound of the range' do
       range = MemoryRange.new('3m..5m')
-      expect(range.constrain(TEST_UPPER_BOUND * 2)).to eq(TEST_UPPER_BOUND)
+      expect(range.constrain(test_upper_bound * 2)).to eq(test_upper_bound)
     end
 
     it 'should constrain a memory size within the range to be the memory size itself' do
       range = MemoryRange.new('3m..5m')
-      expect(range.constrain(TEST_MID)).to eq(TEST_MID)
+      expect(range.constrain(mid)).to eq(mid)
     end
 
     it 'should correctly detect a degenerate range' do
@@ -100,42 +103,42 @@ module JavaBuildpack::Jre
     end
 
     it 'should fail if the range string is empty' do
-      expect { MemoryRange.new('2m..1m') }.to raise_error(/Invalid range/)
+      expect { MemoryRange.new('2m..1m') }.to raise_error /Invalid range/
     end
 
     it 'should fail if the range is empty' do
-      expect { MemoryRange.new(TEST_UPPER_BOUND, TEST_LOWER_BOUND) }.to raise_error(/Invalid range/)
+      expect { MemoryRange.new(test_upper_bound, test_lower_bound) }.to raise_error /Invalid range/
     end
 
     it 'should fail if the lower bound is not a MemorySize' do
-      expect { MemoryRange.new('', TEST_UPPER_BOUND) }.to raise_error(/Invalid combination of parameter types/)
+      expect { MemoryRange.new('', test_upper_bound) }.to raise_error /Invalid combination of parameter types/
     end
 
     it 'should fail if the upper bound is not a MemorySize' do
-      expect { MemoryRange.new(TEST_LOWER_BOUND, '') }.to raise_error(/Invalid MemorySize parameter of type/)
+      expect { MemoryRange.new(test_lower_bound, '') }.to raise_error /Invalid MemorySize parameter of type/
     end
 
     it 'should accept valid lower and upper bounds' do
-      range = MemoryRange.new(TEST_LOWER_BOUND, TEST_UPPER_BOUND)
-      expect(range.floor).to eq(TEST_LOWER_BOUND)
-      expect(range.ceiling).to eq(TEST_UPPER_BOUND)
+      range = MemoryRange.new(test_lower_bound, test_upper_bound)
+      expect(range.floor).to eq(test_lower_bound)
+      expect(range.ceiling).to eq(test_upper_bound)
       expect(range.bounded?).to be(true)
     end
 
     it 'should accept a lower bound and no upper bound' do
-      range = MemoryRange.new(TEST_LOWER_BOUND)
-      expect(range.floor).to eq(TEST_LOWER_BOUND)
+      range = MemoryRange.new(test_lower_bound)
+      expect(range.floor).to eq(test_lower_bound)
       expect(range.ceiling).to be_nil
       expect(range.bounded?).to be(false)
     end
 
     it 'should correctly detect a degenerate range constructed from MemorySizes' do
-      range = MemoryRange.new(TEST_LOWER_BOUND, TEST_LOWER_BOUND)
+      range = MemoryRange.new(test_lower_bound, test_lower_bound)
       expect(range.degenerate?).to eq(true)
     end
 
     it 'should correctly detect a non-degenerate range constructed from MemorySizes' do
-      range = MemoryRange.new(TEST_LOWER_BOUND, TEST_UPPER_BOUND)
+      range = MemoryRange.new(test_lower_bound, test_upper_bound)
       expect(range.degenerate?).to eq(false)
     end
 
@@ -150,11 +153,11 @@ module JavaBuildpack::Jre
     end
 
     it 'should compare bounded ranges correctly for equality' do
-      expect(MemoryRange.new('3m..5m')).to eq(MemoryRange.new(TEST_LOWER_BOUND, TEST_UPPER_BOUND))
+      expect(MemoryRange.new('3m..5m')).to eq(MemoryRange.new(test_lower_bound, test_upper_bound))
     end
 
     it 'should compare unbounded ranges correctly for equality' do
-      expect(MemoryRange.new('3m..')).to eq(MemoryRange.new(TEST_LOWER_BOUND))
+      expect(MemoryRange.new('3m..')).to eq(MemoryRange.new(test_lower_bound))
     end
 
   end

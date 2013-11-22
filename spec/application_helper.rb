@@ -15,23 +15,26 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'application_helper'
-require 'open3'
+require 'java_buildpack/application'
 
-describe 'compile script', :integration do
-  include_context 'application_helper'
+shared_context 'application_helper' do
 
-  it 'should return zero if success',
-     app_fixture: 'integration_valid' do
+  let(:app_dir) { Pathname.new Dir.mktmpdir }
+  let(:application) { JavaBuildpack::Application.new(app_dir) }
 
-    Open3.popen3("bin/compile #{app_dir} #{app_dir}") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to be_success
-    end
+  before do
+    FileUtils.mkdir_p app_dir
   end
 
-  it 'should fail to compile when no containers detect' do
-    error = Open3.capture3("bin/compile #{app_dir} #{app_dir}")[1]
-    expect(error).to match /No container can run the application/
+  before do |example|
+    app_fixture = example.metadata[:app_fixture]
+    FileUtils.cp_r "spec/fixtures/#{app_fixture.chomp}/.", app_dir if app_fixture
+
+    application
+  end
+
+  after do
+    FileUtils.rm_rf app_dir
   end
 
 end

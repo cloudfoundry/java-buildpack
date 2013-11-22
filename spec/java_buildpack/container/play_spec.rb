@@ -22,41 +22,63 @@ module JavaBuildpack::Container
 
   describe Play do
 
+    let(:app_dir) { 'test-app-dir' }
+    let(:java_home) { 'test-java-home' }
     let(:play_instance) { double('PlayApp') }
 
+    before do
+      allow(JavaBuildpack::Util::PlayAppFactory).to receive(:create).with(app_dir).and_return(play_instance)
+    end
+
     it 'should construct an instance using the PlayAppFactory' do
-      JavaBuildpack::Util::PlayAppFactory.stub(:create).with('test-app-dir').and_return(play_instance)
-      Play.new('app_dir' => 'test-app-dir')
+      Play.new(
+          app_dir: app_dir
+      )
     end
 
     it 'should used nil returned by the PlayAppFactory to determine the version' do
-      JavaBuildpack::Util::PlayAppFactory.stub(:create).with('test-app-dir').and_return(nil)
-      play = Play.new('app_dir' => 'test-app-dir')
+      allow(JavaBuildpack::Util::PlayAppFactory).to receive(:create).with('test-app-dir').and_return(nil)
+
+      play = Play.new(
+          app_dir: app_dir
+      )
+
       expect(play.detect).to be_nil
     end
 
     it 'should use the PlayApp returned by the PlayAppFactory to determine the version' do
-      JavaBuildpack::Util::PlayAppFactory.stub(:create).with('test-app-dir').and_return(play_instance)
-      play_instance.should_receive(:version).and_return('test-version')
-      play = Play.new('app_dir' => 'test-app-dir')
+      allow(play_instance).to receive(:version).and_return('test-version')
+
+      play = Play.new(
+          app_dir: app_dir
+      )
+
       expect(play.detect).to eq('play-framework=test-version')
     end
 
     it 'should use the PlayApp returned by the PlayAppFactory to perform compilation' do
-      JavaBuildpack::Util::PlayAppFactory.stub(:create).with('test-app-dir').and_return(play_instance)
-      play_instance.should_receive(:set_executable)
-      play_instance.should_receive(:add_libs_to_classpath)
-      play_instance.should_receive(:replace_bootstrap)
-      play = Play.new('app_dir' => 'test-app-dir')
-      play.compile
+      expect(play_instance).to receive(:set_executable)
+      expect(play_instance).to receive(:add_libs_to_classpath)
+      expect(play_instance).to receive(:replace_bootstrap)
+
+      Play.new(
+          app_dir: app_dir
+      ).compile
     end
 
     it 'should use the PlayApp returned by the PlayAppFactory to perform release' do
-      JavaBuildpack::Util::PlayAppFactory.stub(:create).with('test-app-dir').and_return(play_instance)
-      play_instance.should_receive(:start_script_relative).and_return('test-start-script-relative')
-      play_instance.should_receive(:decorate_java_opts).with(['some-option', '-Dhttp.port=$PORT']).and_return(['-Jsome-option', '-J-Dhttp.port=$PORT'])
-      play = Play.new('app_dir' => 'test-app-dir', 'java_opts' => ['some-option'], 'java_home' => 'test-java-home')
-      expect(play.release).to eq('PATH=test-java-home/bin:$PATH JAVA_HOME=test-java-home test-start-script-relative -J-Dhttp.port=$PORT -Jsome-option')
+      allow(play_instance).to receive(:start_script_relative).and_return('test-start-script-relative')
+      allow(play_instance).to receive(:decorate_java_opts).with(%w(some-option -Dhttp.port=$PORT))
+                              .and_return(%w(-Jsome-option -J-Dhttp.port=$PORT))
+
+      play = Play.new(
+          app_dir: app_dir,
+          java_opts: %w(some-option),
+          java_home: java_home
+      )
+
+      expect(play.release).to eq("PATH=#{java_home}/bin:$PATH JAVA_HOME=#{java_home} test-start-script-relative " +
+                                     '-J-Dhttp.port=$PORT -Jsome-option')
     end
 
   end
