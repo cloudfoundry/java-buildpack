@@ -16,6 +16,7 @@
 
 require 'spec_helper'
 require 'application_helper'
+require 'buildpack_cache_helper'
 require 'diagnostics_helper'
 require 'fileutils'
 require 'java_buildpack/repository/repository_index'
@@ -57,18 +58,21 @@ module JavaBuildpack::Repository
       expect(repository_index.find_item('test-version')).to eq(%w(resolved-version resolved-uri))
     end
 
-    it 'should use the read-only buildpack cache when index.yaml cannot be downloaded because the internet is not available' do
-      stub_request(:get, 'http://foo.com/index.yml').to_raise(SocketError)
-      allow(JavaBuildpack::Util::DownloadCache).to receive(:new).and_call_original
+    context do
+      include_context 'buildpack_cache_helper'
 
-      java_buildpack_cache = app_dir + 'java-buildpack'
-      FileUtils.mkdir_p java_buildpack_cache
-      FileUtils.cp 'spec/fixtures/stashed_repository_index.yml', java_buildpack_cache + 'http:%2F%2Ffoo.com%2Findex.yml.cached'
+      it 'should use the read-only buildpack cache when index.yaml cannot be downloaded because the internet is not available' do
+        stub_request(:get, 'http://foo.com/index.yml').to_raise(SocketError)
+        allow(JavaBuildpack::Util::DownloadCache).to receive(:new).and_call_original
 
-      version, uri = RepositoryIndex.new('http://foo.com').find_item(JavaBuildpack::Util::TokenizedVersion.new('1.0.+'))
+        FileUtils.mkdir_p java_buildpack_cache_dir
+        FileUtils.cp 'spec/fixtures/stashed_repository_index.yml', java_buildpack_cache_dir + 'http:%2F%2Ffoo.com%2Findex.yml.cached'
 
-      expect(version).to eq(JavaBuildpack::Util::TokenizedVersion.new('1.0.1'))
-      expect(uri).to eq('http://foo.com/test.txt')
+        version, uri = RepositoryIndex.new('http://foo.com').find_item(JavaBuildpack::Util::TokenizedVersion.new('1.0.+'))
+
+        expect(version).to eq(JavaBuildpack::Util::TokenizedVersion.new('1.0.1'))
+        expect(uri).to eq('http://foo.com/test.txt')
+      end
     end
 
     it 'should handle Centos correctly' do
