@@ -29,9 +29,9 @@ shared_context 'diagnostics_helper' do
   previous_debug_level = $DEBUG
   previous_verbose_level = $VERBOSE
 
-  let(:diagnostics_dir) { app_dir + JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY }
+  let(:diagnostics_dir) { Pathname.new(JavaBuildpack::Diagnostics.get_diagnostic_directory app_dir) }
 
-  let(:log_contents) { (diagnostics_dir + JavaBuildpack::Diagnostics::LOG_FILE_NAME).read }
+  let(:log_contents) { Pathname.new(JavaBuildpack::Diagnostics.get_buildpack_log app_dir).read }
 
   let(:logger) { JavaBuildpack::Diagnostics::LoggerFactory.create_logger app_dir }
 

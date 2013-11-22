@@ -87,8 +87,8 @@ module JavaBuildpack::Repository
     end
 
     it 'should handle Mac OS X correctly' do
-      allow_any_instance_of(RepositoryIndex).to receive('uname -s').and_return('Darwin')
-      allow_any_instance_of(RepositoryIndex).to receive('uname -m').and_return('x86_64')
+      allow_any_instance_of(RepositoryIndex).to receive(:`).with('uname -s').and_return('Darwin')
+      allow_any_instance_of(RepositoryIndex).to receive(:`).with('uname -m').and_return('x86_64')
       allow(application_cache).to receive(:get).with('mountainlion/x86_64/test-uri/index.yml')
                                   .and_yield(File.open('spec/fixtures/test-index.yml'))
 

@@ -58,13 +58,8 @@ module JavaBuildpack::Framework
     end
 
     def parsed_java_opts
-      configured_java_opts = @configuration[CONFIGURATION_PROPERTY]
-      if configured_java_opts
-        configured_java_opts.shellsplit.map do |java_opt|
-          java_opt.gsub(/([\s])/, '\\\\\1')
-        end
-      else
-        []
+      @configuration[CONFIGURATION_PROPERTY].shellsplit.map do |java_opt|
+        java_opt.gsub(/([\s])/, '\\\\\1')
       end
     end
 
