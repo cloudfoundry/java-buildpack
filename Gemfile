@@ -14,6 +14,7 @@ end
 group :test do
   gem 'codeclimate-test-reporter'
   gem 'simplecov'
+  gem 'tee'
   gem 'webmock'
 end
 

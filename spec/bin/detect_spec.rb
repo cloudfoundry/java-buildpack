@@ -15,23 +15,21 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'application_helper'
-require 'open3'
+require 'integration_helper'
 
 describe 'detect script', :integration do
-  include_context 'application_helper'
+  include_context 'integration_helper'
 
   it 'should return zero if success',
      app_fixture: 'integration_valid' do
 
-    Open3.popen3("bin/detect #{app_dir}") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to be_success
-    end
+    run("bin/detect #{app_dir}") { |status| expect(status).to be_success }
+
   end
 
   it 'should fail to detect when no containers detect' do
-    Open3.popen3("bin/detect #{app_dir}") do |stdin, stdout, stderr, wait_thr|
-      expect(wait_thr.value).to_not be_success
+    run("bin/detect #{app_dir}") do |status|
+      expect(status).not_to be_success
     end
   end
 
