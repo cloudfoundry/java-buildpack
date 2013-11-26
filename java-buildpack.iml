@@ -18,7 +18,7 @@
     <orderEntry type="library" scope="PROVIDED" name="bundler (v1.3.5, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="codeclimate-test-reporter (v0.2.0, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="crack (v0.4.1, rbenv: 1.9.3-p448) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="debugger-ruby_core_source (v1.2.3, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="debugger-ruby_core_source (v1.2.4, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.2.5, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="docile (v1.1.0, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="multi_json (v1.8.2, rbenv: 1.9.3-p448) [gem]" level="application" />
@@ -39,6 +39,7 @@
     <orderEntry type="library" scope="PROVIDED" name="simplecov (v0.8.2, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="simplecov-html (v0.8.0, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="slop (v3.4.7, rbenv: 1.9.3-p448) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="tee (v1.0.0, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="webmock (v1.16.0, rbenv: 1.9.3-p448) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="yard (v0.8.7.3, rbenv: 1.9.3-p448) [gem]" level="application" />
   </component>

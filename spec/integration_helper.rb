@@ -15,21 +15,18 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'integration_helper'
+require 'application_helper'
+require 'console_helper'
+require 'open3'
 
-describe 'release script', :integration do
-  include_context 'integration_helper'
+shared_context 'integration_helper' do
+  include_context 'application_helper'
+  include_context 'console_helper'
 
-  it 'should return zero if success',
-     app_fixture: 'integration_valid' do
-
-    run("bin/release #{app_dir}") { |status| expect(status).to be_success }
-  end
-
-  it 'should fail to release when no containers detect' do
-    run("bin/release #{app_dir}") do |status|
-      expect(status).not_to be_success
-      expect(stderr.string).to match /No container can run the application/
+  def run(command)
+    Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
+      capture_output stdout, stderr
+      yield wait_thr.value if block_given?
     end
   end
 

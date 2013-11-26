@@ -15,22 +15,44 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'tee'
 
 shared_context 'console_helper' do
+
+  STDOUT.sync
+  STDERR.sync
 
   let(:stdout) { StringIO.new }
   let(:stderr) { StringIO.new }
 
   before do |example|
-    unless example.metadata[:show_output]
-      $stdout = stdout
-      $stderr = stderr
+    $stdout = Tee.open(stdout, stdout: nil)
+    $stderr = Tee.open(stderr, stdout: nil)
+
+    if example.metadata[:show_output]
+      $stdout.add STDOUT
+      $stderr.add STDERR
     end
   end
 
   after do
     $stderr = STDERR
     $stdout = STDOUT
+  end
+
+  def capture_output(out, err)
+    t_out = Thread.new { copy_stream(out, $stdout) }
+    t_err = Thread.new { copy_stream(err, $stderr) }
+
+    t_out.join
+    t_err.join
+  end
+
+  def copy_stream(source, destination)
+    while (buff = source.read(1))
+      destination.write(buff)
+      destination.flush
+    end
   end
 
 end
