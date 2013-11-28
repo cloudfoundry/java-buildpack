@@ -17,11 +17,9 @@
 require 'fileutils'
 require 'java_buildpack/base_component'
 require 'java_buildpack/container'
-require 'java_buildpack/container/container_utils'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/java_main_utils'
-require 'java_buildpack/util/resource_utils'
 
 module JavaBuildpack::Container
 
@@ -32,8 +30,13 @@ module JavaBuildpack::Container
       super('Tomcat', context)
 
       if supports?
-        @tomcat_version, @tomcat_uri = JavaBuildpack::Repository::ConfiguredItem.find_item(@component_name, @configuration) { |candidate_version| candidate_version.check_size(3) }
-        @support_version, @support_uri = JavaBuildpack::Repository::ConfiguredItem.find_item(@component_name, @configuration[KEY_SUPPORT])
+        @tomcat_version, @tomcat_uri = JavaBuildpack::Repository::ConfiguredItem
+        .find_item(@component_name, @configuration) { |candidate_version| candidate_version.check_size(3) }
+        @support_version, @support_uri = JavaBuildpack::Repository::ConfiguredItem
+        .find_item(@component_name, @configuration['support'])
+
+        FileUtils.mkdir_p container_libs_directory
+        FileUtils.mkdir_p extra_applications_directory
       else
         @tomcat_version, @tomcat_uri = nil, nil
         @support_version, @support_uri = nil, nil
@@ -47,21 +50,22 @@ module JavaBuildpack::Container
     def compile
       download_tomcat
       download_support
-      link_tomcat_datasource
-      link_application
-      link_container_libs
-      link_extra_applications
-      link_libs
+      link_to(@application.children, root)
+      link_to(container_libs_directory.children.select { |child| child.extname == '.jar' }, tomcat_lib) # DO NOT DEPEND ON THIS FUNCTIONALITY
+      link_to(extra_applications_directory.children.select { |child| child.directory? }, webapps) # DO NOT DEPEND ON THIS FUNCTIONALITY
+      @application.additional_libraries.add tomcat_datasource_jar if tomcat_datasource_jar.exist?
+      @application.additional_libraries.link_to web_inf_lib
     end
 
     def release
-      @java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
+      @application.java_opts.add_system_property 'http.port', '$PORT'
 
-      java_home_string = "JAVA_HOME=#{@java_home}"
-      java_opts_string = ContainerUtils.space("JAVA_OPTS=\"#{ContainerUtils.to_java_opts_s(@java_opts)}\"")
-      start_script_string = ContainerUtils.space(@application.relative_path_to(tomcat_home + 'bin' + 'catalina.sh'))
-
-      "#{java_home_string}#{java_opts_string}#{start_script_string} run"
+      [
+          @application.java_home.as_env_var,
+          @application.java_opts.as_env_var,
+          @application.relative_path_to(home + 'bin/catalina.sh'),
+          'run'
+      ].compact.join(' ')
     end
 
     protected
@@ -86,18 +90,10 @@ module JavaBuildpack::Container
     #
     # @return [Boolean] whether or not this component supports this application
     def supports?
-      web_inf? && !JavaBuildpack::Util::JavaMainUtils.main_class(@app_dir)
+      web_inf? && !JavaBuildpack::Util::JavaMainUtils.main_class(@application)
     end
 
     private
-
-    KEY_HTTP_PORT = 'http.port'.freeze
-
-    KEY_SUPPORT = 'support'.freeze
-
-    TOMCAT_DATASOURCE_JAR = 'tomcat-jdbc.jar'.freeze
-
-    WEB_INF_DIRECTORY = 'WEB-INF'.freeze
 
     def container_libs_directory
       @application.component_directory 'container-libs'
@@ -108,18 +104,18 @@ module JavaBuildpack::Container
     end
 
     def download_support
-      download_jar(@support_version, @support_uri, support_jar_name, File.join(tomcat_home, 'lib'), 'Buildpack Tomcat Support')
+      download_jar(@support_version, @support_uri, support_jar_name, home + 'lib', 'Buildpack Tomcat Support')
     end
 
     def expand(file)
       expand_start_time = Time.now
-      print "       Expanding Tomcat to #{@application.relative_path_to(tomcat_home)} "
+      print "       Expanding Tomcat to #{@application.relative_path_to(home)} "
 
-      FileUtils.rm_rf tomcat_home
-      FileUtils.mkdir_p tomcat_home
-      shell "tar xzf #{file.path} -C #{tomcat_home} --strip 1 --exclude webapps --exclude #{File.join 'conf', 'server.xml'} --exclude #{File.join 'conf', 'context.xml'} 2>&1"
+      FileUtils.rm_rf home
+      FileUtils.mkdir_p home
+      shell "tar xzf #{file.path} -C #{home} --strip 1 --exclude webapps 2>&1"
 
-      JavaBuildpack::Util::ResourceUtils.copy_resources('tomcat', tomcat_home)
+      copy_resources
       puts "(#{(Time.now - expand_start_time).duration})"
     end
 
@@ -127,54 +123,9 @@ module JavaBuildpack::Container
       @application.component_directory 'extra-applications'
     end
 
-    def link_application
-      FileUtils.rm_rf root
-      FileUtils.mkdir_p root
-      @application.children.each { |child| FileUtils.ln_sf child.relative_path_from(root), root }
-    end
-
-    # Support for container libs in addition to the user's application is temporary and will go away in the future.
-    def link_container_libs
-      if container_libs_directory.exist?
-        container_libs = ContainerUtils.libs(@app_dir, container_libs_directory)
-
-        if container_libs
-          FileUtils.mkdir_p(tomcat_lib) unless tomcat_lib.exist?
-          container_libs.each { |lib| FileUtils.ln_sf(File.join('..', '..', lib), tomcat_lib) }
-        end
-      end
-    end
-
-    # Support for extra applications in addition to the user's application is temporary and will go away in the future.
-    def link_extra_applications
-      if extra_applications_directory.exist?
-        extra_applications = ContainerUtils.relative_paths(@app_dir, extra_applications_directory.children) { |file| file.directory? }
-
-        if extra_applications
-          FileUtils.mkdir_p webapps
-          extra_applications.each { |extra_application| FileUtils.ln_sf(File.join('..', '..', extra_application), webapps) }
-        end
-      end
-    end
-
-    def link_libs
-      libs = ContainerUtils.libs(@app_dir, @lib_directory)
-
-      if libs
-        FileUtils.mkdir_p(web_inf_lib) unless web_inf_lib.exist?
-        libs.each { |lib| FileUtils.ln_sf(File.join('..', '..', lib), web_inf_lib) }
-      end
-    end
-
-    def link_tomcat_datasource
-      tomcat_datasource_jar = tomcat_lib + TOMCAT_DATASOURCE_JAR
-      if tomcat_datasource_jar.exist?
-        # Link Tomcat datasource JAR into .lib
-        lib_directory_pathname = Pathname.new(@lib_directory)
-        symlink_source = tomcat_datasource_jar.relative_path_from(lib_directory_pathname)
-        symlink_target = lib_directory_pathname + TOMCAT_DATASOURCE_JAR
-        symlink_target.make_symlink symlink_source
-      end
+    def link_to(source, destination)
+      FileUtils.mkdir_p destination
+      source.each { |path| (destination + path.basename).make_symlink(path.relative_path_from(destination)) }
     end
 
     def root
@@ -185,24 +136,24 @@ module JavaBuildpack::Container
       "tomcat-buildpack-support-#{@support_version}.jar"
     end
 
-    def tomcat_home
-      @application.component_directory 'tomcat'
+    def tomcat_datasource_jar
+      tomcat_lib + 'tomcat-jdbc.jar'
     end
 
     def tomcat_lib
-      tomcat_home + 'lib'
+      home + 'lib'
     end
 
     def webapps
-      tomcat_home + 'webapps'
+      home + 'webapps'
     end
 
     def web_inf_lib
-      root + 'WEB-INF' + 'lib'
+      @application.child 'WEB-INF/lib'
     end
 
     def web_inf?
-      @application.child(WEB_INF_DIRECTORY).exist?
+      @application.child('WEB-INF').exist?
     end
 
   end

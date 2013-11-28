@@ -30,7 +30,7 @@ module JavaBuildpack::Util
     def initialize
       application_cache_directory = ARGV[1]
       fail 'Application cache directory is undefined' if application_cache_directory.nil?
-      super(application_cache_directory)
+      super(Pathname.new(application_cache_directory))
     end
 
   end

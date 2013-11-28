@@ -15,70 +15,57 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'component_helper'
 require 'java_buildpack/container/play'
-require 'java_buildpack/util/play_app_factory'
+require 'java_buildpack/util/play/factory'
 
-module JavaBuildpack::Container
+describe JavaBuildpack::Container::Play do
+  include_context 'component_helper'
 
-  describe Play do
+  let(:delegate) { double('delegate') }
 
-    let(:app_dir) { 'test-app-dir' }
-    let(:java_home) { 'test-java-home' }
-    let(:play_instance) { double('PlayApp') }
+  context do
 
     before do
-      allow(JavaBuildpack::Util::PlayAppFactory).to receive(:create).with(app_dir).and_return(play_instance)
+      allow(JavaBuildpack::Util::Play::Factory).to receive(:create).with(application).and_return(delegate)
     end
 
-    it 'should construct an instance using the PlayAppFactory' do
-      Play.new(
-          app_dir: app_dir
-      )
+    it 'should delegate detect' do
+      expect(delegate).to receive(:version).and_return('0.0.0')
+
+      expect(component.detect).to eq('play-framework=0.0.0')
     end
 
-    it 'should used nil returned by the PlayAppFactory to determine the version' do
-      allow(JavaBuildpack::Util::PlayAppFactory).to receive(:create).with('test-app-dir').and_return(nil)
+    it 'should delegate compile' do
+      expect(delegate).to receive(:compile)
 
-      play = Play.new(
-          app_dir: app_dir
-      )
-
-      expect(play.detect).to be_nil
+      component.compile
     end
 
-    it 'should use the PlayApp returned by the PlayAppFactory to determine the version' do
-      allow(play_instance).to receive(:version).and_return('test-version')
+    it 'should delegate release' do
+      expect(delegate).to receive(:release)
 
-      play = Play.new(
-          app_dir: app_dir
-      )
-
-      expect(play.detect).to eq('play-framework=test-version')
+      component.release
     end
 
-    it 'should use the PlayApp returned by the PlayAppFactory to perform compilation' do
-      expect(play_instance).to receive(:set_executable)
-      expect(play_instance).to receive(:add_libs_to_classpath)
-      expect(play_instance).to receive(:replace_bootstrap)
+  end
 
-      Play.new(
-          app_dir: app_dir
-      ).compile
+  context do
+
+    before do
+      allow(JavaBuildpack::Util::Play::Factory).to receive(:create).with(application).and_return(nil)
     end
 
-    it 'should use the PlayApp returned by the PlayAppFactory to perform release' do
-      allow(play_instance).to receive(:start_script_relative).and_return('test-start-script-relative')
-      allow(play_instance).to receive(:decorate_java_opts).with(%w(some-option -Dhttp.port=$PORT))
-                              .and_return(%w(-Jsome-option -J-Dhttp.port=$PORT))
+    it 'should not delegate detect' do
+      expect(component.detect).to be_nil
+    end
 
-      play = Play.new(
-          app_dir: app_dir,
-          java_opts: %w(some-option),
-          java_home: java_home
-      )
+    it 'should not delegate compile' do
+      component.compile
+    end
 
-      expect(play.release).to eq("PATH=#{java_home}/bin:$PATH JAVA_HOME=#{java_home} test-start-script-relative " +
-                                     '-J-Dhttp.port=$PORT -Jsome-option')
+    it 'should not delegate release' do
+      component.release
     end
 
   end

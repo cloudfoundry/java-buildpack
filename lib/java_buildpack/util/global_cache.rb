@@ -30,7 +30,7 @@ module JavaBuildpack::Util
     def initialize
       global_cache_directory = ENV['BUILDPACK_CACHE']
       fail 'Global cache directory is undefined' if global_cache_directory.nil?
-      super(global_cache_directory)
+      super(Pathname.new(global_cache_directory))
     end
 
   end

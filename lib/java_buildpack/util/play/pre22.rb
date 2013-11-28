@@ -14,28 +14,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/util'
+require 'java_buildpack/util/play/base'
 
-module JavaBuildpack::Util
+module JavaBuildpack::Util::Play
 
-  # Common utilities for manipulating libraries (i.e. JARs)
-  class LibraryUtils
+  # Base class for inspection and modification of Play applications up to and including Play 2.1.x.
+  class Pre22 < Base
 
-    # Returns an +Array+ containing the paths of the JARs located in the given directory.
-    #
-    # @param [String] lib_directory the directory containing zero or more JARs
-    # @return [Array<String>] the paths of the JARs located in the given directory
-    def self.lib_jars(lib_directory)
-      libs = []
+    protected
 
-      if lib_directory
-        libs = Pathname.new(lib_directory).children
-        .select { |file| file.extname == '.jar' }
-        .sort
-      end
-
-      libs
+    def start_script
+      candidate = root
+      candidate ? candidate + 'start' : nil
     end
+
+    protected
+
+    # Returns the root of the play application
+    #
+    # @return [Pathname] the root of the play application
+    def root
+      fail "Method 'root' must be defined"
+    end
+
   end
 
 end

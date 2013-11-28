@@ -40,7 +40,7 @@ module JavaBuildpack::Util
       it 'should persist a stashed file' do
         touch java_buildpack_cache_dir, 'cached', 'foo-stashed'
         trigger
-        stash_file = cache_file(java_buildpack_cache_dir, 'cached').to_s
+        stash_file = cache_file(java_buildpack_cache_dir, 'cached')
         expect(mutable_file_cache).to have_received(:persist_file).with(stash_file)
       end
 
@@ -52,7 +52,7 @@ module JavaBuildpack::Util
     def touch(root, extension, content = '')
       file = cache_file root, extension
       FileUtils.mkdir_p file.dirname
-      File.open(file, 'w') { |f| f.write(content) }
+      file.open('w') { |f| f.write(content) }
 
       file
     end

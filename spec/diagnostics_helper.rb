@@ -29,11 +29,11 @@ shared_context 'diagnostics_helper' do
   previous_debug_level = $DEBUG
   previous_verbose_level = $VERBOSE
 
-  let(:diagnostics_dir) { Pathname.new(JavaBuildpack::Diagnostics.get_diagnostic_directory app_dir) }
+  let(:diagnostics_dir) { Pathname.new(JavaBuildpack::Diagnostics.get_diagnostic_directory application) }
 
-  let(:log_contents) { Pathname.new(JavaBuildpack::Diagnostics.get_buildpack_log app_dir).read }
+  let(:log_contents) { Pathname.new(JavaBuildpack::Diagnostics.get_buildpack_log application).read }
 
-  let(:logger) { JavaBuildpack::Diagnostics::LoggerFactory.create_logger app_dir }
+  let(:logger) { JavaBuildpack::Diagnostics::LoggerFactory.create_logger application }
 
   before do |example|
     log_level = example.metadata[:log_level]

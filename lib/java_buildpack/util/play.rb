@@ -14,23 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'console_helper'
-require 'java_buildpack/util/resource_utils'
+require 'java_buildpack/util'
 
-module JavaBuildpack::Util
-
-  describe ResourceUtils do
-    include_context 'console_helper'
-
-    it 'should return if copy is successful' do
-      ResourceUtils.copy_resources 'new-relic', Dir.tmpdir
-    end
-
-    it 'should raise an error if command returns a non-zero exit code' do
-      expect { ResourceUtils.copy_resources 'test', Dir.tmpdir }.to raise_error
-    end
-
-  end
-
+# A module encapsulating all of the utility components for Play application
+module JavaBuildpack::Util::Play
 end

@@ -16,9 +16,7 @@
 
 require 'java_buildpack/base_component'
 require 'java_buildpack/container'
-require 'java_buildpack/container/container_utils'
-require 'java_buildpack/util/play_app_factory'
-require 'pathname'
+require 'java_buildpack/util/play/factory'
 
 module JavaBuildpack::Container
 
@@ -27,42 +25,22 @@ module JavaBuildpack::Container
 
     def initialize(context)
       super('Play Framework', context)
-
-      @play_app = JavaBuildpack::Util::PlayAppFactory.create @app_dir
+      @delegate = JavaBuildpack::Util::Play::Factory.create @application
     end
 
     def detect
-      if @play_app
-        version = @play_app.version
-        version ? id(version) : nil
-      else
-        nil
-      end
+      @delegate ? id(@delegate.version) : nil
     end
 
     def compile
-      @play_app.set_executable
-      @play_app.add_libs_to_classpath additional_libraries
-      @play_app.replace_bootstrap BOOTSTRAP_CLASS_NAME
+      @delegate.compile if @delegate
     end
 
     def release
-      java_opts = @java_opts.clone
-      java_opts << "-D#{KEY_HTTP_PORT}=$PORT"
-
-      path_string = "PATH=#{File.join @java_home, 'bin'}:$PATH"
-      java_home_string = ContainerUtils.space("JAVA_HOME=#{@java_home}")
-      start_script_string = ContainerUtils.space(@play_app.start_script_relative)
-      java_opts_string = ContainerUtils.space(ContainerUtils.to_java_opts_s(@play_app.decorate_java_opts java_opts))
-
-      "#{path_string}#{java_home_string}#{start_script_string}#{java_opts_string}"
+      @delegate.release if @delegate
     end
 
     private
-
-    BOOTSTRAP_CLASS_NAME = 'org.cloudfoundry.reconfiguration.play.Bootstrap'.freeze
-
-    KEY_HTTP_PORT = 'http.port'.freeze
 
     def id(version)
       "#{@parsable_component_name}=#{version}"

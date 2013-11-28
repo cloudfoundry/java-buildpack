@@ -20,32 +20,29 @@ require 'diagnostics_helper'
 require 'internet_availability_helper'
 require 'java_buildpack/util/global_cache'
 
-module JavaBuildpack::Util
+describe JavaBuildpack::Util::GlobalCache do
+  include_context 'diagnostics_helper'
+  include_context 'internet_availability_helper'
 
-  describe GlobalCache do
-    include_context 'diagnostics_helper'
-    include_context 'internet_availability_helper'
+  it 'should raise an error if BUILDPACK_CACHE is not defined' do
+    expect { described_class.new }.to raise_error
+  end
 
-    it 'should raise an error if BUILDPACK_CACHE is not defined' do
-      expect { GlobalCache.new }.to raise_error
+  context do
+    include_context 'buildpack_cache_helper'
+
+    it 'should use BUILDPACK_CACHE directory' do
+      stub_request(:get, 'http://foo-uri/')
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+
+      stub_request(:head, 'http://foo-uri/')
+      .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
+      .to_return(status: 304, body: '', headers: {})
+
+      described_class.new.get('http://foo-uri/') {}
+
+      expect(Pathname.glob(buildpack_cache_dir + '*.cached').size).to eq(1)
     end
-
-    context do
-      include_context 'buildpack_cache_helper'
-
-      it 'should use BUILDPACK_CACHE directory', :show_output do
-        stub_request(:get, 'http://foo-uri/')
-        .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
-        stub_request(:head, 'http://foo-uri/')
-        .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-        .to_return(status: 304, body: '', headers: {})
-
-        GlobalCache.new.get('http://foo-uri/') {}
-
-        expect(Dir[buildpack_cache_dir + '*.cached'].size).to eq(1)
-      end
-    end
-
   end
 
 end

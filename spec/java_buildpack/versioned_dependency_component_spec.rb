@@ -17,42 +17,38 @@
 require 'spec_helper'
 require 'java_buildpack/versioned_dependency_component'
 
-module JavaBuildpack
+describe JavaBuildpack::VersionedDependencyComponent do
 
-  describe VersionedDependencyComponent do
+  let(:versioned_dependency_component) { StubVersionedDependencyComponent.new 'test-name', {} }
 
-    let(:versioned_dependency_component) { StubVersionedDependencyComponent.new 'test-name', {} }
-
-    it 'should fail if methods are unimplemented' do
-      expect { versioned_dependency_component.compile }.to raise_error
-      expect { versioned_dependency_component.release }.to raise_error
-      expect { versioned_dependency_component.alpha? }.to raise_error
-    end
-
+  it 'should fail if methods are unimplemented' do
+    expect { versioned_dependency_component.compile }.to raise_error
+    expect { versioned_dependency_component.release }.to raise_error
+    expect { versioned_dependency_component.alpha? }.to raise_error
   end
 
-  class StubVersionedDependencyComponent < VersionedDependencyComponent
+end
 
-    def initialize(component_name, context)
-      super(component_name, context)
-    end
+class StubVersionedDependencyComponent < JavaBuildpack::VersionedDependencyComponent
 
-    alias_method :super_id, :id
+  def initialize(component_name, context)
+    super(component_name, context)
+  end
 
-    def id(version)
-      super_id version
-    end
+  alias_method :super_id, :id
 
-    alias_method :super_supports?, :supports?
+  def id(version)
+    super_id version
+  end
 
-    def alpha?
-      super_supports?
-    end
+  alias_method :super_supports?, :supports?
 
-    def supports?
-      false
-    end
+  def alpha?
+    super_supports?
+  end
 
+  def supports?
+    false
   end
 
 end

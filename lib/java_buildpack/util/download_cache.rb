@@ -41,7 +41,7 @@ module JavaBuildpack::Util
     # Creates an instance of the cache that is backed by the filesystem rooted at +cache_root+
     #
     # @param [String] cache_root the filesystem directory in which to cache downloaded files
-    def initialize(cache_root = Dir.tmpdir)
+    def initialize(cache_root = Pathname.new(Dir.tmpdir))
       @cache_root = cache_root
       @buildpack_stash = BuildpackStash.new
       @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger

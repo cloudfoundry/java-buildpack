@@ -16,8 +16,8 @@
 
 require 'fileutils'
 require 'java_buildpack'
+require 'java_buildpack/application/application'
 require 'java_buildpack/util/application_cache'
-require 'java_buildpack/util/library_utils'
 require 'java_buildpack/util/shell'
 
 module JavaBuildpack
@@ -79,6 +79,12 @@ module JavaBuildpack
 
     protected
 
+    # Copy resources from a components resources directory to its +home+ directory
+    def copy_resources
+      resources = Pathname.new(File.expand_path('../../../resources', __FILE__)) + @parsable_component_name
+      FileUtils.cp_r((resources.to_s + '/.'), home) if resources.exist?
+    end
+
     # Downloads an item with the given name and version from the given URI, then yields the resultant file to the given
     # block.
     #
@@ -108,11 +114,11 @@ module JavaBuildpack
       download(version, uri, description) { |file| FileUtils.cp file.path, File.join(target_directory, jar_name) }
     end
 
-    # Returns the additional libraries.
+    # The home directory for this component
     #
-    # @param [Array<String>] the paths of JARs in the additional libraries directory
-    def additional_libraries
-      JavaBuildpack::Util::LibraryUtils.lib_jars @lib_directory
+    # @return [Pathname] the home directory for this component
+    def home
+      @application.component_directory @parsable_component_name
     end
 
   end

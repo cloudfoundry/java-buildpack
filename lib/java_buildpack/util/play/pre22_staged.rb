@@ -14,31 +14,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/container/container_utils'
-require 'java_buildpack/util'
-require 'java_buildpack/util/play_app_pre22'
+require 'java_buildpack/util/play/pre22'
 
-module JavaBuildpack::Util
+module JavaBuildpack::Util::Play
 
   # Encapsulate inspection and modification of Play staged applications up to and including Play 2.1.x.
-  class PlayAppPre22Staged < PlayAppPre22
+  class Pre22Staged < Pre22
 
-    def initialize(app_dir)
-      super(app_dir)
-      @play_root, @version = self.class.root_and_version(app_dir)
+    protected
+
+    def augment_classpath
+      @application.additional_libraries.link_to lib_dir
     end
 
-    def add_libs_to_classpath(libs)
-      # For Play 2.0 and 2.1.x staged applications, the start script builds a classpath dynamically
-      # from the set of JARs in the +staged+ directory. To add libraries to the classpath,
-      # the JARs are symbolically linked into the +staged+ directory.
-      link_libs_from_classpath_dir(libs)
+    def java_opts
+      @application.java_opts
     end
 
-    private
+    def lib_dir
+      root + 'staged'
+    end
 
-    def self.classpath_directory(root)
-      File.join root, 'staged'
+    def root
+      @application.child '.'
     end
 
   end

@@ -15,7 +15,7 @@
 # limitations under the License.
 
 require 'java_buildpack/framework'
-require 'java_buildpack/util/play_app_factory'
+require 'java_buildpack/util/play/factory'
 require 'java_buildpack/versioned_dependency_component'
 
 module JavaBuildpack::Framework
@@ -39,7 +39,7 @@ module JavaBuildpack::Framework
     protected
 
     def supports?
-      JavaBuildpack::Util::PlayAppFactory.create @app_dir
+      JavaBuildpack::Util::Play::Factory.create @application
     end
 
     private

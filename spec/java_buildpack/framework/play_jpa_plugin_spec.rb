@@ -18,44 +18,40 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/play_jpa_plugin'
 
-module JavaBuildpack::Framework
+describe JavaBuildpack::Framework::PlayJpaPlugin do
+  include_context 'component_helper'
 
-  describe PlayJpaPlugin do
-    include_context 'component_helper'
+  it 'should detect Play 2.0 application',
+     app_fixture: 'framework_play_jpa_plugin_play20' do
 
-    it 'should detect Play 2.0 application',
-       app_fixture: 'framework_play_jpa_plugin_play20' do
+    expect(component.detect).to eq("play-jpa-plugin=#{version}")
+  end
 
-      expect(component.detect).to eq("play-jpa-plugin=#{version}")
-    end
+  it 'should detect staged application',
+     app_fixture: 'framework_play_jpa_plugin_staged' do
 
-    it 'should detect staged application',
-       app_fixture: 'framework_play_jpa_plugin_staged' do
+    expect(component.detect).to eq("play-jpa-plugin=#{version}")
+  end
 
-      expect(component.detect).to eq("play-jpa-plugin=#{version}")
-    end
+  it 'should detect dist application',
+     app_fixture: 'framework_play_jpa_plugin_dist' do
 
-    it 'should detect dist application',
-       app_fixture: 'framework_play_jpa_plugin_dist' do
+    expect(component.detect).to eq("play-jpa-plugin=#{version}")
+  end
 
-      expect(component.detect).to eq("play-jpa-plugin=#{version}")
-    end
+  it 'should not detect non-JPA application',
+     app_fixture: 'container_play_2.1_dist' do
 
-    it 'should not detect non-JPA application',
-       app_fixture: 'container_play_2.1_dist' do
+    expect(component.detect).to be_nil
+  end
 
-      expect(component.detect).to be_nil
-    end
+  it 'should copy additional libraries to the lib directory',
+     app_fixture: 'framework_play_jpa_plugin_dist',
+     cache_fixture: 'stub-play-jpa-plugin.jar' do
 
-    it 'should copy additional libraries to the lib directory',
-       app_fixture: 'framework_play_jpa_plugin_dist',
-       cache_fixture: 'stub-play-jpa-plugin.jar' do
+    component.compile
 
-      component.compile
-
-      expect(additional_libs_dir + "play-jpa-plugin-#{version}.jar").to exist
-    end
-
+    expect(additional_libs_dir + "play-jpa-plugin-#{version}.jar").to exist
   end
 
 end

@@ -17,64 +17,60 @@
 require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/jre/openjdk'
+require 'java_buildpack/jre/memory/weight_balancing_memory_heuristic'
 
-module JavaBuildpack::Jre
+describe JavaBuildpack::Jre::OpenJdk do
+  include_context 'component_helper'
 
-  describe OpenJdk do
-    include_context 'component_helper'
+  let(:memory_heuristic) { double('MemoryHeuristic', resolve: %w(opt-1 opt-2)) }
 
-    let(:java_home) { '' }
-    let(:memory_heuristic) { double('MemoryHeuristic', resolve: %w(opt-1 opt-2)) }
+  before do
+    allow(JavaBuildpack::Jre::WeightBalancingMemoryHeuristic).to receive(:new).and_return(memory_heuristic)
+  end
 
-    before do
-      allow(WeightBalancingMemoryHeuristic).to receive(:new).and_return(memory_heuristic)
-    end
+  it 'should detect with id of openjdk-<version>' do
+    expect(component.detect).to eq("openjdk=#{version}")
+  end
 
-    it 'should detect with id of openjdk-<version>' do
-      expect(component.detect).to eq("openjdk=#{version}")
-    end
+  it 'should extract Java from a GZipped TAR',
+     cache_fixture: 'stub-java.tar.gz' do
 
-    it 'should extract Java from a GZipped TAR',
-       cache_fixture: 'stub-java.tar.gz' do
+    component.compile
 
-      component.compile
+    expect(app_dir + '.openjdk/bin/java').to exist
+  end
 
-      expect(app_dir + '.java/bin/java').to exist
-    end
+  it 'adds the JAVA_HOME to java_home' do
+    component
 
-    it 'adds the JAVA_HOME to java_home' do
-      component
+    expect(java_home).to eq('$PWD/.openjdk')
+  end
 
-      expect(java_home).to eq('.java')
-    end
+  it 'should add memory options to java_opts' do
+    component.release
 
-    it 'should add memory options to java_opts' do
-      component.release
+    expect(java_opts).to include('opt-1')
+    expect(java_opts).to include('opt-2')
+  end
 
-      expect(java_opts).to include('opt-1')
-      expect(java_opts).to include('opt-2')
-    end
+  it 'adds OnOutOfMemoryError to java_opts' do
+    component.release
 
-    it 'adds OnOutOfMemoryError to java_opts' do
-      component.release
+    expect(java_opts).to include('-XX:OnOutOfMemoryError=$PWD/.openjdk/bin/killjava')
+  end
 
-      expect(java_opts).to include("-XX:OnOutOfMemoryError=#{diagnostics_dir.relative_path_from(app_dir)}/#{OpenJdk::KILLJAVA_FILE_NAME}")
-    end
+  it 'places the killjava script (with appropriately substituted content) in the diagnostics directory',
+     cache_fixture: 'stub-java.tar.gz' do
 
-    it 'places the killjava script (with appropriately substituted content) in the diagnostics directory',
-       cache_fixture: 'stub-java.tar.gz' do
+    component.compile
 
-      component.compile
+    expect((app_dir + '.openjdk/bin/killjava').read).to include '}/../../.buildpack-diagnostics/buildpack.log'
+  end
 
-      expect((diagnostics_dir + OpenJdk::KILLJAVA_FILE_NAME).read).to include(JavaBuildpack::Diagnostics::LOG_FILE_NAME)
-    end
+  it 'adds java.io.tmpdir to java_opts' do
+    component.release
 
-    it 'adds java.io.tmpdir to java_opts' do
-      component.release
-
-      expect(java_opts).to include('-Djava.io.tmpdir=$TMPDIR')
-    end
-
+    expect(java_opts).to include('-Djava.io.tmpdir=$TMPDIR')
   end
 
 end

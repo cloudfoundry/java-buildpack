@@ -16,7 +16,6 @@
 
 require 'java_buildpack/base_component'
 require 'java_buildpack/container'
-require 'java_buildpack/container/container_utils'
 require 'java_buildpack/util/java_main_utils'
 
 module JavaBuildpack::Container
@@ -38,14 +37,17 @@ module JavaBuildpack::Container
     end
 
     def release
-      java_string = File.join @java_home, 'bin', 'java'
-      classpath_string = ContainerUtils.space(classpath)
-      java_opts_string = ContainerUtils.space(ContainerUtils.to_java_opts_s(@java_opts))
-      main_class_string = ContainerUtils.space(main_class)
-      arguments_string = ContainerUtils.space(arguments)
-      port_string = ContainerUtils.space(port)
+      @application.additional_libraries.add(@application.child '.')
+      manifest_class_path.each { |path| @application.additional_libraries.add path }
 
-      "#{java_string}#{classpath_string}#{java_opts_string}#{main_class_string}#{arguments_string}#{port_string}"
+      [
+          "#{@application.java_home}/bin/java",
+          @application.additional_libraries.as_classpath,
+          @application.java_opts.as_string,
+          main_class,
+          arguments,
+          port
+      ].compact.join(' ')
     end
 
     private
@@ -58,21 +60,13 @@ module JavaBuildpack::Container
       @configuration[ARGUMENTS_PROPERTY]
     end
 
-    def classpath
-      classpath = ['.']
-      classpath.concat ContainerUtils.libs(@app_dir, @lib_directory)
-      classpath.concat manifest_class_path
-
-      "-cp #{classpath.join(':')}"
-    end
-
     def main_class
-      JavaBuildpack::Util::JavaMainUtils.main_class(@app_dir, @configuration)
+      JavaBuildpack::Util::JavaMainUtils.main_class(@application, @configuration)
     end
 
     def manifest_class_path
-      value = JavaBuildpack::Util::JavaMainUtils.manifest(@app_dir)[CLASS_PATH_PROPERTY]
-      value.nil? ? [] : value.split(' ')
+      values = JavaBuildpack::Util::JavaMainUtils.manifest(@application)[CLASS_PATH_PROPERTY]
+      values.nil? ? [] : values.split(' ').map { |value| @application.child(value) }
     end
 
     def port

@@ -35,10 +35,10 @@ module JavaBuildpack::Util
       @cache_root = cache_root
 
       key = URI.escape(uri, '/')
-      @lock = File.join(@cache_root, "#{key}.lock")
-      cached = File.join(@cache_root, "#{key}.cached")
-      etag = File.join(@cache_root, "#{key}.etag")
-      last_modified = File.join(@cache_root, "#{key}.last_modified")
+      @lock = @cache_root + "#{key}.lock"
+      cached = @cache_root + "#{key}.cached"
+      etag = @cache_root + "#{key}.etag"
+      last_modified = @cache_root + "#{key}.last_modified"
       @immutable_file_cache = ImmutableFileCache.new(cached, etag, last_modified)
       @mutable_file_cache = MutableFileCache.new(cached, etag, last_modified)
     end
@@ -47,7 +47,7 @@ module JavaBuildpack::Util
     #
     # @yieldparam [LockedFileCache] @locked_file_cache an object which the provided block may use to operate on the file cache under the lock
     def lock_exclusive
-      File.open(@lock, File::CREAT) do |lock_file|
+      @lock.open(File::CREAT) do |lock_file|
         lock_file.flock(File::LOCK_EX)
         yield @mutable_file_cache
       end
@@ -57,7 +57,7 @@ module JavaBuildpack::Util
     #
     # @yieldparam [LockedFileCache] @locked_file_cache an object which the provided block may use to operate on the file cache under the lock
     def lock_shared
-      File.open(@lock, File::CREAT) do |lock_file|
+      @lock.open(File::CREAT) do |lock_file|
         lock_file.flock(File::LOCK_SH)
         yield @immutable_file_cache
       end
@@ -89,21 +89,21 @@ module JavaBuildpack::Util
       #
       # @return [Boolean] +true+ if and only if data is cached
       def cached?
-        File.exists?(@cached)
+        @cached.exist?
       end
 
       # Returns whether or not an etag is stored.
       #
       # @return [Boolean] +true+ if and only if an etag is stored
       def has_etag?
-        File.exists?(@etag)
+        @etag.exist?
       end
 
       # Returns whether or not a last modified time stamp is stored.
       #
       # @return [Boolean] +true+ if and only if a last modified time stamp is stored
       def has_last_modified?
-        File.exists?(@last_modified)
+        @last_modified.exist?
       end
 
       # Yields any etag which may be stored.
@@ -119,7 +119,7 @@ module JavaBuildpack::Util
       # Yields an open file containing the cached data.
       def data
         fail 'no data cached' unless cached?
-        File.open(@cached, File::RDONLY) do |cached_file|
+        @cached.open(File::RDONLY) do |cached_file|
           yield cached_file
         end
       end
@@ -128,14 +128,14 @@ module JavaBuildpack::Util
       #
       # @return [Numeric] the size of the cached file or +0+ if no file is cached
       def cached_size
-        cached? ? File.size(@cached) : 0
+        cached? ? @cached.size : 0
       end
 
       private
 
       def persist(data, file)
         unless data.nil?
-          File.open(file, File::CREAT | File::WRONLY) do |open_file|
+          file.open(File::CREAT | File::WRONLY) do |open_file|
             open_file.write(data)
             open_file.fsync
           end
@@ -143,8 +143,8 @@ module JavaBuildpack::Util
       end
 
       def yield_file_data(file)
-        if File.exists?(file)
-          File.open(file, File::RDONLY) do |open_file|
+        if file.exist?
+          file.open(File::RDONLY) do |open_file|
             yield open_file.read
           end
         end
@@ -179,7 +179,7 @@ module JavaBuildpack::Util
 
       # Stores data to be cached.
       def persist_data
-        File.open(@cached, File::CREAT | File::WRONLY) do |cached_file|
+        @cached.open(File::CREAT | File::WRONLY) do |cached_file|
           yield cached_file
         end
       end
@@ -199,7 +199,7 @@ module JavaBuildpack::Util
       private
 
       def self.delete_file(filename)
-        File.delete filename if File.exists? filename
+        filename.delete if filename.exist?
       end
 
     end

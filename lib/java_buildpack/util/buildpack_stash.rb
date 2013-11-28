@@ -29,7 +29,7 @@ module JavaBuildpack::Util
     def initialize
       @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
       buildpack_cache = ENV['BUILDPACK_CACHE']
-      @buildpack_stash = buildpack_cache ? File.join(buildpack_cache, 'java-buildpack') : nil
+      @buildpack_stash = buildpack_cache ? Pathname.new(buildpack_cache) + 'java-buildpack' : nil
     end
 
     # A download has failed, so check the read-only buildpack cache for the item
@@ -41,9 +41,9 @@ module JavaBuildpack::Util
       fail "Buildpack cache not defined. Cannot look up #{uri}." unless @buildpack_stash
 
       key = URI.escape(uri, '/')
-      stashed = File.join(@buildpack_stash, "#{key}.cached")
+      stashed = @buildpack_stash + "#{key}.cached"
       @logger.debug { "Looking in buildpack cache for file '#{stashed}'" }
-      if File.exist? stashed
+      if stashed.exist?
         mutable_file_cache.persist_file stashed
         @logger.debug "Using copy of #{uri} from buildpack cache."
       else
