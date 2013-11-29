@@ -45,6 +45,18 @@ describe JavaBuildpack::Container::SpringBootCli do
     expect(component.detect).to be_nil
   end
 
+  it 'should not detect if one of the Groovy files has a shebang',
+     app_fixture: 'container_groovy_shebang' do
+
+    expect(component.detect).to be_nil
+  end
+
+  it 'should not detect a Groovy file which has a shebang but which also contains a class',
+     app_fixture: 'container_groovy_shebang_containing_class' do
+
+    expect(component.detect).to be_nil
+  end
+
   it 'should not detect if one of the Groovy files has a main() method',
      app_fixture: 'container_spring_boot_cli_main_method' do
 

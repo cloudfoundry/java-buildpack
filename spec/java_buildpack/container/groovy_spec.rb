@@ -57,6 +57,12 @@ describe JavaBuildpack::Container::Groovy do
     expect(component.detect).to eq("groovy=#{version}")
   end
 
+  it 'should detect a Groovy file which has a shebang but which also contains a class',
+     app_fixture: 'container_groovy_shebang_containing_class' do
+
+    expect(component.detect).to eq("groovy=#{version}")
+  end
+
   context do
     let(:version) { '2.1.5_10' }
 

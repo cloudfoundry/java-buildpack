@@ -52,7 +52,7 @@ module JavaBuildpack::Container
 
     def supports?
       gf = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
-      gf.length > 0 && all_pogo(gf) && no_main_method(gf) && !has_web_inf
+      gf.length > 0 && all_pogo(gf) && no_main_method(gf) && no_shebang(gf) && !has_web_inf
     end
 
     private
@@ -63,6 +63,10 @@ module JavaBuildpack::Container
 
     def no_main_method(groovy_files)
       none?(groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file } # note that this will scan comments
+    end
+
+    def no_shebang(groovy_files)
+      none?(groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.shebang? file }
     end
 
     def has_web_inf
