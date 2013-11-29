@@ -45,6 +45,12 @@ describe JavaBuildpack::Container::Groovy do
     expect(component.detect).to eq("groovy=#{version}")
   end
 
+  it 'should not detect a Groovy file with non-POGO and at least one .class file',
+     app_fixture: 'container_groovy_non_pogo_with_class_file' do
+
+    expect(component.detect).to be_nil
+  end
+
   it 'should detect a Groovy file with #!',
      app_fixture: 'container_groovy_shebang' do
 

@@ -15,6 +15,7 @@
 # limitations under the License.
 
 require 'java_buildpack/container'
+require 'java_buildpack/util/class_file_utils'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/groovy_utils'
 require 'java_buildpack/versioned_dependency_component'
@@ -50,7 +51,9 @@ module JavaBuildpack::Container
     protected
 
     def supports?
-      main_groovy
+      class_files = JavaBuildpack::Util::ClassFileUtils.class_files(@application)
+
+      class_files.empty? && main_groovy
     end
 
     private
