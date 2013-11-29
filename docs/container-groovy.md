@@ -7,6 +7,8 @@ The Groovy Container allows a uncompiled (i.e. `*.groovy`) to be run.
 			<li>A <tt>.groovy</tt> file exists which has a <tt>main()</tt> method, or</li>
 			<li>A <tt>.groovy</tt> file exists which is not a POGO (a POGO contains one or more classes), or</li>
 			<li>A <tt>.groovy</tt> file exists which has a shebang (<tt>#!</tt>) declaration</li>
+		</ul>and<ul>
+			<li>No <tt>.class</tt> files exist</li>
 		</ul></td>
 	</tr>
 	<tr>

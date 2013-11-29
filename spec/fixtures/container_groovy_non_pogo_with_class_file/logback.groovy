@@ -1,4 +1,3 @@
-#!/usr/bin/env groovy
 /*
  * Copyright 2013 the original author or authors.
  *
@@ -15,4 +14,6 @@
  * limitations under the License.
  */
 
-println 'Hello World'
+import static ch.qos.logback.classic.Level.INFO
+
+root(INFO)

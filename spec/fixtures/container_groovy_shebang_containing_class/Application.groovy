@@ -15,4 +15,10 @@
  * limitations under the License.
  */
 
-println 'Hello World'
+class X {
+    public static void exec() {
+    	println 'Hello World'
+    }
+}
+
+X.exec()
