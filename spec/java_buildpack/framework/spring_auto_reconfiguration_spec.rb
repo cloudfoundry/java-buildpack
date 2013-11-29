@@ -17,55 +17,54 @@
 require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/spring_auto_reconfiguration'
+require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
 
-module JavaBuildpack::Framework
+describe JavaBuildpack::Framework::SpringAutoReconfiguration do
+  include_context 'component_helper'
 
-  describe SpringAutoReconfiguration do
-    include_context 'component_helper'
+  it 'should detect with Spring JAR',
+     app_fixture: 'framework_auto_reconfiguration_servlet_3' do
 
-    it 'should detect with Spring JAR',
-       app_fixture: 'framework_auto_reconfiguration_servlet_3' do
+    expect(component.detect).to eq("spring-auto-reconfiguration=#{version}")
+  end
 
-      expect(component.detect).to eq("spring-auto-reconfiguration=#{version}")
+  it 'should detect with Spring JAR which has a long name',
+     app_fixture: 'framework_auto_reconfiguration_long_spring_jar_name' do
+
+    expect(component.detect).to eq("spring-auto-reconfiguration=#{version}")
+  end
+
+  it 'should not detect without Spring JAR' do
+    expect(component.detect).to be_nil
+  end
+
+  it 'should copy additional libraries to the lib directory',
+     app_fixture: 'framework_auto_reconfiguration_servlet_3',
+     cache_fixture: 'stub-auto-reconfiguration.jar' do
+
+    component.compile
+
+    expect(additional_libs_dir + "spring-auto-reconfiguration-#{version}.jar").to exist
+  end
+
+  context do
+
+    let(:web_xml_modifier) { double('WebXmlModifier') }
+
+    before do
+      allow(JavaBuildpack::Framework::WebXmlModifier).to receive(:new).and_return(web_xml_modifier)
+      expect(web_xml_modifier).to receive(:augment_root_context)
+      expect(web_xml_modifier).to receive(:augment_servlet_contexts)
+      allow(web_xml_modifier).to receive(:to_s).and_return('Test Content')
     end
 
-    it 'should detect with Spring JAR which has a long name',
-       app_fixture: 'framework_auto_reconfiguration_long_spring_jar_name' do
-
-      expect(component.detect).to eq("spring-auto-reconfiguration=#{version}")
-    end
-
-    it 'should not detect without Spring JAR' do
-      expect(component.detect).to be_nil
-    end
-
-    it 'should copy additional libraries to the lib directory',
-       app_fixture: 'framework_auto_reconfiguration_servlet_3',
+    it 'should update web.xml if it exists',
+       app_fixture: 'framework_auto_reconfiguration_servlet_2',
        cache_fixture: 'stub-auto-reconfiguration.jar' do
 
       component.compile
 
-      expect(additional_libs_dir + "spring-auto-reconfiguration-#{version}.jar").to exist
-    end
-
-    context do
-      let(:web_xml_modifier) { double('WebXmlModifier') }
-
-      before do
-        allow(WebXmlModifier).to receive(:new).and_return(web_xml_modifier)
-        expect(web_xml_modifier).to receive(:augment_root_context)
-        expect(web_xml_modifier).to receive(:augment_servlet_contexts)
-        allow(web_xml_modifier).to receive(:to_s).and_return('Test Content')
-      end
-
-      it 'should update web.xml if it exists',
-         app_fixture: 'framework_auto_reconfiguration_servlet_2',
-         cache_fixture: 'stub-auto-reconfiguration.jar' do
-
-        component.compile
-
-        expect((app_dir + 'WEB-INF/web.xml').read).to eq('Test Content')
-      end
+      expect((app_dir + 'WEB-INF/web.xml').read).to eq('Test Content')
     end
 
   end

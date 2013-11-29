@@ -48,12 +48,11 @@ module JavaBuildpack::Util
 
     # Returns all the Ruby files in the given directory
     #
-    # @param [String] root a directory to search
+    # @param [Application] application the application to search
     # @return [Array] a possibly empty list of files
-    def self.groovy_files(root)
-      root_directory = Pathname.new(root)
-      Dir[File.join root, GROOVY_FILE_PATTERN].reject { |file| File.directory? file }
-      .map { |file| Pathname.new(file).relative_path_from(root_directory).to_s }.sort
+    def self.groovy_files(application)
+      application.glob(GROOVY_FILE_PATTERN).reject { |path| path.directory? }
+      .map { |path| application.relative_path_to path }.sort
     end
 
     private_class_method :new

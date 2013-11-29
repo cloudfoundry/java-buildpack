@@ -1,24 +1,31 @@
 <component name="ProjectDictionaryState">
   <dictionary name="bhale">
     <words>
+      <w>addons</w>
       <w>appdynamics</w>
       <w>argv</w>
       <w>codeclimate</w>
       <w>dhttp</w>
       <w>dirname</w>
       <w>etag</w>
+      <w>extname</w>
       <w>ffoo</w>
       <w>filenames</w>
       <w>fileutils</w>
       <w>findex</w>
+      <w>fsync</w>
+      <w>jres</w>
       <w>jsome</w>
       <w>killjava</w>
+      <w>mainclass</w>
       <w>mkdir</w>
       <w>mktmpdir</w>
       <w>mountainlion</w>
+      <w>overweaving</w>
       <w>readlink</w>
       <w>redhat</w>
       <w>rspec</w>
+      <w>rubocop</w>
       <w>simplecov</w>
       <w>stderr</w>
       <w>tmpdir</w>
@@ -29,6 +36,7 @@
       <w>webapp</w>
       <w>webapps</w>
       <w>webmock</w>
+      <w>wildcarded</w>
     </words>
   </dictionary>
 </component>

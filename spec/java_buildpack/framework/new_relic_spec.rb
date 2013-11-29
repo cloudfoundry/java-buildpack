@@ -18,67 +18,63 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/new_relic'
 
-module JavaBuildpack::Framework
+describe JavaBuildpack::Framework::NewRelic, service_type: 'newrelic-n/a' do
+  include_context 'component_helper'
 
-  describe NewRelic, service_type: 'newrelic-n/a' do
-    include_context 'component_helper'
+  let(:service_credentials) { { 'licenseKey' => 'test-license-key' } }
 
-    let(:service_credentials) { { 'licenseKey' => 'test-license-key' } }
+  it 'should detect with newrelic-n/a service' do
+    expect(component.detect).to eq("new-relic-agent=#{version}")
+  end
 
-    it 'should detect with newrelic-n/a service' do
-      expect(component.detect).to eq("new-relic-agent=#{version}")
+  context do
+    let(:vcap_services) { {} }
+
+    it 'should not detect without newrelic-n/a service' do
+      expect(component.detect).to be_nil
     end
+  end
 
-    context do
-      let(:vcap_services) { {} }
+  context do
+    let(:service_payload) { [{ 'credentials' => service_credentials }, { 'credentials' => service_credentials }] }
 
-      it 'should not detect without newrelic-n/a service' do
-        expect(component.detect).to be_nil
-      end
+    it 'should fail with multiple newrelic-n/a services' do
+      expect { component.detect }.to raise_error /Exactly one service/
     end
+  end
 
-    context do
-      let(:service_payload) { [{ 'credentials' => service_credentials }, { 'credentials' => service_credentials }] }
+  context do
+    let(:service_payload) { [] }
 
-      it 'should fail with multiple newrelic-n/a services' do
-        expect { component.detect }.to raise_error /Exactly one service/
-      end
+    it 'should fail with zero newrelic-n/a services' do
+      expect { component.detect }.to raise_error /Exactly one service/
     end
+  end
 
-    context do
-      let(:service_payload) { [] }
+  it 'should download New Relic agent JAR',
+     cache_fixture: 'stub-new-relic-agent.jar' do
 
-      it 'should fail with zero newrelic-n/a services' do
-        expect { component.detect }.to raise_error /Exactly one service/
-      end
-    end
+    component.compile
 
-    it 'should download New Relic agent JAR',
-       cache_fixture: 'stub-new-relic.jar' do
+    expect(app_dir + ".new-relic-agent/new-relic-agent-#{version}.jar").to exist
+  end
 
-      component.compile
+  it 'should copy resources',
+     cache_fixture: 'stub-new-relic-agent.jar' do
 
-      expect(app_dir + ".new-relic/new-relic-agent-#{version}.jar").to exist
-    end
+    component.compile
 
-    it 'should copy resources',
-       cache_fixture: 'stub-new-relic.jar' do
+    expect(app_dir + '.new-relic-agent/newrelic.yml').to exist
+  end
 
-      component.compile
+  it 'should update JAVA_OPTS' do
+    component.release
 
-      expect(app_dir + '.new-relic/newrelic.yml').to exist
-    end
-
-    it 'should update JAVA_OPTS' do
-      component.release
-
-      expect(java_opts).to include("-javaagent:.new-relic/new-relic-agent-#{version}.jar")
-      expect(java_opts).to include('-Dnewrelic.home=.new-relic')
-      expect(java_opts).to include('-Dnewrelic.config.license_key=test-license-key')
-      expect(java_opts).to include("-Dnewrelic.config.app_name='test-application-name'")
-      expect(java_opts).to include('-Dnewrelic.config.log_file_path=.new-relic/logs')
-    end
-
+    expect(java_opts).to include("-javaagent:$PWD/.new-relic-agent/new-relic-agent-#{version}.jar")
+    expect(java_opts).to include('-Dnewrelic.home=$PWD/.new-relic-agent')
+    expect(java_opts).to include('-Dnewrelic.config.license_key=test-license-key')
+    expect(java_opts).to include("-Dnewrelic.config.app_name='test-application-name'")
+    expect(java_opts).to include('-Dnewrelic.config.log_file_path=$PWD/.new-relic-agent/logs')
   end
 
 end

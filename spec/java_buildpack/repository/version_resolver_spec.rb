@@ -18,54 +18,50 @@ require 'spec_helper'
 require 'java_buildpack/repository/version_resolver'
 require 'java_buildpack/util/tokenized_version'
 
-module JavaBuildpack::Repository
+describe JavaBuildpack::Repository::VersionResolver do
 
-  describe VersionResolver do
+  let(:versions) { %w(1.6.0_26 1.6.0_27 1.6.1_14 1.7.0_19 1.7.0_21 1.8.0_M-7 1.8.0_05 2.0.0) }
 
-    let(:versions) { %w(1.6.0_26 1.6.0_27 1.6.1_14 1.7.0_19 1.7.0_21 1.8.0_M-7 1.8.0_05 2.0.0) }
+  it 'resolves the default version if no candidate is supplied' do
+    expect(described_class.resolve(nil, versions)).to eq(tokenized_version('2.0.0'))
+  end
 
-    it 'resolves the default version if no candidate is supplied' do
-      expect(VersionResolver.resolve(nil, versions)).to eq(tokenized_version('2.0.0'))
-    end
+  it 'resolves a wildcard major version' do
+    expect(described_class.resolve(tokenized_version('+'), versions)).to eq(tokenized_version('2.0.0'))
+  end
 
-    it 'resolves a wildcard major version' do
-      expect(VersionResolver.resolve(tokenized_version('+'), versions)).to eq(tokenized_version('2.0.0'))
-    end
+  it 'resolves a wildcard minor version' do
+    expect(described_class.resolve(tokenized_version('1.+'), versions)).to eq(tokenized_version('1.8.0_05'))
+  end
 
-    it 'resolves a wildcard minor version' do
-      expect(VersionResolver.resolve(tokenized_version('1.+'), versions)).to eq(tokenized_version('1.8.0_05'))
-    end
+  it 'resolves a wildcard micro version' do
+    expect(described_class.resolve(tokenized_version('1.6.+'), versions)).to eq(tokenized_version('1.6.1_14'))
+  end
 
-    it 'resolves a wildcard micro version' do
-      expect(VersionResolver.resolve(tokenized_version('1.6.+'), versions)).to eq(tokenized_version('1.6.1_14'))
-    end
+  it 'resolves a wildcard qualifier' do
+    expect(described_class.resolve(tokenized_version('1.6.0_+'), versions)).to eq(tokenized_version('1.6.0_27'))
+    expect(described_class.resolve(tokenized_version('1.8.0_+'), versions)).to eq(tokenized_version('1.8.0_05'))
+  end
 
-    it 'resolves a wildcard qualifier' do
-      expect(VersionResolver.resolve(tokenized_version('1.6.0_+'), versions)).to eq(tokenized_version('1.6.0_27'))
-      expect(VersionResolver.resolve(tokenized_version('1.8.0_+'), versions)).to eq(tokenized_version('1.8.0_05'))
-    end
+  it 'resolves a non-wildcard version' do
+    expect(described_class.resolve(tokenized_version('1.6.0_26'), versions)).to eq(tokenized_version('1.6.0_26'))
+    expect(described_class.resolve(tokenized_version('2.0.0'), versions)).to eq(tokenized_version('2.0.0'))
+  end
 
-    it 'resolves a non-wildcard version' do
-      expect(VersionResolver.resolve(tokenized_version('1.6.0_26'), versions)).to eq(tokenized_version('1.6.0_26'))
-      expect(VersionResolver.resolve(tokenized_version('2.0.0'), versions)).to eq(tokenized_version('2.0.0'))
-    end
+  it 'resolves a non-digit qualifier' do
+    expect(described_class.resolve(tokenized_version('1.8.0_M-7'), versions)).to eq(tokenized_version('1.8.0_M-7'))
+  end
 
-    it 'resolves a non-digit qualifier' do
-      expect(VersionResolver.resolve(tokenized_version('1.8.0_M-7'), versions)).to eq(tokenized_version('1.8.0_M-7'))
-    end
+  it 'should raise an exception if no version can be resolved' do
+    expect { described_class.resolve(tokenized_version('2.1.0'), versions) }.to raise_error
+  end
 
-    it 'should raise an exception if no version can be resolved' do
-      expect { VersionResolver.resolve(tokenized_version('2.1.0'), versions) }.to raise_error
-    end
+  it 'should raise an exception when a wildcard is specified in the [] collection' do
+    expect { described_class.resolve(tokenized_version('1.6.0_25'), %w(+)) }.to raise_error /Invalid/
+  end
 
-    it 'should raise an exception when a wildcard is specified in the [] collection' do
-      expect { VersionResolver.resolve(tokenized_version('1.6.0_25'), %w(+)) }.to raise_error /Invalid/
-    end
-
-    def tokenized_version(s)
-      JavaBuildpack::Util::TokenizedVersion.new(s)
-    end
-
+  def tokenized_version(s)
+    JavaBuildpack::Util::TokenizedVersion.new(s)
   end
 
 end

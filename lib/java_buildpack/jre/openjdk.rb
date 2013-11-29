@@ -19,7 +19,6 @@ require 'java_buildpack/diagnostics/common'
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/openjdk_memory_heuristic_factory'
 require 'java_buildpack/util/format_duration'
-require 'java_buildpack/util/resource_utils'
 require 'java_buildpack/versioned_dependency_component'
 
 module JavaBuildpack::Jre
@@ -27,23 +26,22 @@ module JavaBuildpack::Jre
   # Encapsulates the detect, compile, and release functionality for selecting an OpenJDK JRE.
   class OpenJdk < JavaBuildpack::VersionedDependencyComponent
 
-    # Filename of killjava script used to kill the JVM on OOM.
-    KILLJAVA_FILE_NAME = 'killjava'.freeze
-
     def initialize(context)
       super('OpenJDK', context)
-      @java_home.concat JAVA_HOME
+      @application.java_home.set home
     end
 
     def compile
-      download { |file| expand file }
-      copy_killjava_script
+      download_tar
+      copy_resources
+      mutate_killjava
     end
 
     def release
-      @java_opts << "-XX:OnOutOfMemoryError=#{JavaBuildpack::Diagnostics::DIAGNOSTICS_DIRECTORY}/#{KILLJAVA_FILE_NAME}"
-      @java_opts << '-Djava.io.tmpdir=$TMPDIR'
-      @java_opts.concat memory
+      @application.java_opts
+      .add_system_property('java.io.tmpdir', '$TMPDIR')
+      .add_option('-XX:OnOutOfMemoryError', killjava)
+      .concat memory
     end
 
     protected
@@ -54,25 +52,12 @@ module JavaBuildpack::Jre
 
     private
 
-    JAVA_HOME = '.java'.freeze
-
     KEY_MEMORY_HEURISTICS = 'memory_heuristics'.freeze
 
     KEY_MEMORY_SIZES = 'memory_sizes'.freeze
 
-    def expand(file)
-      expand_start_time = Time.now
-      print "       Expanding JRE to #{JAVA_HOME} "
-
-      FileUtils.rm_rf java_home
-      FileUtils.mkdir_p java_home
-      shell "tar xzf #{file.path} -C #{java_home} --strip 1 2>&1"
-
-      puts "(#{(Time.now - expand_start_time).duration})"
-    end
-
-    def java_home
-      File.join @app_dir, JAVA_HOME
+    def killjava
+      home + 'bin/killjava'
     end
 
     def memory
@@ -81,15 +66,14 @@ module JavaBuildpack::Jre
       OpenJDKMemoryHeuristicFactory.create_memory_heuristic(sizes, heuristics, @version).resolve
     end
 
-    def copy_killjava_script
-      resources = JavaBuildpack::Util::ResourceUtils.get_resources(File.join('openjdk', 'diagnostics'))
-      killjava_file_content = File.read(File.join resources, KILLJAVA_FILE_NAME)
-      updated_content = killjava_file_content.gsub(/@@LOG_FILE_NAME@@/, JavaBuildpack::Diagnostics::LOG_FILE_NAME)
-      diagnostic_dir = JavaBuildpack::Diagnostics.get_diagnostic_directory @app_dir
-      FileUtils.mkdir_p diagnostic_dir
-      File.open(File.join(diagnostic_dir, KILLJAVA_FILE_NAME), 'w', 0755) do |file|
-        file.write updated_content
-        file.fsync
+    def mutate_killjava
+      content = killjava.read
+      content.gsub! /@@LOG_FILE_NAME@@/,
+                    JavaBuildpack::Diagnostics.get_buildpack_log(@application).relative_path_from(killjava.dirname).to_s
+
+      killjava.open('w') do |f|
+        f.write content
+        f.fsync
       end
     end
 

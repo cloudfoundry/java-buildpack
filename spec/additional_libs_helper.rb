@@ -16,14 +16,14 @@
 
 require 'spec_helper'
 require 'application_helper'
+require 'pathname'
 
 shared_context 'additional_libs_helper' do
   include_context 'application_helper'
 
-  let(:additional_libs_dir) { app_dir + '.lib' }
+  let(:additional_libs_dir) { Pathname.new(application.additional_libraries) }
 
   before do
-    FileUtils.mkdir_p additional_libs_dir
     FileUtils.cp_r 'spec/fixtures/additional_libs/.', additional_libs_dir
   end
 

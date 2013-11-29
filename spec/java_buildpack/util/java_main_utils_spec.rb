@@ -15,35 +15,33 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'application_helper'
 require 'diagnostics_helper'
 require 'logger'
 require 'java_buildpack/buildpack'
 require 'java_buildpack/util/java_main_utils'
 
-module JavaBuildpack::Util
+describe JavaBuildpack::Util::JavaMainUtils do
+  include_context 'application_helper'
+  include_context 'diagnostics_helper'
 
-  describe JavaMainUtils do
-    include_context 'diagnostics_helper'
+  let(:test_class_name) { 'test-java-main-class' }
 
-    let(:test_class_name) { 'test-java-main-class' }
+  it 'should use a main class configuration in a configuration file' do
+    allow(JavaBuildpack::Buildpack).to receive(:configuration).with('JavaMain', kind_of(Logger))
+                                       .and_return('java_main_class' => test_class_name)
 
-    it 'should use a main class configuration in a configuration file' do
-      allow(JavaBuildpack::Buildpack).to receive(:configuration).with('JavaMain', kind_of(Logger))
-                                         .and_return('java_main_class' => test_class_name)
+    expect(described_class.main_class(application)).to eq(test_class_name)
+  end
 
-      expect(JavaMainUtils.main_class('')).to eq(test_class_name)
-    end
+  it 'should use a main class configuration in a configuration parameter' do
+    expect(described_class.main_class(application, 'java_main_class' => test_class_name)).to eq(test_class_name)
+  end
 
-    it 'should use a main class configuration in a configuration parameter' do
-      expect(JavaMainUtils.main_class('', 'java_main_class' => test_class_name)).to eq(test_class_name)
-    end
+  it 'should use a main class in the manifest of the application',
+     app_fixture: 'container_main' do
 
-    it 'should use a main class in the manifest of the application' do
-      allow(JavaBuildpack::Buildpack).to receive(:configuration).with('JavaMain', kind_of(Logger)).and_return({})
-
-      expect(JavaMainUtils.main_class('spec/fixtures/container_main')).to eq('test-main-class')
-    end
-
+    expect(described_class.main_class(application)).to eq('test-main-class')
   end
 
 end

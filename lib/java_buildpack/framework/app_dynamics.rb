@@ -29,23 +29,25 @@ module JavaBuildpack::Framework
     end
 
     def compile
-      FileUtils.rm_rf app_dynamics_home
-      FileUtils.mkdir_p app_dynamics_home
-      download_zip app_dynamics_home, false
+      download_zip false
     end
 
     def release
       credentials = JavaBuildpack::Util::ServiceUtils.find_service(@vcap_services, SERVICE_NAME)['credentials']
+      java_opts = @application.java_opts
 
-      @java_opts << "-javaagent:#{@application.relative_path_to(app_dynamics_home) + 'javaagent.jar'}"
-      @java_opts << host_name(credentials)
-      @java_opts << port(credentials)
-      @java_opts << ssl_enabled(credentials)
-      @java_opts << "-Dappdynamics.agent.applicationName='#{@vcap_application[KEY_NAME]}'"
-      @java_opts << "-Dappdynamics.agent.tierName='#{@configuration['tier_name']}'"
-      @java_opts << "-Dappdynamics.agent.nodeName=$(expr \"$VCAP_APPLICATION\" : '.*instance_id[\": ]*\"\\([a-z0-9]\\+\\)\".*')"
-      @java_opts << account_name(credentials)
-      @java_opts << account_access_key(credentials)
+      java_opts
+      .add_javaagent(home + 'javaagent.jar')
+      .add_system_property('appdynamics.agent.applicationName', "'#{@vcap_application[KEY_NAME]}'")
+      .add_system_property('appdynamics.agent.tierName', "'#{@configuration['tier_name']}'")
+      .add_system_property('appdynamics.agent.nodeName',
+                           "$(expr \"$VCAP_APPLICATION\" : '.*instance_id[\": ]*\"\\([a-z0-9]\\+\\)\".*')")
+
+      account_access_key(java_opts, credentials)
+      account_name(java_opts, credentials)
+      host_name(java_opts, credentials)
+      port(java_opts, credentials)
+      ssl_enabled(java_opts, credentials)
     end
 
     protected
@@ -70,34 +72,30 @@ module JavaBuildpack::Framework
 
     SERVICE_NAME = /app-dynamics/.freeze
 
-    def account_access_key(credentials)
+    def account_access_key(java_opts, credentials)
       account_access_key = credentials[KEY_ACCOUNT_ACCESS_KEY]
-      "-Dappdynamics.agent.accountAccessKey=#{account_access_key}" if account_access_key
+      java_opts.add_system_property 'appdynamics.agent.accountAccessKey', account_access_key if account_access_key
     end
 
-    def account_name(credentials)
+    def account_name(java_opts, credentials)
       account_name = credentials[KEY_ACCOUNT_NAME]
-      "-Dappdynamics.agent.accountName=#{account_name}" if account_name
+      java_opts.add_system_property 'appdynamics.agent.accountName', account_name if account_name
     end
 
-    def app_dynamics_home
-      @application.component_directory 'app-dynamics'
-    end
-
-    def host_name(credentials)
+    def host_name(java_opts, credentials)
       host_name = credentials[KEY_HOST_NAME]
       fail "'#{KEY_HOST_NAME}' credential must be set" unless host_name
-      "-Dappdynamics.controller.hostName=#{host_name}"
+      java_opts.add_system_property 'appdynamics.controller.hostName', host_name
     end
 
-    def port(credentials)
+    def port(java_opts, credentials)
       port = credentials[KEY_PORT]
-      "-Dappdynamics.controller.port=#{port}" if port
+      java_opts.add_system_property 'appdynamics.controller.port', port if port
     end
 
-    def ssl_enabled(credentials)
+    def ssl_enabled(java_opts, credentials)
       ssl_enabled = credentials[KEY_SSL_ENABLED]
-      "-Dappdynamics.controller.ssl.enabled=#{ssl_enabled}" if ssl_enabled
+      java_opts.add_system_property 'appdynamics.controller.ssl.enabled', ssl_enabled if ssl_enabled
     end
 
   end

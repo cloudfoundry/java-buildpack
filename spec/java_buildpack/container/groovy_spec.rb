@@ -18,72 +18,69 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/container/groovy'
 
-module JavaBuildpack::Container
+describe JavaBuildpack::Container::Groovy do
+  include_context 'component_helper'
 
-  describe Groovy do
-    include_context 'component_helper'
+  it 'should not detect a non-Groovy project',
+     app_fixture: 'container_main' do
 
-    it 'should not detect a non-Groovy project',
-       app_fixture: 'container_main' do
+    expect(component.detect).to be_nil
+  end
 
-      expect(component.detect).to be_nil
-    end
+  it 'should not detect a .groovy directory',
+     app_fixture: 'dot_groovy' do
 
-    it 'should not detect a .groovy directory',
-       app_fixture: 'dot_groovy' do
+    expect(component.detect).to be_nil
+  end
 
-      expect(component.detect).to be_nil
-    end
+  it 'should detect a Groovy file with a main() method',
+     app_fixture: 'container_groovy_main_method' do
 
-    it 'should detect a Groovy file with a main() method',
+    expect(component.detect).to eq("groovy=#{version}")
+  end
+
+  it 'should detect a Groovy file with non-POGO',
+     app_fixture: 'container_groovy_non_pogo' do
+
+    expect(component.detect).to eq("groovy=#{version}")
+  end
+
+  it 'should detect a Groovy file with #!',
+     app_fixture: 'container_groovy_shebang' do
+
+    expect(component.detect).to eq("groovy=#{version}")
+  end
+
+  context do
+    let(:version) { '2.1.5_10' }
+
+    it 'should fail when a malformed version is detected',
        app_fixture: 'container_groovy_main_method' do
 
-      expect(component.detect).to eq("groovy=#{version}")
+      expect { component.detect }.to raise_error /Malformed version/
     end
+  end
 
-    it 'should detect a Groovy file with non-POGO',
-       app_fixture: 'container_groovy_non_pogo' do
+  it 'should extract Groovy from a ZIP',
+     app_fixture: 'container_groovy_main_method',
+     cache_fixture: 'stub-groovy.zip' do
 
-      expect(component.detect).to eq("groovy=#{version}")
-    end
+    component.compile
 
-    it 'should detect a Groovy file with #!',
-       app_fixture: 'container_groovy_shebang' do
+    expect(app_dir + '.groovy/bin/groovy').to exist
+  end
 
-      expect(component.detect).to eq("groovy=#{version}")
-    end
+  it 'should return command',
+     app_fixture: 'container_groovy_main_method' do
 
-    context do
-      let(:version) { '2.1.5_10' }
+    expect(component.release).to eq("JAVA_HOME=#{java_home} JAVA_OPTS=#{java_opts_str} .groovy/bin/groovy " +
+                                        '-cp $PWD/.additional-libraries/test-jar-1.jar:' +
+                                        '$PWD/.additional-libraries/test-jar-2.jar Application.groovy Alpha.groovy ' +
+                                        'directory/Beta.groovy')
+  end
 
-      it 'should fail when a malformed version is detected',
-         app_fixture: 'container_groovy_main_method' do
-
-        expect { component.detect }.to raise_error /Malformed version/
-      end
-    end
-
-    it 'should extract Groovy from a ZIP',
-       app_fixture: 'container_groovy_main_method',
-       cache_fixture: 'stub-groovy.zip' do
-
-      component.compile
-
-      expect(app_dir + '.groovy/bin/groovy').to exist
-    end
-
-    it 'should return command',
-       app_fixture: 'container_groovy_main_method' do
-
-      expect(component.release).to eq("JAVA_HOME=#{java_home} JAVA_OPTS=#{java_opts_str} " +
-                                          '.groovy/bin/groovy -cp .lib/test-jar-1.jar:.lib/test-jar-2.jar ' +
-                                          'Application.groovy Alpha.groovy directory/Beta.groovy')
-    end
-
-    def java_opts_str
-      "\"#{java_opts.sort.join(' ')}\""
-    end
-
+  def java_opts_str
+    "\"#{java_opts.sort.join(' ')}\""
   end
 
 end

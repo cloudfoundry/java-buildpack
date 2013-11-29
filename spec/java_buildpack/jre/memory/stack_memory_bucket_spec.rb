@@ -18,23 +18,20 @@ require 'spec_helper'
 require 'diagnostics_helper'
 require 'java_buildpack/jre/memory/stack_memory_bucket'
 require 'java_buildpack/jre/memory/memory_bucket'
+require 'java_buildpack/jre/memory/memory_range'
 require 'java_buildpack/jre/memory/memory_size'
 
-module JavaBuildpack::Jre
+describe JavaBuildpack::Jre::StackMemoryBucket do
+  include_context 'diagnostics_helper'
 
-  describe StackMemoryBucket do
-    include_context 'diagnostics_helper'
+  let(:test_stack_bucket_weighting) { 0.05 }
+  let(:test_stack_size) { JavaBuildpack::Jre::MemorySize.new('2M') }
+  let(:test_stack_size_range) { JavaBuildpack::Jre::MemoryRange.new(test_stack_size, test_stack_size) }
 
-    let(:test_stack_bucket_weighting) { 0.05 }
-    let(:test_stack_size) { MemorySize.new('2M') }
-    let(:test_stack_size_range) { MemoryRange.new(test_stack_size, test_stack_size) }
-
-    it 'should call the superclass constructor correctly' do
-      # since we can't easily stub the superclass, test the superclass behaves as expected
-      stack_memory_bucket = StackMemoryBucket.new(test_stack_bucket_weighting, test_stack_size_range)
-      expect(stack_memory_bucket.range).to eq(test_stack_size_range)
-    end
-
+  it 'should call the superclass constructor correctly' do
+    # since we can't easily stub the superclass, test the superclass behaves as expected
+    stack_memory_bucket = described_class.new(test_stack_bucket_weighting, test_stack_size_range)
+    expect(stack_memory_bucket.range).to eq(test_stack_size_range)
   end
 
 end

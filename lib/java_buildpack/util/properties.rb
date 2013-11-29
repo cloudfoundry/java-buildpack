@@ -23,10 +23,10 @@ module JavaBuildpack::Util
 
     # Create a new instance, populating it with values from a properties file
     #
-    # @param [String, nil] file_name the file to use for initialization. If no file is passed in, the instance is empty.
+    # @param [Pathname, nil] file_name the file to use for initialization. If no file is passed in, the instance is empty.
     def initialize(file_name)
       unless file_name.nil?
-        contents = File.open(file_name) { |file| file.read }
+        contents = file_name.open { |file| file.read }
         contents.gsub! /[\r\n\f]+ /, ''
 
         contents.each_line do |line|

@@ -15,7 +15,6 @@
 # limitations under the License.
 
 require 'java_buildpack/container'
-require 'java_buildpack/container/container_utils'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/groovy_utils'
 require 'java_buildpack/versioned_dependency_component'
@@ -34,18 +33,18 @@ module JavaBuildpack::Container
     end
 
     def compile
-      download_zip groovy_home
+      download_zip
     end
 
     def release
-      java_home_string = "JAVA_HOME=#{@java_home}"
-      java_opts_string = ContainerUtils.space("JAVA_OPTS=\"#{ContainerUtils.to_java_opts_s(@java_opts)}\"")
-      groovy_string = ContainerUtils.space(File.join GROOVY_HOME, 'bin', 'groovy')
-      classpath_string = ContainerUtils.space(classpath)
-      main_groovy_string = ContainerUtils.space(main_groovy)
-      other_groovy_string = ContainerUtils.space(other_groovy)
-
-      "#{java_home_string}#{java_opts_string}#{groovy_string}#{classpath_string}#{main_groovy_string}#{other_groovy_string}"
+      [
+          @application.java_home.as_env_var,
+          @application.java_opts.as_env_var,
+          @application.relative_path_to(home + 'bin/groovy'),
+          @application.additional_libraries.as_classpath,
+          main_groovy,
+          other_groovy
+      ].compact.join(' ')
     end
 
     protected
@@ -56,19 +55,8 @@ module JavaBuildpack::Container
 
     private
 
-    GROOVY_HOME = '.groovy'.freeze
-
-    def classpath
-      classpath = ContainerUtils.libs(@app_dir, @lib_directory)
-      classpath.any? ? "-cp #{classpath.join(':')}" : ''
-    end
-
-    def groovy_home
-      File.join @app_dir, GROOVY_HOME
-    end
-
     def main_groovy
-      candidates = JavaBuildpack::Util::GroovyUtils.groovy_files(@app_dir)
+      candidates = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
 
       candidate = []
       candidate << main_method(candidates)
@@ -80,9 +68,9 @@ module JavaBuildpack::Container
     end
 
     def other_groovy
-      other_groovy = JavaBuildpack::Util::GroovyUtils.groovy_files(@app_dir)
+      other_groovy = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
       other_groovy.delete(main_groovy)
-      other_groovy.join(' ')
+      other_groovy
     end
 
     def main_method(candidates)
@@ -106,7 +94,7 @@ module JavaBuildpack::Container
     end
 
     def open(candidate, &block)
-      File.open(File.join(@app_dir, candidate), 'r', external_encoding: 'UTF-8', &block)
+      @application.child(candidate).open('r', external_encoding: 'UTF-8', &block)
     end
 
   end

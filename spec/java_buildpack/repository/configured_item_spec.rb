@@ -19,63 +19,59 @@ require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/repository/repository_index'
 require 'java_buildpack/util/tokenized_version'
 
-module JavaBuildpack::Repository
+describe JavaBuildpack::Repository::ConfiguredItem do
 
-  describe ConfiguredItem do
+  let(:repository_index) { double('RepositoryIndex', find_item: [resolved_version, resolved_uri]) }
 
-    let(:repository_index) { double('RepositoryIndex', find_item: [resolved_version, resolved_uri]) }
+  let(:resolved_uri) { 'resolved-uri' }
 
-    let(:resolved_uri) { 'resolved-uri' }
+  let(:resolved_version) { 'resolved-version' }
 
-    let(:resolved_version) { 'resolved-version' }
+  before do
+    allow(JavaBuildpack::Repository::RepositoryIndex).to receive(:new).and_return(repository_index)
+  end
 
-    before do
-      allow(JavaBuildpack::Repository::RepositoryIndex).to receive(:new).and_return(repository_index)
+  it 'raises an error if no repository root is specified' do
+    expect { described_class.find_item('Test', {}) }.to raise_error
+  end
+
+  it 'resolves a system.properties version if specified' do
+    details = described_class.find_item('Test',
+                                        'repository_root' => 'test-repository-root',
+                                        'java.runtime.version' => 'test-java-runtime-version',
+                                        'version' => '1.7.0'
+    )
+
+    expect(details[0]).to eq(resolved_version)
+    expect(details[1]).to eq(resolved_uri)
+  end
+
+  it 'resolves a configuration version if specified' do
+    details = described_class.find_item('Test',
+                                        'repository_root' => 'test-repository-root',
+                                        'version' => '1.7.0'
+    )
+
+    expect(details[0]).to eq(resolved_version)
+    expect(details[1]).to eq(resolved_uri)
+  end
+
+  it 'drives the version validator block if supplied' do
+    described_class.find_item('Test',
+                              'repository_root' => 'test-repository-root',
+                              'version' => '1.7.0'
+    ) do |version|
+      expect(version).to eq(JavaBuildpack::Util::TokenizedVersion.new('1.7.0'))
     end
+  end
 
-    it 'raises an error if no repository root is specified' do
-      expect { ConfiguredItem.find_item('Test', {}) }.to raise_error
-    end
+  it 'resolves nil if no version is specified' do
+    details = described_class.find_item('Test',
+                                        'repository_root' => 'test-repository-root'
+    )
 
-    it 'resolves a system.properties version if specified' do
-      details = ConfiguredItem.find_item('Test',
-                                         'repository_root' => 'test-repository-root',
-                                         'java.runtime.version' => 'test-java-runtime-version',
-                                         'version' => '1.7.0'
-      )
-
-      expect(details[0]).to eq(resolved_version)
-      expect(details[1]).to eq(resolved_uri)
-    end
-
-    it 'resolves a configuration version if specified' do
-      details = ConfiguredItem.find_item('Test',
-                                         'repository_root' => 'test-repository-root',
-                                         'version' => '1.7.0'
-      )
-
-      expect(details[0]).to eq(resolved_version)
-      expect(details[1]).to eq(resolved_uri)
-    end
-
-    it 'drives the version validator block if supplied' do
-      ConfiguredItem.find_item('Test',
-                               'repository_root' => 'test-repository-root',
-                               'version' => '1.7.0'
-      ) do |version|
-        expect(version).to eq(JavaBuildpack::Util::TokenizedVersion.new('1.7.0'))
-      end
-    end
-
-    it 'resolves nil if no version is specified' do
-      details = ConfiguredItem.find_item('Test',
-                                         'repository_root' => 'test-repository-root'
-      )
-
-      expect(details[0]).to eq(resolved_version)
-      expect(details[1]).to eq(resolved_uri)
-    end
-
+    expect(details[0]).to eq(resolved_version)
+    expect(details[1]).to eq(resolved_uri)
   end
 
 end

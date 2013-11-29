@@ -17,23 +17,19 @@
 require 'spec_helper'
 require 'java_buildpack/util/properties'
 
-module JavaBuildpack::Util
+describe JavaBuildpack::Util::Properties do
 
-  describe Properties do
+  let(:properties) { described_class.new(Pathname.new('spec/fixtures/test.properties')) }
 
-    let(:properties) { Properties.new('spec/fixtures/test.properties') }
-
-    it 'should parse properties' do
-      expect(properties['alpha']).to eq('bravo')
-      expect(properties['charlie']).to eq('delta')
-      expect(properties['echo']).to eq('foxtrot')
-      expect(properties['golf']).to eq('')
-      expect(properties['Main-Class']).to eq('com.gopivotal.SimpleJava')
-      expect(properties['hotel.india']).to eq('-Djuliet=kilo')
-      expect(properties['lima']).to eq('-XX:mike="november oscar"')
-      expect(properties['poppa']).to eq('quebec')
-    end
-
+  it 'should parse properties' do
+    expect(properties['alpha']).to eq('bravo')
+    expect(properties['charlie']).to eq('delta')
+    expect(properties['echo']).to eq('foxtrot')
+    expect(properties['golf']).to eq('')
+    expect(properties['Main-Class']).to eq('com.gopivotal.SimpleJava')
+    expect(properties['hotel.india']).to eq('-Djuliet=kilo')
+    expect(properties['lima']).to eq('-XX:mike="november oscar"')
+    expect(properties['poppa']).to eq('quebec')
   end
 
 end

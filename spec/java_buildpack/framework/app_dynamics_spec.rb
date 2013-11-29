@@ -18,113 +18,109 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/app_dynamics'
 
-module JavaBuildpack::Framework
+describe JavaBuildpack::Framework::AppDynamics, service_type: 'app-dynamics-n/a' do
+  include_context 'component_helper'
 
-  describe AppDynamics, service_type: 'app-dynamics-n/a' do
-    include_context 'component_helper'
+  let(:configuration) { { 'tier_name' => 'test-tier-name' } }
+  let(:service_credentials) { { 'host-name' => 'test-host-name' } }
 
-    let(:configuration) { { 'tier_name' => 'test-tier-name' } }
-    let(:service_credentials) { { 'host-name' => 'test-host-name' } }
+  it 'should detect with app-dynamics-n/a service' do
+    expect(component.detect).to eq("appdynamics-agent=#{version}")
+  end
 
-    it 'should detect with app-dynamics-n/a service' do
-      expect(component.detect).to eq("appdynamics-agent=#{version}")
+  context do
+    let(:vcap_services) { {} }
+
+    it 'should not detect without app-dynamics-n/a service' do
+      detected = described_class.new(
+          vcap_services: vcap_services
+      ).detect
+
+      expect(detected).to be_nil
     end
+  end
 
-    context do
-      let(:vcap_services) { {} }
+  context do
+    let(:service_payload) { [{ 'credentials' => service_credentials }, { 'credentials' => service_credentials }] }
 
-      it 'should not detect without app-dynamics-n/a service' do
-        detected = AppDynamics.new(
-            vcap_services: vcap_services
-        ).detect
-
-        expect(detected).to be_nil
-      end
+    it 'should fail with multiple app-dynamics-n/a services' do
+      expect { component.detect }.to raise_error /Exactly one service/
     end
+  end
 
-    context do
-      let(:service_payload) { [{ 'credentials' => service_credentials }, { 'credentials' => service_credentials }] }
+  context do
+    let(:service_payload) { [] }
 
-      it 'should fail with multiple app-dynamics-n/a services' do
-        expect { component.detect }.to raise_error /Exactly one service/
-      end
+    it 'should fail with zero app-dynamics-n/a services' do
+      expect { component.detect }.to raise_error /Exactly one service/
     end
+  end
 
-    context do
-      let(:service_payload) { [] }
+  it 'should expand AppDynamics agent zip',
+     cache_fixture: 'stub-app-dynamics-agent.zip' do
 
-      it 'should fail with zero app-dynamics-n/a services' do
-        expect { component.detect }.to raise_error /Exactly one service/
-      end
+    component.compile
+
+    expect(app_dir + '.appdynamics-agent/javaagent.jar').to exist
+  end
+
+  it 'should update JAVA_OPTS' do
+    component.release
+
+    expect(java_opts).to include('-javaagent:$PWD/.appdynamics-agent/javaagent.jar')
+    expect(java_opts).to include('-Dappdynamics.controller.hostName=test-host-name')
+    expect(java_opts).to include("-Dappdynamics.agent.applicationName='test-application-name'")
+    expect(java_opts).to include("-Dappdynamics.agent.tierName='test-tier-name'")
+    expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' +
+                                     '\'.*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
+  end
+
+  context do
+    let(:service_credentials) { {} }
+
+    it 'should raise error if host-name not specified' do
+      expect { component.release }.to raise_error /'host-name' credential must be set/
     end
+  end
 
-    it 'should expand AppDynamics agent zip',
-       cache_fixture: 'stub-app-dynamics-agent.zip' do
+  context do
+    let(:service_credentials) { super().merge 'port' => 'test-port' }
 
-      component.compile
-
-      expect(app_dir + '.app-dynamics/javaagent.jar').to exist
-    end
-
-    it 'should update JAVA_OPTS' do
+    it 'should add port to JAVA_OPTS if specified' do
       component.release
 
-      expect(java_opts).to include('-javaagent:.app-dynamics/javaagent.jar')
-      expect(java_opts).to include('-Dappdynamics.controller.hostName=test-host-name')
-      expect(java_opts).to include("-Dappdynamics.agent.applicationName='test-application-name'")
-      expect(java_opts).to include("-Dappdynamics.agent.tierName='test-tier-name'")
-      expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' +
-                                       '\'.*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
+      expect(java_opts).to include('-Dappdynamics.controller.port=test-port')
     end
+  end
 
-    context do
-      let(:service_credentials) { {} }
+  context do
+    let(:service_credentials) { super().merge 'ssl-enabled' => 'test-ssl-enabled' }
 
-      it 'should raise error if host-name not specified' do
-        expect { component.release }.to raise_error /'host-name' credential must be set/
-      end
+    it 'should add ssl_enabled to JAVA_OPTS if specified' do
+      component.release
+
+      expect(java_opts).to include('-Dappdynamics.controller.ssl.enabled=test-ssl-enabled')
     end
+  end
 
-    context do
-      let(:service_credentials) { super().merge 'port' => 'test-port' }
+  context do
+    let(:service_credentials) { super().merge 'account-name' => 'test-account-name' }
 
-      it 'should add port to JAVA_OPTS if specified' do
-        component.release
+    it 'should add account_name to JAVA_OPTS if specified' do
+      component.release
 
-        expect(java_opts).to include('-Dappdynamics.controller.port=test-port')
-      end
+      expect(java_opts).to include('-Dappdynamics.agent.accountName=test-account-name')
     end
+  end
 
-    context do
-      let(:service_credentials) { super().merge 'ssl-enabled' => 'test-ssl-enabled' }
+  context do
+    let(:service_credentials) { super().merge 'account-access-key' => 'test-account-access-key' }
 
-      it 'should add ssl_enabled to JAVA_OPTS if specified' do
-        component.release
+    it 'should add account_access_key to JAVA_OPTS if specified' do
+      component.release
 
-        expect(java_opts).to include('-Dappdynamics.controller.ssl.enabled=test-ssl-enabled')
-      end
+      expect(java_opts).to include('-Dappdynamics.agent.accountAccessKey=test-account-access-key')
     end
-
-    context do
-      let(:service_credentials) { super().merge 'account-name' => 'test-account-name' }
-
-      it 'should add account_name to JAVA_OPTS if specified' do
-        component.release
-
-        expect(java_opts).to include('-Dappdynamics.agent.accountName=test-account-name')
-      end
-    end
-
-    context do
-      let(:service_credentials) { super().merge 'account-access-key' => 'test-account-access-key' }
-
-      it 'should add account_access_key to JAVA_OPTS if specified' do
-        component.release
-
-        expect(java_opts).to include('-Dappdynamics.agent.accountAccessKey=test-account-access-key')
-      end
-    end
-
   end
 
 end

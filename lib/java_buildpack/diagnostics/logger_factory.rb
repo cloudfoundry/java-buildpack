@@ -27,12 +27,11 @@ module JavaBuildpack::Diagnostics
   class LoggerFactory
     # Create a Logger for the given application directory.
     #
-    # @param [String] app_dir the root directory for diagnostics
+    # @param [JavaBuildpack::Application::Application] application the application
     # @return [Logger] the created Logger instance
-    def self.create_logger(app_dir)
-      diagnostics_directory = JavaBuildpack::Diagnostics.get_diagnostic_directory app_dir
-      FileUtils.mkdir_p diagnostics_directory
-      log_file = File.join(diagnostics_directory, JavaBuildpack::Diagnostics::LOG_FILE_NAME)
+    def self.create_logger(application)
+      log_file  = JavaBuildpack::Diagnostics.get_buildpack_log application
+      FileUtils.mkdir_p log_file.dirname
 
       if (defined? @@logger) && !@@logger.nil?
         logger_recreated = true

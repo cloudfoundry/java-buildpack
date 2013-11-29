@@ -30,8 +30,6 @@ shared_context 'component_helper' do
 
   let(:application_cache) { double('ApplicationCache') }
   let(:configuration) { {} }
-  let(:java_home) { 'test-java-home' }
-  let(:java_opts) { %w(test-opt-2 test-opt-1) }
   let(:service_credentials) { {} }
   let(:service_payload) { [{ 'credentials' => service_credentials }] }
   let(:uri) { 'test-uri' }
@@ -44,11 +42,23 @@ shared_context 'component_helper' do
         application: application,
         java_home: java_home,
         java_opts: java_opts,
-        lib_directory: additional_libs_dir,
+        lib_directory: application.additional_libraries,
         configuration: configuration,
         vcap_application: vcap_application,
         vcap_services: vcap_services
     )
+  end
+
+  let(:java_home) do
+    java_home = application.java_home
+    java_home.set application.component_directory('test-java-home')
+    java_home
+  end
+
+  let(:java_opts) do
+    java_opts = application.java_opts
+    java_opts.concat %w(test-opt-2 test-opt-1)
+    java_opts
   end
 
   let(:vcap_services) do |example|
@@ -70,7 +80,7 @@ shared_context 'component_helper' do
 
     cache_fixture = example.metadata[:cache_fixture]
     allow(application_cache).to receive(:get).with(uri)
-                                .and_yield(File.open("spec/fixtures/#{cache_fixture}")) if cache_fixture
+                                .and_yield(Pathname.new("spec/fixtures/#{cache_fixture}").open) if cache_fixture
   end
 
   # Mock repository

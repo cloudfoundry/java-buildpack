@@ -15,7 +15,7 @@
 # limitations under the License.
 
 require 'java_buildpack/framework'
-require 'java_buildpack/util/play_app_factory'
+require 'java_buildpack/util/play/factory'
 require 'java_buildpack/versioned_dependency_component'
 
 module JavaBuildpack::Framework
@@ -42,7 +42,7 @@ module JavaBuildpack::Framework
     def supports?
       candidate = false
 
-      play_app = JavaBuildpack::Util::PlayAppFactory.create @app_dir
+      play_app = JavaBuildpack::Util::Play::Factory.create @application
       candidate = uses_jpa?(play_app) || play20?(play_app.version) if play_app
 
       candidate
@@ -50,18 +50,16 @@ module JavaBuildpack::Framework
 
     private
 
-    PLAY_JPA_PLUGIN_JAR = '*play-java-jpa*.jar'.freeze
-
     def jar_name
       "#{@parsable_component_name}-#{@version}.jar"
     end
 
-    def play20?(play_version)
-      play_version =~ /^2\.0(\.[\d]+)?$/
+    def play20?(version)
+      version.start_with? '2.0'
     end
 
     def uses_jpa?(play_app)
-      play_app.contains? PLAY_JPA_PLUGIN_JAR
+      play_app.has_jar? /.*play-java-jpa.*\.jar/
     end
 
   end

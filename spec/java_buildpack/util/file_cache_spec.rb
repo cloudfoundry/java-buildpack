@@ -256,7 +256,7 @@ module JavaBuildpack::Util
 
       it 'should persist a file' do |example|
         test_file = app_dir + 'test.file'
-        File.open(test_file, 'w') { |f| f.write 'new-cached' }
+        test_file.open('w') { |f| f.write 'new-cached' }
         mutable_cache = example.metadata[:mutable_cache]
         mutable_cache.persist_file test_file
         expect_file_content('cached', 'new-cached')
@@ -324,7 +324,7 @@ module JavaBuildpack::Util
     def touch(root, extension, content = '')
       file = cache_file(root, extension)
       FileUtils.mkdir_p file.dirname
-      File.open(file, 'w') { |f| f.write(content) }
+      file.open('w') { |f| f.write(content) }
 
       file
     end

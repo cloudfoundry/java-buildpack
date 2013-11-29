@@ -16,7 +16,6 @@
 
 require 'fileutils'
 require 'java_buildpack/framework'
-require 'java_buildpack/util/resource_utils'
 require 'java_buildpack/util/service_utils'
 require 'java_buildpack/versioned_dependency_component'
 
@@ -30,20 +29,21 @@ module JavaBuildpack::Framework
     end
 
     def compile
-      FileUtils.rm_rf new_relic_home
-      FileUtils.mkdir_p new_relic_home
-      FileUtils.mkdir_p File.join(new_relic_home, 'logs')
+      FileUtils.rm_rf home
+      FileUtils.mkdir_p home
+      FileUtils.mkdir_p logs_dir
 
-      download_jar jar_name, new_relic_home
-      JavaBuildpack::Util::ResourceUtils.copy_resources('new-relic', new_relic_home)
+      download_jar jar_name, home
+      copy_resources
     end
 
     def release
-      @java_opts << "-javaagent:#{File.join NEW_RELIC_HOME, jar_name}"
-      @java_opts << "-Dnewrelic.home=#{NEW_RELIC_HOME}"
-      @java_opts << "-Dnewrelic.config.license_key=#{license_key}"
-      @java_opts << "-Dnewrelic.config.app_name='#{@vcap_application[NAME_KEY]}'"
-      @java_opts << "-Dnewrelic.config.log_file_path=#{File.join NEW_RELIC_HOME, 'logs'}"
+      @application.java_opts
+      .add_javaagent(home + jar_name)
+      .add_system_property('newrelic.home', home)
+      .add_system_property('newrelic.config.license_key', license_key)
+      .add_system_property('newrelic.config.app_name', "'#{@vcap_application[NAME_KEY]}'")
+      .add_system_property('newrelic.config.log_file_path', logs_dir)
     end
 
     protected
@@ -56,8 +56,6 @@ module JavaBuildpack::Framework
 
     NAME_KEY = 'application_name'.freeze
 
-    NEW_RELIC_HOME = '.new-relic'.freeze
-
     SERVICE_NAME = /newrelic/.freeze
 
     def jar_name
@@ -68,8 +66,8 @@ module JavaBuildpack::Framework
       JavaBuildpack::Util::ServiceUtils.find_service(@vcap_services, SERVICE_NAME)['credentials']['licenseKey']
     end
 
-    def new_relic_home
-      File.join @app_dir, NEW_RELIC_HOME
+    def logs_dir
+      home + 'logs'
     end
 
   end

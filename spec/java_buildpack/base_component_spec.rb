@@ -17,38 +17,34 @@
 require 'spec_helper'
 require 'java_buildpack/base_component'
 
-module JavaBuildpack
+describe JavaBuildpack::BaseComponent do
 
-  describe BaseComponent do
+  let(:context) { { 'foo' => 'bar' } }
 
-    let(:context) { { 'foo' => 'bar' } }
+  let(:base_component) { StubBaseComponent.new 'test-name', context }
 
-    let(:base_component) { StubBaseComponent.new 'test-name', context }
-
-    it 'should assign component name to an instance variable' do
-      expect(base_component.component_name).to eq('test-name')
-    end
-
-    it 'should assign context to an instance variable' do
-      expect(base_component.context).to eq(context)
-    end
-
-    it 'should assign context items to instance variables' do
-      expect(base_component.foo).to eq(context['foo'])
-    end
-
-    it 'should fail if methods are unimplemented' do
-      expect { base_component.detect }.to raise_error
-      expect { base_component.compile }.to raise_error
-      expect { base_component.release }.to raise_error
-    end
-
+  it 'should assign component name to an instance variable' do
+    expect(base_component.component_name).to eq('test-name')
   end
 
-  class StubBaseComponent < BaseComponent
-
-    attr_reader :component_name, :context, :foo
-
+  it 'should assign context to an instance variable' do
+    expect(base_component.context).to eq(context)
   end
+
+  it 'should assign context items to instance variables' do
+    expect(base_component.foo).to eq(context['foo'])
+  end
+
+  it 'should fail if methods are unimplemented' do
+    expect { base_component.detect }.to raise_error
+    expect { base_component.compile }.to raise_error
+    expect { base_component.release }.to raise_error
+  end
+
+end
+
+class StubBaseComponent < JavaBuildpack::BaseComponent
+
+  attr_reader :component_name, :context, :foo
 
 end

@@ -15,12 +15,13 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'java_buildpack/application'
+require 'java_buildpack/application/application'
 
 shared_context 'application_helper' do
 
   let(:app_dir) { Pathname.new Dir.mktmpdir }
-  let(:application) { JavaBuildpack::Application.new(app_dir) }
+
+  let(:application) { JavaBuildpack::Application::Application.new app_dir }
 
   before do
     FileUtils.mkdir_p app_dir

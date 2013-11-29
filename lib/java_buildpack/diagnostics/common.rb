@@ -18,26 +18,21 @@ require 'java_buildpack/diagnostics'
 
 # Common constants and methods for the Diagnostics module.
 module JavaBuildpack::Diagnostics
-  # The directory that diagnostics are written into
-  DIAGNOSTICS_DIRECTORY = '.buildpack-diagnostics'.freeze
 
-  # The name of the buildpack diagnostic log file.
-  LOG_FILE_NAME = 'buildpack.log'.freeze
-
-  # Returns the full path of the buildpack diagnostics directory.
+  # Returns the path of the buildpack diagnostics directory.
   #
-  # @param [String] app_dir the application root directory
-  # @return [String] the full path of the buildpack diagnostics directory
-  def self.get_diagnostic_directory(app_dir)
-    File.join(app_dir, DIAGNOSTICS_DIRECTORY)
+  # @param [JavaBuildpack::Application::Application] application the application
+  # @return [Pathname] the path to the diagnostics directory
+  def self.get_diagnostic_directory(application)
+    application.component_directory 'buildpack-diagnostics'
   end
 
-  # Returns the full path of the buildpack log file.
+  # Returns the path of the buildpack log file.
   #
-  # @param [String] app_dir the application root directory
-  # @return [String] the full path of the buildpack log file
-  def self.get_buildpack_log(app_dir)
-    File.join(get_diagnostic_directory(app_dir), LOG_FILE_NAME)
+  # @param [JavaBuildpack::Application::Application] application the application
+  # @return [String] the path of the buildpack log file
+  def self.get_buildpack_log(application)
+    get_diagnostic_directory(application) + 'buildpack.log'
   end
 
 end

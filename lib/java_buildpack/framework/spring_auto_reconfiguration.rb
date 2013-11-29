@@ -41,36 +41,32 @@ module JavaBuildpack::Framework
     protected
 
     def supports?
-      Dir["#{@app_dir}/**/#{SPRING_JAR_PATTERN}"].any?
+      @application.glob('**/*spring-core*.jar').any?
     end
 
     private
-
-    SPRING_JAR_PATTERN = '*spring-core*.jar'.freeze
-
-    WEB_XML = File.join 'WEB-INF', 'web.xml'.freeze
 
     def jar_name
       "#{@parsable_component_name}-#{@version}.jar"
     end
 
     def modify_web_xml
-      web_xml = File.join @app_dir, WEB_XML
+      web_xml = @application.child 'WEB-INF/web.xml'
 
-      if File.exists? web_xml
+      if web_xml.exist?
         puts '       Modifying /WEB-INF/web.xml for Auto Reconfiguration'
-        @logger.debug { "  Original web.xml: #{File.read web_xml}" }
+        @logger.debug { "  Original web.xml: #{web_xml.read}" }
 
-        modifier = File.open(web_xml) { |file| WebXmlModifier.new(file) }
+        modifier = web_xml.open { |file| WebXmlModifier.new(file) }
         modifier.augment_root_context
         modifier.augment_servlet_contexts
 
-        File.open(web_xml, 'w') do |file|
+        web_xml.open('w') do |file|
           file.write(modifier.to_s)
           file.fsync
         end
 
-        @logger.debug { "  Modified web.xml: #{File.read web_xml}" }
+        @logger.debug { "  Modified web.xml: #{web_xml.read}" }
       end
     end
 

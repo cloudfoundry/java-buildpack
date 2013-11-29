@@ -16,11 +16,10 @@
 
 require 'fileutils'
 require 'java_buildpack'
-require 'java_buildpack/application'
+require 'java_buildpack/application/application'
 require 'java_buildpack/diagnostics/common'
 require 'java_buildpack/diagnostics/logger_factory'
 require 'java_buildpack/util/constantize'
-require 'java_buildpack/util/shell'
 require 'pathname'
 require 'time'
 require 'yaml'
@@ -29,7 +28,6 @@ module JavaBuildpack
 
   # Encapsulates the detection, compile, and release functionality for Java application
   class Buildpack
-    include JavaBuildpack::Util::Shell
 
     # +Buildpack+ driver method. Creates a logger and yields a new instance of +Buildpack+
     # to the given block catching any exceptions and logging diagnostics. As part of initialisation,
@@ -42,9 +40,12 @@ module JavaBuildpack
     # @param [String] message an error message with an insert for the reason for failure
     # @return [Object] the return value from the given block
     def self.drive_buildpack_with_logger(app_dir, message)
-      logger = JavaBuildpack::Diagnostics::LoggerFactory.create_logger app_dir
+      app_dir = Pathname.new(app_dir)
+      application = Application::Application.new app_dir
+
+      logger = JavaBuildpack::Diagnostics::LoggerFactory.create_logger application
       begin
-        yield new(app_dir)
+        yield new(app_dir, application)
       rescue => e
         logger.error(message % e.inspect)
         logger.debug("Exception #{e.inspect} backtrace:\n#{e.backtrace.join("\n")}")
@@ -74,7 +75,6 @@ module JavaBuildpack
     # @return [void]
     def compile
       the_container = container # diagnose detect failure early
-      FileUtils.mkdir_p @lib_directory
 
       jre.compile
       frameworks.each { |framework| framework.compile }
@@ -128,11 +128,8 @@ module JavaBuildpack
 
     COMPONENTS_CONFIG = '../../config/components.yml'.freeze
 
-    LIB_DIRECTORY = '.lib'
-
     # Instances should only be constructed by this class.
-    def initialize(app_dir)
-      application = Application.new app_dir
+    def initialize(app_dir, application)
 
       @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
       Buildpack.log_git_data @logger
@@ -140,9 +137,6 @@ module JavaBuildpack
       Buildpack.require_component_files
       components = Buildpack.components @logger
 
-      java_home = ''
-      java_opts = []
-      @lib_directory = Buildpack.lib_directory app_dir
       environment = ENV.to_hash
       vcap_application = environment.delete 'VCAP_APPLICATION'
       vcap_services = environment.delete 'VCAP_SERVICES'
@@ -151,9 +145,9 @@ module JavaBuildpack
           app_dir: app_dir,
           application: application,
           environment: environment,
-          java_home: java_home,
-          java_opts: java_opts,
-          lib_directory: @lib_directory,
+          java_home: application.java_home,
+          java_opts: application.java_opts,
+          lib_directory: application.additional_libraries,
           vcap_application: vcap_application ? YAML.load(vcap_application) : {},
           vcap_services: vcap_services ? YAML.load(vcap_services) : {}
       }
@@ -219,10 +213,6 @@ module JavaBuildpack
       else
         logger.debug('Buildpack is not stored in a git repository')
       end
-    end
-
-    def self.lib_directory(app_dir)
-      File.join app_dir, LIB_DIRECTORY
     end
 
     def self.require_component_files
