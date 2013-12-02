@@ -52,8 +52,14 @@ describe JavaBuildpack::Util::Play::Pre22Staged do
       expect(trigger).to be
     end
 
-    it 'should not recognize Play 2.2 applications',
-       app_fixture: 'container_play_2.2' do
+    it 'should not recognize Play 2.2 dist applications',
+       app_fixture: 'container_play_2.2_dist' do
+
+      expect(trigger).not_to be
+    end
+
+    it 'should not recognize Play 2.2 staged applications',
+       app_fixture: 'container_play_2.2_staged' do
 
       expect(trigger).not_to be
     end

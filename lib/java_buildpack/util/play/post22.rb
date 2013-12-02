@@ -38,16 +38,25 @@ module JavaBuildpack::Util::Play
     end
 
     def lib_dir
-      @application.child 'lib'
+      root + 'lib'
     end
 
     def start_script
-      candidates = @application.glob('bin/*')
-      if candidates.size == 1
-        candidates.first
+      if root
+        candidates = @application.glob(root + 'bin/*')
+        candidates.size == 1 ? candidates.first : candidates.find { |candidate| Pathname.new("#{candidate}.bat").exist? }
       else
-        candidates.find { |candidate| Pathname.new("#{candidate}.bat").exist? }
+        nil
       end
+    end
+
+    protected
+
+    # Returns the root of the play application
+    #
+    # @return [Pathname] the root of the play application
+    def root
+      fail "Method 'root' must be defined"
     end
 
   end

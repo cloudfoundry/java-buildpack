@@ -21,59 +21,22 @@ require 'java_buildpack/util/play/post22'
 describe JavaBuildpack::Util::Play::Post22 do
   include_context 'component_helper'
 
+  let(:play_app) { described_class.new application }
+
   before do
     java_home
     java_opts
   end
 
-  context do
-
-    let(:trigger) { described_class.new(application).supports? }
-
-    it 'should not recognize non-applications' do
-      expect(trigger).not_to be
-    end
-
-    it 'should not recognize Play 2.0 applications',
-       app_fixture: 'container_play_2.0_dist' do
-
-      expect(trigger).not_to be
-    end
-
-    it 'should not recognize Play 2.1 dist applications',
-       app_fixture: 'container_play_2.1_dist' do
-
-      expect(trigger).not_to be
-    end
-
-    it 'should not recognize Play 2.1 staged applications',
-       app_fixture: 'container_play_2.1_staged' do
-
-      expect(trigger).not_to be
-    end
-
-    it 'should recognize Play 2.2 applications',
-       app_fixture: 'container_play_2.2' do
-
-      expect(trigger).to be
-    end
-
-    it 'should recognize a Play 2.2 application with a missing .bat file if there is precisely one start script',
-       app_fixture: 'container_play_2.2_minus_bat_file' do
-
-      expect(trigger).to be
-    end
-
-    it 'should not recognize a Play 2.2 application with a missing .bat file and more than one start script',
-       app_fixture: 'container_play_2.2_ambiguous_start_script' do
-
-      expect(trigger).not_to be
-    end
+  it 'should raise error if root method is unimplemented' do
+    expect { play_app.send(:root) }.to raise_error "Method 'root' must be defined"
   end
 
-  context app_fixture: 'container_play_2.2' do
+  context app_fixture: 'container_play_2.2_staged' do
 
-    let(:play_app) { described_class.new application }
+    before do
+      allow(play_app).to receive(:root).and_return(app_dir)
+    end
 
     it 'should correctly determine the version of a Play 2.2 application' do
       expect(play_app.version).to eq('2.2.0')

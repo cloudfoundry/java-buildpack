@@ -15,7 +15,8 @@
 # limitations under the License.
 
 require 'java_buildpack/util/play'
-require 'java_buildpack/util/play/post22'
+require 'java_buildpack/util/play/post22_dist'
+require 'java_buildpack/util/play/post22_staged'
 require 'java_buildpack/util/play/pre22_dist'
 require 'java_buildpack/util/play/pre22_staged'
 
@@ -30,7 +31,8 @@ module JavaBuildpack::Util::Play
     # @return [JavaBuildpack::Util::Play::Base] the play application delegate
     def self.create(application)
       candidates = [
-          Post22.new(application),
+          Post22Dist.new(application),
+          Post22Staged.new(application),
           Pre22Dist.new(application),
           Pre22Staged.new(application)
       ].select { |candidate| candidate.supports? }

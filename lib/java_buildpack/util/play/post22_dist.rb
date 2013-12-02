@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright (c) 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,17 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'application_helper'
-require 'java_buildpack/util/play/pre22'
+require 'java_buildpack/util/play/post22'
 
-describe JavaBuildpack::Util::Play::Pre22 do
-  include_context 'application_helper'
+module JavaBuildpack::Util::Play
 
-  let(:play_app) { described_class.new application }
+  # Encapsulate inspection and modification of Play dist applications up to and including Play 2.1.x.
+  class Post22Dist < Post22
 
-  it 'should raise error if root method is unimplemented' do
-    expect { play_app.send(:root) }.to raise_error "Method 'root' must be defined"
+    protected
+
+    def root
+      roots = @application.glob('*').select { |child| child.directory? }
+      roots.size == 1 ? roots.first : nil
+    end
+
   end
 
 end

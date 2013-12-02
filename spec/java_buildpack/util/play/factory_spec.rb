@@ -38,7 +38,7 @@ describe JavaBuildpack::Util::Play::Factory do
   end
 
   it 'should successfully create a Play 2.2 application',
-     app_fixture: 'container_play_2.2' do
+     app_fixture: 'container_play_2.2_staged' do
 
     trigger
   end
