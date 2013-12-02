@@ -1,0 +1,4 @@
+
+declare -r app_mainclass="play.core.server.NettyServer"
+
+declare -r app_classpath="$lib_dir/some-dependency.jar"

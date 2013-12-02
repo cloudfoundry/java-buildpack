@@ -62,7 +62,7 @@ describe JavaBuildpack::Util::Play::Base do
     expect { play.send(:start_script) }.to raise_error "Method 'start_script' must be defined"
   end
 
-  context app_fixture: 'container_play_2.2' do
+  context app_fixture: 'container_play_2.2_staged' do
 
     let(:lib_dir) { app_dir + 'lib' }
 

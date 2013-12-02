@@ -44,7 +44,8 @@ module JavaBuildpack::Util::Play
     end
 
     def root
-      @application.glob('*').select { |child| child.directory? }.first
+      roots = @application.glob('*').select { |child| child.directory? }
+      roots.size == 1 ? roots.first : nil
     end
 
   end

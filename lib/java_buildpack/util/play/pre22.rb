@@ -24,8 +24,7 @@ module JavaBuildpack::Util::Play
     protected
 
     def start_script
-      candidate = root
-      candidate ? candidate + 'start' : nil
+      root ? root + 'start' : nil
     end
 
     protected
