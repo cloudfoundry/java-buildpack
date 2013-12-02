@@ -43,6 +43,19 @@ module JavaBuildpack::Application
       "JAVA_HOME=#{self}"
     end
 
+    # Execute a block with the +JAVA_HOME+ environment variable set
+    #
+    # @yield yields to block with the +JAVA_HOME+ environment variable set
+    def do_with
+      previous_value = ENV['JAVA_HOME']
+      begin
+        ENV['JAVA_HOME'] = to_s
+        yield
+      ensure
+        ENV['JAVA_HOME'] = previous_value
+      end
+    end
+
   end
 
 end

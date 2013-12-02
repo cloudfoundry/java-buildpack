@@ -79,10 +79,12 @@ module JavaBuildpack
 
     protected
 
-    # Copy resources from a components resources directory to its +home+ directory
-    def copy_resources
+    # Copy resources from a components resources directory to a directory
+    #
+    # @param [Pathname] target_directory the directory to copy to.  Default to a component's +home+
+    def copy_resources(target_directory = home)
       resources = Pathname.new(File.expand_path('../../../resources', __FILE__)) + @parsable_component_name
-      FileUtils.cp_r((resources.to_s + '/.'), home) if resources.exist?
+      FileUtils.cp_r((resources.to_s + '/.'), target_directory) if resources.exist?
     end
 
     # Downloads an item with the given name and version from the given URI, then yields the resultant file to the given
@@ -111,7 +113,8 @@ module JavaBuildpack
     #                                  +@lib_directory+
     # @param [String] description an optional description for the download.  Defaults to +@component_name+.
     def download_jar(version, uri, jar_name, target_directory = @lib_directory, description = @component_name)
-      download(version, uri, description) { |file| FileUtils.cp file.path, File.join(target_directory, jar_name) }
+      FileUtils.mkdir_p target_directory
+      download(version, uri, description) { |file| FileUtils.cp file.path, (target_directory + jar_name) }
     end
 
     # The home directory for this component
