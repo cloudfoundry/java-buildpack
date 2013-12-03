@@ -26,6 +26,7 @@ jres:
 frameworks:
   - "JavaBuildpack::Framework::AppDynamics"
   - "JavaBuildpack::Framework::JavaOpts"
+  - "JavaBuildpack::Framework::MariaDbJdbc"
   - "JavaBuildpack::Framework::NewRelic"
   - "JavaBuildpack::Framework::SpringInsight"
   - "JavaBuildpack::Framework::PlayAutoReconfiguration"
