@@ -31,4 +31,5 @@ frameworks:
   - "JavaBuildpack::Framework::SpringInsight"
   - "JavaBuildpack::Framework::PlayAutoReconfiguration"
   - "JavaBuildpack::Framework::PlayJpaPlugin"
+  - "JavaBuildpack::Framework::PostgresqlJdbc"
   - "JavaBuildpack::Framework::SpringAutoReconfiguration"
