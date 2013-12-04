@@ -13,9 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for the Spring Auto Reconfiguration framework.
-# Note that the repository is shared with the Play Auto Reconfiguration framework and should be kept in step to
-# avoid conflicts.
+# Repository configuration
 ---
-version: 0.5.0_+
-repository_root: "{default.repository.root}/spring-boot-cli"
+default_repository_root: http://download.pivotal.io.s3.amazonaws.com

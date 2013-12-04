@@ -2,18 +2,19 @@
 The Spring Boot CLI Container runs one or more Groovy (i.e. `*.groovy`) files using Spring Boot CLI.
 
 <table>
-	<tr>
-		<td><strong>Detection Criteria</strong></td><td><ul>
-			<li>The application has one or more <tt>.groovy</tt> files in the root directory, and</li>
-			<li>All the application's <tt>.groovy</tt> files in the root directory are POGOs (a POGO contains one or more classes), and</li>
-			<li>None of the application's <tt>.groovy</tt> files in the root directory contain a <tt>main</tt> method, and</li>
-			<li>None of the application's <tt>.groovy</tt> files in the root directory contain a shebang (`#!`) declaration, and</li>
-			<li>The application does not have a <tt>WEB-INF</tt> subdirectory of its root directory.</li>
-		</ul></td>
-	</tr>
-	<tr>
-		<td><strong>Tags</strong></td><td><tt>spring-boot-cli=&lang;version&rang;</tt></td>
-	</tr>
+  <tr>
+    <td><strong>Detection Criteria</strong></td>
+    <td><ul>
+      <li>The application has one or more <tt>.groovy</tt> files in the root directory, and</li>
+      <li>All the application's <tt>.groovy</tt> files in the root directory are POGOs (a POGO contains one or more classes), and</li>
+      <li>None of the application's <tt>.groovy</tt> files in the root directory contain a <tt>main</tt> method, and</li>
+      <li>None of the application's <tt>.groovy</tt> files in the root directory contain a shebang (`#!`) declaration, and</li>
+      <li>The application does not have a <tt>WEB-INF</tt> subdirectory of its root directory.</li>
+    </ul></td>
+  </tr>
+  <tr>
+    <td><strong>Tags</strong></td><td><tt>spring-boot-cli=&lang;version&rang;</tt></td>
+  </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script.
 

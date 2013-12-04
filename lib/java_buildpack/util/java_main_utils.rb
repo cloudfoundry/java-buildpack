@@ -14,8 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/buildpack'
-require 'java_buildpack/diagnostics/logger_factory'
+require 'java_buildpack/util/configuration_utils'
 require 'java_buildpack/util'
 require 'java_buildpack/util/properties'
 
@@ -31,8 +30,7 @@ module JavaBuildpack::Util
     # @param [Hash] configuration the Java main configuration or +nil+ if this is not provided
     # @return [String, nil] the Java main class name or +nil+ if there is no Java main class name
     def self.main_class(application, configuration = nil)
-      logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
-      config = configuration || JavaBuildpack::Buildpack.configuration('JavaMain', logger)
+      config = configuration || JavaBuildpack::Util::ConfigurationUtils.load('JavaMain')
       config[MAIN_CLASS_PROPERTY] || manifest(application)[MANIFEST_PROPERTY]
     end
 

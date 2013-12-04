@@ -16,4 +16,4 @@
 # Configuration for the Postgresql JDBC framework
 ---
 version: 9.3.+
-repository_root: "http://download.pivotal.io.s3.amazonaws.com/postgresql-jdbc"
+repository_root: "{default.repository.root}/postgresql-jdbc"

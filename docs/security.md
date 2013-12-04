@@ -10,4 +10,6 @@ original repository. This will ensure that your fork runs with any security fixe
 
 ## Security and Logs
 
-See [Sensitive Information in Logs](logging.md#Sensitive-Information-in-Logs).
+See [Sensitive Information in Logs][].
+
+[Sensitive Information in Logs]: logging.md#Sensitive-Information-in-Logs

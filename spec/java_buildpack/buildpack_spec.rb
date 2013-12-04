@@ -20,7 +20,6 @@ require 'diagnostics_helper'
 require 'java_buildpack/buildpack'
 require 'java_buildpack/diagnostics/logger_factory'
 require 'tmpdir'
-require 'yaml'
 
 describe JavaBuildpack::Buildpack do
   include_context 'application_helper'
@@ -49,14 +48,13 @@ describe JavaBuildpack::Buildpack do
   let(:stub_jre2) { double('StubJre2', detect: nil, component_name: 'StubJre2') }
 
   before do
-    allow(YAML).to receive(:load_file).with(Pathname.new('config/logging.yml').expand_path.to_s)
-                   .and_return('default_log_level' => 'DEBUG')
-    allow(YAML).to receive(:load_file).with(Pathname.new('config/components.yml').expand_path.to_s)
-                   .and_return(
-                       'containers' => ['Test::StubContainer1', 'Test::StubContainer2'],
-                       'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
-                       'jres' => ['Test::StubJre1', 'Test::StubJre2']
-                   )
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).and_call_original
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('components')
+                                                      .and_return(
+                                                          'containers' => ['Test::StubContainer1', 'Test::StubContainer2'],
+                                                          'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
+                                                          'jres' => ['Test::StubJre1', 'Test::StubJre2']
+                                                      )
 
     allow(Test::StubContainer1).to receive(:new).and_return(stub_container1)
     allow(Test::StubContainer2).to receive(:new).and_return(stub_container2)
@@ -171,28 +169,28 @@ describe JavaBuildpack::Buildpack do
   end
 
   it 'should load configuration file matching JRE class name' do
-    allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
-    allow(File).to receive(:exists?).with(File.expand_path('config/stubjre1.yml')).and_return(true)
-    allow(File).to receive(:exists?).with(File.expand_path('config/stubjre2.yml')).and_return(false)
-    allow(File).to receive(:exists?).with(File.expand_path('config/stubframework1.yml')).and_return(false)
-    allow(File).to receive(:exists?).with(File.expand_path('config/stubframework2.yml')).and_return(false)
-    allow(File).to receive(:exists?).with(File.expand_path('config/stubcontainer1.yml')).and_return(false)
-    allow(File).to receive(:exists?).with(File.expand_path('config/stubcontainer2.yml')).and_return(false)
-    allow(YAML).to receive(:load_file).with(File.expand_path('config/stubjre1.yml')).and_return('x' => 'y')
+    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stubjre1')
+    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stubjre2')
+    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stubframework1')
+    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stubframework2')
+    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stubcontainer1')
+    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stubcontainer2')
 
     buildpack.detect
   end
 
-  it 'logs information about the git repository of a buildpack' do
+  it 'logs information about the git repository of a buildpack',
+     log_level: 'DEBUG' do
+
     buildpack.detect
 
-    standard_error = stderr.string
-
-    expect(standard_error).to match /git remotes/
-    expect(standard_error).to match /git HEAD commit/
+    expect(stderr.string).to match /git remotes/
+    expect(stderr.string).to match /git HEAD commit/
   end
 
-  it 'realises when buildpack is not stored in a git repository' do
+  it 'realises when buildpack is not stored in a git repository',
+     log_level: 'DEBUG' do
+
     Dir.mktmpdir do |tmp_dir|
       allow(described_class).to receive(:git_dir).and_return(tmp_dir)
 

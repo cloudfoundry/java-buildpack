@@ -19,6 +19,7 @@ require 'java_buildpack'
 require 'java_buildpack/application/application'
 require 'java_buildpack/diagnostics/common'
 require 'java_buildpack/diagnostics/logger_factory'
+require 'java_buildpack/util/configuration_utils'
 require 'java_buildpack/util/constantize'
 require 'pathname'
 require 'time'
@@ -104,29 +105,9 @@ module JavaBuildpack
       payload
     end
 
-    # Returns the configuration hash of the given type or the empty hash if the type has no such configuration.
-    #
-    # @param [String] type the class name of the type whose configuration is required
-    # @param [Logger] logger a +Logger+
-    # @return [Hash] the type's configuration
-    def self.configuration(type, logger)
-      name = type.match(/^(?:.*::)?(.*)$/)[1].downcase
-      config_file = File.expand_path("../../config/#{name}.yml", File.dirname(__FILE__))
-
-      if File.exists? config_file
-        configuration = YAML.load_file(config_file)
-
-        logger.debug { "#{config_file} contents: #{configuration}" }
-      end
-
-      configuration || {}
-    end
-
     private_class_method :new
 
     private
-
-    COMPONENTS_CONFIG = '../../config/components.yml'.freeze
 
     # Instances should only be constructed by this class.
     def initialize(app_dir, application)
@@ -152,9 +133,9 @@ module JavaBuildpack
           vcap_services: vcap_services ? YAML.load(vcap_services) : {}
       }
 
-      @jres = Buildpack.construct_components(components, 'jres', basic_context, @logger)
-      @frameworks = Buildpack.construct_components(components, 'frameworks', basic_context, @logger)
-      @containers = Buildpack.construct_components(components, 'containers', basic_context, @logger)
+      @jres = Buildpack.construct_components(components, 'jres', basic_context)
+      @frameworks = Buildpack.construct_components(components, 'frameworks', basic_context)
+      @containers = Buildpack.construct_components(components, 'containers', basic_context)
     end
 
     def self.dump_environment_variables(logger)
@@ -166,23 +147,25 @@ module JavaBuildpack
     end
 
     def self.components(logger)
-      expanded_path = File.expand_path(COMPONENTS_CONFIG, File.dirname(__FILE__))
-      components = YAML.load_file(expanded_path)
+      components = JavaBuildpack::Util::ConfigurationUtils.load 'components'
 
-      logger.debug { "#{expanded_path} contents: #{components}" }
+      logger.debug { "Components: #{components}" }
 
       components
     end
 
-    def self.configure_context(basic_context, type, logger)
+    def self.configure_context(basic_context, type)
       configured_context = basic_context.clone
-      configured_context[:configuration] = Buildpack.configuration(type, logger)
+
+      configured_context[:configuration] = JavaBuildpack::Util::ConfigurationUtils
+      .load(type.match(/^(?:.*::)?(.*)$/)[1].downcase)
+
       configured_context
     end
 
-    def self.construct_components(components, type, basic_context, logger)
+    def self.construct_components(components, type, basic_context)
       components[type].map do |component|
-        component.constantize.new(Buildpack.configure_context(basic_context, component, logger))
+        component.constantize.new(Buildpack.configure_context(basic_context, component))
       end
     end
 

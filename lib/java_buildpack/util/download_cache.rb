@@ -23,7 +23,6 @@ require 'monitor'
 require 'net/http'
 require 'tmpdir'
 require 'uri'
-require 'yaml'
 
 module JavaBuildpack::Util
 

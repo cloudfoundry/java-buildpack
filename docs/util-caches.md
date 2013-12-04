@@ -38,6 +38,15 @@ JavaBuildpack::Util::DownloadCache.new().get(uri) do |file|
 end
 ```
 
+## Configuration
+For general information on configuring the buildpack, refer to [Configuration and Extension][].
+
+Caching can be configured by modifying the [`config/cache.yml`][] file.
+
+| Name | Description
+| ---- | -----------
+| `remote_downloads` | This property can take the value `enabled` or `disabled`. <p>The default value of `enabled` means that the buildpack will check the internet connection and remember the result for the remainder of the buildpack invocation. If the internet is available, it will then be used to download files. If the internet is not available, cache will be consulted instead. <p>Alternatively, the property may be set to `disabled` which avoids the check for an internet connection, does not attempt downloads, and consults the cache instead.
+
 ## `JavaBuildpack::Util::DownloadCache`
 The [`DownloadCache`][] is the most generic of the three caches.  It allows you to create a cache that persists files any that write access is available.  The constructor signature looks the following:
 
@@ -47,18 +56,6 @@ The [`DownloadCache`][] is the most generic of the three caches.  It allows you 
 # @param [String] cache_root the filesystem root for downloaded files to be cached in
 def initialize(cache_root = Dir.tmpdir)
 ```
-
-### Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
-
-Caching can be configured by modifying the [`config/cache.yml`][] file.
-
-| Name | Description
-| ---- | -----------
-| `remote_downloads` | This property can take the value `enabled` or `disabled`. <br><br>The default value of `enabled` means that the buildpack will check the internet connection and remember the result for the remainder of the buildpack invocation. If the internet is available, it will then be used to download files. If the internet is not available, cache will be consulted instead. <br><br>Alternatively, the property may be set to `disabled` which avoids the check for an internet connection, does not attempt downloads, and consults the cache instead.
-
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
-[`config/cache.yml`]: ../config/cache.yml
 
 ## `JavaBuildpack::Util::ApplicationCache`
 The [`ApplicationCache`][] is a cache that persists files into the application cache passed to the `compile` script.  It examines `ARGV[1]` for the cache location and configures itself accordingly.
@@ -83,5 +80,7 @@ def initialize
 ```
 
 [`ApplicationCache`]: ../lib/java_buildpack/util/application_cache.rb
+[`config/cache.yml`]: ../config/cache.yml
 [`DownloadCache`]: ../lib/java_buildpack/util/download_cache.rb
 [`GlobalCache`]: ../lib/java_buildpack/util/global_cache.rb
+[Configuration and Extension]: ../README.md#Configuration-and-Extension

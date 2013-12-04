@@ -66,15 +66,6 @@ This base class is recommended for use by all components.  It ensures that each 
 ### [`lib/java_buildpack/versioned_dependency_component.rb`][]
 This base class is recommended for use by any component that uses the buildpack [repository support][] to download a dependency.  It ensures that each component has a `@version` and `@uri` that were resolved from the repository specified in the component's configuration.  It also implements the `detect` method with an standard implementation.
 
-[`config/components.yml`]: ../config/components.yml
-[`JavaBuildpack::Application`]: ../lib/java_buildpack/application.rb
-[`lib/java_buildpack/base_component.rb`]: ../lib/java_buildpack/base_component.rb
-[`lib/java_buildpack/container`]: ../lib/java_buildpack/container
-[`lib/java_buildpack/framework`]: ../lib/java_buildpack/framework
-[`lib/java_buildpack/jre`]: ../lib/java_buildpack/jre
-[`lib/java_buildpack/versioned_dependency_component.rb`]: ../lib/java_buildpack/versioned_dependency_component.rb
-[repository support]: util-repositories.md
-
 ## Examples
 The following example components are relatively simple and good for copying as the basis for a new component.
 
@@ -89,5 +80,14 @@ The [Java Main Class Container](container-java-main.md) ([`lib/java_buildpack/co
 ### Spring Boot CLI Container
 
 The [Spring Boot CLI Container](container-spring-boot-cli.md) ([`lib/java_buildpack/container/spring_boot_cli.rb`](../lib/java_buildpack/container/spring_boot_cli.rb)) extends the [`VersionedDependencyComponent`](../lib/java_buildpack/versioned_dependency_component.rb) base class described above.
+
+[`config/components.yml`]: ../config/components.yml
+[`JavaBuildpack::Application`]: ../lib/java_buildpack/application.rb
+[`lib/java_buildpack/base_component.rb`]: ../lib/java_buildpack/base_component.rb
+[`lib/java_buildpack/container`]: ../lib/java_buildpack/container
+[`lib/java_buildpack/framework`]: ../lib/java_buildpack/framework
+[`lib/java_buildpack/jre`]: ../lib/java_buildpack/jre
+[`lib/java_buildpack/versioned_dependency_component.rb`]: ../lib/java_buildpack/versioned_dependency_component.rb
+[repository support]: util-repositories.md
 
 

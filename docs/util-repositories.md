@@ -19,7 +19,6 @@ An example filesystem might look like:
 ```
 
 ## Usage
-
 The main class used when dealing with a repository is [`JavaBuildpack::Repository::ConfiguredItem`][].  It provides a single method that is used to resolve a specific version and its URI.
 
 ```ruby
@@ -48,6 +47,24 @@ version, uri = JavaBuildpack::Repository::ConfiguredItem.find_item(configuration
 end
 ```
 
+## Wildcards
+`repository_root` declarations in component configuration files can have variables in them.  These variables are replaced by the repository infrastructure and the resulting URI is used when retrieving the repository index.
+
+| Variable | Description |
+| -------- | ----------- |
+| `{default.repository.root}` | The common root for all repositories.  Currently defaults to `http://download.pivotal.io.s3.amazonaws.com`.
+| `{platform}` | The platform that the application is running on.  Currently detects `centos6`, `lucid`, `mountainlion`, and `precise`.
+| `{architecture}` | The architecture of the system as returned by Ruby.  The value is typically one of `x86_64` or `x86`.
+
+## Configuration
+For general information on configuring the buildpack, refer to [Configuration and Extension][].
+
+Repositories can be configured by modifying the [`config/repository.yml`][] file.
+
+| Name | Description
+| ---- | -----------
+| `default_repository_root` | This property can take a URI that is used as a common root for all of the repositories used by the buildpack.  The value is substituted for the `{default.repository.root}` variable in `repository_root` declarations.
+
 ## Version Syntax and Ordering
 Versions are composed of major, minor, micro, and optional qualifier parts (`<major>.<minor>.<micro>[_<qualifier>]`).  The major, minor, and micro parts must be numeric.  The qualifier part is composed of letters, digits, and hyphens.  The lexical ordering of the qualifier is:
 
@@ -66,5 +83,8 @@ In addition to declaring a specific versions to use, you can also specify a boun
 | `1.7.0_+` | Selects the greatest available version less than `1.7.1`. Use this syntax to stay up to date with the latest security releases in a particular version.
 
 
-[example]: http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml
+[`config/repository.yml`]: ../config/repository.yml
 [`JavaBuildpack::Repository::ConfiguredItem`]: ../lib/java_buildpack/repository/configured_item.rb
+[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[example]: http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml
+
