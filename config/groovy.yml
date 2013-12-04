@@ -15,5 +15,5 @@
 
 # Configuration for the Groovy container
 ---
-version: 2.1.+
+version: 2.2.+
 repository_root: "{default.repository.root}/groovy"
