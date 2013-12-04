@@ -18,7 +18,7 @@ require 'spec_helper'
 require 'console_helper'
 require 'diagnostics_helper'
 require 'java_buildpack/diagnostics/logger_factory'
-require 'yaml'
+require 'java_buildpack/util/configuration_utils'
 
 describe JavaBuildpack::Diagnostics::LoggerFactory do
   include_context 'console_helper'
@@ -108,8 +108,8 @@ describe JavaBuildpack::Diagnostics::LoggerFactory do
   context do
 
     before do
-      allow(YAML).to receive(:load_file).with(File.expand_path('config/logging.yml'))
-                     .and_return('default_log_level' => 'DEBUG')
+      allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('logging')
+                                                        .and_return('default_log_level' => 'DEBUG')
     end
 
     it 'should take the default log level from a YAML file' do

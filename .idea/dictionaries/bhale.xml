@@ -22,12 +22,16 @@
       <w>mktmpdir</w>
       <w>mountainlion</w>
       <w>overweaving</w>
+      <w>rbconfig</w>
       <w>readlink</w>
       <w>redhat</w>
       <w>rspec</w>
       <w>rubocop</w>
       <w>simplecov</w>
       <w>stderr</w>
+      <w>stubcontainer</w>
+      <w>stubframework</w>
+      <w>stubjre</w>
       <w>tmpdir</w>
       <w>tokenized</w>
       <w>uber</w>

@@ -16,5 +16,5 @@
 # Configuration for the New Relic framework
 ---
 version: 3.7.+
-repository_root: "http://download.pivotal.io.s3.amazonaws.com/app-dynamics"
+repository_root: "{default.repository.root}/app-dynamics"
 tier_name: Cloud Foundry

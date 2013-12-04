@@ -2,18 +2,19 @@
 The Groovy Container allows a uncompiled (i.e. `*.groovy`) to be run.
 
 <table>
-	<tr>
-		<td><strong>Detection Criteria</strong></td><td><ul>
-			<li>A <tt>.groovy</tt> file exists which has a <tt>main()</tt> method, or</li>
-			<li>A <tt>.groovy</tt> file exists which is not a POGO (a POGO contains one or more classes), or</li>
-			<li>A <tt>.groovy</tt> file exists which has a shebang (<tt>#!</tt>) declaration</li>
-		</ul>and<ul>
-			<li>No <tt>.class</tt> files exist</li>
-		</ul></td>
-	</tr>
-	<tr>
-		<td><strong>Tags</strong></td><td><tt>groovy=&lang;version&rang;</tt></td>
-	</tr>
+  <tr>
+    <td><strong>Detection Criteria</strong></td>
+    <td><ul>
+      <li>A <tt>.groovy</tt> file exists which has a <tt>main()</tt> method, or</li>
+      <li>A <tt>.groovy</tt> file exists which is not a POGO (a POGO contains one or more classes), or</li>
+      <li>A <tt>.groovy</tt> file exists which has a shebang (<tt>#!</tt>) declaration</li>
+    </ul>and<ul>
+      <li>No <tt>.class</tt> files exist</li>
+    </ul></td>
+  </tr>
+  <tr>
+    <td><strong>Tags</strong></td><td><tt>groovy=&lang;version&rang;</tt></td>
+  </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
 

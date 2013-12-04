@@ -16,7 +16,7 @@
 # Configuration for the Tomcat container
 ---
 version: 7.0.+
-repository_root: "http://download.pivotal.io.s3.amazonaws.com/tomcat"
+repository_root: "{default.repository.root}/tomcat"
 support:
   version: 1.1.+
-  repository_root: "http://download.pivotal.io.s3.amazonaws.com/tomcat-buildpack-support"
+  repository_root: "{default.repository.root}/tomcat-buildpack-support"

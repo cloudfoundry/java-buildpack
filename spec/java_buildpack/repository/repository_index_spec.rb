@@ -21,6 +21,7 @@ require 'diagnostics_helper'
 require 'fileutils'
 require 'java_buildpack/repository/repository_index'
 require 'java_buildpack/repository/version_resolver'
+require 'java_buildpack/util/configuration_utils'
 require 'java_buildpack/util/download_cache'
 require 'java_buildpack/util/tokenized_version'
 
@@ -54,6 +55,15 @@ describe JavaBuildpack::Repository::RepositoryIndex do
     repository_index = described_class.new('{platform}/{architecture}/test-uri/')
 
     expect(repository_index.find_item('test-version')).to eq(%w(resolved-version resolved-uri))
+  end
+
+  it 'should substitute the default repository root' do
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('repository')
+                                                      .and_return('default_repository_root' => 'http://default-repository-root/')
+    expect(application_cache).to receive(:get).with('http://default-repository-root/test-uri/index.yml')
+                                .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
+
+    described_class.new('{default.repository.root}/test-uri')
   end
 
   context do

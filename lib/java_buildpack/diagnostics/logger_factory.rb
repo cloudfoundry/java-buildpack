@@ -17,9 +17,9 @@
 require 'fileutils'
 require 'java_buildpack/diagnostics'
 require 'java_buildpack/diagnostics/common'
+require 'java_buildpack/util/configuration_utils'
 require 'logger'
 require 'monitor'
-require 'yaml'
 
 module JavaBuildpack::Diagnostics
 
@@ -81,8 +81,6 @@ module JavaBuildpack::Diagnostics
 
     FATAL_SEVERITY_STRING = 'FATAL'.freeze
 
-    LOGGING_CONFIG = '../../../config/logging.yml'.freeze
-
     LOG_LEVEL_ENVIRONMENT_VARIABLE = 'JBP_LOG_LEVEL'.freeze
 
     DEFAULT_LOG_LEVEL_CONFIGURATION_KEY = 'default_log_level'.freeze
@@ -96,7 +94,7 @@ module JavaBuildpack::Diagnostics
     end
 
     def self.set_log_level
-      logging_configuration = get_configuration
+      logging_configuration = JavaBuildpack::Util::ConfigurationUtils.load('logging')
       switched_log_level = $VERBOSE || $DEBUG ? DEBUG_SEVERITY_STRING : nil
       log_level = (ENV[LOG_LEVEL_ENVIRONMENT_VARIABLE] || switched_log_level || logging_configuration[DEFAULT_LOG_LEVEL_CONFIGURATION_KEY]).upcase
 
@@ -114,11 +112,6 @@ module JavaBuildpack::Diagnostics
                                  else
                                    ::Logger::DEBUG
                                  end
-    end
-
-    def self.get_configuration
-      expanded_path = File.expand_path(LOGGING_CONFIG, File.dirname(__FILE__))
-      YAML.load_file(expanded_path)
     end
 
     def self.close

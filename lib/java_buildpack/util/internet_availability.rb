@@ -16,8 +16,8 @@
 
 require 'java_buildpack/diagnostics/logger_factory'
 require 'java_buildpack/util'
+require 'java_buildpack/util/configuration_utils'
 require 'monitor'
-require 'yaml'
 
 module JavaBuildpack::Util
 
@@ -40,7 +40,7 @@ module JavaBuildpack::Util
     def self.use_internet?
       @@monitor.synchronize do
         if !@@internet_checked
-          remote_downloads_configuration = get_configuration['remote_downloads']
+          remote_downloads_configuration = ConfigurationUtils.load('cache')['remote_downloads']
           if remote_downloads_configuration == 'disabled'
             store_internet_availability false
             false
@@ -87,13 +87,6 @@ module JavaBuildpack::Util
     end
 
     private
-
-    CACHE_CONFIG = '../../../config/cache.yml'.freeze
-
-    def self.get_configuration
-      expanded_path = File.expand_path(CACHE_CONFIG, File.dirname(__FILE__))
-      YAML.load_file(expanded_path)
-    end
 
     def self.store_internet_availability(internet_up)
       @@monitor.synchronize do

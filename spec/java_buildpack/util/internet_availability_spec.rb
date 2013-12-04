@@ -17,6 +17,7 @@
 require 'spec_helper'
 require 'diagnostics_helper'
 require 'internet_availability_helper'
+require 'java_buildpack/util/configuration_utils'
 require 'java_buildpack/util/internet_availability'
 
 describe JavaBuildpack::Util::InternetAvailability do
@@ -32,15 +33,16 @@ describe JavaBuildpack::Util::InternetAvailability do
   end
 
   it 'should not use internet if remote downloads are disabled' do
-    expect(YAML).to receive(:load_file).with(File.expand_path('config/cache.yml'))
-                    .and_return('remote_downloads' => 'disabled')
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('cache')
+                                                      .and_return('remote_downloads' => 'disabled')
+
     expect(described_class.use_internet?).not_to be
     expect(described_class.internet_availability_stored?).to be
   end
 
   it 'should raise error if remote downloads are wrongly configured' do
-    expect(YAML).to receive(:load_file).with(File.expand_path('config/cache.yml'))
-                    .and_return('remote_downloads' => 'x')
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('cache').and_return('remote_downloads' => 'x')
+
     expect { described_class.use_internet? }.to raise_error /Invalid remote_downloads configuration/
   end
 

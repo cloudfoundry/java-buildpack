@@ -41,7 +41,7 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 * Utilities
 	* [Caches](docs/util-caches.md) ([Configuration](docs/util-caches.md#configuration))
 	* [Logging](docs/logging.md) ([Configuration](docs/logging.md#configuration))
-	* [Repositories](docs/util-repositories.md)
+	* [Repositories](docs/util-repositories.md) ([Configuration](docs/util-repositories.md#configuration))
 	* [Other Utiltities](docs/util-other.md)
 	* [Repository Builder](docs/util-repository-builder.md)
 	* [Test Applications](docs/util-test-applications.md)
