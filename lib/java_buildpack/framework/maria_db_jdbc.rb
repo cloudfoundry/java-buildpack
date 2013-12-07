@@ -38,12 +38,15 @@ module JavaBuildpack::Framework
     protected
 
     def supports?
-      !has_driver? && JavaBuildpack::Util::ServiceUtils.find_service(@vcap_services, SERVICE_NAME)
+      !has_driver? && (JavaBuildpack::Util::ServiceUtils.find_service(@vcap_services, SERVICE_NAME) ||
+          JavaBuildpack::Util::ServiceUtils.find_service(@vcap_services, ALTERNATE_SERVICE_NAME))
     end
 
     private
 
-    SERVICE_NAME = /cleardb/.freeze
+    SERVICE_NAME = /mysql/.freeze
+
+    ALTERNATE_SERVICE_NAME = /mariadb/.freeze
 
     def jar_name
       "#{@parsable_component_name}-#{@version}.jar"

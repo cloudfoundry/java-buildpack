@@ -43,7 +43,7 @@ module JavaBuildpack::Framework
 
     private
 
-    SERVICE_NAME = /elephantsql/.freeze
+    SERVICE_NAME = /postgres/.freeze
 
     def jar_name
       "#{@parsable_component_name}-#{@version}.jar"
