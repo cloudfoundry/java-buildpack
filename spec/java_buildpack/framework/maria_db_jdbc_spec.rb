@@ -18,37 +18,54 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/maria_db_jdbc'
 
-describe JavaBuildpack::Framework::MariaDbJdbc, service_type: 'cleardb-n/a' do
+describe JavaBuildpack::Framework::MariaDbJdbc, service_type: 'test-n/a' do
   include_context 'component_helper'
-
-  it 'should detect with cleardb-n/a service' do
-    expect(component.detect).to eq("mariadb-jdbc=#{version}")
-  end
 
   context do
     let(:vcap_services) { {} }
 
-    it 'should not detect without cleardb-n/a service' do
+    it 'should not detect without a service containing a mysql tag' do
       expect(component.detect).to be_nil
     end
+
   end
 
-  it 'should not detect if the application already has a Maria DB driver',
-     app_fixture: 'framework_mariadb_jdbc_with_driver' do
-    expect(component.detect).not_to be
+  context do
+
+    let(:service_payload) { [{ 'tags' => %w(mysql relational) }] }
+
+    it 'should detect with service containing a mysql tag' do
+      expect(component.detect).to eq("mariadb-jdbc=#{version}")
+    end
+
+    it 'should not detect if the application already has a Maria DB driver',
+       app_fixture: 'framework_mariadb_jdbc_with_driver' do
+      expect(component.detect).not_to be
+    end
+
+    it 'should not detect if the application has a MySQL driver',
+       app_fixture: 'framework_mariadb_jdbc_with_mysql_driver' do
+      expect(component.detect).not_to be
+    end
+
+    it 'should copy the MariaDB driver to the lib directory when needed',
+       cache_fixture: 'stub-mariadb-java-client.jar' do
+
+      component.compile
+
+      expect(additional_libs_dir + 'mariadb-jdbc-0.0.0.jar').to exist
+    end
+
   end
 
-  it 'should not detect if the application has a MySQL driver',
-     app_fixture: 'framework_mariadb_jdbc_with_mysql_driver' do
-    expect(component.detect).not_to be
-  end
+  context do
 
-  it 'should copy the MariaDB driver to the lib directory when needed',
-     cache_fixture: 'stub-mariadb-java-client.jar' do
+    let(:service_payload) { [{ 'tags' => %w(mariadb relational) }] }
 
-    component.compile
+    it 'should detect with service containing a mariadb tag' do
+      expect(component.detect).to eq("mariadb-jdbc=#{version}")
+    end
 
-    expect(additional_libs_dir + 'mariadb-jdbc-0.0.0.jar').to exist
   end
 
 end

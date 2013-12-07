@@ -18,32 +18,49 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/postgresql_jdbc'
 
-describe JavaBuildpack::Framework::PostgresqlJdbc, service_type: 'elephantsql-n/a' do
+describe JavaBuildpack::Framework::PostgresqlJdbc, service_type: 'test-n/a' do
   include_context 'component_helper'
-
-  it 'should detect with elephantsql-n/a service' do
-    expect(component.detect).to eq("postgresql-jdbc=#{version}")
-  end
 
   context do
     let(:vcap_services) { {} }
 
-    it 'should not detect without elephantsql-n/a service' do
+    it 'should not detect without a postgres service' do
       expect(component.detect).to be_nil
     end
+
   end
 
-  it 'should not detect if the application already has a Postgres driver',
-     app_fixture: 'framework_postgresql_jdbc_with_driver' do
-    expect(component.detect).not_to be
+  context do
+
+    let(:service_payload) { [{ 'tags' => %w(postgres relational) }] }
+
+    it 'should detect with postgres service' do
+      expect(component.detect).to eq("postgresql-jdbc=#{version}")
+    end
+
+    it 'should not detect if the application already has a Postgres driver',
+       app_fixture: 'framework_postgresql_jdbc_with_driver' do
+      expect(component.detect).not_to be
+    end
+
+    it 'should copy the Postgres driver to the lib directory when needed',
+       cache_fixture: 'stub-postgresql-0.0-0000-jdbc00.jar' do
+
+      component.compile
+
+      expect(additional_libs_dir + 'postgresql-jdbc-0.0.0.jar').to exist
+    end
+
   end
 
-  it 'should copy the Postgres driver to the lib directory when needed',
-     cache_fixture: 'stub-postgresql-0.0-0000-jdbc00.jar' do
+  context do
 
-    component.compile
+    let(:service_payload) { [{ 'tags' => %w(postgresql relational) }] }
 
-    expect(additional_libs_dir + 'postgresql-jdbc-0.0.0.jar').to exist
+    it 'should detect with postgres service' do
+      expect(component.detect).to eq("postgresql-jdbc=#{version}")
+    end
+
   end
 
 end
