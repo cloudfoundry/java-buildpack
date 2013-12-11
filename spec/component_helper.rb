@@ -15,68 +15,42 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'additional_libs_helper'
 require 'application_helper'
 require 'console_helper'
-require 'diagnostics_helper'
+require 'droplet_helper'
 require 'internet_availability_helper'
-require 'fileutils'
+require 'logging_helper'
 require 'java_buildpack/repository/configured_item'
+require 'java_buildpack/util/cache/application_cache'
+require 'java_buildpack/util/space_case'
 require 'java_buildpack/util/tokenized_version'
 require 'pathname'
-require 'tmpdir'
 
 shared_context 'component_helper' do
+  include_context 'application_helper'
+  include_context 'console_helper'
+  include_context 'droplet_helper'
+  include_context 'internet_availability_helper'
+  include_context 'logging_helper'
 
   let(:application_cache) { double('ApplicationCache') }
+
+  let(:component) { described_class.new context }
   let(:configuration) { {} }
-  let(:service_credentials) { {} }
-  let(:service_payload) { [{ 'credentials' => service_credentials }] }
+
+  let(:context) do
+    { application:    application,
+      component_name: described_class.to_s.split('::').last.space_case,
+      configuration:  configuration,
+      droplet:        droplet }
+  end
+
   let(:uri) { 'test-uri' }
-  let(:vcap_application) { { 'application_name' => 'test-application-name' } }
   let(:version) { '0.0.0' }
-
-  let(:component) do
-    described_class.new(
-        app_dir: app_dir,
-        application: application,
-        java_home: java_home,
-        java_opts: java_opts,
-        lib_directory: application.additional_libraries,
-        configuration: configuration,
-        vcap_application: vcap_application,
-        vcap_services: vcap_services
-    )
-  end
-
-  let(:java_home) do
-    java_home = application.java_home
-    java_home.set application.component_directory('test-java-home')
-    java_home
-  end
-
-  let(:java_opts) do
-    java_opts = application.java_opts
-    java_opts.concat %w(test-opt-2 test-opt-1)
-    java_opts
-  end
-
-  let(:vcap_services) do |example|
-    vcap_services = {}
-
-    service_type = example.metadata[:service_type]
-    vcap_services[service_type] = service_payload if service_type
-
-    vcap_services
-  end
-
-  include_context 'console_helper'
-
-  include_context 'internet_availability_helper'
 
   # Mock application cache with cache fixture
   before do |example|
-    allow(JavaBuildpack::Util::ApplicationCache).to receive(:new).and_return(application_cache)
+    allow(JavaBuildpack::Util::Cache::ApplicationCache).to receive(:new).and_return(application_cache)
 
     cache_fixture = example.metadata[:cache_fixture]
     allow(application_cache).to receive(:get).with(uri)
@@ -91,15 +65,5 @@ shared_context 'component_helper' do
       block.call(tokenized_version) if block
     end.and_return([tokenized_version, uri])
   end
-
-  include_context 'application_helper'
-
-  include_context 'additional_libs_helper'
-
-  include_context 'diagnostics_helper'
-
-  ############
-  # Run test #
-  ############
 
 end

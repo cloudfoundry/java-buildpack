@@ -18,7 +18,7 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/play_jpa_plugin'
 
-describe JavaBuildpack::Framework::PlayJpaPlugin do
+describe JavaBuildpack::Framework::PlayJPAPlugin do
   include_context 'component_helper'
 
   it 'should detect Play 2.0 application',
@@ -45,13 +45,22 @@ describe JavaBuildpack::Framework::PlayJpaPlugin do
     expect(component.detect).to be_nil
   end
 
-  it 'should copy additional libraries to the lib directory',
-     app_fixture: 'framework_play_jpa_plugin_dist',
+  it 'should download additional libraries',
+     app_fixture:   'framework_play_jpa_plugin_dist',
      cache_fixture: 'stub-play-jpa-plugin.jar' do
 
     component.compile
 
-    expect(additional_libs_dir + "play-jpa-plugin-#{version}.jar").to exist
+    expect(sandbox + "play_jpa_plugin-#{version}.jar").to exist
+  end
+
+  it 'should add to additional libraries',
+     app_fixture:   'framework_play_jpa_plugin_dist',
+     cache_fixture: 'stub-play-jpa-plugin.jar' do
+
+    component.release
+
+    expect(additional_libraries).to include(sandbox + "play_jpa_plugin-#{version}.jar")
   end
 
 end

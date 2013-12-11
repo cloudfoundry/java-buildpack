@@ -25,9 +25,9 @@ module JavaBuildpack::Util::Play
 
     def augment_classpath
       if version.start_with? '2.0'
-        @application.additional_libraries.link_to lib_dir
+        @droplet.additional_libraries.link_to lib_dir
       else
-        additional_classpath = @application.additional_libraries.paths.map do |additional_library|
+        additional_classpath = @droplet.additional_libraries.map do |additional_library|
           "$scriptdir/#{additional_library.relative_path_from(root)}"
         end
 
@@ -36,7 +36,7 @@ module JavaBuildpack::Util::Play
     end
 
     def java_opts
-      @application.java_opts
+      @droplet.java_opts
     end
 
     def lib_dir
@@ -44,7 +44,7 @@ module JavaBuildpack::Util::Play
     end
 
     def root
-      roots = @application.glob('*').select { |child| child.directory? }
+      roots = (@droplet.root + '*').glob.select { |child| child.directory? }
       roots.size == 1 ? roots.first : nil
     end
 

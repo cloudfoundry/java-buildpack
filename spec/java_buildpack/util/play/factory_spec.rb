@@ -15,15 +15,15 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'application_helper'
 require 'console_helper'
+require 'droplet_helper'
 require 'java_buildpack/util/play/factory'
 
 describe JavaBuildpack::Util::Play::Factory do
-  include_context 'application_helper'
   include_context 'console_helper'
+  include_context 'droplet_helper'
 
-  let(:trigger) { described_class.create application }
+  let(:trigger) { described_class.create(droplet) }
 
   it 'should successfully create a Play 2.0 application',
      app_fixture: 'container_play_2.0_dist' do

@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/util/class_file_utils'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/groovy_utils'
-require 'java_buildpack/versioned_dependency_component'
 require 'pathname'
 require 'set'
 require 'tmpdir'
@@ -27,10 +27,10 @@ module JavaBuildpack::Container
 
   # Encapsulates the detect, compile, and release functionality for applications running non-compiled Groovy
   # applications.
-  class Groovy < JavaBuildpack::VersionedDependencyComponent
+  class Groovy < JavaBuildpack::Component::VersionedDependencyComponent
 
     def initialize(context)
-      super('Groovy', context) { |candidate_version| candidate_version.check_size(3) }
+      super(context) { |candidate_version| candidate_version.check_size(3) }
     end
 
     def compile
@@ -39,21 +39,19 @@ module JavaBuildpack::Container
 
     def release
       [
-          @application.java_home.as_env_var,
-          @application.java_opts.as_env_var,
-          @application.relative_path_to(home + 'bin/groovy'),
-          @application.additional_libraries.as_classpath,
-          main_groovy,
-          other_groovy
+          @droplet.java_home.as_env_var,
+          @droplet.java_opts.as_env_var,
+          "$PWD/#{(@droplet.sandbox + 'bin/groovy').relative_path_from(@droplet.root)}",
+          @droplet.additional_libraries.as_classpath,
+          relative_main_groovy,
+          relative_other_groovy
       ].compact.join(' ')
     end
 
     protected
 
     def supports?
-      class_files = JavaBuildpack::Util::ClassFileUtils.class_files(@application)
-
-      class_files.empty? && main_groovy
+      JavaBuildpack::Util::ClassFileUtils.class_files(@application).empty? && main_groovy
     end
 
     private
@@ -84,6 +82,14 @@ module JavaBuildpack::Container
       reject(candidates) { |file| JavaBuildpack::Util::GroovyUtils.pogo? file }
     end
 
+    def relative_main_groovy
+      main_groovy.relative_path_from(@application.root)
+    end
+
+    def relative_other_groovy
+      other_groovy.map { |gf| gf.relative_path_from(@application.root) }
+    end
+
     def shebang(candidates)
       select(candidates) { |file| JavaBuildpack::Util::GroovyUtils.shebang? file }
     end
@@ -97,7 +103,7 @@ module JavaBuildpack::Container
     end
 
     def open(candidate, &block)
-      @application.child(candidate).open('r', external_encoding: 'UTF-8', &block)
+      candidate.open('r', external_encoding: 'UTF-8', &block)
     end
 
   end

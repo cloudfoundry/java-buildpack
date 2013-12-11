@@ -15,14 +15,14 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'application_helper'
+require 'droplet_helper'
 require 'fileutils'
 require 'java_buildpack/util/play/base'
 
 describe JavaBuildpack::Util::Play::Base do
-  include_context 'application_helper'
+  include_context 'droplet_helper'
 
-  let(:play) { described_class.new application }
+  let(:play) { described_class.new(droplet) }
 
   it 'should not support with no start script' do
     allow(play).to receive(:start_script).and_return nil
@@ -31,14 +31,14 @@ describe JavaBuildpack::Util::Play::Base do
   end
 
   it 'should not support with a non-existent start script' do
-    allow(play).to receive(:start_script).and_return(app_dir + 'bin/start')
+    allow(play).to receive(:start_script).and_return(droplet.root + 'bin/start')
 
     expect(play.supports?).not_to be
   end
 
   it 'should not support with no play JAR' do
-    allow(play).to receive(:start_script).and_return(app_dir + 'bin/start')
-    allow(play).to receive(:lib_dir).and_return(app_dir + 'lib')
+    allow(play).to receive(:start_script).and_return(droplet.root + 'bin/start')
+    allow(play).to receive(:lib_dir).and_return(droplet.root + 'lib')
 
     FileUtils.mkdir_p app_dir + 'bin'
     FileUtils.touch app_dir + 'bin/start'
@@ -64,7 +64,7 @@ describe JavaBuildpack::Util::Play::Base do
 
   context app_fixture: 'container_play_2.2_staged' do
 
-    let(:lib_dir) { app_dir + 'lib' }
+    let(:lib_dir) { droplet.root + 'lib' }
 
     let(:play_jar) { lib_dir + 'com.typesafe.play.play_2.10-2.2.0.jar' }
 

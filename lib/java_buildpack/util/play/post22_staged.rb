@@ -24,7 +24,7 @@ module JavaBuildpack::Util::Play
     protected
 
     def root
-      @application.child '.'
+      @droplet.root
     end
 
   end

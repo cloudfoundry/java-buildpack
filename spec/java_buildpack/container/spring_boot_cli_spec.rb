@@ -18,7 +18,7 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/container/spring_boot_cli'
 
-describe JavaBuildpack::Container::SpringBootCli do
+describe JavaBuildpack::Container::SpringBootCLI do
   include_context 'component_helper'
 
   it 'should not detect a non-Groovy project',
@@ -75,7 +75,7 @@ describe JavaBuildpack::Container::SpringBootCli do
 
     component.compile
 
-    expect(app_dir + '.spring-boot-cli/bin/spring').to exist
+    expect(sandbox + 'bin/spring').to exist
   end
 
   it 'should link classpath JARs',
@@ -84,26 +84,24 @@ describe JavaBuildpack::Container::SpringBootCli do
 
     component.compile
 
-    lib = app_dir + '.spring-boot-cli/lib'
+    lib = sandbox + 'lib'
 
     jar_1 = lib + 'test-jar-1.jar'
     expect(jar_1).to exist
     expect(jar_1).to be_symlink
-    expect(jar_1.readlink).to eq((additional_libs_dir + 'test-jar-1.jar').relative_path_from(lib))
+    expect(jar_1.readlink).to eq((additional_libs_directory + 'test-jar-1.jar').relative_path_from(lib))
 
     jar_2 = lib + 'test-jar-2.jar'
     expect(jar_2).to exist
     expect(jar_2).to be_symlink
-    expect(jar_2.readlink).to eq((additional_libs_dir + 'test-jar-2.jar').relative_path_from(lib))
-
-    expect(lib + 'test-text.txt').not_to exist
+    expect(jar_2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(lib))
   end
 
   it 'should return command',
      app_fixture: 'container_spring_boot_cli_valid_app' do
 
-    expect(component.release).to eq("JAVA_HOME=#{java_home} JAVA_OPTS=#{java_opts_str} " +
-                                        '.spring-boot-cli/bin/spring run --local directory/pogo_4.groovy ' +
+    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} " +
+                                        '$PWD/.java-buildpack/spring_boot_cli/bin/spring run --local directory/pogo_4.groovy ' +
                                         'pogo_1.groovy pogo_2.groovy pogo_3.groovy -- --server.port=$PORT')
   end
 

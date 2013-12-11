@@ -17,19 +17,19 @@
 ---
 containers:
   - "JavaBuildpack::Container::Groovy"
-  - "JavaBuildpack::Container::Main"
-  - "JavaBuildpack::Container::Play"
-  - "JavaBuildpack::Container::SpringBootCli"
+  - "JavaBuildpack::Container::JavaMain"
+  - "JavaBuildpack::Container::PlayFramework"
+  - "JavaBuildpack::Container::SpringBootCLI"
   - "JavaBuildpack::Container::Tomcat"
 jres:
-  - "JavaBuildpack::Jre::OpenJdk"
+  - "JavaBuildpack::Jre::OpenJDK"
 frameworks:
-  - "JavaBuildpack::Framework::AppDynamics"
+  - "JavaBuildpack::Framework::AppDynamicsAgent"
   - "JavaBuildpack::Framework::JavaOpts"
-  - "JavaBuildpack::Framework::MariaDbJdbc"
-  - "JavaBuildpack::Framework::NewRelic"
+  - "JavaBuildpack::Framework::MariaDbJDBC"
+  - "JavaBuildpack::Framework::NewRelicAgent"
   - "JavaBuildpack::Framework::SpringInsight"
   - "JavaBuildpack::Framework::PlayAutoReconfiguration"
-  - "JavaBuildpack::Framework::PlayJpaPlugin"
-  - "JavaBuildpack::Framework::PostgresqlJdbc"
+  - "JavaBuildpack::Framework::PlayJPAPlugin"
+  - "JavaBuildpack::Framework::PostgresqlJDBC"
   - "JavaBuildpack::Framework::SpringAutoReconfiguration"

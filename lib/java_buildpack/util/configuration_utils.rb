@@ -16,7 +16,7 @@
 
 require 'pathname'
 require 'java_buildpack/util'
-require 'java_buildpack/diagnostics/logger_factory'
+require 'java_buildpack/logging/logger_factory'
 require 'yaml'
 
 module JavaBuildpack::Util
@@ -28,10 +28,19 @@ module JavaBuildpack::Util
     # returns an empty hash.
     #
     # @param [String] identifier the identifier of the configuration
+    # @param [Boolean] should_log whether the contents of the configuration file should be logged.  This value should be
+    #                             left to its default and exists to allow the logger to use the utility.
     # @return [Hash] the configuration or an empty hash if the configuration file does not exist
-    def self.load(identifier)
+    def self.load(identifier, should_log = true)
       file = CACHE_DIRECTORY + "#{identifier}.yml"
-      configuration = YAML.load_file(file) if file.exist?
+
+      if file.exist?
+        configuration = YAML.load_file(file)
+        logger.debug { "Configuration from #{file}: #{configuration}" } if should_log
+      else
+        logger.debug { "No configuration file #{file} found" } if should_log
+      end
+
       configuration || {}
     end
 
@@ -40,6 +49,10 @@ module JavaBuildpack::Util
     private
 
     CACHE_DIRECTORY = Pathname.new(File.expand_path('../../../config', File.dirname(__FILE__))).freeze
+
+    def self.logger
+      JavaBuildpack::Logging::LoggerFactory.get_logger ConfigurationUtils
+    end
 
   end
 

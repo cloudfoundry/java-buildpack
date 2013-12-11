@@ -50,16 +50,19 @@ module JavaBuildpack::Util
     #
     # @param [Pathname] pathname the +Pathname+ which is to be filtered
     # @param [Proc] filter a lambda which takes a +Pathname+ and returns either +true+ (to 'keep' the pathname) or
-    #         +false+ (to filter out the pathname)
+    #         +false+ (to filter out the pathname).  Defaults to keeping everything
     # @param [Boolean] mutable +true+ if and only if the +FilteringPathname+ may be used to mutate the file system
-    def initialize(pathname, filter, mutable = false)
+    def initialize(pathname, filter, mutable)
       fail 'Non-absolute pathname' unless pathname.absolute?
-      @pathname     = pathname
-      @filter       = filter
+
+      @pathname = pathname
+      @filter   = filter
+      @mutable  = mutable
+
       @non_existent = Pathname.new "#{pathname}.nil"
-      FilteringPathname.check_file_does_not_exist @non_existent
-      @delegated_pathname = FilteringPathname.filter(@filter, @pathname) ? @pathname : @non_existent
-      @mutable            = mutable
+      check_file_does_not_exist @non_existent
+
+      @delegated_pathname = filter(@pathname) ? @pathname : @non_existent
     end
 
     # @see Pathname.
@@ -145,7 +148,7 @@ module JavaBuildpack::Util
 
     MUTATORS = [:chmod, :chown, :delete, :lchmod, :lchown, :make_link, :make_symlink, :mkdir, :mkpath, :rename, :rmdir, :rmtree, :taint, :unlink, :untaint].to_set.freeze
 
-    def self.check_file_does_not_exist(file)
+    def check_file_does_not_exist(file)
       fail "#{file} should not exist" if file.exist?
     end
 
@@ -159,7 +162,7 @@ module JavaBuildpack::Util
 
     def convert_if_necessary(r)
       if r.instance_of?(Pathname) && r.absolute?
-        FilteringPathname.filter(@filter, r) ? filtered_pathname(r) : nil
+        filter(r) ? filtered_pathname(r) : nil
       else
         r
       end
@@ -174,7 +177,7 @@ module JavaBuildpack::Util
     end
 
     def delegate
-      FilteringPathname.check_file_does_not_exist @non_existent
+      check_file_does_not_exist @non_existent
       @delegated_pathname
     end
 
@@ -185,7 +188,7 @@ module JavaBuildpack::Util
     end
 
     def filtered_pathname(pathname)
-      FilteringPathname.new(pathname, @filter)
+      FilteringPathname.new(pathname, @filter, @mutable)
     end
 
     def method_missing(method, *args)
@@ -209,13 +212,13 @@ module JavaBuildpack::Util
       if entry.instance_of? Array
         entry.select { |child| visible(child) }
       else
-        FilteringPathname.filter(@filter, @pathname + entry)
+        filter(@pathname + entry)
       end
     end
 
-    def self.filter(f, pathname)
+    def filter(pathname)
       fail 'Non-absolute pathname' unless pathname.absolute?
-      f.call(pathname.cleanpath)
+      @filter.call(pathname.cleanpath)
     end
 
   end

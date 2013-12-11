@@ -24,7 +24,7 @@ module JavaBuildpack::Util::Play
     protected
 
     def root
-      roots = @application.glob('*').select { |child| child.directory? }
+      roots = (@droplet.root + '*').glob.select { |child| child.directory? }
       roots.size == 1 ? roots.first : nil
     end
 

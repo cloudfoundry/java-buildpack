@@ -14,44 +14,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'fileutils'
 require 'java_buildpack'
-require 'java_buildpack/application/application'
-require 'java_buildpack/diagnostics/common'
-require 'java_buildpack/diagnostics/logger_factory'
+require 'java_buildpack/component/additional_libraries'
+require 'java_buildpack/component/application'
+require 'java_buildpack/component/droplet'
+require 'java_buildpack/component/immutable_java_home'
+require 'java_buildpack/component/java_opts'
+require 'java_buildpack/component/mutable_java_home'
+require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/util/configuration_utils'
 require 'java_buildpack/util/constantize'
+require 'java_buildpack/util/snake_case'
+require 'java_buildpack/util/space_case'
 require 'pathname'
-require 'time'
-require 'yaml'
 
 module JavaBuildpack
 
   # Encapsulates the detection, compile, and release functionality for Java application
   class Buildpack
 
-    # +Buildpack+ driver method. Creates a logger and yields a new instance of +Buildpack+
-    # to the given block catching any exceptions and logging diagnostics. As part of initialisation,
-    # all of the files located in the following directories are +require+d:
-    # * +lib/java_buildpack/container+
-    # * +lib/java_buildpack/jre+
-    # * +lib/java_buildpack/framework+
+    # Main entry to the buildpack.  Initializes the buildpack and all of its dependencies and yields a new instance
+    # to any given block.  Any exceptions thrown as part of the buildpack setup or execution are handled
     #
     # @param [String] app_dir the path of the application directory
     # @param [String] message an error message with an insert for the reason for failure
+    # @yield [Buildpack] the buildpack to work with
     # @return [Object] the return value from the given block
-    def self.drive_buildpack_with_logger(app_dir, message)
-      app_dir = Pathname.new(app_dir)
-      application = Application::Application.new app_dir
+    def self.with_buildpack(app_dir, message)
+      app_dir     = Pathname.new(app_dir)
+      application = Component::Application.new(app_dir)
+      Logging::LoggerFactory.setup app_dir
 
-      logger = JavaBuildpack::Diagnostics::LoggerFactory.create_logger application
-      begin
-        yield new(app_dir, application)
-      rescue => e
-        logger.error(message % e.inspect)
-        logger.debug("Exception #{e.inspect} backtrace:\n#{e.backtrace.join("\n")}")
-        abort e.message
-      end
+      yield new(app_dir, application) if block_given?
+    rescue => e
+      logger = Logging::LoggerFactory.get_logger Buildpack
+
+      logger.error { message % e.inspect }
+      logger.debug { "Exception #{e.inspect} backtrace:\n#{e.backtrace.join("\n")}" }
+      abort e.message
     end
 
     # Iterates over all of the components to detect if this buildpack can be used to run an application
@@ -60,13 +60,11 @@ module JavaBuildpack
     #                         this application.  If no container can run the application, the array will be empty
     #                         (+[]+).
     def detect
-      jre_detections = jre_detect_tags
+      tags = tag_detection('container', @containers, true)
+      tags.concat tag_detection('JRE', @jres, true) unless tags.empty?
+      tags.concat tag_detection('framework', @frameworks, false) unless tags.empty?
+      tags = tags.flatten.compact
 
-      framework_detections = Buildpack.component_detections @frameworks
-
-      container_detections = container_detect_tags
-
-      tags = container_detections.empty? ? [] : jre_detections.concat(framework_detections).concat(container_detections).flatten.compact
       @logger.debug { "Detection Tags: #{tags}" }
       tags
     end
@@ -75,11 +73,12 @@ module JavaBuildpack
     #
     # @return [void]
     def compile
-      the_container = container # diagnose detect failure early
+      container = component_detection(@containers).first
+      fail 'No container can run this application' unless container
 
-      jre.compile
-      frameworks.each { |framework| framework.compile }
-      the_container.compile
+      component_detection(@jres).first.compile
+      component_detection(@frameworks).each { |framework| framework.compile }
+      container.compile
     end
 
     # Generates the payload required to run the application.  The payload format is defined by the
@@ -87,17 +86,17 @@ module JavaBuildpack
     #
     # @return [String] The payload required to run the application.
     def release
-      the_container = container # diagnose detect failure early
-      jre.release
-      frameworks.each { |framework| framework.release }
-      command = the_container.release
+      container = component_detection(@containers).first
+      fail 'No container can run this application' unless container
+
+      component_detection(@jres).first.release
+      component_detection(@frameworks).each { |framework| framework.release }
+      command = container.release
 
       payload = {
-          'addons' => [],
-          'config_vars' => {},
-          'default_process_types' => {
-              'web' => command
-          }
+          'addons'                => [],
+          'config_vars'           => {},
+          'default_process_types' => { 'web' => command }
       }.to_yaml
 
       @logger.debug { "Release Payload #{payload}" }
@@ -109,148 +108,83 @@ module JavaBuildpack
 
     private
 
-    # Instances should only be constructed by this class.
+    GIT_DIR = Pathname.new(__FILE__).dirname + '../../.git'
+
+    LOAD_ROOT = Pathname.new(__FILE__).dirname + '..'
+
     def initialize(app_dir, application)
+      @logger = Logging::LoggerFactory.get_logger Buildpack
 
-      @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
-      Buildpack.log_git_data @logger
-      Buildpack.dump_environment_variables @logger
-      Buildpack.require_component_files
-      components = Buildpack.components @logger
+      log_git_info
+      log_environment_variables
 
-      environment = ENV.to_hash
-      vcap_application = environment.delete 'VCAP_APPLICATION'
-      vcap_services = environment.delete 'VCAP_SERVICES'
+      additional_libraries = Component::AdditionalLibraries.new app_dir
+      mutable_java_home    = Component::MutableJavaHome.new app_dir
+      immutable_java_home  = Component::ImmutableJavaHome.new mutable_java_home
+      java_opts            = Component::JavaOpts.new app_dir
 
-      basic_context = {
-          app_dir: app_dir,
-          application: application,
-          environment: environment,
-          java_home: application.java_home,
-          java_opts: application.java_opts,
-          lib_directory: application.additional_libraries,
-          vcap_application: vcap_application ? YAML.load(vcap_application) : {},
-          vcap_services: vcap_services ? YAML.load(vcap_services) : {}
-      }
-
-      @jres = Buildpack.construct_components(components, 'jres', basic_context)
-      @frameworks = Buildpack.construct_components(components, 'frameworks', basic_context)
-      @containers = Buildpack.construct_components(components, 'containers', basic_context)
-    end
-
-    def self.dump_environment_variables(logger)
-      logger.debug { "Environment Variables: #{ENV.to_hash}" }
-    end
-
-    def self.component_detections(components)
-      components.map { |component| component.detect }.compact
-    end
-
-    def self.components(logger)
       components = JavaBuildpack::Util::ConfigurationUtils.load 'components'
 
-      logger.debug { "Components: #{components}" }
-
-      components
+      @jres       = instantiate(components['jres'], additional_libraries, application, mutable_java_home, java_opts,
+                                app_dir)
+      @frameworks = instantiate(components['frameworks'], additional_libraries, application, immutable_java_home,
+                                java_opts, app_dir)
+      @containers = instantiate(components['containers'], additional_libraries, application, immutable_java_home,
+                                java_opts, app_dir)
     end
 
-    def self.configure_context(basic_context, type)
-      configured_context = basic_context.clone
-
-      configured_context[:configuration] = JavaBuildpack::Util::ConfigurationUtils
-      .load(type.match(/^(?:.*::)?(.*)$/)[1].downcase)
-
-      configured_context
+    def component_detection(components)
+      components.select { |component| component.detect }
     end
 
-    def self.construct_components(components, type, basic_context)
-      components[type].map do |component|
-        component.constantize.new(Buildpack.configure_context(basic_context, component))
+    def instantiate(components, additional_libraries, application, java_home, java_opts, root)
+      components.map do |component|
+        @logger.debug { "Instantiating #{component}" }
+
+        require_component(component)
+
+        component_id = component.split('::').last.snake_case
+        context      = {
+            application:   application,
+            configuration: Util::ConfigurationUtils.load(component_id),
+            droplet:       Component::Droplet.new(additional_libraries, component_id, java_home, java_opts, root) }
+
+        component.constantize.new(context)
       end
     end
 
-    def self.container_directory
-      Pathname.new(File.expand_path('container', File.dirname(__FILE__)))
+    def log_environment_variables
+      @logger.debug { "Environment Variables: #{ENV.to_hash}" }
     end
 
-    def self.framework_directory
-      Pathname.new(File.expand_path('framework', File.dirname(__FILE__)))
-    end
-
-    def self.git_dir
-      File.expand_path('../../.git', File.dirname(__FILE__))
-    end
-
-    def self.jre_directory
-      Pathname.new(File.expand_path('jre', File.dirname(__FILE__)))
-    end
-
-    def self.log_git_data(logger)
-      # Log information about the buildpack's git repository to enable stale forks to be spotted.
-      # Call the debug method passing a parameter rather than a block so that, should the git command
-      # become inaccessible to the buildpack at some point in the future, we find out before someone
-      # happens to switch on debug logging.
-      if system("git --git-dir=#{git_dir} status 2>/dev/null 1>/dev/null")
-        logger.debug("git remotes: #{`git --git-dir=#{git_dir} remote -v`}")
-        logger.debug("git HEAD commit: #{`git --git-dir=#{git_dir} log HEAD^!`}")
+    def log_git_info
+      if system("git --git-dir=#{GIT_DIR} status 2>/dev/null 1>/dev/null")
+        @logger.debug { "git remotes: #{`git --git-dir=#{GIT_DIR} remote -v`}" }
+        @logger.debug { "git HEAD commit: #{`git --git-dir=#{GIT_DIR} log HEAD^!`}" }
       else
-        logger.debug('Buildpack is not stored in a git repository')
+        @logger.debug { 'Buildpack is not stored in a git repository' }
       end
     end
 
-    def self.require_component_files
-      component_files = jre_directory.children
-      component_files.concat framework_directory.children
-      component_files.concat container_directory.children
+    def names(components)
+      components.map { |component| component.class.to_s.space_case }.join(', ')
+    end
 
-      component_files.each do |file|
-        require file.relative_path_from(root_directory) unless file.directory?
+    def require_component(component)
+      file = LOAD_ROOT + "#{component.snake_case}.rb"
+
+      if file.exist?
+        require(component.snake_case)
+        @logger.debug { "Successfully required #{component}" }
+      else
+        @logger.debug { "Cannot require #{component} because #{file} does not exist" }
       end
     end
 
-    def self.root_directory
-      Pathname.new(File.expand_path('..', File.dirname(__FILE__)))
-    end
-
-    def container
-      the_detecting_component('container', @containers)
-    end
-
-    def container_detect_tags
-      detecting_component_tags('container', @containers)
-    end
-
-    def diagnose_overlapping_components(component_type, components)
-      fail "Application can be run by more than one #{component_type}: #{component_names components}"
-    end
-
-    def component_names(components)
-      components.map { |component| component.component_name }.join(', ')
-    end
-
-    def frameworks
-      @frameworks.select { |framework| framework.detect }
-    end
-
-    def jre
-      the_detecting_component('JRE', @jres)
-    end
-
-    def jre_detect_tags
-      detecting_component_tags('JRE', @jres)
-    end
-
-    def detecting_component_tags(component_type, components)
-      component_detections = Buildpack.component_detections components
-      diagnose_overlapping_components(component_type, components) if component_detections.size > 1
-      component_detections
-    end
-
-    def the_detecting_component(component_type, components)
-      components = components.select { |component| component.detect }
-      diagnose_overlapping_components(component_type, components) if components.size > 1
-      fail "No #{component_type} can run the application" if components.empty?
-      components[0]
+    def tag_detection(type, components, unique)
+      tags = components.map { |component| component.detect }.compact
+      fail "Application can be run by more than one #{type}: #{names components}" if unique && tags.size > 1
+      tags
     end
 
   end

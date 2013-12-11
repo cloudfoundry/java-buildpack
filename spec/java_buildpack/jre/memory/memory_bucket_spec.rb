@@ -15,13 +15,13 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'diagnostics_helper'
+require 'logging_helper'
 require 'java_buildpack/jre/memory/memory_bucket'
 require 'java_buildpack/jre/memory/memory_range'
 require 'java_buildpack/jre/memory/memory_size'
 
 describe JavaBuildpack::Jre::MemoryBucket do
-  include_context 'diagnostics_helper'
+  include_context 'logging_helper'
 
   let(:test_name) { 'bucket-name' }
   let(:test_weighting) { 0.5 }

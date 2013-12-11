@@ -15,56 +15,52 @@
 # limitations under the License.
 
 require 'application_helper'
-require 'diagnostics_helper'
-require 'java_buildpack/util'
+require 'fileutils'
 require 'java_buildpack/util/filtering_pathname'
 require 'set'
 require 'spec_helper'
 
 describe JavaBuildpack::Util::FilteringPathname do
   include_context 'application_helper'
-  include_context 'diagnostics_helper'
 
   let(:filter_none) { ->(_) { true } }
   let(:filter_all) { ->(_) { false } }
   let(:filter_goodness) { ->(pathname) { pathname.basename != Pathname.new('bad') } }
   let(:filter_strict) { ->(pathname) { pathname.basename == Pathname.new('good') } }
-  let(:filtering_target) { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_goodness) }
-  let(:strict_filtering_target) { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_strict) }
-  let(:filtered_target) { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_all) }
-  let(:immutable_target) { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_goodness) }
-  let(:mutable_target) { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_goodness, true) }
-  let(:filename_target) { JavaBuildpack::Util::FilteringPathname.new(Pathname.new('/a/b'), filter_goodness, true) }
+  let(:filtering_target) { described_class.new(app_dir, filter_goodness, false) }
+  let(:strict_filtering_target) { described_class.new(app_dir, filter_strict, false) }
+  let(:filtered_target) { described_class.new(app_dir, filter_all, false) }
+  let(:immutable_target) { described_class.new(app_dir, filter_goodness, false) }
+  let(:mutable_target) { described_class.new(app_dir, filter_goodness, true) }
+  let(:filename_target) { described_class.new(Pathname.new('/a/b'), filter_goodness, true) }
 
-  before do |example|
-    app_dir.rmtree
-    app_dir.mkdir
+  before do
     create_file 'good'
     create_file 'bad'
   end
 
   it 'delegate to pathnames which exist and are not filtered' do
-    filtering_pathname = JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_none)
+    filtering_pathname = described_class.new(app_dir, filter_none, false)
     expect(filtering_pathname.ftype).to eq('directory')
   end
 
   it 'delegate to pathnames which do not exist' do
-    filtering_pathname = JavaBuildpack::Util::FilteringPathname.new(app_dir + 'no-such-file', filter_none)
+    filtering_pathname = described_class.new(app_dir + 'no-such-file', filter_none, false)
     expect { filtering_pathname.ftype }.to raise_error /No such file or directory/
   end
 
   it 'delegate to pathnames which exist but which are filtered' do
-    filtering_pathname = JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_all)
+    filtering_pathname = described_class.new(app_dir, filter_all, false)
     expect { filtering_pathname.ftype }.to raise_error /No such file or directory/
   end
 
   it 'should fail to construct if a .nil file exists' do
     FileUtils.touch Pathname.new("#{app_dir}.nil")
-    expect { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_all) }.to raise_error /should not exist/
+    expect { described_class.new(app_dir, filter_all, false) }.to raise_error /should not exist/
   end
 
   it 'should fail if a .nil file is created after construction' do
-    filtering_pathname = JavaBuildpack::Util::FilteringPathname.new(app_dir + 'test.file', filter_all)
+    filtering_pathname = described_class.new(app_dir + 'test.file', filter_all, false)
     FileUtils.touch(app_dir + 'test.file.nil')
 
     expect { filtering_pathname.ftype }.to raise_error /should not exist/
@@ -72,11 +68,11 @@ describe JavaBuildpack::Util::FilteringPathname do
 
   it 'should fail to construct if a .nil directory exists' do
     FileUtils.mkdir_p Pathname.new("#{app_dir}.nil")
-    expect { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_all) }.to raise_error /should not exist/
+    expect { described_class.new(app_dir, filter_all, false) }.to raise_error /should not exist/
   end
 
   it 'should return a missing method' do
-    expect { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_all).method(:chardev?) }.not_to raise_error
+    expect { described_class.new(app_dir, filter_all, false).method(:chardev?) }.not_to raise_error
   end
 
   it 'should filter the result of +' do
@@ -85,16 +81,16 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should correctly stringify non-clean paths' do
-    expect(JavaBuildpack::Util::FilteringPathname.new(Pathname.new('/a/b/..'), filter_none).to_s).to eq('/a/b/..')
+    expect(JavaBuildpack::Util::FilteringPathname.new(Pathname.new('/a/b/..'), filter_none, false).to_s).to eq('/a/b/..')
   end
 
   it 'should produce correct result for + with a non-clean path' do
-    base = JavaBuildpack::Util::FilteringPathname.new(Pathname.new('/a'), filter_none)
+    base = JavaBuildpack::Util::FilteringPathname.new(Pathname.new('/a'), filter_none, false)
     expect((base + 'b/..').to_s).to eq('/a/b/..')
   end
 
   it 'should produce correct result for + with a non-clean path starting with '..'' do
-    base = JavaBuildpack::Util::FilteringPathname.new(Pathname.new('/a/b'), filter_none)
+    base = JavaBuildpack::Util::FilteringPathname.new(Pathname.new('/a/b'), filter_none, false)
     expect((base + '..').to_s).to eq('/a')
   end
 
@@ -230,14 +226,14 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should yield each element of the path from descend' do
-    expect { |b| filename_target.descend(&b) }.to yield_successive_args(Pathname.new('/'), Pathname.new('/a'), Pathname.new('/a/b'))
+    expect { |b| filename_target.descend(&b) }.to yield_successive_args(Pathname.new('/'), Pathname.new('/a'),
+                                                                        Pathname.new('/a/b'))
   end
 
   it 'should yield each element of the path from ascend' do
-    expect { |b| filename_target.ascend(&b) }.to yield_successive_args(Pathname.new('/a/b'), Pathname.new('/a'), Pathname.new('/'))
+    expect { |b| filename_target.ascend(&b) }.to yield_successive_args(Pathname.new('/a/b'), Pathname.new('/a'),
+                                                                       Pathname.new('/'))
   end
-
-  # Check mutators.
 
   it 'should raise error if chmod is called on an immutable instance' do
     expect { immutable_target.chmod(0644) }.to raise_error /FilteringPathname is immutable/
@@ -423,18 +419,16 @@ describe JavaBuildpack::Util::FilteringPathname do
     expect { |b| g.glob(&b) }.to yield_successive_args(app_dir + 'good')
   end
 
-  # Check Pathname class methods fail (in case FilteringPathname is re-implemented to use inheritance)
-
   it 'should raise error if getwd is used' do
-    expect { JavaBuildpack::Util::FilteringPathname.getwd }.to raise_error /undefined method `getwd'/
+    expect { described_class.getwd }.to raise_error /undefined method `getwd'/
   end
 
   it 'should raise error if glob is used' do
-    expect { JavaBuildpack::Util::FilteringPathname.glob '' }.to raise_error /undefined method `glob'/
+    expect { described_class.glob '' }.to raise_error /undefined method `glob'/
   end
 
   it 'should raise error if pwd is used' do
-    expect { JavaBuildpack::Util::FilteringPathname.pwd }.to raise_error /undefined method `pwd'/
+    expect { described_class.pwd }.to raise_error /undefined method `pwd'/
   end
 
   def create_file(filename)

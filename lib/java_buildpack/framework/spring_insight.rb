@@ -14,9 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/base_component'
+require 'java_buildpack/component/base_component'
 require 'java_buildpack/framework'
-require 'java_buildpack/util/service_utils'
 require 'tmpdir'
 require 'fileutils'
 require 'uri'
@@ -24,10 +23,10 @@ require 'uri'
 module JavaBuildpack::Framework
 
   # Encapsulates the detect, compile, and release functionality for enabling Insight auto configuration.
-  class SpringInsight < JavaBuildpack::BaseComponent
+  class SpringInsight < JavaBuildpack::Component::BaseComponent
 
     def initialize(context)
-      super('Spring Insight', context)
+      super(context)
       @version, @uri = supports? ? find_insight_agent : [nil, nil]
 
       FileUtils.mkdir_p container_libs_directory
@@ -43,7 +42,7 @@ module JavaBuildpack::Framework
     end
 
     def release
-      @application.java_opts
+      @droplet.java_opts
       .add_javaagent(weaver_jar)
       .add_system_property('insight.base', insight_directory)
       .add_system_property('insight.logs', logs_directory)
@@ -61,23 +60,21 @@ module JavaBuildpack::Framework
     # @param [String] version the version of the dependency
     # @return [String] the unique identifier of the component
     def id(version)
-      "spring-insight=#{version}"
+      "#{SpringInsight.to_s.dash_case}=#{version}"
     end
 
     def supports?
-      JavaBuildpack::Util::ServiceUtils.find_service(@vcap_services, SERVICE_NAME)
+      @application.services.one_service? FILTER
     end
 
     private
 
     AGENT_DOWNLOAD_URI_SUFFIX = '/services/config/agent-download'.freeze # TODO: To be removed once the full path is included in VCAP_SERVICES see issue 58873498
 
-    NAME_KEY = 'application_name'.freeze
-
-    SERVICE_NAME = /insight/.freeze
+    FILTER = /insight/.freeze
 
     def add_agent_configuration
-      @application.java_opts
+      @droplet.java_opts
       .add_system_property('agent.http.protocol', 'http')
       .add_system_property('agent.http.host', URI(@uri).host)
       .add_system_property('agent.http.port', 80)
@@ -86,19 +83,20 @@ module JavaBuildpack::Framework
       .add_system_property('agent.http.password', 'insight')
       .add_system_property('agent.http.send.json', false)
       .add_system_property('agent.http.use.proxy', false)
-      .add_system_property('agent.name.override', "'#{@vcap_application[NAME_KEY]}'")
+      .add_system_property('agent.name.override', "'#{application_name}'")
+    end
+
+    def application_name
+      @application.details['application_name']
     end
 
     def expand(file)
-      expand_start_time = Time.now
-      print "       Expanding Spring Insight to #{@application.relative_path_to home} "
-
-      Dir.mktmpdir do |root|
-        agent_dir = unpack_agent_installer(Pathname.new(root), file)
-        install_insight(agent_dir)
+      with_timing "Expanding Spring Insight to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
+        Dir.mktmpdir do |root|
+          agent_dir = unpack_agent_installer(Pathname.new(root), file)
+          install_insight(agent_dir)
+        end
       end
-
-      puts "(#{(Time.now - expand_start_time).duration})"
     end
 
     def unpack_agent_installer(root, file)
@@ -114,8 +112,7 @@ module JavaBuildpack::Framework
     end
 
     def install_insight(agent_dir)
-      FileUtils.rm_rf home
-      FileUtils.mkdir_p home
+      FileUtils.mkdir_p @droplet.sandbox
 
       root = Pathname.glob(agent_dir + 'springsource-insight-uber-agent-*')[0]
 
@@ -154,15 +151,15 @@ module JavaBuildpack::Framework
     end
 
     def container_libs_directory
-      @application.component_directory 'container-libs'
+      @droplet.root + '.spring-insight/container-libs'
     end
 
     def extra_applications_directory
-      @application.component_directory 'extra-applications'
+      @droplet.root + '.spring-insight/extra-applications'
     end
 
     def find_insight_agent
-      service = JavaBuildpack::Util::ServiceUtils.find_service(@vcap_services, SERVICE_NAME)
+      service = @application.services.find_service FILTER
       version = service['label'].match(/(.*)-(.*)/)[2]
       uri = service['credentials']['dashboard_url']
 
@@ -174,7 +171,7 @@ module JavaBuildpack::Framework
     end
 
     def insight_directory
-      home + 'insight'
+      @droplet.sandbox + 'insight'
     end
 
     def logs_directory
@@ -196,11 +193,11 @@ module JavaBuildpack::Framework
     end
 
     def weaver_directory
-      home + 'weaver'
+      @droplet.sandbox + 'weaver'
     end
 
     def weaver_jar
-      Pathname.glob(home + 'weaver/insight-weaver-*.jar')[0]
+      (weaver_directory + 'insight-weaver-*.jar').glob[0]
     end
 
   end

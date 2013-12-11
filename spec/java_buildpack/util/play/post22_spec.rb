@@ -16,12 +16,13 @@
 
 require 'spec_helper'
 require 'component_helper'
+require 'java_buildpack/util/filtering_pathname'
 require 'java_buildpack/util/play/post22'
 
 describe JavaBuildpack::Util::Play::Post22 do
   include_context 'component_helper'
 
-  let(:play_app) { described_class.new application }
+  let(:play_app) { described_class.new(droplet) }
 
   before do
     java_home
@@ -35,7 +36,7 @@ describe JavaBuildpack::Util::Play::Post22 do
   context app_fixture: 'container_play_2.2_staged' do
 
     before do
-      allow(play_app).to receive(:root).and_return(app_dir)
+      allow(play_app).to receive(:root).and_return(droplet.root)
     end
 
     it 'should correctly determine the version of a Play 2.2 application' do
@@ -43,14 +44,14 @@ describe JavaBuildpack::Util::Play::Post22 do
     end
 
     it 'should correctly extend the classpath' do
-
       play_app.compile
+
       expect((app_dir + 'bin/play-application').read)
-      .to match 'declare -r app_classpath="\$app_home/../.additional-libraries/test-jar-1.jar:\$app_home/../.additional-libraries/test-jar-2.jar:'
+      .to match 'declare -r app_classpath="\$app_home/../.additional_libs/test-jar-1.jar:\$app_home/../.additional_libs/test-jar-2.jar:'
     end
 
     it 'should return command' do
-      expect(play_app.release).to eq("PATH=#{java_home}/bin:$PATH JAVA_HOME=#{java_home} $PWD/bin/play-application " +
+      expect(play_app.release).to eq("PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} $PWD/bin/play-application " +
                                          '-Jtest-opt-2 -Jtest-opt-1 -J-Dhttp.port=$PORT')
     end
 

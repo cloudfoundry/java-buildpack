@@ -15,34 +15,30 @@
 # limitations under the License.
 
 require 'fileutils'
+require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/groovy_utils'
-require 'java_buildpack/versioned_dependency_component'
 
 module JavaBuildpack::Container
 
   # Encapsulates the detect, compile, and release functionality for applications running Spring Boot CLI
   # applications.
-  class SpringBootCli < JavaBuildpack::VersionedDependencyComponent
-
-    def initialize(context)
-      super('Spring Boot CLI', context)
-    end
+  class SpringBootCLI < JavaBuildpack::Component::VersionedDependencyComponent
 
     def compile
       download_tar
-      @application.additional_libraries.link_to lib_dir
+      @droplet.additional_libraries.link_to lib_dir
     end
 
     def release
       [
-          @application.java_home.as_env_var,
-          @application.java_opts.as_env_var,
-          @application.relative_path_to(home + 'bin/spring'),
+          @droplet.java_home.as_env_var,
+          @droplet.java_opts.as_env_var,
+          "$PWD/#{(@droplet.sandbox + 'bin/spring').relative_path_from(@droplet.root)}",
           'run',
           '--local',
-          JavaBuildpack::Util::GroovyUtils.groovy_files(@application),
+          relative_groovy_files,
           '--',
           '--server.port=$PORT'
       ].compact.join(' ')
@@ -58,7 +54,11 @@ module JavaBuildpack::Container
     private
 
     def lib_dir
-      home + 'lib'
+      @droplet.sandbox + 'lib'
+    end
+
+    def relative_groovy_files
+      JavaBuildpack::Util::GroovyUtils.groovy_files(@application).map { |gf| gf.relative_path_from(@application.root) }
     end
 
     def no_main_method(groovy_files)
@@ -70,7 +70,7 @@ module JavaBuildpack::Container
     end
 
     def has_web_inf
-      @application.child('WEB-INF').exist?
+      (@application.root + 'WEB-INF').exist?
     end
 
     def all_pogo(groovy_files)
@@ -86,7 +86,7 @@ module JavaBuildpack::Container
     end
 
     def open(file, &block)
-      @application.child(file).open('r', external_encoding: 'UTF-8', &block)
+      file.open('r', external_encoding: 'UTF-8', &block)
     end
 
   end

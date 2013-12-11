@@ -25,7 +25,7 @@ describe JavaBuildpack::Framework::JavaOpts do
     let(:configuration) { super().merge('java_opts' => '-Xmx1024M') }
 
     it 'should detect with java.opts configuration' do
-      expect(component.detect).to eq('java_opts')
+      expect(component.detect).to eq('java-opts')
     end
   end
 

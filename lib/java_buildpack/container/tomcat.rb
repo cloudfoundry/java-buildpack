@@ -15,7 +15,7 @@
 # limitations under the License.
 
 require 'fileutils'
-require 'java_buildpack/base_component'
+require 'java_buildpack/component/base_component'
 require 'java_buildpack/container'
 require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/format_duration'
@@ -24,21 +24,18 @@ require 'java_buildpack/util/java_main_utils'
 module JavaBuildpack::Container
 
   # Encapsulates the detect, compile, and release functionality for Tomcat applications.
-  class Tomcat < JavaBuildpack::BaseComponent
+  class Tomcat < JavaBuildpack::Component::BaseComponent
 
     def initialize(context)
-      super('Tomcat', context)
+      super(context)
 
       if supports?
-        @tomcat_version, @tomcat_uri = JavaBuildpack::Repository::ConfiguredItem
+        @tomcat_version, @tomcat_uri   = JavaBuildpack::Repository::ConfiguredItem
         .find_item(@component_name, @configuration) { |candidate_version| candidate_version.check_size(3) }
         @support_version, @support_uri = JavaBuildpack::Repository::ConfiguredItem
         .find_item(@component_name, @configuration['support'])
-
-        FileUtils.mkdir_p container_libs_directory
-        FileUtils.mkdir_p extra_applications_directory
       else
-        @tomcat_version, @tomcat_uri = nil, nil
+        @tomcat_version, @tomcat_uri   = nil, nil
         @support_version, @support_uri = nil, nil
       end
     end
@@ -50,20 +47,19 @@ module JavaBuildpack::Container
     def compile
       download_tomcat
       download_support
-      link_to(@application.children, root)
-      link_to(container_libs_directory.children.select { |child| child.extname == '.jar' }, tomcat_lib) # DO NOT DEPEND ON THIS FUNCTIONALITY
-      link_to(extra_applications_directory.children.select { |child| child.directory? }, webapps) # DO NOT DEPEND ON THIS FUNCTIONALITY
-      @application.additional_libraries.add tomcat_datasource_jar if tomcat_datasource_jar.exist?
-      @application.additional_libraries.link_to web_inf_lib
+      link_to(@application.root.children, root)
+      do_not_depend_on_this
+      @droplet.additional_libraries << tomcat_datasource_jar if tomcat_datasource_jar.exist?
+      @droplet.additional_libraries.link_to web_inf_lib
     end
 
     def release
-      @application.java_opts.add_system_property 'http.port', '$PORT'
+      @droplet.java_opts.add_system_property 'http.port', '$PORT'
 
       [
-          @application.java_home.as_env_var,
-          @application.java_opts.as_env_var,
-          @application.relative_path_to(home + 'bin/catalina.sh'),
+          @droplet.java_home.as_env_var,
+          @droplet.java_opts.as_env_var,
+          "$PWD/#{(@droplet.sandbox + 'bin/catalina.sh').relative_path_from(@droplet.root)}",
           'run'
       ].compact.join(' ')
     end
@@ -75,7 +71,7 @@ module JavaBuildpack::Container
     # @param [String] version the version of the dependency
     # @return [String] the unique identifier of the component
     def tomcat_id(version)
-      "#{@parsable_component_name}=#{version}"
+      "#{Tomcat.to_s.dash_case}=#{version}"
     end
 
     # The unique identifier of the component, incorporating the version of the dependency (e.g. +tomcat-buildpack-support=1.1.0+)
@@ -96,7 +92,13 @@ module JavaBuildpack::Container
     private
 
     def container_libs_directory
-      @application.component_directory 'container-libs'
+      @droplet.root + '.spring-insight/container-libs'
+    end
+
+    # DO NOT DEPEND ON THIS FUNCTIONALITY
+    def do_not_depend_on_this
+      link_to(container_libs_directory.children, tomcat_lib) if container_libs_directory.exist?
+      link_to(extra_applications_directory.children, webapps) if extra_applications_directory.exist?
     end
 
     def download_tomcat
@@ -104,23 +106,21 @@ module JavaBuildpack::Container
     end
 
     def download_support
-      download_jar(@support_version, @support_uri, support_jar_name, home + 'lib', 'Buildpack Tomcat Support')
+      download_jar(@support_version, @support_uri, support_jar_name, @droplet.sandbox + 'lib',
+                   'Buildpack Tomcat Support')
     end
 
     def expand(file)
-      expand_start_time = Time.now
-      print "       Expanding Tomcat to #{@application.relative_path_to(home)} "
+      with_timing "Expanding Tomcat to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
+        FileUtils.mkdir_p @droplet.sandbox
+        shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 --exclude webapps 2>&1"
 
-      FileUtils.rm_rf home
-      FileUtils.mkdir_p home
-      shell "tar xzf #{file.path} -C #{home} --strip 1 --exclude webapps 2>&1"
-
-      copy_resources
-      puts "(#{(Time.now - expand_start_time).duration})"
+        @droplet.copy_resources
+      end
     end
 
     def extra_applications_directory
-      @application.component_directory 'extra-applications'
+      @droplet.root + '.spring-insight/extra-applications'
     end
 
     def link_to(source, destination)
@@ -133,7 +133,7 @@ module JavaBuildpack::Container
     end
 
     def support_jar_name
-      "tomcat-buildpack-support-#{@support_version}.jar"
+      "tomcat_buildpack_support-#{@support_version}.jar"
     end
 
     def tomcat_datasource_jar
@@ -141,19 +141,19 @@ module JavaBuildpack::Container
     end
 
     def tomcat_lib
-      home + 'lib'
+      @droplet.sandbox + 'lib'
     end
 
     def webapps
-      home + 'webapps'
+      @droplet.sandbox + 'webapps'
     end
 
     def web_inf_lib
-      @application.child 'WEB-INF/lib'
+      @droplet.root + 'WEB-INF/lib'
     end
 
     def web_inf?
-      @application.child('WEB-INF').exist?
+      (@application.root + 'WEB-INF').exist?
     end
 
   end

@@ -75,29 +75,26 @@ describe JavaBuildpack::Container::Tomcat do
   end
 
   it 'should extract Tomcat from a GZipped TAR',
-     app_fixture: 'container_tomcat',
+     app_fixture:   'container_tomcat',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
     component.compile
 
-    tomcat_dir = app_dir + '.tomcat'
-    conf_dir = tomcat_dir + 'conf'
-
-    expect(tomcat_dir + 'bin/catalina.sh').to exist
-    expect(conf_dir + 'context.xml').to exist
-    expect(conf_dir + 'server.xml').to exist
-    expect(tomcat_dir + 'lib/tomcat-buildpack-support-1.1.1.jar').to exist
+    expect(sandbox + 'bin/catalina.sh').to exist
+    expect(sandbox + 'conf/context.xml').to exist
+    expect(sandbox + 'conf/server.xml').to exist
+    expect(sandbox + 'lib/tomcat_buildpack_support-1.1.1.jar').to exist
   end
 
   it 'should link only the application files and directories to the ROOT webapp',
-     app_fixture: 'container_tomcat_with_index',
+     app_fixture:   'container_tomcat_with_index',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
     FileUtils.touch(app_dir + '.test-file')
 
     component.compile
 
-    root_webapp = app_dir + '.tomcat/webapps/ROOT'
+    root_webapp = app_dir + '.java-buildpack/tomcat/webapps/ROOT'
 
     web_inf = root_webapp + 'WEB-INF'
     expect(web_inf).to exist
@@ -113,20 +110,20 @@ describe JavaBuildpack::Container::Tomcat do
   end
 
   it 'should link the Tomcat datasource JAR to the ROOT webapp when that JAR is present',
-     app_fixture: 'container_tomcat',
+     app_fixture:   'container_tomcat',
      cache_fixture: 'stub-tomcat7.tar.gz' do
 
     component.compile
 
     web_inf_lib = app_dir + 'WEB-INF/lib'
-    app_jar = web_inf_lib + 'tomcat-jdbc.jar'
+    app_jar     = web_inf_lib + 'tomcat-jdbc.jar'
     expect(app_jar).to exist
     expect(app_jar).to be_symlink
-    expect(app_jar.readlink).to eq((app_dir + '.tomcat/lib/tomcat-jdbc.jar').relative_path_from(web_inf_lib))
+    expect(app_jar.readlink).to eq((sandbox + 'lib/tomcat-jdbc.jar').relative_path_from(web_inf_lib))
   end
 
   it 'should not link the Tomcat datasource JAR to the ROOT webapp when that JAR is absent',
-     app_fixture: 'container_tomcat',
+     app_fixture:   'container_tomcat',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
     component.compile
@@ -136,7 +133,7 @@ describe JavaBuildpack::Container::Tomcat do
   end
 
   it 'should link additional libraries to the ROOT webapp',
-     app_fixture: 'container_tomcat',
+     app_fixture:   'container_tomcat',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
     component.compile
@@ -147,17 +144,15 @@ describe JavaBuildpack::Container::Tomcat do
     test_jar_2 = web_inf_lib + 'test-jar-2.jar'
     expect(test_jar_1).to exist
     expect(test_jar_1).to be_symlink
-    expect(test_jar_1.readlink).to eq((additional_libs_dir + 'test-jar-1.jar').relative_path_from(web_inf_lib))
+    expect(test_jar_1.readlink).to eq((additional_libs_directory + 'test-jar-1.jar').relative_path_from(web_inf_lib))
 
     expect(test_jar_2).to exist
     expect(test_jar_2).to be_symlink
-    expect(test_jar_2.readlink).to eq((additional_libs_dir + 'test-jar-2.jar').relative_path_from(web_inf_lib))
-
-    expect(web_inf_lib + 'test-text.txt').not_to exist
+    expect(test_jar_2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(web_inf_lib))
   end
 
   context do
-    let(:extra_applications_dir) { app_dir + '.extra-applications' }
+    let(:extra_applications_dir) { app_dir + '.spring-insight/extra-applications' }
 
     before do
       FileUtils.mkdir_p extra_applications_dir
@@ -165,12 +160,12 @@ describe JavaBuildpack::Container::Tomcat do
     end
 
     it 'should link extra applications to the applications directory',
-       app_fixture: 'container_tomcat',
+       app_fixture:   'container_tomcat',
        cache_fixture: 'stub-tomcat.tar.gz' do
 
       component.compile
 
-      webapps_dir = app_dir + '.tomcat/webapps'
+      webapps_dir = sandbox + 'webapps'
 
       insight_test_dir = webapps_dir + 'framework_spring_insight'
       expect(insight_test_dir).to exist
@@ -181,21 +176,21 @@ describe JavaBuildpack::Container::Tomcat do
   end
 
   context do
-    let(:container_libs_dir) { app_dir + '.container-libs' }
+    let(:container_libs_dir) { app_dir + '.spring-insight/container-libs' }
 
     before do
       FileUtils.mkdir_p container_libs_dir
-      FileUtils.cp_r 'spec/fixtures/framework_spring_insight/.spring-insight/weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar',
+      FileUtils.cp_r 'spec/fixtures/framework_spring_insight/.java-buildpack/spring_insight/weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar',
                      container_libs_dir
     end
 
     it 'should link container libs to the tomcat lib directory',
-       app_fixture: 'container_tomcat',
+       app_fixture:   'container_tomcat',
        cache_fixture: 'stub-tomcat.tar.gz' do
 
       component.compile
 
-      lib_dir = app_dir + '.tomcat/lib'
+      lib_dir          = sandbox + 'lib'
       insight_test_lib = lib_dir + 'insight-weaver-1.2.4-CI-SNAPSHOT.jar'
 
       expect(insight_test_lib).to exist
@@ -208,8 +203,8 @@ describe JavaBuildpack::Container::Tomcat do
   it 'should return command',
      app_fixture: 'container_tomcat' do
 
-    expect(component.release).to eq("JAVA_HOME=#{java_home} JAVA_OPTS=\"-Dhttp.port=$PORT test-opt-1 test-opt-2\" " +
-                                        '.tomcat/bin/catalina.sh run')
+    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=\"-Dhttp.port=$PORT test-opt-1 test-opt-2\" " +
+                                        '$PWD/.java-buildpack/tomcat/bin/catalina.sh run')
   end
 
 end

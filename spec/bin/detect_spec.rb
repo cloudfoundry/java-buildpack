@@ -24,7 +24,6 @@ describe 'detect script', :integration do
      app_fixture: 'integration_valid' do
 
     run("bin/detect #{app_dir}") { |status| expect(status).to be_success }
-
   end
 
   it 'should fail to detect when no containers detect' do

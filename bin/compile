@@ -23,4 +23,6 @@ require 'java_buildpack/buildpack'
 
 build_dir = ARGV[0]
 
-JavaBuildpack::Buildpack.drive_buildpack_with_logger(build_dir, 'Compile failed with exception %s') { |buildpack| buildpack.compile }
+JavaBuildpack::Buildpack.with_buildpack(build_dir, 'Compile failed with exception %s') do |buildpack|
+  buildpack.compile
+end

@@ -15,47 +15,39 @@
 # limitations under the License.
 
 require 'fileutils'
+require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
-require 'java_buildpack/util/service_utils'
-require 'java_buildpack/versioned_dependency_component'
 
 module JavaBuildpack::Framework
 
   # Encapsulates the functionality for enabling the MariaDB JDBC client.
-  class MariaDbJdbc < JavaBuildpack::VersionedDependencyComponent
-
-    def initialize(context)
-      super('MariaDB JDBC', context)
-    end
+  class MariaDbJDBC < JavaBuildpack::Component::VersionedDependencyComponent
 
     def compile
-      download_jar jar_name
+      download_jar
     end
 
     def release
+      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
     end
 
     protected
 
     def supports?
-      !has_driver? && (JavaBuildpack::Util::ServiceUtils.find_service(@vcap_services, SERVICE_NAME) ||
-          JavaBuildpack::Util::ServiceUtils.find_service(@vcap_services, ALTERNATE_SERVICE_NAME))
+      has_service? && !has_driver?
     end
 
     private
 
-    SERVICE_NAME = /mysql/.freeze
-
-    ALTERNATE_SERVICE_NAME = /mariadb/.freeze
-
-    def jar_name
-      "#{@parsable_component_name}-#{@version}.jar"
-    end
-
     def has_driver?
-      !@application.glob('mariadb-java-client*.jar', 'mysql-connector-java*.jar').empty?
+      %w(mariadb-java-client*.jar mysql-connector-java*.jar).any? do |candidate|
+        (@application.root + candidate).glob.any?
+      end
     end
 
+    def has_service?
+      [/mysql/, /mariadb/].any? { |filter| @application.services.one_service? filter }
+    end
   end
 
 end

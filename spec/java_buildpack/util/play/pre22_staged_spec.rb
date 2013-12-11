@@ -28,7 +28,7 @@ describe JavaBuildpack::Util::Play::Pre22Staged do
 
   context do
 
-    let(:trigger) { described_class.new(application).supports? }
+    let(:trigger) { described_class.new(droplet).supports? }
 
     it 'should not recognize non-applications' do
       expect(trigger).not_to be
@@ -67,7 +67,7 @@ describe JavaBuildpack::Util::Play::Pre22Staged do
 
   context app_fixture: 'container_play_2.1_staged' do
 
-    let(:play_app) { described_class.new application }
+    let(:play_app) { described_class.new(droplet) }
 
     it 'should correctly determine the version of a Play 2.1 staged (or equivalently 2.0 staged) application' do
       expect(play_app.version).to eq('2.1.4')
@@ -82,15 +82,15 @@ describe JavaBuildpack::Util::Play::Pre22Staged do
 
       expect(test_jar_1).to exist
       expect(test_jar_1).to be_symlink
-      expect(test_jar_1.readlink).to eq((additional_libs_dir + 'test-jar-1.jar').relative_path_from(staged_dir))
+      expect(test_jar_1.readlink).to eq((additional_libs_directory + 'test-jar-1.jar').relative_path_from(staged_dir))
 
       expect(test_jar_2).to exist
       expect(test_jar_2).to be_symlink
-      expect(test_jar_2.readlink).to eq((additional_libs_dir + 'test-jar-2.jar').relative_path_from(staged_dir))
+      expect(test_jar_2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(staged_dir))
     end
 
     it 'should return command' do
-      expect(play_app.release).to eq("PATH=#{java_home}/bin:$PATH JAVA_HOME=#{java_home} $PWD/start " +
+      expect(play_app.release).to eq("PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} $PWD/start " +
                                          'test-opt-2 test-opt-1 -Dhttp.port=$PORT')
     end
 

@@ -23,7 +23,9 @@ require 'java_buildpack/buildpack'
 
 build_dir = ARGV[0]
 
-components = JavaBuildpack::Buildpack.drive_buildpack_with_logger(build_dir, 'Detect failed with exception %s') { |buildpack| buildpack.detect }.compact
+components = JavaBuildpack::Buildpack.with_buildpack(build_dir, 'Detect failed with exception %s') do |buildpack|
+  buildpack.detect
+end.compact
 
 if components.empty?
   abort

@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/diagnostics/logger_factory'
+require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/repository'
 require 'java_buildpack/repository/version_resolver'
 require 'java_buildpack/util/configuration_utils'
-require 'java_buildpack/util/download_cache'
+require 'java_buildpack/util/cache/download_cache'
 require 'rbconfig'
 require 'yaml'
 
@@ -31,12 +31,12 @@ module JavaBuildpack::Repository
     #
     # @param [String] repository_root the root of the repository to create the index for
     def initialize(repository_root)
-      @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
+      @logger = JavaBuildpack::Logging::LoggerFactory.get_logger RepositoryIndex
 
       @default_repository_root = JavaBuildpack::Util::ConfigurationUtils.load('repository')['default_repository_root']
       .chomp('/')
 
-      JavaBuildpack::Util::DownloadCache.new.get("#{canonical repository_root}#{INDEX_PATH}") do |file| # TODO: Use global cache #50175265
+      JavaBuildpack::Util::Cache::DownloadCache.new.get("#{canonical repository_root}#{INDEX_PATH}") do |file| # TODO: Use global cache #50175265
         @index = YAML.load_file(file)
         @logger.debug { @index }
       end
@@ -49,7 +49,7 @@ module JavaBuildpack::Repository
     # @return [String] the URI of the file found
     def find_item(version)
       version = VersionResolver.resolve(version, @index.keys)
-      uri = @index[version.to_s]
+      uri     = @index[version.to_s]
       return version, uri # rubocop:disable RedundantReturn
     end
 

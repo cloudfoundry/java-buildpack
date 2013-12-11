@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/diagnostics/logger_factory'
+require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/memory_limit'
 require 'java_buildpack/jre/memory/memory_range'
@@ -35,13 +35,13 @@ module JavaBuildpack::Jre
     # @param [Array<String>] valid_types the valid types of memory
     # @param [Hash<String, String>] java_opts a mapping from a memory type to a +JAVA_OPTS+ option
     def initialize(sizes, heuristics, valid_types, java_opts)
-      @logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
+      @logger = JavaBuildpack::Logging::LoggerFactory.get_logger WeightBalancingMemoryHeuristic
       validate 'size', valid_types, sizes.keys
       validate 'heuristic', valid_types, heuristics.keys
       @memory_limit = MemoryLimit.memory_limit
-      @sizes = sizes
-      @heuristics = heuristics
-      @java_opts = java_opts
+      @sizes        = sizes
+      @heuristics   = heuristics
+      @java_opts    = java_opts
     end
 
     # Computes the JRE memory switch values based on the current state.
@@ -100,28 +100,28 @@ module JavaBuildpack::Jre
       if stack_bucket
         # Convert stack size from total stack memory to stack size
         stack_bucket.size = buckets['stack'].size / num_threads
-        buckets['stack'] = stack_bucket
+        buckets['stack']  = stack_bucket
       end
     end
 
     def normalise_stack_bucket(stack_bucket, buckets)
-      stack_memory = weighted_proportion(stack_bucket, buckets)
-      num_threads = [stack_memory / stack_bucket.default_size, 1].max
+      stack_memory      = weighted_proportion(stack_bucket, buckets)
+      num_threads       = [stack_memory / stack_bucket.default_size, 1].max
       normalised_bucket = MemoryBucket.new('normalised stack', stack_bucket.weighting, stack_bucket.range * num_threads)
       return normalised_bucket, num_threads # rubocop:disable RedundantReturn
     end
 
     def balance_buckets(buckets)
       remaining_buckets = buckets.clone
-      remaining_memory = @memory_limit
-      deleted = true
+      remaining_memory  = @memory_limit
+      deleted           = true
       while !remaining_buckets.empty? && deleted
         remaining_memory, deleted = balance_remainder(remaining_buckets, remaining_memory)
       end
     end
 
     def balance_remainder(remaining_buckets, remaining_memory)
-      deleted = false
+      deleted         = false
       total_weighting = calculate_total_weighting remaining_buckets
 
       allocated_memory = MemorySize::ZERO
@@ -142,7 +142,7 @@ module JavaBuildpack::Jre
 
     def constrain_bucket_size(allocated_memory, bucket, size)
       constrained_size = bucket.range.constrain(size)
-      bucket.size = constrained_size
+      bucket.size      = constrained_size
       allocated_memory + constrained_size
     end
 
@@ -166,7 +166,7 @@ module JavaBuildpack::Jre
       buckets = {}
 
       heuristics.each_pair do |type, weighting|
-        range = nil_safe_range sizes[type]
+        range         = nil_safe_range sizes[type]
         buckets[type] = create_memory_bucket(type, weighting, range)
       end
 
@@ -177,14 +177,14 @@ module JavaBuildpack::Jre
       native_bucket = buckets['native']
       if native_bucket && native_bucket.range.floor == 0
         if native_bucket.size > weighted_proportion(native_bucket, buckets) * NATIVE_MEMORY_WARNING_FACTOR
-          @logger.warn "There is more than #{NATIVE_MEMORY_WARNING_FACTOR} times more spare native memory than the default, so configured Java memory may be too small or available memory may be too large"
+          @logger.warn { "There is more than #{NATIVE_MEMORY_WARNING_FACTOR} times more spare native memory than the default, so configured Java memory may be too small or available memory may be too large" }
         end
       end
 
       total_size = MemorySize::ZERO
       buckets.each_value { |bucket| total_size += bucket.size }
       if @memory_limit * TOTAL_MEMORY_WARNING_FACTOR > total_size
-        @logger.warn "The allocated Java memory sizes total #{total_size} which is less than #{TOTAL_MEMORY_WARNING_FACTOR} of the available memory, so configured Java memory sizes may be too small or available memory may be too large"
+        @logger.warn { "The allocated Java memory sizes total #{total_size} which is less than #{TOTAL_MEMORY_WARNING_FACTOR} of the available memory, so configured Java memory sizes may be too small or available memory may be too large" }
       end
     end
 
@@ -208,13 +208,13 @@ module JavaBuildpack::Jre
     def check_close_to_default(type, bucket, total_weighting)
       if bucket.range.degenerate?
         default_size = apply_weighting_to_memory_limit(bucket, total_weighting)
-        actual_size = bucket.size
+        actual_size  = bucket.size
         if default_size > 0
           factor = ((actual_size - default_size) / default_size).abs
           @logger.debug { "factor for memory size #{type} is #{factor}" }
         end
         if (default_size == 0 && actual_size == 0) || (factor && (factor < CLOSE_TO_DEFAULT_FACTOR))
-          @logger.warn "The computed value #{actual_size} of memory size #{type} is close to the default value #{default_size}. Consider taking the default."
+          @logger.warn { "The computed value #{actual_size} of memory size #{type} is close to the default value #{default_size}. Consider taking the default." }
         end
       end
     end

@@ -18,21 +18,18 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/postgresql_jdbc'
 
-describe JavaBuildpack::Framework::PostgresqlJdbc, service_type: 'test-n/a' do
+describe JavaBuildpack::Framework::PostgresqlJDBC do
   include_context 'component_helper'
 
-  context do
-    let(:vcap_services) { {} }
-
-    it 'should not detect without a postgres service' do
-      expect(component.detect).to be_nil
-    end
-
+  it 'should not detect without a postgres service' do
+    expect(component.detect).to be_nil
   end
 
   context do
 
-    let(:service_payload) { [{ 'tags' => %w(postgres relational) }] }
+    before do
+      allow(services).to receive(:one_service?).with(/postgres/).and_return(true)
+    end
 
     it 'should detect with postgres service' do
       expect(component.detect).to eq("postgresql-jdbc=#{version}")
@@ -40,25 +37,24 @@ describe JavaBuildpack::Framework::PostgresqlJdbc, service_type: 'test-n/a' do
 
     it 'should not detect if the application already has a Postgres driver',
        app_fixture: 'framework_postgresql_jdbc_with_driver' do
-      expect(component.detect).not_to be
+
+      expect(component.detect).to be_nil
     end
 
-    it 'should copy the Postgres driver to the lib directory when needed',
+    it 'should download the Postgres driver when needed',
        cache_fixture: 'stub-postgresql-0.0-0000-jdbc00.jar' do
 
       component.compile
 
-      expect(additional_libs_dir + 'postgresql-jdbc-0.0.0.jar').to exist
+      expect(sandbox + "postgresql_jdbc-#{version}.jar").to exist
     end
 
-  end
+    it 'should add the Postgresql driver to the additional libraries when needed',
+       cache_fixture: 'stub-mariadb-java-client.jar' do
 
-  context do
+      component.release
 
-    let(:service_payload) { [{ 'tags' => %w(postgresql relational) }] }
-
-    it 'should detect with postgres service' do
-      expect(component.detect).to eq("postgresql-jdbc=#{version}")
+      expect(additional_libraries).to include(sandbox + "postgresql_jdbc-#{version}.jar")
     end
 
   end
