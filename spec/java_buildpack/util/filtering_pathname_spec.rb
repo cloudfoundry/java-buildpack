@@ -28,7 +28,9 @@ describe JavaBuildpack::Util::FilteringPathname do
   let(:filter_none) { ->(_) { true } }
   let(:filter_all) { ->(_) { false } }
   let(:filter_goodness) { ->(pathname) { pathname.basename != Pathname.new('bad') } }
+  let(:filter_strict) { ->(pathname) { pathname.basename == Pathname.new('good') } }
   let(:filtering_target) { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_goodness) }
+  let(:strict_filtering_target) { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_strict) }
   let(:filtered_target) { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_all) }
   let(:immutable_target) { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_goodness) }
   let(:mutable_target) { JavaBuildpack::Util::FilteringPathname.new(app_dir, filter_goodness, true) }
@@ -82,6 +84,20 @@ describe JavaBuildpack::Util::FilteringPathname do
     expect(filtering_target + 'bad').not_to exist
   end
 
+  it 'should correctly stringify non-clean paths' do
+    expect(JavaBuildpack::Util::FilteringPathname.new(Pathname.new('/a/b/..'), filter_none).to_s).to eq('/a/b/..')
+  end
+
+  it 'should produce correct result for + with a non-clean path' do
+    base = JavaBuildpack::Util::FilteringPathname.new(Pathname.new('/a'), filter_none)
+    expect((base + 'b/..').to_s).to eq('/a/b/..')
+  end
+
+  it 'should produce correct result for + with a non-clean path starting with '..'' do
+    base = JavaBuildpack::Util::FilteringPathname.new(Pathname.new('/a/b'), filter_none)
+    expect((base + '..').to_s).to eq('/a')
+  end
+
   it 'should filter the result of join' do
     expect(filtering_target.join 'good').to exist
     expect(filtering_target.join 'bad').not_to exist
@@ -110,7 +126,6 @@ describe JavaBuildpack::Util::FilteringPathname do
   it 'should delegate relative_path_from' do
     expect_any_instance_of(Pathname).to receive(:relative_path_from) { Pathname.new('test1') }
     relative_path = (filtering_target + 'test1').relative_path_from(Pathname.new(app_dir))
-    expect(relative_path).to be_an_instance_of(JavaBuildpack::Util::FilteringPathname)
     expect(relative_path).to eq(Pathname.new('test1'))
   end
 
@@ -118,8 +133,8 @@ describe JavaBuildpack::Util::FilteringPathname do
     expect(filtering_target.to_s).to eq(app_dir.to_s)
   end
 
-  it 'should return empty string when to_s is called when the path is filtered out' do
-    expect(filtered_target.to_s).to eq('')
+  it 'should return path when to_s is called when the path is filtered out' do
+    expect(filtered_target.to_s).to eq(app_dir.to_s)
   end
 
   it 'should yield a Pathname for each visible result from each_entry' do
@@ -341,6 +356,16 @@ describe JavaBuildpack::Util::FilteringPathname do
   it 'should delegate if rmtree is called on a mutable instance' do
     expect_any_instance_of(Pathname).to receive(:rmtree)
     mutable_target.rmtree
+  end
+
+  it 'should glob and filter the result' do
+    g = strict_filtering_target + '*'
+    expect(g.glob).to eq([app_dir + 'good'])
+  end
+
+  it 'should glob and yield the result' do
+    g = strict_filtering_target + '*'
+    expect { |b| g.glob(&b) }.to yield_successive_args(app_dir + 'good')
   end
 
   # Check Pathname class methods fail (in case FilteringPathname is re-implemented to use inheritance)
