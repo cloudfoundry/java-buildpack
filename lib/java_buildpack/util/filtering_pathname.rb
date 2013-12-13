@@ -97,9 +97,9 @@ module JavaBuildpack::Util
     end
 
     # @see Pathname.
-    def open(mode = nil, perm = nil, opt = nil, &block)
+    def open(mode = nil, *args, &block)
       check_mutable if mode =~ /[wa]/
-      delegate.open(mode, perm, opt, &block)
+      delegate.open(mode, *args, &block)
     end
 
     # @see Pathname.
@@ -129,11 +129,7 @@ module JavaBuildpack::Util
     def glob(flags = 0, &block)
       if block_given?
         Pathname.glob(@pathname, flags) do |file|
-          if file.instance_of? Pathname
-            yield filtered_pathname(file) if visible file
-          else
-            yield file
-          end
+          yield filtered_pathname(file) if visible file
         end
       else
         result = Pathname.glob(@pathname, flags)
