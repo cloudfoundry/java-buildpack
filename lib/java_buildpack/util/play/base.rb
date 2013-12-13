@@ -73,6 +73,14 @@ module JavaBuildpack::Util::Play
       fail "Method 'augment_classpath' must be defined"
     end
 
+    # Find the single directory in the root of the droplet
+    #
+    # @return [Pathname, nil] the single directory in the root of the droplet, otherwise +nil+
+    def find_single_directory
+      roots = (@droplet.root + '*').glob.select { |child| child.directory? }
+      roots.size == 1 ? roots.first : nil
+    end
+
     # Returns the +JAVA_OPTS+ in the form that they need to be added to the command line
     #
     # @return [Array<String>] the +JAVA_OPTS+ in the form that they need to be added to the command line
