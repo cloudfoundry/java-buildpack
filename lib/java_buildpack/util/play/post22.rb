@@ -25,7 +25,7 @@ module JavaBuildpack::Util::Play
     protected
 
     def augment_classpath
-      additional_classpath = @droplet.additional_libraries.map do |additional_library|
+      additional_classpath = @droplet.additional_libraries.sort.map do |additional_library|
         "$app_home/#{additional_library.relative_path_from(start_script.dirname)}"
       end
 

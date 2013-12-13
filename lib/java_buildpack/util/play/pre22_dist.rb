@@ -43,10 +43,7 @@ module JavaBuildpack::Util::Play
       root + 'lib'
     end
 
-    def root
-      roots = (@droplet.root + '*').glob.select { |child| child.directory? }
-      roots.size == 1 ? roots.first : nil
-    end
+    alias_method :root, :find_single_directory
 
   end
 
