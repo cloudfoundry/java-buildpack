@@ -28,9 +28,6 @@ module JavaBuildpack::Framework
     def initialize(context)
       super(context)
       @version, @uri = supports? ? find_insight_agent : [nil, nil]
-
-      FileUtils.mkdir_p container_libs_directory
-      FileUtils.mkdir_p extra_applications_directory
     end
 
     def detect

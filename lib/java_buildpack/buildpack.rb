@@ -41,9 +41,9 @@ module JavaBuildpack
     # @yield [Buildpack] the buildpack to work with
     # @return [Object] the return value from the given block
     def self.with_buildpack(app_dir, message)
-      app_dir     = Pathname.new(app_dir)
-      application = Component::Application.new(app_dir)
+      app_dir     = Pathname.new(File.expand_path(app_dir))
       Logging::LoggerFactory.setup app_dir
+      application = Component::Application.new(app_dir)
 
       yield new(app_dir, application) if block_given?
     rescue => e

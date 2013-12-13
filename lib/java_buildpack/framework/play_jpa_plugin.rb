@@ -28,6 +28,7 @@ module JavaBuildpack::Framework
 
     def compile
       download_jar
+      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
     end
 
     def release
