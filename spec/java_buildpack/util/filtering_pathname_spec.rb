@@ -108,19 +108,46 @@ describe JavaBuildpack::Util::FilteringPathname do
     expect((filtering_target + 'bad' + 'extra').parent).not_to exist
   end
 
-  it 'should compare correctly using <=>' do
+  it 'should compare to pathnames correctly using <=>' do
     expect((filtering_target + 'good') <=> (app_dir + 'good')).to eq(0)
-    expect((filtering_target + 'bad') <=> (app_dir + 'bad')).to eq(1)
+    expect((filtering_target + 'good') <=> (app_dir + 'bad')).to eq(1)
+    expect((filtering_target + 'bad') <=> (app_dir + 'bad')).to eq(0)
+    expect((filtering_target + 'a') <=> (app_dir + 'b')).to eq(-1)
+    expect((filtering_target + 'b') <=> (app_dir + 'a')).to eq(1)
   end
 
-  it 'should compare correctly using ==' do
+  it 'should compare to filtering pathnames correctly using <=>' do
+    expect((filtering_target + 'good') <=> (filtering_target + 'good')).to eq(0) # rubocop:disable UselessComparison
+    expect((filtering_target + 'good') <=> (filtering_target + 'bad')).to eq(1)
+    expect((filtering_target + 'bad') <=> (filtering_target + 'bad')).to eq(0)
+    expect((filtering_target + 'a') <=> (filtering_target + 'b')).to eq(-1)
+    expect((filtering_target + 'b') <=> (filtering_target + 'a')).to eq(1)
+  end
+
+  it 'should support sorting' do
+    a = (filtering_target + 'a')
+    b = (filtering_target + 'b')
+    expect([b, a].sort).to eq([a, b])
+  end
+
+  it 'should compare to pathnames correctly using ==' do
     expect((filtering_target + 'good') == (app_dir + 'good')).to be
-    expect((filtering_target + 'bad') == (app_dir + 'bad')).not_to be
+    expect((filtering_target + 'bad') == (app_dir + 'bad')).to be
   end
 
-  it 'should compare correctly using ===' do
+  it 'should compare to filtering pathnames correctly using ==' do
+    expect((filtering_target + 'good') == (filtering_target + 'good')).to be
+    expect((filtering_target + 'bad') == (filtering_target + 'bad')).to be
+  end
+
+  it 'should compare to pathnames correctly using ===' do
     expect((filtering_target + 'good') === (app_dir + 'good')).to be # rubocop:disable CaseEquality
-    expect((filtering_target + 'bad') === (app_dir + 'bad')).not_to be # rubocop:disable CaseEquality
+    expect((filtering_target + 'bad') === (app_dir + 'bad')).to be # rubocop:disable CaseEquality
+  end
+
+  it 'should compare to filtering pathnames correctly using ===' do
+    expect((filtering_target + 'good') === (filtering_target + 'good')).to be # rubocop:disable CaseEquality
+    expect((filtering_target + 'bad') === (filtering_target + 'bad')).to be # rubocop:disable CaseEquality
   end
 
   it 'should delegate relative_path_from' do

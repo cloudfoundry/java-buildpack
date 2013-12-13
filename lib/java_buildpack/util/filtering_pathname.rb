@@ -62,10 +62,22 @@ module JavaBuildpack::Util
       @mutable            = mutable
     end
 
+    # @see Pathname.
+    def <=>(other)
+      @pathname <=> comparison_target(other)
+    end
+
+    # @see Pathname.
+    def ==(other)
+      @pathname == comparison_target(other)
+    end
+
+    # @see Pathname.
+    def ===(other)
+      @pathname === comparison_target(other) # rubocop:disable CaseEquality
+    end
+
     # Dispatch superclass methods via method_missing.
-    undef_method :<=>
-    undef_method :==
-    undef_method :===
     undef_method :taint
     undef_method :untaint
 
@@ -129,6 +141,10 @@ module JavaBuildpack::Util
       end
     end
 
+    protected
+
+    attr_reader :pathname
+
     private
 
     MUTATORS = [:chmod, :chown, :delete, :lchmod, :lchown, :make_link, :make_symlink, :mkdir, :mkpath, :rename, :rmdir, :rmtree, :taint, :unlink, :untaint].to_set.freeze
@@ -139,6 +155,10 @@ module JavaBuildpack::Util
 
     def check_mutable
       fail 'FilteringPathname is immutable' unless @mutable
+    end
+
+    def comparison_target(other)
+      other.instance_of?(FilteringPathname) ? other.pathname : other
     end
 
     def convert_if_necessary(r)
