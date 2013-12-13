@@ -18,52 +18,63 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/maria_db_jdbc'
 
-describe JavaBuildpack::Framework::MariaDbJdbc, service_type: 'test-n/a' do
+describe JavaBuildpack::Framework::MariaDbJDBC do
   include_context 'component_helper'
 
-  context do
-    let(:vcap_services) { {} }
-
-    it 'should not detect without a service containing a mysql tag' do
-      expect(component.detect).to be_nil
-    end
-
+  it 'should not detect without a service containing a mysql tag' do
+    expect(component.detect).to be_nil
   end
 
   context do
 
-    let(:service_payload) { [{ 'tags' => %w(mysql relational) }] }
+    before do
+      allow(services).to receive(:one_service?).with(/mariadb/).and_return(true)
+      allow(services).to receive(:one_service?).with(/mysql/).and_return(false)
+    end
 
-    it 'should detect with service containing a mysql tag' do
-      expect(component.detect).to eq("mariadb-jdbc=#{version}")
+    it 'should detect with service containing a mariadb tag' do
+      expect(component.detect).to eq("maria-db-jdbc=#{version}")
     end
 
     it 'should not detect if the application already has a Maria DB driver',
        app_fixture: 'framework_mariadb_jdbc_with_driver' do
-      expect(component.detect).not_to be
+
+      expect(component.detect).to be_nil
     end
 
     it 'should not detect if the application has a MySQL driver',
        app_fixture: 'framework_mariadb_jdbc_with_mysql_driver' do
-      expect(component.detect).not_to be
+
+      expect(component.detect).to be_nil
     end
 
-    it 'should copy the MariaDB driver to the lib directory when needed',
+    it 'should download the MariaDB driver when needed',
        cache_fixture: 'stub-mariadb-java-client.jar' do
 
       component.compile
 
-      expect(additional_libs_dir + 'mariadb-jdbc-0.0.0.jar').to exist
+      expect(sandbox + "maria_db_jdbc-#{version}.jar").to exist
+    end
+
+    it 'should add the MariaDB driver to the additional libraries when needed',
+       cache_fixture: 'stub-mariadb-java-client.jar' do
+
+      component.release
+
+      expect(additional_libraries).to include(sandbox + "maria_db_jdbc-#{version}.jar")
     end
 
   end
 
   context do
 
-    let(:service_payload) { [{ 'tags' => %w(mariadb relational) }] }
+    before do
+      allow(services).to receive(:one_service?).with(/mariadb/).and_return(false)
+      allow(services).to receive(:one_service?).with(/mysql/).and_return(true)
+    end
 
-    it 'should detect with service containing a mariadb tag' do
-      expect(component.detect).to eq("mariadb-jdbc=#{version}")
+    it 'should detect with service containing a mysql tag' do
+      expect(component.detect).to eq("maria-db-jdbc=#{version}")
     end
 
   end

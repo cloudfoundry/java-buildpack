@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'pathname'
 require 'java_buildpack/util'
+require 'pathname'
 
 module JavaBuildpack::Util
 
@@ -27,8 +27,7 @@ module JavaBuildpack::Util
     # @param [Application] application the application to search
     # @return [Array] a possibly empty list of files
     def self.class_files(application)
-      application.glob(CLASS_FILE_PATTERN).reject { |path| path.directory? }
-      .map { |path| application.relative_path_to path }.sort
+      (application.root + CLASS_FILE_PATTERN).glob.reject { |path| path.directory? }.sort
     end
 
     private_class_method :new

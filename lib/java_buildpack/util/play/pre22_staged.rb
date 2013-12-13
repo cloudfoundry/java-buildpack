@@ -24,11 +24,11 @@ module JavaBuildpack::Util::Play
     protected
 
     def augment_classpath
-      @application.additional_libraries.link_to lib_dir
+      @droplet.additional_libraries.link_to lib_dir
     end
 
     def java_opts
-      @application.java_opts
+      @droplet.java_opts
     end
 
     def lib_dir
@@ -36,7 +36,7 @@ module JavaBuildpack::Util::Play
     end
 
     def root
-      @application.child '.'
+      @droplet.root
     end
 
   end

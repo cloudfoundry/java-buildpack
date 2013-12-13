@@ -21,8 +21,8 @@ module JavaBuildpack::Util::Play
   # Base class for Play application classes.
   class Base
 
-    def initialize(application)
-      @application = application
+    def initialize(droplet)
+      @droplet = droplet
     end
 
     # Delegate method for the component-level compile
@@ -42,12 +42,12 @@ module JavaBuildpack::Util::Play
 
     # Delegate method for the component-level release
     def release
-      @application.java_opts.add_system_property 'http.port', '$PORT'
+      @droplet.java_opts.add_system_property 'http.port', '$PORT'
 
       [
-          "PATH=#{@application.java_home}/bin:$PATH",
-          @application.java_home.as_env_var,
-          "$PWD/#{@application.relative_path_to(start_script)}",
+          "PATH=#{@droplet.java_home.root}/bin:$PATH",
+          @droplet.java_home.as_env_var,
+          "$PWD/#{start_script.relative_path_from(@droplet.root)}",
           java_opts
       ].compact.join(' ')
     end
@@ -115,7 +115,7 @@ module JavaBuildpack::Util::Play
     REPLACEMENT_BOOTSTRAP = 'org.cloudfoundry.reconfiguration.play.Bootstrap'.freeze
 
     def play_jar
-      Pathname.glob(lib_dir + '*play_*-*.jar').first
+      (lib_dir + '*play_*-*.jar').glob.first
     end
 
   end

@@ -25,7 +25,7 @@ module JavaBuildpack::Util::Play
     protected
 
     def augment_classpath
-      additional_classpath = @application.additional_libraries.paths.map do |additional_library|
+      additional_classpath = @droplet.additional_libraries.map do |additional_library|
         "$app_home/#{additional_library.relative_path_from(start_script.dirname)}"
       end
 
@@ -34,7 +34,7 @@ module JavaBuildpack::Util::Play
     end
 
     def java_opts
-      @application.java_opts.map { |java_opt| "-J#{java_opt}" }
+      @droplet.java_opts.map { |java_opt| "-J#{java_opt}" }
     end
 
     def lib_dir
@@ -43,7 +43,7 @@ module JavaBuildpack::Util::Play
 
     def start_script
       if root
-        candidates = @application.glob(root + 'bin/*')
+        candidates = (root + 'bin/*').glob
         candidates.size == 1 ? candidates.first : candidates.find { |candidate| Pathname.new("#{candidate}.bat").exist? }
       else
         nil

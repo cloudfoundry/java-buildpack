@@ -16,12 +16,14 @@
 
 require 'spec_helper'
 require 'application_helper'
+require 'droplet_helper'
 require 'java_buildpack/util/play/pre22'
 
 describe JavaBuildpack::Util::Play::Pre22 do
   include_context 'application_helper'
+  include_context 'droplet_helper'
 
-  let(:play_app) { described_class.new application }
+  let(:play_app) { described_class.new(droplet) }
 
   it 'should raise error if root method is unimplemented' do
     expect { play_app.send(:root) }.to raise_error "Method 'root' must be defined"

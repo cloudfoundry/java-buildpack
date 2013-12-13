@@ -23,4 +23,8 @@ require 'java_buildpack/buildpack'
 
 build_dir = ARGV[0]
 
-puts JavaBuildpack::Buildpack.drive_buildpack_with_logger(build_dir, 'Release failed with exception %s') { |buildpack| buildpack.release }
+output = JavaBuildpack::Buildpack.with_buildpack(build_dir, 'Release failed with exception %s') do |buildpack|
+  buildpack.release
+end
+
+puts output

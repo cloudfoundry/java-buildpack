@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/diagnostics/logger_factory'
+require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/memory_range'
 
@@ -44,10 +44,10 @@ module JavaBuildpack::Jre
     # @param [MemoryRange, nil] range a user-specified range for the memory bucket or nil if the user did not specify a
     #                            range
     def initialize(name, weighting, range)
-      @name = MemoryBucket.validate_name name
+      @name      = MemoryBucket.validate_name name
       @weighting = validate_weighting weighting
-      @range = range ? validate_memory_range(range) : nil
-      logger = JavaBuildpack::Diagnostics::LoggerFactory.get_logger
+      @range     = range ? validate_memory_range(range) : nil
+      logger     = JavaBuildpack::Logging::LoggerFactory.get_logger MemoryBucket
       logger.debug { inspect }
     end
 

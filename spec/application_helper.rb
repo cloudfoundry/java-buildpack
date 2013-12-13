@@ -15,13 +15,36 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'java_buildpack/application/application'
+require 'java_buildpack/component/application'
+require 'java_buildpack/component/services'
+require 'yaml'
 
 shared_context 'application_helper' do
 
   let(:app_dir) { Pathname.new Dir.mktmpdir }
 
-  let(:application) { JavaBuildpack::Application::Application.new app_dir }
+  let(:application) do
+    allow(ENV).to receive(:to_hash).and_return(environment)
+
+    JavaBuildpack::Component::Application.new app_dir
+  end
+
+  let(:details) { application.details }
+
+  let(:environment) do
+    { 'test-key'      => 'test-value', 'VCAP_APPLICATION' => vcap_application.to_yaml,
+      'VCAP_SERVICES' => vcap_services.to_yaml }
+  end
+
+  let(:services) { application.services }
+
+  let(:vcap_application) { { 'application_name' => 'test-application-name' } }
+
+  let(:vcap_services) do
+    { 'test-service-n/a' => [{ 'name'        => 'test-service-name', 'label' => 'test-service-n/a',
+                               'tags'        => ['test-service-tag'], 'plan' => 'test-plan',
+                               'credentials' => { 'uri' => 'test-uri' } }] }
+  end
 
   before do
     FileUtils.mkdir_p app_dir

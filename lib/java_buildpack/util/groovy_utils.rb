@@ -51,8 +51,7 @@ module JavaBuildpack::Util
     # @param [Application] application the application to search
     # @return [Array] a possibly empty list of files
     def self.groovy_files(application)
-      application.glob(GROOVY_FILE_PATTERN).reject { |path| path.directory? }
-      .map { |path| application.relative_path_to path }.sort
+      (application.root + GROOVY_FILE_PATTERN).glob.reject { |path| path.directory? }.sort
     end
 
     private_class_method :new

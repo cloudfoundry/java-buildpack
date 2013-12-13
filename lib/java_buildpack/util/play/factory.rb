@@ -27,14 +27,14 @@ module JavaBuildpack::Util::Play
 
     # Creates a Play application based on the given application directory.
     #
-    # @param [JavaBuildpack::Application::Application] application the application
+    # @param [JavaBuildpack::Component::Droplet] droplet the droplet
     # @return [JavaBuildpack::Util::Play::Base] the play application delegate
-    def self.create(application)
+    def self.create(droplet)
       candidates = [
-          Post22Dist.new(application),
-          Post22Staged.new(application),
-          Pre22Dist.new(application),
-          Pre22Staged.new(application)
+          Post22Dist.new(droplet),
+          Post22Staged.new(droplet),
+          Pre22Dist.new(droplet),
+          Pre22Staged.new(droplet)
       ].select { |candidate| candidate.supports? }
 
       fail "Play application version cannot be determined: #{candidates}" if candidates.size > 1

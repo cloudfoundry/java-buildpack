@@ -5,6 +5,7 @@
       <w>appdynamics</w>
       <w>argv</w>
       <w>codeclimate</w>
+      <w>constantized</w>
       <w>dhttp</w>
       <w>dirname</w>
       <w>etag</w>
@@ -14,21 +15,27 @@
       <w>fileutils</w>
       <w>findex</w>
       <w>fsync</w>
+      <w>heroku</w>
       <w>jres</w>
       <w>jsome</w>
       <w>killjava</w>
+      <w>ljust</w>
       <w>mainclass</w>
       <w>mkdir</w>
       <w>mktmpdir</w>
       <w>mountainlion</w>
+      <w>newrelicagent</w>
       <w>overweaving</w>
+      <w>progname</w>
       <w>rbconfig</w>
       <w>readlink</w>
       <w>redhat</w>
       <w>rspec</w>
       <w>rubocop</w>
+      <w>shellwords</w>
       <w>simplecov</w>
       <w>stderr</w>
+      <w>strftime</w>
       <w>stubcontainer</w>
       <w>stubframework</w>
       <w>stubjre</w>
@@ -37,10 +44,12 @@
       <w>uber</w>
       <w>ubuntu</w>
       <w>uname</w>
+      <w>upcase</w>
       <w>webapp</w>
       <w>webapps</w>
       <w>webmock</w>
       <w>wildcarded</w>
+      <w>wronly</w>
     </words>
   </dictionary>
 </component>

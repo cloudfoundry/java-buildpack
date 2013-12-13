@@ -24,7 +24,7 @@ describe JavaBuildpack::Framework::PlayAutoReconfiguration do
   it 'should detect with application configuration',
      app_fixture: 'container_play_2.1_dist' do
 
-    expect(component.detect).to eq('play-auto-reconfiguration=0.0.0')
+    expect(component.detect).to eq("play-auto-reconfiguration=#{version}")
   end
 
   it 'should not detect without application configuration',
@@ -33,13 +33,22 @@ describe JavaBuildpack::Framework::PlayAutoReconfiguration do
     expect(component.detect).to be_nil
   end
 
-  it 'should copy additional libraries to the lib directory',
-     app_fixture: 'container_play_2.1_dist',
+  it 'should download additional libraries',
+     app_fixture:   'container_play_2.1_dist',
      cache_fixture: 'stub-auto-reconfiguration.jar' do
 
     component.compile
 
-    expect(additional_libs_dir + 'play-auto-reconfiguration-0.0.0.jar').to exist
+    expect(sandbox + "play_auto_reconfiguration-#{version}.jar").to exist
+  end
+
+  it 'should add to the additional libraries',
+     app_fixture:   'container_play_2.1_dist',
+     cache_fixture: 'stub-auto-reconfiguration.jar' do
+
+    component.release
+
+    expect(additional_libraries).to include(sandbox + "play_auto_reconfiguration-#{version}.jar")
   end
 
 end

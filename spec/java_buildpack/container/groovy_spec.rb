@@ -79,15 +79,15 @@ describe JavaBuildpack::Container::Groovy do
 
     component.compile
 
-    expect(app_dir + '.groovy/bin/groovy').to exist
+    expect(sandbox + 'bin/groovy').to exist
   end
 
   it 'should return command',
      app_fixture: 'container_groovy_main_method' do
 
-    expect(component.release).to eq("JAVA_HOME=#{java_home} JAVA_OPTS=#{java_opts_str} .groovy/bin/groovy " +
-                                        '-cp $PWD/.additional-libraries/test-jar-1.jar:' +
-                                        '$PWD/.additional-libraries/test-jar-2.jar Application.groovy Alpha.groovy ' +
+    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} $PWD/.java-buildpack/groovy/bin/groovy " +
+                                        '-cp $PWD/.additional_libs/test-jar-1.jar:' +
+                                        '$PWD/.additional_libs/test-jar-2.jar Application.groovy Alpha.groovy ' +
                                         'directory/Beta.groovy')
   end
 

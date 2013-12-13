@@ -28,7 +28,7 @@ describe JavaBuildpack::Util::Play::Post22Staged do
 
   context do
 
-    let(:trigger) { described_class.new(application).supports? }
+    let(:trigger) { described_class.new(droplet).supports? }
 
     it 'should not recognize non-applications' do
       expect(trigger).not_to be

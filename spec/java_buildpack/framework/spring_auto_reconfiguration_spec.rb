@@ -38,13 +38,22 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
     expect(component.detect).to be_nil
   end
 
-  it 'should copy additional libraries to the lib directory',
-     app_fixture: 'framework_auto_reconfiguration_servlet_3',
+  it 'should download additional libraries',
+     app_fixture:   'framework_auto_reconfiguration_servlet_3',
      cache_fixture: 'stub-auto-reconfiguration.jar' do
 
     component.compile
 
-    expect(additional_libs_dir + "spring-auto-reconfiguration-#{version}.jar").to exist
+    expect(sandbox + "spring_auto_reconfiguration-#{version}.jar").to exist
+  end
+
+  it 'should add to additional libraries',
+     app_fixture:   'framework_auto_reconfiguration_servlet_3',
+     cache_fixture: 'stub-auto-reconfiguration.jar' do
+
+    component.release
+
+    expect(additional_libraries).to include(sandbox + "spring_auto_reconfiguration-#{version}.jar")
   end
 
   context do
@@ -59,7 +68,7 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
     end
 
     it 'should update web.xml if it exists',
-       app_fixture: 'framework_auto_reconfiguration_servlet_2',
+       app_fixture:   'framework_auto_reconfiguration_servlet_2',
        cache_fixture: 'stub-auto-reconfiguration.jar' do
 
       component.compile

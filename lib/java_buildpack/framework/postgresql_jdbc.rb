@@ -15,44 +15,37 @@
 # limitations under the License.
 
 require 'fileutils'
+require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
-require 'java_buildpack/util/service_utils'
-require 'java_buildpack/versioned_dependency_component'
 
 module JavaBuildpack::Framework
 
   # Encapsulates the functionality for enabling the Postgres JDBC client.
-  class PostgresqlJdbc < JavaBuildpack::VersionedDependencyComponent
-
-    def initialize(context)
-      super('Postgresql JDBC', context)
-    end
+  class PostgresqlJDBC < JavaBuildpack::Component::VersionedDependencyComponent
 
     def compile
-      download_jar jar_name
+      download_jar
     end
 
     def release
+      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
     end
 
     protected
 
     def supports?
-      !has_driver? && JavaBuildpack::Util::ServiceUtils.find_service(@vcap_services, SERVICE_NAME)
+      has_service? && !has_driver?
     end
 
     private
 
-    SERVICE_NAME = /postgres/.freeze
-
-    def jar_name
-      "#{@parsable_component_name}-#{@version}.jar"
-    end
-
     def has_driver?
-      !@application.glob('postgresql-*.jar').empty?
+      (@application.root + 'postgresql-*.jar').glob.any?
     end
 
+    def has_service?
+      @application.services.one_service? /postgres/
+    end
   end
 
 end

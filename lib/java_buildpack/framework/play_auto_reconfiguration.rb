@@ -14,38 +14,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 require 'java_buildpack/util/play/factory'
-require 'java_buildpack/versioned_dependency_component'
 
 module JavaBuildpack::Framework
 
   # Encapsulates the functionality for enabling cloud auto-reconfiguration in Play applications. Note that Spring auto-
   # reconfiguration is covered by the SpringAutoReconfiguration framework. The reconfiguration performed here is to
   # override Play application configuration to bind a Play application to cloud resources.
-  class PlayAutoReconfiguration < JavaBuildpack::VersionedDependencyComponent
-
-    def initialize(context)
-      super('Play Auto-reconfiguration', context)
-    end
+  class PlayAutoReconfiguration < JavaBuildpack::Component::VersionedDependencyComponent
 
     def compile
-      download_jar jar_name
+      download_jar
     end
 
     def release
+      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
     end
 
     protected
 
     def supports?
-      JavaBuildpack::Util::Play::Factory.create @application
-    end
-
-    private
-
-    def jar_name
-      "#{@parsable_component_name}-#{@version}.jar"
+      JavaBuildpack::Util::Play::Factory.create @droplet
     end
 
   end

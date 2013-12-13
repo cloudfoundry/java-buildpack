@@ -15,14 +15,14 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'diagnostics_helper'
+require 'logging_helper'
 require 'java_buildpack/jre/memory/stack_memory_bucket'
 require 'java_buildpack/jre/memory/memory_bucket'
 require 'java_buildpack/jre/memory/memory_range'
 require 'java_buildpack/jre/memory/memory_size'
 
 describe JavaBuildpack::Jre::StackMemoryBucket do
-  include_context 'diagnostics_helper'
+  include_context 'logging_helper'
 
   let(:test_stack_bucket_weighting) { 0.05 }
   let(:test_stack_size) { JavaBuildpack::Jre::MemorySize.new('2M') }

@@ -16,19 +16,18 @@
 
 require 'spec_helper'
 require 'application_helper'
-require 'diagnostics_helper'
-require 'logger'
+require 'logging_helper'
 require 'java_buildpack/buildpack'
 require 'java_buildpack/util/java_main_utils'
 
 describe JavaBuildpack::Util::JavaMainUtils do
   include_context 'application_helper'
-  include_context 'diagnostics_helper'
+  include_context 'logging_helper'
 
   let(:test_class_name) { 'test-java-main-class' }
 
   it 'should use a main class configuration in a configuration file' do
-    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('JavaMain')
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('java_main')
                                        .and_return('java_main_class' => test_class_name)
 
     expect(described_class.main_class(application)).to eq(test_class_name)

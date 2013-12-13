@@ -19,50 +19,53 @@ require 'component_helper'
 require 'fileutils'
 require 'java_buildpack/framework/spring_insight'
 
-describe JavaBuildpack::Framework::SpringInsight, service_type: 'spring-insight-n/a' do
+describe JavaBuildpack::Framework::SpringInsight do
   include_context 'component_helper'
 
-  let(:service_credentials) { { 'dashboard_url' => 'test-uri' } }
-
-  let(:service_payload) { [{ 'label' => 'insight-1.0', 'credentials' => service_credentials }] }
-
-  it 'should detect with spring-insight-n/a service' do
-    expect(component.detect).to eq('spring-insight=1.0')
+  it 'should not detect without spring-insight-n/a service' do
+    expect(component.detect).to be_nil
   end
 
   context do
+
     before do
+      allow(services).to receive(:one_service?).with(/insight/).and_return(true)
+      allow(services).to receive(:find_service).and_return('label'       => 'insight-1.0',
+                                                           'credentials' => { 'dashboard_url' => 'test-uri' })
       allow(application_cache).to receive(:get).with('test-uri/services/config/agent-download')
                                   .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open)
+    end
+
+    it 'should detect with spring-insight-n/a service' do
+      expect(component.detect).to eq('spring-insight=1.0')
     end
 
     it 'should extract Spring Insight from the Uber Agent zip file inside the Agent Installer jar' do
       component.compile
 
-      insight_home = app_dir + '.spring-insight'
-      container_libs_dir = app_dir + '.container-libs'
-      extra_applications_dir = app_dir + '.extra-applications'
+      container_libs_dir     = app_dir + '.spring-insight/container-libs'
+      extra_applications_dir = app_dir + '.spring-insight/extra-applications'
 
-      expect(insight_home + 'weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar').to exist
+      expect(sandbox + 'weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar').to exist
       expect(container_libs_dir + 'insight-bootstrap-generic-1.2.3-CI-SNAPSHOT.jar').to exist
       expect(container_libs_dir + 'insight-bootstrap-tomcat-common-1.2.5-CI-SNAPSHOT.jar').to exist
-      expect(insight_home + 'insight/conf/insight.properties').to exist
-      expect(insight_home + 'insight/collection-plugins/test-collection-plugins').to exist
+      expect(sandbox + 'insight/conf/insight.properties').to exist
+      expect(sandbox + 'insight/collection-plugins/test-collection-plugins').to exist
       expect(extra_applications_dir + 'insight-agent').to exist
     end
-  end
 
-  it 'should update JAVA_OPTS',
-     app_fixture: 'framework_spring_insight' do
+    it 'should update JAVA_OPTS',
+       app_fixture: 'framework_spring_insight' do
 
-    component.release
+      component.release
 
-    expect(java_opts).to include('-javaagent:$PWD/.spring-insight/weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar')
-    expect(java_opts).to include('-Dinsight.base=$PWD/.spring-insight/insight')
-    expect(java_opts).to include('-Dinsight.logs=$PWD/.spring-insight/insight/logs')
-    expect(java_opts).to include('-Daspectj.overweaving=true')
-    expect(java_opts).to include('-Dorg.aspectj.tracing.factory=default')
-    expect(java_opts).to include("-Dagent.name.override='test-application-name'")
+      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/spring_insight/weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar')
+      expect(java_opts).to include('-Dinsight.base=$PWD/.java-buildpack/spring_insight/insight')
+      expect(java_opts).to include('-Dinsight.logs=$PWD/.java-buildpack/spring_insight/insight/logs')
+      expect(java_opts).to include('-Daspectj.overweaving=true')
+      expect(java_opts).to include('-Dorg.aspectj.tracing.factory=default')
+      expect(java_opts).to include("-Dagent.name.override='test-application-name'")
+    end
   end
 
 end

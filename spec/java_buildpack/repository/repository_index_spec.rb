@@ -17,22 +17,22 @@
 require 'spec_helper'
 require 'application_helper'
 require 'buildpack_cache_helper'
-require 'diagnostics_helper'
+require 'logging_helper'
 require 'fileutils'
 require 'java_buildpack/repository/repository_index'
 require 'java_buildpack/repository/version_resolver'
 require 'java_buildpack/util/configuration_utils'
-require 'java_buildpack/util/download_cache'
+require 'java_buildpack/util/cache/download_cache'
 require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Repository::RepositoryIndex do
   include_context 'application_helper'
-  include_context 'diagnostics_helper'
+  include_context 'logging_helper'
 
   let(:application_cache) { double('ApplicationCache') }
 
   before do
-    allow(JavaBuildpack::Util::DownloadCache).to receive(:new).and_return(application_cache)
+    allow(JavaBuildpack::Util::Cache::DownloadCache).to receive(:new).and_return(application_cache)
   end
 
   it 'should load index' do
@@ -71,7 +71,7 @@ describe JavaBuildpack::Repository::RepositoryIndex do
 
     it 'should use the read-only buildpack cache when index.yaml cannot be downloaded because the internet is not available' do
       stub_request(:get, 'http://foo.com/index.yml').to_raise(SocketError)
-      allow(JavaBuildpack::Util::DownloadCache).to receive(:new).and_call_original
+      allow(JavaBuildpack::Util::Cache::DownloadCache).to receive(:new).and_call_original
 
       FileUtils.mkdir_p java_buildpack_cache_dir
       FileUtils.cp 'spec/fixtures/stashed_repository_index.yml', java_buildpack_cache_dir + 'http:%2F%2Ffoo.com%2Findex.yml.cached'
