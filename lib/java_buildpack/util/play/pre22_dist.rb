@@ -27,7 +27,7 @@ module JavaBuildpack::Util::Play
       if version.start_with? '2.0'
         @droplet.additional_libraries.link_to lib_dir
       else
-        additional_classpath = @droplet.additional_libraries.map do |additional_library|
+        additional_classpath = @droplet.additional_libraries.sort.map do |additional_library|
           "$scriptdir/#{additional_library.relative_path_from(root)}"
         end
 

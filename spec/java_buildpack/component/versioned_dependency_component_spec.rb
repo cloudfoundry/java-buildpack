@@ -57,7 +57,7 @@ describe JavaBuildpack::Component::VersionedDependencyComponent do
     end
 
     it 'should download and expand TAR file in the sandbox',
-       cache_fixture: 'stub-download.tar' do
+       cache_fixture: 'stub-download.tar.gz' do
 
       versioned_dependency_component.download_tar
       expect(droplet.sandbox + 'test-file').to exist
