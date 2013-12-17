@@ -8,9 +8,15 @@ The `java-buildpack` is a [Cloud Foundry][] buildpack for running Java applicati
 ## Usage
 To use this buildpack specify the URI of the repository when pushing an application to Cloud Foundry:
 
-    cf push --buildpack https://github.com/cloudfoundry/java-buildpack
+```bash
+cf push --buildpack https://github.com/cloudfoundry/java-buildpack
+```
 
-The total amount of memory available is specified when the application is pushed. See [Memory](docs/jre-openjdk.md#Memory) for information on how this determines the memory available to a Java application.
+or if using the [`gcf`][] tool:
+
+```bash
+gcf push -b https://github.com/cloudfoundry/java-buildpack
+```
 
 ## Configuration and Extension
 The buildpack supports configuration and extension through the use of Git repository forking.  The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository.  Make the required configuration and extension changes in the copy of the repository.  Then specify the URL of the new repository when pushing Cloud Foundry applications.  If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes.
@@ -19,33 +25,38 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 
 ## Additional Documentation
 * [Design](docs/design.md)
-* [Migrating from the Previous Java Buildpack](docs/migration.md)
 * [Security](docs/security.md)
 * Standard Containers
 	* [Groovy](docs/container-groovy.md) ([Configuration](docs/container-groovy.md#configuration))
-	* [Java Main Class](docs/container-java-main.md) ([Configuration](docs/container-java-main.md#configuration))
-	* [Play](docs/container-play.md)
-	* [Spring Boot CLI](docs/container-spring-boot-cli.md) ([Configuration](docs/container-spring-boot-cli.md#configuration))
+	* [Java Main](docs/container-java_main.md) ([Configuration](docs/container-java_main.md#configuration))
+	* [Play Framework](docs/container-play_framework.md)
+	* [Spring Boot CLI](docs/container-spring_boot_cli.md) ([Configuration](docs/container-spring_boot_cli.md#configuration))
 	* [Tomcat](docs/container-tomcat.md) ([Configuration](docs/container-tomcat.md#configuration))
 * Standard Frameworks
+	* [AppDynamics Agent](docs/framework-app_dynamics_agent.md) ([Configuration](docs/framework-app_dynamics_agent.md#configuration))
 	* [Java Options](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))
-	* [AppDynamics](docs/framework-app-dynamics.md) ([Configuration](docs/framework-app-dynamics.md#configuration))
-	* [New Relic](docs/framework-new-relic.md) ([Configuration](docs/framework-new-relic.md#configuration))
-	* [Play Auto Reconfiguration](docs/framework-play-auto-reconfiguration.md) ([Configuration](docs/framework-play-auto-reconfiguration.md#configuration))
-	* [Play JPA Plugin](docs/framework-play-jpa-plugin.md) ([Configuration](docs/framework-play-jpa-plugin.md#configuration))
-	* [Spring Auto Reconfiguration](docs/framework-spring-auto-reconfiguration.md) ([Configuration](docs/framework-spring-auto-reconfiguration.md#configuration))
-	* [Spring Insight](docs/framework-spring-insight.md) ([Configuration](docs/framework-spring-insight.md#configuration))
+	* [MariaDB JDBC](docs/framework-maria_db_jdbc.md) ([Configuration](docs/framework-maria_db_jdbc.md#configuration))
+	* [New Relic Agent](docs/framework-new_relic_agent.md) ([Configuration](docs/framework-new_relic_agent.md#configuration))
+	* [Play Framework Auto Reconfiguration](docs/framework-play_framework_auto_reconfiguration.md) ([Configuration](docs/framework-play_framework_auto_reconfiguration.md#configuration))
+	* [Play Framework JPA Plugin](docs/framework-play_framework_jpa_plugin.md) ([Configuration](docs/framework-play_framework_jpa_plugin.md#configuration))
+	* [PostgreSQL JDBC](docs/framework-postgresql_jdbc.md) ([Configuration](docs/framework-postgresql_jdbc.md#configuration))
+	* [Spring Auto Reconfiguration](docs/framework-spring_auto_reconfiguration.md) ([Configuration](docs/framework-spring_auto_reconfiguration.md#configuration))
+	* [Spring Insight](docs/framework-spring_insight.md)
 * Standard JREs
-	* [OpenJDK](docs/jre-openjdk.md) ([Configuration](docs/jre-openjdk.md#configuration))
+	* [OpenJDK](docs/jre-open_jdk.md) ([Configuration](docs/jre-open_jdk.md#configuration))
 * [Extending](docs/extending.md)
-* Utilities
-	* [Caches](docs/util-caches.md) ([Configuration](docs/util-caches.md#configuration))
-	* [Logging](docs/logging.md) ([Configuration](docs/logging.md#configuration))
-	* [Repositories](docs/util-repositories.md) ([Configuration](docs/util-repositories.md#configuration))
-	* [Other Utiltities](docs/util-other.md)
-	* [Repository Builder](docs/util-repository-builder.md)
-	* [Test Applications](docs/util-test-applications.md)
-	* [System Tests](docs/util-system-tests.md)
+	* [Application](docs/extending-application.md)
+	* [Droplet](docs/extending-droplet.md)
+	* [BaseComponent](docs/extending-base_component.md)
+	* [VersionedDependencyComponent](docs/extending-versioned_dependency_component.md)
+	* [Caches](docs/extending-caches.md) ([Configuration](docs/extending-caches.md#configuration))
+	* [Logging](docs/extending-logging.md) ([Configuration](docs/extending-logging.md#configuration))
+	* [Repositories](docs/extending-repositories.md) ([Configuration](docs/extending-repositories.md#configuration))
+	* [Utiltities](docs/extending-utiltities.md)
+* Related Projects
+	* [Java Buildpack Dependency Builder](https://github.com/cloudfoundry/java-buildpack-dependency-builder)
+	* [Java Test Applications](https://github.com/cloudfoundry/java-test-applications)
+	* [Java Buildpack System Tests](https://github.com/cloudfoundry/java-buildpack-system-test)
 
 ## Running Tests
 To run the tests, do the following:
@@ -66,6 +77,7 @@ This buildpack is released under version 2.0 of the [Apache License][].
 [Apache License]: http://www.apache.org/licenses/LICENSE-2.0
 [Cloud Foundry]: http://www.cloudfoundry.com
 [contributor guidelines]: CONTRIBUTING.md
+[`gcf`]: https://github.com/cloudfoundry/cli
 [GitHub's forking functionality]: https://help.github.com/articles/fork-a-repo
 [pull request]: https://help.github.com/articles/using-pull-requests
 [Pull requests]: http://help.github.com/send-pull-requests

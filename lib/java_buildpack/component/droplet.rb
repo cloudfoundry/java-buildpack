@@ -37,7 +37,7 @@ module JavaBuildpack::Component
     #   @return [String] the id of component using this droplet
     attr_reader :component_id
 
-    # @!attribute [r] details
+    # @!attribute [r] java_home
     #   @return [ImmutableJavaHome, MutableJavaHome] the shared +JavaHome+ instance for all components.  If the
     #                                                component using this instance is a jre, then this will be an
     #                                                instance of +MutableJavaHome+.  Otherwise it will be an instance of

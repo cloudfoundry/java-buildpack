@@ -1,5 +1,5 @@
 # Groovy Container
-The Groovy Container allows a uncompiled (i.e. `*.groovy`) to be run.
+The Groovy Container allows uncompiled Groovy files (i.e. `*.groovy`) to be run.
 
 <table>
   <tr>
@@ -13,7 +13,8 @@ The Groovy Container allows a uncompiled (i.e. `*.groovy`) to be run.
     </ul></td>
   </tr>
   <tr>
-    <td><strong>Tags</strong></td><td><tt>groovy=&lang;version&rang;</tt></td>
+    <td><strong>Tags</strong></td>
+    <td><tt>groovy=&lang;version&rang;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
@@ -30,6 +31,6 @@ The container can be configured by modifying the [`config/groovy.yml`][] file.  
 
 [Configuration and Extension]: ../README.md#Configuration-and-Extension
 [`config/groovy.yml`]: ../config/groovy.yml
-[repositories]: util-repositories.md
+[repositories]: extending-repositories.md
 [this listing]: http://download.pivotal.io.s3.amazonaws.com/groovy/index.yml
-[version syntax]: util-repositories.md#version-syntax-and-ordering
+[version syntax]: extending-repositories.md#version-syntax-and-ordering

@@ -24,7 +24,7 @@ module JavaBuildpack::Framework
   # applications that use JPA. Note that Spring auto-reconfiguration is covered by the SpringAutoReconfiguration
   # framework. The reconfiguration performed here is to override Play application configuration to bind a Play
   # application to cloud resources.
-  class PlayJPAPlugin < JavaBuildpack::Component::VersionedDependencyComponent
+  class PlayFrameworkJPAPlugin < JavaBuildpack::Component::VersionedDependencyComponent
 
     def compile
       download_jar

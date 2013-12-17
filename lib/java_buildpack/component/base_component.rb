@@ -28,10 +28,6 @@ module JavaBuildpack::Component
   class BaseComponent
     include JavaBuildpack::Util::Shell
 
-    # @!attribute [r] component_name
-    #   @return [String] the name of the component as determined by the buildpack
-    attr_reader :component_name
-
     # Creates an instance.  The contents of +context+ are assigned to the instance variables matching their keys.
     #
     # @param [Hash] context a collection of utilities used by components
