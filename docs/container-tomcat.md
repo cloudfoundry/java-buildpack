@@ -1,12 +1,13 @@
 # Tomcat Container
-The Tomcat Container allows a web application to be run.  These applications are run as the root web application in a Tomcat container.
+The Tomcat Container allows servlet 2 and 3 web applications to be run.  These applications are run as the root web application in a Tomcat container.
 
 <table>
   <tr>
-    <td><strong>Detection Criterion</strong></td><td>Existence of a <tt>WEB-INF/</tt> folder in the application directory and <a href="container-java-main.md">Java Main Class</a> not detected</td>
+    <td><strong>Detection Criterion</strong></td><td>Existence of a <tt>WEB-INF/</tt> folder in the application directory and <a href="container-java_main.md">Java Main</a> not detected</td>
   </tr>
   <tr>
-    <td><strong>Tags</strong></td><td><tt>tomcat=&lang;version&rang;</tt>, <tt>tomcat-buildpack-support=&lang;version&rang;</tt></td>
+    <td><strong>Tags</strong></td>
+    <td><tt>tomcat=&lang;version&rang;</tt>, <tt>tomcat-buildpack-support=&lang;version&rang;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
@@ -29,8 +30,8 @@ Additional supporting functionality can be found in the [`java-buildpack-support
 [Configuration and Extension]: ../README.md#Configuration-and-Extension
 [`config/tomcat.yml`]: ../config/tomcat.yml
 [`java-buildpack-support`]: https://github.com/cloudfoundry/java-buildpack-support
-[repositories]: util-repositories.md
+[repositories]: extending-repositories.md
 [Spring profiles]:http://blog.springsource.com/2011/02/14/spring-3-1-m1-introducing-profile/
-[`SPRING_PROFILES_ACTIVE`]: http://static.springsource.org/spring/docs/3.1.x/javadoc-api/org/springframework/core/env/AbstractEnvironment.html#ACTIVE_PROFILES_PROPERTY_NAME
+[`SPRING_PROFILES_ACTIVE`]: http://docs.spring.io/spring/docs/4.0.0.RELEASE/javadoc-api/org/springframework/core/env/AbstractEnvironment.html#ACTIVE_PROFILES_PROPERTY_NAME
 [this listing]: http://download.pivotal.io.s3.amazonaws.com/tomcat/index.yml
-[version syntax]: util-repositories.md#version-syntax-and-ordering
+[version syntax]: extending-repositories.md#version-syntax-and-ordering

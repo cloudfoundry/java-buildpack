@@ -90,7 +90,7 @@ end
 
 class StubBaseComponent < JavaBuildpack::Component::BaseComponent
 
-  attr_reader :application, :configuration, :droplet
+  attr_reader :application, :component_name, :configuration, :droplet
 
   public :download, :download_jar, :download_tar, :download_zip, :with_timing
 

@@ -16,27 +16,27 @@
 
 require 'spec_helper'
 require 'component_helper'
-require 'java_buildpack/framework/play_jpa_plugin'
+require 'java_buildpack/framework/play_framework_jpa_plugin'
 
-describe JavaBuildpack::Framework::PlayJPAPlugin do
+describe JavaBuildpack::Framework::PlayFrameworkJPAPlugin do
   include_context 'component_helper'
 
   it 'should detect Play 2.0 application',
      app_fixture: 'framework_play_jpa_plugin_play20' do
 
-    expect(component.detect).to eq("play-jpa-plugin=#{version}")
+    expect(component.detect).to eq("play-framework-jpa-plugin=#{version}")
   end
 
   it 'should detect staged application',
      app_fixture: 'framework_play_jpa_plugin_staged' do
 
-    expect(component.detect).to eq("play-jpa-plugin=#{version}")
+    expect(component.detect).to eq("play-framework-jpa-plugin=#{version}")
   end
 
   it 'should detect dist application',
      app_fixture: 'framework_play_jpa_plugin_dist' do
 
-    expect(component.detect).to eq("play-jpa-plugin=#{version}")
+    expect(component.detect).to eq("play-framework-jpa-plugin=#{version}")
   end
 
   it 'should not detect non-JPA application',
@@ -51,7 +51,7 @@ describe JavaBuildpack::Framework::PlayJPAPlugin do
 
     component.compile
 
-    expect(sandbox + "play_jpa_plugin-#{version}.jar").to exist
+    expect(sandbox + "play_framework_jpa_plugin-#{version}.jar").to exist
   end
 
   it 'should add to additional libraries',
@@ -60,7 +60,7 @@ describe JavaBuildpack::Framework::PlayJPAPlugin do
 
     component.release
 
-    expect(additional_libraries).to include(sandbox + "play_jpa_plugin-#{version}.jar")
+    expect(additional_libraries).to include(sandbox + "play_framework_jpa_plugin-#{version}.jar")
   end
 
 end

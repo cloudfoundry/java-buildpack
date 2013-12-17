@@ -16,15 +16,15 @@
 
 require 'spec_helper'
 require 'component_helper'
-require 'java_buildpack/framework/play_auto_reconfiguration'
+require 'java_buildpack/framework/play_framework_auto_reconfiguration'
 
-describe JavaBuildpack::Framework::PlayAutoReconfiguration do
+describe JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration do
   include_context 'component_helper'
 
   it 'should detect with application configuration',
      app_fixture: 'container_play_2.1_dist' do
 
-    expect(component.detect).to eq("play-auto-reconfiguration=#{version}")
+    expect(component.detect).to eq("play-framework-auto-reconfiguration=#{version}")
   end
 
   it 'should not detect without application configuration',
@@ -39,7 +39,7 @@ describe JavaBuildpack::Framework::PlayAutoReconfiguration do
 
     component.compile
 
-    expect(sandbox + "play_auto_reconfiguration-#{version}.jar").to exist
+    expect(sandbox + "play_framework_auto_reconfiguration-#{version}.jar").to exist
   end
 
   it 'should add to the additional libraries',
@@ -48,7 +48,7 @@ describe JavaBuildpack::Framework::PlayAutoReconfiguration do
 
     component.release
 
-    expect(additional_libraries).to include(sandbox + "play_auto_reconfiguration-#{version}.jar")
+    expect(additional_libraries).to include(sandbox + "play_framework_auto_reconfiguration-#{version}.jar")
   end
 
 end

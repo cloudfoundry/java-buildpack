@@ -23,7 +23,7 @@ module JavaBuildpack::Framework
   # Encapsulates the functionality for enabling cloud auto-reconfiguration in Play applications. Note that Spring auto-
   # reconfiguration is covered by the SpringAutoReconfiguration framework. The reconfiguration performed here is to
   # override Play application configuration to bind a Play application to cloud resources.
-  class PlayAutoReconfiguration < JavaBuildpack::Component::VersionedDependencyComponent
+  class PlayFrameworkAutoReconfiguration < JavaBuildpack::Component::VersionedDependencyComponent
 
     def compile
       download_jar

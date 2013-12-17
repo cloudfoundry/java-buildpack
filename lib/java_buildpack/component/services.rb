@@ -40,7 +40,7 @@ module JavaBuildpack::Component
     # that the +filter+ matches.  If no service matches, returns +nil+
     #
     # @param [Regexp, String] filter a +RegExp+ or +String+ to match against the name, label, and tags of the services
-    # @return [Boolean, nil] the first service that +filter+ matches.  If no service matches, returns +nil+.
+    # @return [Hash, nil] the first service that +filter+ matches.  If no service matches, returns +nil+.
     def find_service(filter)
       find(&matcher(filter))
     end

@@ -47,7 +47,7 @@ Caching can be configured by modifying the [`config/cache.yml`][] file.
 | ---- | -----------
 | `remote_downloads` | This property can take the value `enabled` or `disabled`. <p>The default value of `enabled` means that the buildpack will check the internet connection and remember the result for the remainder of the buildpack invocation. If the internet is available, it will then be used to download files. If the internet is not available, cache will be consulted instead. <p>Alternatively, the property may be set to `disabled` which avoids the check for an internet connection, does not attempt downloads, and consults the cache instead.
 
-## `JavaBuildpack::Util::DownloadCache`
+## `JavaBuildpack::Util::Cache::DownloadCache`
 The [`DownloadCache`][] is the most generic of the three caches.  It allows you to create a cache that persists files any that write access is available.  The constructor signature looks the following:
 
 ```ruby
@@ -57,7 +57,7 @@ The [`DownloadCache`][] is the most generic of the three caches.  It allows you 
 def initialize(cache_root = Dir.tmpdir)
 ```
 
-## `JavaBuildpack::Util::ApplicationCache`
+## `JavaBuildpack::Util::Cache::ApplicationCache`
 The [`ApplicationCache`][] is a cache that persists files into the application cache passed to the `compile` script.  It examines `ARGV[1]` for the cache location and configures itself accordingly.
 
 ```ruby
@@ -68,7 +68,7 @@ The [`ApplicationCache`][] is a cache that persists files into the application c
 def initialize
 ```
 
-## `JavaBuildpack::Util::GlobalCache`
+## `JavaBuildpack::Util::Cache::GlobalCache`
 The [`GlobalCache`][] is a cache that persists files into the global cache passed to all scripts.  It examines `ENV['BUILDPACK_CACHE']` for the cache location and configures itself accordingly.
 
 ```ruby
@@ -79,8 +79,8 @@ The [`GlobalCache`][] is a cache that persists files into the global cache passe
 def initialize
 ```
 
-[`ApplicationCache`]: ../lib/java_buildpack/util/application_cache.rb
+[`ApplicationCache`]: ../lib/java_buildpack/util/cache/application_cache.rb
 [`config/cache.yml`]: ../config/cache.yml
-[`DownloadCache`]: ../lib/java_buildpack/util/download_cache.rb
-[`GlobalCache`]: ../lib/java_buildpack/util/global_cache.rb
+[`DownloadCache`]: ../lib/java_buildpack/util/cache/download_cache.rb
+[`GlobalCache`]: ../lib/java_buildpack/util/cache/global_cache.rb
 [Configuration and Extension]: ../README.md#Configuration-and-Extension
