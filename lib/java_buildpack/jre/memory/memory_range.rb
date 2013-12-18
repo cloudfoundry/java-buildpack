@@ -36,12 +36,12 @@ module JavaBuildpack::Jre
     def initialize(value, ceiling = nil)
       if value.is_a? String
         fail "Invalid combination of parameter types #{value.class} and #{ceiling.class}" unless ceiling.nil?
-        lower_bound, upper_bound = MemoryRange.get_bounds(value)
+        lower_bound, upper_bound = get_bounds(value)
         @floor = create_memory_size lower_bound
         @ceiling = upper_bound ? create_memory_size(upper_bound) : nil
       else
-        MemoryRange.validate_memory_size value
-        MemoryRange.validate_memory_size ceiling unless ceiling.nil?
+        validate_memory_size value
+        validate_memory_size ceiling unless ceiling.nil?
         @floor = value
         @ceiling = ceiling
       end
@@ -113,7 +113,7 @@ module JavaBuildpack::Jre
 
     RANGE_SEPARATOR = '..'
 
-    def self.get_bounds(range)
+    def get_bounds(range)
       if range.index(RANGE_SEPARATOR)
         lower_bound, upper_bound = range.split(RANGE_SEPARATOR)
         lower_bound = '0' if lower_bound.nil? || lower_bound == ''
@@ -127,7 +127,7 @@ module JavaBuildpack::Jre
       MemorySize.new(size)
     end
 
-    def self.validate_memory_size(size)
+    def validate_memory_size(size)
       fail "Invalid MemorySize parameter of type #{size.class}" unless size.is_a? MemorySize
     end
 

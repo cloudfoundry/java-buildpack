@@ -28,73 +28,82 @@ module JavaBuildpack::Util::Cache
   # in +config/cache.yml+.
   class InternetAvailability
 
-    @@monitor = Monitor.new
+    private_class_method :new
 
-    @@internet_checked = false
+    class << self
 
-    @@internet_up = true
-
-    # Returns whether or not the internet is deemed to be available.
-    #
-    # @return [Boolean] +true+ if and only if the internet is deemed to be available
-    def self.use_internet?
-      @@monitor.synchronize do
-        if !@@internet_checked
-          remote_downloads_configuration = JavaBuildpack::Util::ConfigurationUtils.load('cache')['remote_downloads']
-          if remote_downloads_configuration == 'disabled'
-            store_internet_availability false
-            false
-          elsif remote_downloads_configuration == 'enabled'
-            true
+      # Returns whether or not the internet is deemed to be available.
+      #
+      # @return [Boolean] +true+ if and only if the internet is deemed to be available
+      def use_internet?
+        @@monitor.synchronize do
+          if !@@internet_checked
+            remote_downloads_configuration = JavaBuildpack::Util::ConfigurationUtils.load('cache')['remote_downloads']
+            if remote_downloads_configuration == 'disabled'
+              store_internet_availability false
+              false
+            elsif remote_downloads_configuration == 'enabled'
+              true
+            else
+              fail "Invalid remote_downloads configuration: #{remote_downloads_configuration}"
+            end
           else
-            fail "Invalid remote_downloads configuration: #{remote_downloads_configuration}"
+            @@internet_up
           end
-        else
-          @@internet_up
         end
       end
-    end
 
-    # Deem the internet to be available.
-    def self.internet_available
-      store_internet_availability true
-    end
-
-    # Deem the internet to be unavailable and log an error if appropriate.
-    #
-    # @param [String] reason a diagnostic which indicates why the internet should be deemed unavailable
-    def self.internet_unavailable(reason)
-      logger.error { reason } if internet_availability_stored?
-      store_internet_availability false
-    end
-
-    # Returns whether or not the internet availability has been stored.
-    #
-    # @return [Boolean] +true+ if and only if internet availability has been recorded
-    def self.internet_availability_stored?
-      @@monitor.synchronize do
-        @@internet_checked
+      # Deem the internet to be available.
+      def internet_available
+        store_internet_availability true
       end
-    end
 
-    # Clears any record of internet availability.
-    def self.clear_internet_availability
-      @@monitor.synchronize do
-        @@internet_checked = false
+      # Deem the internet to be unavailable and log an error if appropriate.
+      #
+      # @param [String] reason a diagnostic which indicates why the internet should be deemed unavailable
+      def internet_unavailable(reason)
+        logger.error { reason } if internet_availability_stored?
+        store_internet_availability false
       end
-    end
 
-    private
-
-    def self.logger
-      JavaBuildpack::Logging::LoggerFactory.get_logger InternetAvailability
-    end
-
-    def self.store_internet_availability(internet_up)
-      @@monitor.synchronize do
-        @@internet_up      = internet_up
-        @@internet_checked = true
+      # Returns whether or not the internet availability has been stored.
+      #
+      # @return [Boolean] +true+ if and only if internet availability has been recorded
+      def internet_availability_stored?
+        @@monitor.synchronize do
+          @@internet_checked
+        end
       end
+
+      # Clears any record of internet availability.
+      def clear_internet_availability
+        @@monitor.synchronize do
+          @@internet_checked = false
+        end
+      end
+
+      # Explicitly sets whether or not the internet is available
+      #
+      # @param [Boolean] internet_up whether the internet is available
+      def store_internet_availability(internet_up)
+        @@monitor.synchronize do
+          @@internet_up      = internet_up
+          @@internet_checked = true
+        end
+      end
+
+      private
+
+      @@monitor = Monitor.new
+
+      @@internet_checked = false
+
+      @@internet_up = true
+
+      def logger
+        JavaBuildpack::Logging::LoggerFactory.get_logger InternetAvailability
+      end
+
     end
 
   end

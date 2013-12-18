@@ -23,32 +23,38 @@ module JavaBuildpack::Util
   # Java Main application utilities.
   class JavaMainUtils
 
-    # Returns the Java main class name for the Java main configuration and given application directory or +nil+ if this
-    # is not a Java main application.
-    #
-    # @param [JavaBuildpack::Application::Application] application the application
-    # @param [Hash] configuration the Java main configuration or +nil+ if this is not provided
-    # @return [String, nil] the Java main class name or +nil+ if there is no Java main class name
-    def self.main_class(application, configuration = nil)
-      config = configuration || JavaBuildpack::Util::ConfigurationUtils.load('java_main')
-      config[MAIN_CLASS_PROPERTY] || manifest(application)[MANIFEST_PROPERTY]
+    private_class_method :new
+
+    class << self
+
+      # Returns the Java main class name for the Java main configuration and given application directory or +nil+ if this
+      # is not a Java main application.
+      #
+      # @param [JavaBuildpack::Component::Application] application the application
+      # @param [Hash] configuration the Java main configuration or +nil+ if this is not provided
+      # @return [String, nil] the Java main class name or +nil+ if there is no Java main class name
+      def main_class(application, configuration = nil)
+        config = configuration || JavaBuildpack::Util::ConfigurationUtils.load('java_main')
+        config[MAIN_CLASS_PROPERTY] || manifest(application)[MANIFEST_PROPERTY]
+      end
+
+      # Return the manifest properties of the given application.
+      #
+      # @param [JavaBuildpack::Application::Application] application the application
+      # @return [Properties] the properties from the application's manifest (if any)
+      def manifest(application)
+        manifest_file = application.root + 'META-INF/MANIFEST.MF'
+        manifest_file = manifest_file.exist? ? manifest_file : nil
+        JavaBuildpack::Util::Properties.new(manifest_file)
+      end
+
+      private
+
+      MAIN_CLASS_PROPERTY = 'java_main_class'.freeze
+
+      MANIFEST_PROPERTY = 'Main-Class'.freeze
+
     end
-
-    # Return the manifest properties of the given application.
-    #
-    # @param [JavaBuildpack::Application::Application] application the application
-    # @return [Properties] the properties from the application's manifest (if any)
-    def self.manifest(application)
-      manifest_file = application.root + 'META-INF/MANIFEST.MF'
-      manifest_file = manifest_file.exist? ? manifest_file : nil
-      JavaBuildpack::Util::Properties.new(manifest_file)
-    end
-
-    private
-
-    MAIN_CLASS_PROPERTY = 'java_main_class'.freeze
-
-    MANIFEST_PROPERTY = 'Main-Class'.freeze
 
   end
 

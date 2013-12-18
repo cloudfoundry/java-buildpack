@@ -22,15 +22,21 @@ module JavaBuildpack::Jre
   # A utility for handling Java memory settings.
   class MemoryLimit
 
-    # Returns the application's memory limit.
-    #
-    # @return [MemorySize, nil] the application's memory limit or nil if no memory limit has been provided
-    def self.memory_limit
-      memory_limit = ENV['MEMORY_LIMIT']
-      return nil unless memory_limit
-      memory_limit_size = MemorySize.new(memory_limit)
-      fail "Invalid negative $MEMORY_LIMIT #{memory_limit}" if memory_limit_size < 0
-      memory_limit_size
+    private_class_method :new
+
+    class << self
+
+      # Returns the application's memory limit.
+      #
+      # @return [MemorySize, nil] the application's memory limit or nil if no memory limit has been provided
+      def memory_limit
+        memory_limit = ENV['MEMORY_LIMIT']
+        return nil unless memory_limit
+        memory_limit_size = MemorySize.new(memory_limit)
+        fail "Invalid negative $MEMORY_LIMIT #{memory_limit}" if memory_limit_size < 0
+        memory_limit_size
+      end
+
     end
 
   end

@@ -34,7 +34,6 @@ module JavaBuildpack::Jre
     def compile
       download_tar
       @droplet.copy_resources
-      mutate_killjava
     end
 
     def release
@@ -57,24 +56,13 @@ module JavaBuildpack::Jre
     KEY_MEMORY_SIZES = 'memory_sizes'.freeze
 
     def killjava
-      @droplet.sandbox + 'bin/killjava'
+      @droplet.sandbox + 'bin/killjava.sh'
     end
 
     def memory
       sizes = @configuration[KEY_MEMORY_SIZES] || {}
       heuristics = @configuration[KEY_MEMORY_HEURISTICS] || {}
       OpenJDKMemoryHeuristicFactory.create_memory_heuristic(sizes, heuristics, @version).resolve
-    end
-
-    def mutate_killjava
-      content = killjava.read
-      content.gsub! /@@LOG_FILE_NAME@@/,
-                    JavaBuildpack::Logging::LoggerFactory.log_file.relative_path_from(killjava.dirname).to_s
-
-      killjava.open('w') do |f|
-        f.write content
-        f.fsync
-      end
     end
 
   end

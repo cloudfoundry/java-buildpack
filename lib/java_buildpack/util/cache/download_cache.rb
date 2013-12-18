@@ -142,7 +142,7 @@ module JavaBuildpack::Util::Cache
       issue_http_request(request, uri) do |response, response_code|
         @logger.debug { "Download of #{uri} gave response #{response_code}" }
         if response_code == HTTP_OK
-          DownloadCache.write_response(mutable_file_cache, response)
+          write_response(mutable_file_cache, response)
         elsif response_code == HTTP_NOT_MODIFIED
           fail(InferredNetworkFailure, "Unexpected HTTP response: #{response_code}")
         end
@@ -161,7 +161,7 @@ module JavaBuildpack::Util::Cache
       end
     end
 
-    def self.http_options(rich_uri)
+    def http_options(rich_uri)
       options = {}
       # Beware known problems with timeouts: https://www.ruby-forum.com/topic/143840
       options = { read_timeout: TIMEOUT_SECONDS, connect_timeout: TIMEOUT_SECONDS, open_timeout: TIMEOUT_SECONDS } unless InternetAvailability.internet_availability_stored?
@@ -190,7 +190,6 @@ module JavaBuildpack::Util::Cache
     end
 
     def retry_http_request(http, request, &block)
-      retry_limit = DownloadCache.retry_limit
       1.upto(retry_limit) do |try|
         begin
           http.request request do |response|
@@ -209,7 +208,7 @@ module JavaBuildpack::Util::Cache
       end
     end
 
-    def self.retry_limit
+    def retry_limit
       InternetAvailability.internet_availability_stored? ? DOWNLOAD_RETRY_LIMIT : INTERNET_DETECTION_RETRY_LIMIT
     end
 
@@ -236,7 +235,7 @@ module JavaBuildpack::Util::Cache
 
     def start_parameters(uri)
       rich_uri = URI(uri)
-      return rich_uri.host, rich_uri.port, DownloadCache.http_options(rich_uri) # rubocop:disable RedundantReturn
+      return rich_uri.host, rich_uri.port, http_options(rich_uri) # rubocop:disable RedundantReturn
     end
 
     def up_to_date_check(immutable_file_cache, uri)
@@ -259,11 +258,11 @@ module JavaBuildpack::Util::Cache
       use_cache
     end
 
-    def self.use_ssl?(rich_uri)
+    def use_ssl?(rich_uri)
       rich_uri.scheme == 'https'
     end
 
-    def self.write_response(mutable_file_cache, response)
+    def write_response(mutable_file_cache, response)
       mutable_file_cache.persist_any_etag response['Etag']
       mutable_file_cache.persist_any_last_modified response['Last-Modified']
 
@@ -276,7 +275,7 @@ module JavaBuildpack::Util::Cache
       check_download_file_size(mutable_file_cache, response)
     end
 
-    def self.check_download_file_size(mutable_file_cache, response)
+    def check_download_file_size(mutable_file_cache, response)
       expected_size = response['Content-Length']
       if expected_size
         actual_size = mutable_file_cache.cached_size

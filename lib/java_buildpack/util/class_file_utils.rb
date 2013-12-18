@@ -22,19 +22,23 @@ module JavaBuildpack::Util
   # Utilities for dealing with .class files
   class ClassFileUtils
 
-    # Returns all the .class files in the given directory
-    #
-    # @param [Application] application the application to search
-    # @return [Array] a possibly empty list of files
-    def self.class_files(application)
-      (application.root + CLASS_FILE_PATTERN).glob.reject { |path| path.directory? }.sort
-    end
-
     private_class_method :new
 
-    private
+    class << self
 
-    CLASS_FILE_PATTERN = '**/*.class'.freeze
+      # Returns all the .class files in the given directory
+      #
+      # @param [Application] application the application to search
+      # @return [Array] a possibly empty list of files
+      def class_files(application)
+        (application.root + CLASS_FILE_PATTERN).glob.reject { |path| path.directory? }.sort
+      end
+
+      private
+
+      CLASS_FILE_PATTERN = '**/*.class'.freeze
+
+    end
 
   end
 

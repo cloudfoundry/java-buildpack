@@ -25,20 +25,26 @@ module JavaBuildpack::Util::Play
   # A factory for creating a version-appropriate play application delegate
   class Factory
 
-    # Creates a Play application based on the given application directory.
-    #
-    # @param [JavaBuildpack::Component::Droplet] droplet the droplet
-    # @return [JavaBuildpack::Util::Play::Base] the play application delegate
-    def self.create(droplet)
-      candidates = [
-          Post22Dist.new(droplet),
-          Post22Staged.new(droplet),
-          Pre22Dist.new(droplet),
-          Pre22Staged.new(droplet)
-      ].select { |candidate| candidate.supports? }
+    private_class_method :new
 
-      fail "Play application version cannot be determined: #{candidates}" if candidates.size > 1
-      candidates.empty? ? nil : candidates.first
+    class << self
+
+      # Creates a Play application based on the given application directory.
+      #
+      # @param [JavaBuildpack::Component::Droplet] droplet the droplet
+      # @return [JavaBuildpack::Util::Play::Base] the play application delegate
+      def create(droplet)
+        candidates = [
+            Post22Dist.new(droplet),
+            Post22Staged.new(droplet),
+            Pre22Dist.new(droplet),
+            Pre22Staged.new(droplet)
+        ].select { |candidate| candidate.supports? }
+
+        fail "Play application version cannot be determined: #{candidates}" if candidates.size > 1
+        candidates.empty? ? nil : candidates.first
+      end
+
     end
 
   end

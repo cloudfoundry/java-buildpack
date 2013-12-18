@@ -56,7 +56,7 @@ describe JavaBuildpack::Jre::OpenJDK do
   it 'adds OnOutOfMemoryError to java_opts' do
     component.release
 
-    expect(java_opts).to include('-XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk/bin/killjava')
+    expect(java_opts).to include('-XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk/bin/killjava.sh')
   end
 
   it 'places the killjava script (with appropriately substituted content) in the diagnostics directory',
@@ -64,7 +64,7 @@ describe JavaBuildpack::Jre::OpenJDK do
 
     component.compile
 
-    expect((sandbox + 'bin/killjava').read).to include '}/../../../.java-buildpack.log'
+    expect(sandbox + 'bin/killjava.sh').to exist
   end
 
   it 'adds java.io.tmpdir to java_opts' do

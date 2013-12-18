@@ -34,13 +34,13 @@ module JavaBuildpack::Util::Cache
       FileUtils.mkdir_p(cache_root)
       @cache_root = cache_root
 
-      key = URI.escape(uri, '/')
-      @lock = @cache_root + "#{key}.lock"
-      cached = @cache_root + "#{key}.cached"
-      etag = @cache_root + "#{key}.etag"
-      last_modified = @cache_root + "#{key}.last_modified"
+      key                   = URI.escape(uri, '/')
+      @lock                 = @cache_root + "#{key}.lock"
+      cached                = @cache_root + "#{key}.cached"
+      etag                  = @cache_root + "#{key}.etag"
+      last_modified         = @cache_root + "#{key}.last_modified"
       @immutable_file_cache = ImmutableFileCache.new(cached, etag, last_modified)
-      @mutable_file_cache = MutableFileCache.new(cached, etag, last_modified)
+      @mutable_file_cache   = MutableFileCache.new(cached, etag, last_modified)
     end
 
     # Perform an operation with the file cache locked exclusively. Mutations of the file cache are permitted.
@@ -68,7 +68,7 @@ module JavaBuildpack::Util::Cache
       lock_exclusive do |locked_file_cache|
         locked_file_cache.destroy
       end
-      MutableFileCache.delete_file @lock
+      @lock.delete if @lock.exist?
     end
 
     # This class is used to read the file cache under a shared lock.
@@ -80,8 +80,8 @@ module JavaBuildpack::Util::Cache
       # @param [String] etag file name of the file to contain any etag
       # @param [String] last_modified file name of the file to contain any last modified timestamp
       def initialize(cached, etag, last_modified)
-        @cached = cached
-        @etag = etag
+        @cached        = cached
+        @etag          = etag
         @last_modified = last_modified
       end
 
@@ -191,14 +191,14 @@ module JavaBuildpack::Util::Cache
 
       # Deletes any files containing cached data, etag, or last modified timestamp.
       def destroy
-        MutableFileCache.delete_file @cached
-        MutableFileCache.delete_file @etag
-        MutableFileCache.delete_file @last_modified
+        delete_file @cached
+        delete_file @etag
+        delete_file @last_modified
       end
 
       private
 
-      def self.delete_file(filename)
+      def delete_file(filename)
         filename.delete if filename.exist?
       end
 
