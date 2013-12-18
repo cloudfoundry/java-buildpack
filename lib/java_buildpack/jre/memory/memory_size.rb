@@ -32,7 +32,7 @@ module JavaBuildpack::Jre
         fail "Invalid memory size '#{size}'" if !size || size.length < 2
         unit = size[-1]
         v = size[0..-2]
-        fail "Invalid memory size '#{size}'" unless MemorySize.is_integer v
+        fail "Invalid memory size '#{size}'" unless is_integer v
         v = size.to_i
 
         # Store the number of bytes.
@@ -101,7 +101,7 @@ module JavaBuildpack::Jre
     # @return [MemorySize] the result
     def *(other)
       fail "Cannot multiply a Memory size by an instance of #{other.class}" unless other.is_a? Numeric
-      MemorySize.from_numeric((@bytes * other).round)
+      from_numeric((@bytes * other).round)
     end
 
     # Subtract a memory size from this memory size.
@@ -121,7 +121,7 @@ module JavaBuildpack::Jre
     # @return [MemorySize, Numeric] the result
     def /(other)
       return @bytes / other.bytes.to_f if other.is_a? MemorySize
-      return MemorySize.from_numeric((@bytes / other.to_f).round) if other.is_a? Numeric
+      return from_numeric((@bytes / other.to_f).round) if other.is_a? Numeric
       fail "Cannot divide a MemorySize by an instance of #{other.class}"
     end
 
@@ -137,24 +137,24 @@ module JavaBuildpack::Jre
 
     def memory_size_operation(other)
       fail "Invalid parameter: instance of #{other.class} is not a MemorySize" unless other.is_a? MemorySize
-      MemorySize.from_numeric(yield @bytes, other.bytes)
+      from_numeric(yield @bytes, other.bytes)
     end
 
-    def self.is_integer(v)
+    def is_integer(v)
       f = Float(v)
       f && f.floor == f
     rescue
       false
     end
 
-    def self.from_numeric(n)
+    def from_numeric(n)
       MemorySize.new("#{n.to_s}B")
     end
 
     public
 
     # Zero byte memory size
-    ZERO = from_numeric 0
+    ZERO = MemorySize.new('0B')
 
   end
 

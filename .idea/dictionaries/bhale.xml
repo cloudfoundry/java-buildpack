@@ -16,6 +16,7 @@
       <w>findex</w>
       <w>fsync</w>
       <w>heroku</w>
+      <w>jdk's</w>
       <w>jres</w>
       <w>jsome</w>
       <w>killjava</w>
@@ -26,8 +27,10 @@
       <w>mountainlion</w>
       <w>newrelicagent</w>
       <w>overweaving</w>
+      <w>pkill</w>
       <w>progname</w>
       <w>rbconfig</w>
+      <w>rdonly</w>
       <w>readlink</w>
       <w>redhat</w>
       <w>rspec</w>
@@ -45,11 +48,13 @@
       <w>ubuntu</w>
       <w>uname</w>
       <w>upcase</w>
+      <w>upto</w>
       <w>webapp</w>
       <w>webapps</w>
       <w>webmock</w>
       <w>wildcarded</w>
       <w>wronly</w>
+      <w>yieldparam</w>
     </words>
   </dictionary>
 </component>

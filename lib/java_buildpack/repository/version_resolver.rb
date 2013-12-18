@@ -22,47 +22,53 @@ module JavaBuildpack::Repository
   # A resolver that selects values from a collection based on a set of rules governing wildcards
   class VersionResolver
 
-    # Resolves a version from a collection of versions.  The +candidate_version+ must be structured like:
-    #   * up to three numeric components, followed by an optional string component
-    #   * the final component may be a +
-    # The resolution returns the maximum of the versions that match the candidate version
-    #
-    # @param [TokenizedVersion] candidate_version the version, possibly containing a wildcard, to resolve.  If +nil+,
-    #                                        substituted with +.
-    # @param [Array<String>] versions the collection of versions to resolve against
-    # @return [TokenizedVersion] the resolved version
-    # @raise if no version can be resolved
-    def self.resolve(candidate_version, versions)
-      tokenized_candidate_version = safe_candidate_version candidate_version
-      tokenized_versions = versions.map { |version| JavaBuildpack::Util::TokenizedVersion.new(version, false) }
+    private_class_method :new
 
-      version = tokenized_versions
-      .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
-      .max { |a, b| a <=> b }
+    class << self
 
-      fail "No version resolvable for '#{candidate_version}' in #{versions.join(', ')}" if version.nil?
-      version
-    end
+      # Resolves a version from a collection of versions.  The +candidate_version+ must be structured like:
+      #   * up to three numeric components, followed by an optional string component
+      #   * the final component may be a +
+      # The resolution returns the maximum of the versions that match the candidate version
+      #
+      # @param [TokenizedVersion] candidate_version the version, possibly containing a wildcard, to resolve.  If +nil+,
+      #                                        substituted with +.
+      # @param [Array<String>] versions the collection of versions to resolve against
+      # @return [TokenizedVersion] the resolved version
+      # @raise if no version can be resolved
+      def resolve(candidate_version, versions)
+        tokenized_candidate_version = safe_candidate_version candidate_version
+        tokenized_versions          = versions.map { |version| JavaBuildpack::Util::TokenizedVersion.new(version, false) }
 
-    private
+        version = tokenized_versions
+        .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
+        .max { |a, b| a <=> b }
 
-    TOKENIZED_WILDCARD = JavaBuildpack::Util::TokenizedVersion.new('+')
-
-    def self.safe_candidate_version(candidate_version)
-      if candidate_version.nil?
-        TOKENIZED_WILDCARD
-      else
-        fail "Invalid TokenizedVersion '#{candidate_version}'" unless candidate_version.is_a?(JavaBuildpack::Util::TokenizedVersion)
-        candidate_version
+        fail "No version resolvable for '#{candidate_version}' in #{versions.join(', ')}" if version.nil?
+        version
       end
-    end
 
-    def self.matches?(tokenized_candidate_version, tokenized_version)
-      (0..3).all? do |i|
-        tokenized_candidate_version[i].nil? ||
-            tokenized_candidate_version[i] == JavaBuildpack::Util::TokenizedVersion::WILDCARD ||
-            tokenized_candidate_version[i] == tokenized_version[i]
+      private
+
+      TOKENIZED_WILDCARD = JavaBuildpack::Util::TokenizedVersion.new('+')
+
+      def safe_candidate_version(candidate_version)
+        if candidate_version.nil?
+          TOKENIZED_WILDCARD
+        else
+          fail "Invalid TokenizedVersion '#{candidate_version}'" unless candidate_version.is_a?(JavaBuildpack::Util::TokenizedVersion)
+          candidate_version
+        end
       end
+
+      def matches?(tokenized_candidate_version, tokenized_version)
+        (0..3).all? do |i|
+          tokenized_candidate_version[i].nil? ||
+              tokenized_candidate_version[i] == JavaBuildpack::Util::TokenizedVersion::WILDCARD ||
+              tokenized_candidate_version[i] == tokenized_version[i]
+        end
+      end
+
     end
 
   end

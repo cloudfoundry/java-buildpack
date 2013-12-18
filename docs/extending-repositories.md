@@ -30,7 +30,7 @@ The main class used when dealing with a repository is [`JavaBuildpack::Repositor
 # @param [Block, nil] version_validator an optional version validation block
 # @return [JavaBuildpack::Util::TokenizedVersion] the chosen version of the file
 # @return [String] the URI of the chosen version of the file
-def self.find_item(configuration, &version_validator)
+def find_item(configuration, &version_validator)
 ```
 
 Usage of the class might look like the following:

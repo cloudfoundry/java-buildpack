@@ -22,43 +22,47 @@ module JavaBuildpack::Util
   # Utilities for dealing with Groovy applications
   class GroovyUtils
 
-    # Indicates whether a file has a +main()+ method in it
-    #
-    # @param [File] file the file to scan
-    # @return [Boolean] +true+ if the file contains a +main()+ method, +false+ otherwise.
-    def self.main_method?(file)
-      file.read =~ /static void main\(/
-    end
-
-    # Indicates whether a file is a POGO
-    #
-    # @param [File] file the file to scan
-    # @return [Boolean] +true+ if the file is a POGO, +false+ otherwise.
-    def self.pogo?(file)
-      file.read =~ /class [\w]+ [\s\w]*{/
-    end
-
-    # Indicates whether a file has a shebang
-    #
-    # @param [File] file the file to scan
-    # @return [Boolean] +true+ if the file has a shebang, +false+ otherwise.
-    def self.shebang?(file)
-      file.read =~ /#!/
-    end
-
-    # Returns all the Ruby files in the given directory
-    #
-    # @param [Application] application the application to search
-    # @return [Array] a possibly empty list of files
-    def self.groovy_files(application)
-      (application.root + GROOVY_FILE_PATTERN).glob.reject { |path| path.directory? }.sort
-    end
-
     private_class_method :new
 
-    private
+    class << self
 
-    GROOVY_FILE_PATTERN = '**/*.groovy'.freeze
+      # Indicates whether a file has a +main()+ method in it
+      #
+      # @param [File] file the file to scan
+      # @return [Boolean] +true+ if the file contains a +main()+ method, +false+ otherwise.
+      def main_method?(file)
+        file.read =~ /static void main\(/
+      end
+
+      # Indicates whether a file is a POGO
+      #
+      # @param [File] file the file to scan
+      # @return [Boolean] +true+ if the file is a POGO, +false+ otherwise.
+      def pogo?(file)
+        file.read =~ /class [\w]+ [\s\w]*{/
+      end
+
+      # Indicates whether a file has a shebang
+      #
+      # @param [File] file the file to scan
+      # @return [Boolean] +true+ if the file has a shebang, +false+ otherwise.
+      def shebang?(file)
+        file.read =~ /#!/
+      end
+
+      # Returns all the Ruby files in the given directory
+      #
+      # @param [Application] application the application to search
+      # @return [Array] a possibly empty list of files
+      def groovy_files(application)
+        (application.root + GROOVY_FILE_PATTERN).glob.reject { |path| path.directory? }.sort
+      end
+
+      private
+
+      GROOVY_FILE_PATTERN = '**/*.groovy'.freeze
+
+    end
 
   end
 

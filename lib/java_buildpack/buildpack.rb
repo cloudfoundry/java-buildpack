@@ -33,27 +33,6 @@ module JavaBuildpack
   # Encapsulates the detection, compile, and release functionality for Java application
   class Buildpack
 
-    # Main entry to the buildpack.  Initializes the buildpack and all of its dependencies and yields a new instance
-    # to any given block.  Any exceptions thrown as part of the buildpack setup or execution are handled
-    #
-    # @param [String] app_dir the path of the application directory
-    # @param [String] message an error message with an insert for the reason for failure
-    # @yield [Buildpack] the buildpack to work with
-    # @return [Object] the return value from the given block
-    def self.with_buildpack(app_dir, message)
-      app_dir     = Pathname.new(File.expand_path(app_dir))
-      Logging::LoggerFactory.setup app_dir
-      application = Component::Application.new(app_dir)
-
-      yield new(app_dir, application) if block_given?
-    rescue => e
-      logger = Logging::LoggerFactory.get_logger Buildpack
-
-      logger.error { message % e.inspect }
-      logger.debug { "Exception #{e.inspect} backtrace:\n#{e.backtrace.join("\n")}" }
-      abort e.message
-    end
-
     # Iterates over all of the components to detect if this buildpack can be used to run an application
     #
     # @return [Array<String>] An array of strings that identify the components and versions that will be used to run
@@ -185,6 +164,31 @@ module JavaBuildpack
       tags = components.map { |component| component.detect }.compact
       fail "Application can be run by more than one #{type}: #{names components}" if unique && tags.size > 1
       tags
+    end
+
+    class << self
+
+      # Main entry to the buildpack.  Initializes the buildpack and all of its dependencies and yields a new instance
+      # to any given block.  Any exceptions thrown as part of the buildpack setup or execution are handled
+      #
+      # @param [String] app_dir the path of the application directory
+      # @param [String] message an error message with an insert for the reason for failure
+      # @yield [Buildpack] the buildpack to work with
+      # @return [Object] the return value from the given block
+      def with_buildpack(app_dir, message)
+        app_dir = Pathname.new(File.expand_path(app_dir))
+        Logging::LoggerFactory.setup app_dir
+        application = Component::Application.new(app_dir)
+
+        yield new(app_dir, application) if block_given?
+      rescue => e
+        logger = Logging::LoggerFactory.get_logger Buildpack
+
+        logger.error { message % e.inspect }
+        logger.debug { "Exception #{e.inspect} backtrace:\n#{e.backtrace.join("\n")}" }
+        abort e.message
+      end
+
     end
 
   end
