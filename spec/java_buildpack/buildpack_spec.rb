@@ -148,6 +148,12 @@ describe JavaBuildpack::Buildpack do
     expect(stderr.string).to match /git HEAD commit/
   end
 
+  it 'prints output during compile showing the git repository of a buildpack' do
+    expect { buildpack.compile }.to raise_error # ok since fixture has no application
+
+    expect(stdout.string).to match /Java Buildpack source: .*#.*/
+  end
+
   it 'realises when buildpack is not stored in a git repository',
      log_level: 'DEBUG' do
 
@@ -156,7 +162,18 @@ describe JavaBuildpack::Buildpack do
 
       with_buildpack { |buildpack| buildpack.detect }
 
-      expect(stderr.string).to match /Buildpack is not stored in a git repository/
+      expect(stderr.string).to match /Java Buildpack source: system/
+    end
+  end
+
+  it 'prints output during compile showing that buildpack is not stored in a git repository' do
+
+    Dir.mktmpdir do |tmp_dir|
+      stub_const(described_class.to_s + '::GIT_DIR', Pathname.new(tmp_dir))
+
+      with_buildpack { |buildpack| expect { buildpack.compile } .to raise_error }  # error ok since fixture has no application
+
+      expect(stdout.string).to match /Java Buildpack source: system/
     end
   end
 
