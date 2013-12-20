@@ -39,6 +39,8 @@ module JavaBuildpack
     #                         this application.  If no container can run the application, the array will be empty
     #                         (+[]+).
     def detect
+      diagnose_git_info false
+
       tags = tag_detection('container', @containers, true)
       tags.concat tag_detection('JRE', @jres, true) unless tags.empty?
       tags.concat tag_detection('framework', @frameworks, false) unless tags.empty?
@@ -52,6 +54,8 @@ module JavaBuildpack
     #
     # @return [void]
     def compile
+      diagnose_git_info true
+
       container = component_detection(@containers).first
       fail 'No container can run this application' unless container
 
@@ -65,6 +69,8 @@ module JavaBuildpack
     #
     # @return [String] The payload required to run the application.
     def release
+      diagnose_git_info false
+
       container = component_detection(@containers).first
       fail 'No container can run this application' unless container
 
@@ -87,6 +93,8 @@ module JavaBuildpack
 
     private
 
+    DEFAULT_BUILDPACK_MESSAGE = '       Java Buildpack source: system'.freeze
+
     GIT_DIR = Pathname.new(__FILE__).dirname + '../../.git'
 
     LOAD_ROOT = Pathname.new(__FILE__).dirname + '..'
@@ -94,7 +102,6 @@ module JavaBuildpack
     def initialize(app_dir, application)
       @logger = Logging::LoggerFactory.get_logger Buildpack
 
-      log_git_info
       log_environment_variables
 
       additional_libraries = Component::AdditionalLibraries.new app_dir
@@ -116,6 +123,29 @@ module JavaBuildpack
       components.select { |component| component.detect }
     end
 
+    def diagnose_git_info(print)
+      if system("git --git-dir=#{GIT_DIR} status 2>/dev/null 1>/dev/null")
+        remote_url = diagnose_remotes
+        head_commit_sha = diagnose_head_commit
+        puts "       Java Buildpack source: #{remote_url}##{head_commit_sha}" if print
+      else
+        @logger.debug { DEFAULT_BUILDPACK_MESSAGE }
+        puts DEFAULT_BUILDPACK_MESSAGE if print
+      end
+    end
+
+    def diagnose_head_commit
+      head_commit = `git --git-dir=#{GIT_DIR} log HEAD^!`
+      @logger.debug { "git HEAD commit: #{head_commit}" }
+      head_commit.split(' ')[1]
+    end
+
+    def diagnose_remotes
+      remotes = `git --git-dir=#{GIT_DIR} remote -v`
+      @logger.debug { "git remotes: #{remotes}" }
+      remotes.split(' ')[1]
+    end
+
     def instantiate(components, additional_libraries, application, java_home, java_opts, root)
       components.map do |component|
         @logger.debug { "Instantiating #{component}" }
@@ -134,15 +164,6 @@ module JavaBuildpack
 
     def log_environment_variables
       @logger.debug { "Environment Variables: #{ENV.to_hash}" }
-    end
-
-    def log_git_info
-      if system("git --git-dir=#{GIT_DIR} status 2>/dev/null 1>/dev/null")
-        @logger.debug { "git remotes: #{`git --git-dir=#{GIT_DIR} remote -v`}" }
-        @logger.debug { "git HEAD commit: #{`git --git-dir=#{GIT_DIR} log HEAD^!`}" }
-      else
-        @logger.debug { 'Buildpack is not stored in a git repository' }
-      end
     end
 
     def names(components)
