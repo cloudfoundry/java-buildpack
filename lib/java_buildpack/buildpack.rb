@@ -124,7 +124,7 @@ module JavaBuildpack
     end
 
     def diagnose_git_info(print)
-      if system("git --git-dir=#{GIT_DIR} status 2>/dev/null 1>/dev/null")
+      if system("git --git-dir=#{GIT_DIR} status &> /dev/null")
         remote_url = diagnose_remotes
         head_commit_sha = diagnose_head_commit
         puts "       Java Buildpack source: #{remote_url}##{head_commit_sha}" if print
@@ -135,15 +135,17 @@ module JavaBuildpack
     end
 
     def diagnose_head_commit
-      head_commit = `git --git-dir=#{GIT_DIR} log HEAD^!`
-      @logger.debug { "git HEAD commit: #{head_commit}" }
-      head_commit.split(' ')[1]
+      git 'log HEAD^!', 'git HEAD commit: %s'
     end
 
     def diagnose_remotes
-      remotes = `git --git-dir=#{GIT_DIR} remote -v`
-      @logger.debug { "git remotes: #{remotes}" }
-      remotes.split(' ')[1]
+      git 'remote -v', 'git remotes: %s'
+    end
+
+    def git(command, message)
+      result = `git --git-dir=#{GIT_DIR} #{command}`
+      @logger.debug { message % result }
+      result.split(' ')[1]
     end
 
     def instantiate(components, additional_libraries, application, java_home, java_opts, root)
@@ -198,11 +200,17 @@ module JavaBuildpack
       # @return [Object] the return value from the given block
       def with_buildpack(app_dir, message)
         app_dir = Pathname.new(File.expand_path(app_dir))
-        Logging::LoggerFactory.setup app_dir
         application = Component::Application.new(app_dir)
+        Logging::LoggerFactory.setup app_dir
 
         yield new(app_dir, application) if block_given?
       rescue => e
+        handle_error(e, message)
+      end
+
+      private
+
+      def handle_error(e, message)
         logger = Logging::LoggerFactory.get_logger Buildpack
 
         logger.error { message % e.inspect }
