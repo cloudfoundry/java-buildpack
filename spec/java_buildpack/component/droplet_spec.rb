@@ -82,4 +82,18 @@ describe JavaBuildpack::Component::Droplet do
     droplet.copy_resources
   end
 
+  it 'should not initialize sandbox until it is used' do
+    sandbox_dir = app_dir + '.java-buildpack/droplet'
+
+    expect(sandbox_dir).not_to exist
+
+    droplet
+
+    expect(sandbox_dir).not_to exist
+
+    droplet.sandbox
+
+    expect(sandbox_dir).to exist
+  end
+
 end
