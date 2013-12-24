@@ -109,8 +109,6 @@ module JavaBuildpack::Framework
     end
 
     def install_insight(agent_dir)
-      FileUtils.mkdir_p @droplet.sandbox
-
       root = Pathname.glob(agent_dir + 'springsource-insight-uber-agent-*')[0]
 
       init_container_libs root

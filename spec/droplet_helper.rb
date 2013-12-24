@@ -21,6 +21,7 @@ require 'java_buildpack/component/additional_libraries'
 require 'java_buildpack/component/droplet'
 require 'java_buildpack/component/java_opts'
 require 'java_buildpack/component/mutable_java_home'
+require 'java_buildpack/util/snake_case'
 require 'pathname'
 
 shared_context 'droplet_helper' do

@@ -17,7 +17,6 @@
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
-require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/groovy_utils'
 
 module JavaBuildpack::Container

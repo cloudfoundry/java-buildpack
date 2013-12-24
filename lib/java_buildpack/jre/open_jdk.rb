@@ -16,10 +16,8 @@
 
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
-require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/openjdk_memory_heuristic_factory'
-require 'java_buildpack/util/format_duration'
 
 module JavaBuildpack::Jre
 

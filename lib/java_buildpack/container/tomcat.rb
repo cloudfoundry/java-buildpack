@@ -18,7 +18,7 @@ require 'fileutils'
 require 'java_buildpack/component/base_component'
 require 'java_buildpack/container'
 require 'java_buildpack/repository/configured_item'
-require 'java_buildpack/util/format_duration'
+require 'java_buildpack/util/dash_case'
 require 'java_buildpack/util/java_main_utils'
 
 module JavaBuildpack::Container
@@ -112,7 +112,6 @@ module JavaBuildpack::Container
 
     def expand(file)
       with_timing "Expanding Tomcat to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
-        FileUtils.mkdir_p @droplet.sandbox
         shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 --exclude webapps 2>&1"
 
         @droplet.copy_resources

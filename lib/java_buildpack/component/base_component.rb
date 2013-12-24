@@ -17,6 +17,7 @@
 require 'fileutils'
 require 'java_buildpack/component'
 require 'java_buildpack/util/cache/application_cache'
+require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/shell'
 require 'java_buildpack/util/space_case'
 

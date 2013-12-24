@@ -24,7 +24,6 @@ module JavaBuildpack::Framework
   class NewRelicAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
     def compile
-      FileUtils.mkdir_p @droplet.sandbox
       FileUtils.mkdir_p logs_dir
 
       download_jar

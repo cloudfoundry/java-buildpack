@@ -16,7 +16,6 @@
 
 require 'java_buildpack/util/cache'
 require 'java_buildpack/util/cache/download_cache'
-require 'java_buildpack/util/format_duration'
 
 module JavaBuildpack::Util::Cache
 
