@@ -16,6 +16,7 @@
 
 require 'java_buildpack/component/base_component'
 require 'java_buildpack/container'
+require 'java_buildpack/util/dash_case'
 require 'java_buildpack/util/play/factory'
 
 module JavaBuildpack::Container
