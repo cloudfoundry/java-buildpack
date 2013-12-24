@@ -70,7 +70,7 @@ The [Spring Boot CLI Container](container-spring_boot_cli.md) ([`lib/java_buildp
 [`JavaBuildpack::Component::Application`]: extending-application.md
 [`JavaBuildpack::Component::BaseComponent`]: extending-base_component.md
 [`JavaBuildpack::Component::Droplet`]: extending-droplet.md
-[`JavaBuildpack::Component::VersionedComponent`]: extending-versioned_dependency_component.md
+[`JavaBuildpack::Component::VersionedDependencyComponent`]: extending-versioned_dependency_component.md
 [`lib/java_buildpack/container`]: ../lib/java_buildpack/container
 [`lib/java_buildpack/framework`]: ../lib/java_buildpack/framework
 [`lib/java_buildpack/jre`]: ../lib/java_buildpack/jre
