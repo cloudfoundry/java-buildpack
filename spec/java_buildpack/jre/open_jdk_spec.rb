@@ -16,11 +16,14 @@
 
 require 'spec_helper'
 require 'component_helper'
+require 'java_buildpack/component/mutable_java_home'
 require 'java_buildpack/jre/open_jdk'
 require 'java_buildpack/jre/memory/weight_balancing_memory_heuristic'
 
 describe JavaBuildpack::Jre::OpenJDK do
   include_context 'component_helper'
+
+  let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
 
   let(:memory_heuristic) { double('MemoryHeuristic', resolve: %w(opt-1 opt-2)) }
 
@@ -43,7 +46,7 @@ describe JavaBuildpack::Jre::OpenJDK do
   it 'adds the JAVA_HOME to java_home' do
     component
 
-    expect(java_home.root).to eq('$PWD/.java-buildpack/open_jdk')
+    expect(java_home.root).to eq(sandbox)
   end
 
   it 'should add memory options to java_opts' do

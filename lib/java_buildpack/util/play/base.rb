@@ -15,11 +15,13 @@
 # limitations under the License.
 
 require 'java_buildpack/util/play'
+require 'java_buildpack/util/qualify_path'
 
 module JavaBuildpack::Util::Play
 
   # Base class for Play application classes.
   class Base
+    include JavaBuildpack::Util
 
     def initialize(droplet)
       @droplet = droplet
@@ -47,7 +49,7 @@ module JavaBuildpack::Util::Play
       [
           "PATH=#{@droplet.java_home.root}/bin:$PATH",
           @droplet.java_home.as_env_var,
-          "$PWD/#{start_script.relative_path_from(@droplet.root)}",
+          qualify_path(start_script, @droplet.root),
           java_opts
       ].compact.join(' ')
     end

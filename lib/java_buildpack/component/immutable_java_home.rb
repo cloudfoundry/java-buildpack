@@ -15,6 +15,7 @@
 # limitations under the License.
 
 require 'java_buildpack/component'
+require 'java_buildpack/util/qualify_path'
 
 module JavaBuildpack::Component
 
@@ -23,15 +24,17 @@ module JavaBuildpack::Component
   #
   # A new instance of this type should be created once for the application.
   class ImmutableJavaHome
+    include JavaBuildpack::Util
 
     # Creates a new instance of the java home abstraction
     #
     # @param [MutableJavaHome] delegate the instance of +MutableJavaHome+ to use as a delegate for +root+ calls
-    def initialize(delegate)
+    def initialize(delegate, droplet_root)
       @delegate = delegate
+      @droplet_root = droplet_root
     end
 
-    # Returns the path of +JAVA_HOME+ as an environment variable formatted as +JAVA_HOME="$PWD/<value>"+
+    # Returns the path of +JAVA_HOME+ as an environment variable formatted as +JAVA_HOME=$PWD/<value>+
     #
     # @return [String] the path of +JAVA_HOME+ as an environment variable
     def as_env_var
@@ -44,16 +47,16 @@ module JavaBuildpack::Component
     def do_with
       previous_value = ENV['JAVA_HOME']
       begin
-        ENV['JAVA_HOME'] = root
+        ENV['JAVA_HOME'] = @delegate.root.cleanpath.to_s
         yield
       ensure
         ENV['JAVA_HOME'] = previous_value
       end
     end
 
-    # @return [String] the root of the droplet's +JAVA_HOME+
+    # @return [String] the root of the droplet's +JAVA_HOME+ formatted as +$PWD/<value>+
     def root
-      @delegate.root
+      qualify_path @delegate.root
     end
 
   end

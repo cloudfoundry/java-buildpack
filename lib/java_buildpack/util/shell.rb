@@ -26,7 +26,7 @@ module JavaBuildpack::Util::Shell
   def shell(command)
     Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
       if wait_thr.value != 0
-        puts "Command '#{command}' has failed"
+        puts "\nCommand '#{command}' has failed"
         puts "STDOUT: #{stdout.gets}"
         puts "STDERR: #{stderr.gets}"
 

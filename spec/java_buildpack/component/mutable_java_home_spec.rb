@@ -15,17 +15,18 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'droplet_helper'
 require 'java_buildpack/component/mutable_java_home'
+require 'pathname'
 
 describe JavaBuildpack::Component::MutableJavaHome do
-  include_context 'droplet_helper'
 
-  let(:mutable_java_home) { described_class.new droplet.root }
+  let(:path) { Pathname.new('foo/bar') }
 
-  it 'should qualify root' do
-    mutable_java_home.root = droplet.root + 'foo/bar'
-    expect(mutable_java_home.root).to eq('$PWD/foo/bar')
+  let(:mutable_java_home) { described_class.new }
+
+  it 'should save root' do
+    mutable_java_home.root = path
+    expect(mutable_java_home.root).to eq(path)
   end
 
 end
