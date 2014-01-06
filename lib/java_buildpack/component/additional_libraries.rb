@@ -15,7 +15,7 @@
 # limitations under the License.
 
 require 'java_buildpack/component'
-require 'java_buildpack/component/qualify_path'
+require 'java_buildpack/util/qualify_path'
 
 module JavaBuildpack::Component
 
@@ -23,7 +23,7 @@ module JavaBuildpack::Component
   #
   # A new instance of this type should be created once for the application.
   class AdditionalLibraries < Array
-    include JavaBuildpack::Component
+    include JavaBuildpack::Util
 
     # Creates an instance of the +JAVA_OPTS+ abstraction.
     #

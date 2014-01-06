@@ -17,11 +17,13 @@
 require 'spec_helper'
 require 'application_helper'
 require 'console_helper'
+require 'logging_helper'
 require 'open3'
 
 shared_context 'integration_helper' do
   include_context 'application_helper'
   include_context 'console_helper'
+  include_context 'logging_helper'
 
   def run(command)
     Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|

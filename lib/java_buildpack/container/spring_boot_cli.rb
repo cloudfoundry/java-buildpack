@@ -18,12 +18,14 @@ require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/util/groovy_utils'
+require 'java_buildpack/util/qualify_path'
 
 module JavaBuildpack::Container
 
   # Encapsulates the detect, compile, and release functionality for applications running Spring Boot CLI
   # applications.
   class SpringBootCLI < JavaBuildpack::Component::VersionedDependencyComponent
+    include JavaBuildpack::Util
 
     def compile
       download_tar
@@ -34,7 +36,7 @@ module JavaBuildpack::Container
       [
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
-          "$PWD/#{(@droplet.sandbox + 'bin/spring').relative_path_from(@droplet.root)}",
+          qualify_path(@droplet.sandbox + 'bin/spring', @droplet.root),
           'run',
           '--local',
           relative_groovy_files,

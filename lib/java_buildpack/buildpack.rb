@@ -93,7 +93,7 @@ module JavaBuildpack
 
     private
 
-    DEFAULT_BUILDPACK_MESSAGE = '       Java Buildpack source: system'.freeze
+    DEFAULT_BUILDPACK_MESSAGE = '-----> Java Buildpack source: system'.freeze
 
     GIT_DIR = Pathname.new(__FILE__).dirname + '../../.git'
 
@@ -105,8 +105,8 @@ module JavaBuildpack
       log_environment_variables
 
       additional_libraries = Component::AdditionalLibraries.new app_dir
-      mutable_java_home    = Component::MutableJavaHome.new app_dir
-      immutable_java_home  = Component::ImmutableJavaHome.new mutable_java_home
+      mutable_java_home    = Component::MutableJavaHome.new
+      immutable_java_home  = Component::ImmutableJavaHome.new mutable_java_home, app_dir
       java_opts            = Component::JavaOpts.new app_dir
 
       components = JavaBuildpack::Util::ConfigurationUtils.load 'components'
@@ -127,7 +127,7 @@ module JavaBuildpack
       if system("git --git-dir=#{GIT_DIR} status 2>/dev/null 1>/dev/null")
         remote_url = diagnose_remotes
         head_commit_sha = diagnose_head_commit
-        puts "       Java Buildpack source: #{remote_url}##{head_commit_sha}" if print
+        puts "-----> Java Buildpack source: #{remote_url}##{head_commit_sha}" if print
       else
         @logger.debug { DEFAULT_BUILDPACK_MESSAGE }
         puts DEFAULT_BUILDPACK_MESSAGE if print

@@ -20,7 +20,7 @@ require 'logging_helper'
 require 'java_buildpack/component/additional_libraries'
 require 'java_buildpack/component/droplet'
 require 'java_buildpack/component/java_opts'
-require 'java_buildpack/component/mutable_java_home'
+require 'java_buildpack/component/immutable_java_home'
 require 'java_buildpack/util/snake_case'
 require 'pathname'
 
@@ -41,9 +41,8 @@ shared_context 'droplet_helper' do
   let(:sandbox) { droplet.sandbox }
 
   let(:java_home) do
-    java_home      = JavaBuildpack::Component::MutableJavaHome.new app_dir
-    java_home.root = app_dir + '.test-java-home'
-    java_home
+    JavaBuildpack::Component::ImmutableJavaHome.new double('MutableJavaHome', root: app_dir + '.test-java-home'),
+                                                    app_dir
   end
 
   let(:java_opts) do

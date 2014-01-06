@@ -18,6 +18,7 @@ require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/util/class_file_utils'
 require 'java_buildpack/util/groovy_utils'
+require 'java_buildpack/util/qualify_path'
 require 'pathname'
 require 'set'
 require 'tmpdir'
@@ -27,6 +28,7 @@ module JavaBuildpack::Container
   # Encapsulates the detect, compile, and release functionality for applications running non-compiled Groovy
   # applications.
   class Groovy < JavaBuildpack::Component::VersionedDependencyComponent
+    include JavaBuildpack::Util
 
     def initialize(context)
       super(context) { |candidate_version| candidate_version.check_size(3) }
@@ -40,7 +42,7 @@ module JavaBuildpack::Container
       [
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
-          "$PWD/#{(@droplet.sandbox + 'bin/groovy').relative_path_from(@droplet.root)}",
+          qualify_path(@droplet.sandbox + 'bin/groovy', @droplet.root),
           @droplet.additional_libraries.as_classpath,
           relative_main_groovy,
           relative_other_groovy

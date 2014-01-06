@@ -14,15 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/component'
-require 'java_buildpack/component/immutable_java_home'
+require 'java_buildpack/util'
 
-module JavaBuildpack::Component
+module JavaBuildpack::Util
 
-  # Qualifies the path such that is is formatted as +$PWD/<path>+.  Also ensures that the path is relative to the
-  # +@droplet_root+ of the class.
-  def qualify_path(path)
-    "$PWD/#{path.relative_path_from(@droplet_root)}"
+  # Qualifies the path such that is is formatted as +$PWD/<path>+.  Also ensures that the path is relative to a root,
+  # which defaults to the +@droplet_root+ of the class.
+  #
+  # @param [Pathname] path the path to qualify
+  # @param [Pathname] root the root to make relative to
+  # @return [String] the qualified path
+  def qualify_path(path, root = @droplet_root)
+    "$PWD/#{path.relative_path_from(root)}"
   end
 
 end

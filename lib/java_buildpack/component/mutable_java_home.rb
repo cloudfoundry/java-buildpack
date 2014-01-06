@@ -15,35 +15,18 @@
 # limitations under the License.
 
 require 'java_buildpack/component'
-require 'java_buildpack/component/qualify_path'
-require 'java_buildpack/component/immutable_java_home'
 
 module JavaBuildpack::Component
 
-  # An abstraction around the +JAVA_HOME+ path used by the droplet.  This implementation is immutable and should be
-  # passed to any component that is not a jre.
+  # An abstraction around the +JAVA_HOME+ path used by the droplet.  This implementation is mutable and should be
+  # passed to any component that is a jre.
   #
   # A new instance of this type should be created once for the application.
-  class MutableJavaHome < ImmutableJavaHome
-    include JavaBuildpack::Component
+  class MutableJavaHome
 
-    # @!attribute [r] root
+    # @!attribute [rw] root
     #   @return [String] the root of the droplet's +JAVA_HOME+
-    attr_reader :root
-
-    # Creates a new instance of the java home abstraction
-    #
-    # @param [Pathname] droplet_root the root directory of the droplet
-    def initialize(droplet_root)
-      @droplet_root = droplet_root
-    end
-
-    # Sets the root of the droplet's +JAVA_HOME+
-    #
-    # @param [Pathname] value the root of the droplet's +JAVA_HOME+
-    def root=(value)
-      @root = qualify_path value
-    end
+    attr_accessor :root
 
   end
 
