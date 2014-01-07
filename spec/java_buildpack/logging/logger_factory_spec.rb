@@ -20,7 +20,7 @@ require 'logging_helper'
 require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/util/configuration_utils'
 
-describe JavaBuildpack::Logging::LoggerFactory, :focus do
+describe JavaBuildpack::Logging::LoggerFactory do
   include_context 'console_helper'
   include_context 'logging_helper'
 
