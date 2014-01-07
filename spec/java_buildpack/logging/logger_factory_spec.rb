@@ -20,7 +20,7 @@ require 'logging_helper'
 require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/util/configuration_utils'
 
-describe JavaBuildpack::Logging::LoggerFactory do
+describe JavaBuildpack::Logging::LoggerFactory, :focus do
   include_context 'console_helper'
   include_context 'logging_helper'
 
@@ -31,11 +31,17 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
     trigger
 
-    expect(log_contents).to match /DEBUG debug-message/
-    expect(log_contents).to match /INFO  info-message/
-    expect(log_contents).to match /WARN  warn-message/
-    expect(log_contents).to match /ERROR error-message/
-    expect(log_contents).to match /FATAL fatal-message/
+    expect(log_contents).to match /DEBUG block-debug-message/
+    expect(log_contents).to match /INFO  block-info-message/
+    expect(log_contents).to match /WARN  block-warn-message/
+    expect(log_contents).to match /ERROR block-error-message/
+    expect(log_contents).to match /FATAL block-fatal-message/
+
+    expect(log_contents).to match /DEBUG param-debug-message/
+    expect(log_contents).to match /INFO  param-info-message/
+    expect(log_contents).to match /WARN  param-warn-message/
+    expect(log_contents).to match /ERROR param-error-message/
+    expect(log_contents).to match /FATAL param-fatal-message/
   end
 
   it 'should log all levels to console when JBP_LOG_LEVEL set to DEBUG',
@@ -43,11 +49,17 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
     trigger
 
-    expect(stderr.string).to match /DEBUG debug-message/
-    expect(stderr.string).to match /INFO  info-message/
-    expect(stderr.string).to match /WARN  warn-message/
-    expect(stderr.string).to match /ERROR error-message/
-    expect(stderr.string).to match /FATAL fatal-message/
+    expect(stderr.string).to match /DEBUG block-debug-message/
+    expect(stderr.string).to match /INFO  block-info-message/
+    expect(stderr.string).to match /WARN  block-warn-message/
+    expect(stderr.string).to match /ERROR block-error-message/
+    expect(stderr.string).to match /FATAL block-fatal-message/
+
+    expect(stderr.string).to match /DEBUG param-debug-message/
+    expect(stderr.string).to match /INFO  param-info-message/
+    expect(stderr.string).to match /WARN  param-warn-message/
+    expect(stderr.string).to match /ERROR param-error-message/
+    expect(stderr.string).to match /FATAL param-fatal-message/
   end
 
   it 'should log all levels above INFO to console when JBP_LOG_LEVEL set to INFO',
@@ -55,11 +67,17 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
     trigger
 
-    expect(stderr.string).not_to match /DEBUG debug-message/
-    expect(stderr.string).to match /INFO  info-message/
-    expect(stderr.string).to match /WARN  warn-message/
-    expect(stderr.string).to match /ERROR error-message/
-    expect(stderr.string).to match /FATAL fatal-message/
+    expect(stderr.string).not_to match /DEBUG block-debug-message/
+    expect(stderr.string).to match /INFO  block-info-message/
+    expect(stderr.string).to match /WARN  block-warn-message/
+    expect(stderr.string).to match /ERROR block-error-message/
+    expect(stderr.string).to match /FATAL block-fatal-message/
+
+    expect(stderr.string).not_to match /DEBUG param-debug-message/
+    expect(stderr.string).to match /INFO  param-info-message/
+    expect(stderr.string).to match /WARN  param-warn-message/
+    expect(stderr.string).to match /ERROR param-error-message/
+    expect(stderr.string).to match /FATAL param-fatal-message/
   end
 
   it 'should log all levels above WARN to console when JBP_LOG_LEVEL set to WARN',
@@ -67,11 +85,17 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
     trigger
 
-    expect(stderr.string).not_to match /DEBUG debug-message/
-    expect(stderr.string).not_to match /INFO  info-message/
-    expect(stderr.string).to match /WARN  warn-message/
-    expect(stderr.string).to match /ERROR error-message/
-    expect(stderr.string).to match /FATAL fatal-message/
+    expect(stderr.string).not_to match /DEBUG block-debug-message/
+    expect(stderr.string).not_to match /INFO  block-info-message/
+    expect(stderr.string).to match /WARN  block-warn-message/
+    expect(stderr.string).to match /ERROR block-error-message/
+    expect(stderr.string).to match /FATAL block-fatal-message/
+
+    expect(stderr.string).not_to match /DEBUG param-debug-message/
+    expect(stderr.string).not_to match /INFO  param-info-message/
+    expect(stderr.string).to match /WARN  param-warn-message/
+    expect(stderr.string).to match /ERROR param-error-message/
+    expect(stderr.string).to match /FATAL param-fatal-message/
   end
 
   it 'should log all levels above ERROR to console when JBP_LOG_LEVEL set to ERROR',
@@ -79,11 +103,17 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
     trigger
 
-    expect(stderr.string).not_to match /DEBUG debug-message/
-    expect(stderr.string).not_to match /INFO  info-message/
-    expect(stderr.string).not_to match /WARN  warn-message/
-    expect(stderr.string).to match /ERROR error-message/
-    expect(stderr.string).to match /FATAL fatal-message/
+    expect(stderr.string).not_to match /DEBUG block-debug-message/
+    expect(stderr.string).not_to match /INFO  block-info-message/
+    expect(stderr.string).not_to match /WARN  block-warn-message/
+    expect(stderr.string).to match /ERROR block-error-message/
+    expect(stderr.string).to match /FATAL block-fatal-message/
+
+    expect(stderr.string).not_to match /DEBUG param-debug-message/
+    expect(stderr.string).not_to match /INFO  param-info-message/
+    expect(stderr.string).not_to match /WARN  param-warn-message/
+    expect(stderr.string).to match /ERROR param-error-message/
+    expect(stderr.string).to match /FATAL param-fatal-message/
   end
 
   it 'should log FATAL to console when JBP_LOG_LEVEL set to FATAL',
@@ -91,11 +121,17 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
     trigger
 
-    expect(stderr.string).not_to match /DEBUG debug-message/
-    expect(stderr.string).not_to match /INFO  info-message/
-    expect(stderr.string).not_to match /WARN  warn-message/
-    expect(stderr.string).not_to match /ERROR error-message/
-    expect(stderr.string).to match /FATAL fatal-message/
+    expect(stderr.string).not_to match /DEBUG block-debug-message/
+    expect(stderr.string).not_to match /INFO  block-info-message/
+    expect(stderr.string).not_to match /WARN  block-warn-message/
+    expect(stderr.string).not_to match /ERROR block-error-message/
+    expect(stderr.string).to match /FATAL block-fatal-message/
+
+    expect(stderr.string).not_to match /DEBUG param-debug-message/
+    expect(stderr.string).not_to match /INFO  param-info-message/
+    expect(stderr.string).not_to match /WARN  param-warn-message/
+    expect(stderr.string).not_to match /ERROR param-error-message/
+    expect(stderr.string).to match /FATAL param-fatal-message/
   end
 
   it 'should log all levels to console when $DEBUG set',
@@ -103,11 +139,17 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
     trigger
 
-    expect(stderr.string).to match /DEBUG debug-message/
-    expect(stderr.string).to match /INFO  info-message/
-    expect(stderr.string).to match /WARN  warn-message/
-    expect(stderr.string).to match /ERROR error-message/
-    expect(stderr.string).to match /FATAL fatal-message/
+    expect(stderr.string).to match /DEBUG block-debug-message/
+    expect(stderr.string).to match /INFO  block-info-message/
+    expect(stderr.string).to match /WARN  block-warn-message/
+    expect(stderr.string).to match /ERROR block-error-message/
+    expect(stderr.string).to match /FATAL block-fatal-message/
+
+    expect(stderr.string).to match /DEBUG param-debug-message/
+    expect(stderr.string).to match /INFO  param-info-message/
+    expect(stderr.string).to match /WARN  param-warn-message/
+    expect(stderr.string).to match /ERROR param-error-message/
+    expect(stderr.string).to match /FATAL param-fatal-message/
 
   end
 
@@ -116,11 +158,17 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
     trigger
 
-    expect(stderr.string).to match /DEBUG debug-message/
-    expect(stderr.string).to match /INFO  info-message/
-    expect(stderr.string).to match /WARN  warn-message/
-    expect(stderr.string).to match /ERROR error-message/
-    expect(stderr.string).to match /FATAL fatal-message/
+    expect(stderr.string).to match /DEBUG block-debug-message/
+    expect(stderr.string).to match /INFO  block-info-message/
+    expect(stderr.string).to match /WARN  block-warn-message/
+    expect(stderr.string).to match /ERROR block-error-message/
+    expect(stderr.string).to match /FATAL block-fatal-message/
+
+    expect(stderr.string).to match /DEBUG param-debug-message/
+    expect(stderr.string).to match /INFO  param-info-message/
+    expect(stderr.string).to match /WARN  param-warn-message/
+    expect(stderr.string).to match /ERROR param-error-message/
+    expect(stderr.string).to match /FATAL param-fatal-message/
 
   end
 
@@ -140,11 +188,17 @@ describe JavaBuildpack::Logging::LoggerFactory do
     it 'should log all levels to console when default_log_level set to DEBUG in configuration file' do
       trigger
 
-      expect(stderr.string).to match /DEBUG debug-message/
-      expect(stderr.string).to match /INFO  info-message/
-      expect(stderr.string).to match /WARN  warn-message/
-      expect(stderr.string).to match /ERROR error-message/
-      expect(stderr.string).to match /FATAL fatal-message/
+      expect(stderr.string).to match /DEBUG block-debug-message/
+      expect(stderr.string).to match /INFO  block-info-message/
+      expect(stderr.string).to match /WARN  block-warn-message/
+      expect(stderr.string).to match /ERROR block-error-message/
+      expect(stderr.string).to match /FATAL block-fatal-message/
+
+      expect(stderr.string).to match /DEBUG param-debug-message/
+      expect(stderr.string).to match /INFO  param-info-message/
+      expect(stderr.string).to match /WARN  param-warn-message/
+      expect(stderr.string).to match /ERROR param-error-message/
+      expect(stderr.string).to match /FATAL param-fatal-message/
     end
   end
 
@@ -159,11 +213,17 @@ describe JavaBuildpack::Logging::LoggerFactory do
     it 'should log all levels above INFO to console when no configuration has been set' do
       trigger
 
-      expect(stderr.string).not_to match /DEBUG debug-message/
-      expect(stderr.string).to match /INFO  info-message/
-      expect(stderr.string).to match /WARN  warn-message/
-      expect(stderr.string).to match /ERROR error-message/
-      expect(stderr.string).to match /FATAL fatal-message/
+      expect(stderr.string).not_to match /DEBUG block-debug-message/
+      expect(stderr.string).to match /INFO  block-info-message/
+      expect(stderr.string).to match /WARN  block-warn-message/
+      expect(stderr.string).to match /ERROR block-error-message/
+      expect(stderr.string).to match /FATAL block-fatal-message/
+
+      expect(stderr.string).not_to match /DEBUG param-debug-message/
+      expect(stderr.string).to match /INFO  param-info-message/
+      expect(stderr.string).to match /WARN  param-warn-message/
+      expect(stderr.string).to match /ERROR param-error-message/
+      expect(stderr.string).to match /FATAL param-fatal-message/
     end
   end
 
@@ -185,11 +245,17 @@ describe JavaBuildpack::Logging::LoggerFactory do
   end
 
   def trigger
-    logger.debug { 'debug-message' }
-    logger.info { 'info-message' }
-    logger.warn { 'warn-message' }
-    logger.error { 'error-message' }
-    logger.fatal { 'fatal-message' }
+    logger.debug { 'block-debug-message' }
+    logger.info { 'block-info-message' }
+    logger.warn { 'block-warn-message' }
+    logger.error { 'block-error-message' }
+    logger.fatal { 'block-fatal-message' }
+
+    logger.debug 'param-debug-message'
+    logger.info 'param-info-message'
+    logger.warn 'param-warn-message'
+    logger.error 'param-error-message'
+    logger.fatal 'param-fatal-message'
   end
 
 end
