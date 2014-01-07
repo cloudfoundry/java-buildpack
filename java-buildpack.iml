@@ -270,7 +270,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="addressable (v2.3.5, rbenv: 1.9.3-p484) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ast (v1.1.0, rbenv: 1.9.3-p484) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="bundler (v1.3.5, rbenv: 1.9.3-p484) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="bundler (v1.5.1, rbenv: 1.9.3-p484) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="codeclimate-test-reporter (v0.2.0, rbenv: 1.9.3-p484) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="crack (v0.4.1, rbenv: 1.9.3-p484) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="debugger-ruby_core_source (v1.2.4, rbenv: 1.9.3-p484) [gem]" level="application" />
