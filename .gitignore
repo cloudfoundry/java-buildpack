@@ -1,6 +1,7 @@
+.bundle
+.idea/tasks.xml
+.idea/workspace.xml
 .yardoc
 coverage
 doc
 out
-tasks.xml
-workspace.xml
