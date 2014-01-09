@@ -41,7 +41,7 @@ module JavaBuildpack::Framework
     private
 
     def has_driver?
-      (@application.root + 'postgresql-*.jar').glob.any?
+      (@application.root + '**/postgresql-*.jar').glob.any?
     end
 
     def has_service?
