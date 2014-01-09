@@ -42,7 +42,7 @@ module JavaBuildpack::Framework
 
     def has_driver?
       %w(mariadb-java-client*.jar mysql-connector-java*.jar).any? do |candidate|
-        (@application.root + candidate).glob.any?
+        (@application.root + '**' + candidate).glob.any?
       end
     end
 
