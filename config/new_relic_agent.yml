@@ -15,5 +15,5 @@
 
 # Configuration for the New Relic framework
 ---
-version: 3.2.+
+version: 3.3.+
 repository_root: "{default.repository.root}/new-relic"
