@@ -132,7 +132,7 @@ module JavaBuildpack::Component
             Dir.mktmpdir do |root|
               shell "unzip -qq #{file.path} -d #{root} 2>&1"
 
-              FileUtils.rm_r target_directory
+              FileUtils.mkdir_p target_directory.parent
               FileUtils.mv Pathname.new(root).children.first, target_directory
             end
           else

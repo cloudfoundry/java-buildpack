@@ -53,6 +53,10 @@ module JavaBuildpack::Component
     #                                                    excludes files in the sandboxes of other components
     attr_reader :root
 
+    # @!attribute [r] sandbox
+    #   @return [Pathname] the root of the component's sandbox
+    attr_reader :sandbox
+
     # Creates a new instance of the droplet abstraction
     #
     # @param [AdditionalLibraries] additional_libraries     the shared +AdditionalLibraries+ instance for all components
@@ -92,14 +96,6 @@ module JavaBuildpack::Component
       else
         @logger.debug { "No resources #{resources} found" }
       end
-    end
-
-    # Returns the root of the component's sandbox
-    #
-    # @return [Pathname] the root of the component's sandbox
-    def sandbox
-      FileUtils.mkdir_p @sandbox unless @sandbox.exist?
-      @sandbox
     end
 
     private
