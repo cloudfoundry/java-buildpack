@@ -80,11 +80,6 @@ module JavaBuildpack::Framework
       .add_system_property('agent.http.password', 'insight')
       .add_system_property('agent.http.send.json', false)
       .add_system_property('agent.http.use.proxy', false)
-      .add_system_property('agent.name.override', "'#{application_name}'")
-    end
-
-    def application_name
-      @application.details['application_name']
     end
 
     def expand(file)
@@ -112,6 +107,7 @@ module JavaBuildpack::Framework
       root = Pathname.glob(agent_dir + 'springsource-insight-uber-agent-*')[0]
 
       init_container_libs root
+      init_insight_cloudfoundry_agent_plugin root
       init_extra_applications root
       init_insight root
       init_insight_analyzer root
@@ -137,7 +133,13 @@ module JavaBuildpack::Framework
 
     def init_insight_analyzer(root)
       move insight_analyzer_directory + 'WEB-INF/lib',
-           root + 'transport/http/insight-agent-http-*.jar'
+           root + 'transport/http/insight-agent-http-*.jar',
+           root + 'cloudfoundry/insight-agent-cloudfoundry-*.jar'
+    end
+
+    def init_insight_cloudfoundry_agent_plugin(root)
+      move container_libs_directory,
+           root + 'cloudfoundry/cloudfoundry-runtime-*.jar'
     end
 
     def init_weaver(root)
