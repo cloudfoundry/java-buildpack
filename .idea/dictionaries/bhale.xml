@@ -4,6 +4,7 @@
       <w>addons</w>
       <w>appdynamics</w>
       <w>argv</w>
+      <w>atpack</w>
       <w>codeclimate</w>
       <w>constantized</w>
       <w>dhttp</w>
@@ -30,6 +31,7 @@
       <w>pkill</w>
       <w>progname</w>
       <w>proto</w>
+      <w>ratpack</w>
       <w>rbconfig</w>
       <w>rdonly</w>
       <w>readlink</w>

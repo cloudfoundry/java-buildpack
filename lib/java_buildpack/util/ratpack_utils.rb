@@ -14,8 +14,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'pathname'
 require 'java_buildpack/util'
 
-# A module encapsulating all of the utility components for Play Framework applications
-module JavaBuildpack::Util::Play
+module JavaBuildpack::Util
+
+  # Utilities for dealing with Ratpack applications
+  class RatpackUtils
+
+    private_class_method :new
+
+    class << self
+
+      # Indicates whether a application is a Ratpack application
+      #
+      # @param [Application] application the application to search
+      # @return [Boolean] +true+ if the application is a Ratpack application, +false+ otherwise
+      def is?(application)
+        (application.root + RATPACK_FILE_PATTERN).glob.any?
+      end
+
+      private
+
+      RATPACK_FILE_PATTERN = '**/app/{R,r}atpack.groovy'.freeze
+
+    end
+
+  end
+
 end
