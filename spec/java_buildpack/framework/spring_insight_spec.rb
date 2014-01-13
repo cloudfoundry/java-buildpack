@@ -52,6 +52,9 @@ describe JavaBuildpack::Framework::SpringInsight do
       expect(sandbox + 'insight/conf/insight.properties').to exist
       expect(sandbox + 'insight/collection-plugins/test-collection-plugins').to exist
       expect(extra_applications_dir + 'insight-agent').to exist
+      expect(extra_applications_dir + 'insight-agent/WEB-INF/lib/insight-agent-http-1.9.3-CI-SNAPSHOT.jar').to exist
+      expect(extra_applications_dir + 'insight-agent/WEB-INF/lib/insight-agent-cloudfoundry-1.2.3.jar').to exist
+      expect(container_libs_dir + 'cloudfoundry-runtime-1.2.3.jar').to exist
     end
 
     it 'should update JAVA_OPTS',
@@ -64,7 +67,6 @@ describe JavaBuildpack::Framework::SpringInsight do
       expect(java_opts).to include('-Dinsight.logs=$PWD/.java-buildpack/spring_insight/insight/logs')
       expect(java_opts).to include('-Daspectj.overweaving=true')
       expect(java_opts).to include('-Dorg.aspectj.tracing.factory=default')
-      expect(java_opts).to include("-Dagent.name.override='test-application-name'")
     end
   end
 
