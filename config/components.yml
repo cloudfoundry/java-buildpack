@@ -21,8 +21,13 @@ containers:
   - "JavaBuildpack::Container::PlayFramework"
   - "JavaBuildpack::Container::SpringBootCLI"
   - "JavaBuildpack::Container::Tomcat"
+
+# In order to use Oracle JREs instead of OpenJDK, you must comment out the OpenJDK line and uncomment the Oracle line.
+# Please see the documentation for more detail.
 jres:
   - "JavaBuildpack::Jre::OpenJDK"
+# - "JavaBuildpack::Jre::Oracle"
+
 frameworks:
   - "JavaBuildpack::Framework::AppDynamicsAgent"
   - "JavaBuildpack::Framework::JavaOpts"
