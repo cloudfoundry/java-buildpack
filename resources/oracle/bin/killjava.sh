@@ -1,6 +1,7 @@
+#!/usr/bin/env bash
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright (c) 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,15 +15,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'fileutils'
-require 'java_buildpack/jre'
-require 'java_buildpack/jre/open_jdk_like'
+# Kill script for use as the parameter of OpenJDK's -XX:OnOutOfMemoryError
 
-module JavaBuildpack::Jre
+COMMAND='pkill -9 -f .*-XX:OnOutOfMemoryError=.*killjava.*'
+LOG_FILE="$PWD/.out-of-memory.log"
 
-  # Encapsulates the detect, compile, and release functionality for selecting an OpenJDK JRE.
-  class OpenJDK < OpenJDKLike
+function log {
+  echo "$(date +%FT%T.%2N%z) FATAL $1" >> $LOG_FILE
+}
 
-  end
+log "Attempting to kill Java processes using '$COMMAND'"
+log "Processes Before:
+$(ps -ef)
+"
 
-end
+$($COMMAND)
+
+log "Processes After:
+$(ps -ef)
+"
