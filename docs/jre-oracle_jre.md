@@ -1,5 +1,5 @@
-# OpenJDK JRE
-The OpenJDK JRE provides Java runtimes from the [OpenJDK][] project.  Versions of Java from the `1.6`, `1.7`, and `1.8` lines are available.  Unless otherwise configured, the version of Java that will be used is specified in [`config/open_jdk.yml`][].
+# Oracle JRE
+The Oracle JRE provides Java runtimes from [Oracle][] project.  No versions of the JRE are available be default due to licensing restrictions.  Instead you will need to create a repository with the Oracle JREs in it and configure the buildpack to use that repository.  Unless otherwise configured, the version of Java that will be used is specified in [`config/oracle_jre.yml`][].
 
 <table>
   <tr>
@@ -8,20 +8,29 @@ The OpenJDK JRE provides Java runtimes from the [OpenJDK][] project.  Versions o
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
-    <td><tt>open-jdk=&lang;version&rang;</tt></td>
+    <td><tt>oracle=&lang;version&rang;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
 
+**NOTE:**  Unlike the [OpenJDK JRE][], this JRE does not connect to a pre-populated repository.  Instead you will need to create your own repository by:
+
+1.  Downloading the Oracle JRE binary (in TAR format) to an HTTP-accesible location
+1.  Uploading an `index.yml` file with a mapping from the version of the JRE to its location to the same HTTP-accessible location
+1.  Configuring the [`config/oracle_jre.yml`][] file to point to the root of the repository holding both the index and JRE binary
+1.  Configuring the [`config/components.yml`][] file to disable the OpenJDK JRE and enable the Oracle JRE
+
+For details on the repository structure, see the [repository documentation][repositories].
+
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-The JRE can be configured by modifying the [`config/open_jdk.yml`][] file.  The JRE uses the [`Repository` utility support][repositories] and so it supports the [version syntax][]  defined there.
+The JRE can be configured by modifying the [`config/oracle_jre.yml`][] file.  The JRE uses the [`Repository` utility support][repositories] and so it supports the [version syntax][]  defined there.
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the OpenJDK repository index ([details][repositories]).
-| `version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [centos6][], [lucid][], [mountainlion][], and [precise][]. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
+| `repository_root` | The URL of the Oracle repository index ([details][repositories]).
+| `version` | The version of Java runtime to use.  Candidate versions can be found in the the repository that you have created to house the JREs. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
 | `memory_sizes` | Optional memory sizes, described below under "Memory Sizes".
 | `memory_heuristics` | Default memory size weightings, described below under "Memory Weightings.
 
@@ -36,8 +45,8 @@ The following optional properties may be specified in the `memory_sizes` mapping
 | Name | Description
 | ---- | -----------
 | `heap` | The maximum heap size to use. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line options `-Xmx` and `-Xms`.
-| `metaspace` | The maximum Metaspace size to use. It is applicable to versions of OpenJDK from 1.8 onwards. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line options `-XX:MaxMetaspaceSize=` and `-XX:MetaspaceSize=`.
-| `permgen` | The maximum PermGen size to use. It is applicable to versions of OpenJDK earlier than 1.8. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line options `-XX:MaxPermSize=` and `-XX:PermSize=`.
+| `metaspace` | The maximum Metaspace size to use. It is applicable to versions of Oracle from 1.8 onwards. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line options `-XX:MaxMetaspaceSize=` and `-XX:MetaspaceSize=`.
+| `permgen` | The maximum PermGen size to use. It is applicable to versions of Oracle earlier than 1.8. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line options `-XX:MaxPermSize=` and `-XX:PermSize=`.
 | `stack` | The stack size to use. It may be a single value such as `2m` or a range of acceptable values such as `2m..4m`. It is used to calculate the value of the Java command line option `-Xss`.
 | `native` | The amount of memory to reserve for native memory allocation. It should normally be omitted or specified as a range with no upper bound such as `100m..`. It does not correspond to a switch on the Java command line.
 
@@ -50,7 +59,7 @@ The above memory size properties may be omitted, specified as a single value, or
 Each form of memory size is equivalent to a range. Omitting a memory size is equivalent to specifying the range `0..`. Specifying a single value is equivalent to specifying the range with that value as both the lower and upper bound, for example `128m` is equivalent to the range `128m..128m`.
 
 #### Memory Weightings
-Memory weightings are configured in the `memory_heuristics` mapping of [`config/openjdk.yml`][]. Each weighting is a non-negative number and represents a proportion of the total available memory (represented by the sum of all the weightings). For example, the following weightings:
+Memory weightings are configured in the `memory_heuristics` mapping of [`config/oracle_jre.yml`][]. Each weighting is a non-negative number and represents a proportion of the total available memory (represented by the sum of all the weightings). For example, the following weightings:
 
 ```yaml
 memory_heuristics:
@@ -65,19 +74,17 @@ represent a maximum heap size three times as large as the maximum PermGen size, 
 Memory weightings are used together with memory ranges to calculate the amount of memory for each memory type, as follows.
 
 #### Memory Calculation
-The total available memory is allocated into heap, Metaspace or PermGen (depending on the version of OpenJDK), stack, and native memory types.
+The total available memory is allocated into heap, Metaspace or PermGen (depending on the version of Oracle), stack, and native memory types.
 
 The total available memory is allocated to each memory type in proportion to its weighting. If the resultant size of a memory type lies outside its range, the size is constrained to
 the range, the constrained size is excluded from the remaining memory, and no further calculation is required for the memory type. If the resultant size of a memory size lies within its range, the size is included in the remaining memory. The remaining memory is then allocated to the remaining memory types in a similar fashion. Allocation terminates when none of the sizes of the remaining memory types is constrained by the corresponding range.
 
 Termination is guaranteed since there is a finite number of memory types and in each iteration either none of the remaining memory sizes is constrained by the corresponding range and allocation terminates or at least one memory size is constrained by the corresponding range and is omitted from the next iteration.
 
-[`config/open_jdk.yml`]: ../config/open_jdk.yml
+[`config/components.yml`]: ../config/components.yml
+[`config/oracle_jre.yml`]: ../config/oracle_jre.yml
 [Configuration and Extension]: ../README.md#Configuration-and-Extension
-[centos6]: http://download.pivotal.io.s3.amazonaws.com/openjdk/centos6/x86_64/index.yml
-[lucid]: http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml
-[mountainlion]: http://download.pivotal.io.s3.amazonaws.com/openjdk/mountainlion/x86_64/index.yml
-[OpenJDK]: http://openjdk.java.net
-[precise]: http://download.pivotal.io.s3.amazonaws.com/openjdk/precise/x86_64/index.yml
+[OpenJDK JRE]: jre-open_jdk.md
+[Oracle]: http://www.oracle.com/technetwork/java/index.html
 [repositories]: extending-repositories.md
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
