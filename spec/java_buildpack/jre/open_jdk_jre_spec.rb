@@ -17,10 +17,10 @@
 require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/component/mutable_java_home'
-require 'java_buildpack/jre/open_jdk'
+require 'java_buildpack/jre/open_jdk_jre'
 require 'java_buildpack/jre/memory/weight_balancing_memory_heuristic'
 
-describe JavaBuildpack::Jre::OpenJDK do
+describe JavaBuildpack::Jre::OpenJdkJRE do
   include_context 'component_helper'
 
   let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
@@ -31,8 +31,8 @@ describe JavaBuildpack::Jre::OpenJDK do
     allow(JavaBuildpack::Jre::WeightBalancingMemoryHeuristic).to receive(:new).and_return(memory_heuristic)
   end
 
-  it 'should detect with id of openjdk-<version>' do
-    expect(component.detect).to eq("open-jdk=#{version}")
+  it 'should detect with id of openjdk_jre-<version>' do
+    expect(component.detect).to eq("open-jdk-jre=#{version}")
   end
 
   it 'should extract Java from a GZipped TAR',
@@ -59,7 +59,7 @@ describe JavaBuildpack::Jre::OpenJDK do
   it 'adds OnOutOfMemoryError to java_opts' do
     component.release
 
-    expect(java_opts).to include('-XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk/bin/killjava.sh')
+    expect(java_opts).to include('-XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk_jre/bin/killjava.sh')
   end
 
   it 'places the killjava script (with appropriately substituted content) in the diagnostics directory',

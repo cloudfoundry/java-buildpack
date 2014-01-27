@@ -43,8 +43,8 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 	* [Spring Auto Reconfiguration](docs/framework-spring_auto_reconfiguration.md) ([Configuration](docs/framework-spring_auto_reconfiguration.md#configuration))
 	* [Spring Insight](docs/framework-spring_insight.md)
 * Standard JREs
-	* [OpenJDK](docs/jre-open_jdk.md) ([Configuration](docs/jre-open_jdk.md#configuration))
-	* [Oracle](docs/jre-oracle.md) ([Configuration](docs/jre-oracle.md#configuration))
+	* [OpenJDK](docs/jre-open_jdk_jre.md) ([Configuration](docs/jre-open_jdk_jre.md#configuration))
+	* [Oracle](docs/jre-oracle_jre.md) ([Configuration](docs/jre-oracle_jre.md#configuration))
 * [Extending](docs/extending.md)
 	* [Application](docs/extending-application.md)
 	* [Droplet](docs/extending-droplet.md)

@@ -17,10 +17,10 @@
 require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/component/mutable_java_home'
-require 'java_buildpack/jre/oracle'
+require 'java_buildpack/jre/oracle_jre'
 require 'java_buildpack/jre/memory/weight_balancing_memory_heuristic'
 
-describe JavaBuildpack::Jre::Oracle do
+describe JavaBuildpack::Jre::OracleJRE do
   include_context 'component_helper'
 
   let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
@@ -31,8 +31,8 @@ describe JavaBuildpack::Jre::Oracle do
     allow(JavaBuildpack::Jre::WeightBalancingMemoryHeuristic).to receive(:new).and_return(memory_heuristic)
   end
 
-  it 'should detect with id of openjdk-<version>' do
-    expect(component.detect).to eq("oracle=#{version}")
+  it 'should detect with id of oracle-jre-<version>' do
+    expect(component.detect).to eq("oracle-jre=#{version}")
   end
 
   it 'should extract Java from a GZipped TAR',
@@ -59,7 +59,7 @@ describe JavaBuildpack::Jre::Oracle do
   it 'adds OnOutOfMemoryError to java_opts' do
     component.release
 
-    expect(java_opts).to include('-XX:OnOutOfMemoryError=$PWD/.java-buildpack/oracle/bin/killjava.sh')
+    expect(java_opts).to include('-XX:OnOutOfMemoryError=$PWD/.java-buildpack/oracle_jre/bin/killjava.sh')
   end
 
   it 'places the killjava script (with appropriately substituted content) in the diagnostics directory',
