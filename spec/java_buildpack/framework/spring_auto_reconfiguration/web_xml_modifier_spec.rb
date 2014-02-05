@@ -20,51 +20,21 @@ require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
 describe JavaBuildpack::Framework::WebXmlModifier do
 
   it 'should not modify root if there is no ContextLoaderListener' do
-    assert_equality('web_root_no_contextLoaderListener') do |modifier|
-      modifier.augment_root_context
-    end
+    assert_equality('web_root_no_contextLoaderListener') { |modifier| modifier.augment_root_context }
   end
 
   it 'should not modify a servlet if is not a DispatcherServlet' do
-    assert_equality('web_servlet_no_DispatcherServlet') do |modifier|
-      modifier.augment_root_context
-    end
+    assert_equality('web_servlet_no_DispatcherServlet') { |modifier| modifier.augment_root_context }
   end
 
-  it 'should add a new contextConfigLocation and contextInitializerClasses if they do not exist' do
-    assert_equality('web_root_no_params') do |modifier|
-      modifier.augment_root_context
-    end
-
-    assert_equality('web_servlet_no_params') do |modifier|
-      modifier.augment_servlet_contexts
-    end
+  it 'should add a new contextInitializerClasses if it does not exist' do
+    assert_equality('web_root_no_params') { |modifier| modifier.augment_root_context }
+    assert_equality('web_servlet_no_params') { |modifier| modifier.augment_servlet_contexts }
   end
 
-  it 'should update existing contextConfigLocation and contextInitializerClasses if they do exist' do
-    assert_equality('web_root_existing_params') do |modifier|
-      modifier.augment_root_context
-    end
-
-    assert_equality('web_servlet_existing_params') do |modifier|
-      modifier.augment_servlet_contexts
-    end
-  end
-
-  it 'should use annotation-based contextConfigLocation if contextClass is annotation-based' do
-    assert_equality('web_root_annotation') do |modifier|
-      modifier.augment_root_context
-    end
-
-    assert_equality('web_servlet_annotation') do |modifier|
-      modifier.augment_servlet_contexts
-    end
-  end
-
-  it 'should ignore contextClass with wrong value' do
-    assert_equality('web_root_annotation_wrong_class') do |modifier|
-      modifier.augment_root_context
-    end
+  it 'should update existing contextInitializerClasses if it does exist' do
+    assert_equality('web_root_existing_params') { |modifier| modifier.augment_root_context }
+    assert_equality('web_servlet_existing_params') { |modifier| modifier.augment_servlet_contexts }
   end
 
   def assert_equality(fixture)
