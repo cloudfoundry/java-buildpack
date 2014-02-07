@@ -28,8 +28,8 @@ describe JavaBuildpack::Framework::MariaDbJDBC do
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/mariadb/).and_return(true)
-      allow(services).to receive(:one_service?).with(/mysql/).and_return(false)
+      allow(services).to receive(:one_service?).with(/mariadb/, 'uri').and_return(true)
+      allow(services).to receive(:one_service?).with(/mysql/, 'uri').and_return(false)
     end
 
     it 'should detect with service containing a mariadb tag' do
@@ -69,8 +69,8 @@ describe JavaBuildpack::Framework::MariaDbJDBC do
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/mariadb/).and_return(false)
-      allow(services).to receive(:one_service?).with(/mysql/).and_return(true)
+      allow(services).to receive(:one_service?).with(/mariadb/, 'uri').and_return(false)
+      allow(services).to receive(:one_service?).with(/mysql/, 'uri').and_return(true)
     end
 
     it 'should detect with service containing a mysql tag' do

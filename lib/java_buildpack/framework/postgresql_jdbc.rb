@@ -48,7 +48,7 @@ module JavaBuildpack::Framework
     end
 
     def has_service?
-      @application.services.one_service? /postgres/
+      @application.services.one_service? /postgres/, 'uri'
     end
   end
 

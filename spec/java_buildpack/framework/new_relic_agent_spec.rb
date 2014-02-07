@@ -28,7 +28,7 @@ describe JavaBuildpack::Framework::NewRelicAgent do
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/newrelic/).and_return(true)
+      allow(services).to receive(:one_service?).with(/newrelic/, 'licenseKey').and_return(true)
     end
 
     it 'should detect with newrelic-n/a service' do

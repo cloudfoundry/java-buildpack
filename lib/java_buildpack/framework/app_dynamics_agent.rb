@@ -51,7 +51,7 @@ module JavaBuildpack::Framework
 
     # @macro versioned_dependency_component_supports
     def supports?
-      @application.services.one_service? FILTER
+      @application.services.one_service? FILTER, 'host-name'
     end
 
     private

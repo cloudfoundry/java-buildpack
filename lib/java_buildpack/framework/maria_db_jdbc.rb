@@ -50,7 +50,7 @@ module JavaBuildpack::Framework
     end
 
     def has_service?
-      [/mysql/, /mariadb/].any? { |filter| @application.services.one_service? filter }
+      [/mysql/, /mariadb/].any? { |filter| @application.services.one_service? filter, 'uri' }
     end
   end
 
