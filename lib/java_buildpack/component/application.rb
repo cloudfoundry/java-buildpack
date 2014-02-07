@@ -29,21 +29,21 @@ module JavaBuildpack::Component
   class Application
 
     # @!attribute [r] details
-    #   @return [Hash] the parsed contents of the +VCAP_APPLICATION+ environment variable
+    # @return [Hash] the parsed contents of the +VCAP_APPLICATION+ environment variable
     attr_reader :details
 
     # @!attribute [r] environment
-    #   @return [Hash] all environment variables except +VCAP_APPLICATION+ and +VCAP_SERVICES+.  Those values are
-    #                  available separately in parsed form.
+    # @return [Hash] all environment variables except +VCAP_APPLICATION+ and +VCAP_SERVICES+.  Those values are
+    #                available separately in parsed form.
     attr_reader :environment
 
     # @!attribute [r] root
-    #   @return [JavaBuildpack::Util::FilteringPathname] the root of the application's fileystem filtered so that it
-    #                                                    only shows files that have been uploaded by the user
+    # @return [JavaBuildpack::Util::FilteringPathname] the root of the application's fileystem filtered so that it
+    #                                                  only shows files that have been uploaded by the user
     attr_reader :root
 
     # @!attribute [r] services
-    #   @return [Hash] the parsed contents of the +VCAP_SERVICES+ environment variable
+    # @return [Hash] the parsed contents of the +VCAP_SERVICES+ environment variable
     attr_reader :services
 
     # Create a new instance of the application abstraction

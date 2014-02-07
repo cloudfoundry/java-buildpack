@@ -23,6 +23,7 @@ module JavaBuildpack::Util::Play
 
     protected
 
+    # @macro base_augment_classpath
     def augment_classpath
       if version.start_with? '2.0'
         @droplet.additional_libraries.link_to lib_dir
@@ -35,10 +36,12 @@ module JavaBuildpack::Util::Play
       end
     end
 
+    # @macro base_java_opts
     def java_opts
       @droplet.java_opts
     end
 
+    # @macro base_lib_dir
     def lib_dir
       root + 'lib'
     end

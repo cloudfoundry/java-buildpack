@@ -18,7 +18,7 @@ require 'java_buildpack/util/play/post22'
 
 module JavaBuildpack::Util::Play
 
-  # Encapsulate inspection and modification of Play dist applications up to and including Play 2.1.x.
+  # Encapsulate inspection and modification of Play dist applications from Play 2.2.0 onwards.
   class Post22Dist < Post22
 
     protected

@@ -22,11 +22,11 @@ module JavaBuildpack::Jre
   class MemoryRange
 
     # @!attribute [r] floor
-    #   @return [MemorySize] the lower bound of this memory range
+    # @return [MemorySize] the lower bound of this memory range
     attr_reader :floor
 
     # @!attribute [r] ceiling
-    #   @return [MemorySize, nil] the upper bound of this memory range or +nil+ if there is no upper bound
+    # @return [MemorySize, nil] the upper bound of this memory range or +nil+ if there is no upper bound
     attr_reader :ceiling
 
     # Creates a memory range based on either a memory range string or lower and upper bounds expressed as MemorySizes.

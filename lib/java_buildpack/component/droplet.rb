@@ -30,31 +30,31 @@ module JavaBuildpack::Component
   class Droplet
 
     # @!attribute [r] additional_libraries
-    #   @return [AdditionalLibraries] the shared +AdditionalLibraries+ instance for all components
+    # @return [AdditionalLibraries] the shared +AdditionalLibraries+ instance for all components
     attr_reader :additional_libraries
 
     # @!attribute [r] component_id
-    #   @return [String] the id of component using this droplet
+    # @return [String] the id of component using this droplet
     attr_reader :component_id
 
     # @!attribute [r] java_home
-    #   @return [ImmutableJavaHome, MutableJavaHome] the shared +JavaHome+ instance for all components.  If the
-    #                                                component using this instance is a jre, then this will be an
-    #                                                instance of +MutableJavaHome+.  Otherwise it will be an instance of
-    #                                                +ImmutableJavaHome+.
+    # @return [ImmutableJavaHome, MutableJavaHome] the shared +JavaHome+ instance for all components.  If the
+    #                                              component using this instance is a jre, then this will be an
+    #                                              instance of +MutableJavaHome+.  Otherwise it will be an instance of
+    #                                              +ImmutableJavaHome+.
     attr_reader :java_home
 
     # @!attribute [r] java_opts
-    #   @return [JavaOpts] the shared +JavaOpts+ instance for all components
+    # @return [JavaOpts] the shared +JavaOpts+ instance for all components
     attr_reader :java_opts
 
     # @!attribute [r] root
-    #   @return [JavaBuildpack::Util::FilteringPathname] the root of the droplet's fileystem filtered so that it
-    #                                                    excludes files in the sandboxes of other components
+    # @return [JavaBuildpack::Util::FilteringPathname] the root of the droplet's fileystem filtered so that it
+    #                                                  excludes files in the sandboxes of other components
     attr_reader :root
 
     # @!attribute [r] sandbox
-    #   @return [Pathname] the root of the component's sandbox
+    # @return [Pathname] the root of the component's sandbox
     attr_reader :sandbox
 
     # Creates a new instance of the droplet abstraction
@@ -85,7 +85,8 @@ module JavaBuildpack::Component
 
     # Copy resources from a components resources directory to a directory
     #
-    # @param [Pathname] target_directory the directory to copy to.  Default to a component's +sandbox+
+    # @param [Pathname] target_directory the directory to copy to.  Defaults to the component's +sandbox+.
+    # @return [void]
     def copy_resources(target_directory = @sandbox)
       resources = RESOURCES_DIRECTORY + @component_id
 

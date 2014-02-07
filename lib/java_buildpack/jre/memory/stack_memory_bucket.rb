@@ -44,8 +44,7 @@ module JavaBuildpack::Jre
 
     private
 
-    # JVM default stack size.
-    JVM_DEFAULT_STACK_SIZE = MemorySize.new('1M')
+    JVM_DEFAULT_STACK_SIZE = MemorySize.new('1M').freeze
 
   end
 

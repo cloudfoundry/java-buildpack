@@ -30,14 +30,19 @@ module JavaBuildpack::Container
   class Groovy < JavaBuildpack::Component::VersionedDependencyComponent
     include JavaBuildpack::Util
 
+    # Creates an instance
+    #
+    # @param [Hash] context a collection of utilities used the component
     def initialize(context)
       super(context) { |candidate_version| candidate_version.check_size(3) }
     end
 
+    # @macro base_component_compile
     def compile
       download_zip
     end
 
+    # @macro base_component_release
     def release
       [
           @droplet.java_home.as_env_var,
@@ -51,6 +56,7 @@ module JavaBuildpack::Container
 
     protected
 
+    # @macro versioned_dependency_component_supports
     def supports?
       JavaBuildpack::Util::ClassFileUtils.class_files(@application).empty? && main_groovy
     end

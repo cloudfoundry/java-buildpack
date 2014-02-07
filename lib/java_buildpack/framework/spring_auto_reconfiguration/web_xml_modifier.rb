@@ -38,7 +38,7 @@ module JavaBuildpack::Framework
 
     # Creates a new instance of the modifier.
     #
-    # @param [{REXML::Document}, String, {IO}] source the content of the +web.xml+ file to modify
+    # @param [REXML::Document, String, IO] source the content of the +web.xml+ file to modify
     def initialize(source)
       @document = REXML::Document.new(source)
     end

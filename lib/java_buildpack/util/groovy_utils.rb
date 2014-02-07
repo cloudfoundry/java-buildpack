@@ -52,7 +52,7 @@ module JavaBuildpack::Util
 
       # Returns all the Ruby files in the given directory
       #
-      # @param [Application] application the application to search
+      # @param [JavaBuildpack::Component::Application] application the application to search
       # @return [Array] a possibly empty list of files
       def groovy_files(application)
         (application.root + GROOVY_FILE_PATTERN).glob.reject { |path| path.directory? }.sort

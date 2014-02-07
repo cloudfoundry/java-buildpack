@@ -37,6 +37,7 @@ module JavaBuildpack::Logging
       # Sets up the logger factory
       #
       # @param [Pathname] app_dir the application directory
+      # @return [void]
       def setup(app_dir)
         @@monitor.synchronize do
           @@log_file    = app_dir + '.java-buildpack.log'
@@ -49,6 +50,7 @@ module JavaBuildpack::Logging
       # messages logged by the logger. If this is called before the +setup()+ method, a failure will be generated.
       #
       # @param [Class] klass the class that the logger is created for
+      # @return [Logger] the logger that was requested
       def get_logger(klass)
         @@monitor.synchronize do
           fail "Attempted to get Logger for #{short_class(klass)} before initialization" unless @@initialized
@@ -67,6 +69,8 @@ module JavaBuildpack::Logging
       end
 
       # Resets the configuration of the factory
+      #
+      # @return [void]
       def reset
         @@monitor.synchronize do
           @@initialized = false

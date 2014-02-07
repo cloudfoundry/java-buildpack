@@ -28,8 +28,8 @@ module JavaBuildpack::Util
 
       # Returns all the .class files in the given directory
       #
-      # @param [Application] application the application to search
-      # @return [Array] a possibly empty list of files
+      # @param [JavaBuildpack::Component::Application] application the application to search
+      # @return [Array<Pathname>] a possibly empty list of files
       def class_files(application)
         (application.root + CLASS_FILE_PATTERN).glob.reject { |path| path.directory? }.sort
       end

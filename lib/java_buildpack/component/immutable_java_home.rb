@@ -44,6 +44,7 @@ module JavaBuildpack::Component
     # Execute a block with the +JAVA_HOME+ environment variable set
     #
     # @yield yields to block with the +JAVA_HOME+ environment variable set
+    # @return [Object] the returned value of the block
     def do_with
       previous_value = ENV['JAVA_HOME']
       begin

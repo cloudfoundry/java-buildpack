@@ -24,16 +24,19 @@ module JavaBuildpack::Framework
   # Encapsulates the functionality for contributing custom Java options to an application.
   class JavaOpts < JavaBuildpack::Component::BaseComponent
 
+    # @macro base_component_detect
     def detect
       @configuration.key?(CONFIGURATION_PROPERTY) ? JavaOpts.to_s.dash_case : nil
     end
 
+    # @macro base_component_compile
     def compile
       parsed_java_opts.each do |option|
         fail "Java option '#{option}' configures a memory region.  Use JRE configuration for this instead." if memory_option? option
       end
     end
 
+    # @macro base_component_release
     def release
       java_opts = @droplet.java_opts
 

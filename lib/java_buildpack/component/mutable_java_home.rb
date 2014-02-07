@@ -25,7 +25,7 @@ module JavaBuildpack::Component
   class MutableJavaHome
 
     # @!attribute [rw] root
-    #   @return [String] the root of the droplet's +JAVA_HOME+
+    # @return [String] the root of the droplet's +JAVA_HOME+
     attr_accessor :root
 
   end

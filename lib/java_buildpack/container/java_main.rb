@@ -26,13 +26,16 @@ module JavaBuildpack::Container
   # +main()+ applications.
   class JavaMain < JavaBuildpack::Component::BaseComponent
 
+    # @macro base_component_detect
     def detect
       main_class ? JavaMain.to_s.dash_case : nil
     end
 
+    # @macro base_component_compile
     def compile
     end
 
+    # @macro base_component_release
     def release
       @droplet.additional_libraries.insert 0, @application.root
       manifest_class_path.each { |path| @droplet.additional_libraries << path }
