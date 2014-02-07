@@ -28,7 +28,7 @@ describe JavaBuildpack::Framework::PostgresqlJDBC do
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/postgres/).and_return(true)
+      allow(services).to receive(:one_service?).with(/postgres/, 'uri').and_return(true)
     end
 
     it 'should detect with postgres service' do

@@ -15,6 +15,7 @@
 # limitations under the License.
 
 require 'java_buildpack/component'
+require 'java_buildpack/logging/logger_factory'
 
 module JavaBuildpack::Component
 
@@ -31,9 +32,27 @@ module JavaBuildpack::Component
     # +filter+ matches exactly one service, +false+ otherwise.
     #
     # @param [Regexp, String] filter a +RegExp+ or +String+ to match against the name, label, and tags of the services
-    # @return [Boolean] +true+ if the +filter+ matches exactly one service, +false+ otherwise.
-    def one_service?(filter)
-      one?(&matcher(filter))
+    # @param [String] required_credentials an optional list of keys that must exist in the credentials payload of
+    #                                             the candidate service
+    # @return [Boolean] +true+ if the +filter+ matches exactly one service with the required credentials, +false+
+    #                   otherwise.
+    def one_service?(filter, *required_credentials)
+      candidates = select(&matcher(filter))
+
+      match = false
+      if candidates.one?
+        if credentials?(candidates.first['credentials'], required_credentials)
+          match = true
+        else
+          logger = JavaBuildpack::Logging::LoggerFactory.get_logger Services
+          logger.warn do
+            "A service with a name label or tag matching #{filter} was found, but was missing one of the required" \
+            " credentials #{required_credentials}"
+          end
+        end
+      end
+
+      match
     end
 
     # Compares the name, label, and tags of each service to the given +filter+.  The method returns the first service
@@ -46,6 +65,10 @@ module JavaBuildpack::Component
     end
 
     private
+
+    def credentials?(candidate, required_keys)
+      required_keys.all? { |k| candidate.key? k }
+    end
 
     def matcher(filter)
       filter = Regexp.new(filter) unless filter.kind_of?(Regexp)

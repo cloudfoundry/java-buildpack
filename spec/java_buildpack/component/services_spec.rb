@@ -15,9 +15,11 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'logging_helper'
 require 'java_buildpack/component/services'
 
 describe JavaBuildpack::Component::Services do
+  include_context 'logging_helper'
 
   let(:service) do
     { 'name'        => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
@@ -46,22 +48,32 @@ describe JavaBuildpack::Component::Services do
     expect(services.one_service? /test-tag/).to be
   end
 
+  it 'should return false from one_service? if there is a matching service without required credentials' do
+    expect(services.one_service? 'test-tag', 'bad-credential').not_to be
+    expect(services.one_service? /test-tag/, 'bad-credential').not_to be
+  end
+
+  it 'should return true from one_service? if there is a matching service with required credentials' do
+    expect(services.one_service? 'test-tag', 'uri').to be
+    expect(services.one_service? /test-tag/, 'uri').to be
+  end
+
   it 'should return nil from find_service? if there is no service that matches' do
     expect(services.find_service 'bad-test').to be_nil
     expect(services.find_service /bad-test/).to be_nil
   end
 
-  it 'should return true from one_service? if there is a matching name' do
+  it 'should return service from find_service? if there is a matching name' do
     expect(services.find_service 'test-name').to be(service)
     expect(services.find_service /test-name/).to be(service)
   end
 
-  it 'should return true from one_service? if there is a matching label' do
+  it 'should return service from find_service? if there is a matching label' do
     expect(services.find_service 'test-label').to be(service)
     expect(services.find_service /test-label/).to be(service)
   end
 
-  it 'should return true from one_service? if there is a matching tag' do
+  it 'should return service from find_service? if there is a matching tag' do
     expect(services.find_service 'test-tag').to be(service)
     expect(services.find_service /test-tag/).to be(service)
   end
