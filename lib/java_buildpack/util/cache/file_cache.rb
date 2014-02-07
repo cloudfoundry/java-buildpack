@@ -46,6 +46,7 @@ module JavaBuildpack::Util::Cache
     # Perform an operation with the file cache locked exclusively. Mutations of the file cache are permitted.
     #
     # @yieldparam [LockedFileCache] @locked_file_cache an object which the provided block may use to operate on the file cache under the lock
+    # @return [void]
     def lock_exclusive
       @lock.open(File::CREAT) do |lock_file|
         lock_file.flock(File::LOCK_EX)
@@ -56,6 +57,7 @@ module JavaBuildpack::Util::Cache
     # Perform an operation with the file cache locked shared. Mutations of the file cache are not permitted.
     #
     # @yieldparam [LockedFileCache] @locked_file_cache an object which the provided block may use to operate on the file cache under the lock
+    # @return [void]
     def lock_shared
       @lock.open(File::CREAT) do |lock_file|
         lock_file.flock(File::LOCK_SH)
@@ -64,6 +66,8 @@ module JavaBuildpack::Util::Cache
     end
 
     # Destroys the file cache.
+    #
+    # @return [void]
     def destroy
       lock_exclusive do |locked_file_cache|
         locked_file_cache.destroy

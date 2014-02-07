@@ -23,6 +23,7 @@ module JavaBuildpack::Framework
   # Encapsulates the functionality for enabling zero-touch New Relic support.
   class NewRelicAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
+    # @macro base_component_compile
     def compile
       FileUtils.mkdir_p logs_dir
 
@@ -30,6 +31,7 @@ module JavaBuildpack::Framework
       @droplet.copy_resources
     end
 
+    # @macro base_component_release
     def release
       @droplet.java_opts
       .add_javaagent(@droplet.sandbox + jar_name)
@@ -41,6 +43,7 @@ module JavaBuildpack::Framework
 
     protected
 
+    # @macro versioned_dependency_component_supports
     def supports?
       @application.services.one_service? FILTER
     end

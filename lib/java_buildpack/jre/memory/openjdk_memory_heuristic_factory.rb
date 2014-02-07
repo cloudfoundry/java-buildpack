@@ -40,10 +40,6 @@ module JavaBuildpack::Jre
 
       private
 
-      def permgen_or_metaspace(version)
-        version < JavaBuildpack::Util::TokenizedVersion.new('1.8.0') ? 'permgen' : 'metaspace'
-      end
-
       VALID_TYPES = %w(heap stack native).freeze
 
       JAVA_OPTS = {
@@ -52,6 +48,10 @@ module JavaBuildpack::Jre
           'permgen'   => ->(v) { %W(-XX:MaxPermSize=#{v} -XX:PermSize=#{v}) },
           'stack'     => ->(v) { ["-Xss#{v}"] }
       }.freeze
+
+      def permgen_or_metaspace(version)
+        version < JavaBuildpack::Util::TokenizedVersion.new('1.8.0') ? 'permgen' : 'metaspace'
+      end
 
     end
 

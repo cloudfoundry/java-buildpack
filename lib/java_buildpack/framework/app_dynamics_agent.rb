@@ -23,10 +23,12 @@ module JavaBuildpack::Framework
   # Encapsulates the functionality for enabling zero-touch AppDynamics support.
   class AppDynamicsAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
+    # @macro base_component_compile
     def compile
       download_zip false
     end
 
+    # @macro base_component_release
     def release
       credentials = @application.services.find_service(FILTER)['credentials']
       java_opts   = @droplet.java_opts
@@ -47,6 +49,7 @@ module JavaBuildpack::Framework
 
     protected
 
+    # @macro versioned_dependency_component_supports
     def supports?
       @application.services.one_service? FILTER
     end

@@ -25,11 +25,15 @@ module JavaBuildpack::Framework
   # applications.
   class SpringAutoReconfiguration < JavaBuildpack::Component::VersionedDependencyComponent
 
+    # Creates an instance
+    #
+    # @param [Hash] context a collection of utilities used the component
     def initialize(context)
       super(context)
       @logger = JavaBuildpack::Logging::LoggerFactory.get_logger SpringAutoReconfiguration
     end
 
+    # @macro base_component_compile
     def compile
       download_jar
       @droplet.additional_libraries << (@droplet.sandbox + jar_name)
@@ -37,12 +41,14 @@ module JavaBuildpack::Framework
       modify_web_xml
     end
 
+    # @macro base_component_release
     def release
       @droplet.additional_libraries << (@droplet.sandbox + jar_name)
     end
 
     protected
 
+    # @macro versioned_dependency_component_supports
     def supports?
       (@droplet.root + '**/*spring-core*.jar').glob.any?
     end

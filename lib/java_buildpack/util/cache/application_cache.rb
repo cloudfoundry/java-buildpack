@@ -25,6 +25,7 @@ module JavaBuildpack::Util::Cache
   # <b>WARNING: This cache should only by used by code run by the +compile+ script</b>
   class ApplicationCache < DownloadCache
 
+    # Creates an instance of the cache that is backed by the the application cache
     def initialize
       application_cache_directory = ARGV[1]
       fail 'Application cache directory is undefined' if application_cache_directory.nil?

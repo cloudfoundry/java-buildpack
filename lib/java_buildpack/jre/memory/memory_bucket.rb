@@ -24,16 +24,16 @@ module JavaBuildpack::Jre
   class MemoryBucket
 
     # @!attribute [r] size
-    #   @return [Numeric, nil] the size of the memory bucket in KB or nil if this has not been specified by the user or
-    #                          defaulted
+    # @return [Numeric, nil] the size of the memory bucket in KB or nil if this has not been specified by the user or
+    #                        defaulted
     attr_reader :size
 
     # @!attribute [r] range
-    #   @return [MemoryRange] the permissible range of the memory bucket
+    # @return [MemoryRange] the permissible range of the memory bucket
     attr_accessor :range
 
     # @!attribute [r] weighting
-    #   @return [Numeric] the weighting of the memory bucket
+    # @return [Numeric] the weighting of the memory bucket
     attr_reader :weighting
 
     # Constructs a memory bucket.

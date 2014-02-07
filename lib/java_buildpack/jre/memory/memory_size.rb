@@ -128,7 +128,7 @@ module JavaBuildpack::Jre
     protected
 
     # @!attribute [r] bytes
-    #   @return [Numeric] the size in bytes of this memory size
+    # @return [Numeric] the size in bytes of this memory size
     attr_reader :bytes
 
     private

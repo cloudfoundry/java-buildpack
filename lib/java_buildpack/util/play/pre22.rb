@@ -23,15 +23,17 @@ module JavaBuildpack::Util::Play
 
     protected
 
+    # @macro base_start_script
     def start_script
       root ? root + 'start' : nil
     end
 
     protected
 
-    # Returns the root of the play application
+    # @!macro [new] pre22_root
+    #   Returns the root of the play application
     #
-    # @return [Pathname] the root of the play application
+    #   @return [Pathname] the root of the play application
     def root
       fail "Method 'root' must be defined"
     end

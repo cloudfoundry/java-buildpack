@@ -24,6 +24,7 @@ module JavaBuildpack::Util::Play
 
     protected
 
+    # @macro base_augment_classpath
     def augment_classpath
       additional_classpath = @droplet.additional_libraries.sort.map do |additional_library|
         "$app_home/#{additional_library.relative_path_from(start_script.dirname)}"
@@ -33,14 +34,17 @@ module JavaBuildpack::Util::Play
                   /^declare -r app_classpath=\"(.*)\"$/, "declare -r app_classpath=\"#{additional_classpath.join(':')}:\\1\""
     end
 
+    # @macro base_java_opts
     def java_opts
       @droplet.java_opts.map { |java_opt| "-J#{java_opt}" }
     end
 
+    # @macro base_lib_dir
     def lib_dir
       root + 'lib'
     end
 
+    # @macro base_start_script
     def start_script
       if root
         candidates = (root + 'bin/*').glob
@@ -52,9 +56,10 @@ module JavaBuildpack::Util::Play
 
     protected
 
-    # Returns the root of the play application
+    # @!macro [new] post22_root
+    #   Returns the root of the play application
     #
-    # @return [Pathname] the root of the play application
+    #   @return [Pathname] the root of the play application
     def root
       fail "Method 'root' must be defined"
     end

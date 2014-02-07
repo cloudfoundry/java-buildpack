@@ -25,19 +25,25 @@ module JavaBuildpack::Framework
   # Encapsulates the detect, compile, and release functionality for enabling Insight auto configuration.
   class SpringInsight < JavaBuildpack::Component::BaseComponent
 
+    # Creates an instance
+    #
+    # @param [Hash] context a collection of utilities used the component
     def initialize(context)
       super(context)
       @version, @uri = supports? ? find_insight_agent : [nil, nil]
     end
 
+    # @macro base_component_detect
     def detect
       @version ? id(@version) : nil
     end
 
+    # @macro base_component_compile
     def compile
       download(@version, @uri.chomp('/') + AGENT_DOWNLOAD_URI_SUFFIX) { |file| expand file } # TODO: AGENT_DOWNLOAD_URI_SUFFIX To be removed once the full path is included in VCAP_SERVICES see issue 58873498
     end
 
+    # @macro base_component_release
     def release
       @droplet.java_opts
       .add_javaagent(weaver_jar)
@@ -58,10 +64,6 @@ module JavaBuildpack::Framework
     # @return [String] the unique identifier of the component
     def id(version)
       "#{SpringInsight.to_s.dash_case}=#{version}"
-    end
-
-    def supports?
-      @application.services.one_service? FILTER
     end
 
     private
@@ -93,7 +95,7 @@ module JavaBuildpack::Framework
 
     def unpack_agent_installer(root, file)
       installer_dir = root + 'installer'
-      agent_dir = root + 'agent'
+      agent_dir     = root + 'agent'
 
       FileUtils.mkdir_p(installer_dir)
       FileUtils.mkdir_p(agent_dir)
@@ -158,7 +160,7 @@ module JavaBuildpack::Framework
     def find_insight_agent
       service = @application.services.find_service FILTER
       version = service['label'].match(/(.*)-(.*)/)[2]
-      uri = service['credentials']['dashboard_url']
+      uri     = service['credentials']['dashboard_url']
 
       return version, uri # rubocop:disable RedundantReturn
     end
@@ -181,6 +183,10 @@ module JavaBuildpack::Framework
       globs.each do |glob|
         FileUtils.mv Pathname.glob(glob)[0], destination
       end
+    end
+
+    def supports?
+      @application.services.one_service? FILTER
     end
 
     def uber_agent_zip(location)

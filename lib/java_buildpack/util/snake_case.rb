@@ -17,7 +17,9 @@
 # A mixin that adds the ability to turn a +String+ into snake case
 class String
 
-  # Converts a string to snake case
+  # Converts a string to snake case.  For example, the Spring +SnakeCase+ would become +snake_case+.
+  #
+  # @return [String] The snake case rendering of this +String+
   def snake_case
     gsub(/::/, '/')
     .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')

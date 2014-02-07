@@ -17,7 +17,9 @@
 # A mixin that adds the ability to turn a +String+ into dash case
 class String
 
-  # Converts a string to dash case
+  # Converts a string to dash case.  For example, the Spring +DashCase+ would become +dash-case+.
+  #
+  # @return [String] The dash case rendering of this +String+
   def dash_case
     split('::').last
     .gsub(/([A-Z]+)([A-Z][a-z])/, '\1-\2')

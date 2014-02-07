@@ -24,16 +24,21 @@ module JavaBuildpack::Jre
   # Encapsulates the detect, compile, and release functionality for selecting an OpenJDK-like JRE.
   class OpenJDKLike < JavaBuildpack::Component::VersionedDependencyComponent
 
+    # Creates an instance
+    #
+    # @param [Hash] context a collection of utilities used the component
     def initialize(context)
       super(context)
       @droplet.java_home.root = @droplet.sandbox
     end
 
+    # @macro base_component_compile
     def compile
       download_tar
       @droplet.copy_resources
     end
 
+    # @macro base_component_release
     def release
       @droplet.java_opts
       .add_system_property('java.io.tmpdir', '$TMPDIR')
@@ -43,6 +48,7 @@ module JavaBuildpack::Jre
 
     protected
 
+    # @macro versioned_dependency_component_supports
     def supports?
       true
     end

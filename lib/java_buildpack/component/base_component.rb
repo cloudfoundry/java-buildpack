@@ -42,32 +42,35 @@ module JavaBuildpack::Component
       @droplet        = context[:droplet]
     end
 
-    # If the component should be used when staging an application
+    # @!macro [new] base_component_detect
+    #   If the component should be used when staging an application
     #
-    # @return [Array<String>, String, nil] If the component should be used when staging the application, a +String+ or
-    #                                      an +Array<String>+ that uniquely identifies the component (e.g.
-    #                                      +open_jdk=1.7.0_40+).  Otherwise, +nil+.
+    #   @return [Array<String>, String, nil] If the component should be used when staging the application, a +String+ or
+    #                                        an +Array<String>+ that uniquely identifies the component (e.g.
+    #                                        +open_jdk=1.7.0_40+).  Otherwise, +nil+.
     def detect
       fail "Method 'detect' must be defined"
     end
 
-    # Modifies the application's file system.  The component is expected to transform the application's file system in
-    # whatever way is necessary (e.g. downloading files or creating symbolic links) to support the function of the
-    # component.  Status output written to +STDOUT+ is expected as part of this invocation.
+    # @!macro [new] base_component_compile
+    #   Modifies the application's file system.  The component is expected to transform the application's file system in
+    #   whatever way is necessary (e.g. downloading files or creating symbolic links) to support the function of the
+    #   component.  Status output written to +STDOUT+ is expected as part of this invocation.
     #
-    # @return [void]
+    #   @return [void]
     def compile
       fail "Method 'compile' must be defined"
     end
 
-    # Modifies the application's runtime configuration. The component is expected to transform members of the +context+
-    # (e.g. +@java_home+, +@java_opts+, etc.) in whatever way is necessary to support the function of the component.
+    # @!macro [new] base_component_release
+    #   Modifies the application's runtime configuration. The component is expected to transform members of the +context+
+    #   (e.g. +@java_home+, +@java_opts+, etc.) in whatever way is necessary to support the function of the component.
     #
-    # Container components are also expected to create the command required to run the application.  These components
-    # are expected to read the +context+ values and take them into account when creating the command.
+    #   Container components are also expected to create the command required to run the application.  These components
+    #   are expected to read the +context+ values and take them into account when creating the command.
     #
-    # @return [void, String] components other than containers are not expected to return any value.  Container
-    #                        components are expected to return the command required to run the application.
+    #   @return [void, String] components other than containers are not expected to return any value.  Container
+    #                          components are expected to return the command required to run the application.
     def release
       fail "Method 'release' must be defined"
     end
@@ -98,6 +101,7 @@ module JavaBuildpack::Component
     # @param [String] jar_name the name to save the jar as
     # @param [Pathname] target_directory the directory to store the JAR file in.  Defaults to the component's sandbox.
     # @param [String] name an optional name for the download.  Defaults to +@component_name+.
+    # @return [void]
     def download_jar(version, uri, jar_name, target_directory = @droplet.sandbox, name = @component_name)
       download(version, uri, name) do |file|
         FileUtils.mkdir_p target_directory
@@ -111,6 +115,7 @@ module JavaBuildpack::Component
     # @param [String] uri the uri of the download
     # @param [Pathname] target_directory the directory to expand the TAR file to.  Defaults to the component's sandbox.
     # @param [String] name an optional name for the download and expansion.  Defaults to +@component_name+.
+    # @return [void]
     def download_tar(version, uri, target_directory = @droplet.sandbox, name = @component_name)
       download(version, uri, name) do |file|
         with_timing "Expanding #{name} to #{target_directory.relative_path_from(@droplet.root)}" do
@@ -125,6 +130,7 @@ module JavaBuildpack::Component
     # @param [Boolean] strip_top_level whether to strip the top-level directory when expanding. Defaults to +true+.
     # @param [Pathname] target_directory the directory to expand the ZIP file to.  Defaults to the component's sandbox.
     # @param [String] name an optional name for the download.  Defaults to +@component_name+.
+    # @return [void]
     def download_zip(version, uri, strip_top_level = true, target_directory = @droplet.sandbox, name = @component_name)
       download(version, uri, name) do |file|
         with_timing "Expanding #{name} to #{target_directory.relative_path_from(@droplet.root)}" do
@@ -146,6 +152,7 @@ module JavaBuildpack::Component
     # Wrap the execution of a block with timing information
     #
     # @param [String] caption the caption to print when timing starts
+    # @return [void]
     def with_timing(caption)
       start_time = Time.now
       print "       #{caption} "

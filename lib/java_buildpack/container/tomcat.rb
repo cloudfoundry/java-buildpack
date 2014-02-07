@@ -26,6 +26,9 @@ module JavaBuildpack::Container
   # Encapsulates the detect, compile, and release functionality for Tomcat applications.
   class Tomcat < JavaBuildpack::Component::BaseComponent
 
+    # Creates an instance
+    #
+    # @param [Hash] context a collection of utilities used the component
     def initialize(context)
       super(context)
 
@@ -40,10 +43,12 @@ module JavaBuildpack::Container
       end
     end
 
+    # @macro base_component_detect
     def detect
       @tomcat_version && @support_version ? [tomcat_id(@tomcat_version), support_id(@support_version)] : nil
     end
 
+    # @macro base_component_compile
     def compile
       download_tomcat
       download_support
@@ -53,6 +58,7 @@ module JavaBuildpack::Container
       @droplet.additional_libraries.link_to web_inf_lib
     end
 
+    # @macro base_component_release
     def release
       @droplet.java_opts.add_system_property 'http.port', '$PORT'
 

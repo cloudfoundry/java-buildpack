@@ -27,11 +27,13 @@ module JavaBuildpack::Container
   class SpringBootCLI < JavaBuildpack::Component::VersionedDependencyComponent
     include JavaBuildpack::Util
 
+    # @macro base_component_compile
     def compile
       download_tar
       @droplet.additional_libraries.link_to lib_dir
     end
 
+    # @macro base_component_release
     def release
       [
           @droplet.java_home.as_env_var,
@@ -46,6 +48,7 @@ module JavaBuildpack::Container
 
     protected
 
+    # @macro versioned_dependency_component_supports
     def supports?
       gf = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
       gf.length > 0 && all_pogo(gf) && no_main_method(gf) && no_shebang(gf) && !has_web_inf

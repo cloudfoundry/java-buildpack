@@ -26,17 +26,20 @@ module JavaBuildpack::Framework
   # application to cloud resources.
   class PlayFrameworkJPAPlugin < JavaBuildpack::Component::VersionedDependencyComponent
 
+    # @macro base_component_compile
     def compile
       download_jar
       @droplet.additional_libraries << (@droplet.sandbox + jar_name)
     end
 
+    # @macro base_component_release
     def release
       @droplet.additional_libraries << (@droplet.sandbox + jar_name)
     end
 
     protected
 
+    # @macro versioned_dependency_component_supports
     def supports?
       candidate = false
 
