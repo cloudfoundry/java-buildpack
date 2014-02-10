@@ -186,7 +186,7 @@ module JavaBuildpack::Framework
     end
 
     def supports?
-      @application.services.one_service? FILTER, 'dashboard-url'
+      @application.services.one_service? FILTER, 'dashboard_url'
     end
 
     def uber_agent_zip(location)
