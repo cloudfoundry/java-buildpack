@@ -9,7 +9,7 @@ Command line arguments may optionally be configured.
 
 <table>
   <tr>
-    <td><strong>Detection Criteria</strong></td><td><tt>Main-Class</tt> attribute set in <tt>META-INF/MANIFEST.MF</tt> or <tt>java_main_class</tt> set in <a href="../config/main.yml"><tt>config/main.yml<tt></a></td>
+    <td><strong>Detection Criteria</strong></td><td><tt>Main-Class</tt> attribute set in <tt>META-INF/MANIFEST.MF</tt> or <tt>java_main_class</tt> set in <tt>config/java_main.yml<tt></td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
@@ -24,7 +24,7 @@ If the main class is Spring Boot's `JarLauncher`, `PropertiesLauncher` or `WarLa
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-The container can be configured by modifying the `config/java_main.yml` file.
+The container can be configured by creating or modifying the `config/java_main.yml` file.
 
 | Name | Description
 | ---- | -----------
