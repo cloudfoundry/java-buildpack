@@ -63,6 +63,12 @@ describe JavaBuildpack::Container::SpringBootCLI do
     expect(component.detect).to be_nil
   end
 
+  it 'should detect if there are Groovy files and they are all POGOs plus a beans-style configuration',
+     app_fixture: 'container_spring_boot_cli_beans_configuration' do
+
+    expect(component.detect).to eq("spring-boot-cli=#{version}")
+  end
+
   it 'should detect if there are Groovy files and they are all POGOs with no main method and there is no WEB-INF directory',
      app_fixture: 'container_spring_boot_cli_valid_app' do
 
