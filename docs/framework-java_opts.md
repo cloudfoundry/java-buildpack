@@ -17,7 +17,7 @@ Tags are printed to standard output by the buildpack detect script
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the `config/java_opts.yml` file.
+The framework can be configured by creating or modifying the `config/java_opts.yml` file.
 
 | Name | Description
 | ---- | -----------
