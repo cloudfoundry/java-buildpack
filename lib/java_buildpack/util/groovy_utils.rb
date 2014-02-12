@@ -26,12 +26,20 @@ module JavaBuildpack::Util
 
     class << self
 
+      # Indicates whether a file is a +beans+style configuration
+      #
+      # @param [File] file the file to scan
+      # @return [Boolean] +true+ if the file is a +beans+style configuration, +false+ otherwise.
+      def beans?(file)
+        Pathname.new(file).read =~ /beans[\s]*\{/
+      end
+
       # Indicates whether a file has a +main()+ method in it
       #
       # @param [File] file the file to scan
       # @return [Boolean] +true+ if the file contains a +main()+ method, +false+ otherwise.
       def main_method?(file)
-        file.read =~ /static void main\(/
+        Pathname.new(file).read =~ /static void main\(/
       end
 
       # Indicates whether a file is a POGO
@@ -39,7 +47,7 @@ module JavaBuildpack::Util
       # @param [File] file the file to scan
       # @return [Boolean] +true+ if the file is a POGO, +false+ otherwise.
       def pogo?(file)
-        file.read =~ /class [\w]+ [\s\w]*{/
+        Pathname.new(file).read =~ /class [\w]+ [\s\w]*\{/
       end
 
       # Indicates whether a file has a shebang
@@ -47,7 +55,7 @@ module JavaBuildpack::Util
       # @param [File] file the file to scan
       # @return [Boolean] +true+ if the file has a shebang, +false+ otherwise.
       def shebang?(file)
-        file.read =~ /#!/
+        Pathname.new(file).read =~ /#!/
       end
 
       # Returns all the Ruby files in the given directory
