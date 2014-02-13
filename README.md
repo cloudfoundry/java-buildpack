@@ -17,6 +17,11 @@ cf push -b https://github.com/cloudfoundry/java-buildpack
 The following are _very_ simple examples for deploying the artifact types that we support.
 
 * [Grails](docs/example-grails.md)
+* [Groovy](docs/example-groovy.md)
+* [Java Main](docs/example-java_main.md)
+* [Play Framework](docs/example-play_framework.md)
+* [Servlet](docs/example-servlet.md)
+* [Spring Boot CLI](docs/example-spring_boot_cli.md)
 
 ## Configuration and Extension
 The buildpack supports configuration and extension through the use of Git repository forking.  The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository.  Make the required configuration and extension changes in the copy of the repository.  Then specify the URL of the new repository when pushing Cloud Foundry applications.  If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes.
