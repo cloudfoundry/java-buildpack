@@ -4,20 +4,19 @@
 [![Code Climate](https://codeclimate.com/repos/5224adaec7f3a3415107004c/badges/bc49f7d7f8dfc47057c8/gpa.png)](https://codeclimate.com/repos/5224adaec7f3a3415107004c/feed)
 [![Code Climate](https://codeclimate.com/repos/5224adaec7f3a3415107004c/badges/bc49f7d7f8dfc47057c8/coverage.png)](https://codeclimate.com/repos/5224adaec7f3a3415107004c/feed)
 
-The `java-buildpack` is a [Cloud Foundry][] buildpack for running Java applications.  It is designed to run most Java applications with no additional configuration, but supports configuration of the standard components, and extension to add custom components.
+The `java-buildpack` is a [Cloud Foundry][] buildpack for running JVM-based applications.  It is designed to run many JVM-based applications ([Grails][], [Groovy][], Java Main, [Play Framework][], [Spring Boot][], and Servlet) with no additional configuration, but supports configuration of the standard components, and extension to add custom components.
 
 ## Usage
 To use this buildpack specify the URI of the repository when pushing an application to Cloud Foundry:
 
 ```bash
-cf push --buildpack https://github.com/cloudfoundry/java-buildpack
+cf push -b https://github.com/cloudfoundry/java-buildpack
 ```
 
-or if using the [`gcf`][] tool:
+## Examples
+The following are _very_ simple examples for deploying the artifact types that we support.
 
-```bash
-gcf push -b https://github.com/cloudfoundry/java-buildpack
-```
+* [Grails](docs/example-grails.md)
 
 ## Configuration and Extension
 The buildpack supports configuration and extension through the use of Git repository forking.  The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository.  Make the required configuration and extension changes in the copy of the repository.  Then specify the URL of the new repository when pushing Cloud Foundry applications.  If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes.
@@ -79,8 +78,11 @@ This buildpack is released under version 2.0 of the [Apache License][].
 [Apache License]: http://www.apache.org/licenses/LICENSE-2.0
 [Cloud Foundry]: http://www.cloudfoundry.com
 [contributor guidelines]: CONTRIBUTING.md
-[`gcf`]: https://github.com/cloudfoundry/cli
 [GitHub's forking functionality]: https://help.github.com/articles/fork-a-repo
+[Grails]: http://grails.org
+[Groovy]: http://groovy.codehaus.org
+[Installing Cloud Foundry on Vagrant]: http://blog.cloudfoundry.com/2013/06/27/installing-cloud-foundry-on-vagrant/
+[Play Framework]: http://www.playframework.com
 [pull request]: https://help.github.com/articles/using-pull-requests
 [Pull requests]: http://help.github.com/send-pull-requests
-[Installing Cloud Foundry on Vagrant]: http://blog.cloudfoundry.com/2013/06/27/installing-cloud-foundry-on-vagrant/
+[Spring Boot]: http://projects.spring.io/spring-boot/
