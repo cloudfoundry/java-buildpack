@@ -33,25 +33,35 @@ module JavaBuildpack::Container
       super(context)
 
       if supports?
-        @tomcat_version, @tomcat_uri   = JavaBuildpack::Repository::ConfiguredItem
+        @tomcat_version, @tomcat_uri = JavaBuildpack::Repository::ConfiguredItem
         .find_item(@component_name, @configuration) { |candidate_version| candidate_version.check_size(3) }
-        @support_version, @support_uri = JavaBuildpack::Repository::ConfiguredItem
-        .find_item(@component_name, @configuration['support'])
+
+        @lifecycle_version, @lifecycle_uri = JavaBuildpack::Repository::ConfiguredItem
+        .find_item(@component_name, @configuration['lifecycle_support'])
+
+        @logging_version, @logging_uri = JavaBuildpack::Repository::ConfiguredItem
+        .find_item(@component_name, @configuration['logging_support'])
       else
-        @tomcat_version, @tomcat_uri   = nil, nil
-        @support_version, @support_uri = nil, nil
+        @tomcat_version, @tomcat_uri       = nil, nil
+        @lifecycle_version, @lifecycle_uri = nil, nil
+        @logging_version, @logging_uri     = nil, nil
       end
     end
 
     # @macro base_component_detect
     def detect
-      @tomcat_version && @support_version ? [tomcat_id(@tomcat_version), support_id(@support_version)] : nil
+      if @tomcat_version && @lifecycle_version && @logging_version
+        [tomcat_id(@tomcat_version), lifecycle_id(@lifecycle_version), logging_id(@logging_version)]
+      else
+        nil
+      end
     end
 
     # @macro base_component_compile
     def compile
       download_tomcat
-      download_support
+      download_lifecycle
+      download_logging
       link_to(@application.root.children, root)
       do_not_depend_on_this
       @droplet.additional_libraries << tomcat_datasource_jar if tomcat_datasource_jar.exist?
@@ -80,12 +90,22 @@ module JavaBuildpack::Container
       "#{Tomcat.to_s.dash_case}=#{version}"
     end
 
-    # The unique identifier of the component, incorporating the version of the dependency (e.g. +tomcat-buildpack-support=1.1.0+)
+    # The unique identifier of the component, incorporating the version of the dependency (e.g.
+    # +tomcat-lifecycle-support=1.1.0+)
     #
     # @param [String] version the version of the dependency
     # @return [String] the unique identifier of the component
-    def support_id(version)
-      "tomcat-buildpack-support=#{version}"
+    def lifecycle_id(version)
+      "tomcat-lifecycle-support=#{version}"
+    end
+
+    # The unique identifier of the component, incorporating the version of the dependency (e.g.
+    # +tomcat-logging-support=1.1.0+)
+    #
+    # @param [String] version the version of the dependency
+    # @return [String] the unique identifier of the component
+    def logging_id(version)
+      "tomcat-logging-support=#{version}"
     end
 
     # Whether or not this component supports this application
@@ -111,9 +131,14 @@ module JavaBuildpack::Container
       download(@tomcat_version, @tomcat_uri) { |file| expand file }
     end
 
-    def download_support
-      download_jar(@support_version, @support_uri, support_jar_name, @droplet.sandbox + 'lib',
-                   'Buildpack Tomcat Support')
+    def download_lifecycle
+      download_jar(@lifecycle_version, @lifecycle_uri, lifecycle_jar_name, @droplet.sandbox + 'lib',
+                   'Tomcat Lifecycle Support')
+    end
+
+    def download_logging
+      download_jar(@logging_version, @logging_uri, logging_jar_name, @droplet.sandbox + 'endorsed',
+                   'Tomcat Logging Support')
     end
 
     def expand(file)
@@ -138,8 +163,12 @@ module JavaBuildpack::Container
       webapps + 'ROOT'
     end
 
-    def support_jar_name
-      "tomcat_buildpack_support-#{@support_version}.jar"
+    def lifecycle_jar_name
+      "tomcat_lifecycle_support-#{@lifecycle_version}.jar"
+    end
+
+    def logging_jar_name
+      "tomcat_logging_support-#{@logging_version}.jar"
     end
 
     def tomcat_datasource_jar

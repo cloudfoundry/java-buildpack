@@ -26,7 +26,7 @@
 		<Engine defaultHost='localhost' name='Catalina'>
 			<Valve className="org.apache.catalina.valves.RemoteIpValve" protocolHeader="x-forwarded-proto"/>
 			<Host name='localhost'>
-				<Listener className="com.gopivotal.buildpack.support.tomcat.ApplicationStartupFailureDetectingLifecycleListener"/>
+				<Listener className="com.gopivotal.cloudfoundry.tomcat.lifecycle.ApplicationStartupFailureDetectingLifecycleListener"/>
 			</Host>
 		</Engine>
 	</Service>
