@@ -99,14 +99,14 @@ module JavaBuildpack::Util::Cache
       # Returns whether or not an etag is stored.
       #
       # @return [Boolean] +true+ if and only if an etag is stored
-      def has_etag?
+      def etag?
         @etag.exist?
       end
 
       # Returns whether or not a last modified time stamp is stored.
       #
       # @return [Boolean] +true+ if and only if a last modified time stamp is stored
-      def has_last_modified?
+      def last_modified?
         @last_modified.exist?
       end
 

@@ -65,7 +65,7 @@ describe JavaBuildpack::Buildpack do
     allow(stub_container2).to receive(:detect).and_return('stub-container-2')
 
     expect { buildpack.detect }
-    .to raise_error /Application can be run by more than one container: Mock, Mock/
+    .to raise_error(/Application can be run by more than one container: Mock, Mock/)
   end
 
   it 'should raise an error if more than one JRE can run an application' do
@@ -73,7 +73,7 @@ describe JavaBuildpack::Buildpack do
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
     allow(stub_jre2).to receive(:detect).and_return('stub-jre-2')
 
-    expect { buildpack.detect }.to raise_error /Application can be run by more than one JRE: Mock, Mock/
+    expect { buildpack.detect }.to raise_error(/Application can be run by more than one JRE: Mock, Mock/)
   end
 
   it 'should return no detections if no container can run an application' do
@@ -144,14 +144,14 @@ describe JavaBuildpack::Buildpack do
 
     buildpack.detect
 
-    expect(stderr.string).to match /git remotes/
-    expect(stderr.string).to match /git HEAD commit/
+    expect(stderr.string).to match(/git remotes/)
+    expect(stderr.string).to match(/git HEAD commit/)
   end
 
   it 'prints output during compile showing the git repository of a buildpack' do
     expect { buildpack.compile }.to raise_error # ok since fixture has no application
 
-    expect(stdout.string).to match /Java Buildpack source: .*#.*/
+    expect(stdout.string).to match(/Java Buildpack source: .*#.*/)
   end
 
   it 'realises when buildpack is not stored in a git repository',
@@ -162,7 +162,7 @@ describe JavaBuildpack::Buildpack do
 
       with_buildpack { |buildpack| buildpack.detect }
 
-      expect(stderr.string).to match /Java Buildpack source: system/
+      expect(stderr.string).to match(/Java Buildpack source: system/)
     end
   end
 
@@ -171,15 +171,15 @@ describe JavaBuildpack::Buildpack do
     Dir.mktmpdir do |tmp_dir|
       stub_const(described_class.to_s + '::GIT_DIR', Pathname.new(tmp_dir))
 
-      with_buildpack { |buildpack| expect { buildpack.compile } .to raise_error }  # error ok since fixture has no application
+      with_buildpack { |buildpack| expect { buildpack.compile }.to raise_error } # error ok since fixture has no application
 
-      expect(stdout.string).to match /Java Buildpack source: system/
+      expect(stdout.string).to match(/Java Buildpack source: system/)
     end
   end
 
   it 'handles exceptions correctly' do
     expect { with_buildpack { |buildpack| fail 'an exception' } }.to raise_error SystemExit
-    expect(stderr.string).to match /an exception/
+    expect(stderr.string).to match(/an exception/)
   end
 
   def with_buildpack(&block)

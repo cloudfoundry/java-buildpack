@@ -29,7 +29,7 @@ describe 'compile script', :integration do
   it 'should fail to compile when no containers detect' do
     run("bin/compile #{app_dir} #{app_dir + '.cache'}") do |status|
       expect(status).not_to be_success
-      expect(stderr.string).to match /No container can run this application/
+      expect(stderr.string).to match(/No container can run this application/)
     end
   end
 

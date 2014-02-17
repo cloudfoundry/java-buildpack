@@ -38,17 +38,17 @@ module JavaBuildpack::Framework
 
     # @macro versioned_dependency_component_supports
     def supports?
-      has_service? && !has_driver?
+      service? && !driver?
     end
 
     private
 
-    def has_driver?
+    def driver?
       (@application.root + '**/postgresql-*.jar').glob.any?
     end
 
-    def has_service?
-      @application.services.one_service? /postgres/, 'uri'
+    def service?
+      @application.services.one_service?(/postgres/, 'uri')
     end
   end
 

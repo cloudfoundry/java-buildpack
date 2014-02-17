@@ -56,7 +56,7 @@ module JavaBuildpack::Framework
     end
 
     def uses_jpa?(play_app)
-      play_app.has_jar? /.*play-java-jpa.*\.jar/
+      play_app.jar?(/.*play-java-jpa.*\.jar/)
     end
 
   end

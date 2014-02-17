@@ -61,16 +61,16 @@ module JavaBuildpack::Jre
     end
 
     def validate_weighting(weighting)
-      fail diagnose_weighting(weighting, 'not numeric') unless is_numeric weighting
+      fail diagnose_weighting(weighting, 'not numeric') unless numeric? weighting
       fail diagnose_weighting(weighting, 'negative') if weighting < 0
       weighting
     end
 
     def diagnose_weighting(weighting, reason)
-      "Invalid weighting '#{@weighting}' for #{identify} : #{reason}"
+      "Invalid weighting '#{weighting}' for #{identify} : #{reason}"
     end
 
-    def is_numeric(w)
+    def numeric?(w)
       Float(w) rescue false
     end
 

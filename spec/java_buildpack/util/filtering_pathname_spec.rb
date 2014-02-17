@@ -46,29 +46,29 @@ describe JavaBuildpack::Util::FilteringPathname do
 
   it 'delegate to pathnames which do not exist' do
     filtering_pathname = described_class.new(app_dir + 'no-such-file', filter_none, false)
-    expect { filtering_pathname.ftype }.to raise_error /No such file or directory/
+    expect { filtering_pathname.ftype }.to raise_error(/No such file or directory/)
   end
 
   it 'delegate to pathnames which exist but which are filtered' do
     filtering_pathname = described_class.new(app_dir, filter_all, false)
-    expect { filtering_pathname.ftype }.to raise_error /No such file or directory/
+    expect { filtering_pathname.ftype }.to raise_error(/No such file or directory/)
   end
 
   it 'should fail to construct if a .nil file exists' do
     FileUtils.touch Pathname.new("#{app_dir}.nil")
-    expect { described_class.new(app_dir, filter_all, false) }.to raise_error /should not exist/
+    expect { described_class.new(app_dir, filter_all, false) }.to raise_error(/should not exist/)
   end
 
   it 'should fail if a .nil file is created after construction' do
     filtering_pathname = described_class.new(app_dir + 'test.file', filter_all, false)
     FileUtils.touch(app_dir + 'test.file.nil')
 
-    expect { filtering_pathname.ftype }.to raise_error /should not exist/
+    expect { filtering_pathname.ftype }.to raise_error(/should not exist/)
   end
 
   it 'should fail to construct if a .nil directory exists' do
     FileUtils.mkdir_p Pathname.new("#{app_dir}.nil")
-    expect { described_class.new(app_dir, filter_all, false) }.to raise_error /should not exist/
+    expect { described_class.new(app_dir, filter_all, false) }.to raise_error(/should not exist/)
   end
 
   it 'should return a missing method' do
@@ -147,7 +147,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should delegate relative_path_from' do
-    target = filtering_target + 'test1'
+    target              = filtering_target + 'test1'
     underlying_pathname = target.send :pathname
     expect(underlying_pathname).to receive(:relative_path_from) { Pathname.new('test1') }
     relative_path = target.relative_path_from(Pathname.new(app_dir))
@@ -171,7 +171,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should delegate each_line when the file is filtered in' do
-    target = filtering_target + 'good'
+    target              = filtering_target + 'good'
     underlying_pathname = target.send :pathname
     expect(underlying_pathname).to receive(:each_line).and_yield('test-line')
     expect { |b| target.each_line(&b) }.to yield_successive_args('test-line')
@@ -195,7 +195,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should delegate sysopen when the file is filtered in' do
-    target = filtering_target + 'good'
+    target              = filtering_target + 'good'
     underlying_pathname = target.send :pathname
     expect(underlying_pathname).to receive(:sysopen).and_yield(999)
     expect { |b| target.sysopen(&b) }.to yield_successive_args(999)
@@ -236,7 +236,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if chmod is called on an immutable instance' do
-    expect { immutable_target.chmod(0644) }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.chmod(0644) }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if chmod is called on a mutable instance' do
@@ -245,7 +245,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if chown is called on an immutable instance' do
-    expect { immutable_target.chown('test-user', 100) }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.chown('test-user', 100) }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if chown is called on a mutable instance' do
@@ -254,7 +254,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if delete is called on an immutable instance' do
-    expect { immutable_target.delete }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.delete }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if delete is called on a mutable instance' do
@@ -263,7 +263,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if lchmod is called on an immutable instance' do
-    expect { immutable_target.lchmod(0644) }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.lchmod(0644) }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if lchmod is called on a mutable instance' do
@@ -272,7 +272,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if lchown is called on an immutable instance' do
-    expect { immutable_target.lchown('test-user', 100) }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.lchown('test-user', 100) }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if lchown is called on a mutable instance' do
@@ -281,7 +281,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if make_link is called on an immutable instance' do
-    expect { immutable_target.make_link('test') }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.make_link('test') }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if make_link is called on a mutable instance' do
@@ -290,7 +290,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if make_symlink is called on an immutable instance' do
-    expect { immutable_target.make_symlink('test') }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.make_symlink('test') }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if make_symlink is called on a mutable instance' do
@@ -299,7 +299,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if mkdir is called on an immutable instance' do
-    expect { immutable_target.mkdir('test') }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.mkdir('test') }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if mkdir is called on a mutable instance' do
@@ -308,10 +308,10 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if open is called on an immutable instance with a mutating mode' do
-    expect { immutable_target.open('w') { |_| } }.to raise_error /FilteringPathname is immutable/
-    expect { immutable_target.open('w+') { |_| } }.to raise_error /FilteringPathname is immutable/
-    expect { immutable_target.open('a') { |_| } }.to raise_error /FilteringPathname is immutable/
-    expect { immutable_target.open('a+') { |_| } }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.open('w') { |_| } }.to raise_error(/FilteringPathname is immutable/)
+    expect { immutable_target.open('w+') { |_| } }.to raise_error(/FilteringPathname is immutable/)
+    expect { immutable_target.open('a') { |_| } }.to raise_error(/FilteringPathname is immutable/)
+    expect { immutable_target.open('a+') { |_| } }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if open is called on an immutable instance with a non-mutating mode' do
@@ -347,7 +347,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if rename is called on an immutable instance' do
-    expect { immutable_target.rename('test') }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.rename('test') }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if rename is called on a mutable instance' do
@@ -356,7 +356,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if rmdir is called on an immutable instance' do
-    expect { immutable_target.rmdir }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.rmdir }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if rmdir is called on a mutable instance' do
@@ -365,7 +365,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if unlink is called on an immutable instance' do
-    expect { immutable_target.unlink }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.unlink }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if unlink is called on a mutable instance' do
@@ -374,7 +374,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if untaint is called on an immutable instance' do
-    expect { immutable_target.untaint }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.untaint }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if untaint is called on a mutable instance' do
@@ -383,7 +383,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if taint is called on an immutable instance' do
-    expect { immutable_target.taint }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.taint }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if taint is called on a mutable instance' do
@@ -392,7 +392,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if mkpath is called on an immutable instance' do
-    expect { immutable_target.mkpath }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.mkpath }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if mkpath is called on a mutable instance' do
@@ -401,7 +401,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if rmtree is called on an immutable instance' do
-    expect { immutable_target.rmtree }.to raise_error /FilteringPathname is immutable/
+    expect { immutable_target.rmtree }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'should delegate if rmtree is called on a mutable instance' do
@@ -420,15 +420,15 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should raise error if getwd is used' do
-    expect { described_class.getwd }.to raise_error /undefined method `getwd'/
+    expect { described_class.getwd }.to raise_error(/undefined method `getwd'/)
   end
 
   it 'should raise error if glob is used' do
-    expect { described_class.glob '' }.to raise_error /undefined method `glob'/
+    expect { described_class.glob '' }.to raise_error(/undefined method `glob'/)
   end
 
   it 'should raise error if pwd is used' do
-    expect { described_class.pwd }.to raise_error /undefined method `pwd'/
+    expect { described_class.pwd }.to raise_error(/undefined method `pwd'/)
   end
 
   def create_file(filename)

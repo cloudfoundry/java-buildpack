@@ -41,7 +41,7 @@ module JavaBuildpack::Util::Play
     #
     # @param [RegExp] pattern the pattern of the JAR to match
     # @return [Boolean] +true+ if at least one JAR matching the +pattern+ is found, +false+ otherwise
-    def has_jar?(pattern)
+    def jar?(pattern)
       lib_dir.children.any? { |child| child.to_s =~ pattern }
     end
 

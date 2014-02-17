@@ -51,7 +51,7 @@ module JavaBuildpack::Container
     # @macro versioned_dependency_component_supports
     def supports?
       gf = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
-      gf.length > 0 && all_pogo_or_configuration(gf) && no_main_method(gf) && no_shebang(gf) && !has_web_inf
+      gf.length > 0 && all_pogo_or_configuration(gf) && no_main_method(gf) && no_shebang(gf) && !web_inf?
     end
 
     private
@@ -72,7 +72,7 @@ module JavaBuildpack::Container
       none?(groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.shebang? file }
     end
 
-    def has_web_inf
+    def web_inf?
       (@application.root + 'WEB-INF').exist?
     end
 

@@ -215,8 +215,8 @@ module JavaBuildpack::Util::Cache
     def cache_ready?(immutable_file_cache, uri)
       use_internet      = InternetAvailability.use_internet?
       cached            = immutable_file_cache.cached?
-      has_etag          = immutable_file_cache.has_etag?
-      has_last_modified = immutable_file_cache.has_last_modified?
+      has_etag          = immutable_file_cache.etag?
+      has_last_modified = immutable_file_cache.last_modified?
       @logger.debug { "should_use_cache for #{uri}, inputs: use_internet? = #{use_internet}, cached? = #{cached}, has_etag? = #{has_etag}, has_last_modified? = #{has_last_modified}" }
 
       use_cache = false

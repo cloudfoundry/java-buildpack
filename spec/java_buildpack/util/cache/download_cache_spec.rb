@@ -396,7 +396,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should fail if a download attempt fails and there is no buildpack cache', :skip_availability_check do
     stub_request(:get, 'http://bar-uri/').to_raise(SocketError)
-    expect { download_cache.get('http://bar-uri/') {} }.to raise_error /Buildpack cache not defined/
+    expect { download_cache.get('http://bar-uri/') {} }.to raise_error(/Buildpack cache not defined/)
   end
 
   it 'should support https downloads',

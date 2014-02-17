@@ -56,12 +56,12 @@ describe JavaBuildpack::Util::Cache::FileCache do
 
       it 'should know that an etag exists' do |example|
         immutable_cache = example.metadata[:immutable_cache]
-        expect(immutable_cache.has_etag?).to be
+        expect(immutable_cache.etag?).to be
       end
 
       it 'should know that a last modified timestamp exists' do |example|
         immutable_cache = example.metadata[:immutable_cache]
-        expect(immutable_cache.has_last_modified?).to be
+        expect(immutable_cache.last_modified?).to be
       end
 
       it 'should produce the data' do |example|
@@ -107,12 +107,12 @@ describe JavaBuildpack::Util::Cache::FileCache do
 
       it 'should know that an etag exists' do |example|
         mutable_cache = example.metadata[:mutable_cache]
-        expect(mutable_cache.has_etag?).to be
+        expect(mutable_cache.etag?).to be
       end
 
       it 'should know that a last modified timestamp exists' do |example|
         mutable_cache = example.metadata[:mutable_cache]
-        expect(mutable_cache.has_last_modified?).to be
+        expect(mutable_cache.last_modified?).to be
       end
 
       it 'should produce the data' do |example|
@@ -164,17 +164,17 @@ describe JavaBuildpack::Util::Cache::FileCache do
 
     it 'should know that no etag exists' do |example|
       immutable_cache = example.metadata[:immutable_cache]
-      expect(immutable_cache.has_etag?).not_to be
+      expect(immutable_cache.etag?).not_to be
     end
 
     it 'should know that no last modified timestamp exists' do |example|
       immutable_cache = example.metadata[:immutable_cache]
-      expect(immutable_cache.has_last_modified?).not_to be
+      expect(immutable_cache.last_modified?).not_to be
     end
 
     it 'should raise error when asked to produce the data' do |example|
       immutable_cache = example.metadata[:immutable_cache]
-      expect { immutable_cache.data }.to raise_error /no data cached/
+      expect { immutable_cache.data }.to raise_error(/no data cached/)
     end
 
     it 'should not produce the etag content' do |example|
@@ -212,17 +212,17 @@ describe JavaBuildpack::Util::Cache::FileCache do
 
     it 'should know that no etag exists' do |example|
       mutable_cache = example.metadata[:mutable_cache]
-      expect(mutable_cache.has_etag?).not_to be
+      expect(mutable_cache.etag?).not_to be
     end
 
     it 'should know that no last modified timestamp exists' do |example|
       mutable_cache = example.metadata[:mutable_cache]
-      expect(mutable_cache.has_last_modified?).not_to be
+      expect(mutable_cache.last_modified?).not_to be
     end
 
     it 'should raise error when asked to produce the data' do |example|
       mutable_cache = example.metadata[:mutable_cache]
-      expect { mutable_cache.data }.to raise_error /no data cached/
+      expect { mutable_cache.data }.to raise_error(/no data cached/)
     end
 
     it 'should not produce the etag content' do |example|

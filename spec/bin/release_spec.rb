@@ -29,7 +29,7 @@ describe 'release script', :integration do
   it 'should fail to release when no containers detect' do
     run("bin/release #{app_dir}") do |status|
       expect(status).not_to be_success
-      expect(stderr.string).to match /No container can run this application/
+      expect(stderr.string).to match(/No container can run this application/)
     end
   end
 

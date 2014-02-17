@@ -30,52 +30,52 @@ describe JavaBuildpack::Component::Services do
 
   it 'should return false from one_service? if there is no service that matches' do
     expect(services.one_service? 'bad-test').not_to be
-    expect(services.one_service? /bad-test/).not_to be
+    expect(services.one_service?(/bad-test/)).not_to be
   end
 
   it 'should return true from one_service? if there is a matching name' do
     expect(services.one_service? 'test-name').to be
-    expect(services.one_service? /test-name/).to be
+    expect(services.one_service?(/test-name/)).to be
   end
 
   it 'should return true from one_service? if there is a matching label' do
     expect(services.one_service? 'test-label').to be
-    expect(services.one_service? /test-label/).to be
+    expect(services.one_service?(/test-label/)).to be
   end
 
   it 'should return true from one_service? if there is a matching tag' do
     expect(services.one_service? 'test-tag').to be
-    expect(services.one_service? /test-tag/).to be
+    expect(services.one_service?(/test-tag/)).to be
   end
 
   it 'should return false from one_service? if there is a matching service without required credentials' do
     expect(services.one_service? 'test-tag', 'bad-credential').not_to be
-    expect(services.one_service? /test-tag/, 'bad-credential').not_to be
+    expect(services.one_service?(/test-tag/, 'bad-credential')).not_to be
   end
 
   it 'should return true from one_service? if there is a matching service with required credentials' do
     expect(services.one_service? 'test-tag', 'uri').to be
-    expect(services.one_service? /test-tag/, 'uri').to be
+    expect(services.one_service?(/test-tag/, 'uri')).to be
   end
 
   it 'should return nil from find_service? if there is no service that matches' do
     expect(services.find_service 'bad-test').to be_nil
-    expect(services.find_service /bad-test/).to be_nil
+    expect(services.find_service(/bad-test/)).to be_nil
   end
 
   it 'should return service from find_service? if there is a matching name' do
     expect(services.find_service 'test-name').to be(service)
-    expect(services.find_service /test-name/).to be(service)
+    expect(services.find_service(/test-name/)).to be(service)
   end
 
   it 'should return service from find_service? if there is a matching label' do
     expect(services.find_service 'test-label').to be(service)
-    expect(services.find_service /test-label/).to be(service)
+    expect(services.find_service(/test-label/)).to be(service)
   end
 
   it 'should return service from find_service? if there is a matching tag' do
     expect(services.find_service 'test-tag').to be(service)
-    expect(services.find_service /test-tag/).to be(service)
+    expect(services.find_service(/test-tag/)).to be(service)
   end
 
 end

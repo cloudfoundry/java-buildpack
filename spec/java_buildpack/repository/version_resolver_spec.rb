@@ -57,7 +57,7 @@ describe JavaBuildpack::Repository::VersionResolver do
   end
 
   it 'should raise an exception when a wildcard is specified in the [] collection' do
-    expect { described_class.resolve(tokenized_version('1.6.0_25'), %w(+)) }.to raise_error /Invalid/
+    expect { described_class.resolve(tokenized_version('1.6.0_25'), %w(+)) }.to raise_error(/Invalid/)
   end
 
   def tokenized_version(s)

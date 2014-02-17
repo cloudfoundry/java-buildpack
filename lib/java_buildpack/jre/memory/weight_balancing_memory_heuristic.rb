@@ -56,7 +56,7 @@ module JavaBuildpack::Jre
         allocate_lower_bounds(buckets)
       end
 
-      set_switches(buckets)
+      switches(buckets)
     end
 
     private
@@ -219,7 +219,7 @@ module JavaBuildpack::Jre
       end
     end
 
-    def set_switches(buckets)
+    def switches(buckets)
       buckets.map { |type, bucket| @java_opts[type][bucket.size] if bucket.size && bucket.size > 0 && @java_opts.key?(type) }.flatten(1).compact
     end
 

@@ -35,7 +35,7 @@ describe JavaBuildpack::Framework::JavaOpts do
 
   context do
     let(:configuration) do
-      super().merge('java_opts' => '-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y ' +
+      super().merge('java_opts' => '-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y ' \
           "-XX:OnOutOfMemoryError='kill -9 %p'")
     end
 
@@ -53,7 +53,7 @@ describe JavaBuildpack::Framework::JavaOpts do
     let(:configuration) { super().merge('java_opts' => '-Xms1024M') }
 
     it 'should raise an error if a -Xms is configured' do
-      expect { component.compile }.to raise_error /-Xms/
+      expect { component.compile }.to raise_error(/-Xms/)
     end
   end
 
@@ -61,7 +61,7 @@ describe JavaBuildpack::Framework::JavaOpts do
     let(:configuration) { super().merge('java_opts' => '-Xmx1024M') }
 
     it 'should raise an error if a -Xmx is configured' do
-      expect { component.compile }.to raise_error /-Xmx/
+      expect { component.compile }.to raise_error(/-Xmx/)
     end
   end
 
@@ -69,7 +69,7 @@ describe JavaBuildpack::Framework::JavaOpts do
     let(:configuration) { super().merge('java_opts' => '-XX:MaxMetaspaceSize=128M') }
 
     it 'should raise an error if a -XX:MaxMetaspaceSize is configured' do
-      expect { component.compile }.to raise_error /-XX:MaxMetaspaceSize/
+      expect { component.compile }.to raise_error(/-XX:MaxMetaspaceSize/)
     end
   end
 
@@ -77,7 +77,7 @@ describe JavaBuildpack::Framework::JavaOpts do
     let(:configuration) { super().merge('java_opts' => '-XX:MetaspaceSize=128M') }
 
     it 'should raise an error if a -XX:MetaspaceSize is configured' do
-      expect { component.compile }.to raise_error /-XX:MetaspaceSize/
+      expect { component.compile }.to raise_error(/-XX:MetaspaceSize/)
     end
   end
 
@@ -85,7 +85,7 @@ describe JavaBuildpack::Framework::JavaOpts do
     let(:configuration) { super().merge('java_opts' => '-XX:MaxPermSize=128M') }
 
     it 'should raise an error if a -XX:MaxPermSize is configured' do
-      expect { component.compile }.to raise_error /-XX:MaxPermSize/
+      expect { component.compile }.to raise_error(/-XX:MaxPermSize/)
     end
   end
 
@@ -93,7 +93,7 @@ describe JavaBuildpack::Framework::JavaOpts do
     let(:configuration) { super().merge('java_opts' => '-XX:PermSize=128M') }
 
     it 'should raise an error if a -XX:PermSize is configured' do
-      expect { component.compile }.to raise_error /-XX:PermSize/
+      expect { component.compile }.to raise_error(/-XX:PermSize/)
     end
   end
 
@@ -101,7 +101,7 @@ describe JavaBuildpack::Framework::JavaOpts do
     let(:configuration) { super().merge('java_opts' => '-Xss1M') }
 
     it 'should raise an error if a -Xss is configured' do
-      expect { component.compile }.to raise_error /-Xss/
+      expect { component.compile }.to raise_error(/-Xss/)
     end
   end
 
@@ -109,7 +109,7 @@ describe JavaBuildpack::Framework::JavaOpts do
     let(:java_opts) { super() << '-Xmx30m -Xms30m' }
 
     it 'should not allow multiple options in a single array entry' do
-      expect { component.release }.to raise_error /Invalid Java option contains more than one option/
+      expect { component.release }.to raise_error(/Invalid Java option contains more than one option/)
     end
   end
 

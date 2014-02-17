@@ -38,18 +38,18 @@ module JavaBuildpack::Framework
 
     # @macro versioned_dependency_component_supports
     def supports?
-      has_service? && !has_driver?
+      service? && !driver?
     end
 
     private
 
-    def has_driver?
+    def driver?
       %w(mariadb-java-client*.jar mysql-connector-java*.jar).any? do |candidate|
         (@application.root + '**' + candidate).glob.any?
       end
     end
 
-    def has_service?
+    def service?
       [/mysql/, /mariadb/].any? { |filter| @application.services.one_service? filter, 'uri' }
     end
   end

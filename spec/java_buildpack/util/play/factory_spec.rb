@@ -46,7 +46,7 @@ describe JavaBuildpack::Util::Play::Factory do
   it 'should fail to create an application which is a hybrid of Play 2.1 and 2.2',
      app_fixture: 'container_play_2.1_2.2_hybrid' do
 
-    expect { trigger }.to raise_error /Play application version cannot be determined/
+    expect { trigger }.to raise_error(/Play application version cannot be determined/)
   end
 
 end

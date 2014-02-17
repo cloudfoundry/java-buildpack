@@ -43,7 +43,7 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
   it 'should raise error if remote downloads are wrongly configured' do
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('cache').and_return('remote_downloads' => 'x')
 
-    expect { described_class.use_internet? }.to raise_error /Invalid remote_downloads configuration/
+    expect { described_class.use_internet? }.to raise_error(/Invalid remote_downloads configuration/)
   end
 
   it 'should record availability of the internet' do
@@ -56,13 +56,13 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
     described_class.internet_unavailable('test reason')
     expect(described_class.internet_availability_stored?).to be
     expect(described_class.use_internet?).not_to be
-    expect(log_contents).not_to match /test reason/
+    expect(log_contents).not_to match(/test reason/)
   end
 
   it 'should record unavailability of the internet and log after the first time' do
     described_class.internet_unavailable('test reason')
     described_class.internet_unavailable('another reason')
-    expect(log_contents).to match /another reason/
+    expect(log_contents).to match(/another reason/)
   end
 
 end

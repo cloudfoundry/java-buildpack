@@ -29,7 +29,7 @@ describe JavaBuildpack::Util::Cache::BuildpackStash do
   let(:trigger) { buildpack_stash.look_aside(mutable_file_cache, 'http://foo-uri/') }
 
   it 'should fail look_aside if the buildpack cache is not defined' do
-    expect { trigger }.to raise_error /Buildpack cache not defined/
+    expect { trigger }.to raise_error(/Buildpack cache not defined/)
   end
 
   context do
@@ -43,7 +43,7 @@ describe JavaBuildpack::Util::Cache::BuildpackStash do
     end
 
     it 'should fail if the stash does not contain the relevant file' do
-      expect { trigger }.to raise_error /Buildpack cache does not contain/
+      expect { trigger }.to raise_error(/Buildpack cache does not contain/)
     end
   end
 

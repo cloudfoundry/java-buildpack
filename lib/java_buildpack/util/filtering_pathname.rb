@@ -196,7 +196,7 @@ module JavaBuildpack::Util
       if block_given?
         result = delegate.send(method, *args) do |*values|
           converted_values = values.map { |value| convert_if_necessary(value) }.compact
-          yield *converted_values unless converted_values.empty? # rubocop:disable Syntax
+          yield(*converted_values) unless converted_values.empty?
         end
       else
         result = delegate.send(method, *args)

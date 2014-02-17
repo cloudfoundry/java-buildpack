@@ -36,42 +36,42 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
   it 'should fail if a memory limit is negative',
      memory_limit: '-1m' do
 
-    expect { heuristic.resolve }.to raise_error /Invalid/
+    expect { heuristic.resolve }.to raise_error(/Invalid/)
   end
 
   it 'should fail if the heap weighting is less than 0',
      with_memory_limit: '1m',
      weightings:        { 'heap' => -1 } do
 
-    expect { heuristic.resolve }.to raise_error /Invalid/
+    expect { heuristic.resolve }.to raise_error(/Invalid/)
   end
 
   it 'should fail if the permgen weighting is less than 0',
      memory_limit: '1m',
      weightings:   { 'permgen' => -1 } do
 
-    expect { heuristic.resolve }.to raise_error /Invalid/
+    expect { heuristic.resolve }.to raise_error(/Invalid/)
   end
 
   it 'should fail if the stack weighting is less than 0',
      memory_limit: '1m',
      weightings:   { 'stack' => -1 } do
 
-    expect { heuristic.resolve }.to raise_error /Invalid/
+    expect { heuristic.resolve }.to raise_error(/Invalid/)
   end
 
   it 'should fail if the native weighting is less than 0',
      memory_limit: '1m',
      weightings:   { 'native' => -1 } do
 
-    expect { heuristic.resolve }.to raise_error /Invalid/
+    expect { heuristic.resolve }.to raise_error(/Invalid/)
   end
 
   it 'should fail if a configured weighting is invalid',
      memory_limit: '1m',
      weightings:   { 'native' => 'x' } do
 
-    expect { heuristic.resolve }.to raise_error /Invalid/
+    expect { heuristic.resolve }.to raise_error(/Invalid/)
   end
 
   it 'should default maximum heap size and permgen size according to the configured weightings',
@@ -200,7 +200,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
 
     expect(output).to include('-Xmx800M')
     expect(output).to include('-XX:MaxPermSize=800M')
-    expect(log_contents).to match /There is more than .* times more spare native memory than the default/
+    expect(log_contents).to match(/There is more than .* times more spare native memory than the default/)
   end
 
   it 'should issue a warning when the specified maximum memory sizes, including native, imply the total memory size may be too large',
@@ -212,7 +212,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xmx1M')
     expect(output).to include('-XX:MaxPermSize=1M')
     expect(output).to include('-Xss2M')
-    expect(log_contents).to match /allocated Java memory sizes total .* which is less than/
+    expect(log_contents).to match(/allocated Java memory sizes total .* which is less than/)
   end
 
   it 'should allow native memory to be fixed',
@@ -243,7 +243,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
 
     heuristic.resolve
 
-    expect(log_contents).to match /WARN.*is close to the default/
+    expect(log_contents).to match(/WARN.*is close to the default/)
   end
 
   it 'should issue a warning when the specified maximum permgen size is close to the default',
@@ -252,7 +252,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
 
     heuristic.resolve
 
-    expect(log_contents).to match /WARN.*is close to the default/
+    expect(log_contents).to match(/WARN.*is close to the default/)
   end
 
   it 'should not issue a warning when the specified maximum permgen size is not close to the default',
@@ -261,14 +261,14 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
 
     heuristic.resolve
 
-    expect(log_contents).not_to match /WARN.*is close to the default/
+    expect(log_contents).not_to match(/WARN.*is close to the default/)
   end
 
   it 'should fail when the specified maximum memory is larger than the total memory size',
      memory_limit: '4096m',
      sizes:        { 'heap' => '5g' } do
 
-    expect { heuristic.resolve }.to raise_error /exceeded/
+    expect { heuristic.resolve }.to raise_error(/exceeded/)
   end
 
   it 'should default nothing when the total memory size is not available',
@@ -364,7 +364,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
      memory_limit: '4096m',
      sizes:        { 'permgen' => '2m..1m' } do
 
-    expect { heuristic.resolve }.to raise_error /Invalid range/
+    expect { heuristic.resolve }.to raise_error(/Invalid range/)
   end
 
   it 'should default maximum heap size and permgen size according to the configured weightings and range lower bounds',

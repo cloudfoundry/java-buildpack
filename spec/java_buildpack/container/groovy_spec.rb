@@ -69,12 +69,12 @@ describe JavaBuildpack::Container::Groovy do
     it 'should fail when a malformed version is detected',
        app_fixture: 'container_groovy_main_method' do
 
-      expect { component.detect }.to raise_error /Malformed version/
+      expect { component.detect }.to raise_error(/Malformed version/)
     end
   end
 
   it 'should extract Groovy from a ZIP',
-     app_fixture: 'container_groovy_main_method',
+     app_fixture:   'container_groovy_main_method',
      cache_fixture: 'stub-groovy.zip' do
 
     component.compile

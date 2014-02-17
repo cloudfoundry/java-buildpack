@@ -32,7 +32,7 @@ module JavaBuildpack::Jre
         fail "Invalid memory size '#{size}'" if !size || size.length < 2
         unit = size[-1]
         v = size[0..-2]
-        fail "Invalid memory size '#{size}'" unless is_integer v
+        fail "Invalid memory size '#{size}'" unless integer? v
         v = size.to_i
 
         # Store the number of bytes.
@@ -140,7 +140,7 @@ module JavaBuildpack::Jre
       from_numeric(yield @bytes, other.bytes)
     end
 
-    def is_integer(v)
+    def integer?(v)
       f = Float(v)
       f && f.floor == f
     rescue

@@ -101,19 +101,19 @@ describe JavaBuildpack::Jre::MemoryRange do
   end
 
   it 'should fail if the range string is empty' do
-    expect { described_class.new('2m..1m') }.to raise_error /Invalid range/
+    expect { described_class.new('2m..1m') }.to raise_error(/Invalid range/)
   end
 
   it 'should fail if the range is empty' do
-    expect { described_class.new(test_upper_bound, test_lower_bound) }.to raise_error /Invalid range/
+    expect { described_class.new(test_upper_bound, test_lower_bound) }.to raise_error(/Invalid range/)
   end
 
   it 'should fail if the lower bound is not a MemorySize' do
-    expect { described_class.new('', test_upper_bound) }.to raise_error /Invalid combination of parameter types/
+    expect { described_class.new('', test_upper_bound) }.to raise_error(/Invalid combination of parameter types/)
   end
 
   it 'should fail if the upper bound is not a MemorySize' do
-    expect { described_class.new(test_lower_bound, '') }.to raise_error /Invalid MemorySize parameter of type/
+    expect { described_class.new(test_lower_bound, '') }.to raise_error(/Invalid MemorySize parameter of type/)
   end
 
   it 'should accept valid lower and upper bounds' do

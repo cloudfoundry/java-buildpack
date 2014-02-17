@@ -33,7 +33,7 @@ describe JavaBuildpack::Jre::MemorySize do
   end
 
   it 'should fail if nil is passed to  the constructor' do
-    expect { described_class.new(nil) }.to raise_error /Invalid/
+    expect { described_class.new(nil) }.to raise_error(/Invalid/)
   end
 
   it 'should accept a zero memory size with no unit' do
@@ -41,23 +41,23 @@ describe JavaBuildpack::Jre::MemorySize do
   end
 
   it 'should fail if a non-zero memory size does not have a unit' do
-    expect { described_class.new('1') }.to raise_error /Invalid/
+    expect { described_class.new('1') }.to raise_error(/Invalid/)
   end
 
   it 'should fail if a memory size has an invalid unit' do
-    expect { described_class.new('1A') }.to raise_error /Invalid/
+    expect { described_class.new('1A') }.to raise_error(/Invalid/)
   end
 
   it 'should fail if a memory size is not an number' do
-    expect { described_class.new('xm') }.to raise_error /Invalid/
+    expect { described_class.new('xm') }.to raise_error(/Invalid/)
   end
 
   it 'should fail if a memory size is not an integer' do
-    expect { described_class.new('1.1m') }.to raise_error /Invalid/
+    expect { described_class.new('1.1m') }.to raise_error(/Invalid/)
   end
 
   it 'should fail if a memory size has embedded whitespace' do
-    expect { described_class.new('1 1m') }.to raise_error /Invalid/
+    expect { described_class.new('1 1m') }.to raise_error(/Invalid/)
   end
 
   it 'should accept a negative value' do
@@ -74,7 +74,7 @@ describe JavaBuildpack::Jre::MemorySize do
   end
 
   it 'should fail when a memory size is compared to a non-zero numeric' do
-    expect { described_class.new('1B') < 2 }.to raise_error /Cannot compare/
+    expect { described_class.new('1B') < 2 }.to raise_error(/Cannot compare/)
   end
 
   it 'should multiply values correctly' do
@@ -82,7 +82,7 @@ describe JavaBuildpack::Jre::MemorySize do
   end
 
   it 'should fail when a memory size is multiplied by a memory size' do
-    expect { one_meg * one_meg }.to raise_error /Cannot multiply/
+    expect { one_meg * one_meg }.to raise_error(/Cannot multiply/)
   end
 
   it 'should subtract memory values correctly' do
@@ -90,7 +90,7 @@ describe JavaBuildpack::Jre::MemorySize do
   end
 
   it 'should fail when a numeric is subtracted from a memory size' do
-    expect { one_meg - 1 }.to raise_error /Invalid parameter: instance of Fixnum is not a MemorySize/
+    expect { one_meg - 1 }.to raise_error(/Invalid parameter: instance of Fixnum is not a MemorySize/)
   end
 
   it 'should add memory values correctly' do
@@ -98,7 +98,7 @@ describe JavaBuildpack::Jre::MemorySize do
   end
 
   it 'should fail when a numeric is added to a memory size' do
-    expect { one_meg + 1 }.to raise_error /Invalid parameter: instance of Fixnum is not a MemorySize/
+    expect { one_meg + 1 }.to raise_error(/Invalid parameter: instance of Fixnum is not a MemorySize/)
   end
 
   it 'should divide a memory size by a numeric correctly' do
@@ -118,7 +118,7 @@ describe JavaBuildpack::Jre::MemorySize do
   end
 
   it 'should fail when a memory size is divided by an incorrect type' do
-    expect { described_class.new('1B') / '' }.to raise_error /Cannot divide/
+    expect { described_class.new('1B') / '' }.to raise_error(/Cannot divide/)
   end
 
   it 'should provide a zero memory size' do

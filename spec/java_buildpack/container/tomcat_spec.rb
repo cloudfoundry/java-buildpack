@@ -70,7 +70,7 @@ describe JavaBuildpack::Container::Tomcat do
     it 'should fail when a malformed version is detected',
        app_fixture: 'container_tomcat' do
 
-      expect { component.detect }.to raise_error /Malformed version/
+      expect { component.detect }.to raise_error(/Malformed version/)
     end
   end
 

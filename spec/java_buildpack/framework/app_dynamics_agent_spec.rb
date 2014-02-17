@@ -49,7 +49,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
     end
 
     it 'should raise error if host-name not specified' do
-      expect { component.release }.to raise_error /'host-name' credential must be set/
+      expect { component.release }.to raise_error(/'host-name' credential must be set/)
     end
 
     context do
@@ -63,7 +63,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
         expect(java_opts).to include('-Dappdynamics.controller.hostName=test-host-name')
         expect(java_opts).to include("-Dappdynamics.agent.applicationName='test-application-name'")
         expect(java_opts).to include("-Dappdynamics.agent.tierName='test-tier-name'")
-        expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' +
+        expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' \
                                          '\'.*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
       end
 
