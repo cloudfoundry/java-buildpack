@@ -24,23 +24,37 @@ require 'java_buildpack/util/tokenized_version'
 describe JavaBuildpack::Container::Tomcat do
   include_context 'component_helper'
 
-  let(:configuration) { { 'support' => support_configuration } }
-  let(:support_configuration) { {} }
-  let(:support_uri) { 'test-support-uri' }
-  let(:support_version) { '1.1.1' }
+  let(:configuration) { { 'lifecycle_support' => lifecycle_configuration, 'logging_support' => logging_configuration } }
+
+  let(:lifecycle_configuration) { {} }
+  let(:lifecycle_uri) { 'test-lifecycle-uri' }
+  let(:lifecycle_version) { '2.0.0_RELEASE' }
+
+  let(:logging_configuration) { {} }
+  let(:logging_uri) { 'test-logging-uri' }
+  let(:logging_version) { '2.0.0_RELEASE' }
 
   before do
-    allow(application_cache).to receive(:get).with(support_uri)
-                                .and_yield(Pathname.new('spec/fixtures/stub-support.jar').open)
+    allow(application_cache).to receive(:get).with(lifecycle_uri)
+                                .and_yield(Pathname.new('spec/fixtures/stub-lifecycle-support.jar').open)
+    allow(application_cache).to receive(:get).with(logging_uri)
+                                .and_yield(Pathname.new('spec/fixtures/stub-logging-support.jar').open)
   end
 
   before do
-    tokenized_version = JavaBuildpack::Util::TokenizedVersion.new(support_version)
+    tokenized_lifecycle_version = JavaBuildpack::Util::TokenizedVersion.new(lifecycle_version)
 
-    allow(JavaBuildpack::Repository::ConfiguredItem).to receive(:find_item).with(an_instance_of(String),
-                                                                                 support_configuration) do |&block|
-      block.call(tokenized_version) if block
-    end.and_return([tokenized_version, support_uri])
+    allow(JavaBuildpack::Repository::ConfiguredItem)
+    .to receive(:find_item).with(an_instance_of(String), lifecycle_configuration) do |&block|
+      block.call(tokenized_lifecycle_version) if block
+    end.and_return([tokenized_lifecycle_version, lifecycle_uri])
+
+    tokenized_logging_version = JavaBuildpack::Util::TokenizedVersion.new(logging_version)
+
+    allow(JavaBuildpack::Repository::ConfiguredItem)
+    .to receive(:find_item).with(an_instance_of(String), logging_configuration) do |&block|
+      block.call(tokenized_logging_version) if block
+    end.and_return([tokenized_logging_version, logging_uri])
   end
 
   it 'should detect WEB-INF',
@@ -49,7 +63,8 @@ describe JavaBuildpack::Container::Tomcat do
     detected = component.detect
 
     expect(detected).to include("tomcat=#{version}")
-    expect(detected).to include("tomcat-buildpack-support=#{support_version}")
+    expect(detected).to include("tomcat-lifecycle-support=#{lifecycle_version}")
+    expect(detected).to include("tomcat-logging-support=#{logging_version}")
   end
 
   it 'should not detect when WEB-INF is absent',
@@ -83,7 +98,8 @@ describe JavaBuildpack::Container::Tomcat do
     expect(sandbox + 'bin/catalina.sh').to exist
     expect(sandbox + 'conf/context.xml').to exist
     expect(sandbox + 'conf/server.xml').to exist
-    expect(sandbox + 'lib/tomcat_buildpack_support-1.1.1.jar').to exist
+    expect(sandbox + 'lib/tomcat_lifecycle_support-2.0.0_RELEASE.jar').to exist
+    expect(sandbox + 'endorsed/tomcat_logging_support-2.0.0_RELEASE.jar').to exist
   end
 
   it 'should link only the application files and directories to the ROOT webapp',
