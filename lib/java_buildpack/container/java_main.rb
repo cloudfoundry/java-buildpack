@@ -47,7 +47,7 @@ module JavaBuildpack::Container
           main_class,
           arguments,
           port
-      ].compact.join(' ')
+      ].flatten.compact.join(' ')
     end
 
     private

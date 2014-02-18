@@ -19,6 +19,8 @@ The Groovy Container allows uncompiled Groovy files (i.e. `*.groovy`) to be run.
 </table>
 Tags are printed to standard output by the buildpack detect script
 
+Any JAR files found in the application are automatically added to the classpath at runtime.
+
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 

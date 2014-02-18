@@ -91,6 +91,15 @@ describe JavaBuildpack::Container::Groovy do
                                         'directory/Beta.groovy')
   end
 
+  it 'should return command with included JARs',
+     app_fixture: 'container_groovy_with_jars' do
+
+    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} $PWD/.java-buildpack/groovy/bin/groovy " +
+                                        '-cp $PWD/.additional_libs/test-jar-1.jar:' +
+                                        '$PWD/.additional_libs/test-jar-2.jar:$PWD/Alpha.jar:$PWD/directory/Beta.jar ' +
+                                        'Application.groovy')
+  end
+
   def java_opts_str
     "\"#{java_opts.sort.join(' ')}\""
   end

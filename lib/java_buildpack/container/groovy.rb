@@ -44,6 +44,8 @@ module JavaBuildpack::Container
 
     # @macro base_component_release
     def release
+      add_libs
+
       [
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
@@ -51,7 +53,7 @@ module JavaBuildpack::Container
           @droplet.additional_libraries.as_classpath,
           relative_main_groovy,
           relative_other_groovy
-      ].compact.join(' ')
+      ].flatten.compact.join(' ')
     end
 
     protected
@@ -62,6 +64,10 @@ module JavaBuildpack::Container
     end
 
     private
+
+    def add_libs
+      (@droplet.root + '**/*.jar').glob.each { |jar| @droplet.additional_libraries << jar }
+    end
 
     def main_groovy
       candidates = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)

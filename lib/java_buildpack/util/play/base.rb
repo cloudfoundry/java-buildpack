@@ -54,7 +54,7 @@ module JavaBuildpack::Util::Play
           @droplet.java_home.as_env_var,
           qualify_path(start_script, @droplet.root),
           java_opts
-      ].compact.join(' ')
+      ].flatten.compact.join(' ')
     end
 
     # @macro versioned_dependency_component_supports
