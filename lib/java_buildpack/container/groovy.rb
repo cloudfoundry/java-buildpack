@@ -19,6 +19,7 @@ require 'java_buildpack/container'
 require 'java_buildpack/util/class_file_utils'
 require 'java_buildpack/util/groovy_utils'
 require 'java_buildpack/util/qualify_path'
+require 'java_buildpack/util/ratpack_utils'
 require 'pathname'
 require 'set'
 require 'tmpdir'
@@ -60,7 +61,8 @@ module JavaBuildpack::Container
 
     # @macro versioned_dependency_component_supports
     def supports?
-      JavaBuildpack::Util::ClassFileUtils.class_files(@application).empty? && main_groovy
+      JavaBuildpack::Util::ClassFileUtils.class_files(@application).empty? && main_groovy &&
+          !JavaBuildpack::Util::RatpackUtils.is?(@application)
     end
 
     private

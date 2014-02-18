@@ -19,6 +19,7 @@ containers:
   - "JavaBuildpack::Container::Groovy"
   - "JavaBuildpack::Container::JavaMain"
   - "JavaBuildpack::Container::PlayFramework"
+  - "JavaBuildpack::Container::Ratpack"
   - "JavaBuildpack::Container::SpringBootCLI"
   - "JavaBuildpack::Container::Tomcat"
 

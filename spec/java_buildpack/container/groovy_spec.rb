@@ -51,6 +51,12 @@ describe JavaBuildpack::Container::Groovy do
     expect(component.detect).to be_nil
   end
 
+  it 'should not detect a Groovy file from Ratpack',
+     app_fixture: 'container_groovy_ratpack' do
+
+    expect(component.detect).to be_nil
+  end
+
   it 'should detect a Groovy file with #!',
      app_fixture: 'container_groovy_shebang' do
 
