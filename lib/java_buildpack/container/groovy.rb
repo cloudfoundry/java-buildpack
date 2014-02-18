@@ -16,6 +16,7 @@
 
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
+require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/util/class_file_utils'
 require 'java_buildpack/util/groovy_utils'
 require 'java_buildpack/util/qualify_path'
@@ -35,6 +36,7 @@ module JavaBuildpack::Container
     #
     # @param [Hash] context a collection of utilities used the component
     def initialize(context)
+      @logger = JavaBuildpack::Logging::LoggerFactory.get_logger Groovy
       super(context) { |candidate_version| candidate_version.check_size(3) }
     end
 
@@ -110,15 +112,18 @@ module JavaBuildpack::Container
     end
 
     def reject(candidates, &block)
-      candidates.reject { |candidate| open(candidate, &block) }
+      candidates.reject { |candidate| open(true, candidate, &block) }
     end
 
     def select(candidates, &block)
-      candidates.select { |candidate| open(candidate, &block) }
+      candidates.select { |candidate| open(false, candidate, &block) }
     end
 
-    def open(candidate, &block)
+    def open(default, candidate, &block)
       candidate.open('r', external_encoding: 'UTF-8', &block)
+    rescue => e
+      @logger.warn e.message
+      default
     end
 
   end

@@ -28,7 +28,7 @@ describe JavaBuildpack::Container::SpringBootCLI do
   end
 
   it 'should not detect a .groovy directory',
-     app_fixture: 'dot_groovy' do
+     app_fixture: 'container_groovy_dot_groovy' do
 
     expect(component.detect).to be_nil
   end
@@ -76,7 +76,7 @@ describe JavaBuildpack::Container::SpringBootCLI do
   end
 
   it 'should extract Spring Boot CLI from a ZIP',
-     app_fixture: 'container_spring_boot_cli_valid_app',
+     app_fixture:   'container_spring_boot_cli_valid_app',
      cache_fixture: 'stub-spring-boot-cli.tar.gz' do
 
     component.compile
@@ -85,7 +85,7 @@ describe JavaBuildpack::Container::SpringBootCLI do
   end
 
   it 'should link classpath JARs',
-     app_fixture: 'container_spring_boot_cli_valid_app',
+     app_fixture:   'container_spring_boot_cli_valid_app',
      cache_fixture: 'stub-spring-boot-cli.tar.gz' do
 
     component.compile
@@ -108,7 +108,7 @@ describe JavaBuildpack::Container::SpringBootCLI do
 
     expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} " +
                                         '$PWD/.java-buildpack/spring_boot_cli/bin/spring run directory/pogo_4.groovy ' +
-                                        'pogo_1.groovy pogo_2.groovy pogo_3.groovy -- --server.port=$PORT')
+                                        'invalid.groovy pogo_1.groovy pogo_2.groovy pogo_3.groovy -- --server.port=$PORT')
   end
 
   def java_opts_str

@@ -28,7 +28,7 @@ describe JavaBuildpack::Container::Groovy do
   end
 
   it 'should not detect a .groovy directory',
-     app_fixture: 'dot_groovy' do
+     app_fixture: 'container_groovy_dot_groovy' do
 
     expect(component.detect).to be_nil
   end
@@ -94,7 +94,7 @@ describe JavaBuildpack::Container::Groovy do
     expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} $PWD/.java-buildpack/groovy/bin/groovy " +
                                         '-cp $PWD/.additional_libs/test-jar-1.jar:' +
                                         '$PWD/.additional_libs/test-jar-2.jar Application.groovy Alpha.groovy ' +
-                                        'directory/Beta.groovy')
+                                        'directory/Beta.groovy invalid.groovy')
   end
 
   it 'should return command with included JARs',
@@ -103,7 +103,7 @@ describe JavaBuildpack::Container::Groovy do
     expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} $PWD/.java-buildpack/groovy/bin/groovy " +
                                         '-cp $PWD/.additional_libs/test-jar-1.jar:' +
                                         '$PWD/.additional_libs/test-jar-2.jar:$PWD/Alpha.jar:$PWD/directory/Beta.jar ' +
-                                        'Application.groovy')
+                                        'Application.groovy invalid.groovy')
   end
 
   def java_opts_str

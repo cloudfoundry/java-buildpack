@@ -17,6 +17,7 @@
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
+require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/util/groovy_utils'
 require 'java_buildpack/util/qualify_path'
 
@@ -26,6 +27,14 @@ module JavaBuildpack::Container
   # applications.
   class SpringBootCLI < JavaBuildpack::Component::VersionedDependencyComponent
     include JavaBuildpack::Util
+
+    # Creates an instance
+    #
+    # @param [Hash] context a collection of utilities used the component
+    def initialize(context)
+      @logger = JavaBuildpack::Logging::LoggerFactory.get_logger SpringBootCLI
+      super(context)
+    end
 
     # @macro base_component_compile
     def compile
@@ -79,19 +88,22 @@ module JavaBuildpack::Container
     def all_pogo_or_configuration(groovy_files)
       all?(groovy_files) do |file|
         JavaBuildpack::Util::GroovyUtils.pogo?(file) || JavaBuildpack::Util::GroovyUtils.beans?(file)
-      end # note that this will scan comments
+      end
     end
 
     def all?(groovy_files, &block)
-      groovy_files.all? { |file| open(file, &block) }
+      groovy_files.all? { |file| open(true, file, &block) }
     end
 
     def none?(groovy_files, &block)
-      groovy_files.none? { |file| open(file, &block) }
+      groovy_files.none? { |file| open(false, file, &block) }
     end
 
-    def open(file, &block)
+    def open(default, file, &block)
       file.open('r', external_encoding: 'UTF-8', &block)
+    rescue => e
+      @logger.warn e.message
+      default
     end
 
   end
