@@ -77,7 +77,7 @@ module JavaBuildpack::Container
           @droplet.java_opts.as_env_var,
           "$PWD/#{(@droplet.sandbox + 'bin/catalina.sh').relative_path_from(@droplet.root)}",
           'run'
-      ].compact.join(' ')
+      ].flatten.compact.join(' ')
     end
 
     protected

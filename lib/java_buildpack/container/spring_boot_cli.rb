@@ -43,7 +43,7 @@ module JavaBuildpack::Container
           relative_groovy_files,
           '--',
           '--server.port=$PORT'
-      ].compact.join(' ')
+      ].flatten.compact.join(' ')
     end
 
     protected
