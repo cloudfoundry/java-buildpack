@@ -293,8 +293,30 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     expect_file_deleted 'lock'
   end
 
+  it 'should use the cached copy if the HEAD request cannot be made because, for example, the DNS is unavailable' do
+    allow(Net::HTTP).to receive(:start).and_raise('DNS error')
+
+    touch app_dir, 'cached', 'foo-cached'
+    touch app_dir, 'etag', 'foo-etag'
+    touch app_dir, 'last_modified', 'foo-last-modified'
+
+    download_cache.get('http://foo-uri/') do |file|
+      expect(file.read).to eq('foo-cached')
+    end
+  end
+
   context do
     include_context 'buildpack_cache_helper'
+
+    it 'should use the buildpack cache if the download cannot be done because, for example, the DNS is unavailable' do
+      allow(Net::HTTP).to receive(:start).and_raise('DNS error')
+
+      touch java_buildpack_cache_dir, 'cached', 'foo-stashed'
+
+      download_cache.get('http://foo-uri/') do |file|
+        expect(file.read).to eq('foo-stashed')
+      end
+    end
 
     it 'should use the buildpack cache if the download cannot be completed' do
       stub_request(:get, 'http://foo-uri/').to_raise(SocketError)

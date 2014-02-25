@@ -62,7 +62,7 @@ module JavaBuildpack::Util::Cache
       #
       # @param [String] reason a diagnostic which indicates why the internet should be deemed unavailable
       def internet_unavailable(reason)
-        logger.error { reason } if internet_availability_stored?
+        logger.error { "Internet unavailable: #{reason}. Buildpack cache will be used." } if internet_availability_stored?
         store_internet_availability false
       end
 
