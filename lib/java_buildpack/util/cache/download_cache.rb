@@ -147,6 +147,9 @@ module JavaBuildpack::Util::Cache
           fail(InferredNetworkFailure, "Unexpected HTTP response: #{response_code}")
         end
       end
+    rescue => ex
+      handle_failure(ex, 1, 1) {}
+      false
     end
 
     def file_cache(uri)
@@ -169,6 +172,7 @@ module JavaBuildpack::Util::Cache
     end
 
     def issue_http_request(request, uri, &block)
+      @logger.debug { "HTTP.start(#{start_parameters(uri)})" }
       Net::HTTP.start(*start_parameters(uri)) do |http|
         retry_http_request(http, request, &block)
       end
@@ -256,6 +260,9 @@ module JavaBuildpack::Util::Cache
         end
       end
       use_cache
+    rescue => ex
+      handle_failure(ex, 1, 1) {}
+      false
     end
 
     def use_ssl?(rich_uri)
