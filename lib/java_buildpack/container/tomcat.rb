@@ -124,7 +124,6 @@ module JavaBuildpack::Container
     # DO NOT DEPEND ON THIS FUNCTIONALITY
     def do_not_depend_on_this
       link_to(container_libs_directory.children, tomcat_lib) if container_libs_directory.exist?
-      link_to(extra_applications_directory.children, webapps) if extra_applications_directory.exist?
     end
 
     def download_tomcat
@@ -148,10 +147,6 @@ module JavaBuildpack::Container
 
         @droplet.copy_resources
       end
-    end
-
-    def extra_applications_directory
-      @droplet.root + '.spring-insight/extra-applications'
     end
 
     def link_to(source, destination)
