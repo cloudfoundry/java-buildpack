@@ -65,7 +65,7 @@ describe JavaBuildpack::Buildpack do
     allow(stub_container2).to receive(:detect).and_return('stub-container-2')
 
     expect { buildpack.detect }
-    .to raise_error(/Application can be run by more than one container: Mock, Mock/)
+    .to raise_error(/Application can be run by more than one container: Double, Double/)
   end
 
   it 'should raise an error if more than one JRE can run an application' do
@@ -73,7 +73,7 @@ describe JavaBuildpack::Buildpack do
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
     allow(stub_jre2).to receive(:detect).and_return('stub-jre-2')
 
-    expect { buildpack.detect }.to raise_error(/Application can be run by more than one JRE: Mock, Mock/)
+    expect { buildpack.detect }.to raise_error(/Application can be run by more than one JRE: Double, Double/)
   end
 
   it 'should return no detections if no container can run an application' do
