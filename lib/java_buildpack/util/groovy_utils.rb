@@ -47,7 +47,7 @@ module JavaBuildpack::Util
       # @param [File] file the file to scan
       # @return [Boolean] +true+ if the file is a POGO, +false+ otherwise.
       def pogo?(file)
-        safe_read(file) { Pathname.new(file).read =~ /class [\w]+ [\s\w]*\{/ }
+        safe_read(file) { Pathname.new(file).read =~ /class [\w]+[\s\w]*\{/ }
       end
 
       # Indicates whether a file has a shebang
