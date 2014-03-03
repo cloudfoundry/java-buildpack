@@ -49,7 +49,7 @@ GEM
     simplecov-html (0.8.0)
     slop (3.4.7)
     tee (1.0.0)
-    webmock (1.17.3)
+    webmock (1.17.4)
       addressable (>= 2.2.7)
       crack (>= 0.3.2)
     yard (0.8.7.3)
