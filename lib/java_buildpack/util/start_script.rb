@@ -32,4 +32,6 @@ module JavaBuildpack::Util
     end
   end
 
+  module_function :start_script
+
 end
