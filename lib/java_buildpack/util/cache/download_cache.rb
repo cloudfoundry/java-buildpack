@@ -137,9 +137,10 @@ module JavaBuildpack::Util::Cache
     end
 
     def download(mutable_file_cache, uri)
-      request = Net::HTTP::Get.new(uri)
+      rich_uri = URI(uri)
+      request = Net::HTTP::Get.new(rich_uri.request_uri)
 
-      issue_http_request(request, uri) do |response, response_code|
+      issue_http_request(request, rich_uri) do |response, response_code|
         @logger.debug { "Download of #{uri} gave response #{response_code}" }
         if response_code == HTTP_OK
           write_response(mutable_file_cache, response)
@@ -171,9 +172,16 @@ module JavaBuildpack::Util::Cache
       options.merge(use_ssl: use_ssl?(rich_uri))
     end
 
-    def issue_http_request(request, uri, &block)
-      @logger.debug { "HTTP.start(#{start_parameters(uri)})" }
-      Net::HTTP.start(*start_parameters(uri)) do |http|
+    def issue_http_request(request, rich_uri, &block)
+      if use_ssl?(rich_uri)
+        proxy = URI.parse(ENV['https_proxy'] || '')
+      else
+        proxy = URI.parse(ENV['http_proxy'] || '')
+      end
+
+      @logger.debug { "HTTP.start(#{start_parameters(rich_uri)})" }
+
+      Net::HTTP::Proxy(proxy.host, proxy.port).start(*start_parameters(rich_uri)) do |http|
         retry_http_request(http, request, &block)
       end
     end
@@ -237,8 +245,7 @@ module JavaBuildpack::Util::Cache
       use_cache
     end
 
-    def start_parameters(uri)
-      rich_uri = URI(uri)
+    def start_parameters(rich_uri)
       return rich_uri.host, rich_uri.port, http_options(rich_uri) # rubocop:disable RedundantReturn
     end
 
@@ -246,10 +253,11 @@ module JavaBuildpack::Util::Cache
       @logger.debug { "Performing up-to-date check on cached version of #{uri}" }
       use_cache = false
 
-      request = Net::HTTP::Head.new(uri)
+      rich_uri = URI(uri)
+      request = Net::HTTP::Head.new(rich_uri.request_uri)
       add_headers(request, immutable_file_cache)
 
-      issue_http_request(request, uri) do |_, response_code|
+      issue_http_request(request, rich_uri) do |_, response_code|
         @logger.debug { "Up-to-date check on cached version of #{uri} returned #{response_code}" }
         if response_code != HTTP_OK
           if response_code != HTTP_NOT_MODIFIED
