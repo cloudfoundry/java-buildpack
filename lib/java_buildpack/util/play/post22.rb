@@ -16,6 +16,7 @@
 
 require 'java_buildpack/util/play'
 require 'java_buildpack/util/play/base'
+require 'java_buildpack/util/start_script'
 
 module JavaBuildpack::Util::Play
 
@@ -46,12 +47,7 @@ module JavaBuildpack::Util::Play
 
     # @macro base_start_script
     def start_script
-      if root
-        candidates = (root + 'bin/*').glob
-        candidates.size == 1 ? candidates.first : candidates.find { |candidate| Pathname.new("#{candidate}.bat").exist? }
-      else
-        nil
-      end
+      JavaBuildpack::Util.start_script root
     end
 
     protected

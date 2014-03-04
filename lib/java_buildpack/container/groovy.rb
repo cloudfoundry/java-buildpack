@@ -18,6 +18,7 @@ require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/util/class_file_utils'
+require 'java_buildpack/util/file_enumerable'
 require 'java_buildpack/util/groovy_utils'
 require 'java_buildpack/util/qualify_path'
 require 'java_buildpack/util/ratpack_utils'
@@ -109,21 +110,6 @@ module JavaBuildpack::Container
 
     def shebang(candidates)
       select(candidates) { |file| JavaBuildpack::Util::GroovyUtils.shebang? file }
-    end
-
-    def reject(candidates, &block)
-      candidates.reject { |candidate| open(true, candidate, &block) }
-    end
-
-    def select(candidates, &block)
-      candidates.select { |candidate| open(false, candidate, &block) }
-    end
-
-    def open(default, candidate, &block)
-      candidate.open('r', external_encoding: 'UTF-8', &block)
-    rescue => e
-      @logger.warn e.message
-      default
     end
 
   end

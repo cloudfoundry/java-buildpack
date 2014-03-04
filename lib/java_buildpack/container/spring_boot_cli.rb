@@ -3,7 +3,7 @@
 # Copyright (c) 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
+# you may not use this candidate except in compliance with the License.
 # You may obtain a copy of the License at
 #
 #      http://www.apache.org/licenses/LICENSE-2.0
@@ -18,6 +18,7 @@ require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/logging/logger_factory'
+require 'java_buildpack/util/file_enumerable'
 require 'java_buildpack/util/groovy_utils'
 require 'java_buildpack/util/qualify_path'
 
@@ -89,21 +90,6 @@ module JavaBuildpack::Container
       all?(groovy_files) do |file|
         JavaBuildpack::Util::GroovyUtils.pogo?(file) || JavaBuildpack::Util::GroovyUtils.beans?(file)
       end
-    end
-
-    def all?(groovy_files, &block)
-      groovy_files.all? { |file| open(true, file, &block) }
-    end
-
-    def none?(groovy_files, &block)
-      groovy_files.none? { |file| open(false, file, &block) }
-    end
-
-    def open(default, file, &block)
-      file.open('r', external_encoding: 'UTF-8', &block)
-    rescue => e
-      @logger.warn e.message
-      default
     end
 
   end

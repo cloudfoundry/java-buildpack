@@ -296,7 +296,7 @@
     <orderEntry type="library" scope="PROVIDED" name="simplecov-html (v0.8.0, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="slop (v3.4.7, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="tee (v1.0.0, rbenv: 1.9.3-p545) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="webmock (v1.17.3, rbenv: 1.9.3-p545) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="webmock (v1.17.4, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="yard (v0.8.7.3, rbenv: 1.9.3-p545) [gem]" level="application" />
   </component>
   <component name="RModuleSettingsStorage">
