@@ -181,7 +181,7 @@ module JavaBuildpack::Util::Cache
 
       @logger.debug { "HTTP.start(#{start_parameters(rich_uri)})" }
 
-      Net::HTTP::Proxy(proxy.host, proxy.port).start(*start_parameters(rich_uri)) do |http|
+      Net::HTTP::Proxy(proxy.host, proxy.port, proxy.user, proxy.password).start(*start_parameters(rich_uri)) do |http|
         retry_http_request(http, request, &block)
       end
     end
