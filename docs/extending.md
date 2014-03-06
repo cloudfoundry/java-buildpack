@@ -54,6 +54,9 @@ The buildpack provides a collection of base classes that may help you implement 
 ### [`JavaBuildpack::Component::BaseComponent`][]
 This base class is recommended for use by all components.  It ensures that each component has a name, and that the contents of the context are exposed as instance variables (e.g. `context[:application]` is available as `@application`).  In addition it provides two helper methods for downloading files as part of the component's operation.
 
+### [`JavaBuildpack::Component::ModularComponent`][]
+This base class is recommended for use by any component that is sufficiently complex to need modularization.  It enables a component to be composed of multiple "sub-components" and coordinates the component lifecycle across all of them.
+
 ### [`JavaBuildpack::Component::VersionedDependencyComponent`][]
 This base class is recommended for use by any component that uses the buildpack [repository support][] to download a dependency.  It ensures that each component has a `@version` and `@uri` that were resolved from the repository specified in the component's configuration.  It also implements the `detect` method with a standard implementation.
 
@@ -63,6 +66,9 @@ The following example components are relatively simple and good for copying as t
 ### Java Main Class Container
 The [Java Main Class Container](container-java_main.md) ([`lib/java_buildpack/container/java_main.rb`](../lib/java_buildpack/container/main.rb)) extends the [`JavaBuildpack::Component::BaseComponent`](../lib/java_buildpack/component/base_component.rb) base class described above.
 
+### Tomcat Container
+The [Tomcat Container](container-tomcat.md) ([`lib/java_buildpack/container/tomcat.rb`](../lib/java_buildpack/container/tomcat.rb)) extends the [`JavaBuildpack::Component::ModularComponent`](../lib/java_buildpack/component/modular_component.rb) base class described above.
+
 ### Spring Boot CLI Container
 The [Spring Boot CLI Container](container-spring_boot_cli.md) ([`lib/java_buildpack/container/spring_boot_cli.rb`](../lib/java_buildpack/container/spring_boot_cli.rb)) extends the [`JavaBuildpack::Component::VersionedDependencyComponent`](../lib/java_buildpack/component/versioned_dependency_component.rb) base class described above.
 
@@ -70,6 +76,7 @@ The [Spring Boot CLI Container](container-spring_boot_cli.md) ([`lib/java_buildp
 [`JavaBuildpack::Component::Application`]: extending-application.md
 [`JavaBuildpack::Component::BaseComponent`]: extending-base_component.md
 [`JavaBuildpack::Component::Droplet`]: extending-droplet.md
+[`JavaBuildpack::Component::ModularComponent`]: extending-modular_component.md
 [`JavaBuildpack::Component::VersionedDependencyComponent`]: extending-versioned_dependency_component.md
 [`lib/java_buildpack/container`]: ../lib/java_buildpack/container
 [`lib/java_buildpack/framework`]: ../lib/java_buildpack/framework

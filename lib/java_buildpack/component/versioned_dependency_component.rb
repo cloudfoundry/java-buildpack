@@ -44,11 +44,7 @@ module JavaBuildpack::Component
       end
     end
 
-    # If the component should be used when staging an application
-    #
-    # @return [Array<String>, String, nil] If the component should be used when staging the application, a +String+ or
-    #                                      an +Array<String>+ that uniquely identifies the component (e.g.
-    #                                      +openjdk=1.7.0_40+).  Otherwise, +nil+.
+    # @macro base_component_detect
     def detect
       @version ? id(@version) : nil
     end

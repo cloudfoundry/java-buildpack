@@ -67,7 +67,11 @@ module JavaBuildpack::Framework
     #
     # @return [String] a +String+ representation of the modified +web.xml+.
     def to_s
-      @document.to_s
+      output = ''
+      formatter.write(@document, output)
+      output << "\n"
+
+      output
     end
 
     private
@@ -131,8 +135,14 @@ module JavaBuildpack::Framework
       "/WEB-INF/#{name}-servlet.xml"
     end
 
+    def formatter
+      formatter         = REXML::Formatters::Pretty.new(4)
+      formatter.compact = true
+      formatter
+    end
+
     def has_annotation_application_context?(root, param_type)
-      context_class_name = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_CLASS}')]]/param-value/text()").first
+      context_class_name       = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_CLASS}')]]/param-value/text()").first
       context_class_name_value = context_class_name ? context_class_name.value.strip : nil
       CONTEXT_CLASS_ANNOTATION == context_class_name_value
     end

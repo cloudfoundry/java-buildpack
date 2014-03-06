@@ -15,11 +15,18 @@
 
 # Configuration for the Tomcat container
 ---
-version: 7.0.+
-repository_root: "{default.repository.root}/tomcat"
+tomcat:
+  version: 7.0.+
+  repository_root: "{default.repository.root}/tomcat"
 lifecycle_support:
   version: 2.+
   repository_root: "{default.repository.root}/tomcat-lifecycle-support"
 logging_support:
   version: 2.+
   repository_root: "{default.repository.root}/tomcat-logging-support"
+redis_store:
+  version: 1.+
+  repository_root: "{default.repository.root}/redis-store"
+  database: 0
+  timeout: 2000
+  connection_pool_size: 2

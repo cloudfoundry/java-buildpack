@@ -18,209 +18,80 @@ require 'spec_helper'
 require 'component_helper'
 require 'fileutils'
 require 'java_buildpack/container/tomcat'
-require 'java_buildpack/repository/configured_item'
-require 'java_buildpack/util/tokenized_version'
+require 'java_buildpack/container/tomcat/tomcat_insight_support'
+require 'java_buildpack/container/tomcat/tomcat_instance'
+require 'java_buildpack/container/tomcat/tomcat_lifecycle_support'
+require 'java_buildpack/container/tomcat/tomcat_logging_support'
+require 'java_buildpack/container/tomcat/tomcat_redis_store'
 
 describe JavaBuildpack::Container::Tomcat do
   include_context 'component_helper'
 
-  let(:configuration) { { 'lifecycle_support' => lifecycle_configuration, 'logging_support' => logging_configuration } }
+  let(:component) { StubTomcat.new context }
 
-  let(:lifecycle_configuration) { {} }
-  let(:lifecycle_uri) { 'test-lifecycle-uri' }
-  let(:lifecycle_version) { '2.0.0_RELEASE' }
-
-  let(:logging_configuration) { {} }
-  let(:logging_uri) { 'test-logging-uri' }
-  let(:logging_version) { '2.0.0_RELEASE' }
-
-  before do
-    allow(application_cache).to receive(:get).with(lifecycle_uri)
-                                .and_yield(Pathname.new('spec/fixtures/stub-lifecycle-support.jar').open)
-    allow(application_cache).to receive(:get).with(logging_uri)
-                                .and_yield(Pathname.new('spec/fixtures/stub-logging-support.jar').open)
+  let(:configuration) do
+    { 'tomcat'            => tomcat_configuration,
+      'lifecycle_support' => lifecycle_support_configuration,
+      'logging_support'   => logging_support_configuration,
+      'redis_store'       => redis_store_configuration }
   end
 
-  before do
-    tokenized_lifecycle_version = JavaBuildpack::Util::TokenizedVersion.new(lifecycle_version)
+  let(:tomcat_configuration) { double('tomcat-configuration') }
 
-    allow(JavaBuildpack::Repository::ConfiguredItem)
-    .to receive(:find_item).with(an_instance_of(String), lifecycle_configuration) do |&block|
-      block.call(tokenized_lifecycle_version) if block
-    end.and_return([tokenized_lifecycle_version, lifecycle_uri])
+  let(:lifecycle_support_configuration) { double('lifecycle-support-configuration') }
 
-    tokenized_logging_version = JavaBuildpack::Util::TokenizedVersion.new(logging_version)
+  let(:logging_support_configuration) { double('logging-support-configuration') }
 
-    allow(JavaBuildpack::Repository::ConfiguredItem)
-    .to receive(:find_item).with(an_instance_of(String), logging_configuration) do |&block|
-      block.call(tokenized_logging_version) if block
-    end.and_return([tokenized_logging_version, logging_uri])
-  end
+  let(:redis_store_configuration) { double('redis-store-configuration') }
 
   it 'should detect WEB-INF',
      app_fixture: 'container_tomcat' do
 
-    detected = component.detect
-
-    expect(detected).to include("tomcat=#{version}")
-    expect(detected).to include("tomcat-lifecycle-support=#{lifecycle_version}")
-    expect(detected).to include("tomcat-logging-support=#{logging_version}")
+    expect(component.supports?).to be
   end
 
   it 'should not detect when WEB-INF is absent',
      app_fixture: 'container_main' do
 
-    expect(component.detect).to be_nil
+    expect(component.supports?).not_to be
   end
 
   it 'should not detect when WEB-INF is present in a Java main application',
      app_fixture: 'container_main_with_web_inf' do
 
-    expect(component.detect).to be_nil
+    expect(component.supports?).not_to be
   end
 
-  context do
-    let(:version) { '7.0.47_10' }
+  it 'should create submodules' do
+    expect(JavaBuildpack::Container::TomcatInstance)
+    .to receive(:new).with(sub_configuration_context(tomcat_configuration))
+    expect(JavaBuildpack::Container::TomcatLifecycleSupport)
+    .to receive(:new).with(sub_configuration_context(lifecycle_support_configuration))
+    expect(JavaBuildpack::Container::TomcatLoggingSupport)
+    .to receive(:new).with(sub_configuration_context(logging_support_configuration))
+    expect(JavaBuildpack::Container::TomcatRedisStore)
+    .to receive(:new).with(sub_configuration_context(redis_store_configuration))
+    expect(JavaBuildpack::Container::TomcatInsightSupport).to receive(:new).with(context)
 
-    it 'should fail when a malformed version is detected',
-       app_fixture: 'container_tomcat' do
-
-      expect { component.detect }.to raise_error(/Malformed version/)
-    end
+    component.sub_components context
   end
 
-  it 'should extract Tomcat from a GZipped TAR',
-     app_fixture:   'container_tomcat',
-     cache_fixture: 'stub-tomcat.tar.gz' do
+  it 'should return command' do
 
-    component.compile
-
-    expect(sandbox + 'bin/catalina.sh').to exist
-    expect(sandbox + 'conf/context.xml').to exist
-    expect(sandbox + 'conf/server.xml').to exist
-    expect(sandbox + 'lib/tomcat_lifecycle_support-2.0.0_RELEASE.jar').to exist
-    expect(sandbox + 'endorsed/tomcat_logging_support-2.0.0_RELEASE.jar').to exist
-  end
-
-  it 'should link only the application files and directories to the ROOT webapp',
-     app_fixture:   'container_tomcat_with_index',
-     cache_fixture: 'stub-tomcat.tar.gz' do
-
-    FileUtils.touch(app_dir + '.test-file')
-
-    component.compile
-
-    root_webapp = app_dir + '.java-buildpack/tomcat/webapps/ROOT'
-
-    web_inf = root_webapp + 'WEB-INF'
-    expect(web_inf).to exist
-    expect(web_inf).to be_symlink
-    expect(web_inf.readlink).to eq((app_dir + 'WEB-INF').relative_path_from(root_webapp))
-
-    index = root_webapp + 'index.html'
-    expect(index).to exist
-    expect(index).to be_symlink
-    expect(index.readlink).to eq((app_dir + 'index.html').relative_path_from(root_webapp))
-
-    expect(root_webapp + '.test-file').not_to exist
-  end
-
-  it 'should link the Tomcat datasource JAR to the ROOT webapp when that JAR is present',
-     app_fixture:   'container_tomcat',
-     cache_fixture: 'stub-tomcat7.tar.gz' do
-
-    component.compile
-
-    web_inf_lib = app_dir + 'WEB-INF/lib'
-    app_jar     = web_inf_lib + 'tomcat-jdbc.jar'
-    expect(app_jar).to exist
-    expect(app_jar).to be_symlink
-    expect(app_jar.readlink).to eq((sandbox + 'lib/tomcat-jdbc.jar').relative_path_from(web_inf_lib))
-  end
-
-  it 'should not link the Tomcat datasource JAR to the ROOT webapp when that JAR is absent',
-     app_fixture:   'container_tomcat',
-     cache_fixture: 'stub-tomcat.tar.gz' do
-
-    component.compile
-
-    app_jar = app_dir + 'WEB-INF/lib/tomcat-jdbc.jar'
-    expect(app_jar).not_to exist
-  end
-
-  it 'should link additional libraries to the ROOT webapp',
-     app_fixture:   'container_tomcat',
-     cache_fixture: 'stub-tomcat.tar.gz' do
-
-    component.compile
-
-    web_inf_lib = app_dir + 'WEB-INF/lib'
-
-    test_jar_1 = web_inf_lib + 'test-jar-1.jar'
-    test_jar_2 = web_inf_lib + 'test-jar-2.jar'
-    expect(test_jar_1).to exist
-    expect(test_jar_1).to be_symlink
-    expect(test_jar_1.readlink).to eq((additional_libs_directory + 'test-jar-1.jar').relative_path_from(web_inf_lib))
-
-    expect(test_jar_2).to exist
-    expect(test_jar_2).to be_symlink
-    expect(test_jar_2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(web_inf_lib))
-  end
-
-  context do
-    let(:extra_applications_dir) { app_dir + '.spring-insight/extra-applications' }
-
-    before do
-      FileUtils.mkdir_p extra_applications_dir
-      FileUtils.cp_r 'spec/fixtures/framework_spring_insight', extra_applications_dir
-    end
-
-    it 'should link extra applications to the applications directory',
-       app_fixture:   'container_tomcat',
-       cache_fixture: 'stub-tomcat.tar.gz' do
-
-      component.compile
-
-      webapps_dir = sandbox + 'webapps'
-
-      insight_test_dir = webapps_dir + 'framework_spring_insight'
-      expect(insight_test_dir).to exist
-      expect(insight_test_dir).to be_symlink
-      expect(insight_test_dir.readlink).to eq((extra_applications_dir + 'framework_spring_insight')
-                                              .relative_path_from(webapps_dir))
-    end
-  end
-
-  context do
-    let(:container_libs_dir) { app_dir + '.spring-insight/container-libs' }
-
-    before do
-      FileUtils.mkdir_p container_libs_dir
-      FileUtils.cp_r 'spec/fixtures/framework_spring_insight/.java-buildpack/spring_insight/weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar',
-                     container_libs_dir
-    end
-
-    it 'should link container libs to the tomcat lib directory',
-       app_fixture:   'container_tomcat',
-       cache_fixture: 'stub-tomcat.tar.gz' do
-
-      component.compile
-
-      lib_dir          = sandbox + 'lib'
-      insight_test_lib = lib_dir + 'insight-weaver-1.2.4-CI-SNAPSHOT.jar'
-
-      expect(insight_test_lib).to exist
-      expect(insight_test_lib).to be_symlink
-      expect(insight_test_lib.readlink).to eq((container_libs_dir + 'insight-weaver-1.2.4-CI-SNAPSHOT.jar')
-                                              .relative_path_from(lib_dir))
-    end
-  end
-
-  it 'should return command',
-     app_fixture: 'container_tomcat' do
-
-    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=\"-Dhttp.port=$PORT test-opt-1 test-opt-2\" " +
+    expect(component.command).to eq("#{java_home.as_env_var} JAVA_OPTS=\"-Dhttp.port=$PORT test-opt-1 test-opt-2\" " +
                                         '$PWD/.java-buildpack/tomcat/bin/catalina.sh run')
   end
 
+end
+
+class StubTomcat < JavaBuildpack::Container::Tomcat
+
+  public :command, :sub_components, :supports?
+
+end
+
+def sub_configuration_context(configuration)
+  c                 = context.clone
+  c[:configuration] = configuration
+  c
 end
