@@ -15,6 +15,7 @@
       <w>filenames</w>
       <w>fileutils</w>
       <w>findex</w>
+      <w>formatters</w>
       <w>fsync</w>
       <w>heroku</w>
       <w>jdk's</w>
@@ -25,6 +26,7 @@
       <w>mainclass</w>
       <w>mkdir</w>
       <w>mktmpdir</w>
+      <w>modularly</w>
       <w>mountainlion</w>
       <w>newrelicagent</w>
       <w>overweaving</w>
@@ -45,6 +47,7 @@
       <w>stubcontainer</w>
       <w>stubframework</w>
       <w>stubjre</w>
+      <w>submodules</w>
       <w>tmpdir</w>
       <w>tokenized</w>
       <w>uber</w>
