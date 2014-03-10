@@ -46,18 +46,14 @@ describe JavaBuildpack::Framework::SpringInsight do
       container_libs_dir     = app_dir + '.spring-insight/container-libs'
       # extra_applications_dir = app_dir + '.spring-insight/extra-applications'
 
-      expect(sandbox + 'weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar').to exist
-      expect(container_libs_dir + 'insight-bootstrap-generic-1.2.3-CI-SNAPSHOT.jar').to exist
-      expect(container_libs_dir + 'insight-bootstrap-tomcat-common-1.2.5-CI-SNAPSHOT.jar').to exist
-      expect(container_libs_dir + 'insight-agent-4.5.6.jar').to exist
+      expect(sandbox + 'weaver/insight-weaver-cf-2.0.0-CI-SNAPSHOT.jar').to exist
+      expect(container_libs_dir + 'insight-bootstrap-generic-2.0.0-CI-SNAPSHOT.jar').to exist
+      expect(container_libs_dir + 'insight-bootstrap-tomcat-common-2.0.0-CI-SNAPSHOT.jar').to exist
+      expect(container_libs_dir + 'insight-agent-2.0.0-CI-SNAPSHOT.jar').to exist
       expect(sandbox + 'insight/conf/insight.properties').to exist
-      expect(sandbox + 'insight/collection-plugins/test-collection-plugins').to exist
-      expect(sandbox + 'insight/agent-plugins/insight-agent-http-1.9.3-CI-SNAPSHOT.jar').to exist
-      expect(sandbox + 'insight/agent-plugins/insight-agent-cloudfoundry-1.2.3.jar').to exist
-      # expect(extra_applications_dir + 'insight-agent').to exist
-      # expect(extra_applications_dir + 'insight-agent/WEB-INF/lib/insight-agent-http-1.9.3-CI-SNAPSHOT.jar').to exist
-      # expect(extra_applications_dir + 'insight-agent/WEB-INF/lib/insight-agent-cloudfoundry-1.2.3.jar').to exist
-      expect(container_libs_dir + 'cloudfoundry-runtime-1.2.3.jar').to exist
+      expect(sandbox + 'insight/agent-plugins/insight-agent-http-2.0.0-CI-SNAPSHOT.jar').to exist
+      expect(sandbox + 'insight/agent-plugins/insight-agent-cloudfoundry-2.0.0-CI-SNAPSHOT.jar').to exist
+      expect(container_libs_dir + 'cloudfoundry-runtime-0.8.5.jar').to exist
     end
 
     it 'should update JAVA_OPTS',
@@ -74,5 +70,4 @@ describe JavaBuildpack::Framework::SpringInsight do
       expect(java_opts).to include('-Dagent.http.password=foo')
     end
   end
-
 end

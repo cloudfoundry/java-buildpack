@@ -152,7 +152,7 @@ module JavaBuildpack::Framework
 
     def init_weaver(root)
       move weaver_directory,
-           root + 'agents/common/insight-weaver-*.jar'
+           root + 'cloudfoundry/insight-weaver-*.jar'
     end
 
     def container_libs_directory
