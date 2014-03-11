@@ -74,7 +74,7 @@ module JavaBuildpack::Framework
 
     AGENT_DOWNLOAD_URI_SUFFIX = '/services/config/agent-download'.freeze # TODO: To be removed once the full path is included in VCAP_SERVICES see issue 58873498
 
-    FILTER = /^(i|I)nsight/.freeze
+    FILTER = /^p-(i|I)nsight/.freeze
 
     def add_agent_configuration
       @droplet.java_opts

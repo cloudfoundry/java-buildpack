@@ -29,7 +29,7 @@ describe JavaBuildpack::Framework::SpringInsight do
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/^(i|I)nsight/, 'dashboard_url', 'agent_username', 'agent_password').and_return(true)
+      allow(services).to receive(:one_service?).with(/^p-(i|I)nsight/, 'dashboard_url', 'agent_username', 'agent_password').and_return(true)
       allow(services).to receive(:find_service).and_return('label'       => 'insight-1.0',
                                                            'credentials' => { 'dashboard_url' => 'test-uri', 'agent_password' => 'foo', 'agent_username' => 'bar' })
       allow(application_cache).to receive(:get).with('test-uri/services/config/agent-download')
