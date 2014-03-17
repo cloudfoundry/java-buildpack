@@ -24,17 +24,17 @@ shared_context 'logging_helper' do
   include_context 'console_helper'
   include_context 'application_helper'
 
-  previous_log_level = ENV['JBP_LOG_LEVEL']
-  previous_debug_level = $DEBUG
+  previous_log_level     = ENV['JBP_LOG_LEVEL']
+  previous_debug_level   = $DEBUG
   previous_verbose_level = $VERBOSE
 
   let(:log_contents) { Pathname.new(app_dir + '.java-buildpack.log').read }
 
   before do |example|
-    log_level = example.metadata[:log_level]
+    log_level            = example.metadata[:log_level]
     ENV['JBP_LOG_LEVEL'] = log_level if log_level
 
-    $DEBUG = example.metadata[:debug]
+    $DEBUG   = example.metadata[:debug]
     $VERBOSE = example.metadata[:verbose]
 
     JavaBuildpack::Logging::LoggerFactory.setup app_dir
@@ -44,8 +44,8 @@ shared_context 'logging_helper' do
     JavaBuildpack::Logging::LoggerFactory.reset
 
     ENV['JBP_LOG_LEVEL'] = previous_log_level
-    $VERBOSE = previous_verbose_level
-    $DEBUG = previous_debug_level
+    $VERBOSE             = previous_verbose_level
+    $DEBUG               = previous_debug_level
   end
 
 end

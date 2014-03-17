@@ -18,43 +18,45 @@ require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/weight_balancing_memory_heuristic'
 require 'java_buildpack/util/tokenized_version'
 
-module JavaBuildpack::Jre
+module JavaBuildpack
+  module Jre
 
-  # A MemoryBucket is used to calculate default sizes for various type of memory
-  class OpenJDKMemoryHeuristicFactory
+    # A MemoryBucket is used to calculate default sizes for various type of memory
+    class OpenJDKMemoryHeuristicFactory
 
-    private_class_method :new
+      private_class_method :new
 
-    class << self
+      class << self
 
-      # Returns a memory heuristics instance for the given version of OpenJDK.
-      #
-      # @param [Hash<String, String>] sizes any sizes specified by the user
-      # @param [Hash<String, Numeric>] heuristics the memory heuristics specified by the user
-      # @param [JavaBuildpack::Util::TokenizedVersion] version the version of OpenJDK
-      # @return [WeightBalancingMemoryHeuristic] the memory heuristics instance
-      def create_memory_heuristic(sizes, heuristics, version)
-        extra = permgen_or_metaspace(version)
-        WeightBalancingMemoryHeuristic.new(sizes, heuristics, VALID_TYPES.dup << extra, JAVA_OPTS)
-      end
+        # Returns a memory heuristics instance for the given version of OpenJDK.
+        #
+        # @param [Hash<String, String>] sizes any sizes specified by the user
+        # @param [Hash<String, Numeric>] heuristics the memory heuristics specified by the user
+        # @param [JavaBuildpack::Util::TokenizedVersion] version the version of OpenJDK
+        # @return [WeightBalancingMemoryHeuristic] the memory heuristics instance
+        def create_memory_heuristic(sizes, heuristics, version)
+          extra = permgen_or_metaspace(version)
+          WeightBalancingMemoryHeuristic.new(sizes, heuristics, VALID_TYPES.dup << extra, JAVA_OPTS)
+        end
 
-      private
+        private
 
-      VALID_TYPES = %w(heap stack native).freeze
+        VALID_TYPES = %w(heap stack native).freeze
 
-      JAVA_OPTS = {
+        JAVA_OPTS = {
           'heap'      => ->(v) { %W(-Xmx#{v} -Xms#{v}) },
           'metaspace' => ->(v) { %W(-XX:MaxMetaspaceSize=#{v} -XX:MetaspaceSize=#{v}) },
           'permgen'   => ->(v) { %W(-XX:MaxPermSize=#{v} -XX:PermSize=#{v}) },
           'stack'     => ->(v) { ["-Xss#{v}"] }
-      }.freeze
+        }.freeze
 
-      def permgen_or_metaspace(version)
-        version < JavaBuildpack::Util::TokenizedVersion.new('1.8.0') ? 'permgen' : 'metaspace'
+        def permgen_or_metaspace(version)
+          version < JavaBuildpack::Util::TokenizedVersion.new('1.8.0') ? 'permgen' : 'metaspace'
+        end
+
       end
 
     end
 
   end
-
 end

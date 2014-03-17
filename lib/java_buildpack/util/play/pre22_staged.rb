@@ -16,33 +16,37 @@
 
 require 'java_buildpack/util/play/pre22'
 
-module JavaBuildpack::Util::Play
+module JavaBuildpack
+  module Util
+    module Play
 
-  # Encapsulate inspection and modification of Play staged applications up to and including Play 2.1.x.
-  class Pre22Staged < Pre22
+      # Encapsulate inspection and modification of Play staged applications up to and including Play 2.1.x.
+      class Pre22Staged < Pre22
 
-    protected
+        protected
 
-    # @macro base_augment_classpath
-    def augment_classpath
-      @droplet.additional_libraries.link_to lib_dir
+        # @macro base_augment_classpath
+        def augment_classpath
+          @droplet.additional_libraries.link_to lib_dir
+        end
+
+        # @macro base_java_opts
+        def java_opts
+          @droplet.java_opts
+        end
+
+        # @macro base_lib_dir
+        def lib_dir
+          root + 'staged'
+        end
+
+        # @macro pre22_root
+        def root
+          @droplet.root
+        end
+
+      end
+
     end
-
-    # @macro base_java_opts
-    def java_opts
-      @droplet.java_opts
-    end
-
-    # @macro base_lib_dir
-    def lib_dir
-      root + 'staged'
-    end
-
-    # @macro pre22_root
-    def root
-      @droplet.root
-    end
-
   end
-
 end

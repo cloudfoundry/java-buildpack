@@ -18,31 +18,33 @@ require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 require 'java_buildpack/util/play/factory'
 
-module JavaBuildpack::Framework
+module JavaBuildpack
+  module Framework
 
-  # Encapsulates the functionality for enabling cloud auto-reconfiguration in Play applications. Note that Spring auto-
-  # reconfiguration is covered by the SpringAutoReconfiguration framework. The reconfiguration performed here is to
-  # override Play application configuration to bind a Play application to cloud resources.
-  class PlayFrameworkAutoReconfiguration < JavaBuildpack::Component::VersionedDependencyComponent
+    # Encapsulates the functionality for enabling cloud auto-reconfiguration in Play applications. Note that Spring auto-
+    # reconfiguration is covered by the SpringAutoReconfiguration framework. The reconfiguration performed here is to
+    # override Play application configuration to bind a Play application to cloud resources.
+    class PlayFrameworkAutoReconfiguration < JavaBuildpack::Component::VersionedDependencyComponent
 
-    # @macro base_component_compile
-    def compile
-      download_jar
-      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
-    end
+      # @macro base_component_compile
+      def compile
+        download_jar
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      end
 
-    # @macro base_component_release
-    def release
-      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
-    end
+      # @macro base_component_release
+      def release
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      end
 
-    protected
+      protected
 
-    # @macro versioned_dependency_component_supports
-    def supports?
-      JavaBuildpack::Util::Play::Factory.create @droplet
+      # @macro versioned_dependency_component_supports
+      def supports?
+        JavaBuildpack::Util::Play::Factory.create @droplet
+      end
+
     end
 
   end
-
 end

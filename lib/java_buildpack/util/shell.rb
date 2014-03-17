@@ -17,23 +17,28 @@
 require 'java_buildpack/util'
 require 'open3'
 
+module JavaBuildpack
+  module Util
+
 # A mixin that provides a +shell()+ command
-module JavaBuildpack::Util::Shell
+    module Shell
 
-  # A +system()+-like command that ensure that the execution fails if the command returns a non-zero exit code
-  #
-  # @param [String] command the command to run
-  # @return [void]
-  def shell(command)
-    Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
-      if wait_thr.value != 0
-        puts "\nCommand '#{command}' has failed"
-        puts "STDOUT: #{stdout.gets}"
-        puts "STDERR: #{stderr.gets}"
+      # A +system()+-like command that ensure that the execution fails if the command returns a non-zero exit code
+      #
+      # @param [String] command the command to run
+      # @return [void]
+      def shell(command)
+        Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
+          if wait_thr.value != 0
+            puts "\nCommand '#{command}' has failed"
+            puts "STDOUT: #{stdout.gets}"
+            puts "STDERR: #{stderr.gets}"
 
-        fail
+            fail
+          end
+        end
       end
+
     end
   end
-
 end

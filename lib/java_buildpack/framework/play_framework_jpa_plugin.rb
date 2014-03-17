@@ -18,47 +18,49 @@ require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 require 'java_buildpack/util/play/factory'
 
-module JavaBuildpack::Framework
+module JavaBuildpack
+  module Framework
 
-  # Encapsulates the detect, compile, and release functionality for enabling cloud auto-reconfiguration in Play
-  # applications that use JPA. Note that Spring auto-reconfiguration is covered by the SpringAutoReconfiguration
-  # framework. The reconfiguration performed here is to override Play application configuration to bind a Play
-  # application to cloud resources.
-  class PlayFrameworkJPAPlugin < JavaBuildpack::Component::VersionedDependencyComponent
+    # Encapsulates the detect, compile, and release functionality for enabling cloud auto-reconfiguration in Play
+    # applications that use JPA. Note that Spring auto-reconfiguration is covered by the SpringAutoReconfiguration
+    # framework. The reconfiguration performed here is to override Play application configuration to bind a Play
+    # application to cloud resources.
+    class PlayFrameworkJPAPlugin < JavaBuildpack::Component::VersionedDependencyComponent
 
-    # @macro base_component_compile
-    def compile
-      download_jar
-      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
-    end
+      # @macro base_component_compile
+      def compile
+        download_jar
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      end
 
-    # @macro base_component_release
-    def release
-      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
-    end
+      # @macro base_component_release
+      def release
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      end
 
-    protected
+      protected
 
-    # @macro versioned_dependency_component_supports
-    def supports?
-      candidate = false
+      # @macro versioned_dependency_component_supports
+      def supports?
+        candidate = false
 
-      play_app = JavaBuildpack::Util::Play::Factory.create @droplet
-      candidate = uses_jpa?(play_app) || play20?(play_app.version) if play_app
+        play_app  = JavaBuildpack::Util::Play::Factory.create @droplet
+        candidate = uses_jpa?(play_app) || play20?(play_app.version) if play_app
 
-      candidate
-    end
+        candidate
+      end
 
-    private
+      private
 
-    def play20?(version)
-      version.start_with? '2.0'
-    end
+      def play20?(version)
+        version.start_with? '2.0'
+      end
 
-    def uses_jpa?(play_app)
-      play_app.jar?(/.*play-java-jpa.*\.jar/)
+      def uses_jpa?(play_app)
+        play_app.jar?(/.*play-java-jpa.*\.jar/)
+      end
+
     end
 
   end
-
 end

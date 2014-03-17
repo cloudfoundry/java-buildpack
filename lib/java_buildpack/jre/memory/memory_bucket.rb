@@ -18,71 +18,73 @@ require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/memory_range'
 
-module JavaBuildpack::Jre
+module JavaBuildpack
+  module Jre
 
-  # A MemoryBucket is used to calculate default sizes for various type of memory
-  class MemoryBucket
+    # A MemoryBucket is used to calculate default sizes for various type of memory
+    class MemoryBucket
 
-    # @!attribute [r] size
-    # @return [Numeric, nil] the size of the memory bucket in KB or nil if this has not been specified by the user or
-    #                        defaulted
-    attr_reader :size
+      # @!attribute [r] size
+      # @return [Numeric, nil] the size of the memory bucket in KB or nil if this has not been specified by the user or
+      #                        defaulted
+      attr_reader :size
 
-    # @!attribute [r] range
-    # @return [MemoryRange] the permissible range of the memory bucket
-    attr_accessor :range
+      # @!attribute [r] range
+      # @return [MemoryRange] the permissible range of the memory bucket
+      attr_accessor :range
 
-    # @!attribute [r] weighting
-    # @return [Numeric] the weighting of the memory bucket
-    attr_reader :weighting
+      # @!attribute [r] weighting
+      # @return [Numeric] the weighting of the memory bucket
+      attr_reader :weighting
 
-    # Constructs a memory bucket.
-    #
-    # @param [String] name a non-empty, human-readable name for this memory bucket, used only in diagnostics
-    # @param [Numeric] weighting a number between 0 and 1 corresponding to the proportion of total memory which this
-    #                  memory bucket should consume by default
-    # @param [MemoryRange, nil] range a user-specified range for the memory bucket or nil if the user did not specify a
-    #                            range
-    def initialize(name, weighting, range)
-      @name      = validate_name name
-      @weighting = validate_weighting weighting
-      @range     = range ? validate_memory_range(range) : nil
-      logger     = JavaBuildpack::Logging::LoggerFactory.get_logger MemoryBucket
-      logger.debug { inspect }
-    end
+      # Constructs a memory bucket.
+      #
+      # @param [String] name a non-empty, human-readable name for this memory bucket, used only in diagnostics
+      # @param [Numeric] weighting a number between 0 and 1 corresponding to the proportion of total memory which this
+      #                  memory bucket should consume by default
+      # @param [MemoryRange, nil] range a user-specified range for the memory bucket or nil if the user did not specify a
+      #                            range
+      def initialize(name, weighting, range)
+        @name      = validate_name name
+        @weighting = validate_weighting weighting
+        @range     = range ? validate_memory_range(range) : nil
+        logger     = JavaBuildpack::Logging::LoggerFactory.get_logger MemoryBucket
+        logger.debug { inspect }
+      end
 
-    attr_writer :size
+      attr_writer :size
 
-    private
+      private
 
-    def validate_name(name)
-      fail "Invalid MemoryBucket name '#{name}'" if name.nil? || name.to_s.size == 0
-      name
-    end
+      def validate_name(name)
+        fail "Invalid MemoryBucket name '#{name}'" if name.nil? || name.to_s.size == 0
+        name
+      end
 
-    def validate_weighting(weighting)
-      fail diagnose_weighting(weighting, 'not numeric') unless numeric? weighting
-      fail diagnose_weighting(weighting, 'negative') if weighting < 0
-      weighting
-    end
+      def validate_weighting(weighting)
+        fail diagnose_weighting(weighting, 'not numeric') unless numeric? weighting
+        fail diagnose_weighting(weighting, 'negative') if weighting < 0
+        weighting
+      end
 
-    def diagnose_weighting(weighting, reason)
-      "Invalid weighting '#{weighting}' for #{identify} : #{reason}"
-    end
+      def diagnose_weighting(weighting, reason)
+        "Invalid weighting '#{weighting}' for #{identify} : #{reason}"
+      end
 
-    def numeric?(w)
-      Float(w) rescue false
-    end
+      def numeric?(w)
+        Float(w) rescue false
+      end
 
-    def identify
-      "MemoryBucket #{@name}"
-    end
+      def identify
+        "MemoryBucket #{@name}"
+      end
 
-    def validate_memory_range(range)
-      fail "Invalid 'range' parameter of class '#{range.class}' for #{identify} : not a MemoryRange" unless range.is_a? MemoryRange
-      range
+      def validate_memory_range(range)
+        fail "Invalid 'range' parameter of class '#{range.class}' for #{identify} : not a MemoryRange" unless range.is_a? MemoryRange
+        range
+      end
+
     end
 
   end
-
 end

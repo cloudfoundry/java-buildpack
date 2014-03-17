@@ -93,7 +93,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
 
   it 'should default permgen size according to the configured weightings when maximum heap size is specified',
      memory_limit: '4096m',
-     sizes:        { 'stack' => '1m', 'heap' => "#{(4096 * 3 / 4).to_i.to_s}m" } do
+     sizes:        { 'stack' => '1m', 'heap' => "#{(4096 * 3 / 4).to_i}m" } do
 
     output = heuristic.resolve
 

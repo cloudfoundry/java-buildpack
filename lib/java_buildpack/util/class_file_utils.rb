@@ -17,29 +17,31 @@
 require 'java_buildpack/util'
 require 'pathname'
 
-module JavaBuildpack::Util
+module JavaBuildpack
+  module Util
 
-  # Utilities for dealing with .class files
-  class ClassFileUtils
+    # Utilities for dealing with .class files
+    class ClassFileUtils
 
-    private_class_method :new
+      private_class_method :new
 
-    class << self
+      class << self
 
-      # Returns all the .class files in the given directory
-      #
-      # @param [JavaBuildpack::Component::Application] application the application to search
-      # @return [Array<Pathname>] a possibly empty list of files
-      def class_files(application)
-        (application.root + CLASS_FILE_PATTERN).glob.reject { |path| path.directory? }.sort
+        # Returns all the .class files in the given directory
+        #
+        # @param [JavaBuildpack::Component::Application] application the application to search
+        # @return [Array<Pathname>] a possibly empty list of files
+        def class_files(application)
+          (application.root + CLASS_FILE_PATTERN).glob.reject { |path| path.directory? }.sort
+        end
+
+        private
+
+        CLASS_FILE_PATTERN = '**/*.class'.freeze
+
       end
-
-      private
-
-      CLASS_FILE_PATTERN = '**/*.class'.freeze
 
     end
 
   end
-
 end

@@ -16,6 +16,10 @@
 
 require 'java_buildpack'
 
-# A module encapsulating the logging for the Java buildpack
-module JavaBuildpack::Logging
+module JavaBuildpack
+
+  # A module encapsulating the logging for the Java buildpack
+  module Logging
+  end
+
 end

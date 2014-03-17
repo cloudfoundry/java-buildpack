@@ -19,60 +19,62 @@ require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/container/tomcat/tomcat_utils'
 
-module JavaBuildpack::Container
+module JavaBuildpack
+  module Container
 
-  # Encapsulates the detect, compile, and release functionality for the Tomcat instance.
-  class TomcatInstance < JavaBuildpack::Component::VersionedDependencyComponent
-    include JavaBuildpack::Container
+    # Encapsulates the detect, compile, and release functionality for the Tomcat instance.
+    class TomcatInstance < JavaBuildpack::Component::VersionedDependencyComponent
+      include JavaBuildpack::Container
 
-    # Creates an instance
-    #
-    # @param [Hash] context a collection of utilities used the component
-    def initialize(context)
-      super(context) { |candidate_version| candidate_version.check_size(3) }
-    end
-
-    # @macro base_component_compile
-    def compile
-      download(@version, @uri) { |file| expand file }
-      link_to(@application.root.children, root)
-      @droplet.additional_libraries << tomcat_datasource_jar if tomcat_datasource_jar.exist?
-      @droplet.additional_libraries.link_to web_inf_lib
-    end
-
-    # @macro base_component_release
-    def release
-    end
-
-    protected
-
-    def supports?
-      true
-    end
-
-    private
-
-    def expand(file)
-      with_timing "Expanding Tomcat to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
-        FileUtils.mkdir_p @droplet.sandbox
-        shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 --exclude webapps 2>&1"
-
-        @droplet.copy_resources
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        super(context) { |candidate_version| candidate_version.check_size(3) }
       end
-    end
 
-    def root
-      tomcat_webapps + 'ROOT'
-    end
+      # @macro base_component_compile
+      def compile
+        download(@version, @uri) { |file| expand file }
+        link_to(@application.root.children, root)
+        @droplet.additional_libraries << tomcat_datasource_jar if tomcat_datasource_jar.exist?
+        @droplet.additional_libraries.link_to web_inf_lib
+      end
 
-    def tomcat_datasource_jar
-      tomcat_lib + 'tomcat-jdbc.jar'
-    end
+      # @macro base_component_release
+      def release
+      end
 
-    def web_inf_lib
-      @droplet.root + 'WEB-INF/lib'
+      protected
+
+      def supports?
+        true
+      end
+
+      private
+
+      def expand(file)
+        with_timing "Expanding Tomcat to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
+          FileUtils.mkdir_p @droplet.sandbox
+          shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 --exclude webapps 2>&1"
+
+          @droplet.copy_resources
+        end
+      end
+
+      def root
+        tomcat_webapps + 'ROOT'
+      end
+
+      def tomcat_datasource_jar
+        tomcat_lib + 'tomcat-jdbc.jar'
+      end
+
+      def web_inf_lib
+        @droplet.root + 'WEB-INF/lib'
+      end
+
     end
 
   end
-
 end

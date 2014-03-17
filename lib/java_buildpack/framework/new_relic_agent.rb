@@ -18,52 +18,54 @@ require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 
-module JavaBuildpack::Framework
+module JavaBuildpack
+  module Framework
 
-  # Encapsulates the functionality for enabling zero-touch New Relic support.
-  class NewRelicAgent < JavaBuildpack::Component::VersionedDependencyComponent
+    # Encapsulates the functionality for enabling zero-touch New Relic support.
+    class NewRelicAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
-    # @macro base_component_compile
-    def compile
-      FileUtils.mkdir_p logs_dir
+      # @macro base_component_compile
+      def compile
+        FileUtils.mkdir_p logs_dir
 
-      download_jar
-      @droplet.copy_resources
-    end
+        download_jar
+        @droplet.copy_resources
+      end
 
-    # @macro base_component_release
-    def release
-      @droplet.java_opts
-      .add_javaagent(@droplet.sandbox + jar_name)
-      .add_system_property('newrelic.home', @droplet.sandbox)
-      .add_system_property('newrelic.config.license_key', license_key)
-      .add_system_property('newrelic.config.app_name', "'#{application_name}'")
-      .add_system_property('newrelic.config.log_file_path', logs_dir)
-    end
+      # @macro base_component_release
+      def release
+        @droplet.java_opts
+        .add_javaagent(@droplet.sandbox + jar_name)
+        .add_system_property('newrelic.home', @droplet.sandbox)
+        .add_system_property('newrelic.config.license_key', license_key)
+        .add_system_property('newrelic.config.app_name', "'#{application_name}'")
+        .add_system_property('newrelic.config.log_file_path', logs_dir)
+      end
 
-    protected
+      protected
 
-    # @macro versioned_dependency_component_supports
-    def supports?
-      @application.services.one_service? FILTER, 'licenseKey'
-    end
+      # @macro versioned_dependency_component_supports
+      def supports?
+        @application.services.one_service? FILTER, 'licenseKey'
+      end
 
-    private
+      private
 
-    FILTER = /newrelic/.freeze
+      FILTER = /newrelic/.freeze
 
-    def application_name
-      @application.details['application_name']
-    end
+      def application_name
+        @application.details['application_name']
+      end
 
-    def license_key
-      @application.services.find_service(FILTER)['credentials']['licenseKey']
-    end
+      def license_key
+        @application.services.find_service(FILTER)['credentials']['licenseKey']
+      end
 
-    def logs_dir
-      @droplet.sandbox + 'logs'
+      def logs_dir
+        @droplet.sandbox + 'logs'
+      end
+
     end
 
   end
-
 end

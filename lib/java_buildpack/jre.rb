@@ -16,6 +16,10 @@
 
 require 'java_buildpack'
 
-# A module encapsulating all of the JRE components for the Java buildpack
-module JavaBuildpack::Jre
+module JavaBuildpack
+
+  # A module encapsulating all of the JRE components for the Java buildpack
+  module Jre
+  end
+
 end

@@ -16,15 +16,19 @@
 
 require 'java_buildpack/util/play/post22'
 
-module JavaBuildpack::Util::Play
+module JavaBuildpack
+  module Util
+    module Play
 
-  # Encapsulate inspection and modification of Play dist applications from Play 2.2.0 onwards.
-  class Post22Dist < Post22
+      # Encapsulate inspection and modification of Play dist applications from Play 2.2.0 onwards.
+      class Post22Dist < Post22
 
-    protected
+        protected
 
-    alias_method :root, :find_single_directory
+        alias_method :root, :find_single_directory
 
+      end
+
+    end
   end
-
 end

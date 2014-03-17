@@ -26,92 +26,94 @@ require 'pathname'
 require 'set'
 require 'tmpdir'
 
-module JavaBuildpack::Container
+module JavaBuildpack
+  module Container
 
-  # Encapsulates the detect, compile, and release functionality for applications running non-compiled Groovy
-  # applications.
-  class Groovy < JavaBuildpack::Component::VersionedDependencyComponent
-    include JavaBuildpack::Util
+    # Encapsulates the detect, compile, and release functionality for applications running non-compiled Groovy
+    # applications.
+    class Groovy < JavaBuildpack::Component::VersionedDependencyComponent
+      include JavaBuildpack::Util
 
-    # Creates an instance
-    #
-    # @param [Hash] context a collection of utilities used the component
-    def initialize(context)
-      @logger = JavaBuildpack::Logging::LoggerFactory.get_logger Groovy
-      super(context) { |candidate_version| candidate_version.check_size(3) }
-    end
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        @logger = JavaBuildpack::Logging::LoggerFactory.get_logger Groovy
+        super(context) { |candidate_version| candidate_version.check_size(3) }
+      end
 
-    # @macro base_component_compile
-    def compile
-      download_zip
-    end
+      # @macro base_component_compile
+      def compile
+        download_zip
+      end
 
-    # @macro base_component_release
-    def release
-      add_libs
+      # @macro base_component_release
+      def release
+        add_libs
 
-      [
+        [
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
           qualify_path(@droplet.sandbox + 'bin/groovy', @droplet.root),
           @droplet.additional_libraries.as_classpath,
           relative_main_groovy,
           relative_other_groovy
-      ].flatten.compact.join(' ')
-    end
+        ].flatten.compact.join(' ')
+      end
 
-    protected
+      protected
 
-    # @macro versioned_dependency_component_supports
-    def supports?
-      JavaBuildpack::Util::ClassFileUtils.class_files(@application).empty? && main_groovy &&
+      # @macro versioned_dependency_component_supports
+      def supports?
+        JavaBuildpack::Util::ClassFileUtils.class_files(@application).empty? && main_groovy &&
           !JavaBuildpack::Util::RatpackUtils.is?(@application)
-    end
+      end
 
-    private
+      private
 
-    def add_libs
-      (@droplet.root + '**/*.jar').glob.each { |jar| @droplet.additional_libraries << jar }
-    end
+      def add_libs
+        (@droplet.root + '**/*.jar').glob.each { |jar| @droplet.additional_libraries << jar }
+      end
 
-    def main_groovy
-      candidates = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
+      def main_groovy
+        candidates = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
 
-      candidate = []
-      candidate << main_method(candidates)
-      candidate << non_pogo(candidates)
-      candidate << shebang(candidates)
+        candidate = []
+        candidate << main_method(candidates)
+        candidate << non_pogo(candidates)
+        candidate << shebang(candidates)
 
-      candidate = Set.new(candidate.flatten.compact).to_a
-      candidate.size == 1 ? candidate[0] : nil
-    end
+        candidate = Set.new(candidate.flatten.compact).to_a
+        candidate.size == 1 ? candidate[0] : nil
+      end
 
-    def other_groovy
-      other_groovy = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
-      other_groovy.delete(main_groovy)
-      other_groovy
-    end
+      def other_groovy
+        other_groovy = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
+        other_groovy.delete(main_groovy)
+        other_groovy
+      end
 
-    def main_method(candidates)
-      select(candidates) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file }
-    end
+      def main_method(candidates)
+        select(candidates) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file }
+      end
 
-    def non_pogo(candidates)
-      reject(candidates) { |file| JavaBuildpack::Util::GroovyUtils.pogo? file }
-    end
+      def non_pogo(candidates)
+        reject(candidates) { |file| JavaBuildpack::Util::GroovyUtils.pogo? file }
+      end
 
-    def relative_main_groovy
-      main_groovy.relative_path_from(@application.root)
-    end
+      def relative_main_groovy
+        main_groovy.relative_path_from(@application.root)
+      end
 
-    def relative_other_groovy
-      other_groovy.map { |gf| gf.relative_path_from(@application.root) }
-    end
+      def relative_other_groovy
+        other_groovy.map { |gf| gf.relative_path_from(@application.root) }
+      end
 
-    def shebang(candidates)
-      select(candidates) { |file| JavaBuildpack::Util::GroovyUtils.shebang? file }
+      def shebang(candidates)
+        select(candidates) { |file| JavaBuildpack::Util::GroovyUtils.shebang? file }
+      end
+
     end
 
   end
-
 end

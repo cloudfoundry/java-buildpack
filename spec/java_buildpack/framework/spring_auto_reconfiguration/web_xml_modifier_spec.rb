@@ -72,7 +72,7 @@ describe JavaBuildpack::Framework::WebXmlModifier do
 
     yield modifier
 
-    actual = modifier.to_s
+    actual   = modifier.to_s
     expected = Pathname.new("spec/fixtures/#{fixture}_after.xml").read
 
     expect(actual).to eq(expected)

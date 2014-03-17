@@ -16,28 +16,32 @@
 
 require 'java_buildpack/util/play/base'
 
-module JavaBuildpack::Util::Play
+module JavaBuildpack
+  module Util
+    module Play
 
-  # Base class for inspection and modification of Play applications up to and including Play 2.1.x.
-  class Pre22 < Base
+      # Base class for inspection and modification of Play applications up to and including Play 2.1.x.
+      class Pre22 < Base
 
-    protected
+        protected
 
-    # @macro base_start_script
-    def start_script
-      root ? root + 'start' : nil
+        # @macro base_start_script
+        def start_script
+          root ? root + 'start' : nil
+        end
+
+        protected
+
+        # @!macro [new] pre22_root
+        #   Returns the root of the play application
+        #
+        #   @return [Pathname] the root of the play application
+        def root
+          fail "Method 'root' must be defined"
+        end
+
+      end
+
     end
-
-    protected
-
-    # @!macro [new] pre22_root
-    #   Returns the root of the play application
-    #
-    #   @return [Pathname] the root of the play application
-    def root
-      fail "Method 'root' must be defined"
-    end
-
   end
-
 end

@@ -17,31 +17,33 @@
 require 'java_buildpack/logging'
 require 'logger'
 
-module JavaBuildpack::Logging
+module JavaBuildpack
+  module Logging
 
-  # A +Logger+ subclass that forwards all messages to a collection of delegates
-  class DelegatingLogger < ::Logger
+    # A +Logger+ subclass that forwards all messages to a collection of delegates
+    class DelegatingLogger < ::Logger
 
-    # Creates an instance
-    #
-    # @param [Class] klass the class to use as the +progname+ for log messages
-    # @param [Array<Logger>] delegates the +Logger+ instances to delegate to
-    def initialize(klass, delegates)
-      @klass     = klass
-      @delegates = delegates
-    end
+      # Creates an instance
+      #
+      # @param [Class] klass the class to use as the +progname+ for log messages
+      # @param [Array<Logger>] delegates the +Logger+ instances to delegate to
+      def initialize(klass, delegates)
+        @klass     = klass
+        @delegates = delegates
+      end
 
-    # Adds a message to the delegate +Logger+ instances
-    #
-    # @param [Logger::Severity] severity the severity of the message
-    # @param [String] message the message
-    # @param [String] progname the message when passed in as a parameter
-    # @yield evaluated for the message
-    # @return [void]
-    def add(severity, message = nil, progname = nil, &block)
-      @delegates.each { |delegate| delegate.add severity, message || progname, @klass, &block }
+      # Adds a message to the delegate +Logger+ instances
+      #
+      # @param [Logger::Severity] severity the severity of the message
+      # @param [String] message the message
+      # @param [String] progname the message when passed in as a parameter
+      # @yield evaluated for the message
+      # @return [void]
+      def add(severity, message = nil, progname = nil, &block)
+        @delegates.each { |delegate| delegate.add severity, message || progname, @klass, &block }
+      end
+
     end
 
   end
-
 end

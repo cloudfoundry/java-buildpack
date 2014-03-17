@@ -7,8 +7,12 @@
           <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
         </XML>
         <codeStyleSettings language="ruby">
+          <option name="INDENT_WHEN_CASES" value="false" />
           <option name="ALIGN_GROUP_FIELD_DECLARATIONS" value="true" />
           <option name="SPACE_WITHIN_BRACES" value="true" />
+          <indentOptions>
+            <option name="CONTINUATION_INDENT_SIZE" value="2" />
+          </indentOptions>
         </codeStyleSettings>
       </value>
     </option>

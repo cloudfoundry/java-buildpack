@@ -18,33 +18,35 @@ require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/container/tomcat/tomcat_utils'
 
-module JavaBuildpack::Container
+module JavaBuildpack
+  module Container
 
-  # Encapsulates the detect, compile, and release functionality for Tomcat lifecycle support.
-  class TomcatLifecycleSupport < JavaBuildpack::Component::VersionedDependencyComponent
-    include JavaBuildpack::Container
+    # Encapsulates the detect, compile, and release functionality for Tomcat lifecycle support.
+    class TomcatLifecycleSupport < JavaBuildpack::Component::VersionedDependencyComponent
+      include JavaBuildpack::Container
 
-    # @macro base_component_compile
-    def compile
-      download_jar(jar_name, tomcat_lib)
-    end
+      # @macro base_component_compile
+      def compile
+        download_jar(jar_name, tomcat_lib)
+      end
 
-    # @macro base_component_release
-    def release
-    end
+      # @macro base_component_release
+      def release
+      end
 
-    protected
+      protected
 
-    def supports?
-      true
-    end
+      def supports?
+        true
+      end
 
-    private
+      private
 
-    def jar_name
-      "tomcat_lifecycle_support-#{@version}.jar"
+      def jar_name
+        "tomcat_lifecycle_support-#{@version}.jar"
+      end
+
     end
 
   end
-
 end

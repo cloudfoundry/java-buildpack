@@ -19,40 +19,42 @@ require 'java_buildpack/container'
 require 'java_buildpack/util/dash_case'
 require 'java_buildpack/util/play/factory'
 
-module JavaBuildpack::Container
+module JavaBuildpack
+  module Container
 
-  # Encapsulates the detect, compile, and release functionality for Play applications.
-  class PlayFramework < JavaBuildpack::Component::BaseComponent
+    # Encapsulates the detect, compile, and release functionality for Play applications.
+    class PlayFramework < JavaBuildpack::Component::BaseComponent
 
-    # Creates an instance
-    #
-    # @param [Hash] context a collection of utilities used the component
-    def initialize(context)
-      super(context)
-      @delegate = JavaBuildpack::Util::Play::Factory.create @droplet
-    end
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        super(context)
+        @delegate = JavaBuildpack::Util::Play::Factory.create @droplet
+      end
 
-    # @macro base_component_detect
-    def detect
-      @delegate ? id(@delegate.version) : nil
-    end
+      # @macro base_component_detect
+      def detect
+        @delegate ? id(@delegate.version) : nil
+      end
 
-    # @macro base_component_compile
-    def compile
-      @delegate.compile if @delegate
-    end
+      # @macro base_component_compile
+      def compile
+        @delegate.compile if @delegate
+      end
 
-    # @macro base_component_release
-    def release
-      @delegate.release if @delegate
-    end
+      # @macro base_component_release
+      def release
+        @delegate.release if @delegate
+      end
 
-    private
+      private
 
-    def id(version)
-      "#{PlayFramework.to_s.dash_case}=#{version}"
+      def id(version)
+        "#{PlayFramework.to_s.dash_case}=#{version}"
+      end
+
     end
 
   end
-
 end

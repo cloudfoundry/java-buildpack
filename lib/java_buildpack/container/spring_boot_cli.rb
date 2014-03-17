@@ -22,30 +22,31 @@ require 'java_buildpack/util/file_enumerable'
 require 'java_buildpack/util/groovy_utils'
 require 'java_buildpack/util/qualify_path'
 
-module JavaBuildpack::Container
+module JavaBuildpack
+  module Container
 
-  # Encapsulates the detect, compile, and release functionality for applications running Spring Boot CLI
-  # applications.
-  class SpringBootCLI < JavaBuildpack::Component::VersionedDependencyComponent
-    include JavaBuildpack::Util
+    # Encapsulates the detect, compile, and release functionality for applications running Spring Boot CLI
+    # applications.
+    class SpringBootCLI < JavaBuildpack::Component::VersionedDependencyComponent
+      include JavaBuildpack::Util
 
-    # Creates an instance
-    #
-    # @param [Hash] context a collection of utilities used the component
-    def initialize(context)
-      @logger = JavaBuildpack::Logging::LoggerFactory.get_logger SpringBootCLI
-      super(context)
-    end
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        @logger = JavaBuildpack::Logging::LoggerFactory.get_logger SpringBootCLI
+        super(context)
+      end
 
-    # @macro base_component_compile
-    def compile
-      download_tar
-      @droplet.additional_libraries.link_to lib_dir
-    end
+      # @macro base_component_compile
+      def compile
+        download_tar
+        @droplet.additional_libraries.link_to lib_dir
+      end
 
-    # @macro base_component_release
-    def release
-      [
+      # @macro base_component_release
+      def release
+        [
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
           qualify_path(@droplet.sandbox + 'bin/spring', @droplet.root),
@@ -53,45 +54,46 @@ module JavaBuildpack::Container
           relative_groovy_files,
           '--',
           '--server.port=$PORT'
-      ].flatten.compact.join(' ')
-    end
-
-    protected
-
-    # @macro versioned_dependency_component_supports
-    def supports?
-      gf = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
-      gf.length > 0 && all_pogo_or_configuration(gf) && no_main_method(gf) && no_shebang(gf) && !web_inf?
-    end
-
-    private
-
-    def lib_dir
-      @droplet.sandbox + 'lib'
-    end
-
-    def relative_groovy_files
-      JavaBuildpack::Util::GroovyUtils.groovy_files(@application).map { |gf| gf.relative_path_from(@application.root) }
-    end
-
-    def no_main_method(groovy_files)
-      none?(groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file } # note that this will scan comments
-    end
-
-    def no_shebang(groovy_files)
-      none?(groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.shebang? file }
-    end
-
-    def web_inf?
-      (@application.root + 'WEB-INF').exist?
-    end
-
-    def all_pogo_or_configuration(groovy_files)
-      all?(groovy_files) do |file|
-        JavaBuildpack::Util::GroovyUtils.pogo?(file) || JavaBuildpack::Util::GroovyUtils.beans?(file)
+        ].flatten.compact.join(' ')
       end
+
+      protected
+
+      # @macro versioned_dependency_component_supports
+      def supports?
+        gf = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
+        gf.length > 0 && all_pogo_or_configuration(gf) && no_main_method(gf) && no_shebang(gf) && !web_inf?
+      end
+
+      private
+
+      def lib_dir
+        @droplet.sandbox + 'lib'
+      end
+
+      def relative_groovy_files
+        JavaBuildpack::Util::GroovyUtils.groovy_files(@application).map { |gf| gf.relative_path_from(@application.root) }
+      end
+
+      def no_main_method(groovy_files)
+        none?(groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file } # note that this will scan comments
+      end
+
+      def no_shebang(groovy_files)
+        none?(groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.shebang? file }
+      end
+
+      def web_inf?
+        (@application.root + 'WEB-INF').exist?
+      end
+
+      def all_pogo_or_configuration(groovy_files)
+        all?(groovy_files) do |file|
+          JavaBuildpack::Util::GroovyUtils.pogo?(file) || JavaBuildpack::Util::GroovyUtils.beans?(file)
+        end
+      end
+
     end
 
   end
-
 end

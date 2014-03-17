@@ -16,6 +16,10 @@
 
 require 'java_buildpack'
 
-# A module encapsulating all of the framework components for the Java buildpack
-module JavaBuildpack::Framework
+module JavaBuildpack
+
+  # A module encapsulating all of the framework components for the Java buildpack
+  module Framework
+  end
+
 end

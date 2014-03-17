@@ -16,38 +16,42 @@
 
 require 'java_buildpack/util/play/pre22'
 
-module JavaBuildpack::Util::Play
+module JavaBuildpack
+  module Util
+    module Play
 
-  # Encapsulate inspection and modification of Play dist applications up to and including Play 2.1.x.
-  class Pre22Dist < Pre22
+      # Encapsulate inspection and modification of Play dist applications up to and including Play 2.1.x.
+      class Pre22Dist < Pre22
 
-    protected
+        protected
 
-    # @macro base_augment_classpath
-    def augment_classpath
-      if version.start_with? '2.0'
-        @droplet.additional_libraries.link_to lib_dir
-      else
-        additional_classpath = @droplet.additional_libraries.sort.map do |additional_library|
-          "$scriptdir/#{additional_library.relative_path_from(root)}"
+        # @macro base_augment_classpath
+        def augment_classpath
+          if version.start_with? '2.0'
+            @droplet.additional_libraries.link_to lib_dir
+          else
+            additional_classpath = @droplet.additional_libraries.sort.map do |additional_library|
+              "$scriptdir/#{additional_library.relative_path_from(root)}"
+            end
+
+            update_file start_script, /^classpath=\"(.*)\"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
+          end
         end
 
-        update_file start_script, /^classpath=\"(.*)\"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
+        # @macro base_java_opts
+        def java_opts
+          @droplet.java_opts
+        end
+
+        # @macro base_lib_dir
+        def lib_dir
+          root + 'lib'
+        end
+
+        alias_method :root, :find_single_directory
+
       end
+
     end
-
-    # @macro base_java_opts
-    def java_opts
-      @droplet.java_opts
-    end
-
-    # @macro base_lib_dir
-    def lib_dir
-      root + 'lib'
-    end
-
-    alias_method :root, :find_single_directory
-
   end
-
 end

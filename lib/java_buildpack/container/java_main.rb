@@ -19,60 +19,62 @@ require 'java_buildpack/container'
 require 'java_buildpack/util/dash_case'
 require 'java_buildpack/util/java_main_utils'
 
-module JavaBuildpack::Container
+module JavaBuildpack
+  module Container
 
-  # Encapsulates the detect, compile, and release functionality for applications running a simple Java +main()+ method.
-  # This isn't a _container_ in the traditional sense, but contains the functionality to manage the lifecycle of Java
-  # +main()+ applications.
-  class JavaMain < JavaBuildpack::Component::BaseComponent
+    # Encapsulates the detect, compile, and release functionality for applications running a simple Java +main()+ method.
+    # This isn't a _container_ in the traditional sense, but contains the functionality to manage the lifecycle of Java
+    # +main()+ applications.
+    class JavaMain < JavaBuildpack::Component::BaseComponent
 
-    # @macro base_component_detect
-    def detect
-      main_class ? JavaMain.to_s.dash_case : nil
-    end
+      # @macro base_component_detect
+      def detect
+        main_class ? JavaMain.to_s.dash_case : nil
+      end
 
-    # @macro base_component_compile
-    def compile
-    end
+      # @macro base_component_compile
+      def compile
+      end
 
-    # @macro base_component_release
-    def release
-      @droplet.additional_libraries.insert 0, @application.root
-      manifest_class_path.each { |path| @droplet.additional_libraries << path }
+      # @macro base_component_release
+      def release
+        @droplet.additional_libraries.insert 0, @application.root
+        manifest_class_path.each { |path| @droplet.additional_libraries << path }
 
-      [
+        [
           "#{@droplet.java_home.root}/bin/java",
           @droplet.additional_libraries.as_classpath,
           @droplet.java_opts.sort.join(' '),
           main_class,
           arguments,
           port
-      ].flatten.compact.join(' ')
-    end
+        ].flatten.compact.join(' ')
+      end
 
-    private
+      private
 
-    ARGUMENTS_PROPERTY = 'arguments'.freeze
+      ARGUMENTS_PROPERTY = 'arguments'.freeze
 
-    CLASS_PATH_PROPERTY = 'Class-Path'.freeze
+      CLASS_PATH_PROPERTY = 'Class-Path'.freeze
 
-    def arguments
-      @configuration[ARGUMENTS_PROPERTY]
-    end
+      def arguments
+        @configuration[ARGUMENTS_PROPERTY]
+      end
 
-    def main_class
-      JavaBuildpack::Util::JavaMainUtils.main_class(@application, @configuration)
-    end
+      def main_class
+        JavaBuildpack::Util::JavaMainUtils.main_class(@application, @configuration)
+      end
 
-    def manifest_class_path
-      values = JavaBuildpack::Util::JavaMainUtils.manifest(@application)[CLASS_PATH_PROPERTY]
-      values.nil? ? [] : values.split(' ').map { |value| @droplet.root + value }
-    end
+      def manifest_class_path
+        values = JavaBuildpack::Util::JavaMainUtils.manifest(@application)[CLASS_PATH_PROPERTY]
+        values.nil? ? [] : values.split(' ').map { |value| @droplet.root + value }
+      end
 
-    def port
-      main_class =~ /^org\.springframework\.boot\.loader\.(?:[JW]ar|Properties)Launcher$/ ? '--server.port=$PORT' : nil
+      def port
+        main_class =~ /^org\.springframework\.boot\.loader\.(?:[JW]ar|Properties)Launcher$/ ? '--server.port=$PORT' : nil
+      end
+
     end
 
   end
-
 end

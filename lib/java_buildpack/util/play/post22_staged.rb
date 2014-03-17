@@ -16,18 +16,22 @@
 
 require 'java_buildpack/util/play/post22'
 
-module JavaBuildpack::Util::Play
+module JavaBuildpack
+  module Util
+    module Play
 
-  # Encapsulate inspection and modification of Play staged applications from Play 2.2.0 onwards.
-  class Post22Staged < Post22
+      # Encapsulate inspection and modification of Play staged applications from Play 2.2.0 onwards.
+      class Post22Staged < Post22
 
-    protected
+        protected
 
-    # @macro post22_root
-    def root
-      @droplet.root
+        # @macro post22_root
+        def root
+          @droplet.root
+        end
+
+      end
+
     end
-
   end
-
 end

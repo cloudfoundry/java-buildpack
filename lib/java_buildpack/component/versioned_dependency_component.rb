@@ -21,86 +21,88 @@ require 'java_buildpack/repository/configured_item'
 require 'java_buildpack/util/dash_case'
 require 'tmpdir'
 
-module JavaBuildpack::Component
+module JavaBuildpack
+  module Component
 
-  # A convenience base class for all components that have a versioned dependency.  In addition to the functionality
-  # inherited from +BaseComponent+ this class also ensures that managed dependencies are handled in a uniform manner.
-  class VersionedDependencyComponent < BaseComponent
+    # A convenience base class for all components that have a versioned dependency.  In addition to the functionality
+    # inherited from +BaseComponent+ this class also ensures that managed dependencies are handled in a uniform manner.
+    class VersionedDependencyComponent < BaseComponent
 
-    # Creates an instance.  In addition to the functionality inherited from +BaseComponent+, +@version+ and +@uri+
-    # instance variables are exposed.
-    #
-    # @param [Hash] context a collection of utilities used by components
-    # @param [Block, nil] version_validator an optional version validation block
-    def initialize(context, &version_validator)
-      super(context)
+      # Creates an instance.  In addition to the functionality inherited from +BaseComponent+, +@version+ and +@uri+
+      # instance variables are exposed.
+      #
+      # @param [Hash] context a collection of utilities used by components
+      # @param [Block, nil] version_validator an optional version validation block
+      def initialize(context, &version_validator)
+        super(context)
 
-      if supports?
-        @version, @uri = JavaBuildpack::Repository::ConfiguredItem.find_item(@component_name, @configuration,
-                                                                             &version_validator)
-      else
-        @version = nil
-        @uri     = nil
+        if supports?
+          @version, @uri = JavaBuildpack::Repository::ConfiguredItem.find_item(@component_name, @configuration,
+                                                                               &version_validator)
+        else
+          @version = nil
+          @uri     = nil
+        end
       end
-    end
 
-    # @macro base_component_detect
-    def detect
-      @version ? id(@version) : nil
-    end
+      # @macro base_component_detect
+      def detect
+        @version ? id(@version) : nil
+      end
 
-    protected
+      protected
 
-    # @!macro [new] versioned_dependency_component_supports
-    #   Whether or not this component supports this application
-    #
-    #   @return [Boolean] whether or not this component supports this application
-    def supports?
-      fail "Method 'supports?' must be defined"
-    end
+      # @!macro [new] versioned_dependency_component_supports
+      #   Whether or not this component supports this application
+      #
+      #   @return [Boolean] whether or not this component supports this application
+      def supports?
+        fail "Method 'supports?' must be defined"
+      end
 
-    # Downloads a given JAR file and stores it.
-    #
-    # @param [String] jar_name the name to save the jar as
-    # @param [Pathname] target_directory the directory to store the JAR file in.  Defaults to the component's sandbox.
-    # @param [String] name an optional name for the download.  Defaults to +@component_name+.
-    # @return [void]
-    def download_jar(jar_name = jar_name, target_directory = @droplet.sandbox, name = @component_name)
-      super(@version, @uri, jar_name, target_directory, name)
-    end
+      # Downloads a given JAR file and stores it.
+      #
+      # @param [String] jar_name the name to save the jar as
+      # @param [Pathname] target_directory the directory to store the JAR file in.  Defaults to the component's sandbox.
+      # @param [String] name an optional name for the download.  Defaults to +@component_name+.
+      # @return [void]
+      def download_jar(jar_name = jar_name, target_directory = @droplet.sandbox, name = @component_name)
+        super(@version, @uri, jar_name, target_directory, name)
+      end
 
-    # Downloads a given TAR file and expands it.
-    #
-    # @param [Pathname] target_directory the directory to expand the TAR file to.  Defaults to the component's sandbox.
-    # @param [String] name an optional name for the download and expansion.  Defaults to +@component_name+.
-    # @return [void]
-    def download_tar(target_directory = @droplet.sandbox, name = @component_name)
-      super(@version, @uri, target_directory, name)
-    end
+      # Downloads a given TAR file and expands it.
+      #
+      # @param [Pathname] target_directory the directory to expand the TAR file to.  Defaults to the component's sandbox.
+      # @param [String] name an optional name for the download and expansion.  Defaults to +@component_name+.
+      # @return [void]
+      def download_tar(target_directory = @droplet.sandbox, name = @component_name)
+        super(@version, @uri, target_directory, name)
+      end
 
-    # Downloads a given ZIP file and expands it.
-    #
-    # @param [Boolean] strip_top_level whether to strip the top-level directory when expanding. Defaults to +true+.
-    # @param [Pathname] target_directory the directory to expand the ZIP file to.  Defaults to the component's sandbox.
-    # @param [String] name an optional name for the download.  Defaults to +@component_name+.
-    # @return [void]
-    def download_zip(strip_top_level = true, target_directory = @droplet.sandbox, name = @component_name)
-      super(@version, @uri, strip_top_level, target_directory, name)
-    end
+      # Downloads a given ZIP file and expands it.
+      #
+      # @param [Boolean] strip_top_level whether to strip the top-level directory when expanding. Defaults to +true+.
+      # @param [Pathname] target_directory the directory to expand the ZIP file to.  Defaults to the component's sandbox.
+      # @param [String] name an optional name for the download.  Defaults to +@component_name+.
+      # @return [void]
+      def download_zip(strip_top_level = true, target_directory = @droplet.sandbox, name = @component_name)
+        super(@version, @uri, strip_top_level, target_directory, name)
+      end
 
-    # A generated JAR name for the component.  Meets the format +<component-id>-<version>.jar+
-    #
-    # @return [String] a generated JAR name for the component
-    def jar_name
-      "#{@droplet.component_id}-#{@version}.jar"
-    end
+      # A generated JAR name for the component.  Meets the format +<component-id>-<version>.jar+
+      #
+      # @return [String] a generated JAR name for the component
+      def jar_name
+        "#{@droplet.component_id}-#{@version}.jar"
+      end
 
-    private
+      private
 
-    def id(version)
-      "#{self.class.to_s.dash_case}=#{version}"
+      def id(version)
+        "#{self.class.to_s.dash_case}=#{version}"
+      end
+
     end
 
   end
-
 end

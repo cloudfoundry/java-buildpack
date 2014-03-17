@@ -16,18 +16,20 @@
 
 require 'java_buildpack/component'
 
-module JavaBuildpack::Component
+module JavaBuildpack
+  module Component
 
-  # An abstraction around the +JAVA_HOME+ path used by the droplet.  This implementation is mutable and should be
-  # passed to any component that is a jre.
-  #
-  # A new instance of this type should be created once for the application.
-  class MutableJavaHome
+    # An abstraction around the +JAVA_HOME+ path used by the droplet.  This implementation is mutable and should be
+    # passed to any component that is a jre.
+    #
+    # A new instance of this type should be created once for the application.
+    class MutableJavaHome
 
-    # @!attribute [rw] root
-    # @return [String] the root of the droplet's +JAVA_HOME+
-    attr_accessor :root
+      # @!attribute [rw] root
+      # @return [String] the root of the droplet's +JAVA_HOME+
+      attr_accessor :root
+
+    end
 
   end
-
 end

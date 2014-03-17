@@ -19,37 +19,39 @@ require 'java_buildpack/component/base_component'
 require 'java_buildpack/container'
 require 'java_buildpack/container/tomcat/tomcat_utils'
 
-module JavaBuildpack::Container
+module JavaBuildpack
+  module Container
 
-  # Encapsulates the detect, compile, and release functionality for Tomcat Spring Insight support.
-  # DO NOT DEPEND ON THIS
-  class TomcatInsightSupport < JavaBuildpack::Component::BaseComponent
-    include JavaBuildpack::Container
+    # Encapsulates the detect, compile, and release functionality for Tomcat Spring Insight support.
+    # DO NOT DEPEND ON THIS
+    class TomcatInsightSupport < JavaBuildpack::Component::BaseComponent
+      include JavaBuildpack::Container
 
-    # @macro detect_component_compile
-    def detect
-    end
+      # @macro detect_component_compile
+      def detect
+      end
 
-    # @macro base_component_compile
-    def compile
-      link_to(container_libs_directory.children, tomcat_lib) if container_libs_directory.exist?
-      link_to(extra_applications_directory.children, tomcat_webapps) if extra_applications_directory.exist?
-    end
+      # @macro base_component_compile
+      def compile
+        link_to(container_libs_directory.children, tomcat_lib) if container_libs_directory.exist?
+        link_to(extra_applications_directory.children, tomcat_webapps) if extra_applications_directory.exist?
+      end
 
-    # @macro base_component_release
-    def release
-    end
+      # @macro base_component_release
+      def release
+      end
 
-    private
+      private
 
-    def container_libs_directory
-      @droplet.root + '.spring-insight/container-libs'
-    end
+      def container_libs_directory
+        @droplet.root + '.spring-insight/container-libs'
+      end
 
-    def extra_applications_directory
-      @droplet.root + '.spring-insight/extra-applications'
+      def extra_applications_directory
+        @droplet.root + '.spring-insight/extra-applications'
+      end
+
     end
 
   end
-
 end

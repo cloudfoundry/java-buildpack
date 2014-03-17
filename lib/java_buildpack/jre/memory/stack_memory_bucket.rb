@@ -18,34 +18,36 @@ require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/memory_bucket'
 require 'java_buildpack/jre/memory/memory_size'
 
-module JavaBuildpack::Jre
+module JavaBuildpack
+  module Jre
 
-  # This class represents a memory bucket for stack memory. This is treated differently to other memory buckets
-  # which have absolute sizes since stack memory is specified in terms of the size of an individual stack with no
-  # definition of how many stacks may exist.
-  class StackMemoryBucket < MemoryBucket
+    # This class represents a memory bucket for stack memory. This is treated differently to other memory buckets
+    # which have absolute sizes since stack memory is specified in terms of the size of an individual stack with no
+    # definition of how many stacks may exist.
+    class StackMemoryBucket < MemoryBucket
 
-    # Constructs a stack memory bucket.
-    #
-    # @param [Numeric] weighting a number between 0 and 1 corresponding to the proportion of total memory which this
-    #                            memory bucket should consume by default
-    # @param [MemoryRange, nil] range a user-specified range for the memory bucket or nil if the user did not specify a
-    #                            range
-    def initialize(weighting, range)
-      super('stack', weighting, range)
+      # Constructs a stack memory bucket.
+      #
+      # @param [Numeric] weighting a number between 0 and 1 corresponding to the proportion of total memory which this
+      #                            memory bucket should consume by default
+      # @param [MemoryRange, nil] range a user-specified range for the memory bucket or nil if the user did not specify a
+      #                            range
+      def initialize(weighting, range)
+        super('stack', weighting, range)
+      end
+
+      # Returns the default stack size.
+      #
+      # @return [MemorySize] the default stack size
+      def default_size
+        range.floor == 0 ? JVM_DEFAULT_STACK_SIZE : range.floor
+      end
+
+      private
+
+      JVM_DEFAULT_STACK_SIZE = MemorySize.new('1M').freeze
+
     end
-
-    # Returns the default stack size.
-    #
-    # @return [MemorySize] the default stack size
-    def default_size
-      range.floor == 0 ? JVM_DEFAULT_STACK_SIZE : range.floor
-    end
-
-    private
-
-    JVM_DEFAULT_STACK_SIZE = MemorySize.new('1M').freeze
 
   end
-
 end
