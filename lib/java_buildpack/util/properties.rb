@@ -16,38 +16,40 @@
 
 require 'java_buildpack/util'
 
-module JavaBuildpack::Util
+module JavaBuildpack
+  module Util
 
-  # A class representing a collection of Java properties
-  class Properties < Hash
+    # A class representing a collection of Java properties
+    class Properties < Hash
 
-    # Create a new instance, populating it with values from a properties file
-    #
-    # @param [Pathname, nil] file_name the file to use for initialization. If no file is passed in, the instance is empty.
-    def initialize(file_name)
-      unless file_name.nil?
-        contents = file_name.open { |file| file.read }
-        contents.gsub!(/[\r\n\f]+ /, '')
+      # Create a new instance, populating it with values from a properties file
+      #
+      # @param [Pathname, nil] file_name the file to use for initialization. If no file is passed in, the instance is empty.
+      def initialize(file_name)
+        unless file_name.nil?
+          contents = file_name.open { |file| file.read }
+          contents.gsub!(/[\r\n\f]+ /, '')
 
-        contents.each_line do |line|
-          unless blank_line?(line) || comment_line?(line)
-            match_data = /^[\s]*([^:=\s]+)[\s]*[=:]?[\s]*(.*?)\s*$/.match(line)
-            self[match_data[1]] = match_data[2] if match_data
+          contents.each_line do |line|
+            unless blank_line?(line) || comment_line?(line)
+              match_data          = /^[\s]*([^:=\s]+)[\s]*[=:]?[\s]*(.*?)\s*$/.match(line)
+              self[match_data[1]] = match_data[2] if match_data
+            end
           end
         end
       end
-    end
 
-    private
+      private
 
-    def blank_line?(line)
-      line =~ /^[\s]*$/
-    end
+      def blank_line?(line)
+        line =~ /^[\s]*$/
+      end
 
-    def comment_line?(line)
-      line =~ /^[\s]*[#!].*$/
+      def comment_line?(line)
+        line =~ /^[\s]*[#!].*$/
+      end
+
     end
 
   end
-
 end

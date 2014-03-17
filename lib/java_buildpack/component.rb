@@ -16,6 +16,10 @@
 
 require 'java_buildpack'
 
-# A module encapsulating the component abstractions and base classes for the Java buildpack
-module JavaBuildpack::Component
+module JavaBuildpack
+
+  # A module encapsulating the component abstractions and base classes for the Java buildpack
+  module Component
+  end
+
 end

@@ -79,9 +79,9 @@ module JavaBuildpack
       command = container.release
 
       payload = {
-          'addons'                => [],
-          'config_vars'           => {},
-          'default_process_types' => { 'web' => command }
+        'addons'                => [],
+        'config_vars'           => {},
+        'default_process_types' => { 'web' => command }
       }.to_yaml
 
       @logger.debug { "Release Payload #{payload}" }
@@ -125,7 +125,7 @@ module JavaBuildpack
 
     def diagnose_git_info(print)
       if system("git --git-dir=#{GIT_DIR} status 2>/dev/null 1>/dev/null")
-        remote_url = diagnose_remotes
+        remote_url      = diagnose_remotes
         head_commit_sha = diagnose_head_commit
         puts "-----> Java Buildpack source: #{remote_url}##{head_commit_sha}" if print
       else
@@ -156,9 +156,9 @@ module JavaBuildpack
 
         component_id = component.split('::').last.snake_case
         context      = {
-            application:   application,
-            configuration: Util::ConfigurationUtils.load(component_id),
-            droplet:       Component::Droplet.new(additional_libraries, component_id, java_home, java_opts, root) }
+          application:   application,
+          configuration: Util::ConfigurationUtils.load(component_id),
+          droplet:       Component::Droplet.new(additional_libraries, component_id, java_home, java_opts, root) }
 
         component.constantize.new(context)
       end
@@ -199,7 +199,7 @@ module JavaBuildpack
       # @yield [Buildpack] the buildpack to work with
       # @return [Object] the return value from the given block
       def with_buildpack(app_dir, message)
-        app_dir = Pathname.new(File.expand_path(app_dir))
+        app_dir     = Pathname.new(File.expand_path(app_dir))
         application = Component::Application.new(app_dir)
         Logging::LoggerFactory.setup app_dir
 

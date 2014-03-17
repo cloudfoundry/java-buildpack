@@ -16,6 +16,10 @@
 
 require 'java_buildpack'
 
-# A module encapsulating all of the container components for the Java buildpack
-module JavaBuildpack::Container
+module JavaBuildpack
+
+  # A module encapsulating all of the container components for the Java buildpack
+  module Container
+  end
+
 end

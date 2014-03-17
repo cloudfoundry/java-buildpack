@@ -21,7 +21,7 @@ shared_context 'memory_limit_helper' do
   previous_memory_limit = ENV['MEMORY_LIMIT']
 
   before do |example|
-    memory_limit = example.metadata[:memory_limit]
+    memory_limit        = example.metadata[:memory_limit]
     ENV['MEMORY_LIMIT'] = memory_limit if memory_limit
   end
 

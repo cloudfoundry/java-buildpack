@@ -17,24 +17,27 @@
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/memory/memory_size'
 
-module JavaBuildpack::Jre
+module JavaBuildpack
+  module Jre
 
-  # A utility for handling Java memory settings.
-  class MemoryLimit
+    # A utility for handling Java memory settings.
+    class MemoryLimit
 
-    private_class_method :new
+      private_class_method :new
 
-    class << self
+      class << self
 
-      # Returns the application's memory limit.
-      #
-      # @return [MemorySize, nil] the application's memory limit or nil if no memory limit has been provided
-      def memory_limit
-        memory_limit = ENV['MEMORY_LIMIT']
-        return nil unless memory_limit
-        memory_limit_size = MemorySize.new(memory_limit)
-        fail "Invalid negative $MEMORY_LIMIT #{memory_limit}" if memory_limit_size < 0
-        memory_limit_size
+        # Returns the application's memory limit.
+        #
+        # @return [MemorySize, nil] the application's memory limit or nil if no memory limit has been provided
+        def memory_limit
+          memory_limit = ENV['MEMORY_LIMIT']
+          return nil unless memory_limit
+          memory_limit_size = MemorySize.new(memory_limit)
+          fail "Invalid negative $MEMORY_LIMIT #{memory_limit}" if memory_limit_size < 0
+          memory_limit_size
+        end
+
       end
 
     end

@@ -17,40 +17,42 @@
 require 'java_buildpack/component'
 require 'java_buildpack/util/qualify_path'
 
-module JavaBuildpack::Component
+module JavaBuildpack
+  module Component
 
-  # An abstraction around the additional libraries provided to a droplet by components.
-  #
-  # A new instance of this type should be created once for the application.
-  class AdditionalLibraries < Array
-    include JavaBuildpack::Util
-
-    # Creates an instance of the +JAVA_OPTS+ abstraction.
+    # An abstraction around the additional libraries provided to a droplet by components.
     #
-    # @param [Pathname] droplet_root the root directory of the droplet
-    def initialize(droplet_root)
-      @paths        = []
-      @droplet_root = droplet_root
-    end
+    # A new instance of this type should be created once for the application.
+    class AdditionalLibraries < Array
+      include JavaBuildpack::Util
 
-    # Returns the contents of the collection as a classpath formatted as +-cp <value1>:<value2>+
-    #
-    # @return [String] the contents of the collection as a classpath
-    def as_classpath
-      qualified_paths = sort.map { |path| qualify_path path }
+      # Creates an instance of the +JAVA_OPTS+ abstraction.
+      #
+      # @param [Pathname] droplet_root the root directory of the droplet
+      def initialize(droplet_root)
+        @paths        = []
+        @droplet_root = droplet_root
+      end
 
-      "-cp #{qualified_paths.join ':'}"
-    end
+      # Returns the contents of the collection as a classpath formatted as +-cp <value1>:<value2>+
+      #
+      # @return [String] the contents of the collection as a classpath
+      def as_classpath
+        qualified_paths = sort.map { |path| qualify_path path }
 
-    # Symlink the contents of the collection to a destination directory.
-    #
-    # @param [Pathname] destination the destination to link to
-    # @return [void]
-    def link_to(destination)
-      FileUtils.mkdir_p destination
-      each { |path| (destination + path.basename).make_symlink(path.relative_path_from(destination)) }
+        "-cp #{qualified_paths.join ':'}"
+      end
+
+      # Symlink the contents of the collection to a destination directory.
+      #
+      # @param [Pathname] destination the destination to link to
+      # @return [void]
+      def link_to(destination)
+        FileUtils.mkdir_p destination
+        each { |path| (destination + path.basename).make_symlink(path.relative_path_from(destination)) }
+      end
+
     end
 
   end
-
 end

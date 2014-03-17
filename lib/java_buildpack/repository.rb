@@ -16,6 +16,10 @@
 
 require 'java_buildpack'
 
-# A module encapsulating versioned file repositories for the Java buildpack.
-module JavaBuildpack::Repository
+module JavaBuildpack
+
+  # A module encapsulating versioned file repositories for the Java buildpack.
+  module Repository
+  end
+
 end

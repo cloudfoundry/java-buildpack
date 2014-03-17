@@ -39,8 +39,8 @@ describe JavaBuildpack::Container::TomcatRedisStore do
       allow(services).to receive(:one_service?).with(/session-replication/, 'hostname', 'port', 'password')
                          .and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => { 'hostname' => 'test-host',
-                                                                              'port'      => 'test-port',
-                                                                              'password'  => 'test-password' })
+                                                                              'port'     => 'test-port',
+                                                                              'password' => 'test-password' })
     end
 
     it 'should detect with a session-replication service' do

@@ -51,8 +51,8 @@ describe JavaBuildpack::Util::Play::Post22 do
     end
 
     it 'should return command' do
-      expect(play_app.release).to eq("PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} $PWD/bin/play-application " +
-                                         '-Jtest-opt-2 -Jtest-opt-1 -J-Dhttp.port=$PORT')
+      expect(play_app.release).to eq("PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} $PWD/bin/play-application " \
+                                       '-Jtest-opt-2 -Jtest-opt-1 -J-Dhttp.port=$PORT')
     end
 
   end

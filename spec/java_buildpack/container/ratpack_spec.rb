@@ -60,8 +60,8 @@ describe JavaBuildpack::Container::Ratpack do
   it 'should return command',
      app_fixture: 'container_ratpack_staged' do
 
-    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=\"-Dratpack.port=$PORT test-opt-1 test-opt-2\" " +
-                                        '$PWD/bin/application')
+    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=\"-Dratpack.port=$PORT test-opt-1 test-opt-2\" " \
+                                      '$PWD/bin/application')
   end
 
 end

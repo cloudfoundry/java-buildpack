@@ -115,7 +115,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   it 'should compare to filtering pathnames correctly using <=>' do
     expect((filtering_target + 'good') <=> (filtering_target + 'good')).to eq(0) # rubocop:disable UselessComparison
     expect((filtering_target + 'good') <=> (filtering_target + 'bad')).to eq(1)
-    expect((filtering_target + 'bad') <=> (filtering_target + 'bad')).to eq(0)
+    expect((filtering_target + 'bad') <=> (filtering_target + 'bad')).to eq(0) # rubocop:disable UselessComparison
     expect((filtering_target + 'a') <=> (filtering_target + 'b')).to eq(-1)
     expect((filtering_target + 'b') <=> (filtering_target + 'a')).to eq(1)
   end
@@ -132,8 +132,8 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should compare to filtering pathnames correctly using ==' do
-    expect((filtering_target + 'good') == (filtering_target + 'good')).to be
-    expect((filtering_target + 'bad') == (filtering_target + 'bad')).to be
+    expect((filtering_target + 'good') == (filtering_target + 'good')).to be # rubocop:disable UselessComparison
+    expect((filtering_target + 'bad') == (filtering_target + 'bad')).to be # rubocop:disable UselessComparison
   end
 
   it 'should compare to pathnames correctly using ===' do
@@ -142,8 +142,8 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'should compare to filtering pathnames correctly using ===' do
-    expect((filtering_target + 'good') === (filtering_target + 'good')).to be # rubocop:disable CaseEquality
-    expect((filtering_target + 'bad') === (filtering_target + 'bad')).to be # rubocop:disable CaseEquality
+    expect((filtering_target + 'good') === (filtering_target + 'good')).to be # rubocop:disable CaseEquality, UselessComparison
+    expect((filtering_target + 'bad') === (filtering_target + 'bad')).to be # rubocop:disable CaseEquality, UselessComparison
   end
 
   it 'should delegate relative_path_from' do

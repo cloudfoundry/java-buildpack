@@ -18,151 +18,153 @@ require 'java_buildpack/framework'
 require 'rexml/document'
 require 'rexml/formatters/pretty'
 
-module JavaBuildpack::Framework
+module JavaBuildpack
+  module Framework
 
-  # A class that encapsulates the modification of a +web.xml+ Servlet configuration file for the Auto-reconfiguration
-  # framework.  The modifications of +web.xml+ consist of two major behaviors.
-  #
-  # 1. Augmenting +contextConfigLocation+.  The function starts be enumerating the current +contextConfigLocation+ s.
-  #    If none exist, a default configuration is created with +/WEB-INF/application-context.xml+ or
-  #    +/WEB-INF/<servlet-name>-servlet.xml+ as the default.  An additional location is then added to the collection of
-  #    locations; +classpath:META- INF/cloud/cloudfoundry-auto-reconfiguration-context.xml+ if the +ApplicationContext+
-  #    is XML-based, +org.cloudfoundry.reconfiguration.spring.web.CloudAppAnnotationConfigAutoReconfig+ if the
-  #    +ApplicationContext+ is annotation-based.
-  #
-  # 2. Augmenting +contextInitializerClasses+.  The function starts by enumerating the current
-  #    +contextInitializerClasses+.  If none exist, a default configuration is created with no value as the default.
-  #    The +org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer+ class is then added to the
-  #    collection of classes.
-  class WebXmlModifier
-
-    # Creates a new instance of the modifier.
+    # A class that encapsulates the modification of a +web.xml+ Servlet configuration file for the Auto-reconfiguration
+    # framework.  The modifications of +web.xml+ consist of two major behaviors.
     #
-    # @param [REXML::Document, String, IO] source the content of the +web.xml+ file to modify
-    def initialize(source)
-      @document = REXML::Document.new(source)
-    end
-
-    # Make modifications to the root context
+    # 1. Augmenting +contextConfigLocation+.  The function starts be enumerating the current +contextConfigLocation+ s.
+    #    If none exist, a default configuration is created with +/WEB-INF/application-context.xml+ or
+    #    +/WEB-INF/<servlet-name>-servlet.xml+ as the default.  An additional location is then added to the collection of
+    #    locations; +classpath:META- INF/cloud/cloudfoundry-auto-reconfiguration-context.xml+ if the +ApplicationContext+
+    #    is XML-based, +org.cloudfoundry.reconfiguration.spring.web.CloudAppAnnotationConfigAutoReconfig+ if the
+    #    +ApplicationContext+ is annotation-based.
     #
-    # @return [void]
-    def augment_root_context
-      if has_context_loader_listener?
-        augment_context_config_locations web_app(@document), 'context-param', CONTEXT_LOCATION_DEFAULT
-        augment_context_initializer_classes web_app(@document), 'context-param'
+    # 2. Augmenting +contextInitializerClasses+.  The function starts by enumerating the current
+    #    +contextInitializerClasses+.  If none exist, a default configuration is created with no value as the default.
+    #    The +org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer+ class is then added to the
+    #    collection of classes.
+    class WebXmlModifier
+
+      # Creates a new instance of the modifier.
+      #
+      # @param [REXML::Document, String, IO] source the content of the +web.xml+ file to modify
+      def initialize(source)
+        @document = REXML::Document.new(source)
       end
-    end
 
-    # Make modifications to the the servlet contexts
-    #
-    # @return [void]
-    def augment_servlet_contexts
-      servlets.each do |servlet|
-        augment_context_config_locations servlet, 'init-param', default_servlet_context_location(servlet)
-        augment_context_initializer_classes servlet, 'init-param'
+      # Make modifications to the root context
+      #
+      # @return [void]
+      def augment_root_context
+        if context_loader_listener?
+          augment_context_config_locations web_app(@document), 'context-param', CONTEXT_LOCATION_DEFAULT
+          augment_context_initializer_classes web_app(@document), 'context-param'
+        end
       end
-    end
 
-    # Returns a +String+ representation of the modified +web.xml+.
-    #
-    # @return [String] a +String+ representation of the modified +web.xml+.
-    def to_s
-      output = ''
-      formatter.write(@document, output)
-      output << "\n"
+      # Make modifications to the the servlet contexts
+      #
+      # @return [void]
+      def augment_servlet_contexts
+        servlets.each do |servlet|
+          augment_context_config_locations servlet, 'init-param', default_servlet_context_location(servlet)
+          augment_context_initializer_classes servlet, 'init-param'
+        end
+      end
 
-      output
-    end
+      # Returns a +String+ representation of the modified +web.xml+.
+      #
+      # @return [String] a +String+ representation of the modified +web.xml+.
+      def to_s
+        output = ''
+        formatter.write(@document, output)
+        output << "\n"
 
-    private
+        output
+      end
 
-    CONTEXT_CLASS = 'contextClass'.freeze
+      private
 
-    CONTEXT_CLASS_ANNOTATION = 'org.springframework.web.context.support.AnnotationConfigWebApplicationContext'.freeze
+      CONTEXT_CLASS = 'contextClass'.freeze
 
-    CONTEXT_CONFIG_LOCATION = 'contextConfigLocation'.freeze
+      CONTEXT_CLASS_ANNOTATION = 'org.springframework.web.context.support.AnnotationConfigWebApplicationContext'.freeze
 
-    CONTEXT_INITIALIZER_ADDITIONAL = 'org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer'.freeze
+      CONTEXT_CONFIG_LOCATION = 'contextConfigLocation'.freeze
 
-    CONTEXT_INITIALIZER_CLASSES = 'contextInitializerClasses'.freeze
+      CONTEXT_INITIALIZER_ADDITIONAL = 'org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer'.freeze
 
-    CONTEXT_LOADER_LISTENER = 'ContextLoaderListener'.freeze
+      CONTEXT_INITIALIZER_CLASSES = 'contextInitializerClasses'.freeze
 
-    CONTEXT_LOCATION_ADDITIONAL_ANNOTATION = 'org.cloudfoundry.reconfiguration.spring.web.CloudAppAnnotationConfigAutoReconfig'.freeze
+      CONTEXT_LOADER_LISTENER = 'ContextLoaderListener'.freeze
 
-    CONTEXT_LOCATION_ADDITIONAL_XML = 'classpath:META-INF/cloud/cloudfoundry-auto-reconfiguration-context.xml'.freeze
+      CONTEXT_LOCATION_ADDITIONAL_ANNOTATION = 'org.cloudfoundry.reconfiguration.spring.web.CloudAppAnnotationConfigAutoReconfig'.freeze
 
-    CONTEXT_LOCATION_DEFAULT = '/WEB-INF/applicationContext.xml'.freeze
+      CONTEXT_LOCATION_ADDITIONAL_XML = 'classpath:META-INF/cloud/cloudfoundry-auto-reconfiguration-context.xml'.freeze
 
-    DISPATCHER_SERVLET = 'DispatcherServlet'.freeze
+      CONTEXT_LOCATION_DEFAULT = '/WEB-INF/applicationContext.xml'.freeze
 
-    def additional_context_config_location(root, param_type)
-      has_annotation_application_context?(root, param_type) ? CONTEXT_LOCATION_ADDITIONAL_ANNOTATION : CONTEXT_LOCATION_ADDITIONAL_XML
-    end
+      DISPATCHER_SERVLET = 'DispatcherServlet'.freeze
 
-    def augment_context_config_locations(root, param_type, default_location)
-      locations_string = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_CONFIG_LOCATION}')]]/param-value/text()").first
-      locations_string = create_param(root, param_type, CONTEXT_CONFIG_LOCATION, default_location) unless locations_string
+      def additional_context_config_location(root, param_type)
+        annotation_application_context?(root, param_type) ? CONTEXT_LOCATION_ADDITIONAL_ANNOTATION : CONTEXT_LOCATION_ADDITIONAL_XML
+      end
 
-      locations = locations_string.value.strip.split(/[,;\s]+/)
-      locations << additional_context_config_location(root, param_type)
+      def augment_context_config_locations(root, param_type, default_location)
+        locations_string = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_CONFIG_LOCATION}')]]/param-value/text()").first
+        locations_string = create_param(root, param_type, CONTEXT_CONFIG_LOCATION, default_location) unless locations_string
 
-      locations_string.value = locations.join(' ') # rubocop:disable UselessSetterCall
-    end
+        locations = locations_string.value.strip.split(/[,;\s]+/)
+        locations << additional_context_config_location(root, param_type)
 
-    def augment_context_initializer_classes(root, param_type)
-      classes_string = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_INITIALIZER_CLASSES}')]]/param-value/text()").first
-      classes_string = create_param(root, param_type, CONTEXT_INITIALIZER_CLASSES, '') unless classes_string
+        locations_string.value = locations.join(' ') # rubocop:disable UselessSetterCall
+      end
 
-      classes = classes_string.value.strip.split(/[,;\s]+/)
-      classes << CONTEXT_INITIALIZER_ADDITIONAL
+      def augment_context_initializer_classes(root, param_type)
+        classes_string = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_INITIALIZER_CLASSES}')]]/param-value/text()").first
+        classes_string = create_param(root, param_type, CONTEXT_INITIALIZER_CLASSES, '') unless classes_string
 
-      classes_string.value = classes.join(',') # rubocop:disable UselessSetterCall
-    end
+        classes = classes_string.value.strip.split(/[,;\s]+/)
+        classes << CONTEXT_INITIALIZER_ADDITIONAL
 
-    def create_param(root, param_type, name, value)
-      param = REXML::Element.new param_type, root
+        classes_string.value = classes.join(',') # rubocop:disable UselessSetterCall
+      end
 
-      param_name = REXML::Element.new 'param-name', param
-      REXML::Text.new name, true, param_name
+      def create_param(root, param_type, name, value)
+        param = REXML::Element.new param_type, root
 
-      param_value = REXML::Element.new 'param-value', param
-      REXML::Text.new value, true, param_value
-    end
+        param_name = REXML::Element.new 'param-name', param
+        REXML::Text.new name, true, param_name
 
-    def default_servlet_context_location(servlet)
-      name = xpath(servlet, 'servlet-name/text()').first.value.strip
-      "/WEB-INF/#{name}-servlet.xml"
-    end
+        param_value = REXML::Element.new 'param-value', param
+        REXML::Text.new value, true, param_value
+      end
 
-    def formatter
-      formatter         = REXML::Formatters::Pretty.new(4)
-      formatter.compact = true
-      formatter
-    end
+      def default_servlet_context_location(servlet)
+        name = xpath(servlet, 'servlet-name/text()').first.value.strip
+        "/WEB-INF/#{name}-servlet.xml"
+      end
 
-    def has_annotation_application_context?(root, param_type)
-      context_class_name       = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_CLASS}')]]/param-value/text()").first
-      context_class_name_value = context_class_name ? context_class_name.value.strip : nil
-      CONTEXT_CLASS_ANNOTATION == context_class_name_value
-    end
+      def formatter
+        formatter         = REXML::Formatters::Pretty.new(4)
+        formatter.compact = true
+        formatter
+      end
 
-    def has_context_loader_listener?
-      xpath(@document, "/web-app/listener/listener-class[contains(text(), '#{CONTEXT_LOADER_LISTENER}')]").any?
-    end
+      def annotation_application_context?(root, param_type)
+        context_class_name       = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_CLASS}')]]/param-value/text()").first
+        context_class_name_value = context_class_name ? context_class_name.value.strip : nil
+        CONTEXT_CLASS_ANNOTATION == context_class_name_value
+      end
 
-    def servlets
-      xpath(@document, "/web-app/servlet[servlet-class[contains(text(), '#{DISPATCHER_SERVLET}')]]")
-    end
+      def context_loader_listener?
+        xpath(@document, "/web-app/listener/listener-class[contains(text(), '#{CONTEXT_LOADER_LISTENER}')]").any?
+      end
 
-    def web_app(root)
-      xpath(root, '/web-app').first
-    end
+      def servlets
+        xpath(@document, "/web-app/servlet[servlet-class[contains(text(), '#{DISPATCHER_SERVLET}')]]")
+      end
 
-    def xpath(root, path)
-      REXML::XPath.match(root, path)
+      def web_app(root)
+        xpath(root, '/web-app').first
+      end
+
+      def xpath(root, path)
+        REXML::XPath.match(root, path)
+      end
+
     end
 
   end
-
 end

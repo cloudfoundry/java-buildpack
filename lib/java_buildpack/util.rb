@@ -16,6 +16,10 @@
 
 require 'java_buildpack'
 
-# A module encapsulating all of the utility code for the Java buildpack
-module JavaBuildpack::Util
+module JavaBuildpack
+
+  # A module encapsulating all of the utility code for the Java buildpack
+  module Util
+  end
+
 end

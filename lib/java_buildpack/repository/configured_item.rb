@@ -18,58 +18,60 @@ require 'java_buildpack/repository'
 require 'java_buildpack/repository/repository_index'
 require 'java_buildpack/util/tokenized_version'
 
-module JavaBuildpack::Repository
+module JavaBuildpack
+  module Repository
 
-  # A class encapsulating details of a file stored in a versioned repository.
-  class ConfiguredItem
+    # A class encapsulating details of a file stored in a versioned repository.
+    class ConfiguredItem
 
-    private_class_method :new
+      private_class_method :new
 
-    class << self
+      class << self
 
-      # Finds an instance of the file based on the configuration and wraps any exceptions
-      # to identify the component.
-      #
-      # @param [String] component_name the name of the component
-      # @param [Hash] configuration the configuration
-      # @option configuration [String] :repository_root the root directory of the repository
-      # @option configuration [String] :version the version of the file to resolve
-      # @param [Block, nil] version_validator an optional version validation block
-      # @return [String] the URI of the chosen version of the file
-      # @return [JavaBuildpack::Util::TokenizedVersion] the chosen version of the file
-      def find_item(component_name, configuration, &version_validator)
-        repository_root = repository_root(configuration)
-        version         = version(configuration)
+        # Finds an instance of the file based on the configuration and wraps any exceptions
+        # to identify the component.
+        #
+        # @param [String] component_name the name of the component
+        # @param [Hash] configuration the configuration
+        # @option configuration [String] :repository_root the root directory of the repository
+        # @option configuration [String] :version the version of the file to resolve
+        # @param [Block, nil] version_validator an optional version validation block
+        # @return [String] the URI of the chosen version of the file
+        # @return [JavaBuildpack::Util::TokenizedVersion] the chosen version of the file
+        def find_item(component_name, configuration, &version_validator)
+          repository_root = repository_root(configuration)
+          version         = version(configuration)
 
-        yield version if block_given?
+          yield version if block_given?
 
-        index = index(repository_root)
-        index.find_item version
-      rescue => e
-        raise RuntimeError, "#{component_name} error: #{e.message}", e.backtrace
-      end
+          index = index(repository_root)
+          index.find_item version
+        rescue => e
+          raise RuntimeError, "#{component_name} error: #{e.message}", e.backtrace
+        end
 
-      private
+        private
 
-      KEY_REPOSITORY_ROOT = 'repository_root'.freeze
+        KEY_REPOSITORY_ROOT = 'repository_root'.freeze
 
-      KEY_VERSION = 'version'.freeze
+        KEY_VERSION = 'version'.freeze
 
-      def index(repository_root)
-        RepositoryIndex.new(repository_root)
-      end
+        def index(repository_root)
+          RepositoryIndex.new(repository_root)
+        end
 
-      def repository_root(configuration)
-        fail "A repository root must be specified as a key-value pair of '#{KEY_REPOSITORY_ROOT}'' to the URI of the repository." unless configuration.key? KEY_REPOSITORY_ROOT
-        configuration[KEY_REPOSITORY_ROOT]
-      end
+        def repository_root(configuration)
+          fail "A repository root must be specified as a key-value pair of '#{KEY_REPOSITORY_ROOT}'' to the URI of the repository." unless configuration.key? KEY_REPOSITORY_ROOT
+          configuration[KEY_REPOSITORY_ROOT]
+        end
 
-      def version(configuration)
-        JavaBuildpack::Util::TokenizedVersion.new(configuration[KEY_VERSION])
+        def version(configuration)
+          JavaBuildpack::Util::TokenizedVersion.new(configuration[KEY_VERSION])
+        end
+
       end
 
     end
 
   end
-
 end

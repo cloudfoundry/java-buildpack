@@ -19,45 +19,47 @@ require 'java_buildpack/util'
 require 'java_buildpack/logging/logger_factory'
 require 'yaml'
 
-module JavaBuildpack::Util
+module JavaBuildpack
+  module Util
 
-  # Utilities for dealing with Groovy applications
-  class ConfigurationUtils
+    # Utilities for dealing with Groovy applications
+    class ConfigurationUtils
 
-    private_class_method :new
+      private_class_method :new
 
-    class << self
+      class << self
 
-      # Loads a configuration file from the buildpack configuration directory.  If the configuration file does not exist,
-      # returns an empty hash.
-      #
-      # @param [String] identifier the identifier of the configuration
-      # @param [Boolean] should_log whether the contents of the configuration file should be logged.  This value should be
-      #                             left to its default and exists to allow the logger to use the utility.
-      # @return [Hash] the configuration or an empty hash if the configuration file does not exist
-      def load(identifier, should_log = true)
-        file = CACHE_DIRECTORY + "#{identifier}.yml"
+        # Loads a configuration file from the buildpack configuration directory.  If the configuration file does not exist,
+        # returns an empty hash.
+        #
+        # @param [String] identifier the identifier of the configuration
+        # @param [Boolean] should_log whether the contents of the configuration file should be logged.  This value should be
+        #                             left to its default and exists to allow the logger to use the utility.
+        # @return [Hash] the configuration or an empty hash if the configuration file does not exist
+        def load(identifier, should_log = true)
+          file = CACHE_DIRECTORY + "#{identifier}.yml"
 
-        if file.exist?
-          configuration = YAML.load_file(file)
-          logger.debug { "Configuration from #{file}: #{configuration}" } if should_log
-        else
-          logger.debug { "No configuration file #{file} found" } if should_log
+          if file.exist?
+            configuration = YAML.load_file(file)
+            logger.debug { "Configuration from #{file}: #{configuration}" } if should_log
+          else
+            logger.debug { "No configuration file #{file} found" } if should_log
+          end
+
+          configuration || {}
         end
 
-        configuration || {}
-      end
+        private
 
-      private
+        CACHE_DIRECTORY = Pathname.new(File.expand_path('../../../config', File.dirname(__FILE__))).freeze
 
-      CACHE_DIRECTORY = Pathname.new(File.expand_path('../../../config', File.dirname(__FILE__))).freeze
+        def logger
+          JavaBuildpack::Logging::LoggerFactory.get_logger ConfigurationUtils
+        end
 
-      def logger
-        JavaBuildpack::Logging::LoggerFactory.get_logger ConfigurationUtils
       end
 
     end
 
   end
-
 end

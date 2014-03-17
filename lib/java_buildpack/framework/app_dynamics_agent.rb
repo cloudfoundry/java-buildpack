@@ -18,76 +18,78 @@ require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 
-module JavaBuildpack::Framework
+module JavaBuildpack
+  module Framework
 
-  # Encapsulates the functionality for enabling zero-touch AppDynamics support.
-  class AppDynamicsAgent < JavaBuildpack::Component::VersionedDependencyComponent
+    # Encapsulates the functionality for enabling zero-touch AppDynamics support.
+    class AppDynamicsAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
-    # @macro base_component_compile
-    def compile
-      download_zip false
-    end
+      # @macro base_component_compile
+      def compile
+        download_zip false
+      end
 
-    # @macro base_component_release
-    def release
-      credentials = @application.services.find_service(FILTER)['credentials']
-      java_opts   = @droplet.java_opts
+      # @macro base_component_release
+      def release
+        credentials = @application.services.find_service(FILTER)['credentials']
+        java_opts   = @droplet.java_opts
 
-      java_opts
-      .add_javaagent(@droplet.sandbox + 'javaagent.jar')
-      .add_system_property('appdynamics.agent.applicationName', "'#{application_name}'")
-      .add_system_property('appdynamics.agent.tierName', "'#{@configuration['tier_name']}'")
-      .add_system_property('appdynamics.agent.nodeName',
-                           "$(expr \"$VCAP_APPLICATION\" : '.*instance_id[\": ]*\"\\([a-z0-9]\\+\\)\".*')")
+        java_opts
+        .add_javaagent(@droplet.sandbox + 'javaagent.jar')
+        .add_system_property('appdynamics.agent.applicationName', "'#{application_name}'")
+        .add_system_property('appdynamics.agent.tierName', "'#{@configuration['tier_name']}'")
+        .add_system_property('appdynamics.agent.nodeName',
+                             "$(expr \"$VCAP_APPLICATION\" : '.*instance_id[\": ]*\"\\([a-z0-9]\\+\\)\".*')")
 
-      account_access_key(java_opts, credentials)
-      account_name(java_opts, credentials)
-      host_name(java_opts, credentials)
-      port(java_opts, credentials)
-      ssl_enabled(java_opts, credentials)
-    end
+        account_access_key(java_opts, credentials)
+        account_name(java_opts, credentials)
+        host_name(java_opts, credentials)
+        port(java_opts, credentials)
+        ssl_enabled(java_opts, credentials)
+      end
 
-    protected
+      protected
 
-    # @macro versioned_dependency_component_supports
-    def supports?
-      @application.services.one_service? FILTER, 'host-name'
-    end
+      # @macro versioned_dependency_component_supports
+      def supports?
+        @application.services.one_service? FILTER, 'host-name'
+      end
 
-    private
+      private
 
-    FILTER = /app-dynamics/.freeze
+      FILTER = /app-dynamics/.freeze
 
-    def application_name
-      @application.details['application_name']
-    end
+      def application_name
+        @application.details['application_name']
+      end
 
-    def account_access_key(java_opts, credentials)
-      account_access_key = credentials['account-access-key']
-      java_opts.add_system_property 'appdynamics.agent.accountAccessKey', account_access_key if account_access_key
-    end
+      def account_access_key(java_opts, credentials)
+        account_access_key = credentials['account-access-key']
+        java_opts.add_system_property 'appdynamics.agent.accountAccessKey', account_access_key if account_access_key
+      end
 
-    def account_name(java_opts, credentials)
-      account_name = credentials['account-name']
-      java_opts.add_system_property 'appdynamics.agent.accountName', account_name if account_name
-    end
+      def account_name(java_opts, credentials)
+        account_name = credentials['account-name']
+        java_opts.add_system_property 'appdynamics.agent.accountName', account_name if account_name
+      end
 
-    def host_name(java_opts, credentials)
-      host_name = credentials['host-name']
-      fail "'host-name' credential must be set" unless host_name
-      java_opts.add_system_property 'appdynamics.controller.hostName', host_name
-    end
+      def host_name(java_opts, credentials)
+        host_name = credentials['host-name']
+        fail "'host-name' credential must be set" unless host_name
+        java_opts.add_system_property 'appdynamics.controller.hostName', host_name
+      end
 
-    def port(java_opts, credentials)
-      port = credentials['port']
-      java_opts.add_system_property 'appdynamics.controller.port', port if port
-    end
+      def port(java_opts, credentials)
+        port = credentials['port']
+        java_opts.add_system_property 'appdynamics.controller.port', port if port
+      end
 
-    def ssl_enabled(java_opts, credentials)
-      ssl_enabled = credentials['ssl-enabled']
-      java_opts.add_system_property 'appdynamics.controller.ssl.enabled', ssl_enabled if ssl_enabled
+      def ssl_enabled(java_opts, credentials)
+        ssl_enabled = credentials['ssl-enabled']
+        java_opts.add_system_property 'appdynamics.controller.ssl.enabled', ssl_enabled if ssl_enabled
+      end
+
     end
 
   end
-
 end

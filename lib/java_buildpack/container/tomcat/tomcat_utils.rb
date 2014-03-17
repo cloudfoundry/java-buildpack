@@ -16,31 +16,32 @@
 
 require 'java_buildpack'
 
-# A module encapsulating all of the container components for the Java buildpack
-module JavaBuildpack::Container
+module JavaBuildpack
+  module Container
 
-  # Link a collection of files to a destination directory, using relative paths
-  #
-  # @param [Array<Pathname>] source the collection of files to link
-  # @param [Pathname] destination the destination directory to link to
-  # @return [Void]
-  def link_to(source, destination)
-    FileUtils.mkdir_p destination
-    source.each { |path| (destination + path.basename).make_symlink(path.relative_path_from(destination)) }
+    # Link a collection of files to a destination directory, using relative paths
+    #
+    # @param [Array<Pathname>] source the collection of files to link
+    # @param [Pathname] destination the destination directory to link to
+    # @return [Void]
+    def link_to(source, destination)
+      FileUtils.mkdir_p destination
+      source.each { |path| (destination + path.basename).make_symlink(path.relative_path_from(destination)) }
+    end
+
+    # The Tomcat +lib+ directory
+    #
+    # @return [Pathname] the Tomcat +lib+ directory
+    def tomcat_lib
+      @droplet.sandbox + 'lib'
+    end
+
+    # The Tomcat +webapps+ directory
+    #
+    # @return [Pathname] the Tomcat +webapps+ directory
+    def tomcat_webapps
+      @droplet.sandbox + 'webapps'
+    end
+
   end
-
-  # The Tomcat +lib+ directory
-  #
-  # @return [Pathname] the Tomcat +lib+ directory
-  def tomcat_lib
-    @droplet.sandbox + 'lib'
-  end
-
-  # The Tomcat +webapps+ directory
-  #
-  # @return [Pathname] the Tomcat +webapps+ directory
-  def tomcat_webapps
-    @droplet.sandbox + 'webapps'
-  end
-
 end

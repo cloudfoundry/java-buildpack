@@ -20,55 +20,57 @@ require 'java_buildpack/util/dash_case'
 require 'java_buildpack/util/ratpack_utils'
 require 'java_buildpack/util/start_script'
 
-module JavaBuildpack::Container
+module JavaBuildpack
+  module Container
 
-  # Encapsulates the detect, compile, and release functionality for Ratpack applications.
-  class Ratpack < JavaBuildpack::Component::BaseComponent
-    include JavaBuildpack::Util
+    # Encapsulates the detect, compile, and release functionality for Ratpack applications.
+    class Ratpack < JavaBuildpack::Component::BaseComponent
+      include JavaBuildpack::Util
 
-    def initialize(context)
-      super(context)
-    end
+      def initialize(context)
+        super(context)
+      end
 
-    def detect
-      JavaBuildpack::Util::RatpackUtils.is?(@application) ? id(version) : nil
-    end
+      def detect
+        JavaBuildpack::Util::RatpackUtils.is?(@application) ? id(version) : nil
+      end
 
-    def compile
-      @droplet.additional_libraries.link_to lib_dir
-    end
+      def compile
+        @droplet.additional_libraries.link_to lib_dir
+      end
 
-    def release
-      @droplet.java_opts.add_system_property 'ratpack.port', '$PORT'
+      def release
+        @droplet.java_opts.add_system_property 'ratpack.port', '$PORT'
 
-      [
+        [
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
           "$PWD/#{start_script(root).relative_path_from(@application.root)}"
-      ].flatten.compact.join(' ')
-    end
+        ].flatten.compact.join(' ')
+      end
 
-    private
+      private
 
-    RATPACK_CORE_FILE_PATTERN = 'lib/ratpack-core-*.jar'.freeze
+      RATPACK_CORE_FILE_PATTERN = 'lib/ratpack-core-*.jar'.freeze
 
-    def id(version)
-      "#{Ratpack.to_s.dash_case}=#{version}"
-    end
+      def id(version)
+        "#{Ratpack.to_s.dash_case}=#{version}"
+      end
 
-    def lib_dir
-      root + 'lib'
-    end
+      def lib_dir
+        root + 'lib'
+      end
 
-    def root
-      roots = (@droplet.root + '*').glob.select { |child| child.directory? }
-      roots.size == 1 ? roots.first : @droplet.root
-    end
+      def root
+        roots = (@droplet.root + '*').glob.select { |child| child.directory? }
+        roots.size == 1 ? roots.first : @droplet.root
+      end
 
-    def version
-      (root + RATPACK_CORE_FILE_PATTERN).glob.first.to_s.match(/.*ratpack-core-(.*)\.jar/)[1]
+      def version
+        (root + RATPACK_CORE_FILE_PATTERN).glob.first.to_s.match(/.*ratpack-core-(.*)\.jar/)[1]
+      end
+
     end
 
   end
-
 end

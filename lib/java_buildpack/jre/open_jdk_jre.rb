@@ -18,11 +18,12 @@ require 'fileutils'
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/open_jdk_like'
 
-module JavaBuildpack::Jre
+module JavaBuildpack
+  module Jre
 
-  # Encapsulates the detect, compile, and release functionality for selecting an OpenJDK JRE.
-  class OpenJdkJRE < OpenJDKLike
+    # Encapsulates the detect, compile, and release functionality for selecting an OpenJDK JRE.
+    class OpenJdkJRE < OpenJDKLike
+    end
 
   end
-
 end

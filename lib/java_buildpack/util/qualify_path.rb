@@ -16,16 +16,18 @@
 
 require 'java_buildpack/util'
 
-module JavaBuildpack::Util
+module JavaBuildpack
+  module Util
 
-  # Qualifies the path such that is is formatted as +$PWD/<path>+.  Also ensures that the path is relative to a root,
-  # which defaults to the +@droplet_root+ of the class.
-  #
-  # @param [Pathname] path the path to qualify
-  # @param [Pathname] root the root to make relative to
-  # @return [String] the qualified path
-  def qualify_path(path, root = @droplet_root)
-    "$PWD/#{path.relative_path_from(root)}"
+    # Qualifies the path such that is is formatted as +$PWD/<path>+.  Also ensures that the path is relative to a root,
+    # which defaults to the +@droplet_root+ of the class.
+    #
+    # @param [Pathname] path the path to qualify
+    # @param [Pathname] root the root to make relative to
+    # @return [String] the qualified path
+    def qualify_path(path, root = @droplet_root)
+      "$PWD/#{path.relative_path_from(root)}"
+    end
+
   end
-
 end

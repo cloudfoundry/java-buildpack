@@ -16,6 +16,12 @@
 
 require 'java_buildpack/util'
 
-# A module encapsulating all of the utility components for Play Framework applications
-module JavaBuildpack::Util::Play
+module JavaBuildpack
+  module Util
+
+    # A module encapsulating all of the utility components for Play Framework applications
+    module Play
+    end
+
+  end
 end

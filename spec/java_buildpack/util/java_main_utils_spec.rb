@@ -28,7 +28,7 @@ describe JavaBuildpack::Util::JavaMainUtils do
 
   it 'should use a main class configuration in a configuration file' do
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('java_main')
-                                       .and_return('java_main_class' => test_class_name)
+                                                      .and_return('java_main_class' => test_class_name)
 
     expect(described_class.main_class(application)).to eq(test_class_name)
   end

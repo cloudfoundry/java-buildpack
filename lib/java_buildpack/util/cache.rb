@@ -16,6 +16,12 @@
 
 require 'java_buildpack/util'
 
-# A module encapsulating all of the utility components for caching
-module JavaBuildpack::Util::Cache
+module JavaBuildpack
+  module Util
+
+    # A module encapsulating all of the utility components for caching
+    module Cache
+    end
+
+  end
 end

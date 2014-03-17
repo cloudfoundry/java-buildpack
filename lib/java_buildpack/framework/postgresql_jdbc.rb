@@ -18,38 +18,40 @@ require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 
-module JavaBuildpack::Framework
+module JavaBuildpack
+  module Framework
 
-  # Encapsulates the functionality for enabling the Postgres JDBC client.
-  class PostgresqlJDBC < JavaBuildpack::Component::VersionedDependencyComponent
+    # Encapsulates the functionality for enabling the Postgres JDBC client.
+    class PostgresqlJDBC < JavaBuildpack::Component::VersionedDependencyComponent
 
-    # @macro base_component_compile
-    def compile
-      download_jar
-      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      # @macro base_component_compile
+      def compile
+        download_jar
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      end
+
+      # @macro base_component_release
+      def release
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      end
+
+      protected
+
+      # @macro versioned_dependency_component_supports
+      def supports?
+        service? && !driver?
+      end
+
+      private
+
+      def driver?
+        (@application.root + '**/postgresql-*.jar').glob.any?
+      end
+
+      def service?
+        @application.services.one_service?(/postgres/, 'uri')
+      end
     end
 
-    # @macro base_component_release
-    def release
-      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
-    end
-
-    protected
-
-    # @macro versioned_dependency_component_supports
-    def supports?
-      service? && !driver?
-    end
-
-    private
-
-    def driver?
-      (@application.root + '**/postgresql-*.jar').glob.any?
-    end
-
-    def service?
-      @application.services.one_service?(/postgres/, 'uri')
-    end
   end
-
 end

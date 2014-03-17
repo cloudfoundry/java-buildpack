@@ -407,12 +407,12 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     it 'should raise error if download cannot be completed and buildpack cache does not contain the file' do
       stub_request(:get, 'http://foo-uri/').to_raise(SocketError)
 
-      expect { trigger }.to raise_error %r(Buildpack cache does not contain http://foo-uri/)
+      expect { trigger }.to raise_error %r{Buildpack cache does not contain http://foo-uri/}
     end
 
     it 'should raise error if a download attempt fails', :skip_availability_check do
       stub_request(:get, 'http://bar-uri/').to_raise(SocketError)
-      expect { download_cache.get('http://bar-uri/') {} }.to raise_error %r(Buildpack cache does not contain http://bar-uri/)
+      expect { download_cache.get('http://bar-uri/') {} }.to raise_error %r{Buildpack cache does not contain http://bar-uri/}
     end
   end
 

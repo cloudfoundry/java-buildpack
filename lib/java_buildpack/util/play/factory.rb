@@ -20,33 +20,37 @@ require 'java_buildpack/util/play/post22_staged'
 require 'java_buildpack/util/play/pre22_dist'
 require 'java_buildpack/util/play/pre22_staged'
 
-module JavaBuildpack::Util::Play
+module JavaBuildpack
+  module Util
+    module Play
 
-  # A factory for creating a version-appropriate Play Framework application delegate
-  class Factory
+      # A factory for creating a version-appropriate Play Framework application delegate
+      class Factory
 
-    private_class_method :new
+        private_class_method :new
 
-    class << self
+        class << self
 
-      # Creates a Play Framework application based on the given application directory.
-      #
-      # @param [JavaBuildpack::Component::Droplet] droplet the droplet
-      # @return [JavaBuildpack::Util::Play::Base] the Plat Framework application delegate
-      def create(droplet)
-        candidates = [
-            Post22Dist.new(droplet),
-            Post22Staged.new(droplet),
-            Pre22Dist.new(droplet),
-            Pre22Staged.new(droplet)
-        ].select { |candidate| candidate.supports? }
+          # Creates a Play Framework application based on the given application directory.
+          #
+          # @param [JavaBuildpack::Component::Droplet] droplet the droplet
+          # @return [JavaBuildpack::Util::Play::Base] the Plat Framework application delegate
+          def create(droplet)
+            candidates = [
+              Post22Dist.new(droplet),
+              Post22Staged.new(droplet),
+              Pre22Dist.new(droplet),
+              Pre22Staged.new(droplet)
+            ].select { |candidate| candidate.supports? }
 
-        fail "Play Framework application version cannot be determined: #{candidates}" if candidates.size > 1
-        candidates.empty? ? nil : candidates.first
+            fail "Play Framework application version cannot be determined: #{candidates}" if candidates.size > 1
+            candidates.empty? ? nil : candidates.first
+          end
+
+        end
+
       end
 
     end
-
   end
-
 end

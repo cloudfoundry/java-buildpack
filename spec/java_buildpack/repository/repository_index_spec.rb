@@ -36,7 +36,7 @@ describe JavaBuildpack::Repository::RepositoryIndex do
   end
 
   it 'should load index' do
-    allow(application_cache).to receive(:get).with(%r(/test-uri/index\.yml))
+    allow(application_cache).to receive(:get).with(%r{/test-uri/index\.yml})
                                 .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
     allow(JavaBuildpack::Repository::VersionResolver).to receive(:resolve).with('test-version', %w(resolved-version))
                                                          .and_return('resolved-version')
@@ -47,7 +47,7 @@ describe JavaBuildpack::Repository::RepositoryIndex do
   end
 
   it 'should cope with trailing slash in repository URI' do
-    allow(application_cache).to receive(:get).with(%r(/test-uri/index\.yml))
+    allow(application_cache).to receive(:get).with(%r{/test-uri/index\.yml})
                                 .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
     allow(JavaBuildpack::Repository::VersionResolver).to receive(:resolve).with('test-version', %w(resolved-version))
                                                          .and_return('resolved-version')
@@ -61,7 +61,7 @@ describe JavaBuildpack::Repository::RepositoryIndex do
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('repository')
                                                       .and_return('default_repository_root' => 'http://default-repository-root/')
     expect(application_cache).to receive(:get).with('http://default-repository-root/test-uri/index.yml')
-                                .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
+                                 .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
 
     described_class.new('{default.repository.root}/test-uri')
   end
@@ -98,7 +98,7 @@ describe JavaBuildpack::Repository::RepositoryIndex do
 
     described_class.new('{platform}/{architecture}/test-uri')
 
-    expect(application_cache).to have_received(:get).with %r(centos6/x86_64/test-uri/index\.yml)
+    expect(application_cache).to have_received(:get).with %r{centos6/x86_64/test-uri/index\.yml}
   end
 
   it 'should handle Mac OS X correctly' do
@@ -109,7 +109,7 @@ describe JavaBuildpack::Repository::RepositoryIndex do
 
     described_class.new('{platform}/{architecture}/test-uri')
 
-    expect(application_cache).to have_received(:get).with %r(mountainlion/x86_64/test-uri/index\.yml)
+    expect(application_cache).to have_received(:get).with %r{mountainlion/x86_64/test-uri/index\.yml}
   end
 
   it 'should handle Ubuntu correctly' do
@@ -122,7 +122,7 @@ describe JavaBuildpack::Repository::RepositoryIndex do
 
     described_class.new('{platform}/{architecture}/test-uri')
 
-    expect(application_cache).to have_received(:get).with %r(precise/x86_64/test-uri/index\.yml)
+    expect(application_cache).to have_received(:get).with %r{precise/x86_64/test-uri/index\.yml}
   end
 
   it 'should handle unknown OS correctly' do

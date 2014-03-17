@@ -17,22 +17,26 @@
 require 'java_buildpack/util/cache'
 require 'java_buildpack/util/cache/download_cache'
 
-module JavaBuildpack::Util::Cache
+module JavaBuildpack
+  module Util
+    module Cache
 
-  # An extension of {JavaBuildpack::DownloadCache} that is configured to use the global cache.  The global cache location
-  # is defined by the +BUILDPACK_CACHE+ environment variable
-  class GlobalCache < DownloadCache
+      # An extension of {JavaBuildpack::DownloadCache} that is configured to use the global cache.  The global cache location
+      # is defined by the +BUILDPACK_CACHE+ environment variable
+      class GlobalCache < DownloadCache
 
-    # Creates an instance that is configured to use the global cache.  The global cache location is defined by the
-    # +BUILDPACK_CACHE+ environment variable
-    #
-    # @raise if the +BUILDPACK_CACHE+ environment variable is +nil+
-    def initialize
-      global_cache_directory = ENV['BUILDPACK_CACHE']
-      fail 'Global cache directory is undefined' if global_cache_directory.nil?
-      super(Pathname.new(global_cache_directory))
+        # Creates an instance that is configured to use the global cache.  The global cache location is defined by the
+        # +BUILDPACK_CACHE+ environment variable
+        #
+        # @raise if the +BUILDPACK_CACHE+ environment variable is +nil+
+        def initialize
+          global_cache_directory = ENV['BUILDPACK_CACHE']
+          fail 'Global cache directory is undefined' if global_cache_directory.nil?
+          super(Pathname.new(global_cache_directory))
+        end
+
+      end
+
     end
-
   end
-
 end
