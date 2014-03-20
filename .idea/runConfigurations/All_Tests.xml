@@ -29,6 +29,7 @@
     <RSPEC_RUN_CONFIG_SETTINGS_ID NAME="USE_CUSTOM_SPEC_RUNNER" VALUE="false" />
     <RSPEC_RUN_CONFIG_SETTINGS_ID NAME="DRB" VALUE="false" />
     <RSPEC_RUN_CONFIG_SETTINGS_ID NAME="ZEUS" VALUE="false" />
+    <RSPEC_RUN_CONFIG_SETTINGS_ID NAME="SPRING" VALUE="false" />
     <RSPEC_RUN_CONFIG_SETTINGS_ID NAME="FULL_BACKTRACE" VALUE="false" />
     <RunnerSettings RunnerId="RubyDebugRunner" />
     <RunnerSettings RunnerId="RubyRunner" />

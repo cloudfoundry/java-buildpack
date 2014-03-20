@@ -21,11 +21,6 @@ require 'java_buildpack/util/play/post22_dist'
 describe JavaBuildpack::Util::Play::Post22Dist do
   include_context 'component_helper'
 
-  before do
-    java_home
-    java_opts
-  end
-
   context do
 
     let(:trigger) { described_class.new(droplet).supports? }

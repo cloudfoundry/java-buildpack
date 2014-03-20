@@ -30,11 +30,6 @@ module JavaBuildpack
           @droplet.additional_libraries.link_to lib_dir
         end
 
-        # @macro base_java_opts
-        def java_opts
-          @droplet.java_opts
-        end
-
         # @macro base_lib_dir
         def lib_dir
           root + 'staged'

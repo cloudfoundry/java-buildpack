@@ -39,21 +39,12 @@ module JavaBuildpack
 
       # @macro base_component_release
       def release
-        java_opts = @droplet.java_opts
-
-        check_single_options java_opts
-        java_opts.concat parsed_java_opts
+        @droplet.java_opts.concat parsed_java_opts
       end
 
       private
 
       CONFIGURATION_PROPERTY = 'java_opts'.freeze
-
-      def check_single_options(opts)
-        opts.each do |option|
-          fail "Invalid Java option contains more than one option: '#{option}'" if option.shellsplit.length > 1
-        end
-      end
 
       def memory_option?(option)
         option =~ /-Xms/ || option =~ /-Xmx/ || option =~ /-XX:MaxMetaspaceSize/ || option =~ /-XX:MaxPermSize/ ||
