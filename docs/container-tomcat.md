@@ -43,7 +43,7 @@ To enable Redis-based session replication, simply bind a Redis service containin
 ## Supporting Functionality
 Additional supporting functionality can be found in the [`java-buildpack-support`][] Git repository.
 
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/tomcat.yml`]: ../config/tomcat.yml
 [`java-buildpack-support`]: https://github.com/cloudfoundry/java-buildpack-support
 [repositories]: extending-repositories.md

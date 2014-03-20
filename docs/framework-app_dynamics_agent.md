@@ -36,7 +36,7 @@ The framework can be configured by modifying the [`config/app_dynamics_agent.yml
 
 [`config/app_dynamics_agent.yml`]: ../config/app_dynamics_agent.yml
 [AppDynamics Service]: http://www.appdynamics.com
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[Configuration and Extension]: ../README.md#configuration-and-extension
 [repositories]: extending-repositories.md
 [this listing]: http://download.pivotal.io.s3.amazonaws.com/app-dynamics/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering

@@ -23,4 +23,4 @@ The framework can be configured by creating or modifying the `config/java_opts.y
 | ---- | -----------
 | `java_opts` | The Java options to use when running the application.  All values are used without modification when invoking the JVM. The options are specified as a single YAML scalar in plain style or enclosed in single or double quotes.
 
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[Configuration and Extension]: ../README.md#configuration-and-extension

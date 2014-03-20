@@ -31,7 +31,7 @@ The framework can be configured by modifying the [`config/postgresql_jdbc.yml`][
 | `repository_root` | The URL of the PostgreSQL JDBC repository index ([details][repositories]).
 | `version` | The version of PostgreSQL JDBC to use. Candidate versions can be found in [this listing][].
 
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/postgresql_jdbc.yml`]: ../config/postgresql_jdbc.yml
 [PostgreSQL Service]: http://www.postgresql.org
 [repositories]: extending-repositories.md

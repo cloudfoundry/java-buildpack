@@ -83,4 +83,4 @@ def initialize
 [`config/cache.yml`]: ../config/cache.yml
 [`DownloadCache`]: ../lib/java_buildpack/util/cache/download_cache.rb
 [`GlobalCache`]: ../lib/java_buildpack/util/cache/global_cache.rb
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[Configuration and Extension]: ../README.md#configuration-and-extension

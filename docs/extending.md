@@ -1,5 +1,5 @@
 # Extending
-For general information on extending the buildpack, refer to [Configuration and Extension](../README.md#Configuration-and-Extension).
+For general information on extending the buildpack, refer to [Configuration and Extension](../README.md#configuration-and-extension).
 
 To add a component, its class name must be added added to [`config/components.yml`][].  It is recommended, but not required, that the class' file be placed in a directory that matches its type.
 

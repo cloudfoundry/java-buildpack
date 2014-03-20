@@ -33,5 +33,5 @@ The console logging severity filter is set to `DEBUG`, `INFO`, `WARN`, `ERROR`, 
 3. `default_log_level` value in [`config/logging.yml`][].
 4. Fallback to `INFO` if none of the above are set.
 
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/logging.yml`]: ../config/logging.yml

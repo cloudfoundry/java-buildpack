@@ -33,7 +33,7 @@ The framework can be configured by modifying the [`config/maria_db_jdbc.yml`][] 
 | `repository_root` | The URL of the MariaDB JDBC repository index ([details][repositories]).
 | `version` | The version of MariaDB JDBC to use. Candidate versions can be found in [this listing][].
 
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/maria_db_jdbc.yml`]: ../config/maria_db_jdbc.yml
 [MariaDB]: https://mariadb.com
 [MySQL Service]: http://www.mysql.org

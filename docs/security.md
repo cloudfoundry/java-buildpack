@@ -7,4 +7,4 @@ If you fork the Java buildpack, it is important to keep the fork up to date with
 ## Security and Logs
 See [Sensitive Information in Logs][].
 
-[Sensitive Information in Logs]: extending-logging.md#Sensitive-Information-in-Logs
+[Sensitive Information in Logs]: extending-logging.md#sensitive-information-in-logs
