@@ -35,7 +35,7 @@ The framework can be configured by modifying the [`config/new_relic_agent.yml`][
 | `repository_root` | The URL of the New Relic repository index ([details][repositories]).
 | `version` | The version of New Relic to use. Candidate versions can be found in [this listing][].
 
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/new_relic_agent.yml`]: ../config/new_relic_agent.yml
 [New Relic Service]: https://newrelic.com
 [repositories]: extending-repositories.md

@@ -28,7 +28,7 @@ The framework can be configured by modifying the [`config/spring_auto_reconfigur
 | `repository_root` | The URL of the Auto Reconfiguration repository index ([details][repositories]).
 | `version` | The version of Auto Reconfiguration to use. Candidate versions can be found in [this listing][].
 
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/spring_auto_reconfiguration.yml`]: ../config/spring_auto_reconfiguration.yml
 [repositories]: extending-repositories.md
 [this listing]: http://download.pivotal.io.s3.amazonaws.com/auto-reconfiguration/index.yml

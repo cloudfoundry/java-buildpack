@@ -28,7 +28,7 @@ The framework can be configured by modifying the [`config/play_framework_jpa_plu
 | `repository_root` | The URL of the Play Framework JPA Plugin repository index ([details][repositories]).
 | `version` | The version of the Play Framework JPA Plugin to use. Candidate versions can be found in [this listing][].
 
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/play_framework_jpa_plugin.yml`]: ../config/play_framework_jpa_plugin.yml
 [repositories]: extending-repositories.md
 [this listing]: http://download.pivotal.io.s3.amazonaws.com/play-jpa-plugin/index.yml
