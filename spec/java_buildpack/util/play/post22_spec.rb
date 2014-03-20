@@ -24,11 +24,6 @@ describe JavaBuildpack::Util::Play::Post22 do
 
   let(:play_app) { described_class.new(droplet) }
 
-  before do
-    java_home
-    java_opts
-  end
-
   it 'should raise error if root method is unimplemented' do
     expect { play_app.send(:root) }.to raise_error "Method 'root' must be defined"
   end
@@ -53,6 +48,26 @@ describe JavaBuildpack::Util::Play::Post22 do
     it 'should return command' do
       expect(play_app.release).to eq("PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} $PWD/bin/play-application " \
                                        '-Jtest-opt-2 -Jtest-opt-1 -J-Dhttp.port=$PORT')
+    end
+
+    context do
+      let(:java_opts) { super() << '-Xmx30m -Xms30m' }
+
+      it 'should not allow multiple options in a single JAVA_OPTS array entry' do
+        expect { play_app.release }.to raise_error(/Invalid Java option contains more than one option/)
+      end
+    end
+
+    context do
+      let(:java_opts) do
+        super() << '-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : \'.*instance_id[": ]*"\([a-z0-9]\+\)".*\')'
+      end
+
+      it 'should allow options with expressions' do
+        play_app.release
+
+        expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : \'.*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
+      end
     end
 
   end

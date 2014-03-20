@@ -105,12 +105,4 @@ describe JavaBuildpack::Framework::JavaOpts do
     end
   end
 
-  context do
-    let(:java_opts) { super() << '-Xmx30m -Xms30m' }
-
-    it 'should not allow multiple options in a single array entry' do
-      expect { component.release }.to raise_error(/Invalid Java option contains more than one option/)
-    end
-  end
-
 end

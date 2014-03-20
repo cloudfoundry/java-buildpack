@@ -17,6 +17,7 @@
 require 'java_buildpack/util/play'
 require 'java_buildpack/util/play/base'
 require 'java_buildpack/util/start_script'
+require 'shellwords'
 
 module JavaBuildpack
   module Util
@@ -39,7 +40,15 @@ module JavaBuildpack
 
         # @macro base_java_opts
         def java_opts
-          @droplet.java_opts.map { |java_opt| "-J#{java_opt}" }
+          java_opts = @droplet.java_opts
+
+          java_opts.each do |option|
+            if option.shellsplit.length > 1 && !bash_expression?(option)
+              fail "Invalid Java option contains more than one option: '#{option}'"
+            end
+          end
+
+          java_opts.map { |java_opt| "-J#{java_opt}" }
         end
 
         # @macro base_lib_dir
@@ -60,6 +69,12 @@ module JavaBuildpack
         #   @return [Pathname] the root of the play application
         def root
           fail "Method 'root' must be defined"
+        end
+
+        private
+
+        def bash_expression?(option)
+          option =~ /\$\(expr/
         end
 
       end

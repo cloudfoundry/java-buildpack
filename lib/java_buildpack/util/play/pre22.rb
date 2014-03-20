@@ -25,12 +25,15 @@ module JavaBuildpack
 
         protected
 
+        # @macro base_java_opts
+        def java_opts
+          @droplet.java_opts
+        end
+
         # @macro base_start_script
         def start_script
           root ? root + 'start' : nil
         end
-
-        protected
 
         # @!macro [new] pre22_root
         #   Returns the root of the play application
