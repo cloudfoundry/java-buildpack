@@ -73,7 +73,7 @@ bundle install
 bundle exec rake
 ```
 
-[Installing Cloud Foundry on Vagrant][] is useful for privately testing new features.
+[Running Cloud Foundry locally][] is useful for privately testing new features.
 
 ## Contributing
 [Pull requests][] are welcome; see the [contributor guidelines][] for details.
@@ -87,8 +87,8 @@ This buildpack is released under version 2.0 of the [Apache License][].
 [GitHub's forking functionality]: https://help.github.com/articles/fork-a-repo
 [Grails]: http://grails.org
 [Groovy]: http://groovy.codehaus.org
-[Installing Cloud Foundry on Vagrant]: http://blog.cloudfoundry.com/2013/06/27/installing-cloud-foundry-on-vagrant/
 [Play Framework]: http://www.playframework.com
 [pull request]: https://help.github.com/articles/using-pull-requests
 [Pull requests]: http://help.github.com/send-pull-requests
+[Running Cloud Foundry locally]: http://docs.cloudfoundry.org/deploying/run-local.html
 [Spring Boot]: http://projects.spring.io/spring-boot/
