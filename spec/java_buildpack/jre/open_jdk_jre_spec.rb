@@ -38,6 +38,7 @@ describe JavaBuildpack::Jre::OpenJdkJRE do
   it 'should extract Java from a GZipped TAR',
      cache_fixture: 'stub-java.tar.gz' do
 
+    component.detect
     component.compile
 
     expect(sandbox + 'bin/java').to exist
@@ -50,6 +51,7 @@ describe JavaBuildpack::Jre::OpenJdkJRE do
   end
 
   it 'should add memory options to java_opts' do
+    component.detect
     component.release
 
     expect(java_opts).to include('opt-1')
@@ -57,6 +59,7 @@ describe JavaBuildpack::Jre::OpenJdkJRE do
   end
 
   it 'adds OnOutOfMemoryError to java_opts' do
+    component.detect
     component.release
 
     expect(java_opts).to include('-XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk_jre/bin/killjava.sh')
@@ -65,12 +68,14 @@ describe JavaBuildpack::Jre::OpenJdkJRE do
   it 'places the killjava script (with appropriately substituted content) in the diagnostics directory',
      cache_fixture: 'stub-java.tar.gz' do
 
+    component.detect
     component.compile
 
     expect(sandbox + 'bin/killjava.sh').to exist
   end
 
   it 'adds java.io.tmpdir to java_opts' do
+    component.detect
     component.release
 
     expect(java_opts).to include('-Djava.io.tmpdir=$TMPDIR')
