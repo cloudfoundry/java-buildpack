@@ -31,7 +31,7 @@ module JavaBuildpack
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
         super(context)
-        @version, @uri = supports? ? find_insight_agent : [nil, nil]
+        @version, @uri, @agent_id, @agent_pass = supports? ? find_insight_agent : [nil, nil, nil, nil]
       end
 
       # @macro base_component_detect
@@ -79,8 +79,8 @@ module JavaBuildpack
         .add_system_property('agent.http.host', URI(@uri).host)
         .add_system_property('agent.http.port', 80)
         .add_system_property('agent.http.context.path', 'insight')
-        .add_system_property('agent.http.username', 'spring')
-        .add_system_property('agent.http.password', 'insight')
+        .add_system_property('agent.http.username', @agent_id)
+        .add_system_property('agent.http.password', @agent_pass)
         .add_system_property('agent.http.send.json', false)
         .add_system_property('agent.http.use.proxy', false)
       end
@@ -111,21 +111,16 @@ module JavaBuildpack
 
         init_container_libs root
         init_insight_cloudfoundry_agent_plugin root
-        init_extra_applications root
         init_insight root
-        init_insight_analyzer root
+        init_insight_agent_plugins root
         init_weaver root
       end
 
       def init_container_libs(root)
         move container_libs_directory,
              root + 'agents/common/insight-bootstrap-generic-*.jar',
-             root + 'agents/tomcat/7/lib/insight-bootstrap-tomcat-common-*.jar'
-      end
-
-      def init_extra_applications(root)
-        move extra_applications_directory,
-             root + 'insight-agent'
+             root + 'agents/tomcat/7/lib/insight-bootstrap-tomcat-common-*.jar',
+             root + 'agents/tomcat/7/lib/insight-agent-*.jar'
       end
 
       def init_insight(root)
@@ -134,8 +129,8 @@ module JavaBuildpack
              root + 'insight/conf'
       end
 
-      def init_insight_analyzer(root)
-        move insight_analyzer_directory + 'WEB-INF/lib',
+      def init_insight_agent_plugins(root)
+        move insight_directory + 'agent-plugins',
              root + 'transport/http/insight-agent-http-*.jar',
              root + 'cloudfoundry/insight-agent-cloudfoundry-*.jar'
       end
@@ -147,27 +142,21 @@ module JavaBuildpack
 
       def init_weaver(root)
         move weaver_directory,
-             root + 'agents/common/insight-weaver-*.jar'
+             root + 'cloudfoundry/insight-weaver-*.jar'
       end
 
       def container_libs_directory
         @droplet.root + '.spring-insight/container-libs'
       end
 
-      def extra_applications_directory
-        @droplet.root + '.spring-insight/extra-applications'
-      end
-
       def find_insight_agent
-        service = @application.services.find_service FILTER
-        version = service['label'].match(/(.*)-(.*)/)[2]
-        uri     = service['credentials']['dashboard_url']
-
-        return version, uri # rubocop:disable RedundantReturn
-      end
-
-      def insight_analyzer_directory
-        extra_applications_directory + 'insight-agent'
+        service     = @application.services.find_service FILTER
+        version     = service['label'].match(/(.*)-(.*)/)[2]
+        credentials = service['credentials']
+        uri         = credentials['dashboard_url']
+        id          = credentials['agent_username']
+        pass        = credentials['agent_password']
+        return version, uri, id, pass # rubocop:disable RedundantReturn
       end
 
       def insight_directory
@@ -187,7 +176,7 @@ module JavaBuildpack
       end
 
       def supports?
-        @application.services.one_service? FILTER, 'dashboard_url'
+        @application.services.one_service? FILTER, 'dashboard_url', 'agent_username', 'agent_password'
       end
 
       def uber_agent_zip(location)
