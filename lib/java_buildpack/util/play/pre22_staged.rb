@@ -25,17 +25,17 @@ module JavaBuildpack
 
         protected
 
-        # @macro base_augment_classpath
+        # (see JavaBuildpack::Util::Play::Base#augment_classpath)
         def augment_classpath
           @droplet.additional_libraries.link_to lib_dir
         end
 
-        # @macro base_lib_dir
+        # (see JavaBuildpack::Util::Play::Base#lib_dir)
         def lib_dir
           root + 'staged'
         end
 
-        # @macro pre22_root
+        # (see JavaBuildpack::Util::Play::Pre22#root)
         def root
           @droplet.root
         end

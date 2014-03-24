@@ -39,17 +39,17 @@ module JavaBuildpack
         @sub_components = supports? ? sub_components(context) : []
       end
 
-      # @macro base_component_detect
+      # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
         supports? ? @sub_components.map { |m| m.detect }.flatten.compact : nil
       end
 
-      # @macro base_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         @sub_components.each { |m| m.compile }
       end
 
-      # @macro base_component_release
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @sub_components.map { |m| m.release }
         command
@@ -57,21 +57,19 @@ module JavaBuildpack
 
       protected
 
-      # @!macro [new] modular_component_command
-      #   The command for this component
+      # The command for this component
       #
-      #   @return [void, String] components other than containers are not expected to return any value.  Container
-      #                          components are expected to return the command required to run the application.
+      # @return [void, String] components other than containers are not expected to return any value.  Container
+      #                        components are expected to return the command required to run the application.
       def command
         fail "Method 'command' must be defined"
       end
 
-      # @!macro [new] modular_component_sub_components
-      #   The sub_components that make up this component
+      # The sub_components that make up this component
       #
-      #   @param [Hash] context the context of the component
-      #   @return [Array<BaseComponent>] a collection of +BaseComponent+s that make up the sub_components of this
-      #                                  component
+      # @param [Hash] context the context of the component
+      # @return [Array<BaseComponent>] a collection of +BaseComponent+s that make up the sub_components of this
+      #                                component
       def sub_components(context)
         fail "Method 'sub_components' must be defined"
       end
@@ -87,10 +85,9 @@ module JavaBuildpack
         c
       end
 
-      # @!macro [new] modular_component_supports
-      #   Whether or not this component supports this application
+      # Whether or not this component supports this application
       #
-      #   @return [Boolean] whether or not this component supports this application
+      # @return [Boolean] whether or not this component supports this application
       def supports?
         fail "Method 'supports?' must be defined"
       end

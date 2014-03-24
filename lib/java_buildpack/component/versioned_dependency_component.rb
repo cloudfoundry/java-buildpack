@@ -45,17 +45,16 @@ module JavaBuildpack
         end
       end
 
-      # @macro base_component_detect
+      # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
         @version ? id(@version) : nil
       end
 
       protected
 
-      # @!macro [new] versioned_dependency_component_supports
-      #   Whether or not this component supports this application
+      # Whether or not this component supports this application
       #
-      #   @return [Boolean] whether or not this component supports this application
+      # @return [Boolean] whether or not this component supports this application
       def supports?
         fail "Method 'supports?' must be defined"
       end
@@ -65,7 +64,7 @@ module JavaBuildpack
       # @param [String] jar_name the name to save the jar as
       # @param [Pathname] target_directory the directory to store the JAR file in.  Defaults to the component's sandbox.
       # @param [String] name an optional name for the download.  Defaults to +@component_name+.
-      # @return [void]
+      # @return [Void]
       def download_jar(jar_name = jar_name, target_directory = @droplet.sandbox, name = @component_name)
         super(@version, @uri, jar_name, target_directory, name)
       end
@@ -74,7 +73,7 @@ module JavaBuildpack
       #
       # @param [Pathname] target_directory the directory to expand the TAR file to.  Defaults to the component's sandbox.
       # @param [String] name an optional name for the download and expansion.  Defaults to +@component_name+.
-      # @return [void]
+      # @return [Void]
       def download_tar(target_directory = @droplet.sandbox, name = @component_name)
         super(@version, @uri, target_directory, name)
       end
@@ -84,7 +83,7 @@ module JavaBuildpack
       # @param [Boolean] strip_top_level whether to strip the top-level directory when expanding. Defaults to +true+.
       # @param [Pathname] target_directory the directory to expand the ZIP file to.  Defaults to the component's sandbox.
       # @param [String] name an optional name for the download.  Defaults to +@component_name+.
-      # @return [void]
+      # @return [Void]
       def download_zip(strip_top_level = true, target_directory = @droplet.sandbox, name = @component_name)
         super(@version, @uri, strip_top_level, target_directory, name)
       end

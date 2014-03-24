@@ -32,7 +32,7 @@ module JavaBuildpack
           @droplet = droplet
         end
 
-        # @macro base_component_compile
+        # (see JavaBuildpack::Component::BaseComponent#compile)
         def compile
           update_file start_script, ORIGINAL_BOOTSTRAP, REPLACEMENT_BOOTSTRAP
           start_script.chmod 0755
@@ -47,7 +47,7 @@ module JavaBuildpack
           lib_dir.children.any? { |child| child.to_s =~ pattern }
         end
 
-        # @macro base_component_release
+        # (see JavaBuildpack::Component::BaseComponent#release)
         def release
           @droplet.java_opts.add_system_property 'http.port', '$PORT'
 
@@ -59,7 +59,7 @@ module JavaBuildpack
           ].flatten.compact.join(' ')
         end
 
-        # @macro versioned_dependency_component_supports
+        # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
         def supports?
           start_script && start_script.exist? && play_jar
         end
@@ -73,9 +73,9 @@ module JavaBuildpack
 
         protected
 
-        # @!macro [new] base_augment_classpath
-        #   Augments the classpath for the play application
-        #   @return [void]
+        # Augments the classpath for the play application
+        #
+        # @return [Void]
         def augment_classpath
           fail "Method 'augment_classpath' must be defined"
         end
@@ -88,26 +88,23 @@ module JavaBuildpack
           roots.size == 1 ? roots.first : nil
         end
 
-        # @!macro [new] base_java_opts
-        #   Returns the +JAVA_OPTS+ in the form that they need to be added to the command line
+        # Returns the +JAVA_OPTS+ in the form that they need to be added to the command line
         #
-        #   @return [Array<String>] the +JAVA_OPTS+ in the form that they need to be added to the command line
+        # @return [Array<String>] the +JAVA_OPTS+ in the form that they need to be added to the command line
         def java_opts
           fail "Method 'java_opts' must be defined"
         end
 
-        # @!macro [new] base_lib_dir
-        #   Returns the path to the play application library dir.  May return +nil+ if no library dir exists.
+        # Returns the path to the play application library dir.  May return +nil+ if no library dir exists.
         #
-        #   @return [Pathname] the path to the play application library dir.  May return +nil+ if no library dir exists.
+        # @return [Pathname] the path to the play application library dir.  May return +nil+ if no library dir exists.
         def lib_dir
           fail "Method 'lib_dir' must be defined"
         end
 
-        # @!macro [new] base_start_script
-        #   Returns the path to the play application start script.  May return +nil+ if no script exists.
+        # Returns the path to the play application start script.  May return +nil+ if no script exists.
         #
-        #   @return [Pathname] the path to the play application start script.  May return +nil+ if no script exists.
+        # @return [Pathname] the path to the play application start script.  May return +nil+ if no script exists.
         def start_script
           fail "Method 'start_script' must be defined"
         end
@@ -117,7 +114,7 @@ module JavaBuildpack
         # @param [Pathname] path the path to the file
         # @param [Regexp, String] pattern the pattern to replace
         # @param [String] replacement the replacement content
-        # @return [void]
+        # @return [Void]
         def update_file(path, pattern, replacement)
           content = path.read.gsub pattern, replacement
 

@@ -54,7 +54,7 @@ module JavaBuildpack
         #
         # @param [String] uri the URI of the item
         # @yield [File] the file representing the cached item
-        # @return [void]
+        # @return [Void]
         def get(uri, &block)
           file_cache = file_cache(uri)
 
@@ -89,7 +89,7 @@ module JavaBuildpack
         # Removes an item from the cache.
         #
         # @param [String] uri the URI of the item
-        # @return [void]
+        # @return [Void]
         def evict(uri)
           file_cache(uri).destroy
         end

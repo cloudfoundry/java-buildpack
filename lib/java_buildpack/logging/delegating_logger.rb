@@ -38,7 +38,7 @@ module JavaBuildpack
       # @param [String] message the message
       # @param [String] progname the message when passed in as a parameter
       # @yield evaluated for the message
-      # @return [void]
+      # @return [Void]
       def add(severity, message = nil, progname = nil, &block)
         @delegates.each { |delegate| delegate.add severity, message || progname, @klass, &block }
       end

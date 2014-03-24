@@ -46,7 +46,7 @@ module JavaBuildpack
       # Symlink the contents of the collection to a destination directory.
       #
       # @param [Pathname] destination the destination to link to
-      # @return [void]
+      # @return [Void]
       def link_to(destination)
         FileUtils.mkdir_p destination
         each { |path| (destination + path.basename).make_symlink(path.relative_path_from(destination)) }

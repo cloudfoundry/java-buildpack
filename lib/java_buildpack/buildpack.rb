@@ -52,7 +52,7 @@ module JavaBuildpack
 
     # Transforms the application directory such that the JRE, container, and frameworks can run the application
     #
-    # @return [void]
+    # @return [Void]
     def compile
       diagnose_git_info true
 

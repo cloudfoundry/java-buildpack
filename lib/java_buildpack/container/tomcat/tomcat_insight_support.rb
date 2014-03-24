@@ -27,17 +27,17 @@ module JavaBuildpack
     class TomcatInsightSupport < JavaBuildpack::Component::BaseComponent
       include JavaBuildpack::Container
 
-      # @macro detect_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
       end
 
-      # @macro base_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         link_to(container_libs_directory.children, tomcat_lib) if container_libs_directory.exist?
         link_to(extra_applications_directory.children, tomcat_webapps) if extra_applications_directory.exist?
       end
 
-      # @macro base_component_release
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
       end
 

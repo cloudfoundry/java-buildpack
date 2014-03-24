@@ -33,17 +33,17 @@ module JavaBuildpack
         @delegate = JavaBuildpack::Util::Play::Factory.create @droplet
       end
 
-      # @macro base_component_detect
+      # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
         @delegate ? id(@delegate.version) : nil
       end
 
-      # @macro base_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         @delegate.compile if @delegate
       end
 
-      # @macro base_component_release
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @delegate.release if @delegate
       end

@@ -26,20 +26,20 @@ module JavaBuildpack
     # override Play application configuration to bind a Play application to cloud resources.
     class PlayFrameworkAutoReconfiguration < JavaBuildpack::Component::VersionedDependencyComponent
 
-      # @macro base_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar
         @droplet.additional_libraries << (@droplet.sandbox + jar_name)
       end
 
-      # @macro base_component_release
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.additional_libraries << (@droplet.sandbox + jar_name)
       end
 
       protected
 
-      # @macro versioned_dependency_component_supports
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         JavaBuildpack::Util::Play::Factory.create @droplet
       end

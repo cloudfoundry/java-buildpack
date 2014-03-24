@@ -33,7 +33,7 @@ module JavaBuildpack
         super(context) { |candidate_version| candidate_version.check_size(3) }
       end
 
-      # @macro base_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download(@version, @uri) { |file| expand file }
         link_to(@application.root.children, root)
@@ -41,12 +41,13 @@ module JavaBuildpack
         @droplet.additional_libraries.link_to web_inf_lib
       end
 
-      # @macro base_component_release
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
       end
 
       protected
 
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         true
       end

@@ -24,20 +24,20 @@ module JavaBuildpack
     # Encapsulates the functionality for enabling the Postgres JDBC client.
     class PostgresqlJDBC < JavaBuildpack::Component::VersionedDependencyComponent
 
-      # @macro base_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar
         @droplet.additional_libraries << (@droplet.sandbox + jar_name)
       end
 
-      # @macro base_component_release
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.additional_libraries << (@droplet.sandbox + jar_name)
       end
 
       protected
 
-      # @macro versioned_dependency_component_supports
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         service? && !driver?
       end
