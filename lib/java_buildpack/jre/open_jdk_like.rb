@@ -29,8 +29,18 @@ module JavaBuildpack
       #
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
-        super(context)
+        @application    = context[:application]
+        @component_name = self.class.to_s.space_case
+        @configuration  = context[:configuration]
+        @droplet        = context[:droplet]
+
         @droplet.java_home.root = @droplet.sandbox
+      end
+
+      # (see JavaBuildpack::Component::BaseComponent#detect)
+      def detect
+        @version, @uri = JavaBuildpack::Repository::ConfiguredItem.find_item(@component_name, @configuration)
+        super
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -45,13 +55,6 @@ module JavaBuildpack
         .add_system_property('java.io.tmpdir', '$TMPDIR')
         .add_option('-XX:OnOutOfMemoryError', killjava)
         .concat memory
-      end
-
-      protected
-
-      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
-      def supports?
-        true
       end
 
       private
