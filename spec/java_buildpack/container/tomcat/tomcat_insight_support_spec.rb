@@ -33,28 +33,6 @@ describe JavaBuildpack::Container::TomcatInsightSupport do
   end
 
   context do
-    let(:extra_applications_dir) { app_dir + '.spring-insight/extra-applications' }
-
-    before do
-      FileUtils.mkdir_p extra_applications_dir
-      FileUtils.cp_r 'spec/fixtures/framework_spring_insight', extra_applications_dir
-    end
-
-    it 'should link extra applications to the applications directory' do
-
-      component.compile
-
-      webapps_dir = sandbox + 'webapps'
-
-      insight_test_dir = webapps_dir + 'framework_spring_insight'
-      expect(insight_test_dir).to exist
-      expect(insight_test_dir).to be_symlink
-      expect(insight_test_dir.readlink).to eq((extra_applications_dir + 'framework_spring_insight')
-                                              .relative_path_from(webapps_dir))
-    end
-  end
-
-  context do
     let(:container_libs_dir) { app_dir + '.spring-insight/container-libs' }
 
     before do
