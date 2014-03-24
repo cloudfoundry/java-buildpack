@@ -33,13 +33,13 @@ module JavaBuildpack
         @droplet.java_home.root = @droplet.sandbox
       end
 
-      # @macro base_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_tar
         @droplet.copy_resources
       end
 
-      # @macro base_component_release
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.java_opts
         .add_system_property('java.io.tmpdir', '$TMPDIR')
@@ -49,7 +49,7 @@ module JavaBuildpack
 
       protected
 
-      # @macro versioned_dependency_component_supports
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         true
       end

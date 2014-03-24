@@ -24,7 +24,7 @@ def detect
 # whatever way is necessary (e.g. downloading files or creating symbolic links) to support the function of the
 # component.  Status output written to +STDOUT+ is expected as part of this invocation.
 #
-# @return [void]
+# @return [Void]
 def compile
 
 # Modifies the application's runtime configuration. The component is expected to transform members of the +droplet+

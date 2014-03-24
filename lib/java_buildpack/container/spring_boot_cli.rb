@@ -38,13 +38,13 @@ module JavaBuildpack
         super(context)
       end
 
-      # @macro base_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_tar
         @droplet.additional_libraries.link_to lib_dir
       end
 
-      # @macro base_component_release
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         [
           @droplet.java_home.as_env_var,
@@ -59,7 +59,7 @@ module JavaBuildpack
 
       protected
 
-      # @macro versioned_dependency_component_supports
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         gf = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
         gf.length > 0 && all_pogo_or_configuration(gf) && no_main_method(gf) && no_shebang(gf) && !web_inf?

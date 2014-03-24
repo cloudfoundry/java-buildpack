@@ -46,7 +46,7 @@ module JavaBuildpack
 
       # Make modifications to the root context
       #
-      # @return [void]
+      # @return [Void]
       def augment_root_context
         if context_loader_listener?
           augment_context_config_locations web_app(@document), 'context-param', CONTEXT_LOCATION_DEFAULT
@@ -56,7 +56,7 @@ module JavaBuildpack
 
       # Make modifications to the the servlet contexts
       #
-      # @return [void]
+      # @return [Void]
       def augment_servlet_contexts
         servlets.each do |servlet|
           augment_context_config_locations servlet, 'init-param', default_servlet_context_location(servlet)

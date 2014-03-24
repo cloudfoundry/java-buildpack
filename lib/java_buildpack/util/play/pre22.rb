@@ -25,20 +25,19 @@ module JavaBuildpack
 
         protected
 
-        # @macro base_java_opts
+        # (see JavaBuildpack::Util::Play::Base#java_opts)
         def java_opts
           @droplet.java_opts
         end
 
-        # @macro base_start_script
+        # (see JavaBuildpack::Util::Play::Base#start_script)
         def start_script
           root ? root + 'start' : nil
         end
 
-        # @!macro [new] pre22_root
-        #   Returns the root of the play application
+        # Returns the root of the play application
         #
-        #   @return [Pathname] the root of the play application
+        # @return [Pathname] the root of the play application
         def root
           fail "Method 'root' must be defined"
         end

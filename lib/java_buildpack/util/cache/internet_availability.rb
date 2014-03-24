@@ -57,7 +57,7 @@ module JavaBuildpack
 
           # Deem the internet to be available.
           #
-          # @return [void]
+          # @return [Void]
           def internet_available
             store_internet_availability true
           end
@@ -65,7 +65,7 @@ module JavaBuildpack
           # Deem the internet to be unavailable and log an error if appropriate.
           #
           # @param [String] reason a diagnostic which indicates why the internet should be deemed unavailable
-          # @return [void]
+          # @return [Void]
           def internet_unavailable(reason)
             logger.error { "Internet unavailable: #{reason}. Buildpack cache will be used." } if internet_availability_stored?
             store_internet_availability false
@@ -82,7 +82,7 @@ module JavaBuildpack
 
           # Clears any record of internet availability.
           #
-          # @return [void]
+          # @return [Void]
           def clear_internet_availability
             @@monitor.synchronize do
               @@internet_checked = false
@@ -92,7 +92,7 @@ module JavaBuildpack
           # Explicitly sets whether or not the internet is available
           #
           # @param [Boolean] internet_up whether the internet is available
-          # @return [void]
+          # @return [Void]
           def store_internet_availability(internet_up)
             @@monitor.synchronize do
               @@internet_up      = internet_up

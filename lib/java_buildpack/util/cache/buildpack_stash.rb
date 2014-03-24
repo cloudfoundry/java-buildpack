@@ -39,7 +39,7 @@ module JavaBuildpack
         #
         # @param [MutableFileCache] mutable_file_cache a mutable file cache for persisting the item
         # @param [String] uri the uri of the item
-        # @return [void]
+        # @return [Void]
         def look_aside(mutable_file_cache, uri)
           fail "Buildpack cache not defined. Cannot look up #{uri}." unless @buildpack_stash
 

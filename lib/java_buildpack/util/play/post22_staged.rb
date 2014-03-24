@@ -25,7 +25,7 @@ module JavaBuildpack
 
         protected
 
-        # @macro post22_root
+        # (see JavaBuildpack::Util::Play::Post22#root)
         def root
           @droplet.root
         end

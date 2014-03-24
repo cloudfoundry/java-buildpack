@@ -25,17 +25,18 @@ module JavaBuildpack
     class TomcatLifecycleSupport < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Container
 
-      # @macro base_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar(jar_name, tomcat_lib)
       end
 
-      # @macro base_component_release
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
       end
 
       protected
 
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         true
       end

@@ -20,13 +20,13 @@ Many components will want to cache large files that are downloaded for applicati
 #                     item is already in the cache, to validate that the item is up to date
 # @yieldparam [File] file the file representing the cached item. In order to ensure that the file is not changed or
 #                    deleted while it is being used, the cached item can only be accessed as part of a block.
-# @return [void]
+# @return [Void]
 def get(uri)
 
 # Remove an item from the cache
 #
 # @param [String] uri the URI of the item to remove
-# @return [void]
+# @return [Void]
 def evict(uri)
 ```
 

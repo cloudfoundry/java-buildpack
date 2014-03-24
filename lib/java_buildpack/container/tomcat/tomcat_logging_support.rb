@@ -23,17 +23,18 @@ module JavaBuildpack
     # Encapsulates the detect, compile, and release functionality for Tomcat logging support.
     class TomcatLoggingSupport < JavaBuildpack::Component::VersionedDependencyComponent
 
-      # @macro base_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar(jar_name, endorsed)
       end
 
-      # @macro base_component_release
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
       end
 
       protected
 
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         true
       end

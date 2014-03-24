@@ -34,17 +34,17 @@ module JavaBuildpack
         @version, @uri = supports? ? find_insight_agent : [nil, nil]
       end
 
-      # @macro base_component_detect
+      # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
         @version ? id(@version) : nil
       end
 
-      # @macro base_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download(@version, @uri.chomp('/') + AGENT_DOWNLOAD_URI_SUFFIX) { |file| expand file } # TODO: AGENT_DOWNLOAD_URI_SUFFIX To be removed once the full path is included in VCAP_SERVICES see issue 58873498
       end
 
-      # @macro base_component_release
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.java_opts
         .add_javaagent(weaver_jar)

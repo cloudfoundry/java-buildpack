@@ -30,7 +30,7 @@ module JavaBuildpack
 
       protected
 
-      # @macro modular_component_command
+      # (see JavaBuildpack::Component::ModularComponent#command)
       def command
         @droplet.java_opts.add_system_property 'http.port', '$PORT'
 
@@ -42,7 +42,7 @@ module JavaBuildpack
         ].flatten.compact.join(' ')
       end
 
-      # @macro modular_component_sub_components
+      # (see JavaBuildpack::Component::ModularComponent#sub_components)
       def sub_components(context)
         [
           TomcatInstance.new(sub_configuration_context(context, 'tomcat')),
@@ -53,7 +53,7 @@ module JavaBuildpack
         ]
       end
 
-      # @macro modular_component_supports
+      # (see JavaBuildpack::Component::ModularComponent#supports?)
       def supports?
         web_inf? && !JavaBuildpack::Util::JavaMainUtils.main_class(@application)
       end

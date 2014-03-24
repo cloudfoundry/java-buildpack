@@ -8,7 +8,7 @@ This base class is recommended for use by any component that uses the buildpack 
 # whatever way is necessary (e.g. downloading files or creating symbolic links) to support the function of the
 # component.  Status output written to +STDOUT+ is expected as part of this invocation.
 #
-# @return [void]
+# @return [Void]
 def compile
 
 # Modifies the application's runtime configuration. The component is expected to transform members of the +context+
@@ -48,7 +48,7 @@ def supports?
 # @param [JavaBuildpack::Util::TokenizedVersion] version
 # @param [String] uri
 # @param [String] name an optional name for the download.  Defaults to +@component_name+.
-# @return [void]
+# @return [Void]
 def download(version, uri, name = @component_name, &block)
 
 # Downloads a given JAR file and stores it.

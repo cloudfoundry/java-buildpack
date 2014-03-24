@@ -26,7 +26,7 @@ module JavaBuildpack
       # A +system()+-like command that ensure that the execution fails if the command returns a non-zero exit code
       #
       # @param [String] command the command to run
-      # @return [void]
+      # @return [Void]
       def shell(command)
         Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
           if wait_thr.value != 0

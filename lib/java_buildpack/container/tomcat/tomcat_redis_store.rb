@@ -28,7 +28,7 @@ module JavaBuildpack
     class TomcatRedisStore < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Container
 
-      # @macro base_component_compile
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         if supports?
           download_jar(jar_name, tomcat_lib)
@@ -36,12 +36,13 @@ module JavaBuildpack
         end
       end
 
-      # @macro base_component_release
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
       end
 
       protected
 
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         @application.services.one_service? FILTER, KEY_HOST_NAME, KEY_PORT, KEY_PASSWORD
       end

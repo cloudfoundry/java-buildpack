@@ -38,7 +38,7 @@ module JavaBuildpack
         # Sets up the logger factory
         #
         # @param [Pathname] app_dir the application directory
-        # @return [void]
+        # @return [Void]
         def setup(app_dir)
           @@monitor.synchronize do
             @@log_file    = app_dir + '.java-buildpack.log'
@@ -71,7 +71,7 @@ module JavaBuildpack
 
         # Resets the configuration of the factory
         #
-        # @return [void]
+        # @return [Void]
         def reset
           @@monitor.synchronize do
             @@initialized = false

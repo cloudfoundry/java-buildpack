@@ -87,7 +87,7 @@ module JavaBuildpack
       # Copy resources from a components resources directory to a directory
       #
       # @param [Pathname] target_directory the directory to copy to.  Defaults to the component's +sandbox+.
-      # @return [void]
+      # @return [Void]
       def copy_resources(target_directory = @sandbox)
         resources = RESOURCES_DIRECTORY + @component_id
 
