@@ -19,17 +19,14 @@ require 'rspec/core/rake_task'
 require 'rubocop/rake_task'
 require 'yard'
 
-# RSpec Tasks
 RSpec::Core::RakeTask.new
-CLOBBER.include 'coverage'
+CLOBBER << 'coverage'
 
-# Rubocop Tasks
 Rubocop::RakeTask.new
 
-# Yard Tasks
 YARD::Rake::YardocTask.new
-CLEAN.include '.yardoc'
-CLOBBER.include 'doc'
+CLEAN << '.yardoc'
+CLOBBER << 'doc'
 
 desc 'Check that all APIs have been documented'
 task :check_api_doc do
@@ -37,22 +34,4 @@ task :check_api_doc do
   abort "\nFailed due to undocumented public API:\n\n#{output}" if output !~ /100.00% documented/
 end
 
-# Offline Package Tasks
-STAGING = 'build/staging'.freeze
-
-task :stage
-CLEAN.include STAGING
-
-FileList['bin/**/*', 'config/**/*', 'lib/**/*', 'resources/**/*'].each do |source|
-  unless File.directory?(source)
-    target = "#{STAGING}/#{source}"
-    parent = File.dirname target
-
-    directory parent
-    file(target => [source, parent]) { |t| cp t.source, t.name }
-    task stage: target
-  end
-end
-
-# Default Task
 task default: %w(rubocop check_api_doc spec)

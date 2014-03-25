@@ -1,5 +1,8 @@
 ---
 AllCops:
+  Includes:
+    - Rakefile
+    - rakelib/**
   Excludes:
     - build/**
 ClassLength:
