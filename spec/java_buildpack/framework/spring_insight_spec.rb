@@ -29,9 +29,9 @@ describe JavaBuildpack::Framework::SpringInsight do
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/insight/, 'dashboard_url').and_return(true)
+      allow(services).to receive(:one_service?).with(/insight/, 'dashboard_url', 'agent_username', 'agent_password').and_return(true)
       allow(services).to receive(:find_service).and_return('label'       => 'insight-1.0',
-                                                           'credentials' => { 'dashboard_url' => 'test-uri' })
+                                                           'credentials' => { 'dashboard_url' => 'test-uri', 'agent_password' => 'foo', 'agent_username' => 'bar' })
       allow(application_cache).to receive(:get).with('test-uri/services/config/agent-download')
                                   .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open)
     end
@@ -44,17 +44,11 @@ describe JavaBuildpack::Framework::SpringInsight do
       component.compile
 
       container_libs_dir     = app_dir + '.spring-insight/container-libs'
-      extra_applications_dir = app_dir + '.spring-insight/extra-applications'
 
-      expect(sandbox + 'weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar').to exist
-      expect(container_libs_dir + 'insight-bootstrap-generic-1.2.3-CI-SNAPSHOT.jar').to exist
-      expect(container_libs_dir + 'insight-bootstrap-tomcat-common-1.2.5-CI-SNAPSHOT.jar').to exist
+      expect(sandbox + 'weaver/insight-weaver-cf-2.0.0-CI-SNAPSHOT.jar').to exist
+      expect(container_libs_dir + 'insight-bootstrap-generic-2.0.0-CI-SNAPSHOT.jar').to exist
+      expect(container_libs_dir + 'insight-bootstrap-tomcat-common-2.0.0-CI-SNAPSHOT.jar').to exist
       expect(sandbox + 'insight/conf/insight.properties').to exist
-      expect(sandbox + 'insight/collection-plugins/test-collection-plugins').to exist
-      expect(extra_applications_dir + 'insight-agent').to exist
-      expect(extra_applications_dir + 'insight-agent/WEB-INF/lib/insight-agent-http-1.9.3-CI-SNAPSHOT.jar').to exist
-      expect(extra_applications_dir + 'insight-agent/WEB-INF/lib/insight-agent-cloudfoundry-1.2.3.jar').to exist
-      expect(container_libs_dir + 'cloudfoundry-runtime-1.2.3.jar').to exist
     end
 
     it 'should update JAVA_OPTS',
@@ -67,6 +61,8 @@ describe JavaBuildpack::Framework::SpringInsight do
       expect(java_opts).to include('-Dinsight.logs=$PWD/.java-buildpack/spring_insight/insight/logs')
       expect(java_opts).to include('-Daspectj.overweaving=true')
       expect(java_opts).to include('-Dorg.aspectj.tracing.factory=default')
+      expect(java_opts).to include('-Dagent.http.username=bar')
+      expect(java_opts).to include('-Dagent.http.password=foo')
     end
   end
 

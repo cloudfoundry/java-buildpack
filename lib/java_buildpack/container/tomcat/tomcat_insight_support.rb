@@ -34,7 +34,6 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         link_to(container_libs_directory.children, tomcat_lib) if container_libs_directory.exist?
-        link_to(extra_applications_directory.children, tomcat_webapps) if extra_applications_directory.exist?
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -46,11 +45,6 @@ module JavaBuildpack
       def container_libs_directory
         @droplet.root + '.spring-insight/container-libs'
       end
-
-      def extra_applications_directory
-        @droplet.root + '.spring-insight/extra-applications'
-      end
-
     end
 
   end
