@@ -56,6 +56,7 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 	* [Droplet](docs/extending-droplet.md)
 	* [BaseComponent](docs/extending-base_component.md)
 	* [VersionedDependencyComponent](docs/extending-versioned_dependency_component.md)
+	* [ModularComponent](docs/extending-modular_component.md)
 	* [Caches](docs/extending-caches.md) ([Configuration](docs/extending-caches.md#configuration))
 	* [Logging](docs/extending-logging.md) ([Configuration](docs/extending-logging.md#configuration))
 	* [Repositories](docs/extending-repositories.md) ([Configuration](docs/extending-repositories.md#configuration))
