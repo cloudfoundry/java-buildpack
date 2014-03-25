@@ -263,6 +263,7 @@
       <sourceFolder url="file://$MODULE_DIR$/spec/java_buildpack" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/.yardoc" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/coverage" />
       <excludeFolder url="file://$MODULE_DIR$/doc" />
     </content>

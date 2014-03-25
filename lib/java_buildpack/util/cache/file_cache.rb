@@ -126,7 +126,7 @@ module JavaBuildpack
           def data
             fail 'no data cached' unless cached?
             @cached.open(File::RDONLY) do |cached_file|
-              yield cached_file
+              yield cached_file if block_given?
             end
           end
 
