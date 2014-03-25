@@ -53,6 +53,7 @@
       <w>uber</w>
       <w>ubuntu</w>
       <w>uname</w>
+      <w>undoc</w>
       <w>upcase</w>
       <w>upto</w>
       <w>webapp</w>
@@ -60,6 +61,7 @@
       <w>webmock</w>
       <w>wildcarded</w>
       <w>wronly</w>
+      <w>yardoc</w>
       <w>yieldparam</w>
     </words>
   </dictionary>

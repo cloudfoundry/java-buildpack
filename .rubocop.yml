@@ -1,7 +1,7 @@
 ---
 AllCops:
   Excludes:
-    - vendor/**
+    - build/**
 ClassLength:
   Max: 200
 ClassVars:

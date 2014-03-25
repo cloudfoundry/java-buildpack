@@ -268,7 +268,7 @@
     </content>
     <orderEntry type="jdk" jdkName="rbenv: 1.9.3-p545" jdkType="RUBY_SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="addressable (v2.3.5, rbenv: 1.9.3-p545) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="addressable (v2.3.6, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ast (v1.1.0, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="bundler (v1.5.3, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="codeclimate-test-reporter (v0.3.0, rbenv: 1.9.3-p545) [gem]" level="application" />
@@ -281,7 +281,7 @@
     <orderEntry type="library" scope="PROVIDED" name="parser (v2.1.7, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="powerpack (v0.0.9, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rainbow (v2.0.0, rbenv: 1.9.3-p545) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rake (v10.1.1, rbenv: 1.9.3-p545) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rake (v10.2.0, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="redcarpet (v3.1.1, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rspec (v3.0.0.beta2, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.0.0.beta2, rbenv: 1.9.3-p545) [gem]" level="application" />
