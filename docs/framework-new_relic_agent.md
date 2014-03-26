@@ -28,7 +28,7 @@ The credential payload of the service may contain the following entries:
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/new_relic_agent.yml`][] file.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+The framework can be configured by modifying the [`config/new_relic_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------

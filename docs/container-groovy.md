@@ -24,7 +24,7 @@ Any JAR files found in the application are automatically added to the classpath 
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-The container can be configured by modifying the [`config/groovy.yml`][] file.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+The container can be configured by modifying the [`config/groovy.yml`][] file in the buildpack fork.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------

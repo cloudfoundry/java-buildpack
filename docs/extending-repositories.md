@@ -59,7 +59,7 @@ end
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-Repositories can be configured by modifying the [`config/repository.yml`][] file.
+Repositories can be configured by modifying the [`config/repository.yml`][] file in the buildpack fork.
 
 | Name | Description
 | ---- | -----------

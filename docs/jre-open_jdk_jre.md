@@ -16,7 +16,7 @@ Tags are printed to standard output by the buildpack detect script
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-The JRE can be configured by modifying the [`config/open_jdk_jre.yml`][] file.  The JRE uses the [`Repository` utility support][repositories] and so it supports the [version syntax][]  defined there.
+The JRE can be configured by modifying the [`config/open_jdk_jre.yml`][] file in the buildpack fork.  The JRE uses the [`Repository` utility support][repositories] and so it supports the [version syntax][]  defined there.
 
 | Name | Description
 | ---- | -----------

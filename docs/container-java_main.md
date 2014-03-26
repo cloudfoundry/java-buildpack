@@ -24,7 +24,7 @@ If the main class is Spring Boot's `JarLauncher`, `PropertiesLauncher` or `WarLa
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-The container can be configured by creating or modifying the `config/java_main.yml` file.
+The container can be configured by creating or modifying the `config/java_main.yml` file in the buildpack fork.
 
 | Name | Description
 | ---- | -----------

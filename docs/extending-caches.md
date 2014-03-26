@@ -41,7 +41,7 @@ end
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-Caching can be configured by modifying the [`config/cache.yml`][] file.
+Caching can be configured by modifying the [`config/cache.yml`][] file in the buildpack fork.
 
 | Name | Description
 | ---- | -----------

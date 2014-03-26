@@ -24,7 +24,7 @@ Users may optionally provide their own PostgreSQL service. A user-provided Postg
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/postgresql_jdbc.yml`][] file.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+The framework can be configured by modifying the [`config/postgresql_jdbc.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------
