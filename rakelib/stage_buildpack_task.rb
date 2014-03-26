@@ -34,10 +34,11 @@ module Offline
     private
 
     def create_task(source, target)
-      file(target => [source]) do |t|
-        rm_f t.name, verbose: verbose?
-        mkdir_p File.dirname(t.name), verbose: verbose?
-        cp t.source, t.name, verbose: verbose?
+      parent = File.dirname target
+
+      directory parent
+      file(target => [source, parent]) do |t|
+        cp t.source, t.name
       end
 
       target

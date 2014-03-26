@@ -24,8 +24,4 @@ module Offline
 
   STAGING_DIR = "#{BUILD_DIR}/staging".freeze
 
-  def verbose?
-    verbose == true
-  end
-
 end

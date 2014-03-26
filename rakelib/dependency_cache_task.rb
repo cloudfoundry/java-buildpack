@@ -141,7 +141,7 @@ module Offline
 
   def create_task(uri)
     task uri do |t|
-      puts "Caching #{t.name}"
+      rake_output_message "Caching #{t.name}"
       cache.get(t.name)
     end
 

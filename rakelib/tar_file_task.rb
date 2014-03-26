@@ -34,12 +34,12 @@ module Offline
     end
 
     def create_task(dependencies, target)
-      file target => dependencies do |t|
-        rm_f t.name, verbose: verbose?
-        mkdir_p File.dirname(t.name), verbose: verbose?
-        `tar #{verbose? ? 'v' : ''}czf #{t.name} -C #{STAGING_DIR} .`
+      parent = File.dirname target
 
-        puts "Offline Buildpack created at #{t.name}"
+      directory parent
+      file target => [dependencies, parent].flatten do |t|
+        rake_output_message "Creating #{t.name}"
+        `tar czf #{t.name} -C #{STAGING_DIR} .`
       end
 
       target
