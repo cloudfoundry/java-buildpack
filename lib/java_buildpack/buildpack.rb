@@ -100,7 +100,7 @@ module JavaBuildpack
     LOAD_ROOT = Pathname.new(__FILE__).dirname + '..'
 
     def initialize(app_dir, application)
-      @logger = Logging::LoggerFactory.get_logger Buildpack
+      @logger = Logging::LoggerFactory.instance.get_logger Buildpack
 
       log_environment_variables
 
@@ -201,7 +201,7 @@ module JavaBuildpack
       def with_buildpack(app_dir, message)
         app_dir     = Pathname.new(File.expand_path(app_dir))
         application = Component::Application.new(app_dir)
-        Logging::LoggerFactory.setup app_dir
+        Logging::LoggerFactory.instance.setup app_dir
 
         yield new(app_dir, application) if block_given?
       rescue => e
@@ -211,7 +211,7 @@ module JavaBuildpack
       private
 
       def handle_error(e, message)
-        logger = Logging::LoggerFactory.get_logger Buildpack
+        logger = Logging::LoggerFactory.instance.get_logger Buildpack
 
         logger.error { message % e.inspect }
         logger.debug { "Exception #{e.inspect} backtrace:\n#{e.backtrace.join("\n")}" }

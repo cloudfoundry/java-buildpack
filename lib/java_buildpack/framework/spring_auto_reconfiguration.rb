@@ -31,7 +31,7 @@ module JavaBuildpack
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
         super(context)
-        @logger = JavaBuildpack::Logging::LoggerFactory.get_logger SpringAutoReconfiguration
+        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger SpringAutoReconfiguration
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)

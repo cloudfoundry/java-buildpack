@@ -14,17 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'logging_helper'
-require 'java_buildpack/util/cache/internet_availability'
+require 'rspec/expectations'
+require 'rspec/matchers/built_in/yield'
 
-shared_context 'internet_availability_helper' do
-  include_context 'logging_helper'
-
-  # Re-initialize internet availability
-  before do |example|
-    JavaBuildpack::Util::Cache::InternetAvailability.instance.send :initialize
-    JavaBuildpack::Util::Cache::InternetAvailability.instance.available false if example.metadata[:disable_internet]
+RSpec::Matchers.define :yield_file_with_content do |expected|
+  match do |block|
+    probe = RSpec::Matchers::BuiltIn::YieldProbe.probe(block)
+    probe.yielded_once?(:yield_with_args) && content(probe.single_yield_args.first) =~ expected
   end
 
+  def content(file)
+    File.read(file)
+  end
 end

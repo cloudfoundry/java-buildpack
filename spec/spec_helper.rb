@@ -25,6 +25,8 @@ CodeClimate::TestReporter.start
 require 'webmock/rspec'
 WebMock.disable_net_connect!(allow: 'codeclimate.com')
 
+require 'java_buildpack/util/cache/yield_file_with_content'
+
 RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
   config.filter_run :focus

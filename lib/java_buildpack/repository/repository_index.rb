@@ -32,7 +32,7 @@ module JavaBuildpack
       #
       # @param [String] repository_root the root of the repository to create the index for
       def initialize(repository_root)
-        @logger = JavaBuildpack::Logging::LoggerFactory.get_logger RepositoryIndex
+        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger RepositoryIndex
 
         @default_repository_root = JavaBuildpack::Util::ConfigurationUtils.load('repository')['default_repository_root']
         .chomp('/')

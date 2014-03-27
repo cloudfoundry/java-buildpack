@@ -33,7 +33,7 @@ module Offline
     attr_reader :targets
 
     def initialize
-      JavaBuildpack::Logging::LoggerFactory.setup "#{BUILD_DIR}/"
+      JavaBuildpack::Logging::LoggerFactory.instance.setup "#{BUILD_DIR}/"
 
       @default_repository_root = configuration('repository')['default_repository_root'].chomp('/')
       @cache                   = cache

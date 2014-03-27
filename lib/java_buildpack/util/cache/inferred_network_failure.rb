@@ -14,26 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'application_helper'
-require 'fileutils'
+module JavaBuildpack
+  module Util
+    module Cache
 
-shared_context 'buildpack_cache_helper' do
-  include_context 'application_helper'
+      # An error thrown when a we infer that an error has occurred (rather than receiving an explicit indication)
+      class InferredNetworkFailure < StandardError
+      end
 
-  previous_buildpack_cache = ENV['BUILDPACK_CACHE']
-
-  let(:buildpack_cache_dir) { app_dir }
-
-  let(:java_buildpack_cache_dir) { buildpack_cache_dir + 'java-buildpack' }
-
-  before do
-    FileUtils.mkdir_p java_buildpack_cache_dir
-    ENV['BUILDPACK_CACHE'] = buildpack_cache_dir.to_s
+    end
   end
-
-  after do
-    ENV['BUILDPACK_CACHE'] = previous_buildpack_cache
-  end
-
 end

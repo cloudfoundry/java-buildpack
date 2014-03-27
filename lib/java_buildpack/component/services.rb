@@ -45,7 +45,7 @@ module JavaBuildpack
           if credentials?(candidates.first['credentials'], required_credentials)
             match = true
           else
-            logger = JavaBuildpack::Logging::LoggerFactory.get_logger Services
+            logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger Services
             logger.warn do
               "A service with a name label or tag matching #{filter} was found, but was missing one of the required" \
             " credentials #{required_credentials}"

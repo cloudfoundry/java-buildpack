@@ -54,7 +54,7 @@ module JavaBuildpack
         CONFIG_DIRECTORY = Pathname.new(File.expand_path('../../../config', File.dirname(__FILE__))).freeze
 
         def logger
-          JavaBuildpack::Logging::LoggerFactory.get_logger ConfigurationUtils
+          JavaBuildpack::Logging::LoggerFactory.instance.get_logger ConfigurationUtils
         end
 
       end

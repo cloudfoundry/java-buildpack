@@ -7,8 +7,6 @@ AllCops:
     - build/**
 ClassLength:
   Max: 200
-ClassVars:
-  Enabled: false
 CyclomaticComplexity:
   Max: 10
 Documentation:

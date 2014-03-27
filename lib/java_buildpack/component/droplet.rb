@@ -73,7 +73,7 @@ module JavaBuildpack
         @component_id         = component_id
         @java_home            = java_home
         @java_opts            = java_opts
-        @logger               = JavaBuildpack::Logging::LoggerFactory.get_logger Droplet
+        @logger               = JavaBuildpack::Logging::LoggerFactory.instance.get_logger Droplet
 
         buildpack_root = root + '.java-buildpack'
         sandbox_root   = buildpack_root + component_id
@@ -102,7 +102,7 @@ module JavaBuildpack
 
       private
 
-      RESOURCES_DIRECTORY = Pathname.new(File.expand_path('../../../../resources', __FILE__))
+      RESOURCES_DIRECTORY = Pathname.new(File.expand_path('../../../../resources', __FILE__)).freeze
 
       def in?(path, root)
         path.ascend do |parent|

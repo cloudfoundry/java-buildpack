@@ -16,7 +16,6 @@
 
 require 'spec_helper'
 require 'application_helper'
-require 'buildpack_cache_helper'
 require 'logging_helper'
 require 'fileutils'
 require 'java_buildpack/repository/repository_index'
@@ -64,23 +63,6 @@ describe JavaBuildpack::Repository::RepositoryIndex do
                                  .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
 
     described_class.new('{default.repository.root}/test-uri')
-  end
-
-  context do
-    include_context 'buildpack_cache_helper'
-
-    it 'should use the read-only buildpack cache when index.yaml cannot be downloaded because the internet is not available' do
-      stub_request(:get, 'http://foo.com/index.yml').to_raise(SocketError)
-      allow(JavaBuildpack::Util::Cache::DownloadCache).to receive(:new).and_call_original
-
-      FileUtils.mkdir_p java_buildpack_cache_dir
-      FileUtils.cp 'spec/fixtures/stashed_repository_index.yml', java_buildpack_cache_dir + 'http:%2F%2Ffoo.com%2Findex.yml.cached'
-
-      version, uri = described_class.new('http://foo.com').find_item(JavaBuildpack::Util::TokenizedVersion.new('1.0.+'))
-
-      expect(version).to eq(JavaBuildpack::Util::TokenizedVersion.new('1.0.1'))
-      expect(uri).to eq('http://foo.com/test.txt')
-    end
   end
 
   it 'should handle Centos correctly' do
