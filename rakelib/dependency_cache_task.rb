@@ -52,12 +52,16 @@ module Offline
 
   PLATFORM_PATTERN = /\{platform\}/.freeze
 
-  def augment_architecture(raw)
+  def augment(raw, pattern, candidates, &block)
     if raw.respond_to? :map
-      raw.map { |r| augment_architecture r }
+      raw.map &block
     else
-      raw =~ ARCHITECTURE_PATTERN ? ARCHITECTURES.map { |p| raw.gsub ARCHITECTURE_PATTERN, p } : raw
+      raw =~ pattern ? candidates.map { |p| raw.gsub pattern, p } : raw
     end
+  end
+
+  def augment_architecture(raw)
+    augment(raw, ARCHITECTURE_PATTERN, ARCHITECTURES) { |r| augment_architecture r }
   end
 
   def augment_path(raw)
@@ -69,11 +73,7 @@ module Offline
   end
 
   def augment_platform(raw)
-    if raw.respond_to? :map
-      raw.map { |r| augment_platform r }
-    else
-      raw =~ PLATFORM_PATTERN ? PLATFORMS.map { |p| raw.gsub PLATFORM_PATTERN, p } : raw
-    end
+    augment(raw, PLATFORM_PATTERN, PLATFORMS) { |r| augment_platform r }
   end
 
   def augment_repository_root(raw)
