@@ -54,7 +54,7 @@ module Offline
 
   def augment(raw, pattern, candidates, &block)
     if raw.respond_to? :map
-      raw.map &block
+      raw.map(&block)
     else
       raw =~ pattern ? candidates.map { |p| raw.gsub pattern, p } : raw
     end

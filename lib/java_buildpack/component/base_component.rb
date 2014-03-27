@@ -86,8 +86,8 @@ module JavaBuildpack
         download_start_time = Time.now
         print "-----> Downloading #{name} #{version} from #{uri} "
 
-        JavaBuildpack::Util::Cache::ApplicationCache.new.get(uri) do |file|
-          puts "(#{(Time.now - download_start_time).duration})"
+        JavaBuildpack::Util::Cache::ApplicationCache.new.get(uri) do |file, downloaded|
+          puts downloaded ? "(#{(Time.now - download_start_time).duration})" : '(found in cache)'
           yield file
         end
       end

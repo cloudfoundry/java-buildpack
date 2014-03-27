@@ -44,10 +44,11 @@ module JavaBuildpack
         #
         # @param [String, integer] mode_enc the mode to open the file in.  Can be a string like +"r"+ or an integer like
         #                                   +File::CREAT | File::WRONLY+.
-        # @yield [file] the cached file
-        # @return [File, nil] if no block is given the cached file, otherwise +nil+
-        def cached(mode_enc = File::RDONLY, &block)
-          @cached.open(mode_enc, &block)
+        # @param [Array] additional_args any additional arguments to be passed to the block
+        # @yield [file, additional_args] the cached file and any additional arguments passed in
+        # @return [Void]
+        def cached(mode_enc, *additional_args, &block)
+          @cached.open(mode_enc) { |f| block.call f, *additional_args }
         end
 
         # Returns whether or not data is cached.
@@ -66,10 +67,11 @@ module JavaBuildpack
         #
         # @param [String, integer] mode_enc the mode to open the file in.  Can be a string like +"r"+ or an integer like
         #                                   +File::CREAT | File::WRONLY+.
+        # @param [Array] additional_args any additional arguments to be passed to the block
         # @yield [file] the etag file
-        # @return [File, nil] if no block is given the etag file, otherwise +nil+
-        def etag(mode_enc = File::RDONLY, &block)
-          @etag.open(mode_enc, &block)
+        # @return [Void]
+        def etag(mode_enc, *additional_args, &block)
+          @etag.open(mode_enc) { |f| block.call f, *additional_args }
         end
 
         # Returns whether or not an etag is stored.
@@ -83,10 +85,11 @@ module JavaBuildpack
         #
         # @param [String, integer] mode_enc the mode to open the file in.  Can be a string like +"r"+ or an integer like
         #                                   +File::CREAT | File::WRONLY+.
+        # @param [Array] additional_args any additional arguments to be passed to the block
         # @yield [file] the last modified file
-        # @return [File, nil] if no block is given the last modified file, otherwise +nil+
-        def last_modified(mode_enc = File::RDONLY, &block)
-          @last_modified.open(mode_enc, &block)
+        # @return [Void]
+        def last_modified(mode_enc, *additional_args, &block)
+          @last_modified.open(mode_enc) { |f| block.call f, *additional_args }
         end
 
         # Returns whether or not a last modified time stamp is stored.

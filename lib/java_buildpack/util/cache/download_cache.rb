@@ -54,15 +54,16 @@ module JavaBuildpack
         # the item cannot be retrieved.
         #
         # @param [String] uri the URI of the item
-        # @yield [file] the file representing the cached item
+        # @yield [file, downloaded] the file representing the cached item and whether the file was downloaded or was
+        #                           already in the cache
         # @return [Void]
         def get(uri, &block)
-          cached_file = nil
-          cached_file = from_mutable_cache uri if InternetAvailability.instance.available?
-          cached_file = from_immutable_caches uri unless cached_file
+          cached_file, downloaded = nil, nil
+          cached_file, downloaded = from_mutable_cache uri if InternetAvailability.instance.available?
+          cached_file, downloaded = from_immutable_caches(uri), false unless cached_file
 
           fail "Unable to find cached file for #{uri}" unless cached_file
-          cached_file.cached(File::RDONLY, &block)
+          cached_file.cached(File::RDONLY, downloaded, &block)
         end
 
         # Removes an item from the mutable cache.
@@ -102,6 +103,8 @@ module JavaBuildpack
         TIMEOUT_SECONDS = 10
 
         def attempt(http, request, cached_file)
+          downloaded = false
+
           http.request request do |response|
             @logger.debug { "Status: #{response.code}" }
 
@@ -109,12 +112,15 @@ module JavaBuildpack
               cache_etag response, cached_file
               cache_last_modified response, cached_file
               cache_content response, cached_file
+              downloaded = true
             elsif response.is_a? Net::HTTPNotModified
               @logger.debug { 'Cached copy up to date' }
             else
               fail InferredNetworkFailure, "Bad response: #{response}"
             end
           end
+
+          downloaded
         end
 
         def cache_content(response, cached_file)
@@ -157,8 +163,8 @@ module JavaBuildpack
 
         def from_mutable_cache(uri)
           cached_file = CachedFile.new(@mutable_cache_root, uri)
-          update URI(uri), cached_file
-          cached_file
+          cached      = update URI(uri), cached_file
+          [cached_file, cached]
         rescue => e
           @logger.warn { "Unable to download #{uri} into cache #{@mutable_cache_root}: #{e.message}" }
           nil
@@ -194,8 +200,14 @@ module JavaBuildpack
 
         def request(uri, cached_file)
           request = Net::HTTP::Get.new(uri.request_uri)
-          cached_file.etag { |f| request['If-None-Match'] = File.read(f) } if cached_file.etag?
-          cached_file.last_modified { |f| request['If-Modified-Since'] = File.read(f) } if cached_file.last_modified?
+
+          if cached_file.etag?
+            cached_file.etag(File::RDONLY) { |f| request['If-None-Match'] = File.read(f) }
+          end
+
+          if cached_file.last_modified?
+            cached_file.last_modified(File::RDONLY) { |f| request['If-Modified-Since'] = File.read(f) }
+          end
 
           @logger.debug { "Request: #{request.path}, #{request.to_hash}" }
           request
@@ -227,7 +239,7 @@ module JavaBuildpack
 
         def validate_size(expected_size, cached_file)
           if expected_size
-            actual_size = cached_file.cached { |f| f.size }
+            actual_size = cached_file.cached(File::RDONLY) { |f| f.size }
             @logger.debug { "Validated content size #{actual_size} is #{expected_size}" }
 
             unless expected_size.to_i == actual_size
