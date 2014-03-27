@@ -14,17 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'offline'
+require 'rake/tasklib'
+require 'rakelib/package'
 
-module Offline
+module Package
 
   class StageBuildpackTask < Rake::TaskLib
-    include Offline
-
-    attr_reader :targets
+    include Package
 
     def initialize(source_files)
-      @targets = source_files.map { |source| create_task(source, target(source)) }
+      source_files.map { |source| create_task(source, target(source)) }
+
+      if OFFLINE
+        file "#{STAGING_DIR}/config/cache.yml" do |t|
+          content = File.open(t.source, 'r') { |f| f.read.gsub(/enabled/, 'disabled') }
+          File.open(t.name, 'w') { |f| f.write content }
+        end
+      end
     end
 
     def target(source)
@@ -41,7 +47,7 @@ module Offline
         cp t.source, t.name
       end
 
-      target
+      task PACKAGE_NAME => [target]
     end
 
   end

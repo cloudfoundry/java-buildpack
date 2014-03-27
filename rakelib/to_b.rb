@@ -14,14 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Offline
+class String
+  def to_b
+    downcase == 'true'
+  end
+end
 
-  ARCHITECTURES = %w(x86_64)
-
-  BUILD_DIR = 'build'.freeze
-
-  PLATFORMS = %w(centos6 lucid mountainlion precise)
-
-  STAGING_DIR = "#{BUILD_DIR}/staging".freeze
-
+class NilClass
+  def to_b
+    false
+  end
 end

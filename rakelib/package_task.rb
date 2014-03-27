@@ -14,35 +14,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'offline'
+require 'rake/clean'
+require 'rake/tasklib'
+require 'rakelib/package'
 
-module Offline
+module Package
 
-  class TarFileTask < Rake::TaskLib
-    include Offline
+  class PackageTask < Rake::TaskLib
+    include Package
 
-    attr_reader :targets
+    def initialize
+      CLOBBER << BUILD_DIR
+      directory BUILD_DIR
 
-    def initialize(dependency_cache_task, stage_files_task)
-      @targets = create_task([dependency_cache_task.targets, stage_files_task.targets].flatten, target)
-    end
+      CLEAN << STAGING_DIR
+      directory STAGING_DIR
 
-    private
+      desc 'Create packaged buildpack'
+      task package: [PACKAGE_NAME]
 
-    def target
-      "#{BUILD_DIR}/java-buildpack-offline.tar.gz"
-    end
-
-    def create_task(dependencies, target)
-      parent = File.dirname target
-
-      directory parent
-      file target => [dependencies, parent].flatten do |t|
+      task PACKAGE_NAME => [BUILD_DIR, STAGING_DIR] do |t|
         rake_output_message "Creating #{t.name}"
         `tar czf #{t.name} -C #{STAGING_DIR} .`
       end
-
-      target
     end
 
   end

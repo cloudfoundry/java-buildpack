@@ -144,7 +144,7 @@ describe JavaBuildpack::Buildpack do
 
     buildpack.detect
 
-    expect(stderr.string).to match(/git remotes/)
+    expect(stderr.string).to match(/git remote/)
     expect(stderr.string).to match(/git HEAD commit/)
   end
 
@@ -162,7 +162,7 @@ describe JavaBuildpack::Buildpack do
 
       with_buildpack { |buildpack| buildpack.detect }
 
-      expect(stderr.string).to match(/Java Buildpack source: system/)
+      expect(stderr.string).to match(/Java Buildpack source: unknown/)
     end
   end
 
@@ -173,7 +173,7 @@ describe JavaBuildpack::Buildpack do
 
       with_buildpack { |buildpack| expect { buildpack.compile }.to raise_error } # error ok since fixture has no application
 
-      expect(stdout.string).to match(/Java Buildpack source: system/)
+      expect(stdout.string).to match(/Java Buildpack source: unknown/)
     end
   end
 

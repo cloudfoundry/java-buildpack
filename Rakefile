@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-$LOAD_PATH.unshift File.expand_path('../rakelib', __FILE__)
-
 require 'rake/clean'
 
 require 'rspec/core/rake_task'
@@ -36,26 +34,13 @@ task :check_api_doc do
   abort "\nFailed due to undocumented public API:\n\n#{output}" if output !~ /100.00% documented/
 end
 
-require 'pathname'
-require_relative 'rakelib/dependency_cache_task'
-require_relative 'rakelib/offline'
-require_relative 'rakelib/stage_buildpack_task'
-require_relative 'rakelib/tar_file_task'
-
-CLOBBER << Offline::BUILD_DIR
-CLEAN << Offline::STAGING_DIR
-
-dependency_cache_task = Offline::DependencyCacheTask.new
-stage_files_task      = Offline::StageBuildpackTask.new(Dir['bin/**/*', 'config/**/*', 'lib/**/*', 'resources/**/*']
-                                                        .reject { |f| File.directory? f })
-tar_file_task         = Offline::TarFileTask.new(dependency_cache_task, stage_files_task)
-
-file "#{Offline::STAGING_DIR}/config/cache.yml" do |t|
-  content = Pathname.new(t.source).read.gsub(/enabled/, 'disabled')
-  Pathname.new(t.name).open('w') { |file| file.write content }
-end
-
-desc 'Create a buildpack for use offline'
-task offline: [tar_file_task.targets]
+$LOAD_PATH.unshift File.expand_path('..', __FILE__)
+require 'rakelib/dependency_cache_task'
+require 'rakelib/stage_buildpack_task'
+require 'rakelib/package_task'
+Package::DependencyCacheTask.new
+Package::StageBuildpackTask.new(Dir['bin/**/*', 'config/**/*', 'lib/**/*', 'resources/**/*']
+                                .reject { |f| File.directory? f })
+Package::PackageTask.new
 
 task default: %w(rubocop check_api_doc spec)

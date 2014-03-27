@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'fileutils'
 require 'java_buildpack/logging'
 require 'java_buildpack/logging/delegating_logger'
 require 'java_buildpack/util/configuration_utils'
@@ -107,6 +108,8 @@ module JavaBuildpack
       end
 
       def file_logger
+        FileUtils.mkdir_p File.dirname(@log_file)
+
         logger           = Logger.new(@log_file)
         logger.level     = ::Logger::DEBUG
         logger.formatter = lambda do |severity, datetime, klass, message|
