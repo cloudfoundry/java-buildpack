@@ -6,7 +6,7 @@ The following example shows how deploy the sample application located in the [Ja
 
 ```bash
 $ play dist
-$ cf push -p target/universal/play-application-1.0-SNAPSHOT.zip -b https://github.com/cloudfoundry/java-buildpack.git
+$ cf push play-application -p target/universal/play-application-1.0-SNAPSHOT.zip -b https://github.com/cloudfoundry/java-buildpack.git
 
 -----> Downloading Open Jdk JRE 1.7.0_51 from http://.../openjdk/lucid/x86_64/openjdk-1.7.0_51.tar.gz (0.0s)
        Expanding Open Jdk JRE to .java-buildpack/open_jdk_jre (1.2s)
@@ -23,7 +23,7 @@ The following example shows how deploy the sample application located in the [Ja
 
 ```bash
 $ play stage
-$ cf push -p target/universal/stage -b https://github.com/cloudfoundry/java-buildpack.git
+$ cf push play-application -p target/universal/stage -b https://github.com/cloudfoundry/java-buildpack.git
 
 -----> Downloading Open Jdk JRE 1.7.0_51 from http://.../openjdk/lucid/x86_64/openjdk-1.7.0_51.tar.gz (0.0s)
        Expanding Open Jdk JRE to .java-buildpack/open_jdk_jre (1.2s)

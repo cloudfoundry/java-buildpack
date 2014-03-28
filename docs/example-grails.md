@@ -5,7 +5,7 @@ The Java Buildpack treats Grails applications as normal Servlet applications bui
 
 ```bash
 $ ./grailsw war
-$ cf push -m 768M -p target/grails-application-0.1.war -b https://github.com/cloudfoundry/java-buildpack.git
+$ cf push grails-application -m 768M -p target/grails-application-0.1.war -b https://github.com/cloudfoundry/java-buildpack.git
 -----> Downloading Open Jdk JRE 1.7.0_51 from http://.../openjdk/lucid/x86_64/openjdk-1.7.0_51.tar.gz (0.0s)
        Expanding Open Jdk JRE to .java-buildpack/open_jdk_jre (1.1s)
 -----> Downloading Spring Auto Reconfiguration 0.8.7 from http://.../auto-reconfiguration/auto-reconfiguration-0.8.7.jar (0.0s)

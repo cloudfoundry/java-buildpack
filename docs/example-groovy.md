@@ -5,7 +5,7 @@ The Java Buildpack can run Groovy applications written with the [Ratpack framewo
 The following example shows how deploy the sample application located in the [Java Test Applications][j].
 
 ```bash
-$ cf push -b https://github.com/cloudfoundry/java-buildpack.git
+$ cf push groovy-application -b https://github.com/cloudfoundry/java-buildpack.git
 -----> Downloading Open Jdk JRE 1.7.0_51 from http://.../openjdk/lucid/x86_64/openjdk-1.7.0_51.tar.gz (0.0s)
        Expanding Open Jdk JRE to .java-buildpack/open_jdk_jre (1.3s)
 -----> Downloading Spring Auto Reconfiguration 0.8.7 from http://.../auto-reconfiguration/auto-reconfiguration-0.8.7.jar (0.0s)
