@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright (c) 2014 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,17 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'logging_helper'
-require 'java_buildpack/util/cache/internet_availability'
+require 'rakelib/to_b'
 
-shared_context 'internet_availability_helper' do
-  include_context 'logging_helper'
+module Package
 
-  # Re-initialize internet availability
-  before do |example|
-    JavaBuildpack::Util::Cache::InternetAvailability.instance.send :initialize
-    JavaBuildpack::Util::Cache::InternetAvailability.instance.available false if example.metadata[:disable_internet]
-  end
+  ARCHITECTURES = %w(x86_64).freeze
+
+  BUILD_DIR = 'build'.freeze
+
+  OFFLINE = ENV['OFFLINE'].to_b.freeze
+
+  PLATFORMS = %w(centos6 lucid mountainlion precise).freeze
+
+  STAGING_DIR = "#{BUILD_DIR}/staging".freeze
+
+  VERSION = (ENV['VERSION'] || `git rev-parse --short HEAD`.chomp).freeze
+
+  PACKAGE_NAME = "#{BUILD_DIR}/java-buildpack#{OFFLINE ? '-offline' : ''}-#{VERSION}.tar.gz".freeze
 
 end

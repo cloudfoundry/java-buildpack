@@ -25,44 +25,34 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
   include_context 'logging_helper'
 
   it 'should use internet by default' do
-    expect(described_class.use_internet?).to be
+    expect(described_class.instance.available?).to be
   end
 
-  it 'should not have stored internet availability by default' do
-    expect(described_class.internet_availability_stored?).not_to be
+  context do
+
+    before do
+      allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('cache')
+                                                        .and_return('remote_downloads' => 'disabled')
+      described_class.instance.send :initialize
+    end
+
+    it 'should not use internet if remote downloads are disabled' do
+      expect(described_class.instance.available?).not_to be
+    end
   end
 
-  it 'should not use internet if remote downloads are disabled' do
-    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('cache')
-                                                      .and_return('remote_downloads' => 'disabled')
+  it 'should record availability' do
+    described_class.instance.available false
 
-    expect(described_class.use_internet?).not_to be
-    expect(described_class.internet_availability_stored?).to be
+    expect(described_class.instance.available?).not_to be
+    expect(log_contents).not_to match(/Internet availability set to false/)
   end
 
-  it 'should raise error if remote downloads are wrongly configured' do
-    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('cache').and_return('remote_downloads' => 'x')
+  it 'should record availability with message' do
+    described_class.instance.available false, 'test message'
 
-    expect { described_class.use_internet? }.to raise_error(/Invalid remote_downloads configuration/)
-  end
-
-  it 'should record availability of the internet' do
-    described_class.internet_available
-    expect(described_class.internet_availability_stored?).to be
-    expect(described_class.use_internet?).to be
-  end
-
-  it 'should record unavailability of the internet but not log the first time' do
-    described_class.internet_unavailable('test reason')
-    expect(described_class.internet_availability_stored?).to be
-    expect(described_class.use_internet?).not_to be
-    expect(log_contents).not_to match(/test reason/)
-  end
-
-  it 'should record unavailability of the internet and log after the first time' do
-    described_class.internet_unavailable('test reason')
-    described_class.internet_unavailable('another reason')
-    expect(log_contents).to match(/another reason/)
+    expect(described_class.instance.available?).not_to be
+    expect(log_contents).to match(/Internet availability set to false: test message/)
   end
 
 end

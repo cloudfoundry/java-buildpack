@@ -14,17 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'logging_helper'
-require 'java_buildpack/util/cache/internet_availability'
+module JavaBuildpack
+  module Util
+    module Cache
 
-shared_context 'internet_availability_helper' do
-  include_context 'logging_helper'
+      # An error thrown when a we infer that an error has occurred (rather than receiving an explicit indication)
+      class InferredNetworkFailure < StandardError
+      end
 
-  # Re-initialize internet availability
-  before do |example|
-    JavaBuildpack::Util::Cache::InternetAvailability.instance.send :initialize
-    JavaBuildpack::Util::Cache::InternetAvailability.instance.available false if example.metadata[:disable_internet]
+    end
   end
-
 end

@@ -33,7 +33,7 @@ describe JavaBuildpack::Framework::SpringInsight do
       allow(services).to receive(:find_service).and_return('label'       => 'insight-1.0',
                                                            'credentials' => { 'dashboard_url' => 'test-uri', 'agent_password' => 'foo', 'agent_username' => 'bar' })
       allow(application_cache).to receive(:get).with('test-uri/services/config/agent-download')
-                                  .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open)
+                                  .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open, false)
     end
 
     it 'should detect with spring-insight-n/a service' do
@@ -43,7 +43,7 @@ describe JavaBuildpack::Framework::SpringInsight do
     it 'should extract Spring Insight from the Uber Agent zip file inside the Agent Installer jar' do
       component.compile
 
-      container_libs_dir     = app_dir + '.spring-insight/container-libs'
+      container_libs_dir = app_dir + '.spring-insight/container-libs'
 
       expect(sandbox + 'weaver/insight-weaver-cf-2.0.0-CI-SNAPSHOT.jar').to exist
       expect(container_libs_dir + 'insight-bootstrap-generic-2.0.0-CI-SNAPSHOT.jar').to exist

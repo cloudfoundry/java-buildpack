@@ -93,14 +93,14 @@ module JavaBuildpack
 
     private
 
-    DEFAULT_BUILDPACK_MESSAGE = '-----> Java Buildpack source: system'.freeze
+    DEFAULT_BUILDPACK_MESSAGE = '-----> Java Buildpack source: unknown'.freeze
 
     GIT_DIR = Pathname.new(__FILE__).dirname + '../../.git'
 
     LOAD_ROOT = Pathname.new(__FILE__).dirname + '..'
 
     def initialize(app_dir, application)
-      @logger = Logging::LoggerFactory.get_logger Buildpack
+      @logger = Logging::LoggerFactory.instance.get_logger Buildpack
 
       log_environment_variables
 
@@ -125,7 +125,7 @@ module JavaBuildpack
 
     def diagnose_git_info(print)
       if system("git --git-dir=#{GIT_DIR} status 2>/dev/null 1>/dev/null")
-        remote_url      = diagnose_remotes
+        remote_url      = diagnose_remote
         head_commit_sha = diagnose_head_commit
         puts "-----> Java Buildpack source: #{remote_url}##{head_commit_sha}" if print
       else
@@ -135,17 +135,17 @@ module JavaBuildpack
     end
 
     def diagnose_head_commit
-      git 'log HEAD^!', 'git HEAD commit: %s'
+      git 'rev-parse --short HEAD', 'git HEAD commit: %s'
     end
 
-    def diagnose_remotes
-      git 'remote -v', 'git remotes: %s'
+    def diagnose_remote
+      git 'config --get remote.origin.url', 'git remote: %s'
     end
 
     def git(command, message)
-      result = `git --git-dir=#{GIT_DIR} #{command}`
+      result = `git --git-dir=#{GIT_DIR} #{command}`.chomp
       @logger.debug { message % result }
-      result.split(' ')[1]
+      result
     end
 
     def instantiate(components, additional_libraries, application, java_home, java_opts, root)
@@ -201,7 +201,7 @@ module JavaBuildpack
       def with_buildpack(app_dir, message)
         app_dir     = Pathname.new(File.expand_path(app_dir))
         application = Component::Application.new(app_dir)
-        Logging::LoggerFactory.setup app_dir
+        Logging::LoggerFactory.instance.setup app_dir
 
         yield new(app_dir, application) if block_given?
       rescue => e
@@ -211,7 +211,7 @@ module JavaBuildpack
       private
 
       def handle_error(e, message)
-        logger = Logging::LoggerFactory.get_logger Buildpack
+        logger = Logging::LoggerFactory.instance.get_logger Buildpack
 
         logger.error { message % e.inspect }
         logger.debug { "Exception #{e.inspect} backtrace:\n#{e.backtrace.join("\n")}" }

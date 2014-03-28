@@ -16,8 +16,8 @@
 
 require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/util/cache'
-require 'java_buildpack/util/cache/buildpack_stash'
-require 'java_buildpack/util/cache/file_cache'
+require 'java_buildpack/util/cache/cached_file'
+require 'java_buildpack/util/cache/inferred_network_failure'
 require 'java_buildpack/util/cache/internet_availability'
 require 'monitor'
 require 'net/http'
@@ -28,83 +28,55 @@ module JavaBuildpack
   module Util
     module Cache
 
-      # A cache for downloaded files that is configured to use a filesystem as the backing store. This cache uses standard
-      # file locking to ensure that files are not modified concurrently by multiple processes.
-      # Reading downloaded files happens concurrently so read performance is not impacted.
+      # A cache for downloaded files that is configured to use a filesystem as the backing store.
       #
-      # This class is not thread safe; file locking does not serialise threads in a single process.
+      # Note: this class is thread-safe, however access to the cached files is not
       #
       # References:
       # * {https://en.wikipedia.org/wiki/HTTP_ETag ETag Wikipedia Definition}
       # * {http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html HTTP/1.1 Header Field Definitions}
-      class DownloadCache # rubocop:disable ClassLength
+      class DownloadCache
 
-        # Creates an instance of the cache that is backed by the filesystem rooted at +cache_root+
+        # Creates an instance of the cache that is backed by a number of filesystem locations.  The first argument
+        # (+mutable_cache_root+) is the only location that downloaded files will be stored in.
         #
-        # @param [String] cache_root the filesystem directory in which to cache downloaded files
-        def initialize(cache_root = Pathname.new(Dir.tmpdir))
-          @cache_root      = cache_root
-          @buildpack_stash = BuildpackStash.new
-          @logger          = JavaBuildpack::Logging::LoggerFactory.get_logger DownloadCache
+        # @param [Pathname] mutable_cache_root the filesystem location in which find cached files in.  This will also be
+        #                                      the location that all downloaded files are written to.
+        # @param [Pathname] immutable_cache_roots other filesystem locations to find cached files in.  No files will be
+        #                                         written to these locations.
+        def initialize(mutable_cache_root = Pathname.new(Dir.tmpdir), *immutable_cache_roots)
+          @logger                = JavaBuildpack::Logging::LoggerFactory.instance.get_logger DownloadCache
+          @mutable_cache_root    = mutable_cache_root
+          @immutable_cache_roots = immutable_cache_roots.unshift mutable_cache_root
         end
 
         # Retrieves an item from the cache. Yields an open file containing the item's content or raises an exception if
-        # the item cannot be retrieved. In order to ensure that the file is not changed or deleted while it is being used,
-        # the cached item is yielded under a shared lock.
+        # the item cannot be retrieved.
         #
         # @param [String] uri the URI of the item
-        # @yield [File] the file representing the cached item
+        # @yield [file, downloaded] the file representing the cached item and whether the file was downloaded or was
+        #                           already in the cache
         # @return [Void]
         def get(uri, &block)
-          file_cache = file_cache(uri)
+          cached_file, downloaded = nil, nil
+          cached_file, downloaded = from_mutable_cache uri if InternetAvailability.instance.available?
+          cached_file, downloaded = from_immutable_caches(uri), false unless cached_file
 
-          # The following loop terminates when the item has been yielded to the block or an exception is thrown indicating
-          # that the item could not be found in the buildpack cache.
-          #
-          # The state of the cache is checked under a shared lock. If the cache is in a suitable state, the item is
-          # yielded to the block under the shared lock. Otherwise, the shared lock is dropped, an exclusive lock is
-          # acquired, the state of the cache is checked again (to avoid duplicating a download by another process) and,
-          # if the cache is still not in a suitable state for the item to be yielded, the item is downloaded (or, if the
-          # internet is unavailable, copied from the buildpack cache).
-          #
-          # The loop could fail to terminate if the remote repository was continuously updated, but this should not happen
-          # in practice.
-          #
-          # Network errors are logged and retried. If these errors persist, the internet is deemed to be unavailable and
-          # either the currently cached item is yielded to the block or the buildpack cache is consulted.
-          loop do
-            file_cache.lock_shared do |immutable_file_cache|
-              if cache_ready?(immutable_file_cache, uri)
-                immutable_file_cache.data(&block)
-                return # from get
-              end
-            end
-
-            file_cache.lock_exclusive do |mutable_file_cache|
-              obtain(uri, mutable_file_cache) unless cache_ready?(mutable_file_cache, uri)
-            end
-          end
+          fail "Unable to find cached file for #{uri}" unless cached_file
+          cached_file.cached(File::RDONLY, downloaded, &block)
         end
 
-        # Removes an item from the cache.
+        # Removes an item from the mutable cache.
         #
         # @param [String] uri the URI of the item
         # @return [Void]
         def evict(uri)
-          file_cache(uri).destroy
+          CachedFile.new(@mutable_cache_root, uri).destroy
         end
 
         private
 
-        INTERNET_DETECTION_RETRY_LIMIT = 5
-
-        DOWNLOAD_RETRY_LIMIT = 5
-
-        TIMEOUT_SECONDS = 10
-
-        HTTP_OK = '200'.freeze
-
-        HTTP_NOT_MODIFIED = '304'.freeze
+        FAILURE_LIMIT = 5
 
         HTTP_ERRORS = [
           EOFError,
@@ -128,185 +100,152 @@ module JavaBuildpack
           Timeout::Error
         ].freeze
 
-        def add_headers(request, immutable_file_cache)
-          immutable_file_cache.any_etag do |etag_content|
-            request['If-None-Match'] = etag_content
-          end
+        TIMEOUT_SECONDS = 10
 
-          immutable_file_cache.any_last_modified do |last_modified_content|
-            request['If-Modified-Since'] = last_modified_content
-          end
-        end
+        def attempt(http, request, cached_file)
+          downloaded = false
 
-        def download(mutable_file_cache, uri)
-          rich_uri = URI(uri)
-          request  = Net::HTTP::Get.new(rich_uri.request_uri)
+          http.request request do |response|
+            @logger.debug { "Status: #{response.code}" }
 
-          issue_http_request(request, rich_uri) do |response, response_code|
-            @logger.debug { "Download of #{uri} gave response #{response_code}" }
-            if response_code == HTTP_OK
-              write_response(mutable_file_cache, response)
-            elsif response_code == HTTP_NOT_MODIFIED
-              fail(InferredNetworkFailure, "Unexpected HTTP response: #{response_code}")
+            if response.is_a? Net::HTTPOK
+              cache_etag response, cached_file
+              cache_last_modified response, cached_file
+              cache_content response, cached_file
+              downloaded = true
+            elsif response.is_a? Net::HTTPNotModified
+              @logger.debug { 'Cached copy up to date' }
+            else
+              fail InferredNetworkFailure, "Bad response: #{response}"
             end
           end
-        rescue => ex
-          handle_failure(ex, 1, 1) {}
-          false
+
+          downloaded
         end
 
-        def file_cache(uri)
-          FileCache.new(@cache_root, uri)
+        def cache_content(response, cached_file)
+          cached_file.cached(File::CREAT | File::WRONLY) do |f|
+            @logger.debug { "Persisting content to #{f.path}" }
+
+            f.truncate(0)
+            response.read_body { |chunk| f.write chunk }
+            f.fsync
+          end
+
+          validate_size response['Content-Length'], cached_file
         end
 
-        def handle_failure(exception, try, retry_limit)
-          @logger.debug { "HTTP request attempt #{try} of #{retry_limit} failed: #{exception}" }
-          if try == retry_limit
-            InternetAvailability.internet_unavailable "HTTP request failed: #{exception.message}"
-            yield exception, exception.message
+        def cache_etag(response, cached_file)
+          etag = response['Etag']
+          if etag
+            @logger.debug { "Persisting etag: #{etag}" }
+
+            cached_file.etag(File::CREAT | File::WRONLY) do |f|
+              f.truncate(0)
+              f.write etag
+              f.fsync
+            end
           end
         end
 
+        def cache_last_modified(response, cached_file)
+          last_modified = response['Last-Modified']
+          if last_modified
+            @logger.debug { "Persisting last-modified: #{last_modified}" }
+
+            cached_file.last_modified(File::CREAT | File::WRONLY) do |f|
+              f.truncate(0)
+              f.write last_modified
+              f.fsync
+            end
+          end
+        end
+
+        def from_mutable_cache(uri)
+          cached_file = CachedFile.new(@mutable_cache_root, uri)
+          cached      = update URI(uri), cached_file
+          [cached_file, cached]
+        rescue => e
+          @logger.warn { "Unable to download #{uri} into cache #{@mutable_cache_root}: #{e.message}" }
+          nil
+        end
+
+        def from_immutable_caches(uri)
+          @immutable_cache_roots.each do |cache_root|
+            candidate = CachedFile.new cache_root, uri
+
+            if candidate.cached?
+              @logger.debug { "#{uri} found in cache #{cache_root}" }
+              return candidate
+            end
+          end
+
+          nil
+        end
+
+        # Beware known problems with timeouts: https://www.ruby-forum.com/topic/143840
         def http_options(rich_uri)
-          options = {}
-          # Beware known problems with timeouts: https://www.ruby-forum.com/topic/143840
-          options = { read_timeout: TIMEOUT_SECONDS, connect_timeout: TIMEOUT_SECONDS, open_timeout: TIMEOUT_SECONDS } unless InternetAvailability.internet_availability_stored?
-          options.merge(use_ssl: use_ssl?(rich_uri))
+          { read_timeout:    TIMEOUT_SECONDS,
+            connect_timeout: TIMEOUT_SECONDS,
+            open_timeout:    TIMEOUT_SECONDS,
+            use_ssl:         secure?(rich_uri) }
         end
 
-        def issue_http_request(request, rich_uri, &block)
-          if use_ssl?(rich_uri)
-            proxy = URI.parse(ENV['https_proxy'] || '')
-          else
-            proxy = URI.parse(ENV['http_proxy'] || '')
-          end
+        def proxy(uri)
+          proxy_uri = secure?(uri) ? URI.parse(ENV['https_proxy'] || '') : URI.parse(ENV['http_proxy'] || '')
 
-          @logger.debug { "HTTP.start(#{start_parameters(rich_uri)})" }
-
-          Net::HTTP::Proxy(proxy.host, proxy.port, proxy.user, proxy.password).start(*start_parameters(rich_uri)) do |http|
-            retry_http_request(http, request, &block)
-          end
+          @logger.debug { "Proxy: #{proxy_uri.host}, #{proxy_uri.port}, #{proxy_uri.user}, #{proxy_uri.password}" }
+          Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port, proxy_uri.user, proxy_uri.password)
         end
 
-        # Obtains the file for the given URI by downloading it or, if the internet is deemed to be unavailable, by copying
-        # it from the buildpack cache.
-        #
-        # If downloading fails in any way, marks the internet as unavailable and returns.
-        #
-        # If the file cannot be found in the buildpack cache, raises an exception.
-        def obtain(uri, mutable_file_cache)
-          if InternetAvailability.use_internet?
-            download(mutable_file_cache, uri)
-          else
-            @logger.debug { "Unable to download #{uri}. Looking in buildpack cache." }
-            @buildpack_stash.look_aside(mutable_file_cache, uri)
+        def request(uri, cached_file)
+          request = Net::HTTP::Get.new(uri.request_uri)
+
+          if cached_file.etag?
+            cached_file.etag(File::RDONLY) { |f| request['If-None-Match'] = File.read(f) }
           end
+
+          if cached_file.last_modified?
+            cached_file.last_modified(File::RDONLY) { |f| request['If-Modified-Since'] = File.read(f) }
+          end
+
+          @logger.debug { "Request: #{request.path}, #{request.to_hash}" }
+          request
         end
 
-        def retry_http_request(http, request, &block)
-          1.upto(retry_limit) do |try|
+        def secure?(uri)
+          uri.scheme == 'https'
+        end
+
+        def update(uri, cached_file)
+          proxy(uri).start(uri.host, uri.port, http_options(uri)) do |http|
+            @logger.debug { "HTTP: #{http.address}, #{http.port}, #{http_options(uri)}" }
+            request = request uri, cached_file
+
+            failures = 0
             begin
-              http.request request do |response|
-                response_code = response.code
-                if response_code == HTTP_OK || response_code == HTTP_NOT_MODIFIED
-                  InternetAvailability.internet_available
-                  yield response, response_code
-                  return
-                else
-                  fail(InferredNetworkFailure, "Bad HTTP response: #{response_code}")
-                end
+              attempt http, request, cached_file
+            rescue InferredNetworkFailure, *HTTP_ERRORS => e
+              if (failures += 1) > FAILURE_LIMIT
+                InternetAvailability.instance.available false, "Request failed: #{e.message}"
+                raise e
+              else
+                @logger.warn { "Request failure #{failures}, retrying: #{e.message}" }
+                retry
               end
-            rescue InferredNetworkFailure, *HTTP_ERRORS => ex
-              handle_failure(ex, try, retry_limit, &block)
             end
           end
         end
 
-        def retry_limit
-          InternetAvailability.internet_availability_stored? ? DOWNLOAD_RETRY_LIMIT : INTERNET_DETECTION_RETRY_LIMIT
-        end
-
-        def cache_ready?(immutable_file_cache, uri)
-          use_internet      = InternetAvailability.use_internet?
-          cached            = immutable_file_cache.cached?
-          has_etag          = immutable_file_cache.etag?
-          has_last_modified = immutable_file_cache.last_modified?
-          @logger.debug { "should_use_cache for #{uri}, inputs: use_internet? = #{use_internet}, cached? = #{cached}, has_etag? = #{has_etag}, has_last_modified? = #{has_last_modified}" }
-
-          use_cache = false
-          if cached && !has_etag && !has_last_modified
-            @logger.debug { "Using cache version of #{uri} without up-to-date check since it has no etag or last modified timestamp" }
-            use_cache = true
-          elsif use_internet && cached && (has_etag || has_last_modified)
-            use_cache = up_to_date_check(immutable_file_cache, uri)
-          elsif !use_internet && cached
-            @logger.debug { "Internet unavailable, so using cached version of #{uri}" }
-            use_cache = true
-          end
-
-          use_cache
-        end
-
-        def start_parameters(rich_uri)
-          return rich_uri.host, rich_uri.port, http_options(rich_uri) # rubocop:disable RedundantReturn
-        end
-
-        def up_to_date_check(immutable_file_cache, uri)
-          @logger.debug { "Performing up-to-date check on cached version of #{uri}" }
-          use_cache = false
-
-          rich_uri = URI(uri)
-          request  = Net::HTTP::Head.new(rich_uri.request_uri)
-          add_headers(request, immutable_file_cache)
-
-          issue_http_request(request, rich_uri) do |_, response_code|
-            @logger.debug { "Up-to-date check on cached version of #{uri} returned #{response_code}" }
-            if response_code != HTTP_OK
-              if response_code != HTTP_NOT_MODIFIED
-                @logger.warn { "Unable to check whether or not #{uri} has been modified due to #{response_code}. Using cached version." }
-              end
-
-              use_cache = true
-            end
-          end
-          use_cache
-        rescue => ex
-          handle_failure(ex, 1, 1) {}
-          false
-        end
-
-        def use_ssl?(rich_uri)
-          rich_uri.scheme == 'https'
-        end
-
-        def write_response(mutable_file_cache, response)
-          mutable_file_cache.persist_any_etag response['Etag']
-          mutable_file_cache.persist_any_last_modified response['Last-Modified']
-
-          mutable_file_cache.persist_data do |cached_file|
-            response.read_body do |chunk|
-              cached_file.write(chunk)
-            end
-          end
-
-          check_download_file_size(mutable_file_cache, response)
-        end
-
-        def check_download_file_size(mutable_file_cache, response)
-          expected_size = response['Content-Length']
+        def validate_size(expected_size, cached_file)
           if expected_size
-            actual_size = mutable_file_cache.cached_size
-            if expected_size.to_i != actual_size
-              mutable_file_cache.destroy
-              fail(InferredNetworkFailure, "Downloaded file has incorrect size (was #{actual_size}, but should be #{expected_size})")
-            end
-          end
-        end
+            actual_size = cached_file.cached(File::RDONLY) { |f| f.size }
+            @logger.debug { "Validated content size #{actual_size} is #{expected_size}" }
 
-        # Inferred network failure.
-        class InferredNetworkFailure < Exception
-          def initialize(reason)
-            super reason
+            unless expected_size.to_i == actual_size
+              cached_file.destroy
+              fail InferredNetworkFailure, "Content has invalid size.  Was #{actual_size}, should be #{expected_size}."
+            end
           end
         end
 

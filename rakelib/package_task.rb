@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright (c) 2014 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,17 +14,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'logging_helper'
-require 'java_buildpack/util/cache/internet_availability'
+require 'rake/clean'
+require 'rake/tasklib'
+require 'rakelib/package'
 
-shared_context 'internet_availability_helper' do
-  include_context 'logging_helper'
+module Package
 
-  # Re-initialize internet availability
-  before do |example|
-    JavaBuildpack::Util::Cache::InternetAvailability.instance.send :initialize
-    JavaBuildpack::Util::Cache::InternetAvailability.instance.available false if example.metadata[:disable_internet]
+  class PackageTask < Rake::TaskLib
+    include Package
+
+    def initialize
+      CLOBBER << BUILD_DIR
+      directory BUILD_DIR
+
+      CLEAN << STAGING_DIR
+      directory STAGING_DIR
+
+      desc 'Create packaged buildpack'
+      task package: [PACKAGE_NAME]
+
+      task PACKAGE_NAME => [BUILD_DIR, STAGING_DIR] do |t|
+        rake_output_message "Creating #{t.name}"
+        `tar czf #{t.name} -C #{STAGING_DIR} .`
+      end
+    end
+
   end
 
 end

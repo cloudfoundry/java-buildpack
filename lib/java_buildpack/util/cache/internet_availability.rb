@@ -18,100 +18,46 @@ require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/util/cache'
 require 'java_buildpack/util/configuration_utils'
 require 'monitor'
+require 'singleton'
 
 module JavaBuildpack
   module Util
     module Cache
 
-      # This class maintains the state of internet availability: whether or not it has been checked
-      # and whether or not it is deemed to be available.
-      #
-      # The internet is initially assumed to be available unless +remote_downloads+ is set to +disabled+
-      # in +config/cache.yml+.
+      # Maintains the current state of internet availability.
       class InternetAvailability
+        include ::Singleton
 
-        private_class_method :new
+        # Creates a new instance.  Availability is assumed to be +true+ unless +remote_downloads+ is set to +disabled+
+        # in +config/cache.yml+.
+        def initialize
+          @logger  = JavaBuildpack::Logging::LoggerFactory.instance.get_logger InternetAvailability
+          @monitor = Monitor.new
+          @monitor.synchronize { @available = remote_downloads? }
+        end
 
-        class << self
+        # Returns whether the internet is available
+        #
+        # @return [Boolean] +true+ if the internet is available, +false+ otherwise
+        def available?
+          @monitor.synchronize { @available }
+        end
 
-          # Returns whether or not the internet is deemed to be available.
-          #
-          # @return [Boolean] +true+ if and only if the internet is deemed to be available
-          def use_internet?
-            @@monitor.synchronize do
-              if !@@internet_checked
-                remote_downloads_configuration = JavaBuildpack::Util::ConfigurationUtils.load('cache')['remote_downloads']
-                if remote_downloads_configuration == 'disabled'
-                  store_internet_availability false
-                  false
-                elsif remote_downloads_configuration == 'enabled'
-                  true
-                else
-                  fail "Invalid remote_downloads configuration: #{remote_downloads_configuration}"
-                end
-              else
-                @@internet_up
-              end
-            end
+        # Sets whether the internet is available
+        #
+        # @param [Boolean] available whether the internet is available
+        # @param [String, nil] message an optional message to be printed when the availability is set
+        def available(available, message = nil)
+          @monitor.synchronize do
+            @available = available
+            @logger.warn { "Internet availability set to #{available}: #{message}" } if message
           end
+        end
 
-          # Deem the internet to be available.
-          #
-          # @return [Void]
-          def internet_available
-            store_internet_availability true
-          end
+        private
 
-          # Deem the internet to be unavailable and log an error if appropriate.
-          #
-          # @param [String] reason a diagnostic which indicates why the internet should be deemed unavailable
-          # @return [Void]
-          def internet_unavailable(reason)
-            logger.error { "Internet unavailable: #{reason}. Buildpack cache will be used." } if internet_availability_stored?
-            store_internet_availability false
-          end
-
-          # Returns whether or not the internet availability has been stored.
-          #
-          # @return [Boolean] +true+ if and only if internet availability has been recorded
-          def internet_availability_stored?
-            @@monitor.synchronize do
-              @@internet_checked
-            end
-          end
-
-          # Clears any record of internet availability.
-          #
-          # @return [Void]
-          def clear_internet_availability
-            @@monitor.synchronize do
-              @@internet_checked = false
-            end
-          end
-
-          # Explicitly sets whether or not the internet is available
-          #
-          # @param [Boolean] internet_up whether the internet is available
-          # @return [Void]
-          def store_internet_availability(internet_up)
-            @@monitor.synchronize do
-              @@internet_up      = internet_up
-              @@internet_checked = true
-            end
-          end
-
-          private
-
-          @@monitor = Monitor.new
-
-          @@internet_checked = false
-
-          @@internet_up = true
-
-          def logger
-            JavaBuildpack::Logging::LoggerFactory.get_logger InternetAvailability
-          end
-
+        def remote_downloads?
+          JavaBuildpack::Util::ConfigurationUtils.load('cache')['remote_downloads'] != 'disabled'
         end
 
       end

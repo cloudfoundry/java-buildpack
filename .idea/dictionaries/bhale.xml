@@ -7,6 +7,7 @@
       <w>atpack</w>
       <w>codeclimate</w>
       <w>constantized</w>
+      <w>creat</w>
       <w>dhttp</w>
       <w>dirname</w>
       <w>etag</w>
@@ -18,6 +19,7 @@
       <w>formatters</w>
       <w>fsync</w>
       <w>heroku</w>
+      <w>httpok</w>
       <w>jdk's</w>
       <w>jres</w>
       <w>jsome</w>
@@ -53,6 +55,7 @@
       <w>uber</w>
       <w>ubuntu</w>
       <w>uname</w>
+      <w>undoc</w>
       <w>upcase</w>
       <w>upto</w>
       <w>webapp</w>
@@ -60,6 +63,7 @@
       <w>webmock</w>
       <w>wildcarded</w>
       <w>wronly</w>
+      <w>yardoc</w>
       <w>yieldparam</w>
     </words>
   </dictionary>

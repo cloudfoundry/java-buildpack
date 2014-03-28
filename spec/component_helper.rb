@@ -54,7 +54,7 @@ shared_context 'component_helper' do
 
     cache_fixture = example.metadata[:cache_fixture]
     allow(application_cache).to receive(:get).with(uri)
-                                .and_yield(Pathname.new("spec/fixtures/#{cache_fixture}").open) if cache_fixture
+                                .and_yield(Pathname.new("spec/fixtures/#{cache_fixture}").open, false) if cache_fixture
   end
 
   # Mock repository

@@ -48,7 +48,7 @@ module JavaBuildpack
         @name      = validate_name name
         @weighting = validate_weighting weighting
         @range     = range ? validate_memory_range(range) : nil
-        logger     = JavaBuildpack::Logging::LoggerFactory.get_logger MemoryBucket
+        logger     = JavaBuildpack::Logging::LoggerFactory.instance.get_logger MemoryBucket
         logger.debug { inspect }
       end
 

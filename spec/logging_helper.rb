@@ -37,11 +37,11 @@ shared_context 'logging_helper' do
     $DEBUG   = example.metadata[:debug]
     $VERBOSE = example.metadata[:verbose]
 
-    JavaBuildpack::Logging::LoggerFactory.setup app_dir
+    JavaBuildpack::Logging::LoggerFactory.instance.setup app_dir
   end
 
   after do
-    JavaBuildpack::Logging::LoggerFactory.reset
+    JavaBuildpack::Logging::LoggerFactory.instance.reset
 
     ENV['JBP_LOG_LEVEL'] = previous_log_level
     $VERBOSE             = previous_verbose_level

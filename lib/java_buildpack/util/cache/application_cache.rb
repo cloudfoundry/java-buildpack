@@ -31,8 +31,12 @@ module JavaBuildpack
         def initialize
           application_cache_directory = ARGV[1]
           fail 'Application cache directory is undefined' if application_cache_directory.nil?
-          super(Pathname.new(application_cache_directory))
+          super(Pathname.new(application_cache_directory), RESOURCES_DIRECTORY)
         end
+
+        private
+
+        RESOURCES_DIRECTORY = Pathname.new(File.expand_path('../../../../../resources/cache', __FILE__))
 
       end
 

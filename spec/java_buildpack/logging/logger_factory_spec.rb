@@ -24,7 +24,11 @@ describe JavaBuildpack::Logging::LoggerFactory do
   include_context 'console_helper'
   include_context 'logging_helper'
 
-  let(:logger) { described_class.get_logger String }
+  let(:logger) { described_class.instance.get_logger String }
+
+  it 'should maintain backwards compatibility' do
+    expect(described_class.get_logger String).to be
+  end
 
   it 'should log all levels to file',
      log_level: 'FATAL' do
@@ -173,7 +177,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
   end
 
   it 'should return the log file' do
-    expect(described_class.log_file).to eq(app_dir + '.java-buildpack.log')
+    expect(described_class.instance.log_file).to eq(app_dir + '.java-buildpack.log')
   end
 
   context do
@@ -181,8 +185,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
     before do
       allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('logging', false)
                                                         .and_return('default_log_level' => 'DEBUG')
-      described_class.reset
-      described_class.setup app_dir
+      described_class.instance.setup app_dir
     end
 
     it 'should log all levels to console when default_log_level set to DEBUG in configuration file' do
@@ -206,8 +209,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
     before do
       allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('logging', false).and_return({})
-      described_class.reset
-      described_class.setup app_dir
+      described_class.instance.setup app_dir
     end
 
     it 'should log all levels above INFO to console when no configuration has been set' do
@@ -230,16 +232,16 @@ describe JavaBuildpack::Logging::LoggerFactory do
   context do
 
     before do
-      described_class.reset
+      described_class.instance.reset
     end
 
     it 'should raise an error if get_logger called and not yet initialized' do
-      expect { described_class.get_logger String }
+      expect { described_class.instance.get_logger String }
       .to raise_error 'Attempted to get Logger for String before initialization'
     end
 
     it 'should raise an error if log_file called and not yet initialized' do
-      expect { described_class.log_file }
+      expect { described_class.instance.log_file }
       .to raise_error 'Attempted to get log file before initialization'
     end
   end

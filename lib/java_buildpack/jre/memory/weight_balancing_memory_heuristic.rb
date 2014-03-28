@@ -36,7 +36,7 @@ module JavaBuildpack
       # @param [Array<String>] valid_types the valid types of memory
       # @param [Hash<String, String>] java_opts a mapping from a memory type to a +JAVA_OPTS+ option
       def initialize(sizes, heuristics, valid_types, java_opts)
-        @logger = JavaBuildpack::Logging::LoggerFactory.get_logger WeightBalancingMemoryHeuristic
+        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger WeightBalancingMemoryHeuristic
         validate 'size', valid_types, sizes.keys
         validate 'heuristic', valid_types, heuristics.keys
         @memory_limit = MemoryLimit.memory_limit
