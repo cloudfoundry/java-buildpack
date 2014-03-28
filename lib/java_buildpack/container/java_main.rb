@@ -44,7 +44,7 @@ module JavaBuildpack
         [
           "#{@droplet.java_home.root}/bin/java",
           @droplet.additional_libraries.as_classpath,
-          @droplet.java_opts.sort.join(' '),
+          @droplet.java_opts.join(' '),
           main_class,
           arguments,
           port
