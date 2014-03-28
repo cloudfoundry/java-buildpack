@@ -107,7 +107,7 @@ module JavaBuildpack
       #
       # @return [String] the string representation of this range
       def to_s
-        "#{@floor}..#{@ceiling ? @ceiling : ''}"
+        "#{@floor}..#{@ceiling}"
       end
 
       private

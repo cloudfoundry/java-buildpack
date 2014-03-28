@@ -30,6 +30,6 @@ module Package
 
   VERSION = (ENV['VERSION'] || `git rev-parse --short HEAD`.chomp).freeze
 
-  PACKAGE_NAME = "#{BUILD_DIR}/java-buildpack#{OFFLINE ? '-offline' : ''}-#{VERSION}.tar.gz".freeze
+  PACKAGE_NAME = "#{BUILD_DIR}/java-buildpack#{'-offline' if OFFLINE}-#{VERSION}.tar.gz".freeze
 
 end
