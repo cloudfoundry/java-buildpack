@@ -36,7 +36,6 @@ The framework can be configured by modifying the [`config/app_dynamics_agent.yml
 ### Additional Resources
 The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/app_dynamics_agent` directory in the buildpack fork.  For example, to override the default `app-agent-config.xml` add your custom file to `resources/app_dynamics_agent/conf/app-agent-config.xml`.
 
-
 [`config/app_dynamics_agent.yml`]: ../config/app_dynamics_agent.yml
 [AppDynamics Service]: http://www.appdynamics.com
 [Configuration and Extension]: ../README.md#configuration-and-extension

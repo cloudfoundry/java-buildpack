@@ -34,6 +34,9 @@ The JRE can be configured by modifying the [`config/oracle_jre.yml`][] file in t
 | `memory_sizes` | Optional memory sizes, described below under "Memory Sizes".
 | `memory_heuristics` | Default memory size weightings, described below under "Memory Weightings.
 
+### Additional Resources
+The JRE can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/oracle_jre` directory in the buildpack fork.  For example, to add the JCE Unlimited Strength `local_policy.jar` add your file to `resources/oracle_jre/lib/security/local_policy.jar`.
+
 ### Memory
 The total available memory is specified when an application is pushed as part of it's configuration. The Java buildpack uses this value to control the JRE's use of various regions of memory. The JRE memory settings can be influenced by configuring the `memory_sizes` and/or `memory_heuristics` mappings.
 

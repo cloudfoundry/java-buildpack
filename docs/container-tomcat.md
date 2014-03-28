@@ -33,6 +33,9 @@ The container can be configured by modifying the [`config/tomcat.yml`][] file in
 | `redis_store.timeout` | The Redis connection timeout (in milliseconds).
 | `redis_store.connection_pool_size` | The Redis connection pool size.  Note that this is per-instance, not per-application.
 
+### Additional Resources
+The container can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/tomcat` directory in the buildpack fork.  For example, to override the default `logging.properties` add your custom file to `resources/tomcat/conf/logging.properties`.
+
 ## Session Replication
 By default, the Tomcat instance is configured to store all Sessions and their data in memory.  Under certain cirmcumstances it my be appropriate to persist the Sessions and their data to a repository.  When this is the case (small amounts of data that should survive the failure of any individual instance), the buildpack can automatically configure Tomcat to do so.
 
