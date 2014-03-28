@@ -35,6 +35,7 @@ describe JavaBuildpack::BuildpackVersion do
                       'remote' => 'test-remote', 'version' => 'test-version' } do
 
     expect(buildpack_version.to_s).to match(/test-version (offline) | test-remote#test-hash/)
+    expect(buildpack_version.to_s(false)).to match(/test-version-offline-test-remote#test-hash/)
     expect(stderr.string).to match(/test-version (offline) | test-remote#test-hash/)
   end
 
@@ -44,6 +45,7 @@ describe JavaBuildpack::BuildpackVersion do
                       'remote' => 'test-remote', 'version' => 'test-version' } do
 
     expect(buildpack_version.to_s).to match(/test-version | test-remote#test-hash/)
+    expect(buildpack_version.to_s(false)).to match(/test-version-test-remote#test-hash/)
     expect(stderr.string).to match(/test-version | test-remote#test-hash/)
   end
 
@@ -63,6 +65,7 @@ describe JavaBuildpack::BuildpackVersion do
                                               .and_return('test-remote')
 
     expect(buildpack_version.to_s).to match(/test-remote#test-hash/)
+    expect(buildpack_version.to_s(false)).to match(/test-remote#test-hash/)
     expect(stderr.string).to match(/test-remote#test-hash/)
   end
 
@@ -72,6 +75,7 @@ describe JavaBuildpack::BuildpackVersion do
     allow_any_instance_of(described_class).to receive(:system).with('which git > /dev/null').and_return(false)
 
     expect(buildpack_version.to_s).to match(/unknown/)
+    expect(buildpack_version.to_s(false)).to match(/unknown/)
     expect(stderr.string).to match(/unknown/)
   end
 
