@@ -45,15 +45,18 @@ module JavaBuildpack
     # +abcde | https://github.com/cloudfoundry/java-buildpack.git#abcde+ (default version number, online buildpack)
     # +https://github.com/cloudfoundry/java-buildpack#12345+ (cloned buildpack)
     # +unknown+ (un-packaged, un-cloned)
-    def to_s
+    #
+    # @param [Boolean] human_readable whether the output should be human readable or machine readable
+    # @return [String] a +String+ representation of the version
+    def to_s(human_readable = true)
       s = []
       s << @version if @version
-      s << '(offline)' if @offline
-      s << '|' if @version
+      s << (human_readable ? '(offline)' : 'offline') if @offline
+      s << '|' if @version && human_readable
       s << "#{@remote}##{@hash}" if @remote && @hash
       s << 'unknown' if s.empty?
 
-      s.join ' '
+      s.join(human_readable ? ' ' : '-')
     end
 
     private
