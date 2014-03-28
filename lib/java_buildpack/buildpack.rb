@@ -183,10 +183,13 @@ module JavaBuildpack
       private
 
       def handle_error(e, message)
-        logger = Logging::LoggerFactory.instance.get_logger Buildpack
+        if Logging::LoggerFactory.instance.initialized
+          logger = Logging::LoggerFactory.instance.get_logger Buildpack
 
-        logger.error { message % e.inspect }
-        logger.debug { "Exception #{e.inspect} backtrace:\n#{e.backtrace.join("\n")}" }
+          logger.error { message % e.inspect }
+          logger.debug { "Exception #{e.inspect} backtrace:\n#{e.backtrace.join("\n")}" }
+        end
+
         abort e.message
       end
 

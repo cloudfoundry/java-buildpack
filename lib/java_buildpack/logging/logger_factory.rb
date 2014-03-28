@@ -34,6 +34,8 @@ module JavaBuildpack
     class LoggerFactory
       include ::Singleton
 
+      attr_reader :initialized
+
       def initialize
         @monitor = Monitor.new
       end
