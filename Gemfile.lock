@@ -17,7 +17,7 @@ GEM
       slop (~> 3.4, >= 3.4.5)
     powerpack (0.0.9)
     rainbow (2.0.0)
-    rake (10.2.0)
+    rake (10.2.2)
     redcarpet (3.1.1)
     rspec (3.0.0.beta2)
       rspec-core (= 3.0.0.beta2)
