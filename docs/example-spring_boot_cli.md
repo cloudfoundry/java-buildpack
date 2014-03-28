@@ -6,7 +6,7 @@ The following example shows how deploy the sample application located in the [Ja
 
 ```bash
 $ spring grab *.groovy
-$ $ cf push -b https://github.com/cloudfoundry/java-buildpack.git
+$ $ cf push spring-boot-cli-application -b https://github.com/cloudfoundry/java-buildpack.git
 
 -----> Downloading Open Jdk JRE 1.7.0_51 from http://.../openjdk/lucid/x86_64/openjdk-1.7.0_51.tar.gz (0.0s)
        Expanding Open Jdk JRE to .java-buildpack/open_jdk_jre (1.2s)
@@ -24,7 +24,7 @@ The following example shows how deploy the sample application located in the [Ja
 
 ```bash
 $ spring jar spring-boot-cli-application-1.0.0.BUILD-SNAPSHOT.jar *.groovy
-$ cf push -p spring-boot-cli-application-1.0.0.BUILD-SNAPSHOT.jar -b https://github.com/cloudfoundry/java-buildpack.git
+$ cf push spring-boot-cli-application -p spring-boot-cli-application-1.0.0.BUILD-SNAPSHOT.jar -b https://github.com/cloudfoundry/java-buildpack.git
 
 -----> Downloading Open Jdk JRE 1.7.0_51 from http://.../openjdk/lucid/x86_64/openjdk-1.7.0_51.tar.gz (0.0s)
        Expanding Open Jdk JRE to .java-buildpack/open_jdk_jre (1.2s)
