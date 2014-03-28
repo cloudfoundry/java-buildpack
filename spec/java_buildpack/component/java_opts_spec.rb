@@ -57,7 +57,7 @@ describe JavaBuildpack::Component::JavaOpts do
     opts.add_option 'test-key-2', 'test-value-2'
     opts.add_system_property 'test-key-1', 'test-value-1'
 
-    expect(opts.as_env_var).to eq('JAVA_OPTS="-Dtest-key-1=test-value-1 test-key-2=test-value-2"')
+    expect(opts.as_env_var).to eq('JAVA_OPTS="test-key-2=test-value-2 -Dtest-key-1=test-value-1"')
   end
 
 end

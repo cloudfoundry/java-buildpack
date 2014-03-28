@@ -112,7 +112,7 @@ describe JavaBuildpack::Container::SpringBootCLI do
   end
 
   def java_opts_str
-    "\"#{java_opts.sort.join(' ')}\""
+    "\"#{java_opts.join(' ')}\""
   end
 
 end
