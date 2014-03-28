@@ -22,13 +22,17 @@ module Package
 
   BUILD_DIR = 'build'.freeze
 
+  HASH = `git rev-parse --short HEAD`.chomp.freeze
+
   OFFLINE = ENV['OFFLINE'].to_b.freeze
 
   PLATFORMS = %w(centos6 lucid mountainlion precise).freeze
 
+  REMOTE = `git config --get remote.origin.url`.chomp.freeze
+
   STAGING_DIR = "#{BUILD_DIR}/staging".freeze
 
-  VERSION = (ENV['VERSION'] || `git rev-parse --short HEAD`.chomp).freeze
+  VERSION = (ENV['VERSION'] || HASH).freeze
 
   PACKAGE_NAME = "#{BUILD_DIR}/java-buildpack#{'-offline' if OFFLINE}-#{VERSION}.tar.gz".freeze
 

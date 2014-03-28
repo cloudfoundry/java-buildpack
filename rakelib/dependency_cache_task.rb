@@ -39,7 +39,7 @@ module Package
         @cache                   = cache
 
         configurations = component_ids.map { |component_id| configurations(configuration(component_id)) }.flatten
-        uris(configurations).each { |uri| create_task(uri) }
+        uris(configurations).each { |uri| task PACKAGE_NAME => [cache_task(uri)] }
       end
     end
 
@@ -85,6 +85,15 @@ module Package
 
     def cache
       JavaBuildpack::Util::Cache::DownloadCache.new(Pathname.new("#{STAGING_DIR}/resources/cache")).freeze
+    end
+
+    def cache_task(uri)
+      task uri do |t|
+        rake_output_message "Caching #{t.name}"
+        cache.get(t.name) {}
+      end
+
+      uri
     end
 
     def component_ids
@@ -140,15 +149,6 @@ module Package
 
     def version(configuration, index)
       JavaBuildpack::Repository::VersionResolver.resolve(JavaBuildpack::Util::TokenizedVersion.new(configuration['version']), index.keys)
-    end
-
-    def create_task(uri)
-      task uri do |t|
-        rake_output_message "Caching #{t.name}"
-        cache.get(t.name) {}
-      end
-
-      task PACKAGE_NAME => [uri]
     end
 
   end

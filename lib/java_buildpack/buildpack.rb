@@ -15,6 +15,7 @@
 # limitations under the License.
 
 require 'java_buildpack'
+require 'java_buildpack/buildpack_version'
 require 'java_buildpack/component/additional_libraries'
 require 'java_buildpack/component/application'
 require 'java_buildpack/component/droplet'
@@ -39,8 +40,6 @@ module JavaBuildpack
     #                         this application.  If no container can run the application, the array will be empty
     #                         (+[]+).
     def detect
-      diagnose_git_info false
-
       tags = tag_detection('container', @containers, true)
       tags.concat tag_detection('JRE', @jres, true) unless tags.empty?
       tags.concat tag_detection('framework', @frameworks, false) unless tags.empty?
@@ -54,7 +53,7 @@ module JavaBuildpack
     #
     # @return [Void]
     def compile
-      diagnose_git_info true
+      puts BUILDPACK_MESSAGE % @buildpack_version
 
       container = component_detection(@containers).first
       fail 'No container can run this application' unless container
@@ -69,8 +68,6 @@ module JavaBuildpack
     #
     # @return [String] The payload required to run the application.
     def release
-      diagnose_git_info false
-
       container = component_detection(@containers).first
       fail 'No container can run this application' unless container
 
@@ -93,14 +90,13 @@ module JavaBuildpack
 
     private
 
-    DEFAULT_BUILDPACK_MESSAGE = '-----> Java Buildpack source: unknown'.freeze
-
-    GIT_DIR = Pathname.new(__FILE__).dirname + '../../.git'
+    BUILDPACK_MESSAGE = '-----> Java Buildpack Version: %s'.freeze
 
     LOAD_ROOT = Pathname.new(__FILE__).dirname + '..'
 
     def initialize(app_dir, application)
-      @logger = Logging::LoggerFactory.instance.get_logger Buildpack
+      @logger            = Logging::LoggerFactory.instance.get_logger Buildpack
+      @buildpack_version = BuildpackVersion.new
 
       log_environment_variables
 
@@ -121,31 +117,6 @@ module JavaBuildpack
 
     def component_detection(components)
       components.select { |component| component.detect }
-    end
-
-    def diagnose_git_info(print)
-      if system("git --git-dir=#{GIT_DIR} status 2>/dev/null 1>/dev/null")
-        remote_url      = diagnose_remote
-        head_commit_sha = diagnose_head_commit
-        puts "-----> Java Buildpack source: #{remote_url}##{head_commit_sha}" if print
-      else
-        @logger.debug { DEFAULT_BUILDPACK_MESSAGE }
-        puts DEFAULT_BUILDPACK_MESSAGE if print
-      end
-    end
-
-    def diagnose_head_commit
-      git 'rev-parse --short HEAD', 'git HEAD commit: %s'
-    end
-
-    def diagnose_remote
-      git 'config --get remote.origin.url', 'git remote: %s'
-    end
-
-    def git(command, message)
-      result = `git --git-dir=#{GIT_DIR} #{command}`.chomp
-      @logger.debug { message % result }
-      result
     end
 
     def instantiate(components, additional_libraries, application, java_home, java_opts, root)
