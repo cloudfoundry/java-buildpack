@@ -16,6 +16,7 @@
 
 require 'rake/tasklib'
 require 'rakelib/package'
+require 'yaml'
 
 module Package
 
@@ -23,23 +24,14 @@ module Package
     include Package
 
     def initialize(source_files)
-      source_files.map { |source| create_task(source, target(source)) }
-
-      if OFFLINE
-        file "#{STAGING_DIR}/config/cache.yml" do |t|
-          content = File.open(t.source, 'r') { |f| f.read.gsub(/enabled/, 'disabled') }
-          File.open(t.name, 'w') { |f| f.write content }
-        end
-      end
-    end
-
-    def target(source)
-      "#{STAGING_DIR}/#{source}"
+      source_files.map { |source| task PACKAGE_NAME => [copy_task(source, target(source))] }
+      task PACKAGE_NAME => [version_task]
+      disable_remote_downloads_task if OFFLINE
     end
 
     private
 
-    def create_task(source, target)
+    def copy_task(source, target)
       parent = File.dirname target
 
       directory parent
@@ -47,7 +39,32 @@ module Package
         cp t.source, t.name
       end
 
-      task PACKAGE_NAME => [target]
+      target
+    end
+
+    def disable_remote_downloads_task
+      file "#{STAGING_DIR}/config/cache.yml" do |t|
+        content = File.open(t.source, 'r') { |f| f.read.gsub(/enabled/, 'disabled') }
+        File.open(t.name, 'w') { |f| f.write content }
+      end
+    end
+
+    def target(source)
+      "#{STAGING_DIR}/#{source}"
+    end
+
+    def version_task
+      target = target('config/version.yml')
+      parent = File.dirname target
+
+      directory parent
+      file target => [parent] do |t|
+        File.open(t.name, 'w') do |f|
+          f.write({ 'hash' => HASH, 'offline' => OFFLINE, 'remote' => REMOTE, 'version' => VERSION }.to_yaml)
+        end
+      end
+
+      target
     end
 
   end
