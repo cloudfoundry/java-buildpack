@@ -34,6 +34,6 @@ module Package
 
   VERSION = (ENV['VERSION'] || HASH).freeze
 
-  PACKAGE_NAME = "#{BUILD_DIR}/java-buildpack#{'-offline' if OFFLINE}-#{VERSION}.tar.gz".freeze
+  PACKAGE_NAME = "#{BUILD_DIR}/java-buildpack#{'-offline' if OFFLINE}-#{VERSION}.zip".freeze
 
 end

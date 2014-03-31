@@ -43,6 +43,7 @@ GEM
     ruby-debug-ide (0.4.22)
       rake (>= 0.8.1)
     ruby-progressbar (1.4.2)
+    rubyzip (1.1.2)
     safe_yaml (1.0.1)
     simplecov (0.8.2)
       docile (~> 1.1.0)
@@ -67,6 +68,7 @@ DEPENDENCIES
   rubocop
   ruby-debug-base19x (>= 0.11.30.pre)
   ruby-debug-ide
+  rubyzip
   simplecov
   tee
   webmock

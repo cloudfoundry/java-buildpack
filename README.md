@@ -76,7 +76,7 @@ The online package is a version of the buildpack that is as minimal as possible 
 bundle install
 bundle exec rake package
 ...
-Creating build/java-buildpack-cfd6b17.tar.gz
+Creating build/java-buildpack-cfd6b17.zip
 ```
 
 ### Offline Package
@@ -86,7 +86,7 @@ The offline package is a version of the buildpack designed to run without access
 bundle install
 bundle exec rake package OFFLINE=true
 ...
-Creating build/java-buildpack-offline-cfd6b17.tar.gz
+Creating build/java-buildpack-offline-cfd6b17.zip
 ```
 
 ### Package Versioning
@@ -96,7 +96,7 @@ Keeping track of different versions of the buildpack can be difficult.  To help 
 bundle install
 bundle exec rake package VERSION=2.1
 ...
-Creating build/java-buildpack-2.1.tar.gz
+Creating build/java-buildpack-2.1.zip
 ```
 
 ## Running Tests

@@ -17,6 +17,7 @@
 require 'rake/clean'
 require 'rake/tasklib'
 require 'rakelib/package'
+require 'zip'
 
 module Package
 
@@ -35,7 +36,12 @@ module Package
 
       task PACKAGE_NAME => [BUILD_DIR, STAGING_DIR] do |t|
         rake_output_message "Creating #{t.name}"
-        `tar czf #{t.name} -C #{STAGING_DIR} .`
+
+        Zip::File.open(t.name, Zip::File::CREATE) do |zipfile|
+          Dir[File.join(STAGING_DIR, '**', '**')].each do |file|
+            zipfile.add(file.sub("#{STAGING_DIR}/", ''), file)
+          end
+        end
       end
     end
 

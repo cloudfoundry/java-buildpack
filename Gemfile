@@ -4,6 +4,7 @@ group :development do
   gem 'rake'
   gem 'redcarpet'
   gem 'rubocop'
+  gem 'rubyzip'
   gem 'yard'
 end
 
