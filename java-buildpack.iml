@@ -293,6 +293,7 @@
     <orderEntry type="library" scope="PROVIDED" name="ruby-debug-base19x (v0.11.30.pre15, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ruby-debug-ide (v0.4.22, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ruby-progressbar (v1.4.2, rbenv: 1.9.3-p545) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubyzip (v1.1.2, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="safe_yaml (v1.0.1, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="simplecov (v0.8.2, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="simplecov-html (v0.8.0, rbenv: 1.9.3-p545) [gem]" level="application" />

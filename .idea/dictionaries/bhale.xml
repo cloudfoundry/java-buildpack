@@ -65,6 +65,7 @@
       <w>wronly</w>
       <w>yardoc</w>
       <w>yieldparam</w>
+      <w>zipfile</w>
     </words>
   </dictionary>
 </component>
