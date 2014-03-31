@@ -39,7 +39,7 @@ module Package
         @cache                   = cache
 
         configurations = component_ids.map { |component_id| configurations(configuration(component_id)) }.flatten
-        uris(configurations).each { |uri| task PACKAGE_NAME => [cache_task(uri)] }
+        uris(configurations).each { |uri| multitask PACKAGE_NAME => [cache_task(uri)] }
       end
     end
 

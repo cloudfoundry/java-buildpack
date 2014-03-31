@@ -24,8 +24,8 @@ module Package
     include Package
 
     def initialize(source_files)
-      source_files.map { |source| task PACKAGE_NAME => [copy_task(source, target(source))] }
-      task PACKAGE_NAME => [version_task]
+      source_files.map { |source| multitask PACKAGE_NAME => [copy_task(source, target(source))] }
+      multitask PACKAGE_NAME => [version_task]
       disable_remote_downloads_task if OFFLINE
     end
 

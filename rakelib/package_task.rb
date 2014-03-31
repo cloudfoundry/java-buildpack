@@ -34,7 +34,7 @@ module Package
       desc 'Create packaged buildpack'
       task package: [PACKAGE_NAME]
 
-      task PACKAGE_NAME => [BUILD_DIR, STAGING_DIR] do |t|
+      multitask PACKAGE_NAME => [BUILD_DIR, STAGING_DIR] do |t|
         rake_output_message "Creating #{t.name}"
 
         Zip::File.open(t.name, Zip::File::CREATE) do |zipfile|
