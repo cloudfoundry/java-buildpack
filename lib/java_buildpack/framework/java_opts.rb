@@ -27,7 +27,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
-        @configuration.key?(CONFIGURATION_PROPERTY) ? JavaOpts.to_s.dash_case : nil
+        (supports_configuration? || supports_environment?) ? JavaOpts.to_s.dash_case : nil
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -46,15 +46,30 @@ module JavaBuildpack
 
       CONFIGURATION_PROPERTY = 'java_opts'.freeze
 
+      ENVIRONMENT_PROPERTY = 'from_environment'.freeze
+
+      ENVIRONMENT_VARIABLE = 'JAVA_OPTS'.freeze
+
       def memory_option?(option)
         option =~ /-Xms/ || option =~ /-Xmx/ || option =~ /-XX:MaxMetaspaceSize/ || option =~ /-XX:MaxPermSize/ ||
           option =~ /-Xss/ || option =~ /-XX:MetaspaceSize/ || option =~ /-XX:PermSize/
       end
 
       def parsed_java_opts
-        @configuration[CONFIGURATION_PROPERTY].shellsplit.map do |java_opt|
-          java_opt.gsub(/([\s])/, '\\\\\1')
-        end
+        parsed_java_opts = []
+
+        parsed_java_opts.concat @configuration[CONFIGURATION_PROPERTY].shellsplit if supports_configuration?
+        parsed_java_opts.concat ENV[ENVIRONMENT_VARIABLE].shellsplit if supports_environment?
+
+        parsed_java_opts.map { |java_opt| java_opt.gsub(/([\s])/, '\\\\\1') }
+      end
+
+      def supports_configuration?
+        @configuration.key? CONFIGURATION_PROPERTY
+      end
+
+      def supports_environment?
+        @configuration[ENVIRONMENT_PROPERTY] && ENV.key?(ENVIRONMENT_VARIABLE)
       end
 
     end

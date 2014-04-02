@@ -23,18 +23,26 @@ shared_context 'application_helper' do
 
   let(:app_dir) { Pathname.new Dir.mktmpdir }
 
-  let(:application) do
-    allow(ENV).to receive(:to_hash).and_return(environment)
-
-    JavaBuildpack::Component::Application.new app_dir
-  end
-
-  let(:details) { application.details }
+  previous_environment = ENV
 
   let(:environment) do
     { 'test-key'      => 'test-value', 'VCAP_APPLICATION' => vcap_application.to_yaml,
       'VCAP_SERVICES' => vcap_services.to_yaml }
   end
+
+  before do
+    ENV.replace environment
+  end
+
+  after do
+    ENV.replace previous_environment
+  end
+
+  let(:application) do
+    JavaBuildpack::Component::Application.new app_dir
+  end
+
+  let(:details) { application.details }
 
   let(:services) { application.services }
 
