@@ -17,8 +17,9 @@
 require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/repository'
 require 'java_buildpack/repository/version_resolver'
-require 'java_buildpack/util/configuration_utils'
+require 'java_buildpack/util/cache'
 require 'java_buildpack/util/cache/download_cache'
+require 'java_buildpack/util/configuration_utils'
 require 'rbconfig'
 require 'yaml'
 
@@ -37,7 +38,7 @@ module JavaBuildpack
         @default_repository_root = JavaBuildpack::Util::ConfigurationUtils.load('repository')['default_repository_root']
         .chomp('/')
 
-        JavaBuildpack::Util::Cache::DownloadCache.new.get("#{canonical repository_root}#{INDEX_PATH}") do |file|
+        cache.get("#{canonical repository_root}#{INDEX_PATH}") do |file|
           @index = YAML.load_file(file)
           @logger.debug { @index }
         end
@@ -51,7 +52,7 @@ module JavaBuildpack
       def find_item(version)
         version = VersionResolver.resolve(version, @index.keys)
         uri     = @index[version.to_s]
-        return version, uri # rubocop:disable RedundantReturn
+        [version, uri]
       end
 
       private
@@ -60,6 +61,11 @@ module JavaBuildpack
 
       def architecture
         `uname -m`.strip
+      end
+
+      def cache
+        JavaBuildpack::Util::Cache::DownloadCache.new(Pathname.new(Dir.tmpdir),
+                                                      JavaBuildpack::Util::Cache::CACHED_RESOURCES_DIRECTORY)
       end
 
       def canonical(raw)

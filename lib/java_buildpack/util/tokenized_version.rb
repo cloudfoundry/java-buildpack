@@ -60,7 +60,7 @@ module JavaBuildpack
       # Convert this to a string
       #
       # @return [String] a string representation of this tokenized version
-      def to_s # rubocop:disable TrivialAccessors
+      def to_s
         @version
       end
 
@@ -93,7 +93,7 @@ module JavaBuildpack
           fail "Invalid major or minor version '#{major_or_minor}'" unless valid_major_minor_or_micro major_or_minor
         end
 
-        return major_or_minor, tail # rubocop:disable RedundantReturn
+        [major_or_minor, tail]
       end
 
       def micro_and_qualifier(s)
@@ -109,7 +109,7 @@ module JavaBuildpack
           fail "Invalid qualifier '#{qualifier}'" unless valid_qualifier qualifier
         end
 
-        return micro, qualifier # rubocop:disable RedundantReturn
+        [micro, qualifier]
       end
 
       def minimum_qualifier_length(a, b)

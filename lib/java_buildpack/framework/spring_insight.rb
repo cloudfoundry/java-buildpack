@@ -156,7 +156,7 @@ module JavaBuildpack
         uri         = credentials['dashboard_url']
         id          = credentials['agent_username']
         pass        = credentials['agent_password']
-        return version, uri, id, pass # rubocop:disable RedundantReturn
+        [version, uri, id, pass]
       end
 
       def insight_directory

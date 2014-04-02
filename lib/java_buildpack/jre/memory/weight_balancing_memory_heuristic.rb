@@ -109,7 +109,7 @@ module JavaBuildpack
         stack_memory      = weighted_proportion(stack_bucket, buckets)
         num_threads       = [stack_memory / stack_bucket.default_size, 1].max
         normalised_bucket = MemoryBucket.new('normalised stack', stack_bucket.weighting, stack_bucket.range * num_threads)
-        return normalised_bucket, num_threads # rubocop:disable RedundantReturn
+        [normalised_bucket, num_threads]
       end
 
       def balance_buckets(buckets)
@@ -138,7 +138,7 @@ module JavaBuildpack
         end
         remaining_memory -= allocated_memory
         fail "Total memory #{@memory_limit} exceeded by configured memory #{@sizes}" if remaining_memory < 0
-        return remaining_memory, deleted # rubocop:disable RedundantReturn
+        [remaining_memory, deleted]
       end
 
       def constrain_bucket_size(allocated_memory, bucket, size)
