@@ -137,6 +137,8 @@ module Package
 
       configurations.each do |configuration|
         index_uris(configuration).each do |index_uri|
+          multitask PACKAGE_NAME => [cache_task(index_uri)]
+
           @cache.get(index_uri) do |f|
             index = YAML.load f
             uris << index[version(configuration, index).to_s]
