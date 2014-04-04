@@ -127,9 +127,11 @@ module JavaBuildpack
         require_component(component)
 
         component_id = component.split('::').last.snake_case
-        context      = { application:   application,
-                         configuration: Util::ConfigurationUtils.load(component_id),
-                         droplet:       Component::Droplet.new(additional_libraries, component_id, java_home, java_opts, root) }
+        context      = {
+          application:   application,
+          configuration: Util::ConfigurationUtils.load(component_id),
+          droplet:       Component::Droplet.new(additional_libraries, component_id, java_home, java_opts, root)
+        }
 
         component.constantize.new(context)
       end

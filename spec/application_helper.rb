@@ -31,7 +31,7 @@ shared_context 'application_helper' do
   end
 
   before do
-    ENV.replace environment
+    ENV.update environment
   end
 
   after do
