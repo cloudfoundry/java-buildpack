@@ -74,7 +74,9 @@ module JavaBuildpack
 
       private
 
-      COLLATING_SEQUENCE = ['-', '.'] + ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
+      COLLATING_SEQUENCE = (['-', '.'] + ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a).freeze
+
+      private_constant :COLLATING_SEQUENCE
 
       def char_compare(c1, c2)
         COLLATING_SEQUENCE.index(c1) <=> COLLATING_SEQUENCE.index(c2)
@@ -139,7 +141,7 @@ module JavaBuildpack
         each do |value|
           fail "Invalid version '#{@version}': wildcards are not allowed this context" if value == WILDCARD && !allow_wildcards
 
-          fail "Invalid version '#{@version}': no characters are allowed after a wildcard" if wildcarded && !value.nil?
+          fail "Invalid version '#{@version}': no characters are allowed after a wildcard" if wildcarded && value
           wildcarded = true if value == WILDCARD
         end
         fail "Invalid version '#{@version}': missing component" if !wildcarded && compact.length < 3

@@ -130,6 +130,8 @@ module JavaBuildpack
 
         REPLACEMENT_BOOTSTRAP = 'org.cloudfoundry.reconfiguration.play.Bootstrap'.freeze
 
+        private_constant :ORIGINAL_BOOTSTRAP, :REPLACEMENT_BOOTSTRAP
+
         def play_jar
           (lib_dir + '*play_*-*.jar').glob.first
         end

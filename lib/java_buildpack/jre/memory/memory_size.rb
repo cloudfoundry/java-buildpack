@@ -126,15 +126,17 @@ module JavaBuildpack
         fail "Cannot divide a MemorySize by an instance of #{other.class}"
       end
 
-      protected
-
       # @!attribute [r] bytes
       # @return [Numeric] the size in bytes of this memory size
       attr_reader :bytes
 
+      protected :bytes
+
       private
 
-      KILO = 1024
+      KILO = 1024.freeze
+
+      private_constant :KILO
 
       def memory_size_operation(other)
         fail "Invalid parameter: instance of #{other.class} is not a MemorySize" unless other.is_a? MemorySize
@@ -152,11 +154,8 @@ module JavaBuildpack
         MemorySize.new("#{n}B")
       end
 
-      public
-
       # Zero byte memory size
-      ZERO = MemorySize.new('0B')
-
+      ZERO = MemorySize.new('0B').freeze
     end
 
   end

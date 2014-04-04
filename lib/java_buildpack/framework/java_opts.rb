@@ -50,6 +50,8 @@ module JavaBuildpack
 
       ENVIRONMENT_VARIABLE = 'JAVA_OPTS'.freeze
 
+      private_constant :CONFIGURATION_PROPERTY, :ENVIRONMENT_PROPERTY, :ENVIRONMENT_VARIABLE
+
       def memory_option?(option)
         option =~ /-Xms/ || option =~ /-Xmx/ || option =~ /-XX:MaxMetaspaceSize/ || option =~ /-XX:MaxPermSize/ ||
           option =~ /-Xss/ || option =~ /-XX:MetaspaceSize/ || option =~ /-XX:PermSize/

@@ -71,6 +71,8 @@ module JavaBuildpack
 
         GROOVY_FILE_PATTERN = '**/*.groovy'.freeze
 
+        private_constant :GROOVY_FILE_PATTERN
+
         def safe_read(file)
           yield
         rescue => e

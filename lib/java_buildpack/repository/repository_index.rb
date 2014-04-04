@@ -57,7 +57,9 @@ module JavaBuildpack
 
       private
 
-      INDEX_PATH = '/index.yml'
+      INDEX_PATH = '/index.yml'.freeze
+
+      private_constant :INDEX_PATH
 
       def architecture
         `uname -m`.strip

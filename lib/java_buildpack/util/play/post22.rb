@@ -61,8 +61,6 @@ module JavaBuildpack
           JavaBuildpack::Util.start_script root
         end
 
-        protected
-
         # Returns the root of the play application
         #
         # @return [Pathname] the root of the play application

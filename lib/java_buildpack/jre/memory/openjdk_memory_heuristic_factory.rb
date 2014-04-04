@@ -43,6 +43,8 @@ module JavaBuildpack
 
         VALID_TYPES = %w(heap stack native).freeze
 
+        private_constant :VALID_TYPES
+
         JAVA_OPTS = {
           'heap'      => ->(v) { %W(-Xmx#{v} -Xms#{v}) },
           'metaspace' => ->(v) { %W(-XX:MaxMetaspaceSize=#{v} -XX:MetaspaceSize=#{v}) },

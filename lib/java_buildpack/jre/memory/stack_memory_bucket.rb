@@ -43,9 +43,9 @@ module JavaBuildpack
         range.floor == 0 ? JVM_DEFAULT_STACK_SIZE : range.floor
       end
 
-      private
-
       JVM_DEFAULT_STACK_SIZE = MemorySize.new('1M').freeze
+
+      private_constant :JVM_DEFAULT_STACK_SIZE
 
     end
 

@@ -76,7 +76,7 @@ module JavaBuildpack
 
         private
 
-        FAILURE_LIMIT = 5
+        FAILURE_LIMIT = 5.freeze
 
         HTTP_ERRORS = [
           EOFError,
@@ -100,7 +100,9 @@ module JavaBuildpack
           Timeout::Error
         ].freeze
 
-        TIMEOUT_SECONDS = 10
+        TIMEOUT_SECONDS = 10.freeze
+
+        private_constant :FAILURE_LIMIT, :HTTP_ERRORS, :TIMEOUT_SECONDS
 
         def attempt(http, request, cached_file)
           downloaded = false

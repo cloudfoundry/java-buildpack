@@ -53,6 +53,8 @@ module JavaBuildpack
 
       FILTER = /newrelic/.freeze
 
+      private_constant :FILTER
+
       def application_name
         @application.details['application_name']
       end

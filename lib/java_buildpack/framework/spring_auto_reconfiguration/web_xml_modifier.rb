@@ -97,6 +97,11 @@ module JavaBuildpack
 
       DISPATCHER_SERVLET = 'DispatcherServlet'.freeze
 
+      private_constant :CONTEXT_CLASS, :CONTEXT_CLASS_ANNOTATION, :CONTEXT_CONFIG_LOCATION,
+                       :CONTEXT_INITIALIZER_ADDITIONAL, :CONTEXT_INITIALIZER_CLASSES, :CONTEXT_LOADER_LISTENER,
+                       :CONTEXT_LOCATION_ADDITIONAL_ANNOTATION, :CONTEXT_LOCATION_ADDITIONAL_XML,
+                       :CONTEXT_LOCATION_DEFAULT, :DISPATCHER_SERVLET
+
       def additional_context_config_location(root, param_type)
         annotation_application_context?(root, param_type) ? CONTEXT_LOCATION_ADDITIONAL_ANNOTATION : CONTEXT_LOCATION_ADDITIONAL_XML
       end

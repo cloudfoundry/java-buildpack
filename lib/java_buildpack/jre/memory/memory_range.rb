@@ -36,13 +36,13 @@ module JavaBuildpack
       # @param [MemorySize, nil] ceiling the upper bound of the range
       def initialize(value, ceiling = nil)
         if value.is_a? String
-          fail "Invalid combination of parameter types #{value.class} and #{ceiling.class}" unless ceiling.nil?
+          fail "Invalid combination of parameter types #{value.class} and #{ceiling.class}" if ceiling
           lower_bound, upper_bound = get_bounds(value)
           @floor                   = create_memory_size lower_bound
           @ceiling                 = upper_bound ? create_memory_size(upper_bound) : nil
         else
           validate_memory_size value
-          validate_memory_size ceiling unless ceiling.nil?
+          validate_memory_size ceiling if ceiling
           @floor   = value
           @ceiling = ceiling
         end
@@ -52,9 +52,7 @@ module JavaBuildpack
       # Determines whether or not this range is bounded. Reads better than testing for a +nil+ ceiling.
       #
       # @return [Boolean] +true+ if and only if this range is bounded
-      def bounded?
-        !@ceiling.nil?
-      end
+      alias_method :bounded?, :ceiling
 
       # Determines whether a given memory size falls in this range.
       #
@@ -74,7 +72,7 @@ module JavaBuildpack
         if size < @floor
           @floor
         else
-          !@ceiling.nil? && size > @ceiling ? @ceiling : size
+          @ceiling && size > @ceiling ? @ceiling : size
         end
       end
 
@@ -112,7 +110,9 @@ module JavaBuildpack
 
       private
 
-      RANGE_SEPARATOR = '..'
+      RANGE_SEPARATOR = '..'.freeze
+
+      private_constant :RANGE_SEPARATOR
 
       def get_bounds(range)
         if range.index(RANGE_SEPARATOR)

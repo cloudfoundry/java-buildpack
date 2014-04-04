@@ -60,6 +60,8 @@ module JavaBuildpack
 
       FILTER = /app-dynamics/.freeze
 
+      private_constant :FILTER
+
       def application_name
         @application.details['application_name']
       end

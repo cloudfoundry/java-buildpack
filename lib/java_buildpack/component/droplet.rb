@@ -104,6 +104,8 @@ module JavaBuildpack
 
       RESOURCES_DIRECTORY = Pathname.new(File.expand_path('../../../../resources', __FILE__)).freeze
 
+      private_constant :RESOURCES_DIRECTORY
+
       def in?(path, root)
         path.ascend do |parent|
           return true if parent == root

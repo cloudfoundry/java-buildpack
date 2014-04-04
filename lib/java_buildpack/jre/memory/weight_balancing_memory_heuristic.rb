@@ -62,11 +62,13 @@ module JavaBuildpack
 
       private
 
-      NATIVE_MEMORY_WARNING_FACTOR = 3
+      NATIVE_MEMORY_WARNING_FACTOR = 3.freeze
 
-      TOTAL_MEMORY_WARNING_FACTOR = 0.8
+      TOTAL_MEMORY_WARNING_FACTOR = 0.8.freeze
 
-      CLOSE_TO_DEFAULT_FACTOR = 0.1
+      CLOSE_TO_DEFAULT_FACTOR = 0.1.freeze
+
+      private_constant :NATIVE_MEMORY_WARNING_FACTOR, :TOTAL_MEMORY_WARNING_FACTOR, :CLOSE_TO_DEFAULT_FACTOR
 
       def allocate_lower_bounds(buckets)
         buckets.each_value do |bucket|

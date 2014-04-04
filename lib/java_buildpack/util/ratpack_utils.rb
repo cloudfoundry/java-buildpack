@@ -35,9 +35,9 @@ module JavaBuildpack
           (application.root + RATPACK_FILE_PATTERN).glob.any?
         end
 
-        private
-
         RATPACK_FILE_PATTERN = '**/app/{R,r}atpack.groovy'.freeze
+
+        private_constant :RATPACK_FILE_PATTERN
 
       end
 

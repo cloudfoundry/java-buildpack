@@ -35,9 +35,9 @@ module JavaBuildpack
           (application.root + CLASS_FILE_PATTERN).glob.reject { |path| path.directory? }.sort
         end
 
-        private
-
         CLASS_FILE_PATTERN = '**/*.class'.freeze
+
+        private_constant :CLASS_FILE_PATTERN
 
       end
 

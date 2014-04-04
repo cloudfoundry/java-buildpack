@@ -43,8 +43,6 @@ class Numeric
     "#{seconds}.#{tenths}s"
   end
 
-  private
-
   MILLISECOND = 0.001.freeze
 
   TENTH = (100 * MILLISECOND).freeze
@@ -54,5 +52,7 @@ class Numeric
   MINUTE = (60 * SECOND).freeze
 
   HOUR = (60 * MINUTE).freeze
+
+  private_constant :MILLISECOND, :TENTH, :SECOND, :MINUTE, :HOUR
 
 end

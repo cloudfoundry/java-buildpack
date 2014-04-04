@@ -57,6 +57,8 @@ module JavaBuildpack
 
       CLASS_PATH_PROPERTY = 'Class-Path'.freeze
 
+      private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
+
       def arguments
         @configuration[ARGUMENTS_PROPERTY]
       end

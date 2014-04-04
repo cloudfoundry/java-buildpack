@@ -63,6 +63,8 @@ module JavaBuildpack
 
       KEY_MEMORY_SIZES = 'memory_sizes'.freeze
 
+      private_constant :KEY_MEMORY_HEURISTICS, :KEY_MEMORY_SIZES
+
       def killjava
         @droplet.sandbox + 'bin/killjava.sh'
       end

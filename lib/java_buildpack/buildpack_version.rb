@@ -63,6 +63,8 @@ module JavaBuildpack
 
     GIT_DIR = (Pathname.new(__FILE__).dirname + '../../.git').freeze
 
+    private_constant :GIT_DIR
+
     def git(command)
       `git --git-dir=#{GIT_DIR} #{command}`.chomp if git? && git_dir?
     end

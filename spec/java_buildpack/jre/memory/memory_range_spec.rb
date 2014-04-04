@@ -43,7 +43,7 @@ describe JavaBuildpack::Jre::MemoryRange do
   it 'should accept a range with specified lower bound, but no upper bound' do
     range = described_class.new('3m..')
     expect(range.floor).to eq(test_lower_bound)
-    expect(range.bounded?).to be(false)
+    expect(range.bounded?).not_to be
     expect(range.ceiling).to be_nil
   end
 
@@ -56,7 +56,7 @@ describe JavaBuildpack::Jre::MemoryRange do
   it 'should accept a range with no lower or upper bounds' do
     range = described_class.new('..')
     expect(range.floor).to eq(0)
-    expect(range.bounded?).to be(false)
+    expect(range.bounded?).not_to be
     expect(range.ceiling).to be_nil
   end
 
@@ -120,14 +120,14 @@ describe JavaBuildpack::Jre::MemoryRange do
     range = described_class.new(test_lower_bound, test_upper_bound)
     expect(range.floor).to eq(test_lower_bound)
     expect(range.ceiling).to eq(test_upper_bound)
-    expect(range.bounded?).to be(true)
+    expect(range.bounded?).to be
   end
 
   it 'should accept a lower bound and no upper bound' do
     range = described_class.new(test_lower_bound)
     expect(range.floor).to eq(test_lower_bound)
     expect(range.ceiling).to be_nil
-    expect(range.bounded?).to be(false)
+    expect(range.bounded?).not_to be
   end
 
   it 'should correctly detect a degenerate range constructed from MemorySizes' do

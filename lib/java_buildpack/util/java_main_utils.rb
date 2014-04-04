@@ -55,6 +55,8 @@ module JavaBuildpack
 
         MANIFEST_PROPERTY = 'Main-Class'.freeze
 
+        private_constant :MAIN_CLASS_PROPERTY, :MANIFEST_PROPERTY
+
       end
 
     end

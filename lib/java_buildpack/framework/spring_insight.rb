@@ -73,6 +73,8 @@ module JavaBuildpack
 
       FILTER = /insight/.freeze
 
+      private_constant :AGENT_DOWNLOAD_URI_SUFFIX, :FILTER
+
       def add_agent_configuration
         @droplet.java_opts
         .add_system_property('agent.http.protocol', 'http')

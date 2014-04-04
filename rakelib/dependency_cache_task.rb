@@ -51,6 +51,8 @@ module Package
 
     PLATFORM_PATTERN = /\{platform\}/.freeze
 
+    private_constant :ARCHITECTURE_PATTERN, :DEFAULT_REPOSITORY_ROOT_PATTERN, :PLATFORM_PATTERN
+
     def augment(raw, pattern, candidates, &block)
       if raw.respond_to? :map
         raw.map(&block)

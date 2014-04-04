@@ -93,7 +93,9 @@ module JavaBuildpack
 
     BUILDPACK_MESSAGE = '-----> Java Buildpack Version: %s'.freeze
 
-    LOAD_ROOT = Pathname.new(__FILE__).dirname + '..'
+    LOAD_ROOT = (Pathname.new(__FILE__).dirname + '..').freeze
+
+    private_constant :BUILDPACK_MESSAGE, :LOAD_ROOT
 
     def initialize(app_dir, application)
       @logger            = Logging::LoggerFactory.instance.get_logger Buildpack

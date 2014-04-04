@@ -44,15 +44,15 @@ describe 'format duration' do
 
   private
 
-  MILLISECOND = 0.001
+  MILLISECOND = 0.001.freeze
 
-  TENTH = 100 * MILLISECOND
+  TENTH = (100 * MILLISECOND).freeze
 
-  SECOND = 10 * TENTH
+  SECOND = (10 * TENTH).freeze
 
-  MINUTE = 60 * SECOND
+  MINUTE = (60 * SECOND).freeze
 
-  HOUR = 60 * MINUTE
+  HOUR = (60 * MINUTE).freeze
 
   def expect_time_string(expected, time)
     expect(time.duration).to eq(expected)

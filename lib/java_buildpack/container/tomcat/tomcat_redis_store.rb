@@ -63,6 +63,9 @@ module JavaBuildpack
 
       REDIS_STORE_CLASS_NAME = 'com.gopivotal.manager.redis.RedisStore'.freeze
 
+      private_constant :FILTER, :FLUSH_VALVE_CLASS_NAME, :KEY_HOST_NAME, :KEY_PASSWORD, :KEY_PORT,
+                       :PERSISTENT_MANAGER_CLASS_NAME, :REDIS_STORE_CLASS_NAME
+
       def add_manager(context)
         manager = context.add_element 'Manager', 'className' => PERSISTENT_MANAGER_CLASS_NAME
         add_store manager

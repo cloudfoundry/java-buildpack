@@ -23,9 +23,9 @@ module JavaBuildpack
       # Encapsulate inspection and modification of Play dist applications from Play 2.2.0 onwards.
       class Post22Dist < Post22
 
-        protected
-
         alias_method :root, :find_single_directory
+
+        protected :root
 
       end
 

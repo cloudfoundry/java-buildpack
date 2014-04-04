@@ -51,7 +51,9 @@ module JavaBuildpack
 
         private
 
-        TOKENIZED_WILDCARD = JavaBuildpack::Util::TokenizedVersion.new('+')
+        TOKENIZED_WILDCARD = JavaBuildpack::Util::TokenizedVersion.new('+').freeze
+
+        private_constant :TOKENIZED_WILDCARD
 
         def safe_candidate_version(candidate_version)
           if candidate_version.nil?

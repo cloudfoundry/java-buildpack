@@ -31,7 +31,7 @@ GEM
     rspec-mocks (3.0.0.beta2)
       rspec-support (= 3.0.0.beta2)
     rspec-support (3.0.0.beta2)
-    rubocop (0.19.1)
+    rubocop (0.20.0)
       json (>= 1.7.7, < 2)
       parser (~> 2.1.7)
       powerpack (~> 0.0.6)
@@ -55,7 +55,7 @@ GEM
     webmock (1.17.4)
       addressable (>= 2.2.7)
       crack (>= 0.3.2)
-    yard (0.8.7.3)
+    yard (0.8.7.4)
 
 PLATFORMS
   ruby

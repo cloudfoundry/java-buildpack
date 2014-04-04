@@ -31,14 +31,17 @@ module JavaBuildpack
         super(context)
       end
 
+      # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
         JavaBuildpack::Util::RatpackUtils.is?(@application) ? id(version) : nil
       end
 
+      # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         @droplet.additional_libraries.link_to lib_dir
       end
 
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.java_opts.add_system_property 'ratpack.port', '$PORT'
 
@@ -52,6 +55,8 @@ module JavaBuildpack
       private
 
       RATPACK_CORE_FILE_PATTERN = 'lib/ratpack-core-*.jar'.freeze
+
+      private_constant :RATPACK_CORE_FILE_PATTERN
 
       def id(version)
         "#{Ratpack.to_s.dash_case}=#{version}"
