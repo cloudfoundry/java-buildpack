@@ -18,7 +18,7 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/java_opts'
 
-describe JavaBuildpack::Framework::JavaOpts, :focus do
+describe JavaBuildpack::Framework::JavaOpts do
   include_context 'component_helper'
 
   context do
