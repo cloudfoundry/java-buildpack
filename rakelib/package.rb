@@ -18,17 +18,23 @@ require 'rakelib/to_b'
 
 module Package
 
+  def self.git(command)
+    `git #{command}`.chomp
+  rescue
+    nil
+  end
+
   ARCHITECTURES = %w(x86_64).freeze
 
   BUILD_DIR = 'build'.freeze
 
-  HASH = `git rev-parse --short HEAD`.chomp.freeze
+  HASH = git 'rev-parse --short HEAD'.freeze
 
   OFFLINE = ENV['OFFLINE'].to_b.freeze
 
   PLATFORMS = %w(centos6 lucid mountainlion precise).freeze
 
-  REMOTE = `git config --get remote.origin.url`.chomp.freeze
+  REMOTE = git 'config --get remote.origin.url'.freeze
 
   STAGING_DIR = "#{BUILD_DIR}/staging".freeze
 
