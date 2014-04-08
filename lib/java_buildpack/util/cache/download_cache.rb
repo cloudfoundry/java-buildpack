@@ -194,7 +194,11 @@ module JavaBuildpack
         end
 
         def proxy(uri)
-          proxy_uri = secure?(uri) ? URI.parse(ENV['https_proxy'] || '') : URI.parse(ENV['http_proxy'] || '')
+          proxy_uri = if secure?(uri)
+                        URI.parse(ENV['https_proxy'] || ENV['HTTPS_PROXY'] || '')
+                      else
+                        URI.parse(ENV['http_proxy'] || ENV['HTTP_PROXY'] || '')
+                      end
 
           @logger.debug { "Proxy: #{proxy_uri.host}, #{proxy_uri.port}, #{proxy_uri.user}, #{proxy_uri.password}" }
           Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port, proxy_uri.user, proxy_uri.password)
