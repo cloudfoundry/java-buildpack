@@ -31,8 +31,10 @@
     <RSPEC_RUN_CONFIG_SETTINGS_ID NAME="ZEUS" VALUE="false" />
     <RSPEC_RUN_CONFIG_SETTINGS_ID NAME="SPRING" VALUE="false" />
     <RSPEC_RUN_CONFIG_SETTINGS_ID NAME="FULL_BACKTRACE" VALUE="false" />
+    <RunnerSettings RunnerId="RubyCover" />
     <RunnerSettings RunnerId="RubyDebugRunner" />
     <RunnerSettings RunnerId="RubyRunner" />
+    <ConfigurationWrapper RunnerId="RubyCover" />
     <ConfigurationWrapper RunnerId="RubyDebugRunner" />
     <ConfigurationWrapper RunnerId="RubyRunner" />
     <method />
