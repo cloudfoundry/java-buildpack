@@ -25,11 +25,10 @@ module Package
     include Package
 
     def initialize
-      CLOBBER << BUILD_DIR
       directory BUILD_DIR
-
-      CLEAN << STAGING_DIR
       directory STAGING_DIR
+
+      CLEAN.include BUILD_DIR, STAGING_DIR
 
       desc 'Create packaged buildpack'
       task package: [PACKAGE_NAME]

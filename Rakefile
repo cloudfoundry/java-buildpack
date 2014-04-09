@@ -18,15 +18,14 @@ require 'rake/clean'
 
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new
-CLOBBER << 'coverage'
+CLEAN.include 'coverage'
 
 require 'rubocop/rake_task'
 Rubocop::RakeTask.new
 
 require 'yard'
 YARD::Rake::YardocTask.new
-CLEAN << '.yardoc'
-CLOBBER << 'doc'
+CLEAN.include '.yardoc', 'doc'
 
 desc 'Check that all APIs have been documented'
 task :check_api_doc do
