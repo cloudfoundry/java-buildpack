@@ -112,7 +112,7 @@ module Package
       if repository_configuration?(configuration)
         configurations << configuration
       else
-        configurations << configuration.values.map { |v| configurations(v) }
+        configuration.values.each { |v| configurations << configurations(v) if v.is_a? Hash }
       end
 
       configurations
