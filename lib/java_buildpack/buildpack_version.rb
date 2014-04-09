@@ -16,6 +16,7 @@
 
 require 'java_buildpack'
 require 'java_buildpack/util/configuration_utils'
+require 'java_buildpack/util/to_b'
 
 module JavaBuildpack
 
@@ -26,16 +27,48 @@ module JavaBuildpack
   # 3. unknown
   class BuildpackVersion
 
-    # Creates a new instance
-    def initialize
-      configuration = JavaBuildpack::Util::ConfigurationUtils.load 'version'
-      @hash         = configuration['hash'] || hash
-      @offline      = configuration['offline']
-      @remote       = configuration['remote'] || remote
-      @version      = configuration['version']
+    # @!attribute [r] hash
+    # @return [String, nil] the Git hash of this version, or +nil+ if it cannot be determined
+    attr_reader :hash
 
-      logger = Logging::LoggerFactory.instance.get_logger BuildpackVersion
-      logger.debug { to_s }
+    # @!attribute [r] offline
+    # @return [Boolean] +true+ if the buildpack is offline, +false+ otherwise
+    attr_reader :offline
+
+    # @!attribute [r] remote
+    # @return [String, nil] the Git remote of this version, or +nil+ if it cannot be determined
+    attr_reader :remote
+
+    # @!attribute [r] version
+    # @return [String, nil] the version name of this version, or +nil+ if it cannot be determined
+    attr_reader :version
+
+    # Creates a new instance
+    def initialize(should_log = true)
+      configuration = JavaBuildpack::Util::ConfigurationUtils.load 'version', should_log
+      @hash         = configuration['hash'] || hash
+      @offline      = configuration['offline'] || ENV['OFFLINE'].to_b
+      @remote       = configuration['remote'] || remote
+      @version      = configuration['version'] || ENV['VERSION'] || @hash
+
+      if should_log
+        logger = Logging::LoggerFactory.instance.get_logger BuildpackVersion
+        logger.debug { to_s }
+      end
+    end
+
+    # Returns a +Hash+ representation of the buildpack version.
+    #
+    # @return [Hash] a representation of the buildpack version
+    def to_hash
+      h            = {}
+
+      h['hash']    = @hash if @hash
+      h['offline'] = @offline if @offline
+      h['remote']  = @remote if @remote
+      h['version'] = @version if @version
+
+      h
     end
 
     # Creates a string representation of the version.  The string representation looks like the following:
