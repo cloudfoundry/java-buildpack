@@ -15,18 +15,20 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'application_helper'
 require 'logging_helper'
 require 'java_buildpack/buildpack_version'
 require 'pathname'
 
 describe JavaBuildpack::BuildpackVersion do
+  include_context 'application_helper'
   include_context 'logging_helper'
 
   let(:buildpack_version) { described_class.new }
 
   before do |example|
     configuration = example.metadata[:configuration] || {}
-    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('version').and_return(configuration)
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('version', true).and_return(configuration)
   end
 
   it 'should create offline version string from config/version.yml',
@@ -77,6 +79,45 @@ describe JavaBuildpack::BuildpackVersion do
     expect(buildpack_version.to_s).to match(/unknown/)
     expect(buildpack_version.to_s(false)).to match(/unknown/)
     expect(stderr.string).to match(/unknown/)
+  end
+
+  it 'should create a has from the values',
+     configuration: { 'hash'   => 'test-hash', 'offline' => true,
+                      'remote' => 'test-remote', 'version' => 'test-version' } do |example|
+
+    allow_any_instance_of(described_class).to receive(:system).with('which git > /dev/null').and_return(false)
+
+    expect(buildpack_version.to_hash).to eq(example.metadata[:configuration])
+  end
+
+  it 'should exclude non-populated values from the hash' do
+    allow_any_instance_of(described_class).to receive(:system).with('which git > /dev/null').and_return(false)
+
+    expect(buildpack_version.to_hash).to eq({})
+  end
+
+  context do
+
+    let(:environment) { { 'OFFLINE' => 'true' } }
+
+    it 'should pick up offline from the environment' do
+      allow_any_instance_of(described_class).to receive(:system).with('which git > /dev/null').and_return(false)
+
+      expect(buildpack_version.offline).to be
+    end
+
+  end
+
+  context do
+
+    let(:environment) { { 'VERSION' => 'test-version' } }
+
+    it 'should pick up version from the environment' do
+      allow_any_instance_of(described_class).to receive(:system).with('which git > /dev/null').and_return(false)
+
+      expect(buildpack_version.version).to match(/test-version/)
+    end
+
   end
 
 end

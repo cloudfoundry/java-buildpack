@@ -26,7 +26,7 @@ module Package
     def initialize(source_files)
       source_files.map { |source| multitask PACKAGE_NAME => [copy_task(source, target(source))] }
       multitask PACKAGE_NAME => [version_task]
-      disable_remote_downloads_task if OFFLINE
+      disable_remote_downloads_task if BUILDPACK_VERSION.offline
     end
 
     private
@@ -60,7 +60,7 @@ module Package
       directory parent
       file target => [parent] do |t|
         File.open(t.name, 'w') do |f|
-          f.write({ 'hash' => HASH, 'offline' => OFFLINE, 'remote' => REMOTE, 'version' => VERSION }.to_yaml)
+          f.write(BUILDPACK_VERSION.to_hash.to_yaml)
         end
       end
 

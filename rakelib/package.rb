@@ -14,32 +14,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'rakelib/to_b'
+require 'java_buildpack/buildpack_version'
 
 module Package
 
-  def self.git(command)
-    `git #{command}`.chomp
-  rescue
-    nil
+  def self.offline
+    '-offline' if BUILDPACK_VERSION.offline
+  end
+
+  def self.version
+    BUILDPACK_VERSION.version || 'unknown'
   end
 
   ARCHITECTURES = %w(x86_64).freeze
 
   BUILD_DIR = 'build'.freeze
 
-  HASH = git 'rev-parse --short HEAD'.freeze
-
-  OFFLINE = ENV['OFFLINE'].to_b.freeze
+  BUILDPACK_VERSION = JavaBuildpack::BuildpackVersion.new(false).freeze
 
   PLATFORMS = %w(centos6 lucid mountainlion precise).freeze
 
-  REMOTE = git 'config --get remote.origin.url'.freeze
-
   STAGING_DIR = "#{BUILD_DIR}/staging".freeze
 
-  VERSION = (ENV['VERSION'] || HASH).freeze
-
-  PACKAGE_NAME = "#{BUILD_DIR}/java-buildpack#{'-offline' if OFFLINE}-#{VERSION}.zip".freeze
+  PACKAGE_NAME = "#{BUILD_DIR}/java-buildpack#{offline}-#{version}.zip".freeze
 
 end

@@ -32,7 +32,7 @@ module Package
     include Package
 
     def initialize
-      if OFFLINE
+      if BUILDPACK_VERSION.offline
         JavaBuildpack::Logging::LoggerFactory.instance.setup "#{BUILD_DIR}/"
 
         @default_repository_root = default_repository_root
