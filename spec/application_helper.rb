@@ -23,7 +23,7 @@ shared_context 'application_helper' do
 
   let(:app_dir) { Pathname.new Dir.mktmpdir }
 
-  previous_environment = ENV
+  previous_environment = ENV.to_hash
 
   let(:environment) do
     { 'test-key'      => 'test-value', 'VCAP_APPLICATION' => vcap_application.to_yaml,
