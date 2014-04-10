@@ -85,25 +85,25 @@ describe JavaBuildpack::Container::JavaMain do
   it 'should release Spring boot applications with a JarLauncher in the MANIFEST.MF by specifying a port',
      app_fixture: 'container_main_spring_boot_jar_launcher' do
 
-    expect(component.release).to eq("#{java_home.root}/bin/java -cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:" \
-                                      "$PWD/.additional_libs/test-jar-2.jar #{java_opts_str} " \
-                                      'org.springframework.boot.loader.JarLauncher --server.port=$PORT')
+    expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.root}/bin/java -cp $PWD/.:" \
+                                        '$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
+                                        "#{java_opts_str} org.springframework.boot.loader.JarLauncher")
   end
 
   it 'should release Spring boot applications with a WarLauncher in the MANIFEST.MF by specifying a port',
      app_fixture: 'container_main_spring_boot_war_launcher' do
 
-    expect(component.release).to eq("#{java_home.root}/bin/java -cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:" \
-                                      "$PWD/.additional_libs/test-jar-2.jar #{java_opts_str} " \
-                                      'org.springframework.boot.loader.WarLauncher --server.port=$PORT')
+    expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.root}/bin/java -cp $PWD/.:" \
+                                        '$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
+                                        "#{java_opts_str} org.springframework.boot.loader.WarLauncher")
   end
 
   it 'should release Spring boot applications with a PropertiesLauncher in the MANIFEST.MF by specifying a port',
      app_fixture: 'container_main_spring_boot_properties_launcher' do
 
-    expect(component.release).to eq("#{java_home.root}/bin/java -cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:" \
-                                      "$PWD/.additional_libs/test-jar-2.jar #{java_opts_str} " \
-                                      'org.springframework.boot.loader.PropertiesLauncher --server.port=$PORT')
+    expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.root}/bin/java -cp $PWD/.:" \
+                                        '$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
+                                        "#{java_opts_str} org.springframework.boot.loader.PropertiesLauncher")
   end
 
   context do
@@ -111,9 +111,9 @@ describe JavaBuildpack::Container::JavaMain do
 
     it 'should release Spring boot applications with a JarLauncher in the configuration by specifying a port' do
 
-      expect(component.release).to eq("#{java_home.root}/bin/java -cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:" \
-                                        "$PWD/.additional_libs/test-jar-2.jar #{java_opts_str} " \
-                                        'org.springframework.boot.loader.JarLauncher --server.port=$PORT')
+      expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.root}/bin/java -cp $PWD/.:" \
+                                        '$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
+                                        "#{java_opts_str} org.springframework.boot.loader.JarLauncher")
     end
   end
 
@@ -122,9 +122,9 @@ describe JavaBuildpack::Container::JavaMain do
 
     it 'should release Spring boot applications with a WarLauncher in the configuration by specifying a port' do
 
-      expect(component.release).to eq("#{java_home.root}/bin/java -cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:" \
-                                        "$PWD/.additional_libs/test-jar-2.jar #{java_opts_str} " \
-                                        'org.springframework.boot.loader.WarLauncher --server.port=$PORT')
+      expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.root}/bin/java -cp $PWD/.:" \
+                                        '$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
+                                        "#{java_opts_str} org.springframework.boot.loader.WarLauncher")
     end
   end
 
@@ -133,9 +133,9 @@ describe JavaBuildpack::Container::JavaMain do
 
     it 'should release Spring boot applications with a PropertiesLauncher in the configuration by specifying a port' do
 
-      expect(component.release).to eq("#{java_home.root}/bin/java -cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:" \
-                                        "$PWD/.additional_libs/test-jar-2.jar #{java_opts_str} " \
-                                        'org.springframework.boot.loader.PropertiesLauncher --server.port=$PORT')
+      expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.root}/bin/java -cp $PWD/.:" \
+                                        '$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
+                                        "#{java_opts_str} org.springframework.boot.loader.PropertiesLauncher")
     end
   end
 

@@ -42,12 +42,12 @@ module JavaBuildpack
         manifest_class_path.each { |path| @droplet.additional_libraries << path }
 
         [
+          port,
           "#{@droplet.java_home.root}/bin/java",
           @droplet.additional_libraries.as_classpath,
           @droplet.java_opts.join(' '),
           main_class,
-          arguments,
-          port
+          arguments
         ].flatten.compact.join(' ')
       end
 
@@ -73,7 +73,7 @@ module JavaBuildpack
       end
 
       def port
-        main_class =~ /^org\.springframework\.boot\.loader\.(?:[JW]ar|Properties)Launcher$/ ? '--server.port=$PORT' : nil
+        main_class =~ /^org\.springframework\.boot\.loader\.(?:[JW]ar|Properties)Launcher$/ ? 'SERVER_PORT=$PORT' : nil
       end
 
     end

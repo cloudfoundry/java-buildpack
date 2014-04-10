@@ -15,6 +15,7 @@
 # limitations under the License.
 
 require 'java_buildpack/util/play'
+require 'java_buildpack/util/find_single_directory'
 require 'java_buildpack/util/qualify_path'
 
 module JavaBuildpack
@@ -78,14 +79,6 @@ module JavaBuildpack
         # @return [Void]
         def augment_classpath
           fail "Method 'augment_classpath' must be defined"
-        end
-
-        # Find the single directory in the root of the droplet
-        #
-        # @return [Pathname, nil] the single directory in the root of the droplet, otherwise +nil+
-        def find_single_directory
-          roots = (@droplet.root + '*').glob.select { |child| child.directory? }
-          roots.size == 1 ? roots.first : nil
         end
 
         # Returns the +JAVA_OPTS+ in the form that they need to be added to the command line

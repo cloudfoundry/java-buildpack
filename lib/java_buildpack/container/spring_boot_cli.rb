@@ -49,11 +49,10 @@ module JavaBuildpack
         [
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
+          'SERVER_PORT=$PORT',
           qualify_path(@droplet.sandbox + 'bin/spring', @droplet.root),
           'run',
-          relative_groovy_files,
-          '--',
-          '--server.port=$PORT'
+          relative_groovy_files
         ].flatten.compact.join(' ')
       end
 
