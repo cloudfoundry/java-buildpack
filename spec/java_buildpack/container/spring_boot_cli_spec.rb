@@ -106,9 +106,9 @@ describe JavaBuildpack::Container::SpringBootCLI do
   it 'should return command',
      app_fixture: 'container_spring_boot_cli_valid_app' do
 
-    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} " \
+    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} SERVER_PORT=$PORT " \
                                       '$PWD/.java-buildpack/spring_boot_cli/bin/spring run directory/pogo_4.groovy ' \
-                                      'invalid.groovy pogo_1.groovy pogo_2.groovy pogo_3.groovy -- --server.port=$PORT')
+                                      'invalid.groovy pogo_1.groovy pogo_2.groovy pogo_3.groovy')
   end
 
   def java_opts_str
