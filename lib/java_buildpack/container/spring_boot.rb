@@ -25,6 +25,14 @@ module JavaBuildpack
     # Encapsulates the detect, compile, and release functionality for Spring Boot applications.
     class SpringBoot < JavaBuildpack::Container::DistZipLike
 
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        super(context)
+        @spring_boot_utils = JavaBuildpack::Util::SpringBootUtils.new
+      end
+
       # (see JavaBuildpack::Container::DistZipLike#release)
       def release
         "SERVER_PORT=$PORT #{super}"
@@ -39,13 +47,13 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Container::DistZipLike#supports?)
       def supports?
-        JavaBuildpack::Util::SpringBootUtils.is? @application
+        @spring_boot_utils.is? @application
       end
 
       private
 
       def version
-        JavaBuildpack::Util::SpringBootUtils.version @application
+        @spring_boot_utils.version @application
       end
 
     end

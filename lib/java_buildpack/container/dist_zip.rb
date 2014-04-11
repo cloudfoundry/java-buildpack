@@ -27,6 +27,15 @@ module JavaBuildpack
     # Encapsulates the detect, compile, and release functionality for +distZip+ style applications.
     class DistZip < JavaBuildpack::Container::DistZipLike
 
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        super(context)
+        @ratpack_utils = JavaBuildpack::Util::RatpackUtils.new
+        @spring_boot_utils = JavaBuildpack::Util::SpringBootUtils.new
+      end
+
       protected
 
       # (see JavaBuildpack::Container::DistZipLike#id)
@@ -39,8 +48,8 @@ module JavaBuildpack
         start_script(root) &&
           start_script(root).exist? &&
           jars? &&
-          !JavaBuildpack::Util::RatpackUtils.is?(@application) &&
-          !JavaBuildpack::Util::SpringBootUtils.is?(@application) &&
+          !@ratpack_utils.is?(@application) &&
+          !@spring_boot_utils.is?(@application) &&
           !JavaBuildpack::Util::Play::Factory.create(@droplet)
       end
 

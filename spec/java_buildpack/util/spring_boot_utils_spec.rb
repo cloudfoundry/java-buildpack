@@ -21,34 +21,36 @@ require 'java_buildpack/util/spring_boot_utils'
 describe JavaBuildpack::Util::SpringBootUtils do
   include_context 'application_helper'
 
+  let(:utils) { described_class.new }
+
   it 'should detect a dist Spring Boot application',
      app_fixture: 'container_spring_boot_dist' do
 
-    expect(described_class.is?(application)).to be
+    expect(utils.is?(application)).to be
   end
 
   it 'should detect a staged Spring Boot application',
      app_fixture: 'container_spring_boot_staged' do
 
-    expect(described_class.is?(application)).to be
+    expect(utils.is?(application)).to be
   end
 
   it 'should not detect a non-Spring Boot application',
      app_fixture: 'container_main' do
 
-    expect(described_class.is?(application)).not_to be
+    expect(utils.is?(application)).not_to be
   end
 
   it 'should determine the version a dist Spring Boot application',
      app_fixture: 'container_spring_boot_dist' do
 
-    expect(described_class.version(application)).to match(/1.0.0.RELEASE/)
+    expect(utils.version(application)).to match(/1.0.0.RELEASE/)
   end
 
   it 'should determine the version a staged Spring Boot application',
      app_fixture: 'container_spring_boot_staged' do
 
-    expect(described_class.version(application)).to match(/1.0.0.RELEASE/)
+    expect(utils.version(application)).to match(/1.0.0.RELEASE/)
   end
 
 end

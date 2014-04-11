@@ -25,6 +25,14 @@ module JavaBuildpack
     # Encapsulates the detect, compile, and release functionality for Ratpack applications.
     class Ratpack < JavaBuildpack::Container::DistZipLike
 
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        super(context)
+        @ratpack_utils = JavaBuildpack::Util::RatpackUtils.new
+      end
+
       protected
 
       # (see JavaBuildpack::Container::DistZipLike#id)
@@ -34,13 +42,13 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Container::DistZipLike#supports?)
       def supports?
-        JavaBuildpack::Util::RatpackUtils.is? @application
+        @ratpack_utils.is? @application
       end
 
       private
 
       def version
-        JavaBuildpack::Util::RatpackUtils.version @application
+        @ratpack_utils.version @application
       end
 
     end

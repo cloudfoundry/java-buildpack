@@ -21,34 +21,36 @@ require 'java_buildpack/util/ratpack_utils'
 describe JavaBuildpack::Util::RatpackUtils do
   include_context 'application_helper'
 
+  let(:utils) { described_class.new }
+
   it 'should detect a dist Ratpack application',
      app_fixture: 'container_ratpack_dist' do
 
-    expect(described_class.is?(application)).to be
+    expect(utils.is?(application)).to be
   end
 
   it 'should detect a staged Ratpack application',
      app_fixture: 'container_ratpack_staged' do
 
-    expect(described_class.is?(application)).to be
+    expect(utils.is?(application)).to be
   end
 
   it 'should not detect a non-Ratpack application',
      app_fixture: 'container_main' do
 
-    expect(described_class.is?(application)).not_to be
+    expect(utils.is?(application)).not_to be
   end
 
   it 'should determine the version a dist Ratpack application',
      app_fixture: 'container_ratpack_dist' do
 
-    expect(described_class.version(application)).to match(/0.9.0/)
+    expect(utils.version(application)).to match(/0.9.0/)
   end
 
   it 'should determine the version a staged Ratpack application',
      app_fixture: 'container_ratpack_staged' do
 
-    expect(described_class.version(application)).to match(/0.9.0/)
+    expect(utils.version(application)).to match(/0.9.0/)
   end
 
 end

@@ -16,43 +16,16 @@
 
 require 'pathname'
 require 'java_buildpack/util'
+require 'java_buildpack/util/jar_finder'
 
 module JavaBuildpack
   module Util
 
     # Utilities for dealing with Spring Boot applications
-    class SpringBootUtils
+    class SpringBootUtils < JarFinder
 
-      private_class_method :new
-
-      class << self
-
-        # Indicates whether a application is a Spring Boot application
-        #
-        # @param [Application] application the application to search
-        # @return [Boolean] +true+ if the application is a Spring Boot application, +false+ otherwise
-        def is?(application)
-          jar application
-        end
-
-        # The version of Spring Boot used by the application
-        #
-        # @param [Application] application the application to search
-        # @return [String] the version of Spring Boot used by the application
-        def version(application)
-          jar(application).to_s.match(SPRING_BOOT_CORE_FILE_PATTERN)[1]
-        end
-
-        private
-
-        SPRING_BOOT_CORE_FILE_PATTERN = /.*spring-boot-([^-]*)\.jar/.freeze
-
-        private_constant :SPRING_BOOT_CORE_FILE_PATTERN
-
-        def jar(application)
-          (application.root + '**/lib/*.jar').glob.find { |jar| jar.to_s =~ SPRING_BOOT_CORE_FILE_PATTERN }
-        end
-
+      def initialize
+        super(/.*spring-boot-([^-]*)\.jar/)
       end
 
     end
