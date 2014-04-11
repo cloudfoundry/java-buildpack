@@ -16,39 +16,39 @@
 
 require 'spec_helper'
 require 'application_helper'
-require 'java_buildpack/util/ratpack_utils'
+require 'java_buildpack/util/spring_boot_utils'
 
-describe JavaBuildpack::Util::RatpackUtils do
+describe JavaBuildpack::Util::SpringBootUtils do
   include_context 'application_helper'
 
-  it 'should detect a dist Ratpack application',
-     app_fixture: 'container_ratpack_dist' do
+  it 'should detect a dist Spring Boot application',
+     app_fixture: 'container_spring_boot_dist' do
 
     expect(described_class.is?(application)).to be
   end
 
-  it 'should detect a staged Ratpack application',
-     app_fixture: 'container_ratpack_staged' do
+  it 'should detect a staged Spring Boot application',
+     app_fixture: 'container_spring_boot_staged' do
 
     expect(described_class.is?(application)).to be
   end
 
-  it 'should not detect a non-Ratpack application',
+  it 'should not detect a non-Spring Boot application',
      app_fixture: 'container_main' do
 
     expect(described_class.is?(application)).not_to be
   end
 
-  it 'should determine the version a dist Ratpack application',
-     app_fixture: 'container_ratpack_dist' do
+  it 'should determine the version a dist Spring Boot application',
+     app_fixture: 'container_spring_boot_dist' do
 
-    expect(described_class.version(application)).to match(/0.9.0/)
+    expect(described_class.version(application)).to match(/1.0.0.RELEASE/)
   end
 
-  it 'should determine the version a staged Ratpack application',
-     app_fixture: 'container_ratpack_staged' do
+  it 'should determine the version a staged Spring Boot application',
+     app_fixture: 'container_spring_boot_staged' do
 
-    expect(described_class.version(application)).to match(/0.9.0/)
+    expect(described_class.version(application)).to match(/1.0.0.RELEASE/)
   end
 
 end

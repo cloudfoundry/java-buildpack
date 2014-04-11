@@ -16,31 +16,31 @@
 
 require 'spec_helper'
 require 'component_helper'
-require 'java_buildpack/container/ratpack'
+require 'java_buildpack/container/spring_boot'
 
-describe JavaBuildpack::Container::Ratpack do
+describe JavaBuildpack::Container::SpringBoot do
   include_context 'component_helper'
 
-  it 'should detect a dist Ratpack application',
-     app_fixture: 'container_ratpack_dist' do
+  it 'should detect a dist Spring Boot application',
+     app_fixture: 'container_spring_boot_dist' do
 
-    expect(component.detect).to eq('ratpack=0.9.0')
+    expect(component.detect).to eq('spring-boot=1.0.0.RELEASE')
   end
 
-  it 'should detect a staged Ratpack application',
-     app_fixture: 'container_ratpack_staged' do
+  it 'should detect a staged Spring Boot application',
+     app_fixture: 'container_spring_boot_staged' do
 
-    expect(component.detect).to eq('ratpack=0.9.0')
+    expect(component.detect).to eq('spring-boot=1.0.0.RELEASE')
   end
 
-  it 'should not detect a non-Ratpack application',
+  it 'should not detect a non-Spring Boot application',
      app_fixture: 'container_main' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should not detect a Spring Boot application',
-     app_fixture: 'container_spring_boot_dist' do
+  it 'should not detect a Ratpack application',
+     app_fixture: 'container_ratpack_dist' do
 
     expect(component.detect).to be_nil
   end
@@ -58,7 +58,7 @@ describe JavaBuildpack::Container::Ratpack do
   end
 
   it 'should correctly extend the classpath',
-     app_fixture: 'container_ratpack_staged' do
+     app_fixture: 'container_spring_boot_staged' do
 
     component.compile
 
@@ -67,9 +67,10 @@ describe JavaBuildpack::Container::Ratpack do
   end
 
   it 'should return command',
-     app_fixture: 'container_ratpack_staged' do
+     app_fixture: 'container_spring_boot_staged' do
 
-    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=\"test-opt-2 test-opt-1\" $PWD/bin/application")
+    expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.as_env_var} JAVA_OPTS=\"test-opt-2 test-opt-1\" " \
+                                    '$PWD/bin/application')
   end
 
 end

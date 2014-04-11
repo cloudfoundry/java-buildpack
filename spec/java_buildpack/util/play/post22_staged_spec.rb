@@ -53,6 +53,24 @@ describe JavaBuildpack::Util::Play::Post22Staged do
       expect(trigger).not_to be
     end
 
+    it 'should not recognize a Ratpack application',
+       app_fixture: 'container_ratpack_dist' do
+
+      expect(trigger).not_to be
+    end
+
+    it 'should not recognize a Spring Boot application',
+       app_fixture: 'container_spring_boot_dist' do
+
+      expect(trigger).not_to be
+    end
+
+    it 'should not recognize a distZip application',
+       app_fixture: 'container_dist_zip' do
+
+      expect(trigger).not_to be
+    end
+
     it 'should recognize Play 2.2 staged applications',
        app_fixture: 'container_play_2.2_staged' do
 

@@ -1,9 +1,10 @@
 # Ratpack Container
-The Ratpack Container allows [Ratpack][r] applications to be run.
+The Ratpack Container allows [Ratpack][r] applications, packaged `distZip`-style to be run.
 
 <table>
   <tr>
-    <td><strong>Detection Criteria</strong></td><td>The <tt>app/Ratpack.groovy</tt> or <tt>app/ratpack.groovy</tt> configuration file exists in either the top-level directory or an immediate subdirectory of the application.</td>
+    <td><strong>Detection Criteria</strong></td>
+    <td>The <tt>lib/ratpack-core-.*.jar</tt> file exists in either the top-level directory or an immediate subdirectory of the application.</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
