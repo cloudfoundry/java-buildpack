@@ -32,7 +32,7 @@ module JavaBuildpack
         # @param [Application] application the application to search
         # @return [Boolean] +true+ if the application is a Spring Boot application, +false+ otherwise
         def is?(application)
-          (application.root + SPRING_BOOT_CORE_FILE_PATTERN).glob.any?
+          jar application
         end
 
         # The version of Spring Boot used by the application
@@ -40,12 +40,18 @@ module JavaBuildpack
         # @param [Application] application the application to search
         # @return [String] the version of Spring Boot used by the application
         def version(application)
-          (application.root + SPRING_BOOT_CORE_FILE_PATTERN).glob.first.to_s.match(/.*spring-boot-([^-]*)\.jar/)[1]
+          jar(application).to_s.match(SPRING_BOOT_CORE_FILE_PATTERN)[1]
         end
 
-        SPRING_BOOT_CORE_FILE_PATTERN = '**/lib/spring-boot-*.jar'.freeze
+        private
+
+        SPRING_BOOT_CORE_FILE_PATTERN = /.*spring-boot-([^-]*)\.jar/.freeze
 
         private_constant :SPRING_BOOT_CORE_FILE_PATTERN
+
+        def jar(application)
+          (application.root + '**/lib/*.jar').glob.find { |jar| jar.to_s =~ SPRING_BOOT_CORE_FILE_PATTERN }
+        end
 
       end
 
