@@ -21,51 +21,34 @@ require 'java_buildpack/container/dist_zip'
 describe JavaBuildpack::Container::DistZip do
   include_context 'component_helper'
 
-  it 'should not recognize non-applications' do
-    expect(component.detect).not_to be
-  end
-
-  it 'should not recognize Play dist applications',
-     app_fixture: 'container_play_2.2_dist' do
-
-    expect(component.detect).not_to be
-  end
-
-  it 'should not recognize Play dist applications',
-     app_fixture: 'container_play_2.2_staged' do
-
-    expect(component.detect).not_to be
-  end
-
-  it 'should recognize distZip applications',
+  it 'should detect a distZip application',
      app_fixture: 'container_dist_zip' do
 
     expect(component.detect).to eq('dist-zip')
   end
 
-  it 'should correctly extend the CLASSPATH-style classpath',
-     app_fixture: 'container_dist_zip' do
+  it 'should not detect a non-distZip application',
+     app_fixture: 'container_main' do
 
-    component.compile
-
-    expect((app_dir + 'dist-zip-application/bin/dist-zip-application').read)
-    .to match 'CLASSPATH=\$APP_HOME/../.additional_libs/test-jar-1.jar:\$APP_HOME/../.additional_libs/test-jar-2.jar:'
+    expect(component.detect).to be_nil
   end
 
-  it 'should correctly extend the app_classpath-style classpath',
-     app_fixture: 'container_dist_zip_app_classpath' do
+  it 'should not detect a Ratpack application',
+     app_fixture: 'container_ratpack_dist' do
 
-    component.compile
-
-    expect((app_dir + 'dist-zip-application/bin/dist-zip-application').read)
-    .to match 'declare -r app_classpath="\$app_home/../../.additional_libs/test-jar-1.jar:\$app_home/../../.additional_libs/test-jar-2.jar:'
+    expect(component.detect).to be_nil
   end
 
-  it 'should return command',
-     app_fixture: 'container_dist_zip' do
+  it 'should not detect a Spring Boot application',
+     app_fixture: 'container_spring_boot_dist' do
 
-    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=\"test-opt-2 test-opt-1\" SERVER_PORT=$PORT " \
-    '$PWD/dist-zip-application/bin/dist-zip-application')
+    expect(component.detect).to be_nil
+  end
+
+  it 'should not detect a Play application',
+     app_fixture: 'container_play_2.2_dist' do
+
+    expect(component.detect).to be_nil
   end
 
 end

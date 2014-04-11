@@ -20,32 +20,32 @@ require 'java_buildpack/util'
 module JavaBuildpack
   module Util
 
-    # Utilities for dealing with Ratpack applications
-    class RatpackUtils
+    # Utilities for dealing with Spring Boot applications
+    class SpringBootUtils
 
       private_class_method :new
 
       class << self
 
-        # Indicates whether a application is a Ratpack application
+        # Indicates whether a application is a Spring Boot application
         #
         # @param [Application] application the application to search
-        # @return [Boolean] +true+ if the application is a Ratpack application, +false+ otherwise
+        # @return [Boolean] +true+ if the application is a Spring Boot application, +false+ otherwise
         def is?(application)
-          (application.root + RATPACK_CORE_FILE_PATTERN).glob.any?
+          (application.root + SPRING_BOOT_CORE_FILE_PATTERN).glob.any?
         end
 
-        # The version of Ratpack used by the application
+        # The version of Spring Boot used by the application
         #
         # @param [Application] application the application to search
-        # @return [String] the version of Ratpack used by the application
+        # @return [String] the version of Spring Boot used by the application
         def version(application)
-          (application.root + RATPACK_CORE_FILE_PATTERN).glob.first.to_s.match(/.*ratpack-core-(.*)\.jar/)[1]
+          (application.root + SPRING_BOOT_CORE_FILE_PATTERN).glob.first.to_s.match(/.*spring-boot-([^-]*)\.jar/)[1]
         end
 
-        RATPACK_CORE_FILE_PATTERN = '**/lib/ratpack-core-*.jar'.freeze
+        SPRING_BOOT_CORE_FILE_PATTERN = '**/lib/spring-boot-*.jar'.freeze
 
-        private_constant :RATPACK_CORE_FILE_PATTERN
+        private_constant :SPRING_BOOT_CORE_FILE_PATTERN
 
       end
 

@@ -6,8 +6,7 @@ The Dist Zip Container allows applications packaged in [`distZip`-style][] to be
     <td><strong>Detection Criteria</strong></td>
     <td><ul>
       <li>A start script in the <tt>bin/</tt> subdirectory of the application directory or one of its immediate subdirectories (but not in both), and</li>
-      <li>A JAR file in the <tt>lib/</tt> subdirectory of the application directory or one of its immediate subdirectories (but not in both), and</li>
-      <li>Not a Play Framework application</li>
+      <li>A JAR file in the <tt>lib/</tt> subdirectory of the application directory or one of its immediate subdirectories (but not in both)</li>
     </ul></td>
   </tr>
   <tr>

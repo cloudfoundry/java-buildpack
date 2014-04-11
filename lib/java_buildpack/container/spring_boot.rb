@@ -17,30 +17,35 @@
 require 'java_buildpack/container'
 require 'java_buildpack/container/dist_zip_like'
 require 'java_buildpack/util/dash_case'
-require 'java_buildpack/util/ratpack_utils'
+require 'java_buildpack/util/spring_boot_utils'
 
 module JavaBuildpack
   module Container
 
-    # Encapsulates the detect, compile, and release functionality for Ratpack applications.
-    class Ratpack < JavaBuildpack::Container::DistZipLike
+    # Encapsulates the detect, compile, and release functionality for Spring Boot applications.
+    class SpringBoot < JavaBuildpack::Container::DistZipLike
+
+      # (see JavaBuildpack::Container::DistZipLike#release)
+      def release
+        "SERVER_PORT=$PORT #{super}"
+      end
 
       protected
 
       # (see JavaBuildpack::Container::DistZipLike#id)
       def id
-        "#{Ratpack.to_s.dash_case}=#{version}"
+        "#{SpringBoot.to_s.dash_case}=#{version}"
       end
 
       # (see JavaBuildpack::Container::DistZipLike#supports?)
       def supports?
-        JavaBuildpack::Util::RatpackUtils.is? @application
+        JavaBuildpack::Util::SpringBootUtils.is? @application
       end
 
       private
 
       def version
-        JavaBuildpack::Util::RatpackUtils.version @application
+        JavaBuildpack::Util::SpringBootUtils.version @application
       end
 
     end
