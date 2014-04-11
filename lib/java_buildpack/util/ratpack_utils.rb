@@ -32,7 +32,7 @@ module JavaBuildpack
         # @param [Application] application the application to search
         # @return [Boolean] +true+ if the application is a Ratpack application, +false+ otherwise
         def is?(application)
-          (application.root + RATPACK_CORE_FILE_PATTERN).glob.any?
+          jar application
         end
 
         # The version of Ratpack used by the application
@@ -40,12 +40,18 @@ module JavaBuildpack
         # @param [Application] application the application to search
         # @return [String] the version of Ratpack used by the application
         def version(application)
-          (application.root + RATPACK_CORE_FILE_PATTERN).glob.first.to_s.match(/.*ratpack-core-(.*)\.jar/)[1]
+          jar(application).to_s.match(RATPACK_CORE_FILE_PATTERN)[1]
         end
 
-        RATPACK_CORE_FILE_PATTERN = '**/lib/ratpack-core-*.jar'.freeze
+        private
+
+        RATPACK_CORE_FILE_PATTERN = /.*ratpack-core-(.*)\.jar/.freeze
 
         private_constant :RATPACK_CORE_FILE_PATTERN
+
+        def jar(application)
+          (application.root + '**/lib/*.jar').glob.find { |jar| jar.to_s =~ RATPACK_CORE_FILE_PATTERN }
+        end
 
       end
 
