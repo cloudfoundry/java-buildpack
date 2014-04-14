@@ -100,9 +100,16 @@ module JavaBuildpack
           Timeout::Error
         ].freeze
 
+        REDIRECT_TYPES = [
+          Net::HTTPMovedPermanently,
+          Net::HTTPFound,
+          Net::HTTPSeeOther,
+          Net::HTTPTemporaryRedirect
+        ].freeze
+
         TIMEOUT_SECONDS = 10.freeze
 
-        private_constant :FAILURE_LIMIT, :HTTP_ERRORS, :TIMEOUT_SECONDS
+        private_constant :FAILURE_LIMIT, :HTTP_ERRORS, :REDIRECT_TYPES, :TIMEOUT_SECONDS
 
         def attempt(http, request, cached_file)
           downloaded = false
@@ -117,6 +124,8 @@ module JavaBuildpack
               downloaded = true
             elsif response.is_a? Net::HTTPNotModified
               @logger.debug { 'Cached copy up to date' }
+            elsif redirect?(response)
+              downloaded = update URI(response['Location']), cached_file
             else
               fail InferredNetworkFailure, "Bad response: #{response}"
             end
@@ -202,6 +211,10 @@ module JavaBuildpack
 
           @logger.debug { "Proxy: #{proxy_uri.host}, #{proxy_uri.port}, #{proxy_uri.user}, #{proxy_uri.password}" }
           Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port, proxy_uri.user, proxy_uri.password)
+        end
+
+        def redirect?(response)
+          REDIRECT_TYPES.any? { |t| response.is_a? t }
         end
 
         def request(uri, cached_file)

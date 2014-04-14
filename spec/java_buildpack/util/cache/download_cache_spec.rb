@@ -85,6 +85,17 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     expect_complete_cache mutable_cache_root
   end
 
+  it 'should follow redirects' do
+    stub_request(:get, uri)
+    .to_return(status: 301, headers: { Location: uri_secure })
+    stub_request(:get, uri_secure)
+    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+
+    expect { |b| download_cache.get uri, &b }.to yield_with_args(be_a(File), true)
+                                                 .and yield_file_with_content(/foo-cached/)
+    expect_complete_cache mutable_cache_root
+  end
+
   it 'should retry failed downloads' do
     stub_request(:get, uri)
     .to_raise(SocketError)
