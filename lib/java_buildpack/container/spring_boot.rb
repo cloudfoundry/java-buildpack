@@ -47,7 +47,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Container::DistZipLike#supports?)
       def supports?
-        @spring_boot_utils.is? @application
+        start_script(root) && (@spring_boot_utils.is? @application)
       end
 
       private
