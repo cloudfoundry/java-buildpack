@@ -159,8 +159,19 @@ module JavaBuildpack
     end
 
     def tag_detection(type, components, unique)
-      tags = components.map { |component| component.detect }.compact
-      fail "Application can be run by more than one #{type}: #{names components}" if unique && tags.size > 1
+      detected = []
+      tags     = []
+
+      components.each do |component|
+        result = component.detect
+
+        if result
+          detected << component
+          tags << result
+        end
+      end
+
+      fail "Application can be run by more than one #{type}: #{names detected}" if unique && tags.size > 1
       tags
     end
 

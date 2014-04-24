@@ -42,7 +42,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Container::DistZipLike#supports?)
       def supports?
-        @ratpack_utils.is? @application
+        start_script(root) && start_script(root).exist? && @ratpack_utils.is?(@application)
       end
 
       private
