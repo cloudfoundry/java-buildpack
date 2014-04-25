@@ -25,5 +25,14 @@ The framework can be configured by creating or modifying the [`config/java_opts.
 | `from_environment` | Whether to append the value of the `JAVA_OPTS` environment variable to the collection of Java options
 | `java_opts` | The Java options to use when running the application.  All values are used without modification when invoking the JVM. The options are specified as a single YAML scalar in plain style or enclosed in single or double quotes.
 
+
+## Example
+```yaml
+# JAVA_OPTS configuration
+---
+from_environment: false
+java_opts: -Xloggc:$PWD/beacon_gc.log -verbose:gc
+```
+
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/java_opts.yml`]: ../config/java_opts.yml
