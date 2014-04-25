@@ -63,6 +63,7 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 	* [Logging](docs/extending-logging.md) ([Configuration](docs/extending-logging.md#configuration))
 	* [Repositories](docs/extending-repositories.md) ([Configuration](docs/extending-repositories.md#configuration))
 	* [Utiltities](docs/extending-utiltities.md)
+* [Debugging the Buildpack](docs/debugging-the-buildpack.md)
 * Related Projects
 	* [Java Buildpack Dependency Builder](https://github.com/cloudfoundry/java-buildpack-dependency-builder)
 	* [Java Test Applications](https://github.com/cloudfoundry/java-test-applications)
