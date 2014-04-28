@@ -38,7 +38,7 @@ module JavaBuildpack
         # @param [Block, nil] version_validator an optional version validation block
         # @return [String] the URI of the chosen version of the file
         # @return [JavaBuildpack::Util::TokenizedVersion] the chosen version of the file
-        def find_item(component_name, configuration, &version_validator)
+        def find_item(component_name, configuration)
           repository_root = repository_root(configuration)
           version         = version(configuration)
 

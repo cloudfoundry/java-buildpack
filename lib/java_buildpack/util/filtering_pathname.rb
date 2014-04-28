@@ -130,7 +130,7 @@ module JavaBuildpack
       end
 
       # Execute this +FilteringPathname+ as a glob.
-      def glob(flags = 0, &block)
+      def glob(flags = 0)
         if block_given?
           Pathname.glob(@pathname, flags) do |file|
             yield filtered_pathname(file) if visible file

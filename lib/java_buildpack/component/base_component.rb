@@ -82,7 +82,7 @@ module JavaBuildpack
       # @param [String] uri
       # @param [String] name an optional name for the download.  Defaults to +@component_name+.
       # @return [Void]
-      def download(version, uri, name = @component_name, &block)
+      def download(version, uri, name = @component_name)
         download_start_time = Time.now
         print "-----> Downloading #{name} #{version} from #{uri} "
 

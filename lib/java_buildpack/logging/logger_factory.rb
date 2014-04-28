@@ -102,7 +102,7 @@ module JavaBuildpack
       def console_logger
         logger           = Logger.new($stderr)
         logger.level     = severity
-        logger.formatter = lambda do |severity, datetime, klass, message|
+        logger.formatter = lambda do |severity, _datetime, klass, message|
           "#{klass.ljust(32)} #{severity.ljust(5)} #{message}\n"
         end
 

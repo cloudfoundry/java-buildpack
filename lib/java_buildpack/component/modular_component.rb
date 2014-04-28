@@ -35,7 +35,7 @@ module JavaBuildpack
       # @param [Hash] context a collection of utilities used by components
       # @param [Block, nil] version_validator an optional version validation block
       def initialize(context, &version_validator)
-        super(context)
+        super(context, &version_validator)
         @sub_components = supports? ? sub_components(context) : []
       end
 
@@ -70,7 +70,7 @@ module JavaBuildpack
       # @param [Hash] context the context of the component
       # @return [Array<BaseComponent>] a collection of +BaseComponent+s that make up the sub_components of this
       #                                component
-      def sub_components(context)
+      def sub_components(_context)
         fail "Method 'sub_components' must be defined"
       end
 

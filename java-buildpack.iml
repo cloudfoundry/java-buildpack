@@ -278,7 +278,7 @@
     <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.2.5, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="docile (v1.1.3, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="json (v1.8.1, rbenv: 1.9.3-p545) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="multi_json (v1.9.2, rbenv: 1.9.3-p545) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="multi_json (v1.9.3, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="parser (v2.1.9, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="powerpack (v0.0.9, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rainbow (v2.0.0, rbenv: 1.9.3-p545) [gem]" level="application" />
@@ -289,7 +289,7 @@
     <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v3.0.0.beta2, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v3.0.0.beta2, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.0.0.beta2, rbenv: 1.9.3-p545) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubocop (v0.20.1, rbenv: 1.9.3-p545) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubocop (v0.21.0, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ruby-debug-base19x (v0.11.30.pre15, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ruby-debug-ide (v0.4.22, rbenv: 1.9.3-p545) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ruby-progressbar (v1.4.2, rbenv: 1.9.3-p545) [gem]" level="application" />

@@ -26,7 +26,7 @@ shared_context 'integration_helper' do
   include_context 'logging_helper'
 
   def run(command)
-    Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
+    Open3.popen3(command) do |_stdin, stdout, stderr, wait_thr|
       capture_output stdout, stderr
       yield wait_thr.value if block_given?
     end
