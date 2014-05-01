@@ -82,7 +82,7 @@ module JavaBuildpack
         'default_process_types' => { 'web' => command }
       }.to_yaml
 
-      @logger.debug { "Release Payload\n#{payload}" }
+      @logger.debug { "Release Payload:\n#{payload}" }
 
       payload
     end
