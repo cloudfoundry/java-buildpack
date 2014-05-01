@@ -33,6 +33,8 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   let(:uri) { 'http://foo-uri/' }
 
+  let(:uri_credentials) { 'http://test-username:test-password@foo-uri/' }
+
   let(:uri_secure) { 'https://foo-uri/' }
 
   let(:download_cache) { described_class.new(mutable_cache_root, immutable_cache_root) }
@@ -73,16 +75,16 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     expect_complete_cache mutable_cache_root
   end
 
-  it 'should download if cached file does not exist' do
-    stub_request(:get, uri)
+  it 'should download with credentials if cached file does not exist' do
+    stub_request(:get, uri_credentials)
     .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     allow(Net::HTTP).to receive(:Proxy).and_call_original
     expect(Net::HTTP).not_to receive(:Proxy).with('proxy', 9000, nil, nil)
 
-    expect { |b| download_cache.get uri, &b }.to yield_with_args(be_a(File), true)
-                                                 .and yield_file_with_content(/foo-cached/)
-    expect_complete_cache mutable_cache_root
+    expect { |b| download_cache.get uri_credentials, &b }.to yield_with_args(be_a(File), true)
+                                                             .and yield_file_with_content(/foo-cached/)
+    expect_complete_credential_cache mutable_cache_root
   end
 
   it 'should follow redirects' do
@@ -252,10 +254,26 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     root + "http:%2F%2Ffoo-uri%2F.#{extension}"
   end
 
+  def credential_cache_file(root, extension)
+    root + "http:%2F%2Ftest-username:test-password@foo-uri%2F.#{extension}"
+  end
+
   def expect_complete_cache(root)
     expect_file_content root, 'cached', 'foo-cached'
     expect_file_content root, 'etag', 'foo-etag'
     expect_file_content root, 'last_modified', 'foo-last-modified'
+  end
+
+  def expect_complete_credential_cache(root)
+    expect_credential_file_content root, 'cached', 'foo-cached'
+    expect_credential_file_content root, 'etag', 'foo-etag'
+    expect_credential_file_content root, 'last_modified', 'foo-last-modified'
+  end
+
+  def expect_credential_file_content(root, extension, content = '')
+    file = credential_cache_file root, extension
+    expect(file).to exist
+    expect(file.read).to eq(content)
   end
 
   def expect_file_content(root, extension, content = '')
