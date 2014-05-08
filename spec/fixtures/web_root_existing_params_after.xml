@@ -4,17 +4,9 @@
         <listener-class> org.springframework.web.context.ContextLoaderListener </listener-class>
     </listener>
     <context-param>
-        <param-name> contextConfigLocation </param-name>
-        <param-value>
-            /WEB-INF/dataContext.xml /WEB-INF/repositoryContext.xml
-            /WEB-INF/serviceContext.xml /WEB-INF/utilContext.xml
-            classpath:META-INF/cloud/cloudfoundry-auto-reconfiguration-context.xml
-        </param-value>
-    </context-param>
-    <context-param>
         <param-name> contextInitializerClasses </param-name>
         <param-value>
-            com.gopivotal.test,org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer
+            com.gopivotal.test,org.cloudfoundry.reconfiguration.spring.CloudProfileApplicationContextInitializer,org.cloudfoundry.reconfiguration.spring.CloudPropertySourceApplicationContextInitializer,org.cloudfoundry.reconfiguration.spring.CloudAutoReconfigurationApplicationContextInitializer
         </param-value>
     </context-param>
 </web-app>
