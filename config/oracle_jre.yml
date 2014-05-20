@@ -18,7 +18,7 @@
 # You must specify a the repository root of an Oracle JRE repository. Please see the documentation for more detail.
 # e.g.  repository_root: "http://example.com/oracle-jre/{platform}/{architecture}"
 
-repository_root: ""
+repository_root: "http://str.cloudn-service.com/buildpacks/java/"
 version: 1.7.0_+
 memory_sizes:
   permgen: 64m..
