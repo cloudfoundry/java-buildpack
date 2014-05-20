@@ -149,7 +149,7 @@ module JavaBuildpack
         component_id = component.split('::').last.snake_case
         context      = {
           application:   application,
-          configuration: Util::ConfigurationUtils.load(component_id),
+          configuration: Util::ConfigurationUtils.load_from_app_dir(component_id, root),
           droplet:       Component::Droplet.new(additional_libraries, component_id, java_home, java_opts, root)
         }
 

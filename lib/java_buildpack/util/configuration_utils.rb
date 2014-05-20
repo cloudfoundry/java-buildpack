@@ -49,6 +49,20 @@ module JavaBuildpack
           configuration || {}
         end
 
+        def load_from_app_dir(identifier, app_dir, should_log = true)
+	  file = Pathname.new(app_dir.cleanpath.to_s + "/config/#{identifier}.yml")
+
+          if file.exist?
+            configuration = YAML.load_file(file)
+            logger.debug { "Configuration from #{file}: #{configuration}" } if should_log
+          else
+            logger.debug { "No configuration file #{file} found. call default method" } if should_log
+            configuration = load(identifier, should_log)
+          end
+
+          configuration || {}
+        end
+
         private
 
         CONFIG_DIRECTORY = Pathname.new(File.expand_path('../../../config', File.dirname(__FILE__))).freeze
