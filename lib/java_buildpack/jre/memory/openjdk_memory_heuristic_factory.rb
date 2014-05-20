@@ -36,6 +36,7 @@ module JavaBuildpack
         # @return [WeightBalancingMemoryHeuristic] the memory heuristics instance
         def create_memory_heuristic(sizes, heuristics, version)
           extra = permgen_or_metaspace(version)
+          sizes, heuristics = select_enable_param(version, sizes, heuristics)
           WeightBalancingMemoryHeuristic.new(sizes, heuristics, VALID_TYPES.dup << extra, JAVA_OPTS)
         end
 
@@ -54,6 +55,17 @@ module JavaBuildpack
 
         def permgen_or_metaspace(version)
           version < JavaBuildpack::Util::TokenizedVersion.new('1.8.0') ? 'permgen' : 'metaspace'
+        end
+
+        def select_enable_param(version, sizes, heuristics)
+          if(version < JavaBuildpack::Util::TokenizedVersion.new('1.8.0'))
+            sizes.delete('metaspace')
+            heuristics.delete('metaspace')
+	  else
+            sizes.delete('permgen')
+            heuristics.delete('permgen')
+	  end
+	  return sizes, heuristics
         end
 
       end
