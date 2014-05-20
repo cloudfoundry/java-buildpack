@@ -63,7 +63,7 @@ module JavaBuildpack
           cached_file, downloaded = from_immutable_caches(uri), false unless cached_file
 
           fail "Unable to find cached file for #{uri}" unless cached_file
-          cached_file.cached(File::RDONLY, downloaded, &block)
+          cached_file.cached(File::RDONLY | File::BINARY, downloaded, &block)
         end
 
         # Removes an item from the mutable cache.
@@ -135,7 +135,7 @@ module JavaBuildpack
         end
 
         def cache_content(response, cached_file)
-          cached_file.cached(File::CREAT | File::WRONLY) do |f|
+          cached_file.cached(File::CREAT | File::WRONLY | File::BINARY) do |f|
             @logger.debug { "Persisting content to #{f.path}" }
 
             f.truncate(0)
@@ -153,7 +153,7 @@ module JavaBuildpack
 
           @logger.debug { "Persisting etag: #{etag}" }
 
-          cached_file.etag(File::CREAT | File::WRONLY) do |f|
+          cached_file.etag(File::CREAT | File::WRONLY | File::BINARY) do |f|
             f.truncate(0)
             f.write etag
             f.fsync
@@ -167,7 +167,7 @@ module JavaBuildpack
 
           @logger.debug { "Persisting last-modified: #{last_modified}" }
 
-          cached_file.last_modified(File::CREAT | File::WRONLY) do |f|
+          cached_file.last_modified(File::CREAT | File::WRONLY | File::BINARY) do |f|
             f.truncate(0)
             f.write last_modified
             f.fsync
@@ -223,11 +223,11 @@ module JavaBuildpack
           request = Net::HTTP::Get.new(uri.request_uri)
 
           if cached_file.etag?
-            cached_file.etag(File::RDONLY) { |f| request['If-None-Match'] = File.read(f) }
+            cached_file.etag(File::RDONLY | File::BINARY) { |f| request['If-None-Match'] = File.read(f) }
           end
 
           if cached_file.last_modified?
-            cached_file.last_modified(File::RDONLY) { |f| request['If-Modified-Since'] = File.read(f) }
+            cached_file.last_modified(File::RDONLY | File::BINARY) { |f| request['If-Modified-Since'] = File.read(f) }
           end
 
           @logger.debug { "Request: #{request.path}, #{request.to_hash}" }

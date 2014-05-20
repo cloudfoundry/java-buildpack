@@ -241,11 +241,11 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
   end
 
   def cache_file(root, extension)
-    root + "http:%2F%2Ffoo-uri%2F.#{extension}"
+    root + "http%3A%2F%2Ffoo-uri%2F.#{extension}"
   end
 
   def credential_cache_file(root, extension)
-    root + "http:%2F%2Ftest-username:test-password@foo-uri%2F.#{extension}"
+    root + "http%3A%2F%2Ftest-username%3Atest-password@foo-uri%2F.#{extension}"
   end
 
   def expect_complete_cache(root)

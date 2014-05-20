@@ -34,7 +34,7 @@ module JavaBuildpack
         def initialize(cache_root, uri)
           FileUtils.mkdir_p cache_root
 
-          key            = URI.escape(uri, '/')
+          key            = URI.escape(uri, ':/')
           @cached        = cache_root + "#{key}.cached"
           @etag          = cache_root + "#{key}.etag"
           @last_modified = cache_root + "#{key}.last_modified"
