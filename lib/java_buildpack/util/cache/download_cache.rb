@@ -240,7 +240,7 @@ module JavaBuildpack
           proxy(uri).start(uri.host, uri.port, http_options(uri)) do |http|
             @logger.debug { "HTTP: #{http.address}, #{http.port}, #{http_options(uri)}" }
             request = request uri, cached_file
-            if uri.user != nil || uri.password != nil
+            if !uri.user || !uri.password
               request.basic_auth uri.user, uri.password
             end
 
