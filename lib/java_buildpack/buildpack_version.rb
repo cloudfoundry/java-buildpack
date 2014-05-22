@@ -51,10 +51,10 @@ module JavaBuildpack
       @remote       = configuration['remote'] || remote
       @version      = configuration['version'] || ENV['VERSION'] || @hash
 
-      if should_log
-        logger = Logging::LoggerFactory.instance.get_logger BuildpackVersion
-        logger.debug { to_s }
-      end
+      return unless should_log
+
+      logger = Logging::LoggerFactory.instance.get_logger BuildpackVersion
+      logger.debug { to_s }
     end
 
     # Returns a +Hash+ representation of the buildpack version.

@@ -49,8 +49,7 @@ describe JavaBuildpack::Util::Cache::CachedFile do
     end
 
     it 'should call the block with the content of the cache file' do
-      expect { |b| file_cache.cached(File::RDONLY, 'test-arg', &b) }.to yield_with_args(be_a(File), 'test-arg')
-                                                                        .and yield_file_with_content(/foo-cached/)
+      expect { |b| file_cache.cached(File::RDONLY, 'test-arg', &b) }.to yield_file_with_content(/foo-cached/)
     end
 
     it 'should detect cached file' do
@@ -64,8 +63,7 @@ describe JavaBuildpack::Util::Cache::CachedFile do
     end
 
     it 'should call the block with the content of the etag file' do
-      expect { |b| file_cache.etag(File::RDONLY, 'test-arg', &b) }.to yield_with_args(be_a(File), 'test-arg')
-                                                                      .and yield_file_with_content(/foo-etag/)
+      expect { |b| file_cache.etag(File::RDONLY, 'test-arg', &b) }.to yield_file_with_content(/foo-etag/)
     end
 
     it 'should detect etag file' do
@@ -73,8 +71,7 @@ describe JavaBuildpack::Util::Cache::CachedFile do
     end
 
     it 'should call the block with the content of the last_modified file' do
-      expect { |b| file_cache.last_modified(File::RDONLY, 'test-arg', &b) }.to yield_with_args(be_a(File), 'test-arg')
-                                                                               .and yield_file_with_content(/foo-last-modified/)
+      expect { |b| file_cache.last_modified(File::RDONLY, 'test-arg', &b) }.to yield_file_with_content(/foo-last-modified/)
     end
 
     it 'should detect last_modified file' do

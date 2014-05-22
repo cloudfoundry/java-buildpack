@@ -20,7 +20,7 @@ require 'open3'
 module JavaBuildpack
   module Util
 
-# A mixin that provides a +shell()+ command
+    # A mixin that provides a +shell()+ command
     module Shell
 
       # A +system()+-like command that ensure that the execution fails if the command returns a non-zero exit code

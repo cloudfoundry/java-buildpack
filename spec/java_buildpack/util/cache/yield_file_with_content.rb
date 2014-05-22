@@ -23,6 +23,8 @@ RSpec::Matchers.define :yield_file_with_content do |expected|
     probe.yielded_once?(:yield_with_args) && content(probe.single_yield_args.first) =~ expected
   end
 
+  supports_block_expectations
+
   def content(file)
     File.read(file)
   end

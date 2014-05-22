@@ -78,7 +78,7 @@ describe JavaBuildpack::Util::Play::Pre22Staged do
     end
   end
 
-  context app_fixture: 'container_play_2.1_staged' do
+  context nil, app_fixture: 'container_play_2.1_staged' do
 
     let(:play_app) { described_class.new(droplet) }
 

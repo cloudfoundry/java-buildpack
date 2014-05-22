@@ -148,27 +148,29 @@ module JavaBuildpack
 
         def cache_etag(response, cached_file)
           etag = response['Etag']
-          if etag
-            @logger.debug { "Persisting etag: #{etag}" }
 
-            cached_file.etag(File::CREAT | File::WRONLY) do |f|
-              f.truncate(0)
-              f.write etag
-              f.fsync
-            end
+          return unless etag
+
+          @logger.debug { "Persisting etag: #{etag}" }
+
+          cached_file.etag(File::CREAT | File::WRONLY) do |f|
+            f.truncate(0)
+            f.write etag
+            f.fsync
           end
         end
 
         def cache_last_modified(response, cached_file)
           last_modified = response['Last-Modified']
-          if last_modified
-            @logger.debug { "Persisting last-modified: #{last_modified}" }
 
-            cached_file.last_modified(File::CREAT | File::WRONLY) do |f|
-              f.truncate(0)
-              f.write last_modified
-              f.fsync
-            end
+          return unless last_modified
+
+          @logger.debug { "Persisting last-modified: #{last_modified}" }
+
+          cached_file.last_modified(File::CREAT | File::WRONLY) do |f|
+            f.truncate(0)
+            f.write last_modified
+            f.fsync
           end
         end
 
@@ -185,10 +187,10 @@ module JavaBuildpack
           @immutable_cache_roots.each do |cache_root|
             candidate = CachedFile.new cache_root, uri
 
-            if candidate.cached?
-              @logger.debug { "#{uri} found in cache #{cache_root}" }
-              return candidate
-            end
+            next unless candidate.cached?
+
+            @logger.debug { "#{uri} found in cache #{cache_root}" }
+            return candidate
           end
 
           nil
@@ -258,15 +260,15 @@ module JavaBuildpack
         end
 
         def validate_size(expected_size, cached_file)
-          if expected_size
-            actual_size = cached_file.cached(File::RDONLY) { |f| f.size }
-            @logger.debug { "Validated content size #{actual_size} is #{expected_size}" }
+          return unless  expected_size
 
-            unless expected_size.to_i == actual_size
-              cached_file.destroy
-              fail InferredNetworkFailure, "Content has invalid size.  Was #{actual_size}, should be #{expected_size}."
-            end
-          end
+          actual_size = cached_file.cached(File::RDONLY) { |f| f.size }
+          @logger.debug { "Validated content size #{actual_size} is #{expected_size}" }
+
+          return if expected_size.to_i == actual_size
+
+          cached_file.destroy
+          fail InferredNetworkFailure, "Content has invalid size.  Was #{actual_size}, should be #{expected_size}."
         end
 
       end
