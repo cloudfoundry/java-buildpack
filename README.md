@@ -25,6 +25,28 @@ The buildpack supports configuration and extension through the use of Git reposi
 
 To learn how to configure various properties of the buildpack, follow the "Configuration" links below. More information on extending the buildpack is available [here](docs/extending.md).
 
+## How to change JRE version
+JRE version can change by application setting.
+
+1. Create "config" directory at application root
+* Download [oracle_jre.yml][oracle_jre.yml] into "config" directory
+```
+.
+├── WEB-INF
+│   ├── classes
+│   └── web.xml
+├── config
+│   └── oracle_jre.yml
+└── index.jsp
+```
+* Edit "oracle_jre.yml"
+ * Change Java7 to Java8
+ ```
+#version: 1.7.+
+version: 1.8.+
+ ```
+* Push application(refer Usage)
+
 ## Additional Documentation
 * [Design](docs/design.md)
 * [Security](docs/security.md)
@@ -128,3 +150,4 @@ This buildpack is released under version 2.0 of the [Apache License][].
 [Pull requests]: http://help.github.com/send-pull-requests
 [Running Cloud Foundry locally]: http://docs.cloudfoundry.org/deploying/run-local.html
 [Spring Boot]: http://projects.spring.io/spring-boot/
+[oracle_jre.yml]: http://str.cloudn-service.com/buildpacks/java/oracle_jre.yml
