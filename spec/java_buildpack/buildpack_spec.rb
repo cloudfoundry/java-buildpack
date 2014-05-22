@@ -129,12 +129,12 @@ describe JavaBuildpack::Buildpack do
   end
 
   it 'should load configuration file matching JRE class name' do
-    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load_from_app_dir).with('stub_jre1',app_dir)
-    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load_from_app_dir).with('stub_jre2',app_dir)
-    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load_from_app_dir).with('stub_framework1',app_dir)
-    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load_from_app_dir).with('stub_framework2',app_dir)
-    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load_from_app_dir).with('stub_container1',app_dir)
-    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load_from_app_dir).with('stub_container2',app_dir)
+    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load_from_app_dir).with('stub_jre1', app_dir)
+    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load_from_app_dir).with('stub_jre2', app_dir)
+    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load_from_app_dir).with('stub_framework1', app_dir)
+    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load_from_app_dir).with('stub_framework2', app_dir)
+    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load_from_app_dir).with('stub_container1', app_dir)
+    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load_from_app_dir).with('stub_container2', app_dir)
 
     buildpack.detect
   end
