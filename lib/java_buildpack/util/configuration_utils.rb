@@ -49,6 +49,28 @@ module JavaBuildpack
           configuration || {}
         end
 
+        # Loads a configuration file from the application directory.
+        # If the configuration file does not exist in the application,
+        # Loads a configuration file from the buildpack configuration directory.
+        # @param [String] identifier the identifier of the configuration
+        # @param [Pathname] application root
+        # @param [Boolean] should_log whether the contents of the configuration file should be logged.  This value should be
+        #                             left to its default and exists to allow the logger to use the utility.
+        # @return [Hash] the configuration or an empty hash if the configuration file does not exist
+        def load_from_app_dir(identifier, app_dir, should_log = true)
+          file = Pathname.new(app_dir.cleanpath.to_s + "/config/#{identifier}.yml")
+
+          if file.exist?
+            configuration = YAML.load_file(file)
+            logger.debug { "Configuration from #{file}: #{configuration}" } if should_log
+          else
+            logger.debug { "No configuration file #{file} found. call default method" } if should_log
+            configuration = load(identifier, should_log)
+          end
+
+          configuration || {}
+        end
+
         private
 
         CONFIG_DIRECTORY = Pathname.new(File.expand_path('../../../config', File.dirname(__FILE__))).freeze
