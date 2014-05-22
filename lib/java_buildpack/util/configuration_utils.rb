@@ -53,7 +53,7 @@ module JavaBuildpack
         # If the configuration file does not exist in the application,
         # Loads a configuration file from the buildpack configuration directory.
         # @param [String] identifier the identifier of the configuration
-        # @param [Filepath] application root
+        # @param [Pathname] application root
         # @param [Boolean] should_log whether the contents of the configuration file should be logged.  This value should be
         #                             left to its default and exists to allow the logger to use the utility.
         # @return [Hash] the configuration or an empty hash if the configuration file does not exist
