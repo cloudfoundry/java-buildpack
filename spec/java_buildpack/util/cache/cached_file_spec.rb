@@ -80,7 +80,7 @@ describe JavaBuildpack::Util::Cache::CachedFile do
   end
 
   def cache_file(extension)
-    app_dir + "http:%2F%2Ffoo-uri%2F.#{extension}"
+    app_dir + "http%3A%2F%2Ffoo-uri%2F.#{extension}"
   end
 
   def touch(extension, content = '')
