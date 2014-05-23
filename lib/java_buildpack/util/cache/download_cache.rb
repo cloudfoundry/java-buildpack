@@ -71,7 +71,7 @@ module JavaBuildpack
         # @param [String] uri the URI of the item
         # @return [Void]
         def evict(uri)
-          CachedFile.new(@mutable_cache_root, uri).destroy
+          CachedFile.new(@mutable_cache_root, uri, true).destroy
         end
 
         private
@@ -175,7 +175,7 @@ module JavaBuildpack
         end
 
         def from_mutable_cache(uri)
-          cached_file = CachedFile.new(@mutable_cache_root, uri)
+          cached_file = CachedFile.new @mutable_cache_root, uri, true
           cached      = update URI(uri), cached_file
           [cached_file, cached]
         rescue => e
@@ -185,7 +185,7 @@ module JavaBuildpack
 
         def from_immutable_caches(uri)
           @immutable_cache_roots.each do |cache_root|
-            candidate = CachedFile.new cache_root, uri
+            candidate = CachedFile.new cache_root, uri, false
 
             next unless candidate.cached?
 

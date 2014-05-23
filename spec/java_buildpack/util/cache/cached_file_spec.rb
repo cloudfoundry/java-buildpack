@@ -22,10 +22,28 @@ require 'java_buildpack/util/cache/cached_file'
 describe JavaBuildpack::Util::Cache::CachedFile do
   include_context 'application_helper'
 
-  let(:file_cache) { described_class.new(app_dir, 'http://foo-uri/') }
+  let(:cache_root) { app_dir + 'cache/root' }
+
+  let(:file_cache) { described_class.new(app_dir, 'http://foo-uri/', true) }
 
   it 'should not create any files on initialization' do
     %w(cached etag last_modified).each { |extension| expect(cache_file(extension)).not_to exist }
+  end
+
+  it 'should create cache_root if mutable' do
+    expect(cache_root).not_to exist
+
+    described_class.new(cache_root, 'http://foo-uri/', true)
+
+    expect(cache_root).to exist
+  end
+
+  it 'should not create cache_root if immutable' do
+    expect(cache_root).not_to exist
+
+    described_class.new(cache_root, 'http://foo-uri/', false)
+
+    expect(cache_root).not_to exist
   end
 
   it 'should not detect cached file' do
@@ -60,6 +78,12 @@ describe JavaBuildpack::Util::Cache::CachedFile do
       file_cache.destroy
 
       %w(cached etag last_modified).each { |extension| expect(cache_file(extension)).not_to exist }
+    end
+
+    it 'should not destroy all files if immutable' do
+      described_class.new(app_dir, 'http://foo-uri/', false).destroy
+
+      %w(cached etag last_modified).each { |extension| expect(cache_file(extension)).to exist }
     end
 
     it 'should call the block with the content of the etag file' do
