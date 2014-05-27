@@ -55,4 +55,22 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
     expect(log_contents).to match(/Internet availability set to false: test message/)
   end
 
+  it 'should temporarily set internet unavailable' do
+    expect(described_class.instance.available?).to be
+
+    described_class.instance.available(false) { expect(described_class.instance.available?).not_to be }
+
+    expect(described_class.instance.available?).to be
+  end
+
+  it 'should temporarily set internet available',
+     :disable_internet do
+
+    expect(described_class.instance.available?).not_to be
+
+    described_class.instance.available(true) { expect(described_class.instance.available?).to be }
+
+    expect(described_class.instance.available?).not_to be
+  end
+
 end

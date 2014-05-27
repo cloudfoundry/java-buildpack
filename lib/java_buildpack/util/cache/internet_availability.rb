@@ -47,10 +47,20 @@ module JavaBuildpack
         #
         # @param [Boolean] available whether the internet is available
         # @param [String, nil] message an optional message to be printed when the availability is set
+        # @yields an environment with internet availability temporarily overridden if block given
         def available(available, message = nil)
           @monitor.synchronize do
-            @available = available
-            @logger.warn { "Internet availability set to #{available}: #{message}" } if message
+            if block_given?
+              preserve_availability do
+                @available = available
+                @logger.warn { "Internet availability temporarily set to #{available}: #{message}" } if message
+
+                yield
+              end
+            else
+              @available = available
+              @logger.warn { "Internet availability set to #{available}: #{message}" } if message
+            end
           end
         end
 
@@ -58,6 +68,15 @@ module JavaBuildpack
 
         def remote_downloads?
           JavaBuildpack::Util::ConfigurationUtils.load('cache')['remote_downloads'] != 'disabled'
+        end
+
+        def preserve_availability
+          previous = @available
+          begin
+            yield
+          ensure
+            @available = previous
+          end
         end
 
       end
