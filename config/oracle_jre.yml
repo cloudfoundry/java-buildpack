@@ -14,6 +14,7 @@
 # limitations under the License.
 
 # Configuration for JRE repositories keyed by vendor
+# From Java 1.8 onwards, metaspace should be used instead of permgen.  Please see the documentation for more detail.
 ---
 # You must specify a the repository root of an Oracle JRE repository. Please see the documentation for more detail.
 # e.g.  repository_root: "http://example.com/oracle-jre/{platform}/{architecture}"
@@ -21,9 +22,11 @@
 repository_root: ""
 version: 1.7.0_+
 memory_sizes:
+  # metaspace: 64m..
   permgen: 64m..
 memory_heuristics:
   heap: 75
+  # metaspace: 10
   permgen: 10
   stack: 5
   native: 10
