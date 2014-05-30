@@ -27,6 +27,7 @@ The framework can be configured by modifying the [`config/play_framework_jpa_plu
 | ---- | -----------
 | `repository_root` | The URL of the Play Framework JPA Plugin repository index ([details][repositories]).
 | `version` | The version of the Play Framework JPA Plugin to use. Candidate versions can be found in [this listing][].
+| `enabled` | Whether to attempt reconfiguration
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/play_framework_jpa_plugin.yml`]: ../config/play_framework_jpa_plugin.yml

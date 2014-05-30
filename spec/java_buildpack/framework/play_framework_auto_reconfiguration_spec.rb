@@ -21,6 +21,8 @@ require 'java_buildpack/framework/play_framework_auto_reconfiguration'
 describe JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration do
   include_context 'component_helper'
 
+  let(:configuration) { { 'enabled' => true } }
+
   it 'should detect with application configuration',
      app_fixture: 'container_play_2.1_dist' do
 
@@ -31,6 +33,16 @@ describe JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration do
      app_fixture: 'container_play_too_deep' do
 
     expect(component.detect).to be_nil
+  end
+
+  context do
+    let(:configuration) { { 'enabled' => false } }
+
+    it 'should not detect if disabled',
+       app_fixture: 'container_play_2.1_dist' do
+
+      expect(component.detect).to be_nil
+    end
   end
 
   it 'should download additional libraries',

@@ -47,7 +47,7 @@ module JavaBuildpack
         play_app  = JavaBuildpack::Util::Play::Factory.create @droplet
         candidate = uses_jpa?(play_app) || play20?(play_app.version) if play_app
 
-        candidate
+        @configuration['enabled'] && candidate
       end
 
       private

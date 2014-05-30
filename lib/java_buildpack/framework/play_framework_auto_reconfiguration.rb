@@ -41,7 +41,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        JavaBuildpack::Util::Play::Factory.create @droplet
+        @configuration['enabled'] && JavaBuildpack::Util::Play::Factory.create(@droplet)
       end
 
     end
