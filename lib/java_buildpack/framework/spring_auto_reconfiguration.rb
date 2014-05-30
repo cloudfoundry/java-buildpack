@@ -51,7 +51,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        (@droplet.root + '**/*spring-core*.jar').glob.any?
+        @configuration['enabled'] && (@droplet.root + '**/*spring-core*.jar').glob.any?
       end
 
       private

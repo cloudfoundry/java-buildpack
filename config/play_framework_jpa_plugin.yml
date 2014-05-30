@@ -17,3 +17,4 @@
 ---
 version: 1.+
 repository_root: "{default.repository.root}/play-jpa-plugin"
+enabled: true

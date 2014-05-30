@@ -22,6 +22,8 @@ require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
 describe JavaBuildpack::Framework::SpringAutoReconfiguration do
   include_context 'component_helper'
 
+  let(:configuration) { { 'enabled' => true } }
+
   it 'should detect with Spring JAR',
      app_fixture: 'framework_auto_reconfiguration_servlet_3' do
 
@@ -36,6 +38,16 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
 
   it 'should not detect without Spring JAR' do
     expect(component.detect).to be_nil
+  end
+
+  context do
+    let(:configuration) { { 'enabled' => false } }
+
+    it 'should not detect if disabled',
+       app_fixture: 'framework_auto_reconfiguration_servlet_3' do
+
+      expect(component.detect).to be_nil
+    end
   end
 
   it 'should download additional libraries',
