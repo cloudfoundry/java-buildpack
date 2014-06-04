@@ -21,7 +21,7 @@ RSpec::Core::RakeTask.new
 CLEAN.include 'coverage'
 
 require 'rubocop/rake_task'
-Rubocop::RakeTask.new
+RuboCop::RakeTask.new
 
 require 'yard'
 YARD::Rake::YardocTask.new
