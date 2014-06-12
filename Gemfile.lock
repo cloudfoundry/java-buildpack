@@ -7,9 +7,11 @@ GEM
       simplecov (>= 0.7.1, < 1.0.0)
     crack (0.4.2)
       safe_yaml (~> 1.0.0)
+    debase (0.0.9)
+      debugger-ruby_core_source
     debugger-ruby_core_source (1.3.5)
     diff-lcs (1.2.5)
-    docile (1.1.3)
+    docile (1.1.4)
     json (1.8.1)
     multi_json (1.10.1)
     parser (2.1.9)
@@ -28,7 +30,7 @@ GEM
     rspec-expectations (3.0.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.0.0)
-    rspec-mocks (3.0.0)
+    rspec-mocks (3.0.1)
       rspec-support (~> 3.0.0)
     rspec-support (3.0.0)
     rubocop (0.23.0)
@@ -62,6 +64,7 @@ PLATFORMS
 
 DEPENDENCIES
   codeclimate-test-reporter
+  debase
   rake
   redcarpet
   rspec
