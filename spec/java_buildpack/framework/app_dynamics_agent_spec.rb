@@ -62,7 +62,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/app_dynamics_agent/javaagent.jar')
         expect(java_opts).to include('-Dappdynamics.controller.hostName=test-host-name')
         expect(java_opts).to include("-Dappdynamics.agent.applicationName='test-application-name'")
-        expect(java_opts).to include("-Dappdynamics.agent.tierName='test-tier-name'")
+        expect(java_opts).to include('-Dappdynamics.agent.tierName=test-tier-name')
         expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' \
                                          '\'.*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
       end
@@ -106,6 +106,17 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
           expect(java_opts).to include('-Dappdynamics.agent.accountAccessKey=test-account-access-key')
         end
       end
+
+      context do
+        let(:credentials) { super().merge 'tier-name' => 'tier-from-service' }
+
+        it 'should override the default tier-name from configuration' do
+          component.release
+
+          expect(java_opts).to include('-Dappdynamics.agent.tierName=tier-from-service')
+        end
+      end
+
     end
 
   end

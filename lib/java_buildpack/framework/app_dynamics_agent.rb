@@ -38,10 +38,10 @@ module JavaBuildpack
         java_opts
         .add_javaagent(@droplet.sandbox + 'javaagent.jar')
         .add_system_property('appdynamics.agent.applicationName', "'#{application_name}'")
-        .add_system_property('appdynamics.agent.tierName', "'#{@configuration['tier_name']}'")
         .add_system_property('appdynamics.agent.nodeName',
                              "$(expr \"$VCAP_APPLICATION\" : '.*instance_id[\": ]*\"\\([a-z0-9]\\+\\)\".*')")
 
+        tier_name(java_opts, credentials)
         account_access_key(java_opts, credentials)
         account_name(java_opts, credentials)
         host_name(java_opts, credentials)
@@ -64,6 +64,11 @@ module JavaBuildpack
 
       def application_name
         @application.details['application_name']
+      end
+
+      def tier_name(java_opts, credentials)
+        tier_name = credentials['tier-name'] ? credentials['tier-name'] : @configuration['tier_name']
+        java_opts.add_system_property 'appdynamics.agent.tierName', tier_name
       end
 
       def account_access_key(java_opts, credentials)
