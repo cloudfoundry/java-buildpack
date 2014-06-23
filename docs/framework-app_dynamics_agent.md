@@ -31,6 +31,7 @@ The framework can be configured by modifying the [`config/app_dynamics_agent.yml
 | Name | Description
 | ---- | -----------
 | `repository_root` | The URL of the AppDynamics repository index ([details][repositories]).
+| `tier_name` | The tier_name for this application in the AppDynamics dashboard.
 | `version` | The version of AppDynamics to use. Candidate versions can be found in [this listing][].
 
 ### Additional Resources

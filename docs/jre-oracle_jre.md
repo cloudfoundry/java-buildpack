@@ -29,10 +29,10 @@ The JRE can be configured by modifying the [`config/oracle_jre.yml`][] file in t
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the Oracle repository index ([details][repositories]).
-| `version` | The version of Java runtime to use.  Candidate versions can be found in the the repository that you have created to house the JREs. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
 | `memory_sizes` | Optional memory sizes, described below under "Memory Sizes".
 | `memory_heuristics` | Default memory size weightings, described below under "Memory Weightings.
+| `repository_root` | The URL of the Oracle repository index ([details][repositories]).
+| `version` | The version of Java runtime to use.  Candidate versions can be found in the the repository that you have created to house the JREs. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
 
 ### Additional Resources
 The JRE can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/oracle_jre` directory in the buildpack fork.  For example, to add the JCE Unlimited Strength `local_policy.jar` add your file to `resources/oracle_jre/lib/security/local_policy.jar`.
@@ -49,9 +49,9 @@ The following optional properties may be specified in the `memory_sizes` mapping
 | ---- | -----------
 | `heap` | The maximum heap size to use. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line options `-Xmx` and `-Xms`.
 | `metaspace` | The maximum Metaspace size to use. It is applicable to versions of Oracle from 1.8 onwards. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line options `-XX:MaxMetaspaceSize=` and `-XX:MetaspaceSize=`.
+| `native` | The amount of memory to reserve for native memory allocation. It should normally be omitted or specified as a range with no upper bound such as `100m..`. It does not correspond to a switch on the Java command line.
 | `permgen` | The maximum PermGen size to use. It is applicable to versions of Oracle earlier than 1.8. It may be a single value such as `64m` or a range of acceptable values such as `128m..256m`. It is used to calculate the value of the Java command line options `-XX:MaxPermSize=` and `-XX:PermSize=`.
 | `stack` | The stack size to use. It may be a single value such as `2m` or a range of acceptable values such as `2m..4m`. It is used to calculate the value of the Java command line option `-Xss`.
-| `native` | The amount of memory to reserve for native memory allocation. It should normally be omitted or specified as a range with no upper bound such as `100m..`. It does not correspond to a switch on the Java command line.
 
 Memory sizes together with _memory weightings_ (described in the next section) are used to calculate the amount of memory for each memory type. The calculation is described later.
 
