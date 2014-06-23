@@ -21,9 +21,9 @@ The framework can be configured by modifying the [`config/play_framework_auto_re
 
 | Name | Description
 | ---- | -----------
+| `enabled` | Whether to attempt auto-reconfiguration
 | `repository_root` | The URL of the Auto-reconfiguration repository index ([details][repositories]).
 | `version` | The version of Auto-reconfiguration to use. Candidate versions can be found in [this listing][].
-| `enabled` | Whether to attempt auto-reconfiguration
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/play_framework_auto_reconfiguration.yml`]: ../config/config/play_framework_auto_reconfiguration.yml

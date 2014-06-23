@@ -21,17 +21,17 @@ The container can be configured by modifying the [`config/tomcat.yml`][] file in
 
 | Name | Description
 | ---- | -----------
-| `tomcat.repository_root` | The URL of the Tomcat repository index ([details][repositories]).
-| `tomcat.version` | The version of Tomcat to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat/index.yml).
 | `lifecycle_support.repository_root` | The URL of the Tomcat Lifecycle Support repository index ([details][repositories]).
 | `lifecycle_support.version` | The version of Tomcat Lifecycle Support to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat-lifecycle-support/index.yml).
 | `logging_support.repository_root` | The URL of the Tomcat Logging Support repository index ([details][repositories]).
 | `logging_support.version` | The version of Tomcat Logging Support to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat-logging-support/index.yml).
-| `redis_store.repository_root` | The URL of the Redis Store repository index ([details][repositories]).
-| `redis_store.version` | The version of Redis Store to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/redis-store/index.yml).
-| `redis_store.database` | The Redis database to connect to.
-| `redis_store.timeout` | The Redis connection timeout (in milliseconds).
 | `redis_store.connection_pool_size` | The Redis connection pool size.  Note that this is per-instance, not per-application.
+| `redis_store.database` | The Redis database to connect to.
+| `redis_store.repository_root` | The URL of the Redis Store repository index ([details][repositories]).
+| `redis_store.timeout` | The Redis connection timeout (in milliseconds).
+| `redis_store.version` | The version of Redis Store to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/redis-store/index.yml).
+| `tomcat.repository_root` | The URL of the Tomcat repository index ([details][repositories]).
+| `tomcat.version` | The version of Tomcat to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat/index.yml).
 
 ### Additional Resources
 The container can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/tomcat` directory in the buildpack fork.  For example, to override the default `logging.properties` add your custom file to `resources/tomcat/conf/logging.properties`.
