@@ -1,8 +1,5 @@
 # Cloud Foundry Java Buildpack
-[![Build Status](https://travis-ci.org/cloudfoundry/java-buildpack.svg?branch=master)](https://travis-ci.org/cloudfoundry/java-buildpack)
-[![Dependency Status](https://gemnasium.com/cloudfoundry/java-buildpack.svg)](https://gemnasium.com/cloudfoundry/java-buildpack)
-[![Code Climate](https://codeclimate.com/repos/5224adaec7f3a3415107004c/badges/bc49f7d7f8dfc47057c8/gpa.svg)](https://codeclimate.com/repos/5224adaec7f3a3415107004c/feed)
-[![Code Climate](https://codeclimate.com/repos/5224adaec7f3a3415107004c/badges/bc49f7d7f8dfc47057c8/coverage.svg)](https://codeclimate.com/repos/5224adaec7f3a3415107004c/feed)
+[![Build Status](https://travis-ci.org/cloudn/java-buildpack.svg?branch=master)](https://travis-ci.org/cloudn/java-buildpack)
 
 The `java-buildpack` is a [Cloud Foundry][] buildpack for running JVM-based applications.  It is designed to run many JVM-based applications ([Grails][], [Groovy][], Java Main, [Play Framework][], [Spring Boot][], and Servlet) with no additional configuration, but supports configuration of the standard components, and extension to add custom components.
 
@@ -27,6 +24,28 @@ The following are _very_ simple examples for deploying the artifact types that w
 The buildpack supports configuration and extension through the use of Git repository forking.  The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository.  Make the required configuration and extension changes in the copy of the repository.  Then specify the URL of the new repository when pushing Cloud Foundry applications.  If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes.
 
 To learn how to configure various properties of the buildpack, follow the "Configuration" links below. More information on extending the buildpack is available [here](docs/extending.md).
+
+## How to change JRE version
+JRE version can change by application setting.
+
+1. Create "config" directory at application root
+* Download [oracle_jre.yml][oracle_jre.yml] into "config" directory
+```
+.
+├── WEB-INF
+│   ├── classes
+│   └── web.xml
+├── config
+│   └── oracle_jre.yml
+└── index.jsp
+```
+* Edit "oracle_jre.yml"
+ * Change Java7 to Java8
+ ```
+#version: 1.7.+
+version: 1.8.+
+ ```
+* Push application(refer Usage)
 
 ## Additional Documentation
 * [Design](docs/design.md)
@@ -131,3 +150,4 @@ This buildpack is released under version 2.0 of the [Apache License][].
 [Pull requests]: http://help.github.com/send-pull-requests
 [Running Cloud Foundry locally]: http://docs.cloudfoundry.org/deploying/run-local.html
 [Spring Boot]: http://projects.spring.io/spring-boot/
+[oracle_jre.yml]: http://str.cloudn-service.com/buildpacks/java/oracle_jre.yml
