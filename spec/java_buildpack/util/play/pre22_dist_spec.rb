@@ -78,7 +78,7 @@ describe JavaBuildpack::Util::Play::Pre22Dist do
     end
   end
 
-  context app_fixture: 'container_play_2.0_dist' do
+  context nil, app_fixture: 'container_play_2.0_dist' do
 
     let(:play_app) { described_class.new(droplet) }
 
@@ -108,7 +108,7 @@ describe JavaBuildpack::Util::Play::Pre22Dist do
     end
   end
 
-  context app_fixture: 'container_play_2.1_dist' do
+  context nil, app_fixture: 'container_play_2.1_dist' do
 
     let(:play_app) { described_class.new(droplet) }
 

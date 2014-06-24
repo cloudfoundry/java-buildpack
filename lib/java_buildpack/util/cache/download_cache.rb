@@ -63,7 +63,7 @@ module JavaBuildpack
           cached_file, downloaded = from_immutable_caches(uri), false unless cached_file
 
           fail "Unable to find cached file for #{uri}" unless cached_file
-          cached_file.cached(File::RDONLY, downloaded, &block)
+          cached_file.cached(File::RDONLY | File::BINARY, downloaded, &block)
         end
 
         # Removes an item from the mutable cache.
@@ -71,7 +71,7 @@ module JavaBuildpack
         # @param [String] uri the URI of the item
         # @return [Void]
         def evict(uri)
-          CachedFile.new(@mutable_cache_root, uri).destroy
+          CachedFile.new(@mutable_cache_root, uri, true).destroy
         end
 
         private
@@ -135,7 +135,7 @@ module JavaBuildpack
         end
 
         def cache_content(response, cached_file)
-          cached_file.cached(File::CREAT | File::WRONLY) do |f|
+          cached_file.cached(File::CREAT | File::WRONLY | File::BINARY) do |f|
             @logger.debug { "Persisting content to #{f.path}" }
 
             f.truncate(0)
@@ -148,32 +148,34 @@ module JavaBuildpack
 
         def cache_etag(response, cached_file)
           etag = response['Etag']
-          if etag
-            @logger.debug { "Persisting etag: #{etag}" }
 
-            cached_file.etag(File::CREAT | File::WRONLY) do |f|
-              f.truncate(0)
-              f.write etag
-              f.fsync
-            end
+          return unless etag
+
+          @logger.debug { "Persisting etag: #{etag}" }
+
+          cached_file.etag(File::CREAT | File::WRONLY | File::BINARY) do |f|
+            f.truncate(0)
+            f.write etag
+            f.fsync
           end
         end
 
         def cache_last_modified(response, cached_file)
           last_modified = response['Last-Modified']
-          if last_modified
-            @logger.debug { "Persisting last-modified: #{last_modified}" }
 
-            cached_file.last_modified(File::CREAT | File::WRONLY) do |f|
-              f.truncate(0)
-              f.write last_modified
-              f.fsync
-            end
+          return unless last_modified
+
+          @logger.debug { "Persisting last-modified: #{last_modified}" }
+
+          cached_file.last_modified(File::CREAT | File::WRONLY | File::BINARY) do |f|
+            f.truncate(0)
+            f.write last_modified
+            f.fsync
           end
         end
 
         def from_mutable_cache(uri)
-          cached_file = CachedFile.new(@mutable_cache_root, uri)
+          cached_file = CachedFile.new @mutable_cache_root, uri, true
           cached      = update URI(uri), cached_file
           [cached_file, cached]
         rescue => e
@@ -183,12 +185,12 @@ module JavaBuildpack
 
         def from_immutable_caches(uri)
           @immutable_cache_roots.each do |cache_root|
-            candidate = CachedFile.new cache_root, uri
+            candidate = CachedFile.new cache_root, uri, false
 
-            if candidate.cached?
-              @logger.debug { "#{uri} found in cache #{cache_root}" }
-              return candidate
-            end
+            next unless candidate.cached?
+
+            @logger.debug { "#{uri} found in cache #{cache_root}" }
+            return candidate
           end
 
           nil
@@ -221,11 +223,11 @@ module JavaBuildpack
           request = Net::HTTP::Get.new(uri.request_uri)
 
           if cached_file.etag?
-            cached_file.etag(File::RDONLY) { |f| request['If-None-Match'] = File.read(f) }
+            cached_file.etag(File::RDONLY | File::BINARY) { |f| request['If-None-Match'] = File.read(f) }
           end
 
           if cached_file.last_modified?
-            cached_file.last_modified(File::RDONLY) { |f| request['If-Modified-Since'] = File.read(f) }
+            cached_file.last_modified(File::RDONLY | File::BINARY) { |f| request['If-Modified-Since'] = File.read(f) }
           end
 
           @logger.debug { "Request: #{request.path}, #{request.to_hash}" }
@@ -240,9 +242,7 @@ module JavaBuildpack
           proxy(uri).start(uri.host, uri.port, http_options(uri)) do |http|
             @logger.debug { "HTTP: #{http.address}, #{http.port}, #{http_options(uri)}" }
             request = request uri, cached_file
-            if uri.user || uri.password
-              request.basic_auth uri.user, uri.password
-            end
+            request.basic_auth uri.user, uri.password if uri.user && uri.password
 
             failures = 0
             begin
@@ -260,15 +260,15 @@ module JavaBuildpack
         end
 
         def validate_size(expected_size, cached_file)
-          if expected_size
-            actual_size = cached_file.cached(File::RDONLY) { |f| f.size }
-            @logger.debug { "Validated content size #{actual_size} is #{expected_size}" }
+          return unless  expected_size
 
-            unless expected_size.to_i == actual_size
-              cached_file.destroy
-              fail InferredNetworkFailure, "Content has invalid size.  Was #{actual_size}, should be #{expected_size}."
-            end
-          end
+          actual_size = cached_file.cached(File::RDONLY) { |f| f.size }
+          @logger.debug { "Validated content size #{actual_size} is #{expected_size}" }
+
+          return if expected_size.to_i == actual_size
+
+          cached_file.destroy
+          fail InferredNetworkFailure, "Content has invalid size.  Was #{actual_size}, should be #{expected_size}."
         end
 
       end

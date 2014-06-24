@@ -40,7 +40,7 @@ module JavaBuildpack
       def as_classpath
         qualified_paths = sort.map { |path| qualify_path path }
 
-        "-cp #{qualified_paths.join ':'}"
+        "-cp #{qualified_paths.join ':'}" unless empty?
       end
 
       # Symlink the contents of the collection to a destination directory.

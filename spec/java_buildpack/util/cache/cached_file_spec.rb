@@ -22,10 +22,28 @@ require 'java_buildpack/util/cache/cached_file'
 describe JavaBuildpack::Util::Cache::CachedFile do
   include_context 'application_helper'
 
-  let(:file_cache) { described_class.new(app_dir, 'http://foo-uri/') }
+  let(:cache_root) { app_dir + 'cache/root' }
+
+  let(:file_cache) { described_class.new(app_dir, 'http://foo-uri/', true) }
 
   it 'should not create any files on initialization' do
     %w(cached etag last_modified).each { |extension| expect(cache_file(extension)).not_to exist }
+  end
+
+  it 'should create cache_root if mutable' do
+    expect(cache_root).not_to exist
+
+    described_class.new(cache_root, 'http://foo-uri/', true)
+
+    expect(cache_root).to exist
+  end
+
+  it 'should not create cache_root if immutable' do
+    expect(cache_root).not_to exist
+
+    described_class.new(cache_root, 'http://foo-uri/', false)
+
+    expect(cache_root).not_to exist
   end
 
   it 'should not detect cached file' do
@@ -49,8 +67,7 @@ describe JavaBuildpack::Util::Cache::CachedFile do
     end
 
     it 'should call the block with the content of the cache file' do
-      expect { |b| file_cache.cached(File::RDONLY, 'test-arg', &b) }.to yield_with_args(be_a(File), 'test-arg')
-                                                                        .and yield_file_with_content(/foo-cached/)
+      expect { |b| file_cache.cached(File::RDONLY, 'test-arg', &b) }.to yield_file_with_content(/foo-cached/)
     end
 
     it 'should detect cached file' do
@@ -63,9 +80,14 @@ describe JavaBuildpack::Util::Cache::CachedFile do
       %w(cached etag last_modified).each { |extension| expect(cache_file(extension)).not_to exist }
     end
 
+    it 'should not destroy all files if immutable' do
+      described_class.new(app_dir, 'http://foo-uri/', false).destroy
+
+      %w(cached etag last_modified).each { |extension| expect(cache_file(extension)).to exist }
+    end
+
     it 'should call the block with the content of the etag file' do
-      expect { |b| file_cache.etag(File::RDONLY, 'test-arg', &b) }.to yield_with_args(be_a(File), 'test-arg')
-                                                                      .and yield_file_with_content(/foo-etag/)
+      expect { |b| file_cache.etag(File::RDONLY, 'test-arg', &b) }.to yield_file_with_content(/foo-etag/)
     end
 
     it 'should detect etag file' do
@@ -73,8 +95,7 @@ describe JavaBuildpack::Util::Cache::CachedFile do
     end
 
     it 'should call the block with the content of the last_modified file' do
-      expect { |b| file_cache.last_modified(File::RDONLY, 'test-arg', &b) }.to yield_with_args(be_a(File), 'test-arg')
-                                                                               .and yield_file_with_content(/foo-last-modified/)
+      expect { |b| file_cache.last_modified(File::RDONLY, 'test-arg', &b) }.to yield_file_with_content(/foo-last-modified/)
     end
 
     it 'should detect last_modified file' do
@@ -83,7 +104,7 @@ describe JavaBuildpack::Util::Cache::CachedFile do
   end
 
   def cache_file(extension)
-    app_dir + "http:%2F%2Ffoo-uri%2F.#{extension}"
+    app_dir + "http%3A%2F%2Ffoo-uri%2F.#{extension}"
   end
 
   def touch(extension, content = '')

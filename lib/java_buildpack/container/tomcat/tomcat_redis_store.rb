@@ -30,10 +30,10 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        if supports?
-          download_jar(jar_name, tomcat_lib)
-          mutate_context
-        end
+        return unless supports?
+
+        download_jar(jar_name, tomcat_lib)
+        mutate_context
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)

@@ -84,31 +84,13 @@ describe JavaBuildpack::Container::SpringBootCLI do
     expect(sandbox + 'bin/spring').to exist
   end
 
-  it 'should link classpath JARs',
-     app_fixture:   'container_spring_boot_cli_valid_app',
-     cache_fixture: 'stub-spring-boot-cli.tar.gz' do
-
-    component.compile
-
-    lib = sandbox + 'lib'
-
-    jar_1 = lib + 'test-jar-1.jar'
-    expect(jar_1).to exist
-    expect(jar_1).to be_symlink
-    expect(jar_1.readlink).to eq((additional_libs_directory + 'test-jar-1.jar').relative_path_from(lib))
-
-    jar_2 = lib + 'test-jar-2.jar'
-    expect(jar_2).to exist
-    expect(jar_2).to be_symlink
-    expect(jar_2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(lib))
-  end
-
   it 'should return command',
      app_fixture: 'container_spring_boot_cli_valid_app' do
 
     expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} SERVER_PORT=$PORT " \
-                                      '$PWD/.java-buildpack/spring_boot_cli/bin/spring run directory/pogo_4.groovy ' \
-                                      'invalid.groovy pogo_1.groovy pogo_2.groovy pogo_3.groovy')
+                                      '$PWD/.java-buildpack/spring_boot_cli/bin/spring run ' \
+                                      '-cp $PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
+                                      'directory/pogo_4.groovy invalid.groovy pogo_1.groovy pogo_2.groovy pogo_3.groovy')
   end
 
   def java_opts_str

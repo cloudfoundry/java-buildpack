@@ -21,10 +21,22 @@ require 'java_buildpack/framework/play_framework_jpa_plugin'
 describe JavaBuildpack::Framework::PlayFrameworkJPAPlugin do
   include_context 'component_helper'
 
+  let(:configuration) { { 'enabled' => true } }
+
   it 'should detect Play 2.0 application',
      app_fixture: 'framework_play_jpa_plugin_play20' do
 
     expect(component.detect).to eq("play-framework-jpa-plugin=#{version}")
+  end
+
+  context do
+    let(:configuration) { { 'enabled' => false } }
+
+    it 'should not detect if disabled',
+       app_fixture: 'framework_play_jpa_plugin_play20' do
+
+      expect(component.detect).to be_nil
+    end
   end
 
   it 'should detect staged application',

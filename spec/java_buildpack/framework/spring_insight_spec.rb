@@ -17,10 +17,12 @@
 require 'spec_helper'
 require 'component_helper'
 require 'fileutils'
+require 'internet_availability_helper'
 require 'java_buildpack/framework/spring_insight'
 
 describe JavaBuildpack::Framework::SpringInsight do
   include_context 'component_helper'
+  include_context 'internet_availability_helper'
 
   it 'should not detect without spring-insight-n/a service' do
     expect(component.detect).to be_nil
@@ -49,6 +51,13 @@ describe JavaBuildpack::Framework::SpringInsight do
       expect(container_libs_dir + 'insight-bootstrap-generic-2.0.0-CI-SNAPSHOT.jar').to exist
       expect(container_libs_dir + 'insight-bootstrap-tomcat-common-2.0.0-CI-SNAPSHOT.jar').to exist
       expect(sandbox + 'insight/conf/insight.properties').to exist
+    end
+
+    it 'should guarantee that internet access is available when downloading' do
+      expect_any_instance_of(JavaBuildpack::Util::Cache::InternetAvailability)
+      .to receive(:available).with(true, 'The Spring Insight download location is always accessible')
+
+      component.compile
     end
 
     it 'should update JAVA_OPTS',

@@ -50,8 +50,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     touch immutable_cache_root, 'cached', 'foo-cached'
 
-    expect { |b| download_cache.get uri, &b }.to yield_with_args(be_a(File), false)
-                                                 .and yield_file_with_content(/foo-cached/)
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
   end
 
   it 'should return file from mutable cache if internet is disabled',
@@ -59,8 +58,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     touch mutable_cache_root, 'cached', 'foo-cached'
 
-    expect { |b| download_cache.get uri, &b }.to yield_with_args(be_a(File), false)
-                                                 .and yield_file_with_content(/foo-cached/)
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
   end
 
   it 'should download if cached file does not exist' do
@@ -70,8 +68,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     allow(Net::HTTP).to receive(:Proxy).and_call_original
     expect(Net::HTTP).not_to receive(:Proxy).with('proxy', 9000, nil, nil)
 
-    expect { |b| download_cache.get uri, &b }.to yield_with_args(be_a(File), true)
-                                                 .and yield_file_with_content(/foo-cached/)
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
     expect_complete_cache mutable_cache_root
   end
 
@@ -82,8 +79,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     allow(Net::HTTP).to receive(:Proxy).and_call_original
     expect(Net::HTTP).not_to receive(:Proxy).with('proxy', 9000, nil, nil)
 
-    expect { |b| download_cache.get uri_credentials, &b }.to yield_with_args(be_a(File), true)
-                                                             .and yield_file_with_content(/foo-cached/)
+    expect { |b| download_cache.get uri_credentials, &b }.to yield_file_with_content(/foo-cached/)
     expect_complete_credential_cache mutable_cache_root
   end
 
@@ -93,8 +89,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     stub_request(:get, uri_secure)
     .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
-    expect { |b| download_cache.get uri, &b }.to yield_with_args(be_a(File), true)
-                                                 .and yield_file_with_content(/foo-cached/)
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
     expect_complete_cache mutable_cache_root
   end
 
@@ -103,8 +98,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     .to_raise(SocketError)
     .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
-    expect { |b| download_cache.get uri, &b }.to yield_with_args(be_a(File), true)
-                                                 .and yield_file_with_content(/foo-cached/)
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
     expect_complete_cache mutable_cache_root
   end
 
@@ -114,8 +108,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     touch immutable_cache_root, 'cached', 'foo-cached'
 
-    expect { |b| download_cache.get uri, &b }.to yield_with_args(be_a(File), false)
-                                                 .and yield_file_with_content(/foo-cached/)
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
   end
 
   it 'should return cached data if retry limit is reached' do
@@ -124,8 +117,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     touch immutable_cache_root, 'cached', 'foo-cached'
 
-    expect { |b| download_cache.get uri, &b }.to yield_with_args(be_a(File), false)
-                                                 .and yield_file_with_content(/foo-cached/)
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
   end
 
   it 'should not overwrite existing information if 304 is received' do
@@ -137,8 +129,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     touch mutable_cache_root, 'etag', 'foo-etag'
     touch mutable_cache_root, 'last_modified', 'foo-last-modified'
 
-    expect { |b| download_cache.get uri, &b }.to yield_with_args(be_a(File), false)
-                                                 .and yield_file_with_content(/foo-cached/)
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
     expect_complete_cache mutable_cache_root
   end
 
@@ -170,8 +161,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     touch immutable_cache_root, 'cached', 'old-foo-cached'
 
-    expect { |b| download_cache.get uri, &b }.to yield_with_args(be_a(File), false)
-                                                 .and yield_file_with_content(/foo-cached/)
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
   end
 
   context do
@@ -251,11 +241,11 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
   end
 
   def cache_file(root, extension)
-    root + "http:%2F%2Ffoo-uri%2F.#{extension}"
+    root + "http%3A%2F%2Ffoo-uri%2F.#{extension}"
   end
 
   def credential_cache_file(root, extension)
-    root + "http:%2F%2Ftest-username:test-password@foo-uri%2F.#{extension}"
+    root + "http%3A%2F%2Ftest-username%3Atest-password@foo-uri%2F.#{extension}"
   end
 
   def expect_complete_cache(root)

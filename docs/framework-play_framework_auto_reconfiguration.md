@@ -1,5 +1,5 @@
-# Play Framework Auto Reconfiguration Framework
-The Play Framework Auto Reconfiguration Framework causes an application to be automatically reconfigured to work with configured cloud services.
+# Play Framework Auto-reconfiguration Framework
+The Play Framework Auto-reconfiguration Framework causes an application to be automatically reconfigured to work with configured cloud services.
 
 <table>
   <tr>
@@ -21,8 +21,9 @@ The framework can be configured by modifying the [`config/play_framework_auto_re
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the Auto Reconfiguration repository index ([details][repositories]).
-| `version` | The version of Auto Reconfiguration to use. Candidate versions can be found in [this listing][].
+| `enabled` | Whether to attempt auto-reconfiguration
+| `repository_root` | The URL of the Auto-reconfiguration repository index ([details][repositories]).
+| `version` | The version of Auto-reconfiguration to use. Candidate versions can be found in [this listing][].
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/play_framework_auto_reconfiguration.yml`]: ../config/config/play_framework_auto_reconfiguration.yml

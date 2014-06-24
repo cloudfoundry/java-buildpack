@@ -41,7 +41,6 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_tar
-        @droplet.additional_libraries.link_to lib_dir
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -52,6 +51,7 @@ module JavaBuildpack
           'SERVER_PORT=$PORT',
           qualify_path(@droplet.sandbox + 'bin/spring', @droplet.root),
           'run',
+          @droplet.additional_libraries.as_classpath,
           relative_groovy_files
         ].flatten.compact.join(' ')
       end
@@ -65,10 +65,6 @@ module JavaBuildpack
       end
 
       private
-
-      def lib_dir
-        @droplet.sandbox + 'lib'
-      end
 
       def relative_groovy_files
         JavaBuildpack::Util::GroovyUtils.groovy_files(@application).map { |gf| gf.relative_path_from(@application.root) }

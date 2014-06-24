@@ -82,7 +82,7 @@ module JavaBuildpack
         'default_process_types' => { 'web' => command }
       }.to_yaml
 
-      @logger.debug { "Release Payload\n#{payload}" }
+      @logger.debug { "Release Payload:\n#{payload}" }
 
       payload
     end
@@ -130,10 +130,10 @@ module JavaBuildpack
       components.each do |component|
         result = component.detect
 
-        if result
-          detected << component
-          tags << result
-        end
+        next unless result
+
+        detected << component
+        tags << result
       end
 
       fail "Application can be run by more than one #{type}: #{names detected}" if unique && detected.size > 1

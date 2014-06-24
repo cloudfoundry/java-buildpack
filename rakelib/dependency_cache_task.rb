@@ -32,15 +32,15 @@ module Package
     include Package
 
     def initialize
-      if BUILDPACK_VERSION.offline
-        JavaBuildpack::Logging::LoggerFactory.instance.setup "#{BUILD_DIR}/"
+      return unless BUILDPACK_VERSION.offline
 
-        @default_repository_root = default_repository_root
-        @cache                   = cache
+      JavaBuildpack::Logging::LoggerFactory.instance.setup "#{BUILD_DIR}/"
 
-        configurations = component_ids.map { |component_id| configurations(configuration(component_id)) }.flatten
-        uris(configurations).each { |uri| multitask PACKAGE_NAME => [cache_task(uri)] }
-      end
+      @default_repository_root = default_repository_root
+      @cache                   = cache
+
+      configurations = component_ids.map { |component_id| configurations(configuration(component_id)) }.flatten
+      uris(configurations).each { |uri| multitask PACKAGE_NAME => [cache_task(uri)] }
     end
 
     private

@@ -28,7 +28,7 @@ describe JavaBuildpack::Util::Play::Post22 do
     expect { play_app.send(:root) }.to raise_error "Method 'root' must be defined"
   end
 
-  context app_fixture: 'container_play_2.2_staged' do
+  context nil, app_fixture: 'container_play_2.2_staged' do
 
     before do
       allow(play_app).to receive(:root).and_return(droplet.root)

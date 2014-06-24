@@ -1,5 +1,5 @@
-# Spring Auto Reconfiguration Framework
-The Spring Auto Reconfiguration Framework causes an application to be automatically reconfigured to work with configured cloud services.
+# Spring Auto-reconfiguration Framework
+The Spring Auto-reconfiguration Framework causes an application to be automatically reconfigured to work with configured cloud services.
 
 <table>
   <tr>
@@ -13,10 +13,7 @@ The Spring Auto Reconfiguration Framework causes an application to be automatica
 </table>
 Tags are printed to standard output by the buildpack detect script
 
-If a `/WEB-INF/web.xml` file exists, the framework will modify it in addition to making the auto reconfiguration JAR available on the classpath.  These modifications include:
-
-1. Augmenting `contextConfigLocation`.  The function starts be enumerating the current `contextConfigLocation`s. If none exist, a default configuration is created with `/WEB-INF/application-context.xml` or `/WEB-INF/<servlet-name>-servlet.xml` as the default.  An additional location is then added to the collection of locations; `classpath:META- INF/cloud/cloudfoundry-auto-reconfiguration-context.xml` if the `ApplicationContext` is XML-based, `org.cloudfoundry.reconfiguration.spring.web.CloudAppAnnotationConfigAutoReconfig` if the `ApplicationContext` is annotation-based.
-1. Augmenting `contextInitializerClasses`.  The function starts by enumerating the current `contextInitializerClasses`.  If none exist, a default configuration is created with no value as the default. The `org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer` class is then added to the collection of classes.
+If a `/WEB-INF/web.xml` file exists, the framework will modify it in addition to making the auto-reconfiguration JAR available on the classpath.  This modification consists of adding `org.cloudfoundry.reconfiguration.spring.CloudProfileApplicationContextInitializer`, `org.cloudfoundry.reconfiguration.spring.CloudPropertySourceApplicationContextInitializer`, and `org.cloudfoundry.reconfiguration.spring.CloudAutoReconfigurationApplicationContextInitializer` to the collection of `contextInitializerClasses`.
 
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
@@ -25,8 +22,9 @@ The framework can be configured by modifying the [`config/spring_auto_reconfigur
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the Auto Reconfiguration repository index ([details][repositories]).
-| `version` | The version of Auto Reconfiguration to use. Candidate versions can be found in [this listing][].
+| `enabled` | Whether to attempt auto-reconfiguration
+| `repository_root` | The URL of the Auto-reconfiguration repository index ([details][repositories]).
+| `version` | The version of Auto-reconfiguration to use. Candidate versions can be found in [this listing][].
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/spring_auto_reconfiguration.yml`]: ../config/spring_auto_reconfiguration.yml

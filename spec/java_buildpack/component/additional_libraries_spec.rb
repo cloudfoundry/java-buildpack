@@ -44,6 +44,11 @@ describe JavaBuildpack::Component::AdditionalLibraries do
     end
   end
 
+  it 'should render empty string if classpath is empty' do
+    additional_libraries.clear
+    expect(additional_libraries.as_classpath).not_to be
+  end
+
   it 'should symbolically link additional libraries' do
     additional_libraries.link_to app_dir
 

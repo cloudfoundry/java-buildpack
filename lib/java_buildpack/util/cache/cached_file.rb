@@ -31,13 +31,15 @@ module JavaBuildpack
         #
         # @param [Pathname] cache_root the filesystem root for the file created and expected by this class
         # @param [String] uri a uri which uniquely identifies the file in the cache
-        def initialize(cache_root, uri)
-          FileUtils.mkdir_p cache_root
-
-          key            = URI.escape(uri, '/')
+        # @param [Boolean] mutable whether the cached file should be mutable
+        def initialize(cache_root, uri, mutable)
+          key            = URI.escape(uri, ':/')
           @cached        = cache_root + "#{key}.cached"
           @etag          = cache_root + "#{key}.etag"
           @last_modified = cache_root + "#{key}.last_modified"
+          @mutable = mutable
+
+          FileUtils.mkdir_p cache_root if mutable
         end
 
         # Opens the cached file
@@ -60,7 +62,7 @@ module JavaBuildpack
 
         # Destroys the cached file
         def destroy
-          [@cached, @etag, @last_modified].each { |f| f.delete if f.exist? }
+          [@cached, @etag, @last_modified].each { |f| f.delete if f.exist? } if @mutable
         end
 
         # Opens the etag file

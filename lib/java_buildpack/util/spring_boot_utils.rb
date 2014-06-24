@@ -25,7 +25,7 @@ module JavaBuildpack
     class SpringBootUtils < JarFinder
 
       def initialize
-        super(/.*spring-boot-([^-]*)\.jar/)
+        super(/.*spring-boot-([\d].*)\.jar/)
       end
 
     end
