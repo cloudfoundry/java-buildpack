@@ -25,8 +25,25 @@ shared_context 'integration_helper' do
   include_context 'console_helper'
   include_context 'logging_helper'
 
+  let(:buildpack_dir) { Pathname.new Dir.mktmpdir }
+
+  before do
+    FileUtils.mkdir_p buildpack_dir
+  end
+
+  before do |example|
+    %w(bin config lib resources).each { |dir| FileUtils.cp_r dir, buildpack_dir }
+
+    buildpack_fixture = example.metadata[:buildpack_fixture]
+    FileUtils.cp_r "spec/fixtures/#{buildpack_fixture.chomp}/.", buildpack_dir if buildpack_fixture
+  end
+
+  after do
+    FileUtils.rm_rf buildpack_dir
+  end
+
   def run(command)
-    Open3.popen3(command) do |_stdin, stdout, stderr, wait_thr|
+    Open3.popen3(command, chdir: buildpack_dir) do |_stdin, stdout, stderr, wait_thr|
       capture_output stdout, stderr
       yield wait_thr.value if block_given?
     end

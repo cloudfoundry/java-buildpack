@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright (c) 2013 the original author or authors.
 #
@@ -15,21 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-$stdout.sync = true
-$stderr.sync = true
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+# Configuration for components to use in the buildpack
+---
+containers:
+  - "JavaBuildpack::Container::LongDetectTags"
 
-require 'java_buildpack/buildpack'
+# In order to use Oracle JREs instead of OpenJDK, you must comment out the OpenJDK line and uncomment the Oracle line.
+# Please see the documentation for more detail.
+jres:
+  - "JavaBuildpack::Jre::OpenJdkJRE"
+# - "JavaBuildpack::Jre::OracleJRE"
 
-build_dir = ARGV[0]
-
-components = JavaBuildpack::Buildpack.with_buildpack(build_dir, 'Detect failed with exception %s') do |buildpack|
-  buildpack.detect
-end.compact
-
-if components.empty?
-  abort
-else
-  str = components.join(' ')
-  puts str.length > 255 ? str.slice(0..251) + '...' : str
-end
+frameworks: []

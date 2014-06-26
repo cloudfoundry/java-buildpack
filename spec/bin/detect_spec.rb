@@ -23,12 +23,27 @@ describe 'detect script', :integration do
   it 'should return zero if success',
      app_fixture: 'integration_valid' do
 
-    run("bin/detect #{app_dir}") { |status| expect(status).to be_success }
+    run("bin/detect #{app_dir}") do |status|
+      expect(status).to be_success
+      expect(stdout.string.rstrip.length).to be < 255
+    end
   end
 
   it 'should fail to detect when no containers detect' do
     run("bin/detect #{app_dir}") do |status|
       expect(status).not_to be_success
+      expect(stdout.string).to be_empty
+    end
+  end
+
+  it 'should truncate long detect strings',
+     app_fixture: 'integration_valid',
+     buildpack_fixture: 'integration_long_detect_tag' do
+
+    run("bin/detect #{app_dir}") do |status|
+      expect(status).to be_success
+      expect(stdout.string.rstrip.length).to eq 255
+      expect(stdout.string.rstrip).to end_with '...'
     end
   end
 
