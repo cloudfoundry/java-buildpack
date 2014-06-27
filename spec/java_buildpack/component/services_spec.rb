@@ -58,6 +58,11 @@ describe JavaBuildpack::Component::Services do
     expect(services.one_service?(/test-tag/, 'uri')).to be
   end
 
+  it 'should return true from one_service? if there is a matching service with required group credentials' do
+    expect(services.one_service? 'test-tag', %w(uri other)).to be
+    expect(services.one_service?(/test-tag/, %w(uri other))).to be
+  end
+
   it 'should return nil from find_service? if there is no service that matches' do
     expect(services.find_service 'bad-test').to be_nil
     expect(services.find_service(/bad-test/)).to be_nil

@@ -33,8 +33,8 @@ module JavaBuildpack
       # +filter+ matches exactly one service, +false+ otherwise.
       #
       # @param [Regexp, String] filter a +RegExp+ or +String+ to match against the name, label, and tags of the services
-      # @param [String] required_credentials an optional list of keys that must exist in the credentials payload of
-      #                                             the candidate service
+      # @param [String] required_credentials an optional list of keys or groups of keys, where at one key from the
+      #                                      group, must exist in the credentials payload of the candidate service
       # @return [Boolean] +true+ if the +filter+ matches exactly one service with the required credentials, +false+
       #                   otherwise.
       def one_service?(filter, *required_credentials)
@@ -68,7 +68,9 @@ module JavaBuildpack
       private
 
       def credentials?(candidate, required_keys)
-        required_keys.all? { |k| candidate.key? k }
+        required_keys.all? do |k|
+          k.kind_of?(Array) ? k.one? { |g| candidate.key?(g) } : candidate.key?(k)
+        end
       end
 
       def matcher(filter)

@@ -44,7 +44,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, KEY_HOST_NAME, KEY_PORT, KEY_PASSWORD
+        @application.services.one_service? FILTER, [KEY_HOST_NAME, KEY_HOST], KEY_PORT, KEY_PASSWORD
       end
 
       private
@@ -54,6 +54,8 @@ module JavaBuildpack
       FLUSH_VALVE_CLASS_NAME = 'com.gopivotal.manager.SessionFlushValve'.freeze
 
       KEY_HOST_NAME = 'hostname'.freeze
+
+      KEY_HOST = 'host'.freeze
 
       KEY_PASSWORD = 'password'.freeze
 
@@ -76,7 +78,7 @@ module JavaBuildpack
 
         manager.add_element 'Store',
                             'className'          => REDIS_STORE_CLASS_NAME,
-                            'host'               => credentials[KEY_HOST_NAME],
+                            'host'               => credentials[KEY_HOST_NAME] || credentials[KEY_HOST],
                             'port'               => credentials[KEY_PORT],
                             'database'           => @configuration['database'],
                             'password'           => credentials[KEY_PASSWORD],
