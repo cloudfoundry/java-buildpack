@@ -69,12 +69,12 @@ module JavaBuildpack
 
       def credentials?(candidate, required_keys)
         required_keys.all? do |k|
-          k.kind_of?(Array) ? k.one? { |g| candidate.key?(g) } : candidate.key?(k)
+          k.is_a?(Array) ? k.one? { |g| candidate.key?(g) } : candidate.key?(k)
         end
       end
 
       def matcher(filter)
-        filter = Regexp.new(filter) unless filter.kind_of?(Regexp)
+        filter = Regexp.new(filter) unless filter.is_a?(Regexp)
 
         lambda do |service|
           service['name'] =~ filter || service['label'] =~ filter || service['tags'].any? { |tag| tag =~ filter }
