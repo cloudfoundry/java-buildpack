@@ -24,6 +24,10 @@ lifecycle_support:
 logging_support:
   version: 2.+
   repository_root: "{default.repository.root}/tomcat-logging-support"
+access_logging_support:
+  version: 2.+
+  repository_root: "{default.repository.root}/tomcat-access-logging-support"
+  access_logging: disabled
 redis_store:
   version: 1.+
   repository_root: "{default.repository.root}/redis-store"
