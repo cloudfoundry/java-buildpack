@@ -18,17 +18,19 @@
 
 <Server port='-1'>
 
-	<Listener className='org.apache.catalina.core.JasperListener'/>
+    <Listener className='org.apache.catalina.core.JasperListener'/>
 
-	<Service name='Catalina'>
-		<Connector port='${http.port}' bindOnInit="false"/>
+    <Service name='Catalina'>
+        <Connector port='${http.port}' bindOnInit="false"/>
 
-		<Engine defaultHost='localhost' name='Catalina'>
-			<Valve className="org.apache.catalina.valves.RemoteIpValve" protocolHeader="x-forwarded-proto"/>
-			<Host name='localhost'>
-				<Listener className="com.gopivotal.cloudfoundry.tomcat.lifecycle.ApplicationStartupFailureDetectingLifecycleListener"/>
-			</Host>
-		</Engine>
-	</Service>
+        <Engine defaultHost='localhost' name='Catalina'>
+            <Valve className="org.apache.catalina.valves.RemoteIpValve" protocolHeader="x-forwarded-proto"/>
+            <Valve className="com.gopivotal.cloudfoundry.tomcat.logging.access.CloudFoundryAccessLoggingValve"
+                   pattern='[ACCESS] %h %l %u %t "%r" %s %b %{X-Vcap-Request-Id}i' enabled="${access.logging.enabled}"/>
+            <Host name='localhost'>
+                <Listener className="com.gopivotal.cloudfoundry.tomcat.lifecycle.ApplicationStartupFailureDetectingLifecycleListener"/>
+            </Host>
+        </Engine>
+    </Service>
 
 </Server>
