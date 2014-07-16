@@ -1,5 +1,5 @@
 # Spring Insight Framework
-The Spring Insight Framework causes an application to be automatically configured to work with a bound [Spring Insight Service][].
+The Spring Insight Framework causes an application to be automatically configured to work with a bound [Spring Insight Service][]. This feature will only work with Spring Insight versions of 2.0.0.x or above.
 
 <table>
   <tr>
