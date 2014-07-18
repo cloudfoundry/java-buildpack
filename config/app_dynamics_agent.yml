@@ -17,4 +17,4 @@
 ---
 version: 3.8.+
 repository_root: "{default.repository.root}/app-dynamics"
-tier_name: Cloud Foundry
+tier_name: CloudFoundry
