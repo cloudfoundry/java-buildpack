@@ -83,47 +83,56 @@ default_process_types:
 The example content here has been trimmed so that it's not overwhelming, but nearly every component in the buildpack will output something useful as it works.
 
 ## Running the Buildpack Locally
-Sometimes logging just isn't going to cut it for debugging.  There are times when using a debugger or a local filesystem is the only way to diagnose problems.  A simple and surprisingly effective way of troubleshooting buildpacks is actually to skip all of Cloud Foundry and run the buildpack locally.  The buildpack API consists of three bash scripts.  This means that if you've got a filesystem that looks like what Cloud Foundry will be presented plus a local copy of your buildpack, you can run the bash scripts locally.  You might see something like this:
+Sometimes logging just isn't going to cut it for debugging. There are times when using a debugger or a local filesystem is the only way to diagnose problems.  A simple and surprisingly effective way of troubleshooting buildpacks is actually to skip all of Cloud Foundry and run the buildpack locally.
+
+### Requirements
+
+The buildpack API consists of three bash scripts. This means that if you've got a Unix like environment with Ruby installed at an appropriate level, a filesystem that looks like what Cloud Foundry will present to the buildpack and a local copy of your buildpack, you can run the bash scripts locally.
+
+### Example invocation
+
+You might see something like this:
 
 ```bash
-$ mkdir -p target/exploded
-$ cd target/exploded
-$ jar xf ../web-application-1.0.0-BUILD-SNAPSHOT.war
+$ mkdir exploded
+$ cd exploded
+$ unzip ../play-application-1.0.0.BUILD-SNAPSHOT.zip
+$ export VCAP_SERVICES="{\"user-provided\":[{\"name\":\"app-dynamics-test\",\"label\":\"user-provided\",\"tags\":[],\"credentials\":{\"host-name\":\"[REDACTED]\",\"port\":\"443\",\"ssl-enabled\":\"true\",\"account-name\":\"[REDACTED]\",\"account-access-key\":\"[REDACTED]\"}}]}"
 
-$ <BUILDPACK-CLONE>/bin/detect .
-java-buildpack=ded1e56-https://github.com/cloudfoundry/java-buildpack#ded1e56 open-jdk-jre=1.7.0_51 spring-auto-reconfiguration=0.8.7 tomcat-instance=7.0.53 tomcat-lifecycle-support=2.1.0_RELEASE tomcat-logging-support=2.1.0_RELEASE
+$ $BUILDPACK_ROOT/bin/detect .
+app-dynamics-agent=3.8.4 java-buildpack=0fab02b-https://github.com/cloudfoundry/java-buildpack.git#0fab02b open-jdk-jre=1.7.0_60 play-framework-auto-reconfiguration=1.4.0_RELEASE play-framework=2.2.3 spring-auto-reconfiguration=1.4.0_RELEASE
 
-$ <BUILDPACK-CLONE>/bin/compile . $TMPDIR
------> Java Buildpack Version: ded1e56 | https://github.com/cloudfoundry/java-buildpack#ded1e56
------> Downloading Open Jdk JRE 1.7.0_51 from http://download.run.pivotal.io/openjdk/mountainlion/x86_64/openjdk-1.7.0_51.tar.gz (5.0s)
+$ $BUILDPACK_ROOT/bin/compile . $TMPDIR
+-----> Java Buildpack Version: 0fab02b | https://github.com/cloudfoundry/java-buildpack.git#0fab02b
+-----> Downloading Open Jdk JRE 1.7.0_60 from http://download.run.pivotal.io/openjdk/mountainlion/x86_64/openjdk-1.7.0_60.tar.gz (found in cache)
        Expanding Open Jdk JRE to .java-buildpack/open_jdk_jre (0.4s)
------> Downloading Spring Auto Reconfiguration 0.8.7 from http://download.run.pivotal.io/auto-reconfiguration/auto-reconfiguration-0.8.7.jar (0.3s)
-       Modifying /WEB-INF/web.xml for Auto Reconfiguration
------> Downloading Tomcat Instance 7.0.53 from http://download.run.pivotal.io/tomcat/tomcat-7.0.53.tar.gz (1.1s)
-       Expanding Tomcat to .java-buildpack/tomcat (0.0s)
------> Downloading Tomcat Lifecycle Support 2.1.0_RELEASE from http://download.run.pivotal.io/tomcat-lifecycle-support/tomcat-lifecycle-support-2.1.0_RELEASE.jar (0.2s)
------> Downloading Tomcat Logging Support 2.1.0_RELEASE from http://download.run.pivotal.io/tomcat-logging-support/tomcat-logging-support-2.1.0_RELEASE.jar (0.1s)
+-----> Downloading App Dynamics Agent 3.8.4 from http://download.run.pivotal.io/app-dynamics/app-dynamics-3.8.4.zip (found in cache)
+       Expanding App Dynamics Agent to .java-buildpack/app_dynamics_agent (0.1s)
+-----> Downloading Play Framework Auto Reconfiguration 1.4.0_RELEASE from http://download.run.pivotal.io/auto-reconfiguration/auto-reconfiguration-1.4.0_RELEASE.jar (found in cache)
+-----> Downloading Spring Auto Reconfiguration 1.4.0_RELEASE from http://download.run.pivotal.io/auto-reconfiguration/auto-reconfiguration-1.4.0_RELEASE.jar (found in cache)
 
-$ <BUILDPACK-CLONE>/bin/release .
----
-addons: []
-config_vars: {}
-default_process_types:
-  web: JAVA_HOME=$PWD/.java-buildpack/open_jdk_jre JAVA_OPTS="-Djava.io.tmpdir=$TMPDIR
-    -XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk_jre/bin/killjava.sh -XX:MaxPermSize=64M
-    -XX:PermSize=64M -Dhttp.port=$PORT" $PWD/.java-buildpack/tomcat/bin/catalina.sh
-    run
-
-$ JAVA_HOME=$PWD/.java-buildpack/open_jdk_jre JAVA_OPTS="-Djava.io.tmpdir=$TMPDIR -XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk_jre/bin/killjava.sh -XX:MaxPermSize=64M -XX:PermSize=64M -Dhttp.port=$PORT" $PWD/.java-buildpack/tomcat/bin/catalina.sh run
-...
+$ $BUILDPACK_ROOT/bin/release . | ruby -e "require \"yaml\"; puts YAML.load(STDIN.read)[\"default_process_types\"][\"web\"]"
+PATH=$PWD/.java-buildpack/open_jdk_jre/bin:$PATH JAVA_HOME=$PWD/.java-buildpack/open_jdk_jre $PWD/play-application-1.0.0.BUILD-SNAPSHOT/bin/play-application -J-Djava.io.tmpdir=$TMPDIR -J-XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk_jre/bin/killjava.sh -J-XX:MaxPermSize=64M -J-XX:PermSize=64M -J-javaagent:$PWD/.java-buildpack/app_dynamics_agent/javaagent.jar -J-Dappdynamics.agent.applicationName='' -J-Dappdynamics.agent.tierName='Cloud Foundry' -J-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : '.*instance_id[": ]*"\([a-z0-9]\+\)".*') -J-Dappdynamics.agent.accountAccessKey=[REDACTED] -J-Dappdynamics.agent.accountName=[REDACTED] -J-Dappdynamics.controller.hostName=[REDACTED] -J-Dappdynamics.controller.port=443 -J-Dappdynamics.controller.ssl.enabled=true -J-Dhttp.port=$PORT
 ```
 
-You must be careful that path you run from is the same as the path Cloud Foundry will be presented with.  In the case of an exploded filesystem, nothing is different.  However, when pushing an archive (e.g. `JAR`, `WAR`, `ZIP`) Cloud Foundry presents the buildpack with an exploded copy of that archive and you must do the same.  As described in the **Debug Logging** section above, both file and console debug output are available.  To get console output you run the commands as follows:
+You can trigger different behaviour in the buildpack by setting the `VCAP_SERVICES` environment variable. For example, to fake the binding of a service.
+
+You must be careful that path you run from is the same as the path Cloud Foundry will be presented with.  In the case of an exploded filesystem, nothing is different.  However, when pushing an archive (e.g. `JAR`, `WAR`, or `ZIP`) Cloud Foundry presents the buildpack with an exploded copy of that archive and you must do the same. As described in the **Debug Logging** section above, both file and console debug output are available. To get console output you run the commands as follows:
 
 ```bash
 JBP_LOG_LEVEL=DEBUG <BUILDPACK-CLONE>/bin/detect .
 JBP_LOG_LEVEL=DEBUG <BUILDPACK-CLONE>/bin/compile . $TMPDIR
 JBP_LOG_LEVEL=DEBUG <BUILDPACK-CLONE>/bin/release .
+```
+
+##Aliases
+
+Running the different stages of the buildpack lifecycle can be made simpler with the use of aliases and an environment variable to point at your local copy of the buildpack. The examples below pass in `.` to the scripts assuming you are calling them from the local working directory.
+
+```bash
+$ alias detect='$BUILDPACK_ROOT/bin/detect .'
+$ alias compile='$BUILDPACK_ROOT/bin/compile . $TMPDIR'
+$ alias release='$BUILDPACK_ROOT/bin/release . | ruby -e "require \"yaml\"; puts YAML.load(STDIN.read)[\"default_process_types\"][\"web\"]"'
 ```
 
 [d]: extending-logging.md#configuration
