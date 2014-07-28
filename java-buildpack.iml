@@ -297,9 +297,9 @@
     <orderEntry type="library" scope="PROVIDED" name="ruby-progressbar (v1.5.1, rbenv: 1.9.3-p547) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rubyzip (v1.1.6, rbenv: 1.9.3-p547) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="safe_yaml (v1.0.3, rbenv: 1.9.3-p547) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="simplecov (v0.8.2, rbenv: 1.9.3-p547) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="simplecov (v0.9.0, rbenv: 1.9.3-p547) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="simplecov-html (v0.8.0, rbenv: 1.9.3-p547) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="slop (v3.5.0, rbenv: 1.9.3-p547) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="slop (v3.6.0, rbenv: 1.9.3-p547) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="tee (v1.0.0, rbenv: 1.9.3-p547) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="webmock (v1.18.0, rbenv: 1.9.3-p547) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="yard (v0.8.7.4, rbenv: 1.9.3-p547) [gem]" level="application" />
