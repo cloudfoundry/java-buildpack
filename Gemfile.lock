@@ -3,7 +3,7 @@ GEM
   specs:
     addressable (2.3.6)
     ast (2.0.0)
-    codeclimate-test-reporter (0.3.0)
+    codeclimate-test-reporter (0.4.0)
       simplecov (>= 0.7.1, < 1.0.0)
     crack (0.4.2)
       safe_yaml (~> 1.0.0)
