@@ -63,6 +63,15 @@ describe JavaBuildpack::Framework::NewRelicAgent do
       expect(java_opts).to include('-Dnewrelic.config.log_file_path=$PWD/.java-buildpack/new_relic_agent/logs')
     end
 
+    it 'should update JAVA_OPTS on Java 8' do
+      allow(services).to receive(:find_service).and_return('credentials' => { 'licenseKey' => 'test-license-key' })
+      allow(java_home).to receive(:version).and_return(%w(1 8 0 u10))
+
+      component.release
+
+      expect(java_opts).to include('-Dnewrelic.enable.java.8=true')
+    end
+
   end
 
 end

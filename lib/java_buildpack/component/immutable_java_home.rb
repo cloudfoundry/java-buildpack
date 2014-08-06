@@ -61,6 +61,11 @@ module JavaBuildpack
         qualify_path @delegate.root
       end
 
+      # @return [String] the version of Java being used by the droplet
+      def version
+        @delegate.version
+      end
+
     end
 
   end
