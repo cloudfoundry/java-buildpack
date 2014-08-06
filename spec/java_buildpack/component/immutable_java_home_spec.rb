@@ -19,7 +19,7 @@ require 'java_buildpack/component/immutable_java_home'
 
 describe JavaBuildpack::Component::ImmutableJavaHome do
 
-  let(:delegate) { double('delegate', root: Pathname.new('test-java-home')) }
+  let(:delegate) { double('delegate', root: Pathname.new('test-java-home'), version: %w(1 2 3 u04)) }
 
   let(:immutable_java_home) { described_class.new delegate, Pathname.new('.') }
 
@@ -35,6 +35,10 @@ describe JavaBuildpack::Component::ImmutableJavaHome do
 
   it 'should return the qualified delegate root' do
     expect(immutable_java_home.root).to eq('$PWD/test-java-home')
+  end
+
+  it 'should return the delegate version' do
+    expect(immutable_java_home.version).to eq(%w(1 2 3 u04))
   end
 
 end

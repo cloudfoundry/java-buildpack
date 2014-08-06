@@ -27,7 +27,6 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         FileUtils.mkdir_p logs_dir
-
         download_jar
         @droplet.copy_resources
       end
@@ -40,6 +39,7 @@ module JavaBuildpack
         .add_system_property('newrelic.config.license_key', license_key)
         .add_system_property('newrelic.config.app_name', "'#{application_name}'")
         .add_system_property('newrelic.config.log_file_path', logs_dir)
+        @droplet.java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.version[1] == '8'
       end
 
       protected
