@@ -64,7 +64,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
         expect(java_opts).to include("-Dappdynamics.agent.applicationName='test-application-name'")
         expect(java_opts).to include("-Dappdynamics.agent.tierName='test-tier-name'")
         expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' \
-                                         '\'.*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
+                                     '\'.*instance_index[": ]*\\([[:digit:]]*\\).*\')')
       end
 
       context do

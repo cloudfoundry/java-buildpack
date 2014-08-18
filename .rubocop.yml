@@ -20,3 +20,5 @@ MethodLength:
   Max: 25
 ParameterLists:
   Max: 6
+PerceivedComplexity:
+  Max: 10
