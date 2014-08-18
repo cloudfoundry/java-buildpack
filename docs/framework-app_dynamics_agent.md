@@ -22,6 +22,7 @@ When binding AppDynamics using a user-provided service, it must have name or tag
 | `host-name` | The controller host name
 | `port` | (Optional) The controller port
 | `ssl-enabled` | (Optional) Whether or not to use an SSL connection to the controller
+| `tier-name` | (Optional) the application's tier name
 
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
@@ -30,8 +31,8 @@ The framework can be configured by modifying the [`config/app_dynamics_agent.yml
 
 | Name | Description
 | ---- | -----------
+| `default_tier_name` | The default tier name for this application in the AppDynamics dashboard.  This can be overridden with a `tier-name` entry in the credentials payload.
 | `repository_root` | The URL of the AppDynamics repository index ([details][repositories]).
-| `tier_name` | The tier_name for this application in the AppDynamics dashboard.
 | `version` | The version of AppDynamics to use. Candidate versions can be found in [this listing][].
 
 ### Additional Resources

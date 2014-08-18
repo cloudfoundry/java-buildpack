@@ -21,7 +21,7 @@ require 'java_buildpack/framework/app_dynamics_agent'
 describe JavaBuildpack::Framework::AppDynamicsAgent do
   include_context 'component_helper'
 
-  let(:configuration) { { 'tier_name' => 'test-tier-name' } }
+  let(:configuration) { { 'default_tier_name' => 'test-tier-name' } }
 
   it 'should not detect without app-dynamics-n/a service' do
     expect(component.detect).to be_nil
@@ -65,6 +65,16 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
         expect(java_opts).to include("-Dappdynamics.agent.tierName='test-tier-name'")
         expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' \
                                          '\'.*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
+      end
+
+      context do
+        let(:credentials) { super().merge 'tier-name' => 'another-test-tier-name' }
+
+        it 'should add tier_name from credentials to JAVA_OPTS if specified' do
+          component.release
+
+          expect(java_opts).to include("-Dappdynamics.agent.tierName='another-test-tier-name'")
+        end
       end
 
       context do
