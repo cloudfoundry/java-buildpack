@@ -82,6 +82,10 @@ bundle exec rake package
 Creating build/java-buildpack-cfd6b17.zip
 ```
 
+The online buildpack supports accessing the internet via a proxy. To configure the proxy you will need to tell Cloud Foundry to set an environment variable of `$http_proxy` or `$https_proxy` for your application. This is done at the command line.
+
+```cf set-env myApp http_proxy http://user:password@host:port```
+
 ### Offline Package
 The offline package is a version of the buildpack designed to run without access to a network.  It packages the latest version of each dependency (as configured in the [`config/` directory][]) and [disables `remote_downloads`][]. This package is about 180M in size.  To create the offline package, use the `OFFLINE=true` argument:
 
