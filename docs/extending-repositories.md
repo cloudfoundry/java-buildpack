@@ -65,6 +65,13 @@ Repositories can be configured by modifying the [`config/repository.yml`][] file
 | ---- | -----------
 | `default_repository_root` | This property can take a URI that is used as a common root for all of the repositories used by the buildpack.  The value is substituted for the `{default.repository.root}` variable in `repository_root` declarations.
 
+## Proxies
+Access to repositories may be affected by the existence of network proxies.  In order to configure the buildpack to use a proxy, set the `http_proxy`, `HTTP_PROXY`, `https_proxy`, or `HTTPS_PROXY` environment variables with the property proxy URI.  Proxy authentication crendentials can be embedded in the URI if needed.
+
+```bash
+cf set-env <APP_NAME> http_proxy http://username:password@host:port
+```
+
 ## Version Syntax and Ordering
 Versions are composed of major, minor, micro, and optional qualifier parts (`<major>.<minor>.<micro>[_<qualifier>]`).  The major, minor, and micro parts must be numeric.  The qualifier part is composed of letters, digits, and hyphens.  The lexical ordering of the qualifier is:
 
