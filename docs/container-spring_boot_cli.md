@@ -19,7 +19,7 @@ The Spring Boot CLI Container runs one or more Groovy (i.e. `*.groovy`) files us
 </table>
 Tags are printed to standard output by the buildpack detect script.
 
-In order to specify [Spring profiles][], set the [`SPRING_PROFILES_ACTIVE`][] environment variable.  This is automatically detected and used by Spring.
+If the application uses Spring, [Spring profiles][] can be specified by setting the [`SPRING_PROFILES_ACTIVE`][] environment variable. This is automatically detected and used by Spring. The Spring Auto-reconfiguration Framework will specify the `cloud` profile in addition to any others. 
 
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
