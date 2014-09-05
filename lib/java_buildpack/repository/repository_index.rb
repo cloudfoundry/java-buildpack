@@ -50,9 +50,10 @@ module JavaBuildpack
       # @return [TokenizedVersion] the version of the file found
       # @return [String] the URI of the file found
       def find_item(version)
-        version = VersionResolver.resolve(version, @index.keys)
-        uri     = @index[version.to_s]
-        [version, uri]
+        found_version = VersionResolver.resolve(version, @index.keys)
+        fail "No version resolvable for '#{version}' in #{@index.keys.join(', ')}" if found_version.nil?
+        uri     = @index[found_version.to_s]
+        [found_version, uri]
       end
 
       private
