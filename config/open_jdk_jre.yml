@@ -17,13 +17,13 @@
 # To go back to Java 7, permgen should be used instead of metaspace.  Please see the documentation for more detail.
 ---
 repository_root: "{default.repository.root}/openjdk/{platform}/{architecture}"
-version: 1.8.0_+
+version: 1.7.0_+
 memory_sizes:
-  metaspace: 64m..
-  # permgen: 64m..
+  # metaspace: 64m..
+  permgen: 64m..
 memory_heuristics:
   heap: 75
-  metaspace: 10
-  # permgen: 10
+  # metaspace: 10
+  permgen: 10
   stack: 5
   native: 10
