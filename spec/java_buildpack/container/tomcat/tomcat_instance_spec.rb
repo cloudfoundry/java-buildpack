@@ -48,6 +48,28 @@ describe JavaBuildpack::Container::TomcatInstance do
     expect(sandbox + 'conf/server.xml').to exist
   end
 
+  it 'should configure for Tomcat 7',
+     app_fixture:   'container_tomcat',
+     cache_fixture: 'stub-tomcat.tar.gz' do
+
+    component.compile
+    expect((sandbox + 'conf/context.xml').read).to match(/<Context allowLinking='true'>/)
+    expect((sandbox + 'conf/server.xml').read).to match(/<Listener className='org.apache.catalina.core.JasperListener'\/>/)
+  end
+
+  context do
+    let(:version) { '8.0.12' }
+
+    it 'should configure for Tomcat 8',
+       app_fixture:   'container_tomcat',
+       cache_fixture: 'stub-tomcat.tar.gz' do
+
+      component.compile
+      expect((sandbox + 'conf/context.xml').read).to match(/<Context>[\s]*<Resources allowLinking='true'\/>/)
+      expect((sandbox + 'conf/server.xml').read).not_to match(/<Listener className='org.apache.catalina.core.JasperListener'\/>/)
+    end
+  end
+
   it 'should link only the application files and directories to the ROOT webapp',
      app_fixture:   'container_tomcat_with_index',
      cache_fixture: 'stub-tomcat.tar.gz' do
