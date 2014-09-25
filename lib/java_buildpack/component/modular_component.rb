@@ -41,17 +41,17 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
-        supports? ? @sub_components.map { |m| m.detect }.flatten.compact : nil
+        supports? ? @sub_components.map(&:detect).flatten.compact : nil
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        @sub_components.each { |m| m.compile }
+        @sub_components.each(&:compile)
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @sub_components.map { |m| m.release }
+        @sub_components.map(&:release)
         command
       end
 
