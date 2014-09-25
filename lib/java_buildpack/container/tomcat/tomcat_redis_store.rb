@@ -18,8 +18,6 @@ require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/container/tomcat/tomcat_utils'
 require 'java_buildpack/logging/logger_factory'
-require 'rexml/document'
-require 'rexml/formatters/pretty'
 
 module JavaBuildpack
   module Container
@@ -90,10 +88,6 @@ module JavaBuildpack
         context.add_element 'Valve', 'className' => FLUSH_VALVE_CLASS_NAME
       end
 
-      def context_xml
-        @droplet.sandbox + 'conf/context.xml'
-      end
-
       def formatter
         formatter         = REXML::Formatters::Pretty.new(4)
         formatter.compact = true
@@ -107,16 +101,13 @@ module JavaBuildpack
       def mutate_context
         puts '       Adding Redis-based Session Replication'
 
-        document = context_xml.open { |file| REXML::Document.new file }
+        document = read_xml context_xml
         context  = REXML::XPath.match(document, '/Context').first
 
         add_valve context
         add_manager context
 
-        context_xml.open('w') do |file|
-          formatter.write document, file
-          file << "\n"
-        end
+        write_xml context_xml, document
       end
 
     end

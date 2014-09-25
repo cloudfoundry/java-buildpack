@@ -18,6 +18,7 @@ require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/container/tomcat/tomcat_utils'
+require 'java_buildpack/util/tokenized_version'
 
 module JavaBuildpack
   module Container
@@ -54,12 +55,45 @@ module JavaBuildpack
 
       private
 
+      TOMCAT_8 = JavaBuildpack::Util::TokenizedVersion.new('8.0.0').freeze
+
+      private_constant :TOMCAT_8
+
+      def configure_jasper
+        return unless @version < TOMCAT_8
+
+        document = read_xml server_xml
+        server   = REXML::XPath.match(document, '/Server').first
+
+        listener = REXML::Element.new('Listener')
+        listener.add_attribute 'className', 'org.apache.catalina.core.JasperListener'
+
+        server.insert_before '//Service', listener
+
+        write_xml server_xml, document
+      end
+
+      def configure_linking
+        document = read_xml context_xml
+        context  = REXML::XPath.match(document, '/Context').first
+
+        if @version < TOMCAT_8
+          context.add_attribute 'allowLinking', true
+        else
+          context.add_element 'Resources', 'allowLinking' => true
+        end
+
+        write_xml context_xml, document
+      end
+
       def expand(file)
         with_timing "Expanding Tomcat to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
           FileUtils.mkdir_p @droplet.sandbox
           shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 --exclude webapps 2>&1"
 
           @droplet.copy_resources
+          configure_linking
+          configure_jasper
         end
       end
 
