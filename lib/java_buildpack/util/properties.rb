@@ -28,7 +28,7 @@ module JavaBuildpack
       def initialize(file_name)
         return self if file_name.nil?
 
-        contents = file_name.open { |file| file.read }
+        contents = file_name.open(&:read)
         contents.gsub!(/[\r\n\f]+ /, '')
 
         contents.each_line do |line|

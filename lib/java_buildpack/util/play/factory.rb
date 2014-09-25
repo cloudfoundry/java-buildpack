@@ -41,7 +41,7 @@ module JavaBuildpack
               Post22Staged.new(droplet),
               Pre22Dist.new(droplet),
               Pre22Staged.new(droplet)
-            ].select { |candidate| candidate.supports? }
+            ].select(&:supports?)
 
             fail "Play Framework application version cannot be determined: #{candidates}" if candidates.size > 1
             candidates.empty? ? nil : candidates.first

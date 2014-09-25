@@ -60,7 +60,7 @@ module JavaBuildpack
       fail 'No container can run this application' unless container
 
       component_detection('JRE', @jres, true).first.compile
-      component_detection('framework', @frameworks, false).each { |framework| framework.compile }
+      component_detection('framework', @frameworks, false).each(&:compile)
       container.compile
     end
 
@@ -73,7 +73,7 @@ module JavaBuildpack
       fail 'No container can run this application' unless container
 
       component_detection('JRE', @jres, true).first.release
-      component_detection('framework', @frameworks, false).each { |framework| framework.release }
+      component_detection('framework', @frameworks, false).each(&:release)
       command = container.release
 
       payload = {

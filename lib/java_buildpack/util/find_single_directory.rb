@@ -23,7 +23,7 @@ module JavaBuildpack
     #
     # @return [Pathname, nil] the single directory in the root of the droplet, otherwise +nil+
     def find_single_directory
-      roots = (@droplet.root + '*').glob.select { |child| child.directory? }
+      roots = (@droplet.root + '*').glob.select(&:directory?)
       roots.size == 1 ? roots.first : nil
     end
 
