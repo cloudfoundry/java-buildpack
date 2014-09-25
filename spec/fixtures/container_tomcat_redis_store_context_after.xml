@@ -13,8 +13,9 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  --> 
-<Context allowLinking='true'>
+  -->
+<Context>
+    <Resources allowLinking='true'> </Resources>
     <Valve className='com.gopivotal.manager.SessionFlushValve'/>
     <Manager className='org.apache.catalina.session.PersistentManager'>
         <Store className='com.gopivotal.manager.redis.RedisStore' host='test-host' port='test-port' database='test-database' password='test-password' timeout='test-timeout' connectionPoolSize='test-connection-pool-size'/>
