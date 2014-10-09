@@ -21,6 +21,7 @@ require 'java_buildpack/util/cache/inferred_network_failure'
 require 'java_buildpack/util/cache/internet_availability'
 require 'monitor'
 require 'net/http'
+require 'pathname'
 require 'tmpdir'
 require 'uri'
 
@@ -76,6 +77,8 @@ module JavaBuildpack
 
         private
 
+        CA_CERTS_DIRECTORY = (Pathname.new(__FILE__).dirname + '../../../../resources/ca_certs').freeze
+
         FAILURE_LIMIT = 5.freeze
 
         HTTP_ERRORS = [
@@ -109,7 +112,7 @@ module JavaBuildpack
 
         TIMEOUT_SECONDS = 10.freeze
 
-        private_constant :FAILURE_LIMIT, :HTTP_ERRORS, :REDIRECT_TYPES, :TIMEOUT_SECONDS
+        private_constant :CA_CERTS_DIRECTORY, :FAILURE_LIMIT, :HTTP_ERRORS, :REDIRECT_TYPES, :TIMEOUT_SECONDS
 
         def attempt(http, request, cached_file)
           downloaded = false
@@ -198,10 +201,17 @@ module JavaBuildpack
 
         # Beware known problems with timeouts: https://www.ruby-forum.com/topic/143840
         def http_options(rich_uri)
-          { read_timeout:    TIMEOUT_SECONDS,
-            connect_timeout: TIMEOUT_SECONDS,
-            open_timeout:    TIMEOUT_SECONDS,
-            use_ssl:         secure?(rich_uri) }
+          http_options                   = {}
+          http_options[:connect_timeout] = TIMEOUT_SECONDS
+          http_options[:open_timeout]    = TIMEOUT_SECONDS
+          http_options[:read_timeout]    = TIMEOUT_SECONDS
+
+          if secure?(rich_uri)
+            http_options[:use_ssl] = true
+            http_options[:ca_path] = CA_CERTS_DIRECTORY.to_s if CA_CERTS_DIRECTORY.exist?
+          end
+
+          http_options
         end
 
         def proxy(uri)

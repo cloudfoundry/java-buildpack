@@ -27,6 +27,8 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
   include_context 'internet_availability_helper'
   include_context 'logging_helper'
 
+  let(:ca_certs_directory) { double exist?: false, to_s: 'test-path' }
+
   let(:mutable_cache_root) { app_dir + 'mutable' }
 
   let(:immutable_cache_root) { app_dir + 'immutable' }
@@ -38,6 +40,10 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
   let(:uri_secure) { 'https://foo-uri/' }
 
   let(:download_cache) { described_class.new(mutable_cache_root, immutable_cache_root) }
+
+  before do
+    described_class.const_set :CA_CERTS_DIRECTORY, ca_certs_directory
+  end
 
   it 'should raise error if file cannot be found',
      :disable_internet do
@@ -226,6 +232,54 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
       download_cache.get(uri_secure) {}
     end
 
+  end
+
+  it 'should not use ca_path if the URL is not secure and directory does not exist' do
+    stub_request(:get, uri)
+    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+
+    allow(Net::HTTP).to receive(:Proxy).and_call_original
+    expect(Net::HTTP).to receive(:start).with('foo-uri', 80, connect_timeout: 10, open_timeout: 10, read_timeout: 10)
+                         .and_call_original
+
+    download_cache.get(uri) {}
+  end
+
+  it 'should not use ca_path if the URL is not secure and directory does exist' do
+    stub_request(:get, uri)
+    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+
+    allow(ca_certs_directory).to receive(:exist?).and_return(true)
+    allow(Net::HTTP).to receive(:Proxy).and_call_original
+    expect(Net::HTTP).to receive(:start).with('foo-uri', 80, connect_timeout: 10, open_timeout: 10, read_timeout: 10)
+                         .and_call_original
+
+    download_cache.get(uri) {}
+  end
+
+  it 'should not use ca_path if the URL is secure and directory does not exist' do
+    stub_request(:get, uri_secure)
+    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+
+    allow(Net::HTTP).to receive(:Proxy).and_call_original
+    expect(Net::HTTP).to receive(:start)
+                         .with('foo-uri', 443, connect_timeout: 10, open_timeout: 10, read_timeout: 10, use_ssl: true)
+                         .and_call_original
+
+    download_cache.get(uri_secure) {}
+  end
+
+  it 'should use ca_path if the URL is secure and directory does exist' do
+    stub_request(:get, uri_secure)
+    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+
+    allow(ca_certs_directory).to receive(:exist?).and_return(true)
+    allow(Net::HTTP).to receive(:Proxy).and_call_original
+    expect(Net::HTTP).to receive(:start)
+                         .with('foo-uri', 443, connect_timeout: 10, open_timeout: 10, read_timeout: 10, use_ssl: true,
+                               ca_path:                         'test-path').and_call_original
+
+    download_cache.get(uri_secure) {}
   end
 
   it 'should delete the cached file if it exists' do
