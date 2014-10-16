@@ -37,7 +37,7 @@ describe 'detect script', :integration do
   end
 
   it 'should truncate long detect strings',
-     app_fixture: 'integration_valid',
+     app_fixture:       'integration_valid',
      buildpack_fixture: 'integration_long_detect_tag' do
 
     run("bin/detect #{app_dir}") do |status|

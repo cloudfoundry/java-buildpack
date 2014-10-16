@@ -42,7 +42,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
   let(:download_cache) { described_class.new(mutable_cache_root, immutable_cache_root) }
 
   before do
-    described_class.const_set :CA_CERTS_DIRECTORY, ca_certs_directory
+    described_class.const_set :CA_FILE, ca_certs_directory
   end
 
   it 'should raise error if file cannot be found',
@@ -234,7 +234,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   end
 
-  it 'should not use ca_path if the URL is not secure and directory does not exist' do
+  it 'should not use ca_file if the URL is not secure and directory does not exist' do
     stub_request(:get, uri)
     .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
@@ -245,7 +245,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     download_cache.get(uri) {}
   end
 
-  it 'should not use ca_path if the URL is not secure and directory does exist' do
+  it 'should not use ca_file if the URL is not secure and directory does exist' do
     stub_request(:get, uri)
     .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
@@ -257,7 +257,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     download_cache.get(uri) {}
   end
 
-  it 'should not use ca_path if the URL is secure and directory does not exist' do
+  it 'should not use ca_file if the URL is secure and directory does not exist' do
     stub_request(:get, uri_secure)
     .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
@@ -269,7 +269,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     download_cache.get(uri_secure) {}
   end
 
-  it 'should use ca_path if the URL is secure and directory does exist' do
+  it 'should use ca_file if the URL is secure and directory does exist' do
     stub_request(:get, uri_secure)
     .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
@@ -277,7 +277,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     allow(Net::HTTP).to receive(:Proxy).and_call_original
     expect(Net::HTTP).to receive(:start)
                          .with('foo-uri', 443, connect_timeout: 10, open_timeout: 10, read_timeout: 10, use_ssl: true,
-                               ca_path:                         'test-path').and_call_original
+                               ca_file:                         'test-path').and_call_original
 
     download_cache.get(uri_secure) {}
   end
