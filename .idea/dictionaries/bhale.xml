@@ -43,6 +43,7 @@
       <w>readlink</w>
       <w>redhat</w>
       <w>rspec</w>
+      <w>rstrip</w>
       <w>rubocop</w>
       <w>shellwords</w>
       <w>simplecov</w>
