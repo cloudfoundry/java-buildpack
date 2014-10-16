@@ -23,7 +23,7 @@ describe JavaBuildpack::Component::Services do
 
   let(:service) do
     { 'name'        => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
-      'credentials' => { 'uri' => 'test-uri' } }
+      'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' } }
   end
 
   let(:services) { described_class.new('test' => [service]) }
@@ -58,9 +58,19 @@ describe JavaBuildpack::Component::Services do
     expect(services.one_service?(/test-tag/, 'uri')).to be
   end
 
-  it 'should return true from one_service? if there is a matching service with required group credentials' do
+  it 'should return true from one_service? if there is a matching service with one required group credentials' do
     expect(services.one_service? 'test-tag', %w(uri other)).to be
     expect(services.one_service?(/test-tag/, %w(uri other))).to be
+  end
+
+  it 'should return true from one_service? if there is a matching service with two required group credentials' do
+    expect(services.one_service? 'test-tag', %w(h1 h2)).to be
+    expect(services.one_service?(/test-tag/, %w(h1 h2))).to be
+  end
+
+  it 'should return false from one_service? if there is a matching service with no required group credentials' do
+    expect(services.one_service? 'test-tag', %w(foo bar)).not_to be
+    expect(services.one_service?(/test-tag/, %w(foo bar))).not_to be
   end
 
   it 'should return nil from find_service? if there is no service that matches' do
