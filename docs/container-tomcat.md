@@ -27,7 +27,7 @@ The container can be configured by modifying the [`config/tomcat.yml`][] file in
 | `logging_support.version` | The version of Tomcat Logging Support to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat-logging-support/index.yml).
 | `access_logging_support.repository_root` | The URL of the Tomcat Access Logging Support repository index ([details][repositories]).
 | `access_logging_support.version` | The version of Tomcat Access Logging Support to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat-access-logging-support/index.yml).
-| `access_logging` | Set to 'enabled' to turn on the access logging support. Default is 'disabled'.
+| `access_logging_support.access_logging` | Set to `enabled` to turn on the access logging support. Default is `disabled`.
 | `redis_store.connection_pool_size` | The Redis connection pool size.  Note that this is per-instance, not per-application.
 | `redis_store.database` | The Redis database to connect to.
 | `redis_store.repository_root` | The URL of the Redis Store repository index ([details][repositories]).
