@@ -177,6 +177,17 @@ module JavaBuildpack
           end
         end
 
+        def debug_ssl(http)
+          socket = http.instance_variable_get('@socket')
+          return unless socket
+
+          io = socket.io
+          return unless io
+
+          session = io.session
+          @logger.debug { session.to_text } if session
+        end
+
         def from_mutable_cache(uri)
           cached_file = CachedFile.new @mutable_cache_root, uri, true
           cached      = update URI(uri), cached_file
@@ -256,7 +267,8 @@ module JavaBuildpack
         def update(uri, cached_file)
           proxy(uri).start(uri.host, uri.port, http_options(uri)) do |http|
             @logger.debug { "HTTP: #{http.address}, #{http.port}, #{http_options(uri)}" }
-            @logger.debug { http.instance_variable_get('@socket').io.session.to_text } if secure? uri
+            debug_ssl(http) if secure?(uri)
+
             request = request uri, cached_file
             request.basic_auth uri.user, uri.password if uri.user && uri.password
 
