@@ -256,6 +256,7 @@ module JavaBuildpack
         def update(uri, cached_file)
           proxy(uri).start(uri.host, uri.port, http_options(uri)) do |http|
             @logger.debug { "HTTP: #{http.address}, #{http.port}, #{http_options(uri)}" }
+            @logger.debug { http.instance_variable_get('@socket').io.session.to_text } if secure? uri
             request = request uri, cached_file
             request.basic_auth uri.user, uri.password if uri.user && uri.password
 
