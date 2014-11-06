@@ -64,7 +64,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
         expect(java_opts).to include('-Dappdynamics.agent.applicationName=test-application-name')
         expect(java_opts).to include("-Dappdynamics.agent.tierName='test-tier-name'")
         expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' \
-                                         '\'.*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
+                                     '\'.*instance_index[": ]*\\([[:digit:]]*\\).*\')')
       end
 
       context do
@@ -108,12 +108,22 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
       end
 
       context do
-        let(:environment) { super().merge 'APPDYNAMICS_NAME' => 'appdynamics-name' }
+        let(:environment) { super().merge 'APPDYNAMICS_APP_NAME' => 'app_name' }
 
         it 'should add application name to JAVA_OPTS from environment if specified' do
           component.release
 
-          expect(java_opts).to include('-Dappdynamics.agent.applicationName=appdynamics-name')
+          expect(java_opts).to include('-Dappdynamics.agent.applicationName=app_name')
+        end
+      end
+
+      context do
+        let(:environment) { super().merge 'APPDYNAMICS_TIER_NAME' => 'tier-name' }
+
+        it 'should add tier name to JAVA_OPTS from environment if specified' do
+          component.release
+
+          expect(java_opts).to include('-Dappdynamics.agent.tierName=tier-name')
         end
       end
     end
