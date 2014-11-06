@@ -38,7 +38,7 @@ module JavaBuildpack
         java_opts
         .add_javaagent(@droplet.sandbox + 'javaagent.jar')
         .add_system_property('appdynamics.agent.nodeName',
-                             "$(expr \"$VCAP_APPLICATION\" : '.*instance_index[\": ]*\\([[:digit:]]*\\).*')")
+                             "#{@application.details['application_name']}-$(expr \"$VCAP_APPLICATION\" : '.*instance_index[\": ]*\\([[:digit:]]*\\).*')")
 
         application_name(java_opts)
         tier_name(java_opts)
