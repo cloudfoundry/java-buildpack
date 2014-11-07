@@ -110,20 +110,20 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
       context do
         let(:environment) { super().merge 'APPDYNAMICS_APP_NAME' => 'app_name' }
 
-        it 'should add application name to JAVA_OPTS from environment if specified' do
+        it 'should add application name to JAVA_OPTS from environment if specified, as tier name' do
           component.release
 
-          expect(java_opts).to include('-Dappdynamics.agent.applicationName=app_name')
+          expect(java_opts).to include('-Dappdynamics.agent.tierName=app_name')
         end
       end
 
       context do
         let(:environment) { super().merge 'APPDYNAMICS_TIER_NAME' => 'tier-name' }
 
-        it 'should add tier name to JAVA_OPTS from environment if specified' do
+        it 'should add tier name to JAVA_OPTS from environment if specified, as application name' do
           component.release
 
-          expect(java_opts).to include('-Dappdynamics.agent.tierName=tier-name')
+          expect(java_opts).to include('-Dappdynamics.agent.applicationName=tier-name')
         end
       end
     end
