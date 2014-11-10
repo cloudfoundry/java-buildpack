@@ -61,9 +61,9 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/app_dynamics_agent/javaagent.jar')
         expect(java_opts).to include('-Dappdynamics.controller.hostName=test-host-name')
-        expect(java_opts).to include("-Dappdynamics.agent.applicationName='test-application-name'")
-        expect(java_opts).to include("-Dappdynamics.agent.tierName='test-tier-name'")
-        expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' \
+        expect(java_opts).to include('-Dappdynamics.agent.applicationName=test-application-name')
+        expect(java_opts).to include("-Dappdynamics.agent.tierName=test-tier-name")
+        expect(java_opts).to include('-Dappdynamics.agent.nodeName=test-application-name-$(expr "$VCAP_APPLICATION" : ' \
                                      '\'.*instance_index[": ]*\\([[:digit:]]*\\).*\')')
       end
 
@@ -73,7 +73,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
         it 'should add tier_name from credentials to JAVA_OPTS if specified' do
           component.release
 
-          expect(java_opts).to include("-Dappdynamics.agent.tierName='another-test-tier-name'")
+          expect(java_opts).to include('-Dappdynamics.agent.tierName=another-test-tier-name')
         end
       end
 
@@ -114,6 +114,26 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
           component.release
 
           expect(java_opts).to include('-Dappdynamics.agent.accountAccessKey=test-account-access-key')
+        end
+      end
+
+      context do
+        let(:environment) { super().merge 'APPDYNAMICS_APP_NAME' => 'app_name' }
+
+        it 'should add application name to JAVA_OPTS from environment if specified, as tier name' do
+          component.release
+
+          expect(java_opts).to include('-Dappdynamics.agent.tierName=app_name')
+        end
+      end
+
+      context do
+        let(:environment) { super().merge 'APPDYNAMICS_TIER_NAME' => 'tier-name' }
+
+        it 'should add tier name to JAVA_OPTS from environment if specified, as application name' do
+          component.release
+
+          expect(java_opts).to include('-Dappdynamics.agent.applicationName=tier-name')
         end
       end
     end
