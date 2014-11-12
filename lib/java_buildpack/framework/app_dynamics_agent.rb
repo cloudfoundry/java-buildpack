@@ -63,7 +63,7 @@ module JavaBuildpack
       private_constant :FILTER
 
       def application_name(java_opts)
-        app_name =  @application.environment['APPDYNAMICS_TIER_NAME'] ?  @application.environment['APPDYNAMICS_TIER_NAME'] : @application.details['application_name']
+        app_name =  @application.environment['APPDYNAMICS_ENV_NAME'] ?  @application.environment['APPDYNAMICS_ENV_NAME'] : @application.details['application_name']
         java_opts.add_system_property 'appdynamics.agent.applicationName', app_name
       end
 
