@@ -128,7 +128,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
       end
 
       context do
-        let(:environment) { super().merge 'APPDYNAMICS_TIER_NAME' => 'tier-name' }
+        let(:environment) { super().merge 'APPDYNAMICS_ENV_NAME' => 'tier-name' }
 
         it 'should add tier name to JAVA_OPTS from environment if specified, as application name' do
           component.release
