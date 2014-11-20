@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="RUBY_MODULE" version="4">
-  <component name="CompassSettings">
-    <option name="compassSupportEnabled" value="true" />
-  </component>
   <component name="ModuleRunConfigurationManager">
     <configuration default="false" name="All Tests" type="RSpecRunConfigurationType" factoryName="RSpec" singleton="true">
       <predefined_log_file id="RUBY_RSPEC" enabled="true" />
@@ -306,4 +303,3 @@
     <I18N_FOLDERS number="0" />
   </component>
 </module>
-
