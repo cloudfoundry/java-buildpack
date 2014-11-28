@@ -19,6 +19,7 @@ require 'java_buildpack/util/cache'
 require 'java_buildpack/util/cache/cached_file'
 require 'java_buildpack/util/cache/inferred_network_failure'
 require 'java_buildpack/util/cache/internet_availability'
+require 'java_buildpack/util/sanitizer'
 require 'monitor'
 require 'net/http'
 require 'pathname'
@@ -63,7 +64,7 @@ module JavaBuildpack
           cached_file, downloaded = from_mutable_cache uri if InternetAvailability.instance.available?
           cached_file, downloaded = from_immutable_caches(uri), false unless cached_file
 
-          fail "Unable to find cached file for #{uri}" unless cached_file
+          fail "Unable to find cached file for #{uri.sanitize_uri}" unless cached_file
           cached_file.cached(File::RDONLY | File::BINARY, downloaded, &block)
         end
 
@@ -191,7 +192,7 @@ module JavaBuildpack
           cached      = update URI(uri), cached_file
           [cached_file, cached]
         rescue => e
-          @logger.warn { "Unable to download #{uri} into cache #{@mutable_cache_root}: #{e.message}" }
+          @logger.warn { "Unable to download #{uri.sanitize_uri} into cache #{@mutable_cache_root}: #{e.message}" }
           nil
         end
 
@@ -201,7 +202,7 @@ module JavaBuildpack
 
             next unless candidate.cached?
 
-            @logger.debug { "#{uri} found in cache #{cache_root}" }
+            @logger.debug { "#{uri.sanitize_uri} found in cache #{cache_root}" }
             return candidate
           end
 
