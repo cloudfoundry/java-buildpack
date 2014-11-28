@@ -35,7 +35,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   let(:uri) { 'http://foo-uri/' }
 
-  let(:uri_credentials) { 'http://test-username:test-password@foo-uri/' }
+  let(:uri_credentials) { 'https://test-username:test-password@foo-uri/' }
 
   let(:uri_secure) { 'https://foo-uri/' }
 
@@ -293,7 +293,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
   end
 
   def credential_cache_file(root, extension)
-    root + "http%3A%2F%2Ftest-username%3Atest-password@foo-uri%2F.#{extension}"
+    root + "https%3A%2F%2Ffoo-uri%2F.#{extension}"
   end
 
   def expect_complete_cache(root)
