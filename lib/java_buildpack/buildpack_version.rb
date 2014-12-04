@@ -103,11 +103,11 @@ module JavaBuildpack
     end
 
     def git?
-	  if Gem.win_platform?
+      if Gem.win_platform?
         system 'where.exe /q git.exe'
-	  else
+      else
         system 'which git > /dev/null'
-	  end
+      end
     end
 
     def git_dir?
