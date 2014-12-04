@@ -104,7 +104,7 @@ module JavaBuildpack
 
     def git?
 	  if Gem.win_platform?
-	    system 'where.exe /q git.exe'
+        system 'where.exe /q git.exe'
 	  else
         system 'which git > /dev/null'
 	  end
