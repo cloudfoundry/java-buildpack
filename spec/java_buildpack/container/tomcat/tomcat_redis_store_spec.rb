@@ -37,7 +37,7 @@ describe JavaBuildpack::Container::TomcatRedisStore do
 
     before do
       allow(services).to receive(:one_service?).with(/session-replication/, %w(hostname host), 'port', 'password')
-                         .and_return(true)
+                           .and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => { 'hostname' => 'test-host',
                                                                               'port'     => 'test-port',
                                                                               'password' => 'test-password' })
@@ -63,7 +63,7 @@ describe JavaBuildpack::Container::TomcatRedisStore do
       component.compile
 
       expect((sandbox + 'conf/context.xml').read)
-      .to eq(Pathname.new('spec/fixtures/container_tomcat_redis_store_context_after.xml').read)
+        .to eq(Pathname.new('spec/fixtures/container_tomcat_redis_store_context_after.xml').read)
     end
 
   end
@@ -72,8 +72,8 @@ describe JavaBuildpack::Container::TomcatRedisStore do
 
     before do
       allow(services).to receive(:one_service?).with(/session-replication/, %w(hostname host), 'port', 'password')
-                         .and_return(true)
-      allow(services).to receive(:find_service).and_return('credentials' => { 'host' => 'test-host',
+                           .and_return(true)
+      allow(services).to receive(:find_service).and_return('credentials' => { 'host'     => 'test-host',
                                                                               'port'     => 'test-port',
                                                                               'password' => 'test-password' })
     end

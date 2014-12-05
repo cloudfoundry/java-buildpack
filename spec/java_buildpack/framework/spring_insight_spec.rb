@@ -35,7 +35,7 @@ describe JavaBuildpack::Framework::SpringInsight do
       allow(services).to receive(:find_service).and_return('label'       => 'insight-1.0',
                                                            'credentials' => { 'dashboard_url' => 'test-uri', 'agent_password' => 'foo', 'agent_username' => 'bar' })
       allow(application_cache).to receive(:get).with('test-uri/services/config/agent-download')
-                                  .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open, false)
+                                    .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open, false)
     end
 
     it 'should detect with spring-insight-n/a service' do
@@ -55,7 +55,7 @@ describe JavaBuildpack::Framework::SpringInsight do
 
     it 'should guarantee that internet access is available when downloading' do
       expect_any_instance_of(JavaBuildpack::Util::Cache::InternetAvailability)
-      .to receive(:available).with(true, 'The Spring Insight download location is always accessible')
+        .to receive(:available).with(true, 'The Spring Insight download location is always accessible')
 
       component.compile
     end

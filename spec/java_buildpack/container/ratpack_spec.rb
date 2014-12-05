@@ -63,7 +63,7 @@ describe JavaBuildpack::Container::Ratpack do
     component.compile
 
     expect((app_dir + 'bin/application').read)
-    .to match 'CLASSPATH=\$APP_HOME/.additional_libs/test-jar-1.jar:\$APP_HOME/.additional_libs/test-jar-2.jar:'
+      .to match 'CLASSPATH=\$APP_HOME/.additional_libs/test-jar-1.jar:\$APP_HOME/.additional_libs/test-jar-2.jar:'
   end
 
   it 'should return command',

@@ -51,12 +51,12 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.java_opts
-        .add_javaagent(weaver_jar)
-        .add_system_property('insight.base', insight_directory)
-        .add_system_property('insight.logs', logs_directory)
-        .add_system_property('aspectj.overweaving', true)
-        .add_system_property('org.aspectj.tracing.factory', 'default')
-        .add_system_property('insight.transport.type', 'HTTP')
+          .add_javaagent(weaver_jar)
+          .add_system_property('insight.base', insight_directory)
+          .add_system_property('insight.logs', logs_directory)
+          .add_system_property('aspectj.overweaving', true)
+          .add_system_property('org.aspectj.tracing.factory', 'default')
+          .add_system_property('insight.transport.type', 'HTTP')
 
         add_agent_configuration
       end
@@ -81,14 +81,14 @@ module JavaBuildpack
 
       def add_agent_configuration
         @droplet.java_opts
-        .add_system_property('agent.http.protocol', 'http')
-        .add_system_property('agent.http.host', URI(@uri).host)
-        .add_system_property('agent.http.port', 80)
-        .add_system_property('agent.http.context.path', 'insight')
-        .add_system_property('agent.http.username', @agent_id)
-        .add_system_property('agent.http.password', @agent_pass)
-        .add_system_property('agent.http.send.json', false)
-        .add_system_property('agent.http.use.proxy', false)
+          .add_system_property('agent.http.protocol', 'http')
+          .add_system_property('agent.http.host', URI(@uri).host)
+          .add_system_property('agent.http.port', 80)
+          .add_system_property('agent.http.context.path', 'insight')
+          .add_system_property('agent.http.username', @agent_id)
+          .add_system_property('agent.http.password', @agent_pass)
+          .add_system_property('agent.http.send.json', false)
+          .add_system_property('agent.http.use.proxy', false)
       end
 
       def expand(file)
@@ -200,6 +200,5 @@ module JavaBuildpack
       end
 
     end
-
   end
 end

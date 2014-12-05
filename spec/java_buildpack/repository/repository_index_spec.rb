@@ -36,9 +36,9 @@ describe JavaBuildpack::Repository::RepositoryIndex do
 
   it 'should load index' do
     allow(application_cache).to receive(:get).with(%r{/test-uri/index\.yml})
-                                .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
+                                  .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
     allow(JavaBuildpack::Repository::VersionResolver).to receive(:resolve).with('test-version', %w(resolved-version))
-                                                         .and_return('resolved-version')
+                                                           .and_return('resolved-version')
 
     repository_index = described_class.new('{platform}/{architecture}/test-uri')
 
@@ -47,9 +47,9 @@ describe JavaBuildpack::Repository::RepositoryIndex do
 
   it 'should cope with trailing slash in repository URI' do
     allow(application_cache).to receive(:get).with(%r{/test-uri/index\.yml})
-                                .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
+                                  .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
     allow(JavaBuildpack::Repository::VersionResolver).to receive(:resolve).with('test-version', %w(resolved-version))
-                                                         .and_return('resolved-version')
+                                                           .and_return('resolved-version')
 
     repository_index = described_class.new('{platform}/{architecture}/test-uri/')
 
@@ -58,9 +58,9 @@ describe JavaBuildpack::Repository::RepositoryIndex do
 
   it 'should substitute the default repository root' do
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('repository')
-                                                      .and_return('default_repository_root' => 'http://default-repository-root/')
+                                                        .and_return('default_repository_root' => 'http://default-repository-root/')
     expect(application_cache).to receive(:get).with('http://default-repository-root/test-uri/index.yml')
-                                 .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
+                                   .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
 
     described_class.new('{default.repository.root}/test-uri')
   end
@@ -76,7 +76,7 @@ describe JavaBuildpack::Repository::RepositoryIndex do
     allow(redhat_release).to receive(:exist?).and_return(true)
     allow(redhat_release).to receive(:read).and_return('CentOS release 6.4 (Final)')
     allow(application_cache).to receive(:get).with('centos6/x86_64/test-uri/index.yml')
-                                .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
+                                  .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
 
     described_class.new('{platform}/{architecture}/test-uri')
 
@@ -87,7 +87,7 @@ describe JavaBuildpack::Repository::RepositoryIndex do
     allow_any_instance_of(described_class).to receive(:`).with('uname -s').and_return('Darwin')
     allow_any_instance_of(described_class).to receive(:`).with('uname -m').and_return('x86_64')
     allow(application_cache).to receive(:get).with('mountainlion/x86_64/test-uri/index.yml')
-                                .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
+                                  .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
 
     described_class.new('{platform}/{architecture}/test-uri')
 
@@ -100,7 +100,7 @@ describe JavaBuildpack::Repository::RepositoryIndex do
     allow_any_instance_of(described_class).to receive(:`).with('which lsb_release 2> /dev/null').and_return('/usr/bin/lsb_release')
     allow_any_instance_of(described_class).to receive(:`).with('lsb_release -cs').and_return('precise')
     allow(application_cache).to receive(:get).with('precise/x86_64/test-uri/index.yml')
-                                .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
+                                  .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
 
     described_class.new('{platform}/{architecture}/test-uri')
 
@@ -113,7 +113,7 @@ describe JavaBuildpack::Repository::RepositoryIndex do
     allow_any_instance_of(described_class).to receive(:`).with('which lsb_release 2> /dev/null').and_return('')
 
     expect { described_class.new('{platform}/{architecture}/test-uri') }
-    .to raise_error('Unable to determine platform')
+      .to raise_error('Unable to determine platform')
   end
 
 end

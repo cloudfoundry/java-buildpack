@@ -69,7 +69,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should download if cached file does not exist' do
     stub_request(:get, uri)
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     allow(Net::HTTP).to receive(:Proxy).and_call_original
     expect(Net::HTTP).not_to receive(:Proxy).with('proxy', 9000, nil, nil)
@@ -80,7 +80,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should download with credentials if cached file does not exist' do
     stub_request(:get, uri_credentials)
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     allow(Net::HTTP).to receive(:Proxy).and_call_original
     expect(Net::HTTP).not_to receive(:Proxy).with('proxy', 9000, nil, nil)
@@ -91,9 +91,9 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should follow redirects' do
     stub_request(:get, uri)
-    .to_return(status: 301, headers: { Location: uri_secure })
+      .to_return(status: 301, headers: { Location: uri_secure })
     stub_request(:get, uri_secure)
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
     expect_complete_cache mutable_cache_root
@@ -101,8 +101,8 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should retry failed downloads' do
     stub_request(:get, uri)
-    .to_raise(SocketError)
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+      .to_raise(SocketError)
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
     expect_complete_cache mutable_cache_root
@@ -110,7 +110,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should return cached data if unknown error occurs' do
     stub_request(:get, uri)
-    .to_raise('DNS Error')
+      .to_raise('DNS Error')
 
     touch immutable_cache_root, 'cached', 'foo-cached'
 
@@ -119,7 +119,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should return cached data if retry limit is reached' do
     stub_request(:get, uri)
-    .to_return(status: 500)
+      .to_return(status: 500)
 
     touch immutable_cache_root, 'cached', 'foo-cached'
 
@@ -128,8 +128,8 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should not overwrite existing information if 304 is received' do
     stub_request(:get, uri)
-    .with(headers: { 'If-None-Match' => 'foo-etag', 'If-Modified-Since' => 'foo-last-modified' })
-    .to_return(status: 304, body: '', headers: {})
+      .with(headers: { 'If-None-Match' => 'foo-etag', 'If-Modified-Since' => 'foo-last-modified' })
+      .to_return(status: 304, body: '', headers: {})
 
     touch mutable_cache_root, 'cached', 'foo-cached'
     touch mutable_cache_root, 'etag', 'foo-etag'
@@ -141,8 +141,8 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should overwrite existing information if 304 is not received' do
     stub_request(:get, uri)
-    .with(headers: { 'If-None-Match' => 'old-foo-etag', 'If-Modified-Since' => 'old-foo-last-modified' })
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+      .with(headers: { 'If-None-Match' => 'old-foo-etag', 'If-Modified-Since' => 'old-foo-last-modified' })
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     touch mutable_cache_root, 'cached', 'old-foo-cached'
     touch mutable_cache_root, 'etag', 'old-foo-etag'
@@ -161,9 +161,9 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should discard content with incorrect size' do
     stub_request(:get, uri)
-    .to_return(status: 200, body: 'foo-cac', headers: { Etag:            'foo-etag',
-                                                        'Last-Modified'  => 'foo-last-modified',
-                                                        'Content-Length' => 10 })
+      .to_return(status: 200, body: 'foo-cac', headers: { Etag:            'foo-etag',
+                                                          'Last-Modified'  => 'foo-last-modified',
+                                                          'Content-Length' => 10 })
 
     touch immutable_cache_root, 'cached', 'old-foo-cached'
 
@@ -176,7 +176,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     it 'should use http_proxy if specified' do
       stub_request(:get, uri)
-      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
       allow(Net::HTTP).to receive(:Proxy).and_call_original
       expect(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
@@ -192,7 +192,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     it 'should use HTTP_PROXY if specified' do
       stub_request(:get, uri)
-      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
       allow(Net::HTTP).to receive(:Proxy).and_call_original
       expect(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
@@ -208,7 +208,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     it 'should use https_proxy if specified and URL is secure' do
       stub_request(:get, uri_secure)
-      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
       allow(Net::HTTP).to receive(:Proxy).and_call_original
       expect(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
@@ -224,7 +224,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     it 'should use HTTPS_PROXY if specified and URL is secure' do
       stub_request(:get, uri_secure)
-      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
       allow(Net::HTTP).to receive(:Proxy).and_call_original
       expect(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
@@ -236,7 +236,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should not use ca_file if the URL is not secure and directory does not exist' do
     stub_request(:get, uri)
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     allow(Net::HTTP).to receive(:Proxy).and_call_original
     expect(Net::HTTP).to receive(:start).with('foo-uri', 80, {}).and_call_original
@@ -246,7 +246,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should not use ca_file if the URL is not secure and directory does exist' do
     stub_request(:get, uri)
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     allow(ca_certs_directory).to receive(:exist?).and_return(true)
     allow(Net::HTTP).to receive(:Proxy).and_call_original
@@ -257,7 +257,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should not use ca_file if the URL is secure and directory does not exist' do
     stub_request(:get, uri_secure)
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     allow(Net::HTTP).to receive(:Proxy).and_call_original
     expect(Net::HTTP).to receive(:start).with('foo-uri', 443, use_ssl: true).and_call_original
@@ -267,7 +267,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   it 'should use ca_file if the URL is secure and directory does exist' do
     stub_request(:get, uri_secure)
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     allow(ca_certs_directory).to receive(:exist?).and_return(true)
     allow(Net::HTTP).to receive(:Proxy).and_call_original

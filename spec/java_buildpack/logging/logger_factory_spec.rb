@@ -184,7 +184,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
     before do
       allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('logging', false)
-                                                        .and_return('default_log_level' => 'DEBUG')
+                                                          .and_return('default_log_level' => 'DEBUG')
       described_class.instance.setup app_dir
     end
 
@@ -237,22 +237,29 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
     it 'should raise an error if get_logger called and not yet initialized' do
       expect { described_class.instance.get_logger String }
-      .to raise_error 'Attempted to get Logger for String before initialization'
+        .to raise_error 'Attempted to get Logger for String before initialization'
     end
 
     it 'should raise an error if log_file called and not yet initialized' do
       expect { described_class.instance.log_file }
-      .to raise_error 'Attempted to get log file before initialization'
+        .to raise_error 'Attempted to get log file before initialization'
     end
   end
 
   def trigger
+    trigger_block
+    trigger_param
+  end
+
+  def trigger_block
     logger.debug { 'block-debug-message' }
     logger.info { 'block-info-message' }
     logger.warn { 'block-warn-message' }
     logger.error { 'block-error-message' }
     logger.fatal { 'block-fatal-message' }
+  end
 
+  def trigger_param
     logger.debug 'param-debug-message'
     logger.info 'param-info-message'
     logger.warn 'param-warn-message'

@@ -36,19 +36,7 @@ module JavaBuildpack
           fail "Invalid memory size '#{size}'" unless integer? v
           v = size.to_i
 
-          # Store the number of bytes.
-          case unit
-          when 'b', 'B'
-            @bytes = v
-          when 'k', 'K'
-            @bytes = v * KILO
-          when 'm', 'M'
-            @bytes = KILO * KILO * v
-          when 'g', 'G'
-            @bytes = KILO * KILO * KILO * v
-          else
-            fail "Invalid unit '#{unit}' in memory size '#{size}'"
-          end
+          store_bytes unit, v, size
         end
       end
 
@@ -137,6 +125,22 @@ module JavaBuildpack
       KILO = 1024.freeze
 
       private_constant :KILO
+
+      def store_bytes(unit, v, size)
+        # Store the number of bytes.
+        case unit
+        when 'b', 'B'
+          @bytes = v
+        when 'k', 'K'
+          @bytes = v * KILO
+        when 'm', 'M'
+          @bytes = KILO * KILO * v
+        when 'g', 'G'
+          @bytes = KILO * KILO * KILO * v
+        else
+          fail "Invalid unit '#{unit}' in memory size '#{size}'"
+        end
+      end
 
       def memory_size_operation(other)
         fail "Invalid parameter: instance of #{other.class} is not a MemorySize" unless other.is_a? MemorySize

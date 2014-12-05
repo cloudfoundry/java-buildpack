@@ -42,7 +42,7 @@ describe JavaBuildpack::Util::Play::Post22 do
       play_app.compile
 
       expect((app_dir + 'bin/play-application').read)
-      .to match 'declare -r app_classpath="\$app_home/../.additional_libs/test-jar-1.jar:\$app_home/../.additional_libs/test-jar-2.jar:'
+        .to match 'declare -r app_classpath="\$app_home/../.additional_libs/test-jar-1.jar:\$app_home/../.additional_libs/test-jar-2.jar:'
     end
 
     it 'should return command' do

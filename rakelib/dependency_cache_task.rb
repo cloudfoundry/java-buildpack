@@ -131,11 +131,11 @@ module Package
 
     def index_configuration(configuration)
       [configuration['repository_root']]
-      .map { |r| { uri: r } }
-      .map { |r| augment_repository_root r }
-      .map { |r| augment_platform r }
-      .map { |r| augment_architecture r }
-      .map { |r| augment_path r }.flatten
+        .map { |r| { uri: r } }
+        .map { |r| augment_repository_root r }
+        .map { |r| augment_platform r }
+        .map { |r| augment_architecture r }
+        .map { |r| augment_path r }.flatten
     end
 
     def repository_configuration?(configuration)
@@ -149,16 +149,20 @@ module Package
         index_configuration(configuration).each do |index_configuration|
           multitask PACKAGE_NAME => [cache_task(index_configuration[:uri])]
 
-          @cache.get(index_configuration[:uri]) do |f|
-            index         = YAML.load f
-            found_version = version(configuration, index)
-            rake_output_message "Unable to resolve version '#{configuration['version']}' for platform '#{index_configuration[:platform]}'" if found_version.nil?
-            uris << index[found_version.to_s] unless found_version.nil?
-          end
+          get_from_cache(configuration, index_configuration, uris)
         end
       end
 
       uris
+    end
+
+    def get_from_cache(configuration, index_configuration, uris)
+      @cache.get(index_configuration[:uri]) do |f|
+        index         = YAML.load f
+        found_version = version(configuration, index)
+        rake_output_message "Unable to resolve version '#{configuration['version']}' for platform '#{index_configuration[:platform]}'" if found_version.nil?
+        uris << index[found_version.to_s] unless found_version.nil?
+      end
     end
 
     def version(configuration, index)

@@ -6,13 +6,19 @@ AllCops:
   Exclude:
     - build/**/*
     - vendor/**/*
+AbcSize:
+  Max: 18
 ClassLength:
   Max: 200
 CyclomaticComplexity:
   Max: 10
 Documentation:
   Enabled: false
-EmptyLinesAroundBody:
+EmptyLinesAroundModuleBody:
+  Enabled: false
+EmptyLinesAroundClassBody:
+  Enabled: false
+MultilineOperationIndentation:
   Enabled: false
 LineLength:
   Enabled: false

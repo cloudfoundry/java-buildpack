@@ -35,7 +35,7 @@ describe JavaBuildpack::Container::DistZipLike do
     component.compile
 
     expect((app_dir + 'bin/application').read)
-    .to match 'CLASSPATH=\$APP_HOME/.additional_libs/test-jar-1.jar:\$APP_HOME/.additional_libs/test-jar-2.jar:'
+      .to match 'CLASSPATH=\$APP_HOME/.additional_libs/test-jar-1.jar:\$APP_HOME/.additional_libs/test-jar-2.jar:'
   end
 
   it 'should correctly extend the app_classpath',
@@ -44,7 +44,7 @@ describe JavaBuildpack::Container::DistZipLike do
     component.compile
 
     expect((app_dir + 'application-root/bin/application').read)
-    .to match 'declare -r app_classpath="\$app_home/../../.additional_libs/test-jar-1.jar:\$app_home/../../.additional_libs/test-jar-2.jar:'
+      .to match 'declare -r app_classpath="\$app_home/../../.additional_libs/test-jar-1.jar:\$app_home/../../.additional_libs/test-jar-2.jar:'
   end
 
   it 'should return command',

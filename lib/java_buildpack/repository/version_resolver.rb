@@ -41,8 +41,8 @@ module JavaBuildpack
           tokenized_versions          = versions.map { |version| JavaBuildpack::Util::TokenizedVersion.new(version, false) }
 
           version = tokenized_versions
-          .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
-          .max { |a, b| a <=> b }
+                      .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
+                      .max { |a, b| a <=> b }
 
           version
         end

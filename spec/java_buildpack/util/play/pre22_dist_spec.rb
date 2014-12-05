@@ -120,7 +120,7 @@ describe JavaBuildpack::Util::Play::Pre22Dist do
       play_app.compile
 
       expect((app_dir + 'application-root/start').read)
-      .to match 'classpath="\$scriptdir/../.additional_libs/test-jar-1.jar:\$scriptdir/../.additional_libs/test-jar-2.jar:'
+        .to match 'classpath="\$scriptdir/../.additional_libs/test-jar-1.jar:\$scriptdir/../.additional_libs/test-jar-2.jar:'
     end
 
     it 'should return command' do

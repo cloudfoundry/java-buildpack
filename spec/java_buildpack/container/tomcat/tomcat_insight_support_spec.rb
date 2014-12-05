@@ -51,7 +51,7 @@ describe JavaBuildpack::Container::TomcatInsightSupport do
       expect(insight_test_lib).to exist
       expect(insight_test_lib).to be_symlink
       expect(insight_test_lib.readlink).to eq((container_libs_dir + 'insight-weaver-1.2.4-CI-SNAPSHOT.jar')
-                                              .relative_path_from(lib_dir))
+                                                .relative_path_from(lib_dir))
     end
   end
 

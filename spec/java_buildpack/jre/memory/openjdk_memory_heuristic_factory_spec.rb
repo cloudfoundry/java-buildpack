@@ -50,16 +50,16 @@ describe JavaBuildpack::Jre::OpenJDKMemoryHeuristicFactory do
 
   it 'should pass the appropriate constructor parameters for versions prior to 1.8' do
     allow(JavaBuildpack::Jre::WeightBalancingMemoryHeuristic).to receive(:new)
-                                                                 .with(sizes, heuristics, %w(heap stack native permgen),
-                                                                       be_a_hash_like(expected_java_memory_options))
+                                                                   .with(sizes, heuristics, %w(heap stack native permgen),
+                                                                         be_a_hash_like(expected_java_memory_options))
 
     described_class.create_memory_heuristic(sizes, heuristics, pre_8)
   end
 
   it 'should pass the appropriate constructor parameters for versions 1.8 and higher' do
     allow(JavaBuildpack::Jre::WeightBalancingMemoryHeuristic).to receive(:new)
-                                                                 .with(sizes, heuristics, %w(heap stack native metaspace),
-                                                                       be_a_hash_like(expected_java_memory_options))
+                                                                   .with(sizes, heuristics, %w(heap stack native metaspace),
+                                                                         be_a_hash_like(expected_java_memory_options))
 
     described_class.create_memory_heuristic(sizes, heuristics, post_8)
   end

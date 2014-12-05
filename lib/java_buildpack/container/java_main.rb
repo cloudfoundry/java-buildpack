@@ -41,14 +41,7 @@ module JavaBuildpack
         @droplet.additional_libraries.insert 0, @application.root
         manifest_class_path.each { |path| @droplet.additional_libraries << path }
 
-        [
-          port,
-          "#{@droplet.java_home.root}/bin/java",
-          @droplet.additional_libraries.as_classpath,
-          @droplet.java_opts.join(' '),
-          main_class,
-          arguments
-        ].flatten.compact.join(' ')
+        release_text
       end
 
       private
@@ -58,6 +51,17 @@ module JavaBuildpack
       CLASS_PATH_PROPERTY = 'Class-Path'.freeze
 
       private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
+
+      def release_text
+        [
+          port,
+          "#{@droplet.java_home.root}/bin/java",
+          @droplet.additional_libraries.as_classpath,
+          @droplet.java_opts.join(' '),
+          main_class,
+          arguments
+        ].flatten.compact.join(' ')
+      end
 
       def arguments
         @configuration[ARGUMENTS_PROPERTY]

@@ -44,11 +44,11 @@ describe JavaBuildpack::Buildpack do
   before do
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).and_call_original
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('components')
-                                                      .and_return(
-                                                        'containers' => ['Test::StubContainer1', 'Test::StubContainer2'],
-                                                        'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
-                                                        'jres'       => ['Test::StubJre1', 'Test::StubJre2']
-                                                      )
+                                                        .and_return(
+                                                          'containers' => ['Test::StubContainer1', 'Test::StubContainer2'],
+                                                          'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
+                                                          'jres'       => ['Test::StubJre1', 'Test::StubJre2']
+                                                        )
 
     allow(Test::StubContainer1).to receive(:new).and_return(stub_container1)
     allow(Test::StubContainer2).to receive(:new).and_return(stub_container2)
@@ -65,7 +65,7 @@ describe JavaBuildpack::Buildpack do
     allow(stub_container2).to receive(:detect).and_return('stub-container-2')
 
     expect { buildpack.detect }
-    .to raise_error(/Application can be run by more than one container: Double, Double/)
+      .to raise_error(/Application can be run by more than one container: Double, Double/)
   end
 
   it 'should raise an error if more than one JRE can run an application' do
@@ -84,11 +84,11 @@ describe JavaBuildpack::Buildpack do
 
     before do
       allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('components')
-                                                        .and_return(
-                                                          'containers' => [],
-                                                          'frameworks' => ['JavaBuildpack::Framework::JavaOpts'],
-                                                          'jres'       => []
-                                                        )
+                                                          .and_return(
+                                                            'containers' => [],
+                                                            'frameworks' => ['JavaBuildpack::Framework::JavaOpts'],
+                                                            'jres'       => []
+                                                          )
     end
 
     it 'should require files needed for components' do
@@ -125,7 +125,7 @@ describe JavaBuildpack::Buildpack do
     expect(stub_jre2).not_to receive(:release)
 
     expect(buildpack.release)
-    .to eq({ 'addons' => [], 'config_vars' => {}, 'default_process_types' => { 'web' => 'test-command' } }.to_yaml)
+      .to eq({ 'addons' => [], 'config_vars' => {}, 'default_process_types' => { 'web' => 'test-command' } }.to_yaml)
   end
 
   it 'should load configuration file matching JRE class name' do

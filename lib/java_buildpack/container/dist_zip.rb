@@ -32,7 +32,7 @@ module JavaBuildpack
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
         super(context)
-        @ratpack_utils = JavaBuildpack::Util::RatpackUtils.new
+        @ratpack_utils     = JavaBuildpack::Util::RatpackUtils.new
         @spring_boot_utils = JavaBuildpack::Util::SpringBootUtils.new
       end
 
@@ -49,8 +49,8 @@ module JavaBuildpack
           start_script(root).exist? &&
           jars? &&
           !@ratpack_utils.is?(@application) &&
-          !@spring_boot_utils.is?(@application) &&
-          !JavaBuildpack::Util::Play::Factory.create(@droplet)
+            !@spring_boot_utils.is?(@application) &&
+              !JavaBuildpack::Util::Play::Factory.create(@droplet)
       end
 
       private

@@ -68,15 +68,15 @@ describe JavaBuildpack::Container::Tomcat do
 
   it 'should create submodules' do
     expect(JavaBuildpack::Container::TomcatInstance)
-    .to receive(:new).with(sub_configuration_context(tomcat_configuration))
+      .to receive(:new).with(sub_configuration_context(tomcat_configuration))
     expect(JavaBuildpack::Container::TomcatLifecycleSupport)
-    .to receive(:new).with(sub_configuration_context(lifecycle_support_configuration))
+      .to receive(:new).with(sub_configuration_context(lifecycle_support_configuration))
     expect(JavaBuildpack::Container::TomcatLoggingSupport)
-    .to receive(:new).with(sub_configuration_context(logging_support_configuration))
+      .to receive(:new).with(sub_configuration_context(logging_support_configuration))
     expect(JavaBuildpack::Container::TomcatAccessLoggingSupport)
-    .to receive(:new).with(sub_configuration_context(access_logging_support_configuration))
+      .to receive(:new).with(sub_configuration_context(access_logging_support_configuration))
     expect(JavaBuildpack::Container::TomcatRedisStore)
-    .to receive(:new).with(sub_configuration_context(redis_store_configuration))
+      .to receive(:new).with(sub_configuration_context(redis_store_configuration))
     expect(JavaBuildpack::Container::TomcatInsightSupport).to receive(:new).with(context)
 
     component.sub_components context
