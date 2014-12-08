@@ -22,55 +22,55 @@ require 'java_buildpack/jre/memory/memory_size'
 describe JavaBuildpack::Jre::MemoryLimit do
   include_context 'memory_limit_helper'
 
-  it 'should accept memory with an uppercase G',
+  it 'accepts memory with an uppercase G',
      memory_limit: '1G' do
 
     expect(described_class.memory_limit).to eq(JavaBuildpack::Jre::MemorySize.new('1048576K'))
   end
 
-  it 'should accept memory with an lowercase G',
+  it 'accepts memory with an lowercase G',
      memory_limit: '1g' do
 
     expect(described_class.memory_limit).to eq(JavaBuildpack::Jre::MemorySize.new('1048576K'))
   end
 
-  it 'should accept memory with an uppercase M',
+  it 'accepts memory with an uppercase M',
      memory_limit: '1M' do
 
     expect(described_class.memory_limit).to eq(JavaBuildpack::Jre::MemorySize.new('1024K'))
   end
 
-  it 'should accept memory with an lowercase M',
+  it 'accepts memory with an lowercase M',
      memory_limit: '1m' do
 
     expect(described_class.memory_limit).to eq(JavaBuildpack::Jre::MemorySize.new('1024K'))
   end
 
-  it 'should return nil if a memory limit is not specified',
+  it 'returns nil if a memory limit is not specified',
      memory_limit: nil do
 
     expect(described_class.memory_limit).to be_nil
   end
 
-  it 'should fail if a memory limit does not have a unit',
+  it 'fails if a memory limit does not have a unit',
      memory_limit: '-1' do
 
     expect { described_class.memory_limit }.to raise_error(/Invalid/)
   end
 
-  it 'should fail if a memory limit is not an number',
+  it 'fails if a memory limit is not an number',
      memory_limit: 'xm' do
 
     expect { described_class.memory_limit }.to raise_error(/Invalid/)
   end
 
-  it 'should fail if a memory limit is not an integer',
+  it 'fails if a memory limit is not an integer',
      memory_limit: '-1.1m' do
 
     expect { described_class.memory_limit }.to raise_error(/Invalid/)
   end
 
-  it 'should fail if a memory limit is negative',
+  it 'fails if a memory limit is negative',
      memory_limit: '-1m' do
 
     expect { described_class.memory_limit }.to raise_error(/Invalid/)

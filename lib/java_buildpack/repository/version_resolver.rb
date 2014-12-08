@@ -32,17 +32,19 @@ module JavaBuildpack
         #   * the final component may be a +
         # The resolution returns the maximum of the versions that match the candidate version
         #
-        # @param [TokenizedVersion] candidate_version the version, possibly containing a wildcard, to resolve.  If +nil+,
-        #                                        substituted with +.
+        # @param [TokenizedVersion] candidate_version the version, possibly containing a wildcard, to resolve.  If
+        #                                             +nil+, substituted with +.
         # @param [Array<String>] versions the collection of versions to resolve against
         # @return [TokenizedVersion] the resolved version or nil if no matching version is found
         def resolve(candidate_version, versions)
           tokenized_candidate_version = safe_candidate_version candidate_version
-          tokenized_versions          = versions.map { |version| JavaBuildpack::Util::TokenizedVersion.new(version, false) }
+          tokenized_versions          = versions.map do |version|
+            JavaBuildpack::Util::TokenizedVersion.new(version, false)
+          end
 
           version = tokenized_versions
-          .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
-          .max { |a, b| a <=> b }
+                      .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
+                      .max { |a, b| a <=> b }
 
           version
         end
@@ -57,7 +59,10 @@ module JavaBuildpack
           if candidate_version.nil?
             TOKENIZED_WILDCARD
           else
-            fail "Invalid TokenizedVersion '#{candidate_version}'" unless candidate_version.is_a?(JavaBuildpack::Util::TokenizedVersion)
+            unless candidate_version.is_a?(JavaBuildpack::Util::TokenizedVersion)
+              fail "Invalid TokenizedVersion '#{candidate_version}'"
+            end
+
             candidate_version
           end
         end

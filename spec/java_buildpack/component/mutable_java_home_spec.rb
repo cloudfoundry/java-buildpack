@@ -26,12 +26,12 @@ describe JavaBuildpack::Component::MutableJavaHome do
 
   let(:mutable_java_home) { described_class.new }
 
-  it 'should save root' do
+  it 'saves root' do
     mutable_java_home.root = path
     expect(mutable_java_home.root).to eq(path)
   end
 
-  it 'should save version' do
+  it 'saves version' do
     mutable_java_home.version = java_version
     expect(mutable_java_home.version).to eq(java_version)
   end

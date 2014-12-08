@@ -43,12 +43,12 @@ describe JavaBuildpack::Buildpack do
 
   before do
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).and_call_original
-    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('components')
-                                                      .and_return(
-                                                        'containers' => ['Test::StubContainer1', 'Test::StubContainer2'],
-                                                        'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
-                                                        'jres'       => ['Test::StubJre1', 'Test::StubJre2']
-                                                      )
+    allow(JavaBuildpack::Util::ConfigurationUtils)
+      .to receive(:load).with('components').and_return(
+            'containers' => ['Test::StubContainer1', 'Test::StubContainer2'],
+            'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
+            'jres'       => ['Test::StubJre1', 'Test::StubJre2']
+          )
 
     allow(Test::StubContainer1).to receive(:new).and_return(stub_container1)
     allow(Test::StubContainer2).to receive(:new).and_return(stub_container2)
@@ -60,15 +60,15 @@ describe JavaBuildpack::Buildpack do
     allow(Test::StubJre2).to receive(:new).and_return(stub_jre2)
   end
 
-  it 'should raise an error if more than one container can run an application' do
+  it 'raises an error if more than one container can run an application' do
     allow(stub_container1).to receive(:detect).and_return('stub-container-1')
     allow(stub_container2).to receive(:detect).and_return('stub-container-2')
 
     expect { buildpack.detect }
-    .to raise_error(/Application can be run by more than one container: Double, Double/)
+      .to raise_error(/Application can be run by more than one container: Double, Double/)
   end
 
-  it 'should raise an error if more than one JRE can run an application' do
+  it 'raises an error if more than one JRE can run an application' do
     allow(stub_container1).to receive(:detect).and_return('stub-container-1')
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
     allow(stub_jre2).to receive(:detect).and_return('stub-jre-2')
@@ -76,27 +76,28 @@ describe JavaBuildpack::Buildpack do
     expect { buildpack.detect }.to raise_error(/Application can be run by more than one JRE: Double, Double/)
   end
 
-  it 'should return no detections if no container can run an application' do
+  it 'returns no detections if no container can run an application' do
     expect(buildpack.detect).to be_empty
   end
 
   context do
 
     before do
-      allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('components')
-                                                        .and_return(
-                                                          'containers' => [],
-                                                          'frameworks' => ['JavaBuildpack::Framework::JavaOpts'],
-                                                          'jres'       => []
-                                                        )
+      allow(JavaBuildpack::Util::ConfigurationUtils)
+        .to receive(:load).with('components')
+              .and_return(
+                'containers' => [],
+                'frameworks' => ['JavaBuildpack::Framework::JavaOpts'],
+                'jres'       => []
+              )
     end
 
-    it 'should require files needed for components' do
+    it 'requires files needed for components' do
       buildpack
     end
   end
 
-  it 'should call compile on matched components' do
+  it 'calls compile on matched components' do
     allow(stub_container1).to receive(:detect).and_return('stub-container-1')
     allow(stub_framework1).to receive(:detect).and_return('stub-framework-1')
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
@@ -111,7 +112,7 @@ describe JavaBuildpack::Buildpack do
     buildpack.compile
   end
 
-  it 'should call release on matched components' do
+  it 'calls release on matched components' do
     allow(stub_container1).to receive(:detect).and_return('stub-container-1')
     allow(stub_framework1).to receive(:detect).and_return('stub-framework-1')
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
@@ -125,10 +126,10 @@ describe JavaBuildpack::Buildpack do
     expect(stub_jre2).not_to receive(:release)
 
     expect(buildpack.release)
-    .to eq({ 'addons' => [], 'config_vars' => {}, 'default_process_types' => { 'web' => 'test-command' } }.to_yaml)
+      .to eq({ 'addons' => [], 'config_vars' => {}, 'default_process_types' => { 'web' => 'test-command' } }.to_yaml)
   end
 
-  it 'should load configuration file matching JRE class name' do
+  it 'loads configuration file matching JRE class name' do
     expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_jre1')
     expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_jre2')
     expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_framework1')
@@ -139,7 +140,7 @@ describe JavaBuildpack::Buildpack do
     buildpack.detect
   end
 
-  it 'handles exceptions correctly' do
+  it 'handles exceptions' do
     expect { with_buildpack { |_buildpack| fail 'an exception' } }.to raise_error SystemExit
     expect(stderr.string).to match(/an exception/)
   end

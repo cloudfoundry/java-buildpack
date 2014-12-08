@@ -55,9 +55,9 @@ module JavaBuildpack
         self
       end
 
-      # Adds an option to the +JAVA_OPTS+.  Nothing is prepended to the key.  If the value is a +Pathname+, then prepends
-      # +$PWD+ to the path (relative to the droplet root) to ensure that the path is always accurate.  Otherwise, uses
-      # the value as-is.
+      # Adds an option to the +JAVA_OPTS+.  Nothing is prepended to the key.  If the value is a +Pathname+, then
+      # prepends +$PWD+ to the path (relative to the droplet root) to ensure that the path is always accurate.
+      # Otherwise, uses the value as-is.
       #
       # @param [String] key             the key of the option
       # @param [Pathname, String] value the value of the system property

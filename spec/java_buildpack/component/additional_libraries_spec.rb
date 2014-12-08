@@ -27,7 +27,7 @@ describe JavaBuildpack::Component::AdditionalLibraries do
       additional_libraries.clear
     end
 
-    it 'should contain an added path' do
+    it 'contains an added path' do
       path = droplet.sandbox + 'jar-1.jar'
 
       additional_libraries << path
@@ -35,21 +35,21 @@ describe JavaBuildpack::Component::AdditionalLibraries do
       expect(additional_libraries).to include(path)
     end
 
-    it 'should render as classpath' do
+    it 'renders as classpath' do
       additional_libraries << droplet.sandbox + 'jar-2.jar'
       additional_libraries << droplet.sandbox + 'jar-1.jar'
 
-      expect(additional_libraries.as_classpath)
-      .to eq('-cp $PWD/.java-buildpack/additional_libraries/jar-1.jar:$PWD/.java-buildpack/additional_libraries/jar-2.jar')
+      expect(additional_libraries.as_classpath).to eq('-cp $PWD/.java-buildpack/additional_libraries/jar-1.jar:' \
+                                                      '$PWD/.java-buildpack/additional_libraries/jar-2.jar')
     end
   end
 
-  it 'should render empty string if classpath is empty' do
+  it 'renders empty string if classpath is empty' do
     additional_libraries.clear
     expect(additional_libraries.as_classpath).not_to be
   end
 
-  it 'should symbolically link additional libraries' do
+  it 'symbolically links additional libraries' do
     additional_libraries.link_to app_dir
 
     test_jar_1 = app_dir + 'test-jar-1.jar'

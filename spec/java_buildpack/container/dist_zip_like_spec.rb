@@ -21,33 +21,34 @@ require 'java_buildpack/container/dist_zip_like'
 describe JavaBuildpack::Container::DistZipLike do
   include_context 'component_helper'
 
-  it 'should raise error if id method is unimplemented' do
+  it 'raises error if id method is unimplemented' do
     expect { component.send(:id) }.to raise_error "Method 'id' must be defined"
   end
 
-  it 'should raise error if supports? method is unimplemented' do
+  it 'raises error if supports? method is unimplemented' do
     expect { component.send(:supports?) }.to raise_error "Method 'supports?' must be defined"
   end
 
-  it 'should correctly extend the CLASSPATH',
+  it 'extends the CLASSPATH',
      app_fixture: 'container_dist_zip' do
 
     component.compile
 
     expect((app_dir + 'bin/application').read)
-    .to match 'CLASSPATH=\$APP_HOME/.additional_libs/test-jar-1.jar:\$APP_HOME/.additional_libs/test-jar-2.jar:'
+      .to match 'CLASSPATH=\$APP_HOME/.additional_libs/test-jar-1.jar:\$APP_HOME/.additional_libs/test-jar-2.jar:'
   end
 
-  it 'should correctly extend the app_classpath',
+  it 'extends the app_classpath',
      app_fixture: 'container_dist_zip_app_classpath' do
 
     component.compile
 
     expect((app_dir + 'application-root/bin/application').read)
-    .to match 'declare -r app_classpath="\$app_home/../../.additional_libs/test-jar-1.jar:\$app_home/../../.additional_libs/test-jar-2.jar:'
+      .to match 'declare -r app_classpath="\$app_home/../../.additional_libs/test-jar-1.jar:' \
+      '\$app_home/../../.additional_libs/test-jar-2.jar:'
   end
 
-  it 'should return command',
+  it 'returns command',
      app_fixture: 'container_dist_zip' do
 
     expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=\"test-opt-2 test-opt-1\" $PWD/bin/application")

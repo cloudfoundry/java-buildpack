@@ -21,49 +21,49 @@ require 'java_buildpack/container/groovy'
 describe JavaBuildpack::Container::Groovy do
   include_context 'component_helper'
 
-  it 'should not detect a non-Groovy project',
+  it 'does not detect a non-Groovy project',
      app_fixture: 'container_main' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should not detect a .groovy directory',
+  it 'does not detect a .groovy directory',
      app_fixture: 'container_groovy_dot_groovy' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should detect a Groovy file with a main() method',
+  it 'detects a Groovy file with a main() method',
      app_fixture: 'container_groovy_main_method' do
 
     expect(component.detect).to eq("groovy=#{version}")
   end
 
-  it 'should detect a Groovy file with non-POGO',
+  it 'detects a Groovy file with non-POGO',
      app_fixture: 'container_groovy_non_pogo' do
 
     expect(component.detect).to eq("groovy=#{version}")
   end
 
-  it 'should not detect a Groovy file with non-POGO and at least one .class file',
+  it 'does not detect a Groovy file with non-POGO and at least one .class file',
      app_fixture: 'container_groovy_non_pogo_with_class_file' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should not detect a Groovy file from Ratpack',
+  it 'does not detect a Groovy file from Ratpack',
      app_fixture: 'container_groovy_ratpack' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should detect a Groovy file with #!',
+  it 'detects a Groovy file with #!',
      app_fixture: 'container_groovy_shebang' do
 
     expect(component.detect).to eq("groovy=#{version}")
   end
 
-  it 'should detect a Groovy file which has a shebang but which also contains a class',
+  it 'detects a Groovy file which has a shebang but which also contains a class',
      app_fixture: 'container_groovy_shebang_containing_class' do
 
     expect(component.detect).to eq("groovy=#{version}")
@@ -72,14 +72,14 @@ describe JavaBuildpack::Container::Groovy do
   context do
     let(:version) { '2.1.5_10' }
 
-    it 'should fail when a malformed version is detected',
+    it 'fails when a malformed version is detected',
        app_fixture: 'container_groovy_main_method' do
 
       expect { component.detect }.to raise_error(/Malformed version/)
     end
   end
 
-  it 'should extract Groovy from a ZIP',
+  it 'extracts Groovy from a ZIP',
      app_fixture:   'container_groovy_main_method',
      cache_fixture: 'stub-groovy.zip' do
 
@@ -88,22 +88,22 @@ describe JavaBuildpack::Container::Groovy do
     expect(sandbox + 'bin/groovy').to exist
   end
 
-  it 'should return command',
+  it 'returns command',
      app_fixture: 'container_groovy_main_method' do
 
-    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} $PWD/.java-buildpack/groovy/bin/groovy " \
-                                      '-cp $PWD/.additional_libs/test-jar-1.jar:' \
-                                      '$PWD/.additional_libs/test-jar-2.jar Application.groovy Alpha.groovy ' \
-                                      'directory/Beta.groovy invalid.groovy')
+    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} " \
+                                    '$PWD/.java-buildpack/groovy/bin/groovy -cp $PWD/.additional_libs/test-jar-1.jar:' \
+                                    '$PWD/.additional_libs/test-jar-2.jar Application.groovy Alpha.groovy ' \
+                                    'directory/Beta.groovy invalid.groovy')
   end
 
-  it 'should return command with included JARs',
+  it 'returns command with included JARs',
      app_fixture: 'container_groovy_with_jars' do
 
-    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} $PWD/.java-buildpack/groovy/bin/groovy " \
-                                      '-cp $PWD/.additional_libs/test-jar-1.jar:' \
-                                      '$PWD/.additional_libs/test-jar-2.jar:$PWD/Alpha.jar:$PWD/directory/Beta.jar ' \
-                                      'Application.groovy invalid.groovy')
+    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} " \
+                                    '$PWD/.java-buildpack/groovy/bin/groovy -cp $PWD/.additional_libs/test-jar-1.jar:' \
+                                    '$PWD/.additional_libs/test-jar-2.jar:$PWD/Alpha.jar:$PWD/directory/Beta.jar ' \
+                                    'Application.groovy invalid.groovy')
   end
 
   def java_opts_str

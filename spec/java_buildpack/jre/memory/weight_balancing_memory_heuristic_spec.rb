@@ -30,51 +30,51 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     java_opts   = { 'heap'  => ->(v) { "-Xmx#{v}" }, 'permgen' => ->(v) { "-XX:MaxPermSize=#{v}" },
                     'stack' => ->(v) { "-Xss#{v}" } }
 
-    JavaBuildpack::Jre::WeightBalancingMemoryHeuristic.new(sizes, weightings, valid_types, java_opts)
+    described_class.new(sizes, weightings, valid_types, java_opts)
   end
 
-  it 'should fail if a memory limit is negative',
+  it 'fails if a memory limit is negative',
      memory_limit: '-1m' do
 
     expect { heuristic.resolve }.to raise_error(/Invalid/)
   end
 
-  it 'should fail if the heap weighting is less than 0',
+  it 'fails if the heap weighting is less than 0',
      with_memory_limit: '1m',
      weightings:        { 'heap' => -1 } do
 
     expect { heuristic.resolve }.to raise_error(/Invalid/)
   end
 
-  it 'should fail if the permgen weighting is less than 0',
+  it 'fails if the permgen weighting is less than 0',
      memory_limit: '1m',
      weightings:   { 'permgen' => -1 } do
 
     expect { heuristic.resolve }.to raise_error(/Invalid/)
   end
 
-  it 'should fail if the stack weighting is less than 0',
+  it 'fails if the stack weighting is less than 0',
      memory_limit: '1m',
      weightings:   { 'stack' => -1 } do
 
     expect { heuristic.resolve }.to raise_error(/Invalid/)
   end
 
-  it 'should fail if the native weighting is less than 0',
+  it 'fails if the native weighting is less than 0',
      memory_limit: '1m',
      weightings:   { 'native' => -1 } do
 
     expect { heuristic.resolve }.to raise_error(/Invalid/)
   end
 
-  it 'should fail if a configured weighting is invalid',
+  it 'fails if a configured weighting is invalid',
      memory_limit: '1m',
      weightings:   { 'native' => 'x' } do
 
     expect { heuristic.resolve }.to raise_error(/Invalid/)
   end
 
-  it 'should default maximum heap size and permgen size according to the configured weightings',
+  it 'defaults maximum heap size and permgen size according to the configured weightings',
      memory_limit: '1024m' do
 
     output = heuristic.resolve
@@ -83,7 +83,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=314572K')
   end
 
-  it 'should default the stack size even with a small memory limit',
+  it 'defaults the stack size even with a small memory limit',
      memory_limit: '10m' do
 
     output = heuristic.resolve
@@ -91,7 +91,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xss1M')
   end
 
-  it 'should default permgen size according to the configured weightings when maximum heap size is specified',
+  it 'defaults permgen size according to the configured weightings when maximum heap size is specified',
      memory_limit: '4096m',
      sizes:        { 'stack' => '1m', 'heap' => "#{(4096 * 3 / 4).to_i}m" } do
 
@@ -101,7 +101,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=471859K')
   end
 
-  it 'should default maximum heap size according to the configured weightings when maximum permgen size is specified',
+  it 'defaults maximum heap size according to the configured weightings when maximum permgen size is specified',
      memory_limit: '4096m',
      sizes:        { 'stack' => '1m', 'permgen' => '2g' } do
 
@@ -111,7 +111,8 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xmx1398101K')
   end
 
-  it 'should default maximum heap size and permgen size according to the configured weightings when thread stack size is specified',
+  it 'defaults maximum heap size and permgen size according to the configured weightings when thread stack size is ' \
+     'specified',
      memory_limit: '4096m',
      sizes:        { 'stack' => '2m' } do
 
@@ -121,7 +122,8 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=1258291K')
   end
 
-  it 'should default maximum heap size and permgen size according to the configured weightings when thread stack size is specified as a range',
+  it 'defaults maximum heap size and permgen size according to the configured weightings when thread stack size is ' \
+     'specified as a range',
      memory_limit: '4096m',
      sizes:        { 'stack' => '2m..3m' } do
 
@@ -132,7 +134,8 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xss2M')
   end
 
-  it 'should default maximum heap size and permgen size according to the configured weightings when thread stack size is specified as a range which impinges on heap and permgen',
+  it 'defaults maximum heap size and permgen size according to the configured weightings when thread stack size is ' \
+     'specified as a range which impinges on heap and permgen',
      memory_limit: '4096m',
      sizes:        { 'stack' => '1g..2g' } do
 
@@ -143,7 +146,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xss1G')
   end
 
-  it 'should default stack size to the top of its range when heap size and permgen size allow for excess memory',
+  it 'defaults stack size to the top of its range when heap size and permgen size allow for excess memory',
      memory_limit: '4096m',
      sizes:        { 'heap' => '50m', 'permgen' => '50m', 'stack' => '400m..500m' } do
 
@@ -154,7 +157,8 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xss500M')
   end
 
-  it 'should default stack size strictly within its range when heap size and permgen size allow for just enough excess memory',
+  it 'defaults stack size strictly within its range when heap size and permgen size allow for just enough excess ' \
+     'memory',
      memory_limit: '4096m',
      sizes:        { 'heap' => '3000m', 'permgen' => '196m', 'stack' => '400m..500m' } do
 
@@ -163,7 +167,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xss450000K')
   end
 
-  it 'should not apply any defaults when maximum heap size, maximum permgen size, and thread stack size are specified',
+  it 'does not apply any defaults when maximum heap size, maximum permgen size, and thread stack size are specified',
      memory_limit: '4096m',
      sizes:        { 'heap' => '1m', 'permgen' => '1m', 'stack' => '2m' } do
 
@@ -174,7 +178,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xss2M')
   end
 
-  it 'should work correctly with a single memory type',
+  it 'works with a single memory type',
      memory_limit: '4096m',
      weightings:   { 'heap' => 5 } do
 
@@ -183,7 +187,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xmx4G')
   end
 
-  it 'should work correctly with no memory types',
+  it 'works with no memory types',
      memory_limit: '4096m',
      weightings:   {} do
 
@@ -192,7 +196,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to eq([])
   end
 
-  it 'should issue a warning when the specified maximum memory sizes imply the total memory size may be too large',
+  it 'issues a warning when the specified maximum memory sizes imply the total memory size may be too large',
      memory_limit: '4096m',
      sizes:        { 'heap' => '800m', 'permgen' => '800m' } do
 
@@ -203,7 +207,8 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(log_contents).to match(/There is more than .* times more spare native memory than the default/)
   end
 
-  it 'should issue a warning when the specified maximum memory sizes, including native, imply the total memory size may be too large',
+  it 'issues a warning when the specified maximum memory sizes, including native, imply the total memory size may be ' \
+     'too large',
      memory_limit: '4096m',
      sizes:        { 'heap' => '1m', 'permgen' => '1m', 'stack' => '2m', 'native' => '2000m' } do
 
@@ -215,7 +220,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(log_contents).to match(/allocated Java memory sizes total .* which is less than/)
   end
 
-  it 'should allow native memory to be fixed',
+  it 'allows native memory to be fixed',
      memory_limit: '4096m',
      sizes:        { 'permgen' => '1m', 'stack' => '2m', 'native' => '10m' } do
 
@@ -226,7 +231,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xss2M')
   end
 
-  it 'should allow native memory to be specified as a range with an upper bound',
+  it 'allows native memory to be specified as a range with an upper bound',
      memory_limit: '4096m',
      sizes:        { 'permgen' => '1m', 'stack' => '2m', 'native' => '10m..20m' } do
 
@@ -237,7 +242,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xss2M')
   end
 
-  it 'should issue a warning when the specified maximum heap size is close to the default',
+  it 'issues a warning when the specified maximum heap size is close to the default',
      memory_limit: '4096m',
      sizes:        { 'heap' => '2049m' } do
 
@@ -246,7 +251,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(log_contents).to match(/WARN.*is close to the default/)
   end
 
-  it 'should issue a warning when the specified maximum permgen size is close to the default',
+  it 'issues a warning when the specified maximum permgen size is close to the default',
      memory_limit: '4096m',
      sizes:        { 'permgen' => '1339m' } do
 
@@ -255,7 +260,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(log_contents).to match(/WARN.*is close to the default/)
   end
 
-  it 'should not issue a warning when the specified maximum permgen size is not close to the default',
+  it 'does not issue a warning when the specified maximum permgen size is not close to the default',
      memory_limit: '1G',
      sizes:        { 'permgen' => '128M' } do
 
@@ -264,14 +269,14 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(log_contents).not_to match(/WARN.*is close to the default/)
   end
 
-  it 'should fail when the specified maximum memory is larger than the total memory size',
+  it 'fails when the specified maximum memory is larger than the total memory size',
      memory_limit: '4096m',
      sizes:        { 'heap' => '5g' } do
 
     expect { heuristic.resolve }.to raise_error(/exceeded/)
   end
 
-  it 'should default nothing when the total memory size is not available',
+  it 'defaults nothing when the total memory size is not available',
      with_memory_limit: nil do
 
     output = heuristic.resolve
@@ -279,7 +284,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to eq([])
   end
 
-  it 'should use the calculated default when this falls within a specified range',
+  it 'uses the calculated default when this falls within a specified range',
      memory_limit: '4096m',
      sizes:        { 'permgen' => '1g..1250m' } do
 
@@ -288,7 +293,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=1258291K')
   end
 
-  it 'should use the upper bound of a range when the calculated default exceeds the upper bound of the range',
+  it 'uses the upper bound of a range when the calculated default exceeds the upper bound of the range',
      memory_limit: '5120m',
      sizes:        { 'permgen' => '1g..1250m' } do
 
@@ -297,7 +302,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=1250M')
   end
 
-  it 'should use the lower bound of a range when the calculated default is smaller than the lower bound of the range',
+  it 'uses the lower bound of a range when the calculated default is smaller than the lower bound of the range',
      memory_limit: '2048m',
      sizes:        { 'permgen' => '1g..1250m' } do
 
@@ -306,7 +311,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=1G')
   end
 
-  it 'should use the calculated default when this exceeds the lower bound of a specified open range',
+  it 'uses the calculated default when this exceeds the lower bound of a specified open range',
      memory_limit: '4096m',
      sizes:        { 'permgen' => '1g..' } do
 
@@ -315,7 +320,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=1258291K')
   end
 
-  it 'should use the lower bound of an open range when the calculated default is smaller than the lower bound of the range',
+  it 'uses the lower bound of an open range when the calculated default is smaller than the lower bound of the range',
      memory_limit: '2048m',
      sizes:        { 'permgen' => '1g..' } do
 
@@ -324,7 +329,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=1G')
   end
 
-  it 'should use the calculated default when this falls below the upper bound of an open range',
+  it 'uses the calculated default when this falls below the upper bound of an open range',
      memory_limit: '4096m',
      sizes:        { 'permgen' => '..1250m' } do
 
@@ -333,7 +338,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=1258291K')
   end
 
-  it 'should use the upper bound of an open range when the calculated default exceeds the upper bound of the range',
+  it 'uses the upper bound of an open range when the calculated default exceeds the upper bound of the range',
      memory_limit: '5120m',
      sizes:        { 'permgen' => '..1250m' } do
 
@@ -342,7 +347,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=1250M')
   end
 
-  it 'should an open range with no lower or upper bound',
+  it 'allows open range with no lower or upper bound',
      memory_limit: '4096m',
      sizes:        { 'permgen' => '..' } do
 
@@ -351,7 +356,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=1258291K')
   end
 
-  it 'should allow a zero lower bound to be specified without units',
+  it 'allows a zero lower bound to be specified without units',
      memory_limit: '5120m',
      sizes:        { 'permgen' => '0..1250m' } do
 
@@ -360,14 +365,14 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=1250M')
   end
 
-  it 'should fail if a range is empty',
+  it 'fails if a range is empty',
      memory_limit: '4096m',
      sizes:        { 'permgen' => '2m..1m' } do
 
     expect { heuristic.resolve }.to raise_error(/Invalid range/)
   end
 
-  it 'should default maximum heap size and permgen size according to the configured weightings and range lower bounds',
+  it 'defaults maximum heap size and permgen size according to the configured weightings and range lower bounds',
      memory_limit: '1024m',
      sizes:        { 'stack' => '1m', 'permgen' => '400m..500m' } do
 
@@ -377,7 +382,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=400M')
   end
 
-  it 'should default maximum heap size and permgen size according to the configured weightings and range upper bounds',
+  it 'defaults maximum heap size and permgen size according to the configured weightings and range upper bounds',
      memory_limit: '1024m',
      sizes:        { 'stack' => '1m', 'permgen' => '100m..285m' } do
 
@@ -387,7 +392,8 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-XX:MaxPermSize=285M')
   end
 
-  it 'should not apply any defaults when maximum heap size, maximum permgen size, and thread stack size are specified as tight ranges',
+  it 'does not apply any defaults when maximum heap size, maximum permgen size, and thread stack size are specified ' \
+     'as tight ranges',
      memory_limit: '4096m',
      sizes:        { 'heap' => '1m..1024k', 'permgen' => '1024k..1m', 'stack' => '2m..2m' } do
 
@@ -398,7 +404,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xss2M')
   end
 
-  it 'should allow native memory to be specified with no upper bound',
+  it 'allows native memory to be specified with no upper bound',
      memory_limit: '5120m',
      sizes:        { 'stack' => '1m..1m', 'native' => '4000m..' } do
 
@@ -409,7 +415,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xss1M')
   end
 
-  it 'should respect lower bounds when there is no memory limit',
+  it 'respects lower bounds when there is no memory limit',
      memory_limit: nil,
      sizes:        { 'heap' => '30m..', 'permgen' => '10m', 'stack' => '1m..1m', 'native' => '10m..' } do
 
@@ -420,7 +426,7 @@ describe JavaBuildpack::Jre::WeightBalancingMemoryHeuristic do
     expect(output).to include('-Xss1M')
   end
 
-  it 'should work correctly with other weightings',
+  it 'works with other weightings',
      memory_limit: '256m',
      weightings:   { 'heap' => 75, 'permgen' => 10, 'stack' => 5, 'native' => 10 } do
 

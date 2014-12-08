@@ -39,7 +39,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
-        @version, @uri = JavaBuildpack::Repository::ConfiguredItem.find_item(@component_name, @configuration)
+        @version, @uri             = JavaBuildpack::Repository::ConfiguredItem.find_item(@component_name,
+                                                                                         @configuration)
         @droplet.java_home.version = @version
         super
       end
@@ -53,9 +54,9 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.java_opts
-        .add_system_property('java.io.tmpdir', '$TMPDIR')
-        .add_option('-XX:OnOutOfMemoryError', killjava)
-        .concat memory
+          .add_system_property('java.io.tmpdir', '$TMPDIR')
+          .add_option('-XX:OnOutOfMemoryError', killjava)
+          .concat memory
       end
 
       private

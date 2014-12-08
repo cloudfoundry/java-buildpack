@@ -28,8 +28,8 @@ module JavaBuildpack
 
       class << self
 
-        # Returns the Java main class name for the Java main configuration and given application directory or +nil+ if this
-        # is not a Java main application.
+        # Returns the Java main class name for the Java main configuration and given application directory or +nil+ if
+        # this is not a Java main application.
         #
         # @param [JavaBuildpack::Component::Application] application the application
         # @param [Hash] configuration the Java main configuration or +nil+ if this is not provided

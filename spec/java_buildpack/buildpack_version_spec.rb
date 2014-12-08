@@ -31,7 +31,7 @@ describe JavaBuildpack::BuildpackVersion do
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('version', true).and_return(configuration)
   end
 
-  it 'should create offline version string from config/version.yml',
+  it 'creates offline version string from config/version.yml',
      log_level:     'DEBUG',
      configuration: { 'hash'   => 'test-hash', 'offline' => true,
                       'remote' => 'test-remote', 'version' => 'test-version' } do
@@ -41,7 +41,7 @@ describe JavaBuildpack::BuildpackVersion do
     expect(stderr.string).to match(/test-version (offline) | test-remote#test-hash/)
   end
 
-  it 'should create online version string from config/version.yml',
+  it 'creates online version string from config/version.yml',
      log_level:     'DEBUG',
      configuration: { 'hash'   => 'test-hash', 'offline' => false,
                       'remote' => 'test-remote', 'version' => 'test-version' } do
@@ -51,27 +51,27 @@ describe JavaBuildpack::BuildpackVersion do
     expect(stderr.string).to match(/test-version | test-remote#test-hash/)
   end
 
-  it 'should create version string from git repository if no config/version.yml exists',
+  it 'creates version string from git repository if no config/version.yml exists',
      log_level: 'DEBUG' do
 
     git_dir = Pathname.new('.git').expand_path
 
     allow_any_instance_of(described_class).to receive(:system)
-                                              .with('which git > /dev/null')
-                                              .and_return(true)
+                                                .with('which git > /dev/null')
+                                                .and_return(true)
     allow_any_instance_of(described_class).to receive(:`)
-                                              .with("git --git-dir=#{git_dir} rev-parse --short HEAD")
-                                              .and_return('test-hash')
+                                                .with("git --git-dir=#{git_dir} rev-parse --short HEAD")
+                                                .and_return('test-hash')
     allow_any_instance_of(described_class).to receive(:`)
-                                              .with("git --git-dir=#{git_dir} config --get remote.origin.url")
-                                              .and_return('test-remote')
+                                                .with("git --git-dir=#{git_dir} config --get remote.origin.url")
+                                                .and_return('test-remote')
 
     expect(buildpack_version.to_s).to match(/test-remote#test-hash/)
     expect(buildpack_version.to_s(false)).to match(/test-remote#test-hash/)
     expect(stderr.string).to match(/test-remote#test-hash/)
   end
 
-  it 'should create unknown version string if no config/version.yml exists and it is not in a git repository',
+  it 'creates unknown version string if no config/version.yml exists and it is not in a git repository',
      log_level: 'DEBUG' do
 
     allow_any_instance_of(described_class).to receive(:system).with('which git > /dev/null').and_return(false)
@@ -81,7 +81,7 @@ describe JavaBuildpack::BuildpackVersion do
     expect(stderr.string).to match(/unknown/)
   end
 
-  it 'should create a has from the values',
+  it 'creates a has from the values',
      configuration: { 'hash'   => 'test-hash', 'offline' => true,
                       'remote' => 'test-remote', 'version' => 'test-version' } do |example|
 
@@ -90,7 +90,7 @@ describe JavaBuildpack::BuildpackVersion do
     expect(buildpack_version.to_hash).to eq(example.metadata[:configuration])
   end
 
-  it 'should exclude non-populated values from the hash' do
+  it 'excludes non-populated values from the hash' do
     allow_any_instance_of(described_class).to receive(:system).with('which git > /dev/null').and_return(false)
 
     expect(buildpack_version.to_hash).to eq({})
@@ -100,7 +100,7 @@ describe JavaBuildpack::BuildpackVersion do
 
     let(:environment) { { 'OFFLINE' => 'true' } }
 
-    it 'should pick up offline from the environment' do
+    it 'picks up offline from the environment' do
       allow_any_instance_of(described_class).to receive(:system).with('which git > /dev/null').and_return(false)
 
       expect(buildpack_version.offline).to be
@@ -112,7 +112,7 @@ describe JavaBuildpack::BuildpackVersion do
 
     let(:environment) { { 'VERSION' => 'test-version' } }
 
-    it 'should pick up version from the environment' do
+    it 'picks up version from the environment' do
       allow_any_instance_of(described_class).to receive(:system).with('which git > /dev/null').and_return(false)
 
       expect(buildpack_version.version).to match(/test-version/)

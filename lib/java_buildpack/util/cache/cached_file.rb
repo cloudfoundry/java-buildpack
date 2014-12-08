@@ -37,7 +37,7 @@ module JavaBuildpack
           @cached        = cache_root + "#{key}.cached"
           @etag          = cache_root + "#{key}.etag"
           @last_modified = cache_root + "#{key}.last_modified"
-          @mutable = mutable
+          @mutable       = mutable
 
           FileUtils.mkdir_p cache_root if mutable
         end

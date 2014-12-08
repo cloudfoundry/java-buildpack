@@ -67,11 +67,13 @@ module JavaBuildpack
       private
 
       def relative_groovy_files
-        JavaBuildpack::Util::GroovyUtils.groovy_files(@application).map { |gf| gf.relative_path_from(@application.root) }
+        JavaBuildpack::Util::GroovyUtils.groovy_files(@application).map do |gf|
+          gf.relative_path_from(@application.root)
+        end
       end
 
       def no_main_method(groovy_files)
-        none?(groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file } # note that this will scan comments
+        none?(groovy_files) { |file| JavaBuildpack::Util::GroovyUtils.main_method? file }
       end
 
       def no_shebang(groovy_files)

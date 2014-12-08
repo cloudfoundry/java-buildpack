@@ -22,9 +22,9 @@ require 'java_buildpack/util/java_main_utils'
 module JavaBuildpack
   module Container
 
-    # Encapsulates the detect, compile, and release functionality for applications running a simple Java +main()+ method.
-    # This isn't a _container_ in the traditional sense, but contains the functionality to manage the lifecycle of Java
-    # +main()+ applications.
+    # Encapsulates the detect, compile, and release functionality for applications running a simple Java +main()+
+    # method. This isn't a _container_ in the traditional sense, but contains the functionality to manage the lifecycle
+    # of Java +main()+ applications.
     class JavaMain < JavaBuildpack::Component::BaseComponent
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
@@ -41,14 +41,7 @@ module JavaBuildpack
         @droplet.additional_libraries.insert 0, @application.root
         manifest_class_path.each { |path| @droplet.additional_libraries << path }
 
-        [
-          port,
-          "#{@droplet.java_home.root}/bin/java",
-          @droplet.additional_libraries.as_classpath,
-          @droplet.java_opts.join(' '),
-          main_class,
-          arguments
-        ].flatten.compact.join(' ')
+        release_text
       end
 
       private
@@ -58,6 +51,17 @@ module JavaBuildpack
       CLASS_PATH_PROPERTY = 'Class-Path'.freeze
 
       private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
+
+      def release_text
+        [
+          port,
+          "#{@droplet.java_home.root}/bin/java",
+          @droplet.additional_libraries.as_classpath,
+          @droplet.java_opts.join(' '),
+          main_class,
+          arguments
+        ].flatten.compact.join(' ')
+      end
 
       def arguments
         @configuration[ARGUMENTS_PROPERTY]

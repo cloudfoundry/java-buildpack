@@ -211,7 +211,7 @@ module JavaBuildpack
 
         # Beware known problems with timeouts: https://www.ruby-forum.com/topic/143840
         def http_options(rich_uri)
-          http_options                   = {}
+          http_options = {}
 
           if secure?(rich_uri)
             http_options[:use_ssl] = true
@@ -265,20 +265,24 @@ module JavaBuildpack
             @logger.debug { "HTTP: #{http.address}, #{http.port}, #{http_options(uri)}" }
             debug_ssl(http) if secure?(uri)
 
-            request = request uri, cached_file
-            request.basic_auth uri.user, uri.password if uri.user && uri.password
+            attempt_update(cached_file, http, uri)
+          end
+        end
 
-            failures = 0
-            begin
-              attempt http, request, cached_file
-            rescue InferredNetworkFailure, *HTTP_ERRORS => e
-              if (failures += 1) > FAILURE_LIMIT
-                InternetAvailability.instance.available false, "Request failed: #{e.message}"
-                raise e
-              else
-                @logger.warn { "Request failure #{failures}, retrying: #{e.message}" }
-                retry
-              end
+        def attempt_update(cached_file, http, uri)
+          request = request uri, cached_file
+          request.basic_auth uri.user, uri.password if uri.user && uri.password
+
+          failures = 0
+          begin
+            attempt http, request, cached_file
+          rescue InferredNetworkFailure, *HTTP_ERRORS => e
+            if (failures += 1) > FAILURE_LIMIT
+              InternetAvailability.instance.available false, "Request failed: #{e.message}"
+              raise e
+            else
+              @logger.warn { "Request failure #{failures}, retrying: #{e.message}" }
+              retry
             end
           end
         end

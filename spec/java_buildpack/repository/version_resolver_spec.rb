@@ -52,11 +52,11 @@ describe JavaBuildpack::Repository::VersionResolver do
     expect(described_class.resolve(tokenized_version('1.8.0_M-7'), versions)).to eq(tokenized_version('1.8.0_M-7'))
   end
 
-  it 'should raise an exception if no version can be resolved' do
+  it 'raises an exception if no version can be resolved' do
     expect(described_class.resolve(tokenized_version('2.1.0'), versions)).to be_nil
   end
 
-  it 'should raise an exception when a wildcard is specified in the [] collection' do
+  it 'raises an exception when a wildcard is specified in the [] collection' do
     expect { described_class.resolve(tokenized_version('1.6.0_25'), %w(+)) }.to raise_error(/Invalid/)
   end
 

@@ -29,7 +29,7 @@ describe JavaBuildpack::Container::TomcatRedisStore do
       'connection_pool_size' => 'test-connection-pool-size' }
   end
 
-  it 'should not detect without a session-replication service' do
+  it 'does not detect without a session-replication service' do
     expect(component.detect).to be_nil
   end
 
@@ -37,17 +37,17 @@ describe JavaBuildpack::Container::TomcatRedisStore do
 
     before do
       allow(services).to receive(:one_service?).with(/session-replication/, %w(hostname host), 'port', 'password')
-                         .and_return(true)
+                           .and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => { 'hostname' => 'test-host',
                                                                               'port'     => 'test-port',
                                                                               'password' => 'test-password' })
     end
 
-    it 'should detect with a session-replication service' do
+    it 'detect with a session-replication service' do
       expect(component.detect).to eq("tomcat-redis-store=#{version}")
     end
 
-    it 'should copy resources',
+    it 'copies resources',
        app_fixture:   'container_tomcat_redis_store',
        cache_fixture: 'stub-redis-store.jar' do
 
@@ -56,14 +56,14 @@ describe JavaBuildpack::Container::TomcatRedisStore do
       expect(sandbox + "lib/redis_store-#{version}.jar").to exist
     end
 
-    it 'should mutate context.xml',
+    it 'mutates context.xml',
        app_fixture:   'container_tomcat_redis_store',
        cache_fixture: 'stub-redis-store.jar' do
 
       component.compile
 
       expect((sandbox + 'conf/context.xml').read)
-      .to eq(Pathname.new('spec/fixtures/container_tomcat_redis_store_context_after.xml').read)
+        .to eq(Pathname.new('spec/fixtures/container_tomcat_redis_store_context_after.xml').read)
     end
 
   end
@@ -72,19 +72,19 @@ describe JavaBuildpack::Container::TomcatRedisStore do
 
     before do
       allow(services).to receive(:one_service?).with(/session-replication/, %w(hostname host), 'port', 'password')
-                         .and_return(true)
-      allow(services).to receive(:find_service).and_return('credentials' => { 'host' => 'test-host',
+                           .and_return(true)
+      allow(services).to receive(:find_service).and_return('credentials' => { 'host'     => 'test-host',
                                                                               'port'     => 'test-port',
                                                                               'password' => 'test-password' })
     end
 
-    it 'should detect with a session-replication service' do
+    it 'detects with a session-replication service' do
       expect(component.detect).to eq("tomcat-redis-store=#{version}")
     end
 
   end
 
-  it 'should do nothing during release' do
+  it 'does nothing during release' do
     component.release
   end
 

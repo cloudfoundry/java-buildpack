@@ -108,8 +108,13 @@ module JavaBuildpack
       immutable_java_home  = Component::ImmutableJavaHome.new mutable_java_home, app_dir
       java_opts            = Component::JavaOpts.new app_dir
 
-      components = JavaBuildpack::Util::ConfigurationUtils.load 'components'
+      instantiate_components(additional_libraries, app_dir, application, immutable_java_home, java_opts,
+                             mutable_java_home)
+    end
 
+    def instantiate_components(additional_libraries, app_dir, application, immutable_java_home, java_opts,
+                               mutable_java_home)
+      components  = JavaBuildpack::Util::ConfigurationUtils.load 'components'
       @jres       = instantiate(components['jres'], additional_libraries, application, mutable_java_home, java_opts,
                                 app_dir)
       @frameworks = instantiate(components['frameworks'], additional_libraries, application, immutable_java_home,
@@ -214,7 +219,5 @@ module JavaBuildpack
       end
 
     end
-
   end
-
 end

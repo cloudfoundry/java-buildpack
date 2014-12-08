@@ -24,25 +24,28 @@ describe JavaBuildpack::Framework::SpringInsight do
   include_context 'component_helper'
   include_context 'internet_availability_helper'
 
-  it 'should not detect without spring-insight-n/a service' do
+  it 'does not detect without spring-insight-n/a service' do
     expect(component.detect).to be_nil
   end
 
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/insight/, 'dashboard_url', 'agent_username', 'agent_password').and_return(true)
+      allow(services).to receive(:one_service?).with(/insight/, 'dashboard_url', 'agent_username', 'agent_password')
+                           .and_return(true)
       allow(services).to receive(:find_service).and_return('label'       => 'insight-1.0',
-                                                           'credentials' => { 'dashboard_url' => 'test-uri', 'agent_password' => 'foo', 'agent_username' => 'bar' })
+                                                           'credentials' => { 'dashboard_url'  => 'test-uri',
+                                                                              'agent_password' => 'foo',
+                                                                              'agent_username' => 'bar' })
       allow(application_cache).to receive(:get).with('test-uri/services/config/agent-download')
-                                  .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open, false)
+                                    .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open, false)
     end
 
-    it 'should detect with spring-insight-n/a service' do
+    it 'detects with spring-insight-n/a service' do
       expect(component.detect).to eq('spring-insight=1.0')
     end
 
-    it 'should extract Spring Insight from the Uber Agent zip file inside the Agent Installer jar' do
+    it 'extracts Spring Insight from the Uber Agent zip file inside the Agent Installer jar' do
       component.compile
 
       container_libs_dir = app_dir + '.spring-insight/container-libs'
@@ -53,19 +56,20 @@ describe JavaBuildpack::Framework::SpringInsight do
       expect(sandbox + 'insight/conf/insight.properties').to exist
     end
 
-    it 'should guarantee that internet access is available when downloading' do
+    it 'guarantees that internet access is available when downloading' do
       expect_any_instance_of(JavaBuildpack::Util::Cache::InternetAvailability)
-      .to receive(:available).with(true, 'The Spring Insight download location is always accessible')
+        .to receive(:available).with(true, 'The Spring Insight download location is always accessible')
 
       component.compile
     end
 
-    it 'should update JAVA_OPTS',
+    it 'updates JAVA_OPTS',
        app_fixture: 'framework_spring_insight' do
 
       component.release
 
-      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/spring_insight/weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar')
+      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/spring_insight/weaver/' \
+                                   'insight-weaver-1.2.4-CI-SNAPSHOT.jar')
       expect(java_opts).to include('-Dinsight.base=$PWD/.java-buildpack/spring_insight/insight')
       expect(java_opts).to include('-Dinsight.logs=$PWD/.java-buildpack/spring_insight/insight/logs')
       expect(java_opts).to include('-Daspectj.overweaving=true')

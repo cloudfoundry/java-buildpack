@@ -7,6 +7,7 @@
       <w>atpack</w>
       <w>codeclimate</w>
       <w>constantized</w>
+      <w>constantizes</w>
       <w>creat</w>
       <w>dhttp</w>
       <w>dirname</w>
@@ -20,20 +21,30 @@
       <w>findex</w>
       <w>formatters</w>
       <w>fsync</w>
+      <w>getwd</w>
       <w>heroku</w>
       <w>httpok</w>
+      <w>javaagent</w>
       <w>jdk's</w>
       <w>jres</w>
       <w>jsome</w>
+      <w>jtest</w>
       <w>killjava</w>
       <w>ljust</w>
       <w>mainclass</w>
+      <w>metaspace</w>
       <w>mkdir</w>
       <w>mktmpdir</w>
       <w>modularly</w>
       <w>mountainlion</w>
+      <w>mutators</w>
+      <w>myhost</w>
+      <w>mypass</w>
+      <w>myuser</w>
       <w>newrelicagent</w>
       <w>overweaving</w>
+      <w>pathnames</w>
+      <w>permgen</w>
       <w>pkill</w>
       <w>progname</w>
       <w>proto</w>
@@ -42,17 +53,22 @@
       <w>rdonly</w>
       <w>readlink</w>
       <w>redhat</w>
+      <w>rexml</w>
       <w>rspec</w>
       <w>rstrip</w>
+      <w>rubo</w>
       <w>rubocop</w>
+      <w>scriptdir</w>
       <w>shellwords</w>
       <w>simplecov</w>
       <w>stderr</w>
       <w>strftime</w>
+      <w>stringifies</w>
       <w>stubcontainer</w>
       <w>stubframework</w>
       <w>stubjre</w>
       <w>submodules</w>
+      <w>tasklib</w>
       <w>tmpdir</w>
       <w>tokenized</w>
       <w>uber</w>

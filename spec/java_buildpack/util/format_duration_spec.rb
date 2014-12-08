@@ -17,9 +17,9 @@
 require 'spec_helper'
 require 'java_buildpack/util/format_duration'
 
-describe 'format duration' do
+describe 'duration' do # rubocop:disable RSpec/DescribeClass
 
-  it 'should display seconds' do
+  it 'displays seconds' do
     expect_time_string '0.0s', MILLISECOND
     expect_time_string '0.1s', TENTH
     expect_time_string '1.0s', SECOND
@@ -27,14 +27,14 @@ describe 'format duration' do
     expect_time_string '1.1s', SECOND + TENTH + MILLISECOND
   end
 
-  it 'should display minutes' do
+  it 'displays minutes' do
     expect_time_string '1m 0s', MINUTE
     expect_time_string '1m 1s', MINUTE + SECOND
     expect_time_string '1m 1s', MINUTE + SECOND + TENTH
     expect_time_string '1m 1s', MINUTE + SECOND + TENTH + MILLISECOND
   end
 
-  it 'should display hours' do
+  it 'displays hours' do
     expect_time_string '1h 0m', HOUR
     expect_time_string '1h 1m', HOUR + MINUTE
     expect_time_string '1h 1m', HOUR + MINUTE + SECOND

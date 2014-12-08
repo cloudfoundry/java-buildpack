@@ -36,11 +36,11 @@ module JavaBuildpack
         java_opts   = @droplet.java_opts
 
         java_opts
-        .add_javaagent(@droplet.sandbox + 'javaagent.jar')
-        .add_system_property('appdynamics.agent.applicationName', "'#{application_name}'")
-        .add_system_property('appdynamics.agent.tierName', "'#{tier_name(credentials)}'")
-        .add_system_property('appdynamics.agent.nodeName',
-                             "$(expr \"$VCAP_APPLICATION\" : '.*instance_index[\": ]*\\([[:digit:]]*\\).*')")
+          .add_javaagent(@droplet.sandbox + 'javaagent.jar')
+          .add_system_property('appdynamics.agent.applicationName', "'#{application_name}'")
+          .add_system_property('appdynamics.agent.tierName', "'#{tier_name(credentials)}'")
+          .add_system_property('appdynamics.agent.nodeName',
+                               "$(expr \"$VCAP_APPLICATION\" : '.*instance_index[\": ]*\\([[:digit:]]*\\).*')")
 
         account_access_key(java_opts, credentials)
         account_name(java_opts, credentials)

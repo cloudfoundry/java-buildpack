@@ -21,31 +21,31 @@ require 'java_buildpack/container/dist_zip'
 describe JavaBuildpack::Container::DistZip do
   include_context 'component_helper'
 
-  it 'should detect a distZip application',
+  it 'detects a distZip application',
      app_fixture: 'container_dist_zip' do
 
     expect(component.detect).to eq('dist-zip')
   end
 
-  it 'should not detect a non-distZip application',
+  it 'does not detect a non-distZip application',
      app_fixture: 'container_main' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should not detect a Ratpack application',
+  it 'does not detect a Ratpack application',
      app_fixture: 'container_ratpack_dist' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should not detect a Spring Boot application',
+  it 'does not detect a Spring Boot application',
      app_fixture: 'container_spring_boot_dist' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should not detect a Play application',
+  it 'does not detect a Play application',
      app_fixture: 'container_play_2.2_dist' do
 
     expect(component.detect).to be_nil

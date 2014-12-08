@@ -24,7 +24,7 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
   include_context 'internet_availability_helper'
   include_context 'logging_helper'
 
-  it 'should use internet by default' do
+  it 'uses internet by default' do
     expect(described_class.instance.available?).to be
   end
 
@@ -32,30 +32,30 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
 
     before do
       allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('cache')
-                                                        .and_return('remote_downloads' => 'disabled')
+                                                          .and_return('remote_downloads' => 'disabled')
       described_class.instance.send :initialize
     end
 
-    it 'should not use internet if remote downloads are disabled' do
+    it 'does not use internet if remote downloads are disabled' do
       expect(described_class.instance.available?).not_to be
     end
   end
 
-  it 'should record availability' do
+  it 'records availability' do
     described_class.instance.available false
 
     expect(described_class.instance.available?).not_to be
     expect(log_contents).not_to match(/Internet availability set to false/)
   end
 
-  it 'should record availability with message' do
+  it 'records availability with message' do
     described_class.instance.available false, 'test message'
 
     expect(described_class.instance.available?).not_to be
     expect(log_contents).to match(/Internet availability set to false: test message/)
   end
 
-  it 'should temporarily set internet unavailable' do
+  it 'temporarily sets internet unavailable' do
     expect(described_class.instance.available?).to be
 
     described_class.instance.available(false) { expect(described_class.instance.available?).not_to be }
@@ -63,7 +63,7 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
     expect(described_class.instance.available?).to be
   end
 
-  it 'should temporarily set internet available',
+  it 'temporarily sets internet available',
      :disable_internet do
 
     expect(described_class.instance.available?).not_to be

@@ -36,24 +36,12 @@ module JavaBuildpack
           fail "Invalid memory size '#{size}'" unless integer? v
           v = size.to_i
 
-          # Store the number of bytes.
-          case unit
-          when 'b', 'B'
-            @bytes = v
-          when 'k', 'K'
-            @bytes = v * KILO
-          when 'm', 'M'
-            @bytes = KILO * KILO * v
-          when 'g', 'G'
-            @bytes = KILO * KILO * KILO * v
-          else
-            fail "Invalid unit '#{unit}' in memory size '#{size}'"
-          end
+          store_bytes unit, v, size
         end
       end
 
-      # Returns a memory size as a string including a unit. If the memory size is not a whole number, it is rounded down.
-      # The returned unit is always kilobytes, megabytes, or gigabytes which are commonly used units.
+      # Returns a memory size as a string including a unit. If the memory size is not a whole number, it is rounded
+      # down. The returned unit is always kilobytes, megabytes, or gigabytes which are commonly used units.
       #
       # @return [String] the memory size as a string, e.g. "10K"
       def to_s
@@ -137,6 +125,22 @@ module JavaBuildpack
       KILO = 1024.freeze
 
       private_constant :KILO
+
+      def store_bytes(unit, v, size)
+        # Store the number of bytes.
+        case unit
+        when 'b', 'B'
+          @bytes = v
+        when 'k', 'K'
+          @bytes = v * KILO
+        when 'm', 'M'
+          @bytes = KILO * KILO * v
+        when 'g', 'G'
+          @bytes = KILO * KILO * KILO * v
+        else
+          fail "Invalid unit '#{unit}' in memory size '#{size}'"
+        end
+      end
 
       def memory_size_operation(other)
         fail "Invalid parameter: instance of #{other.class} is not a MemorySize" unless other.is_a? MemorySize

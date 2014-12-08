@@ -24,11 +24,11 @@ describe JavaBuildpack::Container::TomcatInsightSupport do
 
   let(:component_id) { 'tomcat' }
 
-  it 'should always return nil from detect' do
+  it 'always returns nil from detect' do
     expect(component.detect).to be_nil
   end
 
-  it 'should do nothing during release' do
+  it 'does nothing during release' do
     component.release
   end
 
@@ -37,11 +37,11 @@ describe JavaBuildpack::Container::TomcatInsightSupport do
 
     before do
       FileUtils.mkdir_p container_libs_dir
-      FileUtils.cp_r 'spec/fixtures/framework_spring_insight/.java-buildpack/spring_insight/weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar',
-                     container_libs_dir
+      FileUtils.cp_r 'spec/fixtures/framework_spring_insight/.java-buildpack/spring_insight/weaver/' \
+                     'insight-weaver-1.2.4-CI-SNAPSHOT.jar', container_libs_dir
     end
 
-    it 'should link container libs to the tomcat lib directory' do
+    it 'links container libs to the tomcat lib directory' do
 
       component.compile
 
@@ -51,7 +51,7 @@ describe JavaBuildpack::Container::TomcatInsightSupport do
       expect(insight_test_lib).to exist
       expect(insight_test_lib).to be_symlink
       expect(insight_test_lib.readlink).to eq((container_libs_dir + 'insight-weaver-1.2.4-CI-SNAPSHOT.jar')
-                                              .relative_path_from(lib_dir))
+                                                .relative_path_from(lib_dir))
     end
   end
 

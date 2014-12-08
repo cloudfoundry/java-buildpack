@@ -139,7 +139,9 @@ module JavaBuildpack
       def validate(allow_wildcards)
         wildcarded = false
         each do |value|
-          fail "Invalid version '#{@version}': wildcards are not allowed this context" if value == WILDCARD && !allow_wildcards
+          if value == WILDCARD && !allow_wildcards
+            fail "Invalid version '#{@version}': wildcards are not allowed this context"
+          end
 
           fail "Invalid version '#{@version}': no characters are allowed after a wildcard" if wildcarded && value
           wildcarded = true if value == WILDCARD

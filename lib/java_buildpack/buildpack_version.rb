@@ -74,7 +74,8 @@ module JavaBuildpack
     # Creates a string representation of the version.  The string representation looks like the following:
     # +[[<VERSION> [(offline)] | ] <REMOTE>#<HASH>] | [unknown]+.  Some examples:
     #
-    # +2.1.2 (offline) | https://github.com/cloudfoundry/java-buildpack.git#12345+ (custom version number, offline buildpack)
+    # +2.1.2 (offline) | https://github.com/cloudfoundry/java-buildpack.git#12345+ (custom version number, offline
+    # buildpack)
     # +abcde | https://github.com/cloudfoundry/java-buildpack.git#abcde+ (default version number, online buildpack)
     # +https://github.com/cloudfoundry/java-buildpack#12345+ (cloned buildpack)
     # +unknown+ (un-packaged, un-cloned)

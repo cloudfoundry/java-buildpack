@@ -31,22 +31,23 @@ describe JavaBuildpack::Util::Cache::ApplicationCache do
     ARGV[1] = nil
 
     stub_request(:get, 'http://foo-uri/').with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-    .to_return(status: 304, body: '', headers: {})
+      .with(headers: { 'Accept'     => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag',
+                       'User-Agent' => 'Ruby' })
+      .to_return(status: 304, body: '', headers: {})
   end
 
   after do
     ARGV[1] = previous_arg_value
   end
 
-  it 'should raise an error if ARGV[1] is not defined' do
+  it 'raises an error if ARGV[1] is not defined' do
     expect { described_class.new }.to raise_error
   end
 
-  it 'should use ARGV[1] directory' do
+  it 'uses ARGV[1] directory' do
     ARGV[1] = app_dir
 
     described_class.new.get('http://foo-uri/') {}

@@ -110,7 +110,8 @@ module JavaBuildpack
       def normalise_stack_bucket(stack_bucket, buckets)
         stack_memory      = weighted_proportion(stack_bucket, buckets)
         num_threads       = [stack_memory / stack_bucket.default_size, 1].max
-        normalised_bucket = MemoryBucket.new('normalised stack', stack_bucket.weighting, stack_bucket.range * num_threads)
+        normalised_bucket = MemoryBucket.new('normalised stack', stack_bucket.weighting,
+                                             stack_bucket.range * num_threads)
         [normalised_bucket, num_threads]
       end
 
@@ -180,7 +181,10 @@ module JavaBuildpack
         native_bucket = buckets['native']
         if native_bucket && native_bucket.range.floor == 0
           if native_bucket.size > weighted_proportion(native_bucket, buckets) * NATIVE_MEMORY_WARNING_FACTOR
-            @logger.warn { "There is more than #{NATIVE_MEMORY_WARNING_FACTOR} times more spare native memory than the default, so configured Java memory may be too small or available memory may be too large" }
+            @logger.warn do
+              "There is more than #{NATIVE_MEMORY_WARNING_FACTOR} times more spare native memory than the default, " \
+              'so configured Java memory may be too small or available memory may be too large'
+            end
           end
         end
 
@@ -188,7 +192,10 @@ module JavaBuildpack
         buckets.each_value { |bucket| total_size += bucket.size }
         return unless @memory_limit * TOTAL_MEMORY_WARNING_FACTOR > total_size
 
-        @logger.warn { "The allocated Java memory sizes total #{total_size} which is less than #{TOTAL_MEMORY_WARNING_FACTOR} of the available memory, so configured Java memory sizes may be too small or available memory may be too large" }
+        @logger.warn do
+          "The allocated Java memory sizes total #{total_size} which is less than #{TOTAL_MEMORY_WARNING_FACTOR} of " \
+          'the available memory, so configured Java memory sizes may be too small or available memory may be too large'
+        end
       end
 
       def nil_safe_range(size)
@@ -220,11 +227,16 @@ module JavaBuildpack
 
         return unless (default_size == 0 && actual_size == 0) || (factor && (factor < CLOSE_TO_DEFAULT_FACTOR))
 
-        @logger.warn { "The computed value #{actual_size} of memory size #{type} is close to the default value #{default_size}. Consider taking the default." }
+        @logger.warn do
+          "The computed value #{actual_size} of memory size #{type} is close to the default value #{default_size}. " \
+          'Consider taking the default.'
+        end
       end
 
       def switches(buckets)
-        buckets.map { |type, bucket| @java_opts[type][bucket.size] if bucket.size && bucket.size > 0 && @java_opts.key?(type) }.flatten(1).compact
+        buckets.map do |type, bucket|
+          @java_opts[type][bucket.size] if bucket.size && bucket.size > 0 && @java_opts.key?(type)
+        end.flatten(1).compact
       end
 
     end

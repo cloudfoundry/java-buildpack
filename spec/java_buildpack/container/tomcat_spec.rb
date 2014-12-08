@@ -48,41 +48,41 @@ describe JavaBuildpack::Container::Tomcat do
 
   let(:redis_store_configuration) { double('redis-store-configuration') }
 
-  it 'should detect WEB-INF',
+  it 'detects WEB-INF',
      app_fixture: 'container_tomcat' do
 
     expect(component.supports?).to be
   end
 
-  it 'should not detect when WEB-INF is absent',
+  it 'does not detect when WEB-INF is absent',
      app_fixture: 'container_main' do
 
     expect(component.supports?).not_to be
   end
 
-  it 'should not detect when WEB-INF is present in a Java main application',
+  it 'does not detect when WEB-INF is present in a Java main application',
      app_fixture: 'container_main_with_web_inf' do
 
     expect(component.supports?).not_to be
   end
 
-  it 'should create submodules' do
+  it 'creates submodules' do
     expect(JavaBuildpack::Container::TomcatInstance)
-    .to receive(:new).with(sub_configuration_context(tomcat_configuration))
+      .to receive(:new).with(sub_configuration_context(tomcat_configuration))
     expect(JavaBuildpack::Container::TomcatLifecycleSupport)
-    .to receive(:new).with(sub_configuration_context(lifecycle_support_configuration))
+      .to receive(:new).with(sub_configuration_context(lifecycle_support_configuration))
     expect(JavaBuildpack::Container::TomcatLoggingSupport)
-    .to receive(:new).with(sub_configuration_context(logging_support_configuration))
+      .to receive(:new).with(sub_configuration_context(logging_support_configuration))
     expect(JavaBuildpack::Container::TomcatAccessLoggingSupport)
-    .to receive(:new).with(sub_configuration_context(access_logging_support_configuration))
+      .to receive(:new).with(sub_configuration_context(access_logging_support_configuration))
     expect(JavaBuildpack::Container::TomcatRedisStore)
-    .to receive(:new).with(sub_configuration_context(redis_store_configuration))
+      .to receive(:new).with(sub_configuration_context(redis_store_configuration))
     expect(JavaBuildpack::Container::TomcatInsightSupport).to receive(:new).with(context)
 
     component.sub_components context
   end
 
-  it 'should return command' do
+  it 'returns command' do
 
     expect(component.command).to eq("#{java_home.as_env_var} JAVA_OPTS=\"test-opt-2 test-opt-1 -Dhttp.port=$PORT\" " \
                                       '$PWD/.java-buildpack/tomcat/bin/catalina.sh run')

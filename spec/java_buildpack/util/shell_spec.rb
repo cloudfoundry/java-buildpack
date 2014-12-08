@@ -19,14 +19,14 @@ require 'console_helper'
 require 'java_buildpack/util/shell'
 
 describe JavaBuildpack::Util::Shell do
-  include JavaBuildpack::Util::Shell
+  include described_class
   include_context 'console_helper'
 
-  it 'should return if command returns a zero exit code' do
+  it 'returns if command returns a zero exit code' do
     shell 'true'
   end
 
-  it 'should raise an error if command returns a non-zero exit code' do
+  it 'raises an error if command returns a non-zero exit code' do
     expect { shell 'false' }.to raise_error
   end
 
