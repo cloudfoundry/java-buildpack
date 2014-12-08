@@ -23,7 +23,7 @@ describe JavaBuildpack::Component::VersionedDependencyComponent do
 
   let(:component) { StubVersionedDependencyComponent.new context }
 
-  it 'should fail if methods are unimplemented' do
+  it 'fails if methods are unimplemented' do
     expect { component.compile }.to raise_error
     expect { component.release }.to raise_error
     expect { component.supports? }.to raise_error
@@ -34,7 +34,7 @@ describe JavaBuildpack::Component::VersionedDependencyComponent do
       allow_any_instance_of(StubVersionedDependencyComponent).to receive(:supports?).and_return(false)
     end
 
-    it 'should return nil from detect if not supported' do
+    it 'returns nil from detect if not supported' do
       expect(component.detect).to be_nil
     end
   end
@@ -45,32 +45,32 @@ describe JavaBuildpack::Component::VersionedDependencyComponent do
       allow_any_instance_of(StubVersionedDependencyComponent).to receive(:supports?).and_return(true)
     end
 
-    it 'should return name and version string from detect if supported' do
+    it 'returns name and version string from detect if supported' do
       expect(component.detect).to eq("stub-versioned-dependency-component=#{version}")
     end
 
-    it 'should download jar file and put it in the sandbox',
+    it 'downloads jar file and put it in the sandbox',
        cache_fixture: 'stub-download.jar' do
 
       component.download_jar
       expect(droplet.sandbox + "versioned_dependency_component-#{version}.jar").to exist
     end
 
-    it 'should download and expand TAR file in the sandbox',
+    it 'downloads and expand TAR file in the sandbox',
        cache_fixture: 'stub-download.tar.gz' do
 
       component.download_tar
       expect(droplet.sandbox + 'test-file').to exist
     end
 
-    it 'should download and expand ZIP file in the sandbox',
+    it 'downloads and expand ZIP file in the sandbox',
        cache_fixture: 'stub-download.zip' do
 
       component.download_zip(false)
       expect(droplet.sandbox + 'test-file').to exist
     end
 
-    it 'should download and expand ZIP file, stripping the top level directory in the sandbox',
+    it 'downloads and expand ZIP file, stripping the top level directory in the sandbox',
        cache_fixture: 'stub-download-with-top-level.zip' do
 
       component.download_zip

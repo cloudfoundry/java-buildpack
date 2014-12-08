@@ -31,11 +31,11 @@ describe JavaBuildpack::Jre::OpenJdkJRE do
     allow(JavaBuildpack::Jre::WeightBalancingMemoryHeuristic).to receive(:new).and_return(memory_heuristic)
   end
 
-  it 'should detect with id of openjdk_jre-<version>' do
+  it 'detects with id of openjdk_jre-<version>' do
     expect(component.detect).to eq("open-jdk-jre=#{version}")
   end
 
-  it 'should extract Java from a GZipped TAR',
+  it 'extracts Java from a GZipped TAR',
      cache_fixture: 'stub-java.tar.gz' do
 
     component.detect
@@ -50,7 +50,7 @@ describe JavaBuildpack::Jre::OpenJdkJRE do
     expect(java_home.root).to eq(sandbox)
   end
 
-  it 'should add memory options to java_opts' do
+  it 'adds memory options to java_opts' do
     component.detect
     component.release
 

@@ -17,13 +17,13 @@
 require 'spec_helper'
 require 'java_buildpack/util/constantize'
 
-describe 'constantize' do
+describe 'constantize' do # rubocop:disable RSpec/DescribeClass
 
-  it 'should constantize string' do
+  it 'constantizes string' do
     expect('Test::StubClass'.constantize).to eq(Test::StubClass)
   end
 
-  it 'should raise error if constant does not exist' do
+  it 'raises error if constant does not exist' do
     expect { 'Test::StubClass2'.constantize }.to raise_error(NameError)
   end
 

@@ -21,7 +21,7 @@ describe JavaBuildpack::Util::Properties do
 
   let(:properties) { described_class.new(Pathname.new('spec/fixtures/test.properties')) }
 
-  it 'should parse properties' do
+  it 'parses properties' do
     expect(properties['alpha']).to eq('bravo')
     expect(properties['charlie']).to eq('delta')
     expect(properties['echo']).to eq('foxtrot')

@@ -30,8 +30,8 @@ module JavaBuildpack
       #
       # @param [Numeric] weighting a number between 0 and 1 corresponding to the proportion of total memory which this
       #                            memory bucket should consume by default
-      # @param [MemoryRange, nil] range a user-specified range for the memory bucket or nil if the user did not specify a
-      #                            range
+      # @param [MemoryRange, nil] range a user-specified range for the memory bucket or nil if the user did not specify
+      #                                 a range
       def initialize(weighting, range)
         super('stack', weighting, range)
       end

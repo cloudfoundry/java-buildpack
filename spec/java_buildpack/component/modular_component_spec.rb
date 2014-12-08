@@ -23,7 +23,7 @@ describe JavaBuildpack::Component::ModularComponent do
 
   let(:component) { StubModularComponent.new context }
 
-  it 'should fail if supports? is unimplemented' do
+  it 'fails if supports? is unimplemented' do
     expect { component.supports? }.to raise_error
   end
 
@@ -33,11 +33,11 @@ describe JavaBuildpack::Component::ModularComponent do
       allow_any_instance_of(StubModularComponent).to receive(:supports?).and_return(false)
     end
 
-    it 'should return nil from detect if not supported' do
+    it 'returns nil from detect if not supported' do
       expect(component.detect).to be_nil
     end
 
-    it 'should fail if methods are unimplemented' do
+    it 'fails if methods are unimplemented' do
       expect { component.command }.to raise_error
       expect { component.sub_components(context) }.to raise_error
     end
@@ -52,7 +52,7 @@ describe JavaBuildpack::Component::ModularComponent do
       allow_any_instance_of(StubModularComponent).to receive(:sub_components).and_return([sub_component, sub_component])
     end
 
-    it 'should return name and version string from detect if supported' do
+    it 'returns name and version string from detect if supported' do
       allow(sub_component).to receive(:detect).and_return('sub_component=test-version', 'sub_component=test-version-2')
 
       detected = component.detect
@@ -61,13 +61,13 @@ describe JavaBuildpack::Component::ModularComponent do
       expect(detected).to include('sub_component=test-version-2')
     end
 
-    it 'should call compile on each sub_component' do
+    it 'calls compile on each sub_component' do
       expect(sub_component).to receive(:compile).twice
 
       component.compile
     end
 
-    it 'should call release on each sub_component and then command' do
+    it 'calls release on each sub_component and then command' do
       expect(sub_component).to receive(:release).twice
       allow_any_instance_of(StubModularComponent).to receive(:command).and_return('test-command')
 

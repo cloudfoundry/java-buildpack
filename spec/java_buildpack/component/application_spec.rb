@@ -22,33 +22,33 @@ require 'java_buildpack/component/application'
 describe JavaBuildpack::Component::Application do
   include_context 'application_helper'
 
-  it 'should return a parsed version of VCAP_APPLICATION as details' do
+  it 'returns a parsed version of VCAP_APPLICATION as details' do
     expect(application.details).to eq(vcap_application)
   end
 
-  it 'should remove VCAP_APPLICATION and VCAP_SERVICES from environment' do
+  it 'removes VCAP_APPLICATION and VCAP_SERVICES from environment' do
     expect(application.environment).to include('test-key')
     expect(application.environment).not_to include('VCAP_APPLICATION')
     expect(application.environment).not_to include('VCAP_SERVICES')
   end
 
-  it 'should return a child path if it does not exist' do
+  it 'returns a child path if it does not exist' do
     expect(application.root + 'test-file').not_to be_nil
   end
 
-  it 'should not return a child path that does not exist if it exists but is not in the initial contents' do
+  it 'does not return a child path that does not exist if it exists but is not in the initial contents' do
     FileUtils.touch(app_dir + 'test-file')
 
     expect(application.root + 'test-file').not_to exist
   end
 
-  it 'should return a child path if it exists and is in the initial contents',
+  it 'returns a child path if it exists and is in the initial contents',
      app_fixture: 'application' do
 
     expect(application.root + 'test-file').not_to be_nil
   end
 
-  it 'should only list children that exist initially',
+  it 'only lists children that exist initially',
      app_fixture: 'application' do
 
     FileUtils.mkdir_p(app_dir + '.ignore-directory')
@@ -68,7 +68,7 @@ describe JavaBuildpack::Component::Application do
     expect(children).not_to include(app_dir + 'ignore-file')
   end
 
-  it 'should return a parsed version of VCAP_SERVICES as services' do
+  it 'returns a parsed version of VCAP_SERVICES as services' do
     expect(application.services.find_service(/test-service/)).to be
   end
 

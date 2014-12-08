@@ -26,11 +26,11 @@ describe JavaBuildpack::Util::Cache::CachedFile do
 
   let(:file_cache) { described_class.new(app_dir, 'http://foo-uri/', true) }
 
-  it 'should not create any files on initialization' do
+  it 'does not create any files on initialization' do
     %w(cached etag last_modified).each { |extension| expect(cache_file(extension)).not_to exist }
   end
 
-  it 'should create cache_root if mutable' do
+  it 'creates cache_root if mutable' do
     expect(cache_root).not_to exist
 
     described_class.new(cache_root, 'http://foo-uri/', true)
@@ -38,7 +38,7 @@ describe JavaBuildpack::Util::Cache::CachedFile do
     expect(cache_root).to exist
   end
 
-  it 'should not create cache_root if immutable' do
+  it 'does not create cache_root if immutable' do
     expect(cache_root).not_to exist
 
     described_class.new(cache_root, 'http://foo-uri/', false)
@@ -46,15 +46,15 @@ describe JavaBuildpack::Util::Cache::CachedFile do
     expect(cache_root).not_to exist
   end
 
-  it 'should not detect cached file' do
+  it 'does not detect cached file' do
     expect(file_cache.cached?).not_to be
   end
 
-  it 'should not detect etag file' do
+  it 'does not detect etag file' do
     expect(file_cache.etag?).not_to be
   end
 
-  it 'should not detect last_modified file' do
+  it 'does not detect last_modified file' do
     expect(file_cache.last_modified?).not_to be
   end
 
@@ -66,39 +66,40 @@ describe JavaBuildpack::Util::Cache::CachedFile do
       touch('last_modified', 'foo-last-modified')
     end
 
-    it 'should call the block with the content of the cache file' do
+    it 'calls the block with the content of the cache file' do
       expect { |b| file_cache.cached(File::RDONLY, 'test-arg', &b) }.to yield_file_with_content(/foo-cached/)
     end
 
-    it 'should detect cached file' do
+    it 'detects cached file' do
       expect(file_cache.cached?).to be
     end
 
-    it 'should destroy all files' do
+    it 'destroys all files' do
       file_cache.destroy
 
       %w(cached etag last_modified).each { |extension| expect(cache_file(extension)).not_to exist }
     end
 
-    it 'should not destroy all files if immutable' do
+    it 'does not destroy all files if immutable' do
       described_class.new(app_dir, 'http://foo-uri/', false).destroy
 
       %w(cached etag last_modified).each { |extension| expect(cache_file(extension)).to exist }
     end
 
-    it 'should call the block with the content of the etag file' do
+    it 'calls the block with the content of the etag file' do
       expect { |b| file_cache.etag(File::RDONLY, 'test-arg', &b) }.to yield_file_with_content(/foo-etag/)
     end
 
-    it 'should detect etag file' do
+    it 'detects etag file' do
       expect(file_cache.etag?).to be
     end
 
-    it 'should call the block with the content of the last_modified file' do
-      expect { |b| file_cache.last_modified(File::RDONLY, 'test-arg', &b) }.to yield_file_with_content(/foo-last-modified/)
+    it 'calls the block with the content of the last_modified file' do
+      expect { |b| file_cache.last_modified(File::RDONLY, 'test-arg', &b) }
+        .to yield_file_with_content(/foo-last-modified/)
     end
 
-    it 'should detect last_modified file' do
+    it 'detects last_modified file' do
       expect(file_cache.last_modified?).to be
     end
   end

@@ -40,8 +40,8 @@ module JavaBuildpack
         end
       end
 
-      # Returns a memory size as a string including a unit. If the memory size is not a whole number, it is rounded down.
-      # The returned unit is always kilobytes, megabytes, or gigabytes which are commonly used units.
+      # Returns a memory size as a string including a unit. If the memory size is not a whole number, it is rounded
+      # down. The returned unit is always kilobytes, megabytes, or gigabytes which are commonly used units.
       #
       # @return [String] the memory size as a string, e.g. "10K"
       def to_s

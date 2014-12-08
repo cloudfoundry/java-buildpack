@@ -23,64 +23,64 @@ describe JavaBuildpack::Component::BaseComponent do
 
   let(:component) { StubBaseComponent.new context }
 
-  it 'should assign application to an instance variable' do
+  it 'assigns application to an instance variable' do
     expect(component.application).to equal(application)
   end
 
-  it 'should assign component name to an instance variable' do
+  it 'assigns component name to an instance variable' do
     expect(component.component_name).to eq('Stub Base Component')
   end
 
-  it 'should assign configuration to an instance variable' do
+  it 'assigns configuration to an instance variable' do
     expect(component.configuration).to equal(configuration)
   end
 
-  it 'should assign droplet to an instance variable' do
+  it 'assigns droplet to an instance variable' do
     expect(component.droplet).to equal(droplet)
   end
 
-  it 'should fail if methods are unimplemented' do
+  it 'fails if methods are unimplemented' do
     expect { component.detect }.to raise_error
     expect { component.compile }.to raise_error
     expect { component.release }.to raise_error
   end
 
-  it 'should download file and yield it',
+  it 'downloads file and yield it',
      cache_fixture: 'stub-download.jar' do
 
     component.download(version, uri) { |file| expect(file.path).to eq('spec/fixtures/stub-download.jar') }
     expect(stdout.string).to match(/Downloading Stub Base Component #{version} from #{uri}/)
   end
 
-  it 'should download jar file and put it in the sandbox',
+  it 'downloads jar file and put it in the sandbox',
      cache_fixture: 'stub-download.jar' do
 
     component.download_jar(version, uri, 'test.jar')
     expect(droplet.sandbox + 'test.jar').to exist
   end
 
-  it 'should download and expand TAR file in the sandbox',
+  it 'downloads and expand TAR file in the sandbox',
      cache_fixture: 'stub-download.tar.gz' do
 
     component.download_tar(version, uri)
     expect(droplet.sandbox + 'test-file').to exist
   end
 
-  it 'should download and expand ZIP file in the sandbox',
+  it 'downloads and expand ZIP file in the sandbox',
      cache_fixture: 'stub-download.zip' do
 
     component.download_zip(version, uri, false)
     expect(droplet.sandbox + 'test-file').to exist
   end
 
-  it 'should download and expand ZIP file, stripping the top level directory in the sandbox',
+  it 'downloads and expand ZIP file, stripping the top level directory in the sandbox',
      cache_fixture: 'stub-download-with-top-level.zip' do
 
     component.download_zip(version, uri)
     expect(droplet.sandbox + 'test-file').to exist
   end
 
-  it 'should print timing information' do
+  it 'prints timing information' do
     expect { |b| component.with_timing('test-caption', &b) }.to yield_control
 
     expect(stdout.string).to match(/     test-caption \([\d]\.[\d]s\)/)

@@ -23,11 +23,11 @@ describe JavaBuildpack::Container::TomcatLoggingSupport do
 
   let(:component_id) { 'tomcat' }
 
-  it 'should always detect' do
+  it 'always detects' do
     expect(component.detect).to eq("tomcat-logging-support=#{version}")
   end
 
-  it 'should copy resources',
+  it 'copies resources',
      cache_fixture: 'stub-logging-support.jar' do
 
     component.compile
@@ -35,7 +35,7 @@ describe JavaBuildpack::Container::TomcatLoggingSupport do
     expect(sandbox + "endorsed/tomcat_logging_support-#{version}.jar").to exist
   end
 
-  it 'should do nothing during release' do
+  it 'does nothing during release' do
     component.release
   end
 

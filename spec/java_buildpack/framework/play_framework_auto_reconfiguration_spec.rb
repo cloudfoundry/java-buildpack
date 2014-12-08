@@ -23,13 +23,13 @@ describe JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration do
 
   let(:configuration) { { 'enabled' => true } }
 
-  it 'should detect with application configuration',
+  it 'detects with application configuration',
      app_fixture: 'container_play_2.1_dist' do
 
     expect(component.detect).to eq("play-framework-auto-reconfiguration=#{version}")
   end
 
-  it 'should not detect without application configuration',
+  it 'does not detect without application configuration',
      app_fixture: 'container_play_too_deep' do
 
     expect(component.detect).to be_nil
@@ -38,14 +38,14 @@ describe JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration do
   context do
     let(:configuration) { { 'enabled' => false } }
 
-    it 'should not detect if disabled',
+    it 'does not detect if disabled',
        app_fixture: 'container_play_2.1_dist' do
 
       expect(component.detect).to be_nil
     end
   end
 
-  it 'should download additional libraries',
+  it 'downloads additional libraries',
      app_fixture:   'container_play_2.1_dist',
      cache_fixture: 'stub-auto-reconfiguration.jar' do
 
@@ -54,7 +54,7 @@ describe JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration do
     expect(sandbox + "play_framework_auto_reconfiguration-#{version}.jar").to exist
   end
 
-  it 'should add to the additional libraries',
+  it 'adds to the additional libraries',
      app_fixture:   'container_play_2.1_dist',
      cache_fixture: 'stub-auto-reconfiguration.jar' do
 

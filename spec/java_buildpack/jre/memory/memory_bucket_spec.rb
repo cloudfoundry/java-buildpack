@@ -27,32 +27,32 @@ describe JavaBuildpack::Jre::MemoryBucket do
   let(:test_weighting) { 0.5 }
   let(:test_range) { JavaBuildpack::Jre::MemoryRange.new('10M..10M') }
 
-  it 'should fail to construct if name is nil' do
+  it 'fails to construct if name is nil' do
     expect { described_class.new(nil, test_weighting, test_range) }.to raise_error(/Invalid MemoryBucket name/)
   end
 
-  it 'should fail to construct if name is the empty string' do
+  it 'fails to construct if name is the empty string' do
     expect { described_class.new('', test_weighting, test_range) }.to raise_error(/Invalid MemoryBucket name/)
   end
 
-  it 'should fail to construct if weighting is nil' do
+  it 'fails to construct if weighting is nil' do
     expect { described_class.new(test_name, nil, test_range) }.to raise_error(/Invalid weighting/)
   end
 
-  it 'should fail to construct if weighting is not numeric' do
+  it 'fails to construct if weighting is not numeric' do
     expect { described_class.new(test_name, 'x', test_range) }.to raise_error(/Invalid weighting/)
   end
 
-  it 'should fail to construct if weighting is negative' do
+  it 'fails to construct if weighting is negative' do
     expect { described_class.new(test_name, -0.1, test_range) }.to raise_error(/Invalid weighting/)
   end
 
-  it 'should initialise size to nil' do
+  it 'initializes size to nil' do
     memory_bucket = described_class.new(test_name, test_weighting, test_range)
     expect(memory_bucket.size).to eq(nil)
   end
 
-  it 'should fail to construct if range is invalid' do
+  it 'fails to construct if range is invalid' do
     expect { described_class.new(test_name, test_weighting, 'x') }.to raise_error(/Invalid\ 'range'\ parameter/)
   end
 

@@ -23,7 +23,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
 
   let(:configuration) { { 'default_tier_name' => 'test-tier-name' } }
 
-  it 'should not detect without app-dynamics-n/a service' do
+  it 'does not detect without app-dynamics-n/a service' do
     expect(component.detect).to be_nil
   end
 
@@ -36,11 +36,11 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
       allow(services).to receive(:find_service).and_return('credentials' => credentials)
     end
 
-    it 'should detect with app-dynamics-n/a service' do
+    it 'detects with app-dynamics-n/a service' do
       expect(component.detect).to eq("app-dynamics-agent=#{version}")
     end
 
-    it 'should expand AppDynamics agent zip',
+    it 'expands AppDynamics agent zip',
        cache_fixture: 'stub-app-dynamics-agent.zip' do
 
       component.compile
@@ -48,7 +48,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
       expect(sandbox + 'javaagent.jar').to exist
     end
 
-    it 'should raise error if host-name not specified' do
+    it 'raises error if host-name not specified' do
       expect { component.release }.to raise_error(/'host-name' credential must be set/)
     end
 
@@ -56,7 +56,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
 
       let(:credentials) { { 'host-name' => 'test-host-name' } }
 
-      it 'should update JAVA_OPTS' do
+      it 'updates JAVA_OPTS' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/app_dynamics_agent/javaagent.jar')
@@ -70,7 +70,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
       context do
         let(:credentials) { super().merge 'tier-name' => 'another-test-tier-name' }
 
-        it 'should add tier_name from credentials to JAVA_OPTS if specified' do
+        it 'adds tier_name from credentials to JAVA_OPTS if specified' do
           component.release
 
           expect(java_opts).to include("-Dappdynamics.agent.tierName='another-test-tier-name'")
@@ -80,7 +80,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
       context do
         let(:credentials) { super().merge 'port' => 'test-port' }
 
-        it 'should add port to JAVA_OPTS if specified' do
+        it 'adds port to JAVA_OPTS if specified' do
           component.release
 
           expect(java_opts).to include('-Dappdynamics.controller.port=test-port')
@@ -90,7 +90,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
       context do
         let(:credentials) { super().merge 'ssl-enabled' => 'test-ssl-enabled' }
 
-        it 'should add ssl_enabled to JAVA_OPTS if specified' do
+        it 'adds ssl_enabled to JAVA_OPTS if specified' do
           component.release
 
           expect(java_opts).to include('-Dappdynamics.controller.ssl.enabled=test-ssl-enabled')
@@ -100,7 +100,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
       context do
         let(:credentials) { super().merge 'account-name' => 'test-account-name' }
 
-        it 'should add account_name to JAVA_OPTS if specified' do
+        it 'adds account_name to JAVA_OPTS if specified' do
           component.release
 
           expect(java_opts).to include('-Dappdynamics.agent.accountName=test-account-name')
@@ -110,7 +110,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
       context do
         let(:credentials) { super().merge 'account-access-key' => 'test-account-access-key' }
 
-        it 'should add account_access_key to JAVA_OPTS if specified' do
+        it 'adds account_access_key to JAVA_OPTS if specified' do
           component.release
 
           expect(java_opts).to include('-Dappdynamics.agent.accountAccessKey=test-account-access-key')

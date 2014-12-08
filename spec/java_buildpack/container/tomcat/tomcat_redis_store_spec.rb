@@ -29,7 +29,7 @@ describe JavaBuildpack::Container::TomcatRedisStore do
       'connection_pool_size' => 'test-connection-pool-size' }
   end
 
-  it 'should not detect without a session-replication service' do
+  it 'does not detect without a session-replication service' do
     expect(component.detect).to be_nil
   end
 
@@ -43,11 +43,11 @@ describe JavaBuildpack::Container::TomcatRedisStore do
                                                                               'password' => 'test-password' })
     end
 
-    it 'should detect with a session-replication service' do
+    it 'detect with a session-replication service' do
       expect(component.detect).to eq("tomcat-redis-store=#{version}")
     end
 
-    it 'should copy resources',
+    it 'copies resources',
        app_fixture:   'container_tomcat_redis_store',
        cache_fixture: 'stub-redis-store.jar' do
 
@@ -56,7 +56,7 @@ describe JavaBuildpack::Container::TomcatRedisStore do
       expect(sandbox + "lib/redis_store-#{version}.jar").to exist
     end
 
-    it 'should mutate context.xml',
+    it 'mutates context.xml',
        app_fixture:   'container_tomcat_redis_store',
        cache_fixture: 'stub-redis-store.jar' do
 
@@ -78,13 +78,13 @@ describe JavaBuildpack::Container::TomcatRedisStore do
                                                                               'password' => 'test-password' })
     end
 
-    it 'should detect with a session-replication service' do
+    it 'detects with a session-replication service' do
       expect(component.detect).to eq("tomcat-redis-store=#{version}")
     end
 
   end
 
-  it 'should do nothing during release' do
+  it 'does nothing during release' do
     component.release
   end
 

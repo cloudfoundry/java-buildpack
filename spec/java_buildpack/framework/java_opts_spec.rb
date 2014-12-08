@@ -24,7 +24,7 @@ describe JavaBuildpack::Framework::JavaOpts do
   context do
     let(:configuration) { { 'java_opts' => '-Xmx1024M' } }
 
-    it 'should detect with java.opts configuration' do
+    it 'detects with java.opts configuration' do
       expect(component.detect).to eq('java-opts')
     end
   end
@@ -33,7 +33,7 @@ describe JavaBuildpack::Framework::JavaOpts do
     let(:configuration) { { 'from_environment' => true } }
     let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
 
-    it 'should detect with ENV and with from_environment configuration' do
+    it 'detects with ENV and with from_environment configuration' do
       expect(component.detect).to eq('java-opts')
     end
   end
@@ -41,12 +41,12 @@ describe JavaBuildpack::Framework::JavaOpts do
   context do
     let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
 
-    it 'should not detect with ENV and without from_environment configuration' do
+    it 'does not detect with ENV and without from_environment configuration' do
       expect(component.detect).to be_nil
     end
   end
 
-  it 'should not detect without java_opts configuration' do
+  it 'does not detect without java_opts configuration' do
     expect(component.detect).to be_nil
   end
 
@@ -56,7 +56,7 @@ describe JavaBuildpack::Framework::JavaOpts do
           "-XX:OnOutOfMemoryError='kill -9 %p'" }
     end
 
-    it 'should add split java_opts to context' do
+    it 'adds split java_opts to context' do
       component.release
 
       expect(java_opts).to include('-Xdebug')
@@ -69,7 +69,7 @@ describe JavaBuildpack::Framework::JavaOpts do
   context do
     let(:configuration) { { 'java_opts' => '-Xms1024M' } }
 
-    it 'should raise an error if a -Xms is configured' do
+    it 'raises an error if a -Xms is configured' do
       expect { component.compile }.to raise_error(/-Xms/)
     end
   end
@@ -77,7 +77,7 @@ describe JavaBuildpack::Framework::JavaOpts do
   context do
     let(:configuration) { { 'java_opts' => '-Xmx1024M' } }
 
-    it 'should raise an error if a -Xmx is configured' do
+    it 'raises an error if a -Xmx is configured' do
       expect { component.compile }.to raise_error(/-Xmx/)
     end
   end
@@ -85,7 +85,7 @@ describe JavaBuildpack::Framework::JavaOpts do
   context do
     let(:configuration) { { 'java_opts' => '-XX:MaxMetaspaceSize=128M' } }
 
-    it 'should raise an error if a -XX:MaxMetaspaceSize is configured' do
+    it 'raises an error if a -XX:MaxMetaspaceSize is configured' do
       expect { component.compile }.to raise_error(/-XX:MaxMetaspaceSize/)
     end
   end
@@ -93,7 +93,7 @@ describe JavaBuildpack::Framework::JavaOpts do
   context do
     let(:configuration) { { 'java_opts' => '-XX:MetaspaceSize=128M' } }
 
-    it 'should raise an error if a -XX:MetaspaceSize is configured' do
+    it 'raises an error if a -XX:MetaspaceSize is configured' do
       expect { component.compile }.to raise_error(/-XX:MetaspaceSize/)
     end
   end
@@ -101,7 +101,7 @@ describe JavaBuildpack::Framework::JavaOpts do
   context do
     let(:configuration) { { 'java_opts' => '-XX:MaxPermSize=128M' } }
 
-    it 'should raise an error if a -XX:MaxPermSize is configured' do
+    it 'raises an error if a -XX:MaxPermSize is configured' do
       expect { component.compile }.to raise_error(/-XX:MaxPermSize/)
     end
   end
@@ -109,7 +109,7 @@ describe JavaBuildpack::Framework::JavaOpts do
   context do
     let(:configuration) { { 'java_opts' => '-XX:PermSize=128M' } }
 
-    it 'should raise an error if a -XX:PermSize is configured' do
+    it 'raises an error if a -XX:PermSize is configured' do
       expect { component.compile }.to raise_error(/-XX:PermSize/)
     end
   end
@@ -117,7 +117,7 @@ describe JavaBuildpack::Framework::JavaOpts do
   context do
     let(:configuration) { { 'java_opts' => '-Xss1M' } }
 
-    it 'should raise an error if a -Xss is configured' do
+    it 'raises an error if a -Xss is configured' do
       expect { component.compile }.to raise_error(/-Xss/)
     end
   end
@@ -126,7 +126,7 @@ describe JavaBuildpack::Framework::JavaOpts do
     let(:configuration) { { 'from_environment' => true } }
     let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
 
-    it 'should include values specified in ENV[JAVA_OPTS]' do
+    it 'includes values specified in ENV[JAVA_OPTS]' do
       component.release
       expect(java_opts).to include('-Dalpha=bravo')
     end
@@ -135,7 +135,7 @@ describe JavaBuildpack::Framework::JavaOpts do
   context do
     let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
 
-    it 'should not include values specified in ENV[JAVA_OPTS] without from_environment' do
+    it 'does not include values specified in ENV[JAVA_OPTS] without from_environment' do
       component.release
       expect(java_opts).not_to include('-Dalpha=bravo')
     end

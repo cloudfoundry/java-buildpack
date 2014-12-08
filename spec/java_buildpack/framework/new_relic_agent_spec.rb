@@ -21,7 +21,7 @@ require 'java_buildpack/framework/new_relic_agent'
 describe JavaBuildpack::Framework::NewRelicAgent do
   include_context 'component_helper'
 
-  it 'should not detect without newrelic-n/a service' do
+  it 'does not detect without newrelic-n/a service' do
     expect(component.detect).to be_nil
   end
 
@@ -31,11 +31,11 @@ describe JavaBuildpack::Framework::NewRelicAgent do
       allow(services).to receive(:one_service?).with(/newrelic/, 'licenseKey').and_return(true)
     end
 
-    it 'should detect with newrelic-n/a service' do
+    it 'detects with newrelic-n/a service' do
       expect(component.detect).to eq("new-relic-agent=#{version}")
     end
 
-    it 'should download New Relic agent JAR',
+    it 'downloads New Relic agent JAR',
        cache_fixture: 'stub-new-relic-agent.jar' do
 
       component.compile
@@ -43,7 +43,7 @@ describe JavaBuildpack::Framework::NewRelicAgent do
       expect(sandbox + "new_relic_agent-#{version}.jar").to exist
     end
 
-    it 'should copy resources',
+    it 'copies resources',
        cache_fixture: 'stub-new-relic-agent.jar' do
 
       component.compile
@@ -51,7 +51,7 @@ describe JavaBuildpack::Framework::NewRelicAgent do
       expect(sandbox + 'newrelic.yml').to exist
     end
 
-    it 'should update JAVA_OPTS' do
+    it 'updates JAVA_OPTS' do
       allow(services).to receive(:find_service).and_return('credentials' => { 'licenseKey' => 'test-license-key' })
 
       component.release
@@ -63,7 +63,7 @@ describe JavaBuildpack::Framework::NewRelicAgent do
       expect(java_opts).to include('-Dnewrelic.config.log_file_path=$PWD/.java-buildpack/new_relic_agent/logs')
     end
 
-    it 'should update JAVA_OPTS on Java 8' do
+    it 'updates JAVA_OPTS on Java 8' do
       allow(services).to receive(:find_service).and_return('credentials' => { 'licenseKey' => 'test-license-key' })
       allow(java_home).to receive(:version).and_return(%w(1 8 0 u10))
 

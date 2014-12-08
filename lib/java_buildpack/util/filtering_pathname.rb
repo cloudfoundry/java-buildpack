@@ -28,26 +28,27 @@ module JavaBuildpack
     # created as mutable.
     #
     # If the underlying filesystem is modified once an instance of this path has been created, the view provided
-    # by the instance will not change unless a file or directory allowed by the instance's filter is created, modified, or
-    # deleted.
+    # by the instance will not change unless a file or directory allowed by the instance's filter is created, modified,
+    # or deleted.
     class FilteringPathname
 
-      # Create a +FilteringPathname+ which behaves like the given pathname, but which applies the given filter to all files.
+      # Create a +FilteringPathname+ which behaves like the given pathname, but which applies the given filter to all
+      # files.
       #
-      # The filesystem underpinning the given pathname must not contain a file or directory whose name is the name of the
-      # given pathname with '.nil' appended to it. This must be true for the lifetime of the +FilteringPathname+.
+      # The filesystem underpinning the given pathname must not contain a file or directory whose name is the name of
+      # the given pathname with '.nil' appended to it. This must be true for the lifetime of the +FilteringPathname+.
       #
       # The filter is applied to files which are accessed via the given pathname.
       # If the filter returns +true+ for a particular pathname, the pathname behaves normally for this instance.
       # If the filter returns +false+ for a particular pathname, the pathname behaves as if it does not exist.
       #
       # Note that the filter must obey the following rule: if the filter accepts Pathnames p and r, where p is a parent
-      # directory of r, then the filter must accept every Pathname q where p is a parent directory of q and q is a parent
-      # directory of r. FilteringPathname does not check that the filter obeys this rule.
+      # directory of r, then the filter must accept every Pathname q where p is a parent directory of q and q is a
+      # parent directory of r. FilteringPathname does not check that the filter obeys this rule.
       #
-      # The +FilteringPathname+ may be immutable in which case calling a mutator method causes an exception to be thrown.
-      # Alternatively, the +FilteringPathname+ may be mutable in which case calling a mutator method may mutate the
-      # file system. The results of mutating the file system will be subject to filtering by the given filter.
+      # The +FilteringPathname+ may be immutable in which case calling a mutator method causes an exception to be
+      # thrown. Alternatively, the +FilteringPathname+ may be mutable in which case calling a mutator method may mutate
+      # the file system. The results of mutating the file system will be subject to filtering by the given filter.
       #
       # @param [Pathname] pathname the +Pathname+ which is to be filtered
       # @param [Proc] filter a lambda which takes a +Pathname+ and returns either +true+ (to 'keep' the pathname) or
@@ -78,7 +79,7 @@ module JavaBuildpack
 
       # @see Pathname.
       def ===(other)
-        @pathname === comparison_target(other) # rubocop:disable CaseEquality
+        @pathname === comparison_target(other) # rubocop:disable Style/CaseEquality
       end
 
       # Dispatch superclass methods via method_missing.
@@ -147,7 +148,8 @@ module JavaBuildpack
 
       private
 
-      MUTATORS = [:chmod, :chown, :delete, :lchmod, :lchown, :make_link, :make_symlink, :mkdir, :mkpath, :rename, :rmdir, :rmtree, :taint, :unlink, :untaint].to_set.freeze
+      MUTATORS = [:chmod, :chown, :delete, :lchmod, :lchown, :make_link, :make_symlink, :mkdir, :mkpath, :rename,
+                  :rmdir, :rmtree, :taint, :unlink, :untaint].to_set.freeze
 
       private_constant :MUTATORS
 

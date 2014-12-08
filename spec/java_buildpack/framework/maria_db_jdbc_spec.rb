@@ -21,7 +21,7 @@ require 'java_buildpack/framework/maria_db_jdbc'
 describe JavaBuildpack::Framework::MariaDbJDBC do
   include_context 'component_helper'
 
-  it 'should not detect without a service containing a mysql tag' do
+  it 'does not detect without a service containing a mysql tag' do
     expect(component.detect).to be_nil
   end
 
@@ -32,23 +32,23 @@ describe JavaBuildpack::Framework::MariaDbJDBC do
       allow(services).to receive(:one_service?).with(/mysql/, 'uri').and_return(false)
     end
 
-    it 'should detect with service containing a mariadb tag' do
+    it 'detects with service containing a mariadb tag' do
       expect(component.detect).to eq("maria-db-jdbc=#{version}")
     end
 
-    it 'should not detect if the application already has a Maria DB driver',
+    it 'does not detect if the application already has a Maria DB driver',
        app_fixture: 'framework_mariadb_jdbc_with_driver' do
 
       expect(component.detect).to be_nil
     end
 
-    it 'should not detect if the application has a MySQL driver',
+    it 'does not detect if the application has a MySQL driver',
        app_fixture: 'framework_mariadb_jdbc_with_mysql_driver' do
 
       expect(component.detect).to be_nil
     end
 
-    it 'should download the MariaDB driver when needed',
+    it 'downloads the MariaDB driver when needed',
        cache_fixture: 'stub-mariadb-java-client.jar' do
 
       component.compile
@@ -56,7 +56,7 @@ describe JavaBuildpack::Framework::MariaDbJDBC do
       expect(sandbox + "maria_db_jdbc-#{version}.jar").to exist
     end
 
-    it 'should add the MariaDB driver to the additional libraries when needed',
+    it 'adds the MariaDB driver to the additional libraries when needed',
        cache_fixture: 'stub-mariadb-java-client.jar' do
 
       component.release
@@ -73,7 +73,7 @@ describe JavaBuildpack::Framework::MariaDbJDBC do
       allow(services).to receive(:one_service?).with(/mysql/, 'uri').and_return(true)
     end
 
-    it 'should detect with service containing a mysql tag' do
+    it 'detects with service containing a mysql tag' do
       expect(component.detect).to eq("maria-db-jdbc=#{version}")
     end
 

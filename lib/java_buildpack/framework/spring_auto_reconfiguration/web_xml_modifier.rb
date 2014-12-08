@@ -80,13 +80,14 @@ module JavaBuildpack
       private_constant :CONTEXT_INITIALIZER_CLASSES, :CONTEXT_LOADER_LISTENER, :DISPATCHER_SERVLET
 
       def augment(root, param_type)
-        classes_string = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_INITIALIZER_CLASSES}')]]/param-value/text()").first
+        classes_string = xpath(root, "#{param_type}[param-name[contains(text(),
+                               '#{CONTEXT_INITIALIZER_CLASSES}')]]/param-value/text()").first
         classes_string = create_param(root, param_type, CONTEXT_INITIALIZER_CLASSES, '') unless classes_string
 
         classes = classes_string.value.strip.split(/[,;\s]+/)
         classes = classes.concat CONTEXT_INITIALIZER_ADDITIONAL
 
-        classes_string.value = classes.join(',') # rubocop:disable UselessSetterCall
+        classes_string.value = classes.join(',') # rubocop:disable Lint/UselessSetterCall
       end
 
       def context_loader_listener?

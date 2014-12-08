@@ -89,7 +89,9 @@ module Package
     end
 
     def augment_repository_root(raw)
-      augment(raw, :repository_root, DEFAULT_REPOSITORY_ROOT_PATTERN, [@default_repository_root]) { |r| augment_repository_root r }
+      augment(raw, :repository_root, DEFAULT_REPOSITORY_ROOT_PATTERN, [@default_repository_root]) do |r|
+        augment_repository_root r
+      end
     end
 
     def cache
@@ -160,13 +162,19 @@ module Package
       @cache.get(index_configuration[:uri]) do |f|
         index         = YAML.load f
         found_version = version(configuration, index)
-        rake_output_message "Unable to resolve version '#{configuration['version']}' for platform '#{index_configuration[:platform]}'" if found_version.nil?
+
+        if found_version.nil?
+          rake_output_message "Unable to resolve version '#{configuration['version']}' for platform " \
+                              "'#{index_configuration[:platform]}'"
+        end
+
         uris << index[found_version.to_s] unless found_version.nil?
       end
     end
 
     def version(configuration, index)
-      JavaBuildpack::Repository::VersionResolver.resolve(JavaBuildpack::Util::TokenizedVersion.new(configuration['version']), index.keys)
+      JavaBuildpack::Repository::VersionResolver.resolve(
+        JavaBuildpack::Util::TokenizedVersion.new(configuration['version']), index.keys)
     end
 
   end

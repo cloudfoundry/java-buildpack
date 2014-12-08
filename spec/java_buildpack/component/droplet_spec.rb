@@ -25,50 +25,50 @@ describe JavaBuildpack::Component::Droplet do
   include_context 'application_helper'
   include_context 'droplet_helper'
 
-  it 'should return additional_libraries' do
+  it 'returns additional_libraries' do
     expect(droplet.additional_libraries).to equal(additional_libraries)
   end
 
-  it 'should return component_id' do
+  it 'returns component_id' do
     expect(droplet.component_id).to eq(component_id)
   end
 
-  it 'should return java_home' do
+  it 'returns java_home' do
     expect(droplet.java_home).to equal(java_home)
   end
 
-  it 'should return java_opts' do
+  it 'returns java_opts' do
     expect(droplet.java_opts).to equal(java_opts)
   end
 
-  it 'should return an existent child if in application' do
+  it 'returns an existent child if in application' do
     FileUtils.touch(app_dir + 'test-file')
 
     expect(droplet.root + 'test-file').to exist
   end
 
-  it 'should return an existent child if in sandbox' do
+  it 'returns an existent child if in sandbox' do
     FileUtils.mkdir_p(app_dir + '.java-buildpack/droplet')
     FileUtils.touch(app_dir + '.java-buildpack/droplet/test-file')
 
     expect(droplet.sandbox + 'test-file').to exist
   end
 
-  it 'should return a non-existent child if in buildpack but not sandbox' do
+  it 'returns a non-existent child if in buildpack but not sandbox' do
     FileUtils.mkdir_p(app_dir + '.java-buildpack')
     FileUtils.touch(app_dir + '.java-buildpack/test-file')
 
     expect(droplet.root + '.java-buildpack/test-file').not_to exist
   end
 
-  it 'should expose a sandbox for the component based on its component_id' do
+  it 'exposes a sandbox for the component based on its component_id' do
     expect(droplet.sandbox).to eq(app_dir + '.java-buildpack/droplet')
   end
 
   context do
     let(:fixtures_directory) { Pathname.new('spec/fixtures') }
 
-    it 'should copy resources if resources directory exists' do
+    it 'copies resources if resources directory exists' do
       stub_const(described_class.to_s + '::RESOURCES_DIRECTORY', fixtures_directory)
       allow(fixtures_directory).to receive(:+).with('droplet').and_return(fixtures_directory + 'droplet-resources')
 
@@ -78,7 +78,7 @@ describe JavaBuildpack::Component::Droplet do
     end
   end
 
-  it 'should not copy resources if resource directory does not exist' do
+  it 'does not copy resources if resource directory does not exist' do
     droplet.copy_resources
   end
 

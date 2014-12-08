@@ -23,21 +23,21 @@ describe JavaBuildpack::Container::TomcatInstance do
 
   let(:component_id) { 'tomcat' }
 
-  it 'should always detect' do
+  it 'always detects' do
     expect(component.detect).to eq("tomcat-instance=#{version}")
   end
 
   context do
     let(:version) { '7.0.47_10' }
 
-    it 'should fail when a malformed version is detected',
+    it 'fails when a malformed version is detected',
        app_fixture: 'container_tomcat' do
 
       expect { component.detect }.to raise_error(/Malformed version/)
     end
   end
 
-  it 'should extract Tomcat from a GZipped TAR',
+  it 'extracts Tomcat from a GZipped TAR',
      app_fixture:   'container_tomcat',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
@@ -48,29 +48,31 @@ describe JavaBuildpack::Container::TomcatInstance do
     expect(sandbox + 'conf/server.xml').to exist
   end
 
-  it 'should configure for Tomcat 7',
+  it 'configures for Tomcat 7',
      app_fixture:   'container_tomcat',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
     component.compile
     expect((sandbox + 'conf/context.xml').read).to match(/<Context allowLinking='true'>/)
-    expect((sandbox + 'conf/server.xml').read).to match(/<Listener className='org.apache.catalina.core.JasperListener'\/>/)
+    expect((sandbox + 'conf/server.xml').read)
+      .to match(/<Listener className='org.apache.catalina.core.JasperListener'\/>/)
   end
 
   context do
     let(:version) { '8.0.12' }
 
-    it 'should configure for Tomcat 8',
+    it 'configures for Tomcat 8',
        app_fixture:   'container_tomcat',
        cache_fixture: 'stub-tomcat.tar.gz' do
 
       component.compile
       expect((sandbox + 'conf/context.xml').read).to match(/<Context>[\s]*<Resources allowLinking='true'\/>/)
-      expect((sandbox + 'conf/server.xml').read).not_to match(/<Listener className='org.apache.catalina.core.JasperListener'\/>/)
+      expect((sandbox + 'conf/server.xml').read)
+        .not_to match(/<Listener className='org.apache.catalina.core.JasperListener'\/>/)
     end
   end
 
-  it 'should link only the application files and directories to the ROOT webapp',
+  it 'links only the application files and directories to the ROOT webapp',
      app_fixture:   'container_tomcat_with_index',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
@@ -93,7 +95,7 @@ describe JavaBuildpack::Container::TomcatInstance do
     expect(root_webapp + '.test-file').not_to exist
   end
 
-  it 'should link the Tomcat datasource JAR to the ROOT webapp when that JAR is present',
+  it 'links the Tomcat datasource JAR to the ROOT webapp when that JAR is present',
      app_fixture:   'container_tomcat',
      cache_fixture: 'stub-tomcat7.tar.gz' do
 
@@ -106,7 +108,7 @@ describe JavaBuildpack::Container::TomcatInstance do
     expect(app_jar.readlink).to eq((sandbox + 'lib/tomcat-jdbc.jar').relative_path_from(web_inf_lib))
   end
 
-  it 'should not link the Tomcat datasource JAR to the ROOT webapp when that JAR is absent',
+  it 'does not link the Tomcat datasource JAR to the ROOT webapp when that JAR is absent',
      app_fixture:   'container_tomcat',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
@@ -116,7 +118,7 @@ describe JavaBuildpack::Container::TomcatInstance do
     expect(app_jar).not_to exist
   end
 
-  it 'should link additional libraries to the ROOT webapp',
+  it 'links additional libraries to the ROOT webapp',
      app_fixture:   'container_tomcat',
      cache_fixture: 'stub-tomcat.tar.gz' do
 

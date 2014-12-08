@@ -60,12 +60,13 @@ module JavaBuildpack
 
       # Creates a new instance of the droplet abstraction
       #
-      # @param [AdditionalLibraries] additional_libraries     the shared +AdditionalLibraries+ instance for all components
+      # @param [AdditionalLibraries] additional_libraries     the shared +AdditionalLibraries+ instance for all
+      #                                                       components
       # @param [String] component_id                          the id of the component that will use this +Droplet+
       # @param [ImmutableJavaHome, MutableJavaHome] java_home the shared +JavaHome+ instance for all components.  If the
-      #                                                       component using this instance is a jre, then this should be
-      #                                                       an instance of +MutableJavaHome+.  Otherwise it should be an
-      #                                                       instance of +ImmutableJavaHome+.
+      #                                                       component using this instance is a jre, then this should
+      #                                                       be an instance of +MutableJavaHome+.  Otherwise it should
+      #                                                       be an instance of +ImmutableJavaHome+.
       # @param [JavaOpts] java_opts                           the shared +JavaOpts+ instance for all components
       # @param [Pathname] root                                the root of the droplet
       def initialize(additional_libraries, component_id, java_home, java_opts, root)
@@ -79,9 +80,8 @@ module JavaBuildpack
         sandbox_root   = buildpack_root + component_id
 
         @sandbox = JavaBuildpack::Util::FilteringPathname.new(sandbox_root, ->(path) { in?(path, sandbox_root) }, true)
-        @root    = JavaBuildpack::Util::FilteringPathname.new(root,
-                                                              ->(path) { !in?(path, buildpack_root) || in?(path, @sandbox) },
-                                                              true)
+        @root    = JavaBuildpack::Util::FilteringPathname.new(
+          root, ->(path) { !in?(path, buildpack_root) || in?(path, @sandbox) }, true)
       end
 
       # Copy resources from a components resources directory to a directory

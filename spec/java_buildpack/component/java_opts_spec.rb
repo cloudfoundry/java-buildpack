@@ -23,37 +23,37 @@ describe JavaBuildpack::Component::JavaOpts do
 
   let(:opts) { described_class.new droplet.root }
 
-  it 'should add a qualified javaagent to the collection' do
+  it 'adds a qualified javaagent to the collection' do
     opts.add_javaagent droplet.sandbox + 'test-java-agent'
 
     expect(opts).to include('-javaagent:$PWD/.java-buildpack/java_opts/test-java-agent')
   end
 
-  it 'should add a qualified system property to the collection' do
+  it 'adds a qualified system property to the collection' do
     opts.add_system_property 'test-key', droplet.sandbox
 
     expect(opts).to include('-Dtest-key=$PWD/.java-buildpack/java_opts')
   end
 
-  it 'should add a system property to the collection' do
+  it 'adds a system property to the collection' do
     opts.add_system_property 'test-key', 'test-value'
 
     expect(opts).to include('-Dtest-key=test-value')
   end
 
-  it 'should add a qualified option to the collection' do
+  it 'adds a qualified option to the collection' do
     opts.add_option 'test-key', droplet.sandbox
 
     expect(opts).to include('test-key=$PWD/.java-buildpack/java_opts')
   end
 
-  it 'should add a option to the collection' do
+  it 'adds a option to the collection' do
     opts.add_option 'test-key', 'test-value'
 
     expect(opts).to include('test-key=test-value')
   end
 
-  it 'should render the collection as an environment variable' do
+  it 'renders the collection as an environment variable' do
     opts.add_option 'test-key-2', 'test-value-2'
     opts.add_system_property 'test-key-1', 'test-value-1'
 

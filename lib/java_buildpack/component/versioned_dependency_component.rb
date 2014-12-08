@@ -71,7 +71,8 @@ module JavaBuildpack
 
       # Downloads a given TAR file and expands it.
       #
-      # @param [Pathname] target_directory the directory to expand the TAR file to.  Defaults to the component's sandbox.
+      # @param [Pathname] target_directory the directory to expand the TAR file to.  Defaults to the component's
+      #                                    sandbox.
       # @param [String] name an optional name for the download and expansion.  Defaults to +@component_name+.
       # @return [Void]
       def download_tar(target_directory = @droplet.sandbox, name = @component_name)
@@ -81,7 +82,8 @@ module JavaBuildpack
       # Downloads a given ZIP file and expands it.
       #
       # @param [Boolean] strip_top_level whether to strip the top-level directory when expanding. Defaults to +true+.
-      # @param [Pathname] target_directory the directory to expand the ZIP file to.  Defaults to the component's sandbox.
+      # @param [Pathname] target_directory the directory to expand the ZIP file to.  Defaults to the component's
+      #                                    sandbox.
       # @param [String] name an optional name for the download.  Defaults to +@component_name+.
       # @return [Void]
       def download_zip(strip_top_level = true, target_directory = @droplet.sandbox, name = @component_name)

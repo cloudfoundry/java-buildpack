@@ -25,7 +25,7 @@ describe JavaBuildpack::Util::Play::Pre22 do
 
   let(:play_app) { described_class.new(droplet) }
 
-  it 'should raise error if root method is unimplemented' do
+  it 'raises error if root method is unimplemented' do
     expect { play_app.send(:root) }.to raise_error "Method 'root' must be defined"
   end
 

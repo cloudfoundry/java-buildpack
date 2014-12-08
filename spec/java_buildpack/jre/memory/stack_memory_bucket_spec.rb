@@ -28,7 +28,7 @@ describe JavaBuildpack::Jre::StackMemoryBucket do
   let(:test_stack_size) { JavaBuildpack::Jre::MemorySize.new('2M') }
   let(:test_stack_size_range) { JavaBuildpack::Jre::MemoryRange.new(test_stack_size, test_stack_size) }
 
-  it 'should call the superclass constructor correctly' do
+  it 'calls the superclass constructor' do
     # since we can't easily stub the superclass, test the superclass behaves as expected
     stack_memory_bucket = described_class.new(test_stack_bucket_weighting, test_stack_size_range)
     expect(stack_memory_bucket.range).to eq(test_stack_size_range)

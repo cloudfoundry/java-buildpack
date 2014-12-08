@@ -25,53 +25,53 @@ describe JavaBuildpack::Util::Play::Post22Dist do
 
     let(:trigger) { described_class.new(droplet).supports? }
 
-    it 'should not recognize non-applications' do
+    it 'does not recognize non-applications' do
       expect(trigger).not_to be
     end
 
-    it 'should not recognize Play 2.0 applications',
+    it 'does not recognize Play 2.0 applications',
        app_fixture: 'container_play_2.0_dist' do
 
       expect(trigger).not_to be
     end
 
-    it 'should not recognize Play 2.1 dist applications',
+    it 'does not recognize Play 2.1 dist applications',
        app_fixture: 'container_play_2.1_dist' do
 
       expect(trigger).not_to be
     end
 
-    it 'should not recognize Play 2.1 staged applications',
+    it 'does not recognize Play 2.1 staged applications',
        app_fixture: 'container_play_2.1_staged' do
 
       expect(trigger).not_to be
     end
 
-    it 'should not recognize a Ratpack application',
+    it 'does not recognize a Ratpack application',
        app_fixture: 'container_ratpack_dist' do
 
       expect(trigger).not_to be
     end
 
-    it 'should not recognize a Spring Boot application',
+    it 'does not recognize a Spring Boot application',
        app_fixture: 'container_spring_boot_dist' do
 
       expect(trigger).not_to be
     end
 
-    it 'should not recognize a distZip application',
+    it 'does not recognize a distZip application',
        app_fixture: 'container_dist_zip' do
 
       expect(trigger).not_to be
     end
 
-    it 'should recognize Play 2.2 dist applications',
+    it 'recognizes Play 2.2 dist applications',
        app_fixture: 'container_play_2.2_dist' do
 
       expect(trigger).to be
     end
 
-    it 'should not recognize Play 2.2 staged applications',
+    it 'does not recognize Play 2.2 staged applications',
        app_fixture: 'container_play_2.2_staged' do
 
       expect(trigger).not_to be

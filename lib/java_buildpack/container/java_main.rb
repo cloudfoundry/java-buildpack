@@ -22,9 +22,9 @@ require 'java_buildpack/util/java_main_utils'
 module JavaBuildpack
   module Container
 
-    # Encapsulates the detect, compile, and release functionality for applications running a simple Java +main()+ method.
-    # This isn't a _container_ in the traditional sense, but contains the functionality to manage the lifecycle of Java
-    # +main()+ applications.
+    # Encapsulates the detect, compile, and release functionality for applications running a simple Java +main()+
+    # method. This isn't a _container_ in the traditional sense, but contains the functionality to manage the lifecycle
+    # of Java +main()+ applications.
     class JavaMain < JavaBuildpack::Component::BaseComponent
 
       # (see JavaBuildpack::Component::BaseComponent#detect)

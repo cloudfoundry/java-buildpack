@@ -24,7 +24,8 @@ module JavaBuildpack
 
       # Create a new instance, populating it with values from a properties file
       #
-      # @param [Pathname, nil] file_name the file to use for initialization. If no file is passed in, the instance is empty.
+      # @param [Pathname, nil] file_name the file to use for initialization. If no file is passed in, the instance is
+      #                                  empty.
       def initialize(file_name)
         return self if file_name.nil?
 
