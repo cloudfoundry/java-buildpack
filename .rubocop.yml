@@ -3,10 +3,10 @@ require: rubocop-rspec
 
 AllCops:
   Include:
-    - Rakefile
-    - rakelib/**/*
+    - '**/Rakefile'
+    - 'rakelib/**/*'
   Exclude:
-    - build/**/*
+    - 'build/**/*'
 Metrics/AbcSize:
  Max: 18
 Metrics/ClassLength:
