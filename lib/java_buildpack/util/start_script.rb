@@ -25,16 +25,14 @@ module JavaBuildpack
     # @param [Pathname] root the root to search from
     # @return [Pathname, nil] the start script or +nil+ if one does not exist
     def start_script(root)
-      if root
-        candidates = (root + 'bin/*').glob
+      return nil unless root
 
-        if candidates.size == 1
-          candidates.first
-        else
-          candidates.find { |candidate| Pathname.new("#{candidate}.bat").exist? }
-        end
+      candidates = (root + 'bin/*').glob
+
+      if candidates.size == 1
+        candidates.first
       else
-        nil
+        candidates.find { |candidate| Pathname.new("#{candidate}.bat").exist? }
       end
     end
 
