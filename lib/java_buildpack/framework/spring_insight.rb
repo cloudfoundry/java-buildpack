@@ -45,7 +45,6 @@ module JavaBuildpack
       def compile
         JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
           true, 'The Spring Insight download location is always accessible') do
-
           # TODO: AGENT_DOWNLOAD_URI_SUFFIX To be removed once the full path is included in VCAP_SERVICES see #58873498
           download(@version, @uri.chomp('/') + AGENT_DOWNLOAD_URI_SUFFIX) { |file| expand file }
         end

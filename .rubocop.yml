@@ -27,7 +27,8 @@ RSpec/FilePath:
 Style/Documentation:
   Enabled: false
 Style/EmptyLinesAroundBlockBody:
-  Enabled: false
+  Exclude:
+    - 'spec/**/*'
 Style/EmptyLinesAroundClassBody:
   Enabled: false
 Style/EmptyLinesAroundModuleBody:
