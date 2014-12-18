@@ -21,7 +21,7 @@ version: 1.7.0_+
 memory_sizes:
   #metaspace: 64m..
   permgen: 64m..
-  heap: 128m..256m
+  heap: 64m..256m
 memory_heuristics:
   heap: 75
   #metaspace: 10
