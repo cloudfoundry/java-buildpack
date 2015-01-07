@@ -27,6 +27,20 @@ describe JavaBuildpack::Jre::OracleJRE do
 
   let(:memory_heuristic) { double('MemoryHeuristic', resolve: %w(opt-1 opt-2)) }
 
+  let(:configuration) do
+    { 'version'           => { 'detect_compile' => 'disabled',
+                               8                => '1.8.0_+',
+                               7                => '1.7.0_+',
+                               6                => '1.6.0_+' },
+      'memory_sizes'      => { 'metaspace' => '64m..',
+                               'permgen'   => '64m..' },
+      'memory_heuristics' => { 'heap'      => '75',
+                               'metaspace' => '10',
+                               'permgen'   => '10',
+                               'stack'     => '5',
+                               'native'    => '10' } }
+  end
+
   before do
     allow(JavaBuildpack::Jre::WeightBalancingMemoryHeuristic).to receive(:new).and_return(memory_heuristic)
   end
@@ -79,6 +93,83 @@ describe JavaBuildpack::Jre::OracleJRE do
     component.release
 
     expect(java_opts).to include('-Djava.io.tmpdir=$TMPDIR')
+  end
+
+  context do
+
+    let(:configuration) { super().merge 'version' => { 'detect_compile' => 'enabled' } }
+
+    context do
+
+      before do
+        allow_any_instance_of(described_class).to receive(:java_6?).and_return(true)
+      end
+
+      it 'detects with id of oracle_jre-<version> for a java 6 app',
+         cache_fixture: 'stub-java.tar.gz',
+         app_fixture:   'jre_java6_application' do
+
+        expect(component.detect).to eq("oracle-jre=#{version}")
+      end
+
+      it 'adds memory options to java_opts for a java 6 app',
+         cache_fixture: 'stub-java.tar.gz',
+         app_fixture:   'jre_java6_application' do
+
+        component.detect
+        component.release
+
+        expect(java_opts).to include('opt-1')
+        expect(java_opts).to include('opt-2')
+      end
+
+    end
+
+    context do
+
+      before do
+        allow_any_instance_of(described_class).to receive(:java_7?).and_return(true)
+      end
+
+      it 'detects with id of oracle_jre-<version> for a java 7 app',
+         cache_fixture: 'stub-java.tar.gz',
+         app_fixture:   'jre_java7_application' do
+
+        expect(component.detect).to eq("oracle-jre=#{version}")
+      end
+
+    end
+
+    context do
+
+      let(:component) { StubOracleJRE.new context }
+
+      before do
+        allow_any_instance_of(StubOracleJRE).to receive(:supports?).and_return(true)
+      end
+
+      it 'detects the correct version for a java 7 app',
+         cache_fixture: 'stub-java.tar.gz',
+         app_fixture:   'jre_java7_application' do
+
+        expect(component.compiled_version Pathname.new('spec/fixtures/jre_java7_application')).to eq(7)
+      end
+
+      it 'detects the correct version for a java 6 app',
+         cache_fixture: 'stub-java.tar.gz',
+         app_fixture:   'jre_java6_application' do
+
+        expect(component.compiled_version Pathname.new('spec/fixtures/jre_java6_application')).to eq(6)
+      end
+
+      class StubOracleJRE < JavaBuildpack::Jre::OracleJRE
+
+        public :compiled_version
+
+      end
+
+    end
+
   end
 
 end
