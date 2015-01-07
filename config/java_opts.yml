@@ -16,4 +16,4 @@
 # JAVA_OPTS configuration
 ---
 from_environment: false
-java_opts: -Djava.net.preferIPv4Stack=true
+java_opts: 
