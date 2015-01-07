@@ -14,21 +14,16 @@
 # limitations under the License.
 
 # Configuration for JRE repositories keyed by vendor
-# Pre Java 1.8, permgen was used instead of metaspace, the buildpack will consume the configuration as appropriate.
-# Please see the documentation for more detail.
+# To go back to Java 7, permgen should be used instead of metaspace.  Please see the documentation for more detail.
 ---
 repository_root: "{default.repository.root}/openjdk/{platform}/{architecture}"
-version:
-  detect_compiled: enabled
-  8: 1.8.0_+
-  7: 1.7.0_+
-  6: 1.6.0_+
+version: 1.8.0_+
 memory_sizes:
   metaspace: 64m..
-  permgen: 64m..
+  # permgen: 64m..
 memory_heuristics:
   heap: 75
   metaspace: 10
-  permgen: 10
+  # permgen: 10
   stack: 5
   native: 10
