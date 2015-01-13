@@ -99,75 +99,61 @@ describe JavaBuildpack::Jre::OpenJdkJRE do
 
     let(:configuration) { super().merge 'version' => { 'detect_compile' => 'enabled' } }
 
+    let(:component) { StubOpenJdkJRE.new context }
+
     context do
 
-      before do
-        allow_any_instance_of(described_class).to receive(:java_6?).and_return(true)
-      end
+      let(:memory_heuristic) { double('MemoryHeuristic', resolve: %w(java6)) }
 
-      it 'detects with id of openjdk_jre-<version> for a java 6 app',
-         cache_fixture: 'stub-java.tar.gz',
-         app_fixture:   'jre_java6_application' do
-
-        expect(component.detect).to eq("open-jdk-jre=#{version}")
-      end
-
-      it 'adds memory options to java_opts for a java 6 app',
-         cache_fixture: 'stub-java.tar.gz',
-         app_fixture:   'jre_java6_application' do
-
-        component.detect
-        component.release
-
-        expect(java_opts).to include('opt-1')
-        expect(java_opts).to include('opt-2')
+      it 'adds memory options to java_opts for a java 6 app' do
+        expect(component.memory(6, JavaBuildpack::Util::TokenizedVersion.new('1.6.0'))).to include('java6')
       end
 
     end
 
     context do
 
-      before do
-        allow_any_instance_of(described_class).to receive(:java_7?).and_return(true)
-      end
+      let(:memory_heuristic) { double('MemoryHeuristic', resolve: %w(java7)) }
 
-      it 'detects with id of openjdk_jre-<version> for a java 7 app',
-         cache_fixture: 'stub-java.tar.gz',
-         app_fixture:   'jre_java7_application' do
-
-        expect(component.detect).to eq("open-jdk-jre=#{version}")
+      it 'adds memory options to java_opts for a java 7 app' do
+        expect(component.memory(7, JavaBuildpack::Util::TokenizedVersion.new('1.7.0'))).to include('java7')
       end
 
     end
 
     context do
 
-      let(:component) { StubOpenJdkJRE.new context }
+      let(:memory_heuristic) { double('MemoryHeuristic', resolve: %w(java8)) }
 
-      before do
-        allow_any_instance_of(StubOpenJdkJRE).to receive(:supports?).and_return(true)
+      it 'adds memory options to java_opts for a java 8 app' do
+        expect(component.memory(8, JavaBuildpack::Util::TokenizedVersion.new('1.8.0'))).to include('java8')
       end
 
-      it 'detects the correct version for a java 7 app',
-         cache_fixture: 'stub-java.tar.gz',
-         app_fixture:   'jre_java7_application' do
+    end
 
-        expect(component.compiled_version Pathname.new('spec/fixtures/jre_java7_application')).to eq(7)
-      end
+    it 'detects the correct version for a java 6 app',
+       cache_fixture: 'stub-java.tar.gz',
+       app_fixture:   'jre_java6_application' do
 
-      it 'detects the correct version for a java 6 app',
-         cache_fixture: 'stub-java.tar.gz',
-         app_fixture:   'jre_java6_application' do
+      expect(component.compiled_version Pathname.new('spec/fixtures/jre_java6_application')).to eq(6)
+    end
 
-        expect(component.compiled_version Pathname.new('spec/fixtures/jre_java6_application')).to eq(6)
-      end
+    it 'detects the correct version for a java 7 app',
+       cache_fixture: 'stub-java.tar.gz',
+       app_fixture:   'jre_java7_application' do
 
-      class StubOpenJdkJRE < JavaBuildpack::Jre::OpenJdkJRE
+      expect(component.compiled_version Pathname.new('spec/fixtures/jre_java7_application')).to eq(7)
+    end
 
-        public :compiled_version
+    it 'detects the correct version for a java 8 app',
+       cache_fixture: 'stub-java.tar.gz',
+       app_fixture:   'jre_java8_application' do
 
-      end
+      expect(component.compiled_version Pathname.new('spec/fixtures/jre_java8_application')).to eq(8)
+    end
 
+    class StubOpenJdkJRE < JavaBuildpack::Jre::OpenJdkJRE
+      public :compiled_version, :memory
     end
 
   end

@@ -65,7 +65,7 @@ module JavaBuildpack
         @droplet.java_opts
           .add_system_property('java.io.tmpdir', '$TMPDIR')
           .add_option('-XX:OnOutOfMemoryError', killjava)
-          .concat memory(version)
+          .concat memory(version, @version)
       end
 
       private
@@ -125,7 +125,7 @@ module JavaBuildpack
         bits[0, 8] == CAFEBABE
       end
 
-      def memory(version)
+      def memory(version, component_version)
         sizes      = @configuration[KEY_MEMORY_SIZES] ? @configuration[KEY_MEMORY_SIZES].clone : {}
         heuristics = @configuration[KEY_MEMORY_HEURISTICS] ? @configuration[KEY_MEMORY_HEURISTICS].clone : {}
 
@@ -137,7 +137,7 @@ module JavaBuildpack
           sizes.delete 'permgen'
         end
 
-        OpenJDKMemoryHeuristicFactory.create_memory_heuristic(sizes, heuristics, @version).resolve
+        OpenJDKMemoryHeuristicFactory.create_memory_heuristic(sizes, heuristics, component_version).resolve
       end
 
       def version(format)
