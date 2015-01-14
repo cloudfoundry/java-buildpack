@@ -22,7 +22,7 @@ require 'java_buildpack/logging/logger_factory'
 module JavaBuildpack
   module Container
 
-    # Encapsulates the detect, compile, and release functionality for Tomcat lifecycle support.
+    # Encapsulates the detect, compile, and release functionality for Tomcat Redis support.
     class TomcatRedisStore < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Container
 
