@@ -58,6 +58,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::ModularComponent#command)
       def command
+        return unless supports?
         credentials = @application.services.find_service(FILTER)['credentials']
         @droplet.java_opts.add_system_property 'gemfire.security-username', credentials[KEY_USERNAME]
         @droplet.java_opts.add_system_property 'gemfire.security-password', credentials[KEY_PASSWORD]
