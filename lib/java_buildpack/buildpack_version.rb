@@ -95,7 +95,7 @@ module JavaBuildpack
 
     private
 
-    GIT_DIR = (Pathname.new(__FILE__).dirname + '../../.git').freeze
+    GIT_DIR = (Pathname.new(__FILE__).dirname.join('..', '..', '.git')).freeze
 
     private_constant :GIT_DIR
 
@@ -104,7 +104,11 @@ module JavaBuildpack
     end
 
     def git?
-      system 'which git > /dev/null'
+      if Gem.win_platform?
+        system 'where.exe /q git.exe'
+      else
+        system 'which git > /dev/null'
+      end
     end
 
     def git_dir?
