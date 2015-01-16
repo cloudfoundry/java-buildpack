@@ -57,6 +57,10 @@ describe JavaBuildpack::Container::TomcatGemfireStore do
     expect(component.detect).to be_nil
   end
 
+  it 'does nothing without a session_replication service during release' do
+    expect(component.command).to be_nil
+  end
+
   it 'creates submodules' do
     expect(JavaBuildpack::Container::GemFire)
       .to receive(:new).with(sub_configuration_context(gemfire_configuration))
