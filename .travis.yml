@@ -1,13 +1,15 @@
----
 language: ruby
 rvm:
-  - 2.1.5
-  - 1.9.3-p551
-before_script: "if [[ $TRAVIS_RUBY_VERSION != '1.9.3-p551' || $TRAVIS_SECURE_ENV_VARS != 'true' ]]; then unset CODECLIMATE_REPO_TOKEN; fi"
+- 2.1.5
+- 1.9.3-p551
+before_script: if [[ $TRAVIS_RUBY_VERSION != '1.9.3-p551' || $TRAVIS_SECURE_ENV_VARS
+  != 'true' ]]; then unset CODECLIMATE_REPO_TOKEN; fi
 notifications:
+  slack:
+    secure: TjtH21rnlUlNVu47g+cZSfgI+01RyAZzuMNU1nZskuUMJzf0PHGQAvA9VVVtC5SQiipGg0eB60xIlFN1VW/pYGw5yUcRkuqp9BUywC6CQFpduOc8fyBJ/ZD90Uu3tS/dCc5WCPRA1KPvGgtd6biofBuC/PJ8rMHQO6SVHUxGVvI=
   webhooks:
     urls:
-      - http://build-monitor.cfapps.io/projects/JBP/webhook
+    - http://build-monitor.cfapps.io/projects/JBP/webhook
     on_start: true
 env:
   global:
