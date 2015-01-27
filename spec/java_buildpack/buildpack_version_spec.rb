@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -94,6 +94,28 @@ describe JavaBuildpack::BuildpackVersion do
     allow_any_instance_of(described_class).to receive(:system).with('which git > /dev/null').and_return(false)
 
     expect(buildpack_version.to_hash).to eq({})
+  end
+
+  it 'excludes remote string when remote and hash values from config/version.yml are empty',
+     configuration: { 'hash' => '', 'remote' => '', 'version' => 'test-version' } do
+    expect(buildpack_version.to_s).to eq('test-version')
+  end
+
+  it 'includes remote string when remote and hash values from config/version.yml are missing',
+     configuration: { 'version' => 'test-version' } do
+
+    git_dir = Pathname.new('.git').expand_path
+    allow_any_instance_of(described_class).to receive(:system)
+                                              .with('which git > /dev/null')
+                                              .and_return(true)
+    allow_any_instance_of(described_class).to receive(:`)
+                                              .with("git --git-dir=#{git_dir} rev-parse --short HEAD")
+                                              .and_return('test-hash')
+    allow_any_instance_of(described_class).to receive(:`)
+                                              .with("git --git-dir=#{git_dir} config --get remote.origin.url")
+                                              .and_return('test-remote')
+
+    expect(buildpack_version.to_s).to eq('test-version | test-remote#test-hash')
   end
 
   context do
