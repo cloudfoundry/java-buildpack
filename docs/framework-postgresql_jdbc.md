@@ -6,7 +6,7 @@ The PostgreSQL JDBC Framework causes a JDBC driver JAR to be automatically downl
     <td><strong>Detection Criterion</strong></td>
     <td>Existence of a single bound PostgreSQL service and no provided PostgreSQL JDBC JAR.
       <ul>
-        <li>Existence of a PostgreSQL service is defined as the <a href="http://docs.cloudfoundry.com/docs/using/deploying-apps/environment-variable.html#VCAP_SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>postgres</code> as a substring.</li>
+        <li>Existence of a PostgreSQL service is defined as the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>postgres</code> as a substring.</li>
         <li>Existence of a PostgreSQL JDBC JAR is defined as the application containing a JAR who's name matches <tt>postgresql-*.jar</tt></li>
       </ul>
     </td>
