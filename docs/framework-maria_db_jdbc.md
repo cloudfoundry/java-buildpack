@@ -6,8 +6,8 @@ The MariaDB JDBC Framework causes a JDBC driver JAR to be automatically download
     <td><strong>Detection Criterion</strong></td>
     <td>Existence of a single bound MariaDB or MySQL service and no provided MariaDB or MySQL JDBC JAR.
       <ul>
-        <li>Existence of a MariaDB service is defined as the <a href="http://docs.cloudfoundry.com/docs/using/deploying-apps/environment-variable.html#VCAP_SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>mariadb</code> as a substring.</li>
-        <li>Existence of a MySQL service is defined as the <a href="http://docs.cloudfoundry.com/docs/using/deploying-apps/environment-variable.html#VCAP_SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>mysql</code> as a substring.</li>
+        <li>Existence of a MariaDB service is defined as the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>mariadb</code> as a substring.</li>
+        <li>Existence of a MySQL service is defined as the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>mysql</code> as a substring.</li>
         <li>Existence of a MariaDB JDBC JAR is defined as the application containing a JAR who's name matches <tt>mariadb-java-client*.jar</tt></li>
         <li>Existence of a MySQL JDBC JAR is defined as the application containing a JAR who's name matches <tt>mysql-connector-java*.jar</tt></li>
       </ul>
