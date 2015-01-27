@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -86,10 +86,13 @@ module JavaBuildpack
       s = []
       s << @version if @version
       s << (human_readable ? '(offline)' : 'offline') if @offline
-      s << '|' if @version && human_readable
-      s << "#{@remote}##{@hash}" if @remote && @hash
-      s << 'unknown' if s.empty?
 
+      if remote_string
+        s << '|' if @version && human_readable
+        s << remote_string
+      end
+
+      s << 'unknown' if s.empty?
       s.join(human_readable ? ' ' : '-')
     end
 
@@ -98,6 +101,10 @@ module JavaBuildpack
     GIT_DIR = (Pathname.new(__FILE__).dirname.join('..', '..', '.git')).freeze
 
     private_constant :GIT_DIR
+
+    def remote_string
+      "#{@remote}##{@hash}" if @remote && !@remote.empty? && @hash && !@hash.empty?
+    end
 
     def git(command)
       `git --git-dir=#{GIT_DIR} #{command}`.chomp if git? && git_dir?
