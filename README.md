@@ -62,7 +62,7 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 	* [Caches](docs/extending-caches.md) ([Configuration](docs/extending-caches.md#configuration))
 	* [Logging](docs/extending-logging.md) ([Configuration](docs/extending-logging.md#configuration))
 	* [Repositories](docs/extending-repositories.md) ([Configuration](docs/extending-repositories.md#configuration))
-	* [Utilities](docs/extending-utiltities.md)
+	* [Utilities](docs/extending-utilities.md)
 * [Debugging the Buildpack](docs/debugging-the-buildpack.md)
 * [Buildpack Modes](docs/buildpack-modes.md)
 * Related Projects
@@ -71,7 +71,7 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 	* [Java Buildpack System Tests](https://github.com/cloudfoundry/java-buildpack-system-test)
 
 ## Building Packages
-The buildpack can be packaged up so that it can uploaded to Cloud Foundry using the `cf create-buildpack` and `cf update-buildpack` commands.  In order to create these packages, the rake `package` task is used.
+The buildpack can be packaged up so that it can be uploaded to Cloud Foundry using the `cf create-buildpack` and `cf update-buildpack` commands.  In order to create these packages, the rake `package` task is used.
 
 ### Online Package
 The online package is a version of the buildpack that is as minimal as possible and is configured to connect to the network for all dependencies.  This package is about 50K in size.  To create the online package, run:
