@@ -1,1 +1,3 @@
-wedfsdf
+# Wiremock commandline arguments
+---
+arguments: -port 9090
