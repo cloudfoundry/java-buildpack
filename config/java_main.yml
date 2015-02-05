@@ -1,3 +1,3 @@
 # Wiremock commandline arguments
 ---
-arguments: -port 9090
+arguments: -port ${VCAP_APP_PORT}
