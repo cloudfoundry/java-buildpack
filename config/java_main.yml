@@ -1,3 +1,0 @@
-# Wiremock commandline arguments
----
-arguments: -port ${VCAP_APP_PORT}
