@@ -33,7 +33,7 @@ module JavaBuildpack
         @droplet_root = droplet_root
       end
 
-      # Adds a +javaagent+ entry to the +JAVA_OPTS+.  Prepends +$PWD+ to the path (relative to the droplet root) to
+      # Adds a +javaagent+ entry to the +JAVA_OPTS+. Prepends +$PWD+ to the path (relative to the droplet root) to
       # ensure that the path is always accurate.
       #
       # @param [Pathname] path the path to the +javaagent+ JAR
@@ -43,7 +43,17 @@ module JavaBuildpack
         self
       end
 
-      # Adds a system property to the +JAVA_OPTS+.  Ensures that the key is prepended with +-D+.  If the value is a
+      # Adds a +bootclasspath/p+ entry to the +JAVA_OPTS+. Prepends +$PWD+ to the path (relative to the droplet root) to
+      # ensure that the path is always accurate.
+      #
+      # @param [Pathname] path the path to the +javaagent+ JAR
+      # @return [JavaOpts]     +self+ for chaining
+      def add_bootclasspath_p(path)
+        self << "-Xbootclasspath/p:#{qualify_path path}"
+        self
+      end
+
+      # Adds a system property to the +JAVA_OPTS+. Ensures that the key is prepended with +-D+.  If the value is a
       # +Pathname+, then prepends +$PWD+ to the path (relative to the droplet root) to ensure that the path is always
       # accurate.  Otherwise, uses the value as-is.
       #
@@ -55,7 +65,7 @@ module JavaBuildpack
         self
       end
 
-      # Adds an option to the +JAVA_OPTS+.  Nothing is prepended to the key.  If the value is a +Pathname+, then
+      # Adds an option to the +JAVA_OPTS+. Nothing is prepended to the key.  If the value is a +Pathname+, then
       # prepends +$PWD+ to the path (relative to the droplet root) to ensure that the path is always accurate.
       # Otherwise, uses the value as-is.
       #
