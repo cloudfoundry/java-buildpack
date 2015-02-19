@@ -62,7 +62,19 @@ describe JavaBuildpack::Framework::JavaOpts do
       expect(java_opts).to include('-Xdebug')
       expect(java_opts).to include('-Xnoagent')
       expect(java_opts).to include('-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y')
-      expect(java_opts).to include('-XX:OnOutOfMemoryError=kill\ -9\ %p')
+      expect(java_opts).to include('-XX:OnOutOfMemoryError=kill\ -9\ \%p')
+    end
+  end
+
+  context do
+    let(:configuration) do
+      { 'java_opts' => '-Dtest=!£$%^&*(){}<>[];~`' }
+    end
+
+    it 'escapes special characters' do
+      component.release
+
+      expect(java_opts).to include('-Dtest=\\!\\£\\$\\%\\^\\&\\*\\(\\)\\{\\}\\<\\>\\[\\]\\;\\~\\`')
     end
   end
 
