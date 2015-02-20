@@ -46,7 +46,7 @@ module JavaBuildpack
             match = true
           else
             logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger Services
-            logger.warn do
+            logger.debug do
               "A service with a name label or tag matching #{filter} was found, but was missing one of the required" \
             " credentials #{required_credentials}"
             end
