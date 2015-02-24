@@ -4,5 +4,5 @@
     <entry_points version="2.0" />
   </component>
   <component name="IdProvider" IDEtalkID="229D726DC79E163F6CC10A57C5937F6A" />
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_3" assert-keyword="false" jdk-15="false" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_3" assert-keyword="false" jdk-15="false" project-jdk-name="rbenv: 1.9.3-p551" project-jdk-type="RUBY_SDK" />
 </project>
