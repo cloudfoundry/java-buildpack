@@ -15,5 +15,5 @@
   ~ limitations under the License.
   --> 
 <Context allowLinking='true'>
-    <Manager className='com.gemstone.gemfire.modules.session.catalina.Tomcat7DeltaSessionManager' enableDebugListener='false' enableGatewayReplication='false' enableLocalCache='true' enableCommitValve='true' preferDeserializedForm='true' regionAttributesId='PARTITION_REDUNDANT_PERSISTENT_OVERFLOW' regionName='sessions'/>
+    <Manager className='com.gemstone.gemfire.modules.session.catalina.Tomcat7DeltaSessionManager' enableDebugListener='false' enableGatewayReplication='false' enableLocalCache='false' enableCommitValve='true' preferDeserializedForm='true' regionAttributesId='PARTITION_REDUNDANT_PERSISTENT_OVERFLOW' regionName='sessions'/>
 </Context>
