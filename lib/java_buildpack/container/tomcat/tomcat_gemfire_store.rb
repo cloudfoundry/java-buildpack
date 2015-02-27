@@ -121,7 +121,7 @@ module JavaBuildpack
                             'className'                => PERSISTENT_MANAGER_CLASS,
                             'enableDebugListener'      => 'false',
                             'enableGatewayReplication' => 'false',
-                            'enableLocalCache'         => 'true',
+                            'enableLocalCache'         => 'false',
                             'enableCommitValve'        => 'true',
                             'preferDeserializedForm'   => 'true',
                             'regionAttributesId'       => 'PARTITION_REDUNDANT_PERSISTENT_OVERFLOW',
