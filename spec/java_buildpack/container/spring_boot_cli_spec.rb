@@ -51,6 +51,12 @@ describe JavaBuildpack::Container::SpringBootCLI do
     expect(component.detect).to be_nil
   end
 
+  it 'does not detect Logback Groovy files',
+     app_fixture: 'container_groovy_logback' do
+
+    expect(component.detect).to be_nil
+  end
+
   it 'does not detect a Groovy file which has a shebang but which also contains a class',
      app_fixture: 'container_groovy_shebang_containing_class' do
 
