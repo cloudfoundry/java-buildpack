@@ -33,4 +33,12 @@ describe 'release script', :integration do # rubocop:disable RSpec/DescribeClass
     end
   end
 
+  it 'add default command line environment as expected',
+     app_fixture: 'integration_valid' do
+
+    run("bin/release #{app_dir}") do |status|
+      expect(status).to be_success
+      expect(YAML.load(stdout.string)['default_process_types']['web']).to match(/.* MALLOC_ARENA_MAX=2 .*/)
+    end
+  end
 end
