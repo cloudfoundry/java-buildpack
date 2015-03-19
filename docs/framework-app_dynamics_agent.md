@@ -19,10 +19,14 @@ When binding AppDynamics using a user-provided service, it must have name or tag
 | ---- | -----------
 | `account-access-key` | (Optional) The account access key to use when authenticating with the controller
 | `account-name` | (Optional) The account name to use when authenticating with the controller
+| `application-name` | (Optional) the applicationa's name
 | `host-name` | The controller host name
+| `node-name` | (Optional) the application's node name
 | `port` | (Optional) The controller port
 | `ssl-enabled` | (Optional) Whether or not to use an SSL connection to the controller
 | `tier-name` | (Optional) the application's tier name
+
+To provide more complex values such as the `tier-name`, using the interactive mode when creating a user-provided service will manage the character escaping automatically. For example, the default `tier-name` could be set with a value of `Tier-$(expr "$VCAP_APPLICATION" : '.*instance_index[": ]*\([[:digit:]]*\).*')` to calculate a value from the Cloud Foundry instance index.
 
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
@@ -31,7 +35,9 @@ The framework can be configured by modifying the [`config/app_dynamics_agent.yml
 
 | Name | Description
 | ---- | -----------
+| `default_application_name` | This is not provided by default but can be added to specify the application name in the AppDynamics dashboard.  This can be overridden with an `application-name` entry in the credentials payload.
 | `default_tier_name` | The default tier name for this application in the AppDynamics dashboard.  This can be overridden with a `tier-name` entry in the credentials payload.
+| `default_node_name` | The default node name for this application in the AppDynamics dashboard.  The default value is an expression that will be evaluated based on the `instance_index` of the application. This can be overridden with a `node-name` entry in the credentials payload.
 | `repository_root` | The URL of the AppDynamics repository index ([details][repositories]).
 | `version` | The version of AppDynamics to use. Candidate versions can be found in [this listing][].
 
