@@ -19,7 +19,7 @@
 # You must specify a the repository root of an Oracle JRE repository. Please see the documentation for more detail.
 # e.g.  repository_root: "http://example.com/oracle-jre/{platform}/{architecture}"
 
-repository_root: "ftp://10.90.49.39/jdk-8u40-linux-x64.tar"
+repository_root: ""
 version: 1.8.0_+
 memory_sizes:
   metaspace: 64m..
