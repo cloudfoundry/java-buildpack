@@ -16,6 +16,7 @@ cf push <APP-NAME> -p <ARTIFACT> -b https://github.com/cloudfoundry/java-buildpa
 ## Examples
 The following are _very_ simple examples for deploying the artifact types that we support.
 
+* [Embedded web server](docs/example-embedded-web-server.md)
 * [Grails](docs/example-grails.md)
 * [Groovy](docs/example-groovy.md)
 * [Java Main](docs/example-java_main.md)
