@@ -98,7 +98,7 @@ module JavaBuildpack
     end
 
     def get_mongodb_credentials
-      get_vcap_services["mongodb-2.2"]["credentials"]
+      get_vcap_services["mongodb-2.2"][0]["credentials"]
     end
 
     def get_mongodb_url
