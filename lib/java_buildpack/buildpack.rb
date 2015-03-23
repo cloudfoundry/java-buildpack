@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'json'
 require 'java_buildpack'
 require 'java_buildpack/buildpack_version'
 require 'java_buildpack/component/additional_libraries'
@@ -61,6 +62,7 @@ module JavaBuildpack
 
       component_detection('JRE', @jres, true).first.compile
       component_detection('framework', @frameworks, false).each(&:compile)
+      set_env_variable("MONGODB_URI", get_mongodb_url)
       container.compile
     end
 
@@ -90,6 +92,22 @@ module JavaBuildpack
     private_class_method :new
 
     private
+
+    def get_vcap_services
+      JSON(ENV['VCAP_SERVICES'] || '{}')
+    end
+
+    def get_mongodb_credentials
+      get_vcap_services["mongodb-2.2"]["credentials"]
+    end
+
+    def get_mongodb_url
+      get_mongodb_credentials["url"]
+    end
+
+    def set_env_variable(key, value)
+      ENV[key] = value
+    end
 
     BUILDPACK_MESSAGE = '-----> Java Buildpack Version: %s'.freeze
 
