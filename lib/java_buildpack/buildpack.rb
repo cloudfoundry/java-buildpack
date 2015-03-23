@@ -62,7 +62,7 @@ module JavaBuildpack
 
       component_detection('JRE', @jres, true).first.compile
       component_detection('framework', @frameworks, false).each(&:compile)
-      set_env_variable("MONGODB_URI", get_mongodb_url)
+      #set_env_variable("MONGODB_URI", get_mongodb_url)
       container.compile
     end
 
