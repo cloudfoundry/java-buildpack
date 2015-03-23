@@ -106,7 +106,9 @@ module JavaBuildpack
     end
 
     def set_env_variable(key, value)
-      exec('cf set-env ratchet-ci '+ key + ' ' + value);
+      command = "cf set-env ratchet-ci #{key} #{value}"
+
+      system("bash -c '#{command}'")
       system('echo "doing stuff......................................................"')
     end
 
