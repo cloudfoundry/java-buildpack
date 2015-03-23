@@ -106,7 +106,7 @@ module JavaBuildpack
     end
 
     def set_env_variable(key, value)
-      ENV[key] = value
+      system('cf set-env ratchet-ci '+ key + ' ' + value);
     end
 
     BUILDPACK_MESSAGE = '-----> Java Buildpack Version: %s'.freeze
