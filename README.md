@@ -24,7 +24,13 @@ The following are _very_ simple examples for deploying the artifact types that w
 * [Spring Boot CLI](docs/example-spring_boot_cli.md)
 
 ## Configuration and Extension
-The buildpack supports configuration and extension through the use of Git repository forking.  The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository.  Make the required configuration and extension changes in the copy of the repository.  Then specify the URL of the new repository when pushing Cloud Foundry applications.  If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes.
+The buildpack supports extension through the use of Git repository forking. The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository.  Make the required extension changes in the copy of the repository. Then specify the URL of the new repository when pushing Cloud Foundry applications. If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes.
+
+Buildpack configuration can be overridden with an environment variable matching the configuration file you wish to override minus the `.yml` extension and with a prefix of `JBP_CONFIG`. The value of the variable should be valid inline yaml. For example, to change the default version of Java to 7 and adjust the memory heuristics apply this environment variable to the application.
+
+```cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '[version: 1.7.0_+, memory_heuristics: {heap: 85, stack: 10}]'```
+
+Environment variable can also be specified in the applications `manifest` file. See the [Environment Variables][] documentation for more information.
 
 To learn how to configure various properties of the buildpack, follow the "Configuration" links below. More information on extending the buildpack is available [here](docs/extending.md).
 
@@ -125,6 +131,7 @@ This buildpack is released under version 2.0 of the [Apache License][].
 [Cloud Foundry]: http://www.cloudfoundry.com
 [contributor guidelines]: CONTRIBUTING.md
 [disables `remote_downloads`]: docs/extending-caches.md#configuration
+[Environment Variables]: http://docs.cloudfoundry.org/devguide/deploy-apps/manifest.html#env-block
 [GitHub's forking functionality]: https://help.github.com/articles/fork-a-repo
 [Grails]: http://grails.org
 [Groovy]: http://groovy.codehaus.org
