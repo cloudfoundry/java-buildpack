@@ -22,15 +22,17 @@ An example filesystem might look like:
 The main class used when dealing with a repository is [`JavaBuildpack::Repository::ConfiguredItem`][].  It provides a single method that is used to resolve a specific version and its URI.
 
 ```ruby
-# Finds an instance of the file based on the configuration.
+# Finds an instance of the file based on the configuration and wraps any exceptions
+# to identify the component.
 #
+# @param [String] component_name the name of the component
 # @param [Hash] configuration the configuration
 # @option configuration [String] :repository_root the root directory of the repository
 # @option configuration [String] :version the version of the file to resolve
 # @param [Block, nil] version_validator an optional version validation block
-# @return [JavaBuildpack::Util::TokenizedVersion] the chosen version of the file
 # @return [String] the URI of the chosen version of the file
-def find_item(configuration, &version_validator)
+# @return [JavaBuildpack::Util::TokenizedVersion] the chosen version of the file
+def find_item(component_name, configuration)
 ```
 
 Usage of the class might look like the following:

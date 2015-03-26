@@ -51,20 +51,21 @@ Caching can be configured by modifying the [`config/cache.yml`][] file in the bu
 The [`DownloadCache`][] is the most generic of the two caches.  It allows you to create a cache that persists files any that write access is available.  The constructor signature looks the following:
 
 ```ruby
-# Creates an instance of the cache that is backed by the filesystem rooted at +cache_root+
+# Creates an instance of the cache that is backed by a number of filesystem locations.  The first argument
+# (+mutable_cache_root+) is the only location that downloaded files will be stored in.
 #
-# @param [String] cache_root the filesystem root for downloaded files to be cached in
-def initialize(cache_root = Dir.tmpdir)
+# @param [Pathname] mutable_cache_root the filesystem location in which find cached files in.  This will also be
+#                                      the location that all downloaded files are written to.
+# @param [Pathname] immutable_cache_roots other filesystem locations to find cached files in.  No files will be
+#                                         written to these locations.
+def initialize(mutable_cache_root = Pathname.new(Dir.tmpdir), *immutable_cache_roots)
 ```
 
 ## `JavaBuildpack::Util::Cache::ApplicationCache`
 The [`ApplicationCache`][] is a cache that persists files into the application cache passed to the `compile` script.  It examines `ARGV[1]` for the cache location and configures itself accordingly.
 
 ```ruby
-# Creates an instance that is configured to use the application cache.  The application cache location is defined by
-# the second argument (<tt>ARGV[1]</tt>) to the +compile+ script.
-#
-# @raise if the second argument (<tt>ARGV[1]</tt>) to the +compile+ script is +nil+
+# Creates an instance of the cache that is backed by the the application cache
 def initialize
 ```
 
