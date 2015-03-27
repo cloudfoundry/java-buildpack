@@ -60,6 +60,16 @@ To enable Redis-based session replication, simply bind a Redis service containin
 ### GemFire
 To enable GemFire-based session replication, simply bind a [GemFire service][] containing a name, label, or tag that has `session_replication` as a substring. GemFire services intended to be used for session replication will automatically have a tag of 'session_replication'.
 
+## Managing Entropy
+Entropy from `/dev/random` is used heavily to create session ids, and on startup for initializing SecureRandom, which can then cause instances to fail to start in time (See the [Tomcat Wiki]). Also, the entropy is shared so it's possible for a single app to starve the DEA of entropy and cause apps in other containers that make use of entropy to be blocked.
+If this is an issue then configuring `/dev/urandom` as an alternative source of entropy should help. It is unlikely, but possible, that this may cause some security issues which should be taken in to account.
+
+Example in a manifest.yml
+```
+env:
+  JAVA_OPTS: -Djava.security.egd=file:///dev/urandom
+```
+
 ## Supporting Functionality
 Additional supporting functionality can be found in the [`java-buildpack-support`][] Git repository.
 
@@ -70,4 +80,5 @@ Additional supporting functionality can be found in the [`java-buildpack-support
 [repositories]: extending-repositories.md
 [Spring profiles]:http://blog.springsource.com/2011/02/14/spring-3-1-m1-introducing-profile/
 [`SPRING_PROFILES_ACTIVE`]: http://docs.spring.io/spring/docs/4.0.0.RELEASE/javadoc-api/org/springframework/core/env/AbstractEnvironment.html#ACTIVE_PROFILES_PROPERTY_NAME
+[Tomcat Wiki]: http://wiki.apache.org/tomcat/HowTo/FasterStartUp
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
