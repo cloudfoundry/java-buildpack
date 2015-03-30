@@ -10,11 +10,12 @@ This base class is recommended for use by any component that is sufficiently com
 #                        components are expected to return the command required to run the application.
 def command
 
-# The modules that make up this component
+# The sub_components that make up this component
 #
 # @param [Hash] context the context of the component
-# @return [Array<BaseComponent>] a collection of +BaseComponent+s that make up the modules of this component
-def modules(context)
+# @return [Array<BaseComponent>] a collection of +BaseComponent+s that make up the sub_components of this
+#                                component
+def sub_components(_context)
 
 # Whether or not this component supports this application
 #
