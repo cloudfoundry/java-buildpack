@@ -98,7 +98,7 @@ module JavaBuildpack
       end
 
       def root
-        tomcat_webapps + (ENV[@configuration['context_path']] || 'ROOT')
+        tomcat_webapps + (ENV['app.context'] || 'ROOT')
       end
 
       def tomcat_datasource_jar
