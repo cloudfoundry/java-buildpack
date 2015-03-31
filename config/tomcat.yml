@@ -18,7 +18,7 @@
 tomcat:
   version: 7.0.+
   repository_root: "{default.repository.root}/tomcat"
-  context_path: ${app.context}
+  context_path: app.context
 lifecycle_support:
   version: 2.+
   repository_root: "{default.repository.root}/tomcat-lifecycle-support"
