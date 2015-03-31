@@ -62,7 +62,6 @@ module JavaBuildpack
 
       component_detection('JRE', @jres, true).first.compile
       component_detection('framework', @frameworks, false).each(&:compile)
-      #set_env_variable("MONGODB_URI", get_mongodb_url)
       container.compile
     end
 
@@ -105,12 +104,6 @@ module JavaBuildpack
       get_mongodb_credentials["url"]
     end
 
-    def set_env_variable(key, value)
-      command = "cf set-env ratchet-ci #{key} #{value}"
-
-      system("bash -c '#{command}'")
-      system('echo "doing stuff......................................................"')
-    end
 
     BUILDPACK_MESSAGE = '-----> Java Buildpack Version: %s'.freeze
 
