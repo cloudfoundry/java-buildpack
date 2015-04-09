@@ -27,12 +27,6 @@ describe JavaBuildpack::Component::ImmutableJavaHome do
     expect(immutable_java_home.as_env_var).to eq('JAVA_HOME=$PWD/test-java-home')
   end
 
-  it 'sets JAVA_HOME environment variable' do
-    immutable_java_home.do_with do
-      expect(ENV['JAVA_HOME']).to eq('test-java-home')
-    end
-  end
-
   it 'returns the qualified delegate root' do
     expect(immutable_java_home.root).to eq('$PWD/test-java-home')
   end
