@@ -31,8 +31,8 @@ module JavaBuildpack
         Open3.popen3(*args) do |_stdin, stdout, stderr, wait_thr|
           if wait_thr.value != 0
             puts "\nCommand '#{args.join ' '}' has failed"
-            puts "STDOUT: #{stdout.gets}"
-            puts "STDERR: #{stderr.gets}"
+            puts "STDOUT: #{stdout.gets nil}"
+            puts "STDERR: #{stderr.gets nil}"
 
             fail
           end
