@@ -16,4 +16,4 @@
 # Configuration for the JRebel framework
 ---
 version: 6.+
-repository_root: "{default.repository.root}/jrebel"
+repository_root: "http://dl.zeroturnaround.com/jrebel"
