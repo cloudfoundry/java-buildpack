@@ -50,7 +50,7 @@ module JavaBuildpack
         i          = 0
         while comparison == 0 && i < 3
           comparison = self[i].to_i <=> other[i].to_i
-          i          += 1
+          i += 1
         end
         comparison = qualifier_compare(non_nil_qualifier(self[3]), non_nil_qualifier(other[3])) if comparison == 0
 
@@ -124,7 +124,7 @@ module JavaBuildpack
         i = 0
         until comparison != 0 || i == minimum_qualifier_length(a, b)
           comparison = char_compare(a[i], b[i])
-          i          += 1
+          i += 1
         end
 
         comparison = a.length <=> b.length if comparison == 0

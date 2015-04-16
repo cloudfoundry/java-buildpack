@@ -37,7 +37,7 @@ module JavaBuildpack
           .add_javaagent(@droplet.sandbox + jar_name)
           .add_system_property('newrelic.home', @droplet.sandbox)
           .add_system_property('newrelic.config.license_key', license_key)
-          .add_system_property('newrelic.config.app_name', "'#{application_name}'")
+          .add_system_property('newrelic.config.app_name', "#{application_name}")
           .add_system_property('newrelic.config.log_file_path', logs_dir)
         @droplet.java_opts.add_system_property('newrelic.enable.java.8', 'true') if java_8?
       end

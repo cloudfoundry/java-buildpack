@@ -59,7 +59,7 @@ describe JavaBuildpack::Framework::NewRelicAgent do
       expect(java_opts).to include("-javaagent:$PWD/.java-buildpack/new_relic_agent/new_relic_agent-#{version}.jar")
       expect(java_opts).to include('-Dnewrelic.home=$PWD/.java-buildpack/new_relic_agent')
       expect(java_opts).to include('-Dnewrelic.config.license_key=test-license-key')
-      expect(java_opts).to include("-Dnewrelic.config.app_name='test-application-name'")
+      expect(java_opts).to include('-Dnewrelic.config.app_name=test-application-name')
       expect(java_opts).to include('-Dnewrelic.config.log_file_path=$PWD/.java-buildpack/new_relic_agent/logs')
     end
 

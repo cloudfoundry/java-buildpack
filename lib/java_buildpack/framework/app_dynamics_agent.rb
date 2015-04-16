@@ -36,14 +36,14 @@ module JavaBuildpack
         java_opts   = @droplet.java_opts
         java_opts.add_javaagent(@droplet.sandbox + 'javaagent.jar')
 
-        application_name(java_opts, credentials)
-        tier_name(java_opts, credentials)
-        node_name(java_opts, credentials)
-        account_access_key(java_opts, credentials)
-        account_name(java_opts, credentials)
-        host_name(java_opts, credentials)
-        port(java_opts, credentials)
-        ssl_enabled(java_opts, credentials)
+        application_name java_opts, credentials
+        tier_name java_opts, credentials
+        node_name java_opts, credentials
+        account_access_key java_opts, credentials
+        account_name java_opts, credentials
+        host_name java_opts, credentials
+        port java_opts, credentials
+        ssl_enabled java_opts, credentials
       end
 
       protected
@@ -60,10 +60,9 @@ module JavaBuildpack
       private_constant :FILTER
 
       def application_name(java_opts, credentials)
-        name = credentials.key?('application-name') ? credentials['application-name'] :
-          @configuration['default_application_name']
-        name = name ? name : @application.details['application_name']
-        java_opts.add_system_property('appdynamics.agent.applicationName', "'#{name}'")
+        name = credentials['application-name'] || @configuration['default_application_name'] ||
+          @application.details['application_name']
+        java_opts.add_system_property('appdynamics.agent.applicationName', "#{name}")
       end
 
       def account_access_key(java_opts, credentials)
@@ -83,7 +82,7 @@ module JavaBuildpack
       end
 
       def node_name(java_opts, credentials)
-        name = credentials.key?('node-name') ? credentials['node-name'] : @configuration['default_node_name']
+        name = credentials['node-name'] || @configuration['default_node_name']
         java_opts.add_system_property('appdynamics.agent.nodeName', "#{name}")
       end
 
@@ -98,8 +97,8 @@ module JavaBuildpack
       end
 
       def tier_name(java_opts, credentials)
-        name = credentials.key?('tier-name') ? credentials['tier-name'] : @configuration['default_tier_name']
-        java_opts.add_system_property('appdynamics.agent.tierName', "'#{name}'")
+        name = credentials['tier-name'] || @configuration['default_tier_name']
+        java_opts.add_system_property('appdynamics.agent.tierName', "#{name}")
       end
 
     end

@@ -13,6 +13,7 @@
       <w>dirname</w>
       <w>distapplication</w>
       <w>dnewrelic</w>
+      <w>enterprisemanager</w>
       <w>etag</w>
       <w>extname</w>
       <w>ffoo</w>
@@ -24,6 +25,8 @@
       <w>getwd</w>
       <w>heroku</w>
       <w>httpok</w>
+      <w>introscope</w>
+      <w>isengard</w>
       <w>javaagent</w>
       <w>jdk's</w>
       <w>jres</w>
@@ -46,6 +49,7 @@
       <w>pathnames</w>
       <w>permgen</w>
       <w>pkill</w>
+      <w>postofficehub</w>
       <w>progname</w>
       <w>proto</w>
       <w>ratpack</w>
@@ -61,6 +65,7 @@
       <w>scriptdir</w>
       <w>shellwords</w>
       <w>simplecov</w>
+      <w>socketfactory</w>
       <w>stderr</w>
       <w>strftime</w>
       <w>stringifies</w>

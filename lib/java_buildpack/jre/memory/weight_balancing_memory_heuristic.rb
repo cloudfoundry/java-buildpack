@@ -234,9 +234,9 @@ module JavaBuildpack
       end
 
       def switches(buckets)
-        buckets.map do |type, bucket|
+        buckets.flat_map do |type, bucket|
           @java_opts[type][bucket.size] if bucket.size && bucket.size > 0 && @java_opts.key?(type)
-        end.flatten(1).compact
+        end.compact
       end
 
     end
