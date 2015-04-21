@@ -21,35 +21,48 @@ require 'java_buildpack/framework/jrebel_agent'
 describe JavaBuildpack::Framework::JrebelAgent do
   include_context 'component_helper'
 
-  it 'does not detect without JRebel config files present' do
+  it 'does not detect when rebel-remote.xml is not present' do
     expect(component.detect).to be_nil
   end
 
-  it 'detects with JRebel config files are present',
-     app_fixture: 'framework_jrebel_app',
-     cache_fixture: 'stub-jrebel-archive.zip' do
+  it 'detects when rebel-remote.xml is present in the top-level directory',
+     app_fixture: 'framework_jrebel_app_simple' do
     expect(component.detect).to eq("jrebel-agent=#{version}")
   end
 
-  it 'downloads JRebel agent JAR',
-     app_fixture: 'framework_jrebel_app',
+  it 'detects when rebel-remote.xml is present in WEB-INF/classes',
+     app_fixture: 'framework_jrebel_app_war' do
+    expect(component.detect).to eq("jrebel-agent=#{version}")
+  end
+
+  it 'detects when rebel-remote.xml is present inside an embedded JAR',
+     app_fixture: 'framework_jrebel_app_war_with_jar' do
+    expect(component.detect).to eq("jrebel-agent=#{version}")
+  end
+
+  it 'downloads the JRebel JAR and the native agent',
+     app_fixture: 'framework_jrebel_app_simple',
      cache_fixture: 'stub-jrebel-archive.zip' do
 
     component.compile
 
-    expect(sandbox + "jrebel_agent-#{version}.jar").to exist
+    expect(sandbox + 'lib/jrebel.jar').to exist
+    expect(sandbox + 'lib/libjrebel64.so').to exist
+    expect(sandbox + 'lib/libjrebel32.so').to exist
   end
 
-  it 'updates JAVA_OPTS',
-     app_fixture: 'framework_jrebel_app',
+  it 'adds correct arguments to JAVA_OPTS',
+     app_fixture: 'framework_jrebel_app_simple',
      cache_fixture: 'stub-jrebel-archive.zip' do
-    allow(services).to receive(:find_service).and_return('credentials' => { 'licenseKey' => 'test-license-key' })
+
+    allow(component).to receive(:architecture).and_return('x86_64')
 
     component.release
 
-    expect(java_opts).to include("-javaagent:$PWD/.java-buildpack/jrebel_agent/jrebel_agent-#{version}.jar")
+    expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/jrebel_agent/lib/libjrebel64.so')
     expect(java_opts).to include('-Drebel.remoting_plugin=true')
-    expect(java_opts).to include("-Xbootclasspath/p:$PWD/.java-buildpack/jrebel_agent/jrebel_agent-#{version}.jar")
+    expect(java_opts).to include('-Drebel.log=true')
+    expect(java_opts).to include('-Drebel.cloud.platform=cloudfoundry/java-buildpack')
   end
 
 end

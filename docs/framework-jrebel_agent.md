@@ -1,10 +1,11 @@
 # JRebel Agent Framework
-The JRebel Agent Framework causes an application to be automatically configured to work with an IDE using [JRebel][].
+
+The JRebel Agent Framework causes an application to be automatically configured to work with [JRebel][]. Pushing any [JRebel Cloud/Remote][] enabled application (containing `rebel-remote.xml`) will automatically download the latest version of [JRebel][] and set it up for use.
 
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td>Existence of the `rebel.xml` and `rebel-remote.xml` files in either the root or `WEB-INF/classes` directory or the application.</td>
+    <td>Existence of a <tt>rebel-remote.xml</tt> file inside the application archive. This file is present in every application that is configured to use <a href="http://manuals.zeroturnaround.com/jrebel/remoting/index.html" target="_blank">JRebel Cloud/Remote</a>.</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
@@ -12,6 +13,8 @@ The JRebel Agent Framework causes an application to be automatically configured 
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
+
+For more information regarding setup and configuration, please refer to the [JRebel with Pivotal Cloud Foundry tutorial][pivotal].
 
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
@@ -21,11 +24,13 @@ The framework can be configured by modifying the [`config/jrebel_agent.yml`][] f
 | Name | Description
 | ---- | -----------
 | `repository_root` | The URL of the JRebel repository index ([details][repositories]).
-| `version` | The version of Jrebel to use. Candidate versions can be found in [this listing][].
+| `version` | The version of JRebel to use. Candidate versions can be found in [this listing][].
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/jrebel_agent.yml`]: ../config/jrebel_agent.yml
+[JRebel Cloud/Remote]: http://manuals.zeroturnaround.com/jrebel/remoting/index.html
 [JRebel]: http://zeroturnaround.com/software/jrebel/
+[pivotal]: http://manuals.zeroturnaround.com/jrebel/remoting/pivotal.html
 [repositories]: extending-repositories.md
-[this listing]: http://download.pivotal.io.s3.amazonaws.com/jrebel/index.yml
+[this listing]: http://dl.zeroturnaround.com/jrebel/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
