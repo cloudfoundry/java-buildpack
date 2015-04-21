@@ -42,17 +42,8 @@ module JavaBuildpack
           file = CONFIG_DIRECTORY + "#{identifier}.yml"
 
           if file.exist?
-            configuration = YAML.load_file(file)
-            logger.debug { "Configuration from #{file}: #{configuration}" } if should_log
-
             user_provided = ENV[environment_variable_name(identifier)]
-
-            if user_provided
-              YAML.load(user_provided).each do |new_prop|
-                configuration = do_merge(configuration, new_prop, should_log)
-              end
-              logger.debug { "Configuration from #{file} modified with: #{user_provided}" } if should_log
-            end
+            configuration = load_configuration(file, user_provided, should_log)
           else
             logger.debug { "No configuration file #{file} found" } if should_log
           end
@@ -67,6 +58,27 @@ module JavaBuildpack
         ENVIRONMENT_VARIABLE_PATTERN = 'JBP_CONFIG_'
 
         private_constant :CONFIG_DIRECTORY, :ENVIRONMENT_VARIABLE_PATTERN
+
+        def load_configuration(file, user_provided, should_log)
+          configuration = YAML.load_file(file)
+          logger.debug { "Configuration from #{file}: #{configuration}" } if should_log
+
+          if user_provided
+            user_provided_value = YAML.load(user_provided)
+            if user_provided_value.is_a?(Hash)
+              configuration = do_merge(configuration, user_provided_value, should_log)
+            elsif user_provided_value.is_a?(Array)
+              user_provided_value.each do |new_prop|
+                configuration = do_merge(configuration, new_prop, should_log)
+              end
+            else
+              fail "User configuration value is not valid: #{user_provided_value}"
+            end
+            logger.debug { "Configuration from #{file} modified with: #{user_provided}" } if should_log
+          end
+
+          configuration
+        end
 
         def do_merge(hash_v1, hash_v2, should_log)
           hash_v2.each do |key, value|

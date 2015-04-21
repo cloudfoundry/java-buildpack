@@ -34,12 +34,14 @@ describe JavaBuildpack::Util::ConfigurationUtils do
     before do
       allow_any_instance_of(Pathname).to receive(:exist?).and_return(true)
       allow(YAML).to receive(:load_file).and_return('foo' => { 'one' => '1', 'two' => 2 },
-                                                    'bar' => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } })
+                                                    'bar' => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } },
+                                                    'version' => '1.7.1')
     end
 
     it 'load configuration file' do
       expect(described_class.load('test')).to eq('foo' => { 'one' => '1', 'two' => 2 },
-                                                 'bar' => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } })
+                                                 'bar' => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } },
+                                                 'version' => '1.7.1')
     end
 
     context do
@@ -51,7 +53,34 @@ describe JavaBuildpack::Util::ConfigurationUtils do
       it 'overlays matching environment variables' do
 
         expect(described_class.load('test')).to eq('foo' => { 'one' => '1', 'two' => 2 },
-                                                   'bar' => { 'alpha' => { 'one' => 3, 'two' => 'dog' } })
+                                                   'bar' => { 'alpha' => { 'one' => 3, 'two' => 'dog' } },
+                                                   'version' => '1.7.1')
+      end
+
+    end
+
+    context do
+
+      let(:environment) do
+        { 'JBP_CONFIG_TEST' => 'version: 1.8.+' }
+      end
+
+      it 'overlays simple matching environment variable' do
+        expect(described_class.load('test')).to eq('foo' => { 'one' => '1', 'two' => 2 },
+                                                   'bar' => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } },
+                                                   'version' => '1.8.+')
+      end
+
+    end
+
+    context do
+
+      let(:environment) do
+        { 'JBP_CONFIG_TEST' => 'version 1.8.+' }
+      end
+
+      it 'raises an exception when invalid override value is specified' do
+        expect { described_class.load('test') }.to raise_error(/User configuration value is not valid/)
       end
 
     end
