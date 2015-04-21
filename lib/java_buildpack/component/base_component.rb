@@ -94,8 +94,14 @@ module JavaBuildpack
 
       # Resolve the environment that's passed on the command line
       def resolve_command_environment
+        return if ENV['JBP_NO_MALLOC_TUNING'] && ENV['JBP_NO_MALLOC_TUNING'] != '0'
         # set MALLOC_ARENA_MAX by default
         @default_command_environment['MALLOC_ARENA_MAX'] = 2 unless ENV.key? 'MALLOC_ARENA_MAX'
+        # disable dynamic mmap threshold, see M_MMAP_THRESHOLD in "man mallopt"
+        @default_command_environment['MALLOC_MMAP_THRESHOLD_'] = 131_072 unless ENV.key? 'MALLOC_MMAP_THRESHOLD_'
+        @default_command_environment['MALLOC_TRIM_THRESHOLD_'] = 131_072 unless ENV.key? 'MALLOC_TRIM_THRESHOLD_'
+        @default_command_environment['MALLOC_TOP_PAD_'] = 131_072 unless ENV.key? 'MALLOC_TOP_PAD_'
+        @default_command_environment['MALLOC_MMAP_MAX_'] = 65_536 unless ENV.key? 'MALLOC_MMAP_MAX_'
       end
 
       # Downloads an item with the given name and version from the given URI, then yields the resultant file to the

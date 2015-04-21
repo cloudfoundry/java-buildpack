@@ -43,6 +43,7 @@ shared_context 'integration_helper' do
       puts "Buildpack Directory: #{buildpack_dir}"
     else
       FileUtils.rm_rf buildpack_dir
+      ENV.delete('JBP_NO_MALLOC_TUNING')
     end
   end
 
