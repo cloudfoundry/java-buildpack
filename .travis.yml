@@ -1,6 +1,6 @@
 language: ruby
 rvm:
-- 2.1.5
+- 2.2.2
 - 1.9.3-p551
 before_script: if [[ $TRAVIS_RUBY_VERSION != '1.9.3-p551' || $TRAVIS_SECURE_ENV_VARS
   != 'true' ]]; then unset CODECLIMATE_REPO_TOKEN; fi
