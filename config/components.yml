@@ -42,3 +42,4 @@ frameworks:
   - "JavaBuildpack::Framework::PostgresqlJDBC"
   - "JavaBuildpack::Framework::SpringAutoReconfiguration"
   - "JavaBuildpack::Framework::SpringInsight"
+  - "JavaBuildpack::Framework::StagingTimestamp"
