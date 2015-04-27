@@ -48,7 +48,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     end
 
     it 'expands Introscope agent zip',
-       cache_fixture: 'stub-introscope-agent.tar.gz' do
+       cache_fixture: 'stub-introscope-agent.tar' do
 
       component.compile
 

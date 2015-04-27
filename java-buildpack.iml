@@ -287,8 +287,8 @@
     <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v3.2.1, rbenv: 1.9.3-p551) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v3.2.1, rbenv: 1.9.3-p551) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.2.2, rbenv: 1.9.3-p551) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubocop (v0.30.0, rbenv: 1.9.3-p551) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubocop-rspec (v1.2.2, rbenv: 1.9.3-p551) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubocop (v0.30.1, rbenv: 1.9.3-p551) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubocop-rspec (v1.3.0, rbenv: 1.9.3-p551) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ruby-progressbar (v1.7.5, rbenv: 1.9.3-p551) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rubyzip (v1.1.7, rbenv: 1.9.3-p551) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="safe_yaml (v1.0.4, rbenv: 1.9.3-p551) [gem]" level="application" />
