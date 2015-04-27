@@ -121,7 +121,7 @@ module JavaBuildpack
         download(version, uri, name) do |file|
           with_timing "Expanding #{name} to #{target_directory.relative_path_from(@droplet.root)}" do
             FileUtils.mkdir_p target_directory
-            shell "tar xzf #{file.path} -C #{target_directory} --strip 1 2>&1"
+            shell "tar x#{gzipped?(file) ? 'x' : ''}f #{file.path} -C #{target_directory} --strip 1 2>&1"
           end
         end
       end
@@ -163,6 +163,12 @@ module JavaBuildpack
         yield
 
         puts "(#{(Time.now - start_time).duration})"
+      end
+
+      private
+
+      def gzipped?(file)
+        file.path.end_with? '.gz'
       end
 
     end
