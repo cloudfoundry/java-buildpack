@@ -60,9 +60,15 @@ module JavaBuildpack
         #                           already in the cache
         # @return [Void]
         def get(uri, &block)
-          cached_file, downloaded = nil, nil
+          cached_file             = nil
+          downloaded              = nil
+
           cached_file, downloaded = from_mutable_cache uri if InternetAvailability.instance.available?
-          cached_file, downloaded = from_immutable_caches(uri), false unless cached_file
+
+          unless cached_file
+            cached_file = from_immutable_caches(uri)
+            downloaded  = false
+          end
 
           fail "Unable to find cached file for #{uri.sanitize_uri}" unless cached_file
           cached_file.cached(File::RDONLY | File::BINARY, downloaded, &block)
@@ -288,7 +294,7 @@ module JavaBuildpack
         end
 
         def validate_size(expected_size, cached_file)
-          return unless  expected_size
+          return unless expected_size
 
           actual_size = cached_file.cached(File::RDONLY) { |f| f.size }
           @logger.debug { "Validated content size #{actual_size} is #{expected_size}" }

@@ -23,6 +23,7 @@ require 'java_buildpack/container/tomcat/tomcat_logging_support'
 require 'java_buildpack/container/tomcat/tomcat_access_logging_support'
 require 'java_buildpack/container/tomcat/tomcat_redis_store'
 require 'java_buildpack/container/tomcat/tomcat_gemfire_store'
+require 'java_buildpack/util/java_main_utils'
 
 module JavaBuildpack
   module Container

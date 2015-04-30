@@ -17,22 +17,15 @@
 require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/component/mutable_java_home'
-require 'java_buildpack/jre/oracle_jre'
-require 'java_buildpack/jre/memory/weight_balancing_memory_heuristic'
+require 'java_buildpack/jre/open_jdk_like_jre'
 
-describe JavaBuildpack::Jre::OracleJRE do
+describe JavaBuildpack::Jre::OpenJDKLikeJre do
   include_context 'component_helper'
 
   let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
 
-  let(:memory_heuristic) { double('MemoryHeuristic', resolve: %w(opt-1 opt-2)) }
-
-  before do
-    allow(JavaBuildpack::Jre::WeightBalancingMemoryHeuristic).to receive(:new).and_return(memory_heuristic)
-  end
-
-  it 'detects with id of oracle-jre-<version>' do
-    expect(component.detect).to eq("oracle-jre=#{version}")
+  it 'detects with id of openjdk_like_jre-<version>' do
+    expect(component.detect).to eq("open-jdk-like-jre=#{version}")
   end
 
   it 'extracts Java from a GZipped TAR',
@@ -50,28 +43,11 @@ describe JavaBuildpack::Jre::OracleJRE do
     expect(java_home.root).to eq(sandbox)
   end
 
-  it 'adds memory options to java_opts' do
-    component.detect
-    component.release
-
-    expect(java_opts).to include('opt-1')
-    expect(java_opts).to include('opt-2')
-  end
-
   it 'adds OnOutOfMemoryError to java_opts' do
     component.detect
     component.release
 
-    expect(java_opts).to include('-XX:OnOutOfMemoryError=$PWD/.java-buildpack/oracle_jre/bin/killjava.sh')
-  end
-
-  it 'places the killjava script (with appropriately substituted content) in the diagnostics directory',
-     cache_fixture: 'stub-java.tar.gz' do
-
-    component.detect
-    component.compile
-
-    expect(sandbox + 'bin/killjava.sh').to exist
+    expect(java_opts).to include('-XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk_like_jre/bin/killjava.sh')
   end
 
   it 'adds java.io.tmpdir to java_opts' do
@@ -79,6 +55,20 @@ describe JavaBuildpack::Jre::OracleJRE do
     component.release
 
     expect(java_opts).to include('-Djava.io.tmpdir=$TMPDIR')
+  end
+
+  context do
+
+    let(:component_id) { 'open_jdk_jre' }
+
+    it 'places the killjava script (with appropriately substituted content) in the bin directory',
+       cache_fixture: 'stub-java.tar.gz' do
+
+      component.detect
+      component.compile
+
+      expect(sandbox + 'bin/killjava.sh').to exist
+    end
   end
 
 end

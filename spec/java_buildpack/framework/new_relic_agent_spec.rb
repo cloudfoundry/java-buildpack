@@ -17,6 +17,7 @@
 require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/new_relic_agent'
+require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Framework::NewRelicAgent do
   include_context 'component_helper'
@@ -53,6 +54,7 @@ describe JavaBuildpack::Framework::NewRelicAgent do
 
     it 'updates JAVA_OPTS' do
       allow(services).to receive(:find_service).and_return('credentials' => { 'licenseKey' => 'test-license-key' })
+      allow(java_home).to receive(:java_8_or_later?).and_return(JavaBuildpack::Util::TokenizedVersion.new('1.7.0_u10'))
 
       component.release
 
@@ -65,7 +67,7 @@ describe JavaBuildpack::Framework::NewRelicAgent do
 
     it 'updates JAVA_OPTS on Java 8' do
       allow(services).to receive(:find_service).and_return('credentials' => { 'licenseKey' => 'test-license-key' })
-      allow(java_home).to receive(:version).and_return(%w(1 8 0 u10))
+      allow(java_home).to receive(:java_8_or_later?).and_return(JavaBuildpack::Util::TokenizedVersion.new('1.8.0_u10'))
 
       component.release
 

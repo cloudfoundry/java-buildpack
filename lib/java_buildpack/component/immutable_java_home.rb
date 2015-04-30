@@ -42,12 +42,19 @@ module JavaBuildpack
         "JAVA_HOME=#{root}"
       end
 
+      # Whether or not the version of Java is 8 or later
+      #
+      # @return [Boolean] +true+ iff the version is 1.8.0 or later
+      def java_8_or_later?
+        @delegate.java_8_or_later?
+      end
+
       # @return [String] the root of the droplet's +JAVA_HOME+ formatted as +$PWD/<value>+
       def root
         qualify_path @delegate.root
       end
 
-      # @return [String] the version of Java being used by the droplet
+      # @return # @return [JavaBuildpack::Util::TokenizedVersion] the tokenized droplet's +VERSION+
       def version
         @delegate.version
       end

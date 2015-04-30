@@ -69,8 +69,9 @@ module JavaBuildpack
       # Container components are also expected to create the command required to run the application.  These components
       # are expected to read the +context+ values and take them into account when creating the command.
       #
-      # @return [void, String] components other than containers are not expected to return any value.  Container
-      #                        components are expected to return the command required to run the application.
+      # @return [void, String] components other than containers and JREs are not expected to return any value.
+      #                        Container and JRE components are expected to return a command required to run the
+      #                        application.
       def release
         fail "Method 'release' must be defined"
       end

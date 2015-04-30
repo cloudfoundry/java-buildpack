@@ -39,8 +39,7 @@ module JavaBuildpack
       # @param [Pathname] path the path to the +javaagent+ JAR
       # @return [JavaOpts]     +self+ for chaining
       def add_javaagent(path)
-        self << "-javaagent:#{qualify_path path}"
-        self
+        add_preformatted_options "-javaagent:#{qualify_path path}"
       end
 
       # Adds an +agentpath+ entry to the +JAVA_OPTS+. Prepends +$PWD+ to the path (relative to the droplet root) to
@@ -49,8 +48,7 @@ module JavaBuildpack
       # @param [Pathname] path the path to the +native+ +agent+
       # @return [JavaOpts]     +self+ for chaining
       def add_agentpath(path)
-        self << "-agentpath:#{qualify_path path}"
-        self
+        add_preformatted_options "-agentpath:#{qualify_path path}"
       end
 
       # Adds a +bootclasspath/p+ entry to the +JAVA_OPTS+. Prepends +$PWD+ to the path (relative to the droplet root) to
@@ -59,8 +57,7 @@ module JavaBuildpack
       # @param [Pathname] path the path to the +javaagent+ JAR
       # @return [JavaOpts]     +self+ for chaining
       def add_bootclasspath_p(path)
-        self << "-Xbootclasspath/p:#{qualify_path path}"
-        self
+        add_preformatted_options "-Xbootclasspath/p:#{qualify_path path}"
       end
 
       # Adds a system property to the +JAVA_OPTS+. Ensures that the key is prepended with +-D+.  If the value is a
@@ -71,8 +68,7 @@ module JavaBuildpack
       # @param [Pathname, String] value the value of the system property
       # @return [JavaOpts]              +self+ for chaining
       def add_system_property(key, value)
-        self << "-D#{key}=#{qualify_value(value)}"
-        self
+        add_preformatted_options "-D#{key}=#{qualify_value(value)}"
       end
 
       # Adds an option to the +JAVA_OPTS+. Nothing is prepended to the key.  If the value is a +Pathname+, then
@@ -80,10 +76,18 @@ module JavaBuildpack
       # Otherwise, uses the value as-is.
       #
       # @param [String] key             the key of the option
-      # @param [Pathname, String] value the value of the system property
+      # @param [Pathname, String] value the value of the option
       # @return [JavaOpts]              +self+ for chaining
       def add_option(key, value)
-        self << "#{key}=#{qualify_value(value)}"
+        add_preformatted_options "#{key}=#{qualify_value(value)}"
+      end
+
+      # Adds a preformatted option to the +JAVA_OPTS+
+      #
+      # @param [String] value the value of options
+      # @return [JavaOpts]    +self+ for chaining
+      def add_preformatted_options(value)
+        self << value
         self
       end
 

@@ -15,6 +15,7 @@
 # limitations under the License.
 
 require 'java_buildpack/component'
+require 'java_buildpack/util/tokenized_version'
 
 module JavaBuildpack
   module Component
@@ -30,8 +31,20 @@ module JavaBuildpack
       attr_accessor :root
 
       # @!attribute [rw] version
-      # @return [Array] the major, minor, micro and qualifier of the droplet's +VERSION+
+      # @return [JavaBuildpack::Util::TokenizedVersion] the tokenized droplet's +VERSION+
       attr_accessor :version
+
+      # Whether or not the version of Java is 8 or later
+      # @return [Boolean] +true+ iff the version is 1.8.0 or later
+      def java_8_or_later?
+        @version >= VERSION_8
+      end
+
+      private
+
+      VERSION_8 = JavaBuildpack::Util::TokenizedVersion.new('1.8.0').freeze
+
+      private_constant :VERSION_8
 
     end
 

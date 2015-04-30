@@ -65,8 +65,12 @@ shared_context 'application_helper' do
     application
   end
 
-  after do
-    FileUtils.rm_rf app_dir
+  after do |example|
+    if example.metadata[:no_cleanup]
+      puts "Application Directory: #{app_dir}"
+    else
+      FileUtils.rm_rf app_dir
+    end
   end
 
 end

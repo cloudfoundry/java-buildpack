@@ -39,7 +39,7 @@ module JavaBuildpack
           .add_system_property('newrelic.config.license_key', license_key)
           .add_system_property('newrelic.config.app_name', "#{application_name}")
           .add_system_property('newrelic.config.log_file_path', logs_dir)
-        @droplet.java_opts.add_system_property('newrelic.enable.java.8', 'true') if java_8?
+        @droplet.java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
       end
 
       protected
@@ -54,10 +54,6 @@ module JavaBuildpack
       FILTER = /newrelic/.freeze
 
       private_constant :FILTER
-
-      def java_8?
-        @droplet.java_home.version[1] == '8'
-      end
 
       def application_name
         @application.details['application_name']
