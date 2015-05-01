@@ -1,5 +1,5 @@
 # Introscope Agent Framework
-The Introscope Agent Framework causes an application to be automatically configured to work with a bound [Introscope service][].
+The Introscope Agent Framework causes an application to be automatically configured to work with a bound [Introscope service][].  **Note:** This framework is disabled by default.
 
 <table>
   <tr>

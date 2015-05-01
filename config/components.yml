@@ -33,7 +33,7 @@ jres:
 
 frameworks:
   - "JavaBuildpack::Framework::AppDynamicsAgent"
-  - "JavaBuildpack::Framework::IntroscopeAgent"
+# - "JavaBuildpack::Framework::IntroscopeAgent"
   - "JavaBuildpack::Framework::JavaOpts"
   - "JavaBuildpack::Framework::JrebelAgent"
   - "JavaBuildpack::Framework::MariaDbJDBC"
