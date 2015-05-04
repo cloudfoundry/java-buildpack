@@ -95,8 +95,13 @@ module JavaBuildpack
       end
 
       def create_param(root, param_type, name, value)
-        param = REXML::Element.new param_type, root
-
+        load_on_startup = xpath(root, 'load-on-startup')
+        if load_on_startup.any?
+          param = REXML::Element.new param_type
+          load_on_startup.first.previous_sibling = param
+        else
+          param = REXML::Element.new param_type, root
+        end
         param_name = REXML::Element.new 'param-name', param
         REXML::Text.new name, true, param_name
 

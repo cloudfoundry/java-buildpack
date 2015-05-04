@@ -30,11 +30,13 @@ describe JavaBuildpack::Framework::WebXmlModifier do
   it 'adds a new contextInitializerClasses if it does not exist' do
     assert_equality('web_root_no_params') { |modifier| modifier.augment_root_context }
     assert_equality('web_servlet_no_params') { |modifier| modifier.augment_servlet_contexts }
+    assert_equality('web_servlet_load_on_startup') { |modifier| modifier.augment_servlet_contexts }
   end
 
   it 'updates existing contextInitializerClasses if it does exist' do
     assert_equality('web_root_existing_params') { |modifier| modifier.augment_root_context }
     assert_equality('web_servlet_existing_params') { |modifier| modifier.augment_servlet_contexts }
+    assert_equality('web_servlet_existing_load_on_startup') { |modifier| modifier.augment_servlet_contexts }
   end
 
   def assert_equality(fixture)
