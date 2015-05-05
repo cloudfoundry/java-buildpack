@@ -46,7 +46,12 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, 'licenseKey'
+        # @application.services.one_service? FILTER, 'licenseKey'
+        if ENV['newrelic_enabled'] == true
+          true
+        else
+          false
+        end
       end
 
       private
@@ -56,11 +61,12 @@ module JavaBuildpack
       private_constant :FILTER
 
       def application_name
-        @application.details['application_name']
-      end
+        # @application.details['application_name']
+        ENV['app_name']
 
       def license_key
-        @application.services.find_service(FILTER)['credentials']['licenseKey']
+        # @application.services.find_service(FILTER)['credentials']['licenseKey']
+        ENV['newrelic_license_key']
       end
 
       def logs_dir
