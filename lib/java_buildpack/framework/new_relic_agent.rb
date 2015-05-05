@@ -63,6 +63,7 @@ module JavaBuildpack
       def application_name
         # @application.details['application_name']
         ENV['app_name']
+      end
 
       def license_key
         # @application.services.find_service(FILTER)['credentials']['licenseKey']
