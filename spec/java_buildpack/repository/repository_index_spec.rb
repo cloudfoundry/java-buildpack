@@ -84,6 +84,10 @@ describe JavaBuildpack::Repository::RepositoryIndex do
   end
 
   it 'handles Mac OS X' do
+    allow(Pathname).to receive(:new).and_call_original
+    non_redhat = double('non-redhat', exist?: false)
+    allow(Pathname).to receive(:new).with('/etc/redhat-release').and_return(non_redhat)
+
     allow_any_instance_of(described_class).to receive(:`).with('uname -s').and_return('Darwin')
     allow_any_instance_of(described_class).to receive(:`).with('uname -m').and_return('x86_64')
     allow(application_cache).to receive(:get).with('mountainlion/x86_64/test-uri/index.yml')
@@ -95,6 +99,10 @@ describe JavaBuildpack::Repository::RepositoryIndex do
   end
 
   it 'handles Ubuntu' do
+    allow(Pathname).to receive(:new).and_call_original
+    non_redhat = double('non-redhat', exist?: false)
+    allow(Pathname).to receive(:new).with('/etc/redhat-release').and_return(non_redhat)
+
     allow_any_instance_of(described_class).to receive(:`).with('uname -s').and_return('Linux')
     allow_any_instance_of(described_class).to receive(:`).with('uname -m').and_return('x86_64')
     allow_any_instance_of(described_class).to receive(:`).with('which lsb_release 2> /dev/null')
@@ -109,6 +117,10 @@ describe JavaBuildpack::Repository::RepositoryIndex do
   end
 
   it 'handles unknown OS' do
+    allow(Pathname).to receive(:new).and_call_original
+    non_redhat = double('non-redhat', exist?: false)
+    allow(Pathname).to receive(:new).with('/etc/redhat-release').and_return(non_redhat)
+
     allow_any_instance_of(File).to receive(:exists?).with('/etc/redhat-release').and_return(false)
     allow_any_instance_of(described_class).to receive(:`).with('uname -s').and_return('Linux')
     allow_any_instance_of(described_class).to receive(:`).with('which lsb_release 2> /dev/null').and_return('')

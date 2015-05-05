@@ -85,7 +85,8 @@ module JavaBuildpack
         redhat_release = Pathname.new('/etc/redhat-release')
 
         if redhat_release.exist?
-          "centos#{redhat_release.read.match(/CentOS release (\d)/)[1]}"
+          tokens = redhat_release.read.match(/(\w+) (?:Linux )?release (\d+)/)
+          "#{tokens[1].downcase}#{tokens[2]}"
         elsif `uname -s` =~ /Darwin/
           'mountainlion'
         elsif !`which lsb_release 2> /dev/null`.empty?
