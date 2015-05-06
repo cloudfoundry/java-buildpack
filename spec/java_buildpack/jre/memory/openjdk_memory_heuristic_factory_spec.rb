@@ -42,7 +42,7 @@ describe JavaBuildpack::Jre::OpenJDKMemoryHeuristicFactory do
   let(:expected_java_memory_options) do
     {
       'heap'      => ->(v) { %W(-Xmx#{v} -Xms#{v}) },
-      'metaspace' => ->(v) { %W(-XX:MaxMetaspaceSize=#{v} -XX:MetaspaceSize=#{v}) },
+      'metaspace' => ->(v) { %W(-XX:MaxMetaspaceSize=#{v}) },
       'permgen'   => ->(v) { %W(-XX:MaxPermSize=#{v} -XX:PermSize=#{v}) },
       'stack'     => ->(v) { %W(-Xss#{v}) }
     }
