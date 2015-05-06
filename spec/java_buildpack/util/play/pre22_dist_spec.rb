@@ -25,53 +25,53 @@ describe JavaBuildpack::Util::Play::Pre22Dist do
 
     let(:trigger) { described_class.new(droplet).supports? }
 
-    it 'should not recognize non-applications' do
+    it 'does not recognize non-applications' do
       expect(trigger).not_to be
     end
 
-    it 'should recognize Play 2.0 dist applications',
+    it 'recognizes Play 2.0 dist applications',
        app_fixture: 'container_play_2.0_dist' do
 
       expect(trigger).to be
     end
 
-    it 'should recognize Play 2.1 dist applications',
+    it 'recognizes Play 2.1 dist applications',
        app_fixture: 'container_play_2.1_dist' do
 
       expect(trigger).to be
     end
 
-    it 'should not recognize Play 2.1 staged (or equivalently 2.0 staged) applications',
+    it 'does not recognize Play 2.1 staged (or equivalently 2.0 staged) applications',
        app_fixture: 'container_play_2.1_staged' do
 
       expect(trigger).not_to be
     end
 
-    it 'should not recognize Play 2.2 dist applications',
+    it 'does not recognize Play 2.2 dist applications',
        app_fixture: 'container_play_2.2_dist' do
 
       expect(trigger).not_to be
     end
 
-    it 'should not recognize Play 2.2 staged applications',
+    it 'does not recognize Play 2.2 staged applications',
        app_fixture: 'container_play_2.2_staged' do
 
       expect(trigger).not_to be
     end
 
-    it 'should not recognize a Ratpack application',
+    it 'does not recognize a Ratpack application',
        app_fixture: 'container_ratpack_dist' do
 
       expect(trigger).not_to be
     end
 
-    it 'should not recognize a Spring Boot application',
+    it 'does not recognize a Spring Boot application',
        app_fixture: 'container_spring_boot_dist' do
 
       expect(trigger).not_to be
     end
 
-    it 'should not recognize a distZip application',
+    it 'does not recognize a distZip application',
        app_fixture: 'container_dist_zip' do
 
       expect(trigger).not_to be
@@ -82,11 +82,11 @@ describe JavaBuildpack::Util::Play::Pre22Dist do
 
     let(:play_app) { described_class.new(droplet) }
 
-    it 'should correctly determine the version of a Play 2.0 dist application' do
+    it 'determines the version of a Play 2.0 dist application' do
       expect(play_app.version).to eq('2.0')
     end
 
-    it 'should add additional libraries to lib directory of a Play 2.0 dist application' do
+    it 'adds additional libraries to lib directory of a Play 2.0 dist application' do
       play_app.compile
 
       lib_dir    = app_dir + 'application-root/lib'
@@ -102,9 +102,9 @@ describe JavaBuildpack::Util::Play::Pre22Dist do
       expect(test_jar_2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(lib_dir))
     end
 
-    it 'should return command' do
-      expect(play_app.release).to eq("PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} $PWD/application-root/start " \
-                                       'test-opt-2 test-opt-1 -Dhttp.port=$PORT')
+    it 'returns command' do
+      expect(play_app.release).to eq("PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} " \
+      '$PWD/application-root/start test-opt-2 test-opt-1 -Dhttp.port=$PORT')
     end
   end
 
@@ -112,20 +112,20 @@ describe JavaBuildpack::Util::Play::Pre22Dist do
 
     let(:play_app) { described_class.new(droplet) }
 
-    it 'should correctly determine the version of a Play 2.1 dist application' do
+    it 'determines the version of a Play 2.1 dist application' do
       expect(play_app.version).to eq('2.1.4')
     end
 
-    it 'should correctly extend the classpath of a Play 2.1 dist application' do
+    it 'extends the classpath of a Play 2.1 dist application' do
       play_app.compile
 
-      expect((app_dir + 'application-root/start').read)
-      .to match 'classpath="\$scriptdir/../.additional_libs/test-jar-1.jar:\$scriptdir/../.additional_libs/test-jar-2.jar:'
+      expect((app_dir + 'application-root/start').read).to match 'classpath="\$scriptdir/../.additional_libs/' \
+      'test-jar-1.jar:\$scriptdir/../.additional_libs/test-jar-2.jar:'
     end
 
-    it 'should return command' do
-      expect(play_app.release).to eq("PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} $PWD/application-root/start " \
-                                       'test-opt-2 test-opt-1 -Dhttp.port=$PORT')
+    it 'returns command' do
+      expect(play_app.release).to eq("PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} " \
+      '$PWD/application-root/start test-opt-2 test-opt-1 -Dhttp.port=$PORT')
     end
 
   end

@@ -87,7 +87,7 @@ Termination is guaranteed since there is a finite number of memory types and in 
 [`config/components.yml`]: ../config/components.yml
 [`config/oracle_jre.yml`]: ../config/oracle_jre.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[OpenJDK JRE]: jre-open_jdk.md
+[OpenJDK JRE]: jre-open_jdk_jre.md
 [Oracle]: http://www.oracle.com/technetwork/java/index.html
 [repositories]: extending-repositories.md
 [version syntax]: extending-repositories.md#version-syntax-and-ordering

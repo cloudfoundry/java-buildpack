@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,27 +43,30 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(true, 'The Spring Insight download location is always accessible') do
-          download(@version, @uri.chomp('/') + AGENT_DOWNLOAD_URI_SUFFIX) { |file| expand file } # TODO: AGENT_DOWNLOAD_URI_SUFFIX To be removed once the full path is included in VCAP_SERVICES see issue 58873498
+        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+          true, 'The Spring Insight download location is always accessible') do
+          # TODO: AGENT_DOWNLOAD_URI_SUFFIX To be removed once the full path is included in VCAP_SERVICES see #58873498
+          download(@version, @uri.chomp('/') + AGENT_DOWNLOAD_URI_SUFFIX) { |file| expand file }
         end
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.java_opts
-        .add_javaagent(weaver_jar)
-        .add_system_property('insight.base', insight_directory)
-        .add_system_property('insight.logs', logs_directory)
-        .add_system_property('aspectj.overweaving', true)
-        .add_system_property('org.aspectj.tracing.factory', 'default')
-        .add_system_property('insight.transport.type', 'HTTP')
+          .add_javaagent(weaver_jar)
+          .add_system_property('insight.base', insight_directory)
+          .add_system_property('insight.logs', logs_directory)
+          .add_system_property('aspectj.overweaving', true)
+          .add_system_property('org.aspectj.tracing.factory', 'default')
+          .add_system_property('insight.transport.type', 'HTTP')
 
         add_agent_configuration
       end
 
       protected
 
-      # The unique identifier of the component, incorporating the version of the dependency (e.g. +spring-insight=1.9.3+)
+      # The unique identifier of the component, incorporating the version of the dependency (e.g.
+      # +spring-insight=1.9.3+)
       #
       # @param [String] version the version of the dependency
       # @return [String] the unique identifier of the component
@@ -73,7 +76,8 @@ module JavaBuildpack
 
       private
 
-      AGENT_DOWNLOAD_URI_SUFFIX = '/services/config/agent-download'.freeze # TODO: To be removed once the full path is included in VCAP_SERVICES see issue 58873498
+      # TODO: To be removed once the full path is included in VCAP_SERVICES see issue 58873498
+      AGENT_DOWNLOAD_URI_SUFFIX = '/services/config/agent-download'.freeze
 
       FILTER = /insight/.freeze
 
@@ -81,14 +85,14 @@ module JavaBuildpack
 
       def add_agent_configuration
         @droplet.java_opts
-        .add_system_property('agent.http.protocol', 'http')
-        .add_system_property('agent.http.host', URI(@uri).host)
-        .add_system_property('agent.http.port', 80)
-        .add_system_property('agent.http.context.path', 'insight')
-        .add_system_property('agent.http.username', @agent_id)
-        .add_system_property('agent.http.password', @agent_pass)
-        .add_system_property('agent.http.send.json', false)
-        .add_system_property('agent.http.use.proxy', false)
+          .add_system_property('agent.http.protocol', 'http')
+          .add_system_property('agent.http.host', URI(@uri).host)
+          .add_system_property('agent.http.port', 80)
+          .add_system_property('agent.http.context.path', 'insight')
+          .add_system_property('agent.http.username', @agent_id)
+          .add_system_property('agent.http.password', @agent_pass)
+          .add_system_property('agent.http.send.json', false)
+          .add_system_property('agent.http.use.proxy', false)
       end
 
       def expand(file)
@@ -200,6 +204,5 @@ module JavaBuildpack
       end
 
     end
-
   end
 end

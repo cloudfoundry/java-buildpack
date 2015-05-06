@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,31 +21,31 @@ require 'java_buildpack/container/dist_zip'
 describe JavaBuildpack::Container::DistZip do
   include_context 'component_helper'
 
-  it 'should detect a distZip application',
+  it 'detects a distZip application',
      app_fixture: 'container_dist_zip' do
 
     expect(component.detect).to eq('dist-zip')
   end
 
-  it 'should not detect a non-distZip application',
+  it 'does not detect a non-distZip application',
      app_fixture: 'container_main' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should not detect a Ratpack application',
+  it 'does not detect a Ratpack application',
      app_fixture: 'container_ratpack_dist' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should not detect a Spring Boot application',
+  it 'does not detect a Spring Boot application',
      app_fixture: 'container_spring_boot_dist' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should not detect a Play application',
+  it 'does not detect a Play application',
      app_fixture: 'container_play_2.2_dist' do
 
     expect(component.detect).to be_nil

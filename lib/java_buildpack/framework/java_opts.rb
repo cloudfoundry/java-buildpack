@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,7 +33,9 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         parsed_java_opts.each do |option|
-          fail "Java option '#{option}' configures a memory region.  Use JRE configuration for this instead." if memory_option? option
+          if memory_option? option
+            fail "Java option '#{option}' configures a memory region.  Use JRE configuration for this instead."
+          end
         end
       end
 

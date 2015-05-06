@@ -6,6 +6,7 @@ group :development do
   gem 'redcarpet'
   gem 'rspec'
   gem 'rubocop'
+  gem 'rubocop-rspec'
   gem 'rubyzip'
   gem 'simplecov'
   gem 'tee'

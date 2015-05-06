@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -139,7 +139,9 @@ module JavaBuildpack
       def validate(allow_wildcards)
         wildcarded = false
         each do |value|
-          fail "Invalid version '#{@version}': wildcards are not allowed this context" if value == WILDCARD && !allow_wildcards
+          if value == WILDCARD && !allow_wildcards
+            fail "Invalid version '#{@version}': wildcards are not allowed this context"
+          end
 
           fail "Invalid version '#{@version}': no characters are allowed after a wildcard" if wildcarded && value
           wildcarded = true if value == WILDCARD

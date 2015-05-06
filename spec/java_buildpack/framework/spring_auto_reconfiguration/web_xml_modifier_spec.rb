@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,20 +19,20 @@ require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
 
 describe JavaBuildpack::Framework::WebXmlModifier do
 
-  it 'should not modify root if there is no ContextLoaderListener' do
+  it 'does not modify root if there is no ContextLoaderListener' do
     assert_equality('web_root_no_contextLoaderListener') { |modifier| modifier.augment_root_context }
   end
 
-  it 'should not modify a servlet if is not a DispatcherServlet' do
+  it 'does not modify a servlet if is not a DispatcherServlet' do
     assert_equality('web_servlet_no_DispatcherServlet') { |modifier| modifier.augment_root_context }
   end
 
-  it 'should add a new contextInitializerClasses if it does not exist' do
+  it 'adds a new contextInitializerClasses if it does not exist' do
     assert_equality('web_root_no_params') { |modifier| modifier.augment_root_context }
     assert_equality('web_servlet_no_params') { |modifier| modifier.augment_servlet_contexts }
   end
 
-  it 'should update existing contextInitializerClasses if it does exist' do
+  it 'updates existing contextInitializerClasses if it does exist' do
     assert_equality('web_root_existing_params') { |modifier| modifier.augment_root_context }
     assert_equality('web_servlet_existing_params') { |modifier| modifier.augment_servlet_contexts }
   end

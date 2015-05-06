@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ module JavaBuildpack
       # @param [String] name a non-empty, human-readable name for this memory bucket, used only in diagnostics
       # @param [Numeric] weighting a number between 0 and 1 corresponding to the proportion of total memory which this
       #                  memory bucket should consume by default
-      # @param [MemoryRange, nil] range a user-specified range for the memory bucket or nil if the user did not specify a
-      #                            range
+      # @param [MemoryRange, nil] range a user-specified range for the memory bucket or nil if the user did not specify
+      #                                 a range
       def initialize(name, weighting, range)
         @name      = validate_name name
         @weighting = validate_weighting weighting
@@ -80,7 +80,10 @@ module JavaBuildpack
       end
 
       def validate_memory_range(range)
-        fail "Invalid 'range' parameter of class '#{range.class}' for #{identify} : not a MemoryRange" unless range.is_a? MemoryRange
+        unless range.is_a? MemoryRange
+          fail "Invalid 'range' parameter of class '#{range.class}' for #{identify} : not a MemoryRange"
+        end
+
         range
       end
 

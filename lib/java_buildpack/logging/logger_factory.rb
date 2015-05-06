@@ -26,11 +26,11 @@ require 'singleton'
 module JavaBuildpack
   module Logging
 
-    # Responsible for configuring and creating all +Logger+ instances.  +Logger+s created by the factory log all messages
-    # to a file located at +app_dir/.java-buildpack.log+.  They also log all messages, filtered by the configured
-    # severity, to +$stderr+.  Severity can be configured (in decreasing priority) by using the +JBP_LOG_LEVEL+
-    # environment variable, the Ruby +$DEBUG+ and +$VERBOSE+ flags, and the +config/logging.yml+ file.  If none of these
-    # is set, then the severity defaults to +INFO+.
+    # Responsible for configuring and creating all +Logger+ instances.  +Logger+s created by the factory log all
+    # messages to a file located at +app_dir/.java-buildpack.log+.  They also log all messages, filtered by the
+    # configured severity, to +$stderr+.  Severity can be configured (in decreasing priority) by using the
+    # +JBP_LOG_LEVEL+ environment variable, the Ruby +$DEBUG+ and +$VERBOSE+ flags, and the +config/logging.yml+ file.
+    # If none of these is set, then the severity defaults to +INFO+.
     class LoggerFactory
       include ::Singleton
 
@@ -52,8 +52,8 @@ module JavaBuildpack
         end
       end
 
-      # Returns a configured logger for a given +Class+.  The +Class+ that is passed in is used as the +progname+, for all
-      # messages logged by the logger. If this is called before the +setup()+ method, a failure will be generated.
+      # Returns a configured logger for a given +Class+.  The +Class+ that is passed in is used as the +progname+, for
+      # all messages logged by the logger. If this is called before the +setup()+ method, a failure will be generated.
       #
       # @param [Class] klass the class that the logger is created for
       # @return [Logger] the logger that was requested
@@ -64,7 +64,8 @@ module JavaBuildpack
         end
       end
 
-      # Returns the location of the log file.  If this is called before the +setup()+ method, a failure will be generated.
+      # Returns the location of the log file.  If this is called before the +setup()+ method, a failure will be
+      # generated.
       #
       # @return [Pathname] the location of the log file
       def log_file
@@ -85,8 +86,8 @@ module JavaBuildpack
 
       class << self
 
-        # Returns a configured logger for a given +Class+.  The +Class+ that is passed in is used as the +progname+, for all
-        # messages logged by the logger. If this is called before the +setup()+ method, a failure will be generated.  Note this
+        # Returns a configured logger for a given +Class+.  The +Class+ that is passed in is used as the +progname+, for
+        # all messages logged by the logger. If this is called before the +setup()+ method, a failure will be generated.
         #
         # @param [Class] klass the class that the logger is created for
         # @return [Logger] the logger that was requested

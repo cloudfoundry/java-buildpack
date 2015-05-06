@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ module JavaBuildpack
       #
       # @param [Numeric] weighting a number between 0 and 1 corresponding to the proportion of total memory which this
       #                            memory bucket should consume by default
-      # @param [MemoryRange, nil] range a user-specified range for the memory bucket or nil if the user did not specify a
-      #                            range
+      # @param [MemoryRange, nil] range a user-specified range for the memory bucket or nil if the user did not specify
+      #                                 a range
       def initialize(weighting, range)
         super('stack', weighting, range)
       end

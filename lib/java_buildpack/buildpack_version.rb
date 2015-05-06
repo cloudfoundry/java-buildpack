@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,7 +74,8 @@ module JavaBuildpack
     # Creates a string representation of the version.  The string representation looks like the following:
     # +[[<VERSION> [(offline)] | ] <REMOTE>#<HASH>] | [unknown]+.  Some examples:
     #
-    # +2.1.2 (offline) | https://github.com/cloudfoundry/java-buildpack.git#12345+ (custom version number, offline buildpack)
+    # +2.1.2 (offline) | https://github.com/cloudfoundry/java-buildpack.git#12345+ (custom version number, offline
+    # buildpack)
     # +abcde | https://github.com/cloudfoundry/java-buildpack.git#abcde+ (default version number, online buildpack)
     # +https://github.com/cloudfoundry/java-buildpack#12345+ (cloned buildpack)
     # +unknown+ (un-packaged, un-cloned)
@@ -85,25 +86,36 @@ module JavaBuildpack
       s = []
       s << @version if @version
       s << (human_readable ? '(offline)' : 'offline') if @offline
-      s << '|' if @version && human_readable
-      s << "#{@remote}##{@hash}" if @remote && @hash
-      s << 'unknown' if s.empty?
 
+      if remote_string
+        s << '|' if @version && human_readable
+        s << remote_string
+      end
+
+      s << 'unknown' if s.empty?
       s.join(human_readable ? ' ' : '-')
     end
 
     private
 
-    GIT_DIR = (Pathname.new(__FILE__).dirname + '../../.git').freeze
+    GIT_DIR = (Pathname.new(__FILE__).dirname.join('..', '..', '.git')).freeze
 
     private_constant :GIT_DIR
+
+    def remote_string
+      "#{@remote}##{@hash}" if @remote && !@remote.empty? && @hash && !@hash.empty?
+    end
 
     def git(command)
       `git --git-dir=#{GIT_DIR} #{command}`.chomp if git? && git_dir?
     end
 
     def git?
-      system 'which git > /dev/null'
+      if Gem.win_platform?
+        system 'where.exe /q git.exe'
+      else
+        system 'which git > /dev/null'
+      end
     end
 
     def git_dir?

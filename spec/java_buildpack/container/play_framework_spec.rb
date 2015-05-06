@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,19 +30,19 @@ describe JavaBuildpack::Container::PlayFramework do
       allow(JavaBuildpack::Util::Play::Factory).to receive(:create).with(droplet).and_return(delegate)
     end
 
-    it 'should delegate detect' do
+    it 'delegates detect' do
       expect(delegate).to receive(:version).and_return('0.0.0')
 
       expect(component.detect).to eq('play-framework=0.0.0')
     end
 
-    it 'should delegate compile' do
+    it 'delegates compile' do
       expect(delegate).to receive(:compile)
 
       component.compile
     end
 
-    it 'should delegate release' do
+    it 'delegates release' do
       expect(delegate).to receive(:release)
 
       component.release
@@ -56,15 +56,15 @@ describe JavaBuildpack::Container::PlayFramework do
       allow(JavaBuildpack::Util::Play::Factory).to receive(:create).with(droplet).and_return(nil)
     end
 
-    it 'should not delegate detect' do
+    it 'does not delegate detect' do
       expect(component.detect).to be_nil
     end
 
-    it 'should not delegate compile' do
+    it 'does not delegate compile' do
       component.compile
     end
 
-    it 'should not delegate release' do
+    it 'does not delegate release' do
       component.release
     end
 

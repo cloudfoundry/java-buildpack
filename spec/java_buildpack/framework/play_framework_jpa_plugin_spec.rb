@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ describe JavaBuildpack::Framework::PlayFrameworkJPAPlugin do
 
   let(:configuration) { { 'enabled' => true } }
 
-  it 'should detect Play 2.0 application',
+  it 'detects Play 2.0 application',
      app_fixture: 'framework_play_jpa_plugin_play20' do
 
     expect(component.detect).to eq("play-framework-jpa-plugin=#{version}")
@@ -32,32 +32,32 @@ describe JavaBuildpack::Framework::PlayFrameworkJPAPlugin do
   context do
     let(:configuration) { { 'enabled' => false } }
 
-    it 'should not detect if disabled',
+    it 'does not detect if disabled',
        app_fixture: 'framework_play_jpa_plugin_play20' do
 
       expect(component.detect).to be_nil
     end
   end
 
-  it 'should detect staged application',
+  it 'detects staged application',
      app_fixture: 'framework_play_jpa_plugin_staged' do
 
     expect(component.detect).to eq("play-framework-jpa-plugin=#{version}")
   end
 
-  it 'should detect dist application',
+  it 'detects dist application',
      app_fixture: 'framework_play_jpa_plugin_dist' do
 
     expect(component.detect).to eq("play-framework-jpa-plugin=#{version}")
   end
 
-  it 'should not detect non-JPA application',
+  it 'does not detect non-JPA application',
      app_fixture: 'container_play_2.1_dist' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should download additional libraries',
+  it 'downloads additional libraries',
      app_fixture:   'framework_play_jpa_plugin_dist',
      cache_fixture: 'stub-play-jpa-plugin.jar' do
 
@@ -66,7 +66,7 @@ describe JavaBuildpack::Framework::PlayFrameworkJPAPlugin do
     expect(sandbox + "play_framework_jpa_plugin-#{version}.jar").to exist
   end
 
-  it 'should add to additional libraries',
+  it 'adds to additional libraries',
      app_fixture:   'framework_play_jpa_plugin_dist',
      cache_fixture: 'stub-play-jpa-plugin.jar' do
 

@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ require 'java_buildpack/framework/postgresql_jdbc'
 describe JavaBuildpack::Framework::PostgresqlJDBC do
   include_context 'component_helper'
 
-  it 'should not detect without a postgres service' do
+  it 'does not detect without a postgres service' do
     expect(component.detect).to be_nil
   end
 
@@ -31,17 +31,17 @@ describe JavaBuildpack::Framework::PostgresqlJDBC do
       allow(services).to receive(:one_service?).with(/postgres/, 'uri').and_return(true)
     end
 
-    it 'should detect with postgres service' do
+    it 'detects with postgres service' do
       expect(component.detect).to eq("postgresql-jdbc=#{version}")
     end
 
-    it 'should not detect if the application already has a Postgres driver',
+    it 'does not detect if the application already has a Postgres driver',
        app_fixture: 'framework_postgresql_jdbc_with_driver' do
 
       expect(component.detect).to be_nil
     end
 
-    it 'should download the Postgres driver when needed',
+    it 'downloads the Postgres driver when needed',
        cache_fixture: 'stub-postgresql-0.0-0000-jdbc00.jar' do
 
       component.compile
@@ -49,7 +49,7 @@ describe JavaBuildpack::Framework::PostgresqlJDBC do
       expect(sandbox + "postgresql_jdbc-#{version}.jar").to exist
     end
 
-    it 'should add the Postgresql driver to the additional libraries when needed',
+    it 'adds the Postgresql driver to the additional libraries when needed',
        cache_fixture: 'stub-mariadb-java-client.jar' do
 
       component.release

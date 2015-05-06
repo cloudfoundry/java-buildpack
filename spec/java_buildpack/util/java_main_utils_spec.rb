@@ -26,18 +26,18 @@ describe JavaBuildpack::Util::JavaMainUtils do
 
   let(:test_class_name) { 'test-java-main-class' }
 
-  it 'should use a main class configuration in a configuration file' do
+  it 'uses a main class configuration in a configuration file' do
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('java_main')
-                                                      .and_return('java_main_class' => test_class_name)
+                                                        .and_return('java_main_class' => test_class_name)
 
     expect(described_class.main_class(application)).to eq(test_class_name)
   end
 
-  it 'should use a main class configuration in a configuration parameter' do
+  it 'uses a main class configuration in a configuration parameter' do
     expect(described_class.main_class(application, 'java_main_class' => test_class_name)).to eq(test_class_name)
   end
 
-  it 'should use a main class in the manifest of the application',
+  it 'uses a main class in the manifest of the application',
      app_fixture: 'container_main' do
 
     expect(described_class.main_class(application)).to eq('test-main-class')

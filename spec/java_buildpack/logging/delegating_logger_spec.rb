@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,35 +25,35 @@ describe JavaBuildpack::Logging::DelegatingLogger do
   let(:delegate2) { double('delegate2') }
   let(:delegating_logger) { described_class.new('test-klass', [delegate1, delegate2]) }
 
-  it 'should delegate FATAL calls' do
+  it 'delegates FATAL calls' do
     expect(delegate1).to receive(:add).with(Logger::FATAL, nil, 'test-klass')
     expect(delegate2).to receive(:add).with(Logger::FATAL, nil, 'test-klass')
 
     delegating_logger.fatal
   end
 
-  it 'should delegate ERROR calls' do
+  it 'delegates ERROR calls' do
     expect(delegate1).to receive(:add).with(Logger::ERROR, nil, 'test-klass')
     expect(delegate2).to receive(:add).with(Logger::ERROR, nil, 'test-klass')
 
     delegating_logger.error
   end
 
-  it 'should delegate WARN calls' do
+  it 'delegates WARN calls' do
     expect(delegate1).to receive(:add).with(Logger::WARN, nil, 'test-klass')
     expect(delegate2).to receive(:add).with(Logger::WARN, nil, 'test-klass')
 
     delegating_logger.warn
   end
 
-  it 'should delegate INFO calls' do
+  it 'delegates INFO calls' do
     expect(delegate1).to receive(:add).with(Logger::INFO, nil, 'test-klass')
     expect(delegate2).to receive(:add).with(Logger::INFO, nil, 'test-klass')
 
     delegating_logger.info
   end
 
-  it 'should delegate DEBUG calls' do
+  it 'delegates DEBUG calls' do
     expect(delegate1).to receive(:add).with(Logger::DEBUG, nil, 'test-klass')
     expect(delegate2).to receive(:add).with(Logger::DEBUG, nil, 'test-klass')
 

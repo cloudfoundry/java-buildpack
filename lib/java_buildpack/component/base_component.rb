@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ require 'java_buildpack/util/cache/application_cache'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/shell'
 require 'java_buildpack/util/space_case'
+require 'java_buildpack/util/sanitizer'
 
 module JavaBuildpack
   module Component
@@ -61,8 +62,9 @@ module JavaBuildpack
         fail "Method 'compile' must be defined"
       end
 
-      # Modifies the application's runtime configuration. The component is expected to transform members of the +context+
-      # (e.g. +@java_home+, +@java_opts+, etc.) in whatever way is necessary to support the function of the component.
+      # Modifies the application's runtime configuration. The component is expected to transform members of the
+      # +context+ # (e.g. +@java_home+, +@java_opts+, etc.) in whatever way is necessary to support the function of the
+      # component.
       #
       # Container components are also expected to create the command required to run the application.  These components
       # are expected to read the +context+ values and take them into account when creating the command.
@@ -75,8 +77,8 @@ module JavaBuildpack
 
       protected
 
-      # Downloads an item with the given name and version from the given URI, then yields the resultant file to the given
-      # block.
+      # Downloads an item with the given name and version from the given URI, then yields the resultant file to the
+      # given # block.
       #
       # @param [JavaBuildpack::Util::TokenizedVersion] version
       # @param [String] uri
@@ -84,7 +86,7 @@ module JavaBuildpack
       # @return [Void]
       def download(version, uri, name = @component_name)
         download_start_time = Time.now
-        print "-----> Downloading #{name} #{version} from #{uri} "
+        print "-----> Downloading #{name} #{version} from #{uri.sanitize_uri} "
 
         JavaBuildpack::Util::Cache::ApplicationCache.new.get(uri) do |file, downloaded|
           puts downloaded ? "(#{(Time.now - download_start_time).duration})" : '(found in cache)'
@@ -111,7 +113,8 @@ module JavaBuildpack
       #
       # @param [String] version the version of the download
       # @param [String] uri the uri of the download
-      # @param [Pathname] target_directory the directory to expand the TAR file to.  Defaults to the component's sandbox.
+      # @param [Pathname] target_directory the directory to expand the TAR file to.  Defaults to the component's
+      #                                    sandbox.
       # @param [String] name an optional name for the download and expansion.  Defaults to +@component_name+.
       # @return [Void]
       def download_tar(version, uri, target_directory = @droplet.sandbox, name = @component_name)
@@ -126,10 +129,12 @@ module JavaBuildpack
       # Downloads a given ZIP file and expands it.
       #
       # @param [Boolean] strip_top_level whether to strip the top-level directory when expanding. Defaults to +true+.
-      # @param [Pathname] target_directory the directory to expand the ZIP file to.  Defaults to the component's sandbox.
+      # @param [Pathname] target_directory the directory to expand the ZIP file to.  Defaults to the component's
+      #                                    sandbox.
       # @param [String] name an optional name for the download.  Defaults to +@component_name+.
       # @return [Void]
-      def download_zip(version, uri, strip_top_level = true, target_directory = @droplet.sandbox, name = @component_name)
+      def download_zip(version, uri, strip_top_level = true, target_directory = @droplet.sandbox,
+                       name = @component_name)
         download(version, uri, name) do |file|
           with_timing "Expanding #{name} to #{target_directory.relative_path_from(@droplet.root)}" do
             if strip_top_level

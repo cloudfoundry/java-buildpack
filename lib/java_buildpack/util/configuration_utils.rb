@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,12 +29,12 @@ module JavaBuildpack
 
       class << self
 
-        # Loads a configuration file from the buildpack configuration directory.  If the configuration file does not exist,
-        # returns an empty hash.
+        # Loads a configuration file from the buildpack configuration directory.  If the configuration file does not
+        # exist, returns an empty hash.
         #
         # @param [String] identifier the identifier of the configuration
-        # @param [Boolean] should_log whether the contents of the configuration file should be logged.  This value should be
-        #                             left to its default and exists to allow the logger to use the utility.
+        # @param [Boolean] should_log whether the contents of the configuration file should be logged.  This value
+        #                             should be left to its default and exists to allow the logger to use the utility.
         # @return [Hash] the configuration or an empty hash if the configuration file does not exist
         def load(identifier, should_log = true)
           file = CONFIG_DIRECTORY + "#{identifier}.yml"

@@ -33,11 +33,11 @@ module JavaBuildpack
         # @param [String] uri a uri which uniquely identifies the file in the cache
         # @param [Boolean] mutable whether the cached file should be mutable
         def initialize(cache_root, uri, mutable)
-          key            = URI.escape(uri, ':/')
+          key            = URI.escape(uri.sanitize_uri, ':/')
           @cached        = cache_root + "#{key}.cached"
           @etag          = cache_root + "#{key}.etag"
           @last_modified = cache_root + "#{key}.last_modified"
-          @mutable = mutable
+          @mutable       = mutable
 
           FileUtils.mkdir_p cache_root if mutable
         end

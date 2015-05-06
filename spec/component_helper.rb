@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,8 +53,10 @@ shared_context 'component_helper' do
     allow(JavaBuildpack::Util::Cache::ApplicationCache).to receive(:new).and_return(application_cache)
 
     cache_fixture = example.metadata[:cache_fixture]
-    allow(application_cache).to receive(:get).with(uri)
-                                .and_yield(Pathname.new("spec/fixtures/#{cache_fixture}").open, false) if cache_fixture
+    if cache_fixture
+      allow(application_cache).to receive(:get).with(uri)
+                                    .and_yield(Pathname.new("spec/fixtures/#{cache_fixture}").open, false)
+    end
   end
 
   # Mock repository

@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ describe JavaBuildpack::Jre::StackMemoryBucket do
   let(:test_stack_size) { JavaBuildpack::Jre::MemorySize.new('2M') }
   let(:test_stack_size_range) { JavaBuildpack::Jre::MemoryRange.new(test_stack_size, test_stack_size) }
 
-  it 'should call the superclass constructor correctly' do
+  it 'calls the superclass constructor' do
     # since we can't easily stub the superclass, test the superclass behaves as expected
     stack_memory_bucket = described_class.new(test_stack_bucket_weighting, test_stack_size_range)
     expect(stack_memory_bucket.range).to eq(test_stack_size_range)

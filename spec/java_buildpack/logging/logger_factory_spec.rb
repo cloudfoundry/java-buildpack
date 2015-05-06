@@ -26,11 +26,11 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
   let(:logger) { described_class.instance.get_logger String }
 
-  it 'should maintain backwards compatibility' do
+  it 'maintains backwards compatibility' do
     expect(described_class.get_logger String).to be
   end
 
-  it 'should log all levels to file',
+  it 'logs all levels to file',
      log_level: 'FATAL' do
 
     trigger
@@ -48,7 +48,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
     expect(log_contents).to match(/FATAL param-fatal-message/)
   end
 
-  it 'should log all levels to console when JBP_LOG_LEVEL set to DEBUG',
+  it 'logs all levels to console when JBP_LOG_LEVEL set to DEBUG',
      log_level: 'DEBUG' do
 
     trigger
@@ -66,7 +66,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
     expect(stderr.string).to match(/FATAL param-fatal-message/)
   end
 
-  it 'should log all levels above INFO to console when JBP_LOG_LEVEL set to INFO',
+  it 'logs all levels above INFO to console when JBP_LOG_LEVEL set to INFO',
      log_level: 'INFO' do
 
     trigger
@@ -84,7 +84,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
     expect(stderr.string).to match(/FATAL param-fatal-message/)
   end
 
-  it 'should log all levels above WARN to console when JBP_LOG_LEVEL set to WARN',
+  it 'logs all levels above WARN to console when JBP_LOG_LEVEL set to WARN',
      log_level: 'WARN' do
 
     trigger
@@ -102,7 +102,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
     expect(stderr.string).to match(/FATAL param-fatal-message/)
   end
 
-  it 'should log all levels above ERROR to console when JBP_LOG_LEVEL set to ERROR',
+  it 'logs all levels above ERROR to console when JBP_LOG_LEVEL set to ERROR',
      log_level: 'ERROR' do
 
     trigger
@@ -120,7 +120,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
     expect(stderr.string).to match(/FATAL param-fatal-message/)
   end
 
-  it 'should log FATAL to console when JBP_LOG_LEVEL set to FATAL',
+  it 'logs FATAL to console when JBP_LOG_LEVEL set to FATAL',
      log_level: 'FATAL' do
 
     trigger
@@ -138,7 +138,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
     expect(stderr.string).to match(/FATAL param-fatal-message/)
   end
 
-  it 'should log all levels to console when $DEBUG set',
+  it 'logs all levels to console when $DEBUG set',
      :debug do
 
     trigger
@@ -157,7 +157,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
   end
 
-  it 'should log all levels to console when $VERBOSE set',
+  it 'logs all levels to console when $VERBOSE set',
      :verbose do
 
     trigger
@@ -176,7 +176,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
   end
 
-  it 'should return the log file' do
+  it 'returns the log file' do
     expect(described_class.instance.log_file).to eq(app_dir + '.java-buildpack.log')
   end
 
@@ -184,11 +184,11 @@ describe JavaBuildpack::Logging::LoggerFactory do
 
     before do
       allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('logging', false)
-                                                        .and_return('default_log_level' => 'DEBUG')
+                                                          .and_return('default_log_level' => 'DEBUG')
       described_class.instance.setup app_dir
     end
 
-    it 'should log all levels to console when default_log_level set to DEBUG in configuration file' do
+    it 'logs all levels to console when default_log_level set to DEBUG in configuration file' do
       trigger
 
       expect(stderr.string).to match(/DEBUG block-debug-message/)
@@ -212,7 +212,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
       described_class.instance.setup app_dir
     end
 
-    it 'should log all levels above INFO to console when no configuration has been set' do
+    it 'logs all levels above INFO to console when no configuration has been set' do
       trigger
 
       expect(stderr.string).not_to match(/DEBUG block-debug-message/)
@@ -235,24 +235,31 @@ describe JavaBuildpack::Logging::LoggerFactory do
       described_class.instance.reset
     end
 
-    it 'should raise an error if get_logger called and not yet initialized' do
+    it 'raises an error if get_logger called and not yet initialized' do
       expect { described_class.instance.get_logger String }
-      .to raise_error 'Attempted to get Logger for String before initialization'
+        .to raise_error 'Attempted to get Logger for String before initialization'
     end
 
-    it 'should raise an error if log_file called and not yet initialized' do
+    it 'raises an error if log_file called and not yet initialized' do
       expect { described_class.instance.log_file }
-      .to raise_error 'Attempted to get log file before initialization'
+        .to raise_error 'Attempted to get log file before initialization'
     end
   end
 
   def trigger
+    trigger_block
+    trigger_param
+  end
+
+  def trigger_block
     logger.debug { 'block-debug-message' }
     logger.info { 'block-info-message' }
     logger.warn { 'block-warn-message' }
     logger.error { 'block-error-message' }
     logger.fatal { 'block-fatal-message' }
+  end
 
+  def trigger_param
     logger.debug 'param-debug-message'
     logger.info 'param-info-message'
     logger.warn 'param-warn-message'

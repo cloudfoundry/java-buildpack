@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,17 +19,20 @@ require 'java_buildpack/util'
 module JavaBuildpack
   module Util
 
-    # Find a start script relative to a root directory.  A start script is defined as existing in the +bin/+ directory and
-    # being either the only file, or the only file with a counterpart named +<filename>.bat+
+    # Find a start script relative to a root directory.  A start script is defined as existing in the +bin/+ directory
+    # and being either the only file, or the only file with a counterpart named +<filename>.bat+
     #
     # @param [Pathname] root the root to search from
     # @return [Pathname, nil] the start script or +nil+ if one does not exist
     def start_script(root)
-      if root
-        candidates = (root + 'bin/*').glob
-        candidates.size == 1 ? candidates.first : candidates.find { |candidate| Pathname.new("#{candidate}.bat").exist? }
+      return nil unless root
+
+      candidates = (root + 'bin/*').glob
+
+      if candidates.size == 1
+        candidates.first
       else
-        nil
+        candidates.find { |candidate| Pathname.new("#{candidate}.bat").exist? }
       end
     end
 

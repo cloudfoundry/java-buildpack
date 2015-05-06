@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -80,13 +80,14 @@ module JavaBuildpack
       private_constant :CONTEXT_INITIALIZER_CLASSES, :CONTEXT_LOADER_LISTENER, :DISPATCHER_SERVLET
 
       def augment(root, param_type)
-        classes_string = xpath(root, "#{param_type}[param-name[contains(text(), '#{CONTEXT_INITIALIZER_CLASSES}')]]/param-value/text()").first
+        classes_string = xpath(root, "#{param_type}[param-name[contains(text(),
+                               '#{CONTEXT_INITIALIZER_CLASSES}')]]/param-value/text()").first
         classes_string = create_param(root, param_type, CONTEXT_INITIALIZER_CLASSES, '') unless classes_string
 
         classes = classes_string.value.strip.split(/[,;\s]+/)
         classes = classes.concat CONTEXT_INITIALIZER_ADDITIONAL
 
-        classes_string.value = classes.join(',') # rubocop:disable UselessSetterCall
+        classes_string.value = classes.join(',') # rubocop:disable Lint/UselessSetterCall
       end
 
       def context_loader_listener?

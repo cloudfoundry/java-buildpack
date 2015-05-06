@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,16 +17,16 @@
 require 'spec_helper'
 require 'integration_helper'
 
-describe 'release script', :integration do
+describe 'release script', :integration do # rubocop:disable RSpec/DescribeClass
   include_context 'integration_helper'
 
-  it 'should return zero if success',
+  it 'returns zero if success',
      app_fixture: 'integration_valid' do
 
     run("bin/release #{app_dir}") { |status| expect(status).to be_success }
   end
 
-  it 'should fail to release when no containers detect' do
+  it 'fails to release when no containers detect' do
     run("bin/release #{app_dir}") do |status|
       expect(status).not_to be_success
       expect(stderr.string).to match(/No container can run this application/)

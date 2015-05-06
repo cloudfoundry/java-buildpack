@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,8 @@ module JavaBuildpack
 
       # Create a new instance, populating it with values from a properties file
       #
-      # @param [Pathname, nil] file_name the file to use for initialization. If no file is passed in, the instance is empty.
+      # @param [Pathname, nil] file_name the file to use for initialization. If no file is passed in, the instance is
+      #                                  empty.
       def initialize(file_name)
         return self if file_name.nil?
 

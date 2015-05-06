@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,21 +23,21 @@ describe JavaBuildpack::Component::ImmutableJavaHome do
 
   let(:immutable_java_home) { described_class.new delegate, Pathname.new('.') }
 
-  it 'should return the JAVA_HOME as an environment variable' do
+  it 'returns the JAVA_HOME as an environment variable' do
     expect(immutable_java_home.as_env_var).to eq('JAVA_HOME=$PWD/test-java-home')
   end
 
-  it 'should set JAVA_HOME environment variable' do
+  it 'sets JAVA_HOME environment variable' do
     immutable_java_home.do_with do
       expect(ENV['JAVA_HOME']).to eq('test-java-home')
     end
   end
 
-  it 'should return the qualified delegate root' do
+  it 'returns the qualified delegate root' do
     expect(immutable_java_home.root).to eq('$PWD/test-java-home')
   end
 
-  it 'should return the delegate version' do
+  it 'returns the delegate version' do
     expect(immutable_java_home.version).to eq(%w(1 2 3 u04))
   end
 

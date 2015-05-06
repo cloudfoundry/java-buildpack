@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@ require 'console_helper'
 require 'java_buildpack/util/shell'
 
 describe JavaBuildpack::Util::Shell do
-  include JavaBuildpack::Util::Shell
+  include described_class
   include_context 'console_helper'
 
-  it 'should return if command returns a zero exit code' do
+  it 'returns if command returns a zero exit code' do
     shell 'true'
   end
 
-  it 'should raise an error if command returns a non-zero exit code' do
+  it 'raises an error if command returns a non-zero exit code' do
     expect { shell 'false' }.to raise_error
   end
 

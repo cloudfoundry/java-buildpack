@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ module JavaBuildpack
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
         super(context)
-        @ratpack_utils = JavaBuildpack::Util::RatpackUtils.new
+        @ratpack_utils     = JavaBuildpack::Util::RatpackUtils.new
         @spring_boot_utils = JavaBuildpack::Util::SpringBootUtils.new
       end
 
@@ -49,8 +49,8 @@ module JavaBuildpack
           start_script(root).exist? &&
           jars? &&
           !@ratpack_utils.is?(@application) &&
-          !@spring_boot_utils.is?(@application) &&
-          !JavaBuildpack::Util::Play::Factory.create(@droplet)
+            !@spring_boot_utils.is?(@application) &&
+              !JavaBuildpack::Util::Play::Factory.create(@droplet)
       end
 
       private

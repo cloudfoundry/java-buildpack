@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 require 'spec_helper'
 require 'java_buildpack/util/constantize'
 
-describe 'constantize' do
+describe 'constantize' do # rubocop:disable RSpec/DescribeClass
 
-  it 'should constantize string' do
+  it 'constantizes string' do
     expect('Test::StubClass'.constantize).to eq(Test::StubClass)
   end
 
-  it 'should raise error if constant does not exist' do
+  it 'raises error if constant does not exist' do
     expect { 'Test::StubClass2'.constantize }.to raise_error(NameError)
   end
 

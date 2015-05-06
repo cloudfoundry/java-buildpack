@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2015 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,33 +24,33 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
 
   let(:configuration) { { 'enabled' => true } }
 
-  it 'should detect with Spring JAR',
+  it 'detects with Spring JAR',
      app_fixture: 'framework_auto_reconfiguration_servlet_3' do
 
     expect(component.detect).to eq("spring-auto-reconfiguration=#{version}")
   end
 
-  it 'should detect with Spring JAR which has a long name',
+  it 'detects with Spring JAR which has a long name',
      app_fixture: 'framework_auto_reconfiguration_long_spring_jar_name' do
 
     expect(component.detect).to eq("spring-auto-reconfiguration=#{version}")
   end
 
-  it 'should not detect without Spring JAR' do
+  it 'does not detect without Spring JAR' do
     expect(component.detect).to be_nil
   end
 
   context do
     let(:configuration) { { 'enabled' => false } }
 
-    it 'should not detect if disabled',
+    it 'does not detect if disabled',
        app_fixture: 'framework_auto_reconfiguration_servlet_3' do
 
       expect(component.detect).to be_nil
     end
   end
 
-  it 'should download additional libraries',
+  it 'downloads additional libraries',
      app_fixture:   'framework_auto_reconfiguration_servlet_3',
      cache_fixture: 'stub-auto-reconfiguration.jar' do
 
@@ -59,7 +59,7 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
     expect(sandbox + "spring_auto_reconfiguration-#{version}.jar").to exist
   end
 
-  it 'should add to additional libraries',
+  it 'adds to additional libraries',
      app_fixture:   'framework_auto_reconfiguration_servlet_3',
      cache_fixture: 'stub-auto-reconfiguration.jar' do
 
@@ -79,7 +79,7 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
       allow(web_xml_modifier).to receive(:to_s).and_return('Test Content')
     end
 
-    it 'should update web.xml if it exists',
+    it 'updates web.xml if it exists',
        app_fixture:   'framework_auto_reconfiguration_servlet_2',
        cache_fixture: 'stub-auto-reconfiguration.jar' do
 

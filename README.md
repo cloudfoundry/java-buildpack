@@ -43,6 +43,7 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 * Standard Frameworks
 	* [AppDynamics Agent](docs/framework-app_dynamics_agent.md) ([Configuration](docs/framework-app_dynamics_agent.md#configuration))
 	* [Java Options](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))
+	* [JRebel Agent](docs/framework-jrebel_agent.md) ([Configuration](docs/framework-jrebel_agent.md#configuration))
 	* [MariaDB JDBC](docs/framework-maria_db_jdbc.md) ([Configuration](docs/framework-maria_db_jdbc.md#configuration))
 	* [New Relic Agent](docs/framework-new_relic_agent.md) ([Configuration](docs/framework-new_relic_agent.md#configuration))
 	* [Play Framework Auto Reconfiguration](docs/framework-play_framework_auto_reconfiguration.md) ([Configuration](docs/framework-play_framework_auto_reconfiguration.md#configuration))
@@ -62,7 +63,7 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 	* [Caches](docs/extending-caches.md) ([Configuration](docs/extending-caches.md#configuration))
 	* [Logging](docs/extending-logging.md) ([Configuration](docs/extending-logging.md#configuration))
 	* [Repositories](docs/extending-repositories.md) ([Configuration](docs/extending-repositories.md#configuration))
-	* [Utilities](docs/extending-utiltities.md)
+	* [Utilities](docs/extending-utilities.md)
 * [Debugging the Buildpack](docs/debugging-the-buildpack.md)
 * [Buildpack Modes](docs/buildpack-modes.md)
 * Related Projects
@@ -71,7 +72,7 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 	* [Java Buildpack System Tests](https://github.com/cloudfoundry/java-buildpack-system-test)
 
 ## Building Packages
-The buildpack can be packaged up so that it can uploaded to Cloud Foundry using the `cf create-buildpack` and `cf update-buildpack` commands.  In order to create these packages, the rake `package` task is used.
+The buildpack can be packaged up so that it can be uploaded to Cloud Foundry using the `cf create-buildpack` and `cf update-buildpack` commands.  In order to create these packages, the rake `package` task is used.
 
 ### Online Package
 The online package is a version of the buildpack that is as minimal as possible and is configured to connect to the network for all dependencies.  This package is about 50K in size.  To create the online package, run:
