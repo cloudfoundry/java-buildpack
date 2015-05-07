@@ -1,0 +1,3 @@
+.newrelic.com
+.sky.com
+.bskyb.com
