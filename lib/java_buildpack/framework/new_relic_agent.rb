@@ -34,11 +34,11 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.java_opts
-          .add_javaagent(@droplet.sandbox + jar_name)
-          .add_system_property('newrelic.home', @droplet.sandbox)
-          .add_system_property('newrelic.config.license_key', license_key)
-          .add_system_property('newrelic.config.app_name', "'#{application_name}'")
-          .add_system_property('newrelic.config.log_file_path', logs_dir)
+        .add_javaagent(@droplet.sandbox + jar_name)
+        .add_system_property('newrelic.home', @droplet.sandbox)
+        .add_system_property('newrelic.config.license_key', license_key)
+        .add_system_property('newrelic.config.app_name', "'#{application_name}'")
+        .add_system_property('newrelic.config.log_file_path', logs_dir)
         @droplet.java_opts.add_system_property('newrelic.enable.java.8', 'true') if java_8?
       end
 
@@ -46,7 +46,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, 'licenseKey'
+        true
+        #@application.services.one_service? FILTER, 'licenseKey'
       end
 
       private
@@ -60,11 +61,13 @@ module JavaBuildpack
       end
 
       def application_name
-        @application.details['application_name']
+        'product-selection'
+        #@application.details['application_name']
       end
 
       def license_key
-        @application.services.find_service(FILTER)['credentials']['licenseKey']
+        '677d27b3fc2b53f513e4e710285e6db2c7a8e396'
+        #@application.services.find_service(FILTER)['credentials']['licenseKey']
       end
 
       def logs_dir
