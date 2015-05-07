@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,39 +39,62 @@ module JavaBuildpack
         .add_system_property('newrelic.config.license_key', license_key)
         .add_system_property('newrelic.config.app_name', "'#{application_name}'")
         .add_system_property('newrelic.config.log_file_path', logs_dir)
-        @droplet.java_opts.add_system_property('newrelic.enable.java.8', 'true') if java_8?
+        @droplet.java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.version[1] == '8'
+        @droplet.java_opts.add_system_property('newrelic.config.proxy_host', proxy_host) if !proxy_host.nil? and !proxy_host.empty?
+        @droplet.java_opts.add_system_property('newrelic.config.proxy_user', proxy_user) if !proxy_user.nil? and !proxy_user.empty?
+        @droplet.java_opts.add_system_property('newrelic.config.proxy_password', proxy_password) if !proxy_password.nil? and !proxy_password.empty?
+        @droplet.java_opts.add_system_property('newrelic.config.proxy_port', proxy_port) if !proxy_port.nil?
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        true
-        #@application.services.one_service? FILTER, 'licenseKey'
+
+        # @application.services.one_service? FILTER, 'licenseKey'
+        if ENV['newrelic_enabled'] == true
+          true
+        else
+          false
+        end
       end
 
       private
 
       FILTER = /newrelic/.freeze
+      PROXY_FILTER = /proxy/.freeze
 
       private_constant :FILTER
-
-      def java_8?
-        @droplet.java_home.version[1] == '8'
-      end
+      private_constant :PROXY_FILTER
 
       def application_name
-        'product-selection'
-        #@application.details['application_name']
+        # @application.details['application_name']
+        ENV['app_name']
       end
 
       def license_key
-        '677d27b3fc2b53f513e4e710285e6db2c7a8e396'
-        #@application.services.find_service(FILTER)['credentials']['licenseKey']
+        # @application.services.find_service(FILTER)['credentials']['licenseKey']
+        ENV['newrelic_license_key']
       end
 
       def logs_dir
         @droplet.sandbox + 'logs'
+      end
+
+      def proxy_host
+        @application.services.find_service(PROXY_FILTER)['credentials']['host']
+      end
+
+      def proxy_user
+        @application.services.find_service(PROXY_FILTER)['credentials']['username']
+      end
+
+      def proxy_password
+        @application.services.find_service(PROXY_FILTER)['credentials']['password']
+      end
+
+      def proxy_port
+        @application.services.find_service(PROXY_FILTER)['credentials']['port']
       end
 
     end
