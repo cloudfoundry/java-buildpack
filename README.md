@@ -111,6 +111,18 @@ To run the tests, do the following:
 bundle install
 bundle exec rake
 ```
+Setting up New Relic monitoring in shop apps
+```
+Steps
+1. Use this build pack to deploy app
+2. Add a user provided new relic service using command > cf cups newrelic -p '{"licenseKey":"Pass the valid key"}'
+3. create a proxy, add proxy.txt(can be found in root of this repo) and bind to your app
+	cf create-service proxy-shop default proxy
+        nimbus2 set-schema proxy-shop /Users/rra08/proxy.txt
+4. Login to https://rpm.newrelic.com and look for your apps monitoring        
+```
+
+
 
 [Running Cloud Foundry locally][] is useful for privately testing new features.
 
