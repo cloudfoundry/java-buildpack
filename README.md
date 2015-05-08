@@ -117,11 +117,11 @@ Note, these steps are only necessary in the absence of a new relic service withi
 
 1. Use this build pack to deploy app
 2. Add a user provided new relic service:
-	cf cups newrelic -p '{"licenseKey":"Pass the valid key"}'
+	cf cups newrelic-shop -p '{"licenseKey":"Pass the valid key"}'
 3. create a proxy, add proxy.txt(can be found in root of this repo)
 	cf create-service proxy default proxy-shop
         nimbus2 set-schema proxy-shop /Users/rra08/proxy.txt
-4. Bind the service to your app, preferably through editing your manifest.yml in your application
+4. Bind both services (newrelic-shop and proxy-shop) to your app, preferably through editing your manifest.yml in your application
 5. Login to https://rpm.newrelic.com and look for your apps monitoring        
 ```
 
