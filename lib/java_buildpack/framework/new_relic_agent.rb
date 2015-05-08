@@ -62,7 +62,8 @@ module JavaBuildpack
       private_constant :PROXY_FILTER
 
       def application_name
-        @application.details['application_name']
+        # @application.details['application_name']
+        ENV['app_name']
       end
 
       def license_key
