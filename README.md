@@ -121,8 +121,7 @@ Note, these steps are only necessary in the absence of a new relic service withi
 3. create a proxy, add proxy.txt(can be found in root of this repo)
 	cf create-service proxy default proxy-shop
         nimbus2 set-schema proxy-shop /Users/rra08/proxy.txt
-4. Bind the service to your app
-	nimbus2 bind-service prodman my-service-instance-name proxy-shop
+4. Bind the service to your app, preferably through editing your manifest.yml in your application
 5. Login to https://rpm.newrelic.com and look for your apps monitoring        
 ```
 
