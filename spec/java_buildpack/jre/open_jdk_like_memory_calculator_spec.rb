@@ -96,7 +96,7 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
   it 'adds $CALCULATED_MEMORY to the JAVA_OPTS' do
     component.release
 
-    expect(java_opts).to include('"$CALCULATED_MEMORY"')
+    expect(java_opts).to include('$CALCULATED_MEMORY')
   end
 
 end
