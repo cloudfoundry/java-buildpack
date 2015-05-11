@@ -19,14 +19,18 @@
 # You must specify a the repository root of an Oracle JRE repository. Please see the documentation for more detail.
 # e.g.  repository_root: "http://example.com/oracle-jre/{platform}/{architecture}"
 
-repository_root: ""
-version: 1.8.0_+
-memory_sizes:
-  metaspace: 64m..
-#  permgen: 64m..
-memory_heuristics:
-  heap: 75
-  metaspace: 10
-#  permgen: 10
-  stack: 5
-  native: 10
+jre:
+  version: 1.8.0_+
+  repository_root: ""
+memory_calculator:
+  version: 1.+
+  repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
+  memory_sizes:
+    metaspace: 64m..
+    permgen: 64m..
+  memory_heuristics:
+    heap: 75
+    metaspace: 10
+    permgen: 10
+    stack: 5
+    native: 10

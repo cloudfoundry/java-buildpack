@@ -16,13 +16,14 @@
 
 require 'spec_helper'
 require 'java_buildpack/component/mutable_java_home'
+require 'java_buildpack/util/tokenized_version'
 require 'pathname'
 
 describe JavaBuildpack::Component::MutableJavaHome do
 
   let(:path) { Pathname.new('foo/bar') }
 
-  let(:java_version) { %w(1 2 3 u04) }
+  let(:java_version) { JavaBuildpack::Util::TokenizedVersion.new('1.2.3_u04') }
 
   let(:mutable_java_home) { described_class.new }
 
@@ -34,6 +35,26 @@ describe JavaBuildpack::Component::MutableJavaHome do
   it 'saves version' do
     mutable_java_home.version = java_version
     expect(mutable_java_home.version).to eq(java_version)
+  end
+
+  it 'recognizes Java 6' do
+    mutable_java_home.version = JavaBuildpack::Util::TokenizedVersion.new('1.6.0')
+    expect(mutable_java_home.java_8_or_later?).not_to be
+  end
+
+  it 'recognizes Java 7' do
+    mutable_java_home.version = JavaBuildpack::Util::TokenizedVersion.new('1.7.0')
+    expect(mutable_java_home.java_8_or_later?).not_to be
+  end
+
+  it 'recognizes Java 8' do
+    mutable_java_home.version = JavaBuildpack::Util::TokenizedVersion.new('1.8.0')
+    expect(mutable_java_home.java_8_or_later?).to be
+  end
+
+  it 'recognizes Java 9' do
+    mutable_java_home.version = JavaBuildpack::Util::TokenizedVersion.new('1.9.0')
+    expect(mutable_java_home.java_8_or_later?).to be
   end
 
 end

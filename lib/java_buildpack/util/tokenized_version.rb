@@ -84,7 +84,8 @@ module JavaBuildpack
 
       def major_or_minor_and_tail(s)
         if s.nil? || s.empty?
-          major_or_minor, tail = nil, nil
+          major_or_minor = nil
+          tail = nil
         else
           fail "Invalid version '#{s}': must not end in '.'" if s[-1] == '.'
           fail "Invalid version '#{s}': missing component" if s =~ /\.[\._]/
@@ -100,7 +101,8 @@ module JavaBuildpack
 
       def micro_and_qualifier(s)
         if s.nil? || s.empty?
-          micro, qualifier = nil, nil
+          micro = nil
+          qualifier = nil
         else
           fail "Invalid version '#{s}': must not end in '_'" if s[-1] == '_'
           tokens = s.match(/^([^\_]+)(?:_(.*))?/)
