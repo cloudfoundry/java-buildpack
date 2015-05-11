@@ -41,6 +41,12 @@ describe JavaBuildpack::Component::JavaOpts do
     expect(opts).to include('-Dtest-key=test-value')
   end
 
+  it 'adds a bootclasspath property to the collection' do
+    opts.add_bootclasspath_p droplet.sandbox + 'test-bootclasspath'
+
+    expect(opts).to include('-Xbootclasspath/p:$PWD/.java-buildpack/java_opts/test-bootclasspath')
+  end
+
   it 'adds a qualified option to the collection' do
     opts.add_option 'test-key', droplet.sandbox
 
