@@ -50,7 +50,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.java_opts.add_preformatted_options '"$CALCULATED_MEMORY"'
+        @droplet.java_opts.add_preformatted_options '$CALCULATED_MEMORY'
       end
 
       protected
