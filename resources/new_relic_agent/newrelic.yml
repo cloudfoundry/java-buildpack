@@ -212,7 +212,7 @@ common: &default_settings
     # By default the agent automatically inserts API calls in compiled JSPs to
     # inject the monitoring JavaScript into web pages.
     # Set this attribute to false to turn off this behavior.
-    auto_instrument: true
+    auto_instrument: false
     # Set this attribute to false to prevent injection of the monitoring JavaScript.
     # Default is true.
     enabled: true
