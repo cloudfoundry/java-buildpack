@@ -113,13 +113,16 @@ bundle exec rake
 ```
 Setting up New Relic monitoring in shop apps
 ```
-Steps
+Note, these steps are only necessary in the absence of a new relic service within a nimbus space. All you should need to do after that is to bind your app to the service (which provides the licence key to the agent):
+
 1. Use this build pack to deploy app
-2. Add a user provided new relic service using command > cf cups newrelic -p '{"licenseKey":"Pass the valid key"}'
-3. create a proxy, add proxy.txt(can be found in root of this repo) and bind to your app
-	cf create-service proxy-shop default proxy
+2. Add a user provided new relic service:
+	cf cups newrelic-shop -p '{"licenseKey":"Pass the valid key"}'
+3. create a proxy, add proxy.txt(can be found in root of this repo)
+	cf create-service proxy default proxy-shop
         nimbus2 set-schema proxy-shop /Users/rra08/proxy.txt
-4. Login to https://rpm.newrelic.com and look for your apps monitoring        
+4. Bind both services (newrelic-shop and proxy-shop) to your app, preferably through editing your manifest.yml in your application
+5. Login to https://rpm.newrelic.com and look for your apps monitoring        
 ```
 
 
