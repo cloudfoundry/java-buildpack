@@ -60,6 +60,14 @@ describe JavaBuildpack::Util::Play::Post22 do
     end
 
     context do
+      let(:java_opts) { super() << '$CALCULATED_MEMORY' }
+
+      it 'does wraps the output of CALCULATED_MEMORY correctly' do
+        expect(play_app.release).to include('${CALCULATED_MEMORY//-/-J-}')
+      end
+    end
+
+    context do
       let(:java_opts) do
         super() << '-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : \'.' \
         '*instance_id[": ]*"\([a-z0-9]\+\)".*\')'
