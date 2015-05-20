@@ -58,7 +58,7 @@ By default, the Tomcat instance is configured to store all Sessions and their da
 To enable Redis-based session replication, simply bind a Redis service containing a name, label, or tag that has `session-replication` as a substring.
 
 ### GemFire
-To enable GemFire-based session replication, simply bind a [GemFire service][] containing a name, label, or tag that has `session_replication` as a substring. GemFire services intended to be used for session replication will automatically have a tag of 'session_replication'.
+To enable GemFire-based session replication, simply bind a [Session State Caching (SSC) GemFire service][] containing a name, label, or tag that has `session_replication` as a substring. GemFire services intended to be used for session replication will automatically have a tag of 'session_replication'.
 
 ## Managing Entropy
 Entropy from `/dev/random` is used heavily to create session ids, and on startup for initializing `SecureRandom`, which can then cause instances to fail to start in time (see the [Tomcat wiki]). Also, the entropy is shared so it's possible for a single app to starve the DEA of entropy and cause apps in other containers that make use of entropy to be blocked.
@@ -75,7 +75,7 @@ Additional supporting functionality can be found in the [`java-buildpack-support
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/tomcat.yml`]: ../config/tomcat.yml
-[GemFire Service]: https://network.pivotal.io/products/p-gemfire
+[Session State Caching (SSC) GemFire service]: https://network.pivotal.io/products/p-ssc-gemfire
 [`java-buildpack-support`]: https://github.com/cloudfoundry/java-buildpack-support
 [repositories]: extending-repositories.md
 [Spring profiles]:http://blog.springsource.com/2011/02/14/spring-3-1-m1-introducing-profile/
