@@ -48,7 +48,7 @@ module JavaBuildpack
             fail "Invalid Java option contains more than one option: '#{option}'"
           end
 
-          java_opts.map { |java_opt| "-J#{java_opt}" }
+          java_opts.map { |option| option == '$CALCULATED_MEMORY' ? '${CALCULATED_MEMORY//-/-J-}' : "-J#{option}" }
         end
 
         # (see JavaBuildpack::Util::Play::Base#lib_dir)
