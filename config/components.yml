@@ -39,7 +39,6 @@ frameworks:
   - "JavaBuildpack::Framework::JrebelAgent"
   - "JavaBuildpack::Framework::MariaDbJDBC"
   - "JavaBuildpack::Framework::NewRelicAgent"
-  - "JavaBuildpack::Framework::PhantomJS"
   - "JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration"
   - "JavaBuildpack::Framework::PlayFrameworkJPAPlugin"
   - "JavaBuildpack::Framework::PostgresqlJDBC"
