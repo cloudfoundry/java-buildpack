@@ -178,6 +178,10 @@ module JavaBuildpack
         file.path.end_with? '.gz'
       end
 
+      def bzipped?(file)
+        file.path.end_with? '.bz2'
+      end
+
     end
 
   end
