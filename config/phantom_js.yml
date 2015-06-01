@@ -13,10 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for the Spring Auto Reconfiguration framework.
-# Note that the repository is shared with the Play Auto Reconfiguration framework and should be kept in step to
-# avoid conflicts.
+# Configuration for the PhantomJS framework.
+#
+# https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2
+#
 ---
 version: 1.9+
-repository_root: "{default.repository.root}/auto-reconfiguration"
-enabled: true
+repository_root: "https://bitbucket.org/ariya/phantomjs/downloads"
+
