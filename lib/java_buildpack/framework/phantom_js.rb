@@ -37,7 +37,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_tar(@version, "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2", @droplet.sandbox, @component_name) 
+        print "-----> skip compile for now."
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -48,7 +48,7 @@ module JavaBuildpack
         shell "sudo apt-get install libfreetype6 libfreetype6-dev -y"
         shell "sudo apt-get install libfontconfig1 libfontconfig1-dev -y"
         shell "cd /tmp"
-        shell "wget https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOM_JS.tar.bz2"
+        shell "wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2"
         shell "sudo tar xjf $PHANTOM_JS.tar.bz2"
         shell "sudo mv $PHANTOM_JS /usr/local/share"
         shell "sudo ln -sf /usr/local/share/$PHANTOM_JS/bin/phantomjs /usr/local/bin"
