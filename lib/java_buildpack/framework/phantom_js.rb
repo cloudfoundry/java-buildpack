@@ -37,7 +37,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_tar
+        download_tar(@version, "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2") 
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
