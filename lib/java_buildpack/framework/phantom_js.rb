@@ -37,7 +37,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        print "-----> skip compile for now."
+        super compile
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
