@@ -18,6 +18,6 @@
 # https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2
 #
 ---
-version: 1.9.+
-
+version: 1.8.0_+
+repository_root: "{default.repository.root}/openjdk/{platform}/{architecture}"
 
