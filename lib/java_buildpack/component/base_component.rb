@@ -179,8 +179,10 @@ module JavaBuildpack
       def compression_flag(file)
         if gzipped?(file)
           "z"
-        else bzipped?(file)
+        elsif bzipped?(file)
           "j"
+        else
+          ""
         end
       end
 
