@@ -122,7 +122,7 @@ module JavaBuildpack
         download(version, uri, name) do |file|
           with_timing "Expanding #{name} to #{target_directory.relative_path_from(@droplet.root)}" do
             FileUtils.mkdir_p target_directory
-            shell "tar x#{gzipped?(file) ? 'x' : ''}f #{file.path} -C #{target_directory} --strip 1 2>&1"
+            shell "tar x#{compression_flag(file)}f #{file.path} -C #{target_directory} --strip 1 2>&1"
           end
         end
       end
@@ -170,6 +170,20 @@ module JavaBuildpack
 
       def gzipped?(file)
         file.path.end_with? '.gz'
+      end
+
+      def bzipped?(file)
+        file.path.end_with? '.bz2'
+      end
+
+      def compression_flag(file)
+        if gzipped?(file)
+          'z'
+        elsif bzipped?(file)
+          'j'
+        else
+          ''
+        end
       end
 
     end
