@@ -28,19 +28,14 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_zip false
+        download(@version, @uri) { |file| expand file }
         @droplet.copy_resources
-        FileUtils.mkdir(home_dir)
-        FileUtils.mv(@droplet.sandbox + 'agent/linux-x86-64/agent', home_dir)
-        delete_extra_files
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.java_opts
-          .add_agentpath_with_props(agent_dir + 'libdtagent.so',
-                                    name: application_name + '_' + profile_name,
-                                    server: server)
+        @droplet.java_opts.add_agentpath_with_props(agent_path, name: agent_name, server: server)
+        # -agentpath:<path to libdtagent.so>=name=Tomcat_Monitoring,server=ubuntu:9998
       end
 
       protected
@@ -56,33 +51,48 @@ module JavaBuildpack
 
       private_constant :FILTER
 
-      def application_name
-        @application.details['application_name']
+      def agent_dir
+        @droplet.sandbox + 'agent'
+      end
+
+      def agent_path
+        agent_dir + lib_name + 'libdtagent.so'
+      end
+
+      def agent_name
+        "#{@application.details['application_name']}_#{profile_name}"
+      end
+
+      def architecture
+        `uname -m`.strip
+      end
+
+      def expand(file)
+        with_timing "Expanding Dynatrace to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
+          Dir.mktmpdir do |root|
+            root_path = Pathname.new(root)
+            shell "unzip -qq #{file.path} -d #{root_path} 2>&1"
+            unpack_agent root_path
+          end
+        end
+      end
+
+      def lib_name
+        architecture == 'x86_64' || architecture == 'i686' ? 'lib64' : 'lib'
+      end
+
+      def agent_unpack_path
+        architecture == 'x86_64' || architecture == 'i686' ? 'linux-x86-64/agent' : 'linux-x86-32/agent'
+      end
+
+      def unpack_agent(root)
+        FileUtils.mkdir_p(agent_dir)
+        FileUtils.mv(root + 'agent' + agent_unpack_path + 'conf', agent_dir)
+        FileUtils.mv(root + 'agent' + agent_unpack_path + lib_name, agent_dir)
       end
 
       def profile_name
         @application.services.find_service(FILTER)['credentials']['profile'] || 'Monitoring'
-      end
-
-      def agent_dir
-        @droplet.sandbox + 'home/agent/lib64'
-      end
-
-      def delete_extra_files
-        FileUtils.rm_rf(@droplet.sandbox + 'agent')
-        FileUtils.rm_rf(@droplet.sandbox + 'init.d')
-        FileUtils.rm_rf(@droplet.sandbox + 'com')
-        FileUtils.rm_rf(@droplet.sandbox + 'org')
-        FileUtils.rm_rf(@droplet.sandbox + 'META_INF')
-        FileUtils.rm_f(@droplet.sandbox + 'YouShouldNotHaveUnzippedMe.txt')
-      end
-
-      def logs_dir
-        @droplet.sandbox + 'home/log'
-      end
-
-      def home_dir
-        @droplet.sandbox + 'home'
       end
 
       def server

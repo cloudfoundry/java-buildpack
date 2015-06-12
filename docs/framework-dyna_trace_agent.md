@@ -1,13 +1,12 @@
 # DynaTrace Agent Framework
 The DynaTrace Agent Framework causes an application to be automatically configured to work with a bound [DynaTrace Service][] instance (Free trials available).
 
-The Cloud Foundry pushed application name is used as the `agent group` in DynaTrace, and must be pre-configured on the DynaTrace server.
-A system profile may be provided as an optional argument (defaults to `Monitoring`).
+The applications Cloud Foundry name is used as the `agent group` in DynaTrace, and must be pre-configured on the DynaTrace server.
 
-**Current Issues:**  
-* The DynaTrace agent slows down app execution significantly at first, but gets faster over time.  You may want to update your CF deployment manifest to set `maximum_health_check_timeout` to 180 or more and/or execute `cf push -t 180` or more when pushing a DynaTrace-monitored application.
+**NOTE**  
 
-* As you `cf push` multiple times, many dead penguins will litter the DynaTrace agent dashboard, as CF launches/disposes application containers.  These can be hidden but will collect in the dynatrace database.
+* The DynaTrace agent slows down app execution significantly at first, but gets faster over time. Setting the application manifest to contain `maximum_health_check_timeout` of 180 or more and/or using `cf push -t 180` or more when pushing a DynaTrace-monitored application may help.
+* Multiple `cf push`s will cause dead penguins to build up in the DynaTrace agent dashboard, as CF launches/disposes application containers. These can be hidden but will collect in the dynatrace database.
 
 <table>
   <tr>
@@ -31,10 +30,12 @@ The credential payload of the service may contain the following entries:
 
 | Name | Description
 | ---- | -----------
-| `server` | The DynaTrace collector hostname to connect to.   Use `host:port` format for a specific port number.
-| `profile` | (optional) The DynaTrace server profile this is associated with.   Uses `Monitoring` by default.
+| `server` | The DynaTrace collector hostname to connect to. Use `host:port` format for a specific port number.
+| `profile` | (Optional) The DynaTrace server profile this is associated with. Uses `Monitoring` by default.
 
-**NOTE** Be sure to open an Application Security Group to your DynaTrace collector prior to starting your application:
+**NOTE** 
+
+Be sure to open an Application Security Group to your DynaTrace collector prior to starting the application:
 ```
 $ cat security.json
    [
@@ -59,39 +60,18 @@ TIP: Changes will not apply to existing running applications until they are rest
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`dyna_trace_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+The framework can be configured by modifying the [`config/dyna_trace_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------
 | `repository_root` | The URL of the DynaTrace repository index ([details][repositories]).
 | `version` | The version of DynaTrace to use. This buildpack framework has been tested on 6.1.0.
 
-
-**NOTE:**  This framework does not connect to a pre-populated repository.  Instead you will need to create your own repository by:
-
-1.  Downloading the DynaTrace agent unix binary (in JAR format) to an HTTP-accesible location
-1.  Uploading an `index.yml` file with a mapping from the version of the agent to its location to the same HTTP-accessible location
-1.  Configuring the [`dyna_trace_agent.yml`][] file to point to the root of the repository holding both the index and agent binary
-
-Sample **`repository_root`** for [`dyna_trace_agent.yml`][] (under java-buildpack/config) assuming a bosh-lite setup and a local webserver (e.g. `brew install tomcat7`) on port 8080
-
-```
-repository_root: "http://files.192.168.50.1.xip.io:8080/fileserver/dynatrace"
-```
-
-The buildpack would look for an **`index.yml`** file at the specified **repository_root** for obtaining the DynaTrace agent.
-
-The index.yml at the repository_root location should have a entry matching the DynaTrace version and the corresponding DynaTrace agent download JAR
-
-```
----
-6.1.0.7880: http://files.192.168.50.1.xip.io:8080/fileserver/dynatrace/dynatrace-agent-6.1.0.7880-unix.jar
-```
-
-Ensure the DynaTrace binary is available at the location indicated by the index.yml referred by the DynaTrace repository_root.
+### Additional Resources
+The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/ca_wily_agent` directory in the buildpack fork.  For example, to override the default profile add your custom profile to `resources/introscope_agent/`.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[`dyna_trace_agent.yml`]: ../config/dyna_trace_agent.yml
+[`config/dyna_trace_agent.yml`]: ../config/dyna_trace_agent.yml
 [DynaTrace Service]: https://dynatrace.com
 [repositories]: extending-repositories.md
 [version syntax]: extending-repositories.md#version-syntax-and-ordering

@@ -40,14 +40,13 @@ describe JavaBuildpack::Framework::DynaTraceAgent do
        cache_fixture: 'stub-dyna-trace-agent.jar' do
 
       component.compile
-      expect(sandbox + 'home/agent/lib64/libdtagent.so').to exist
-      expect(sandbox + 'YouShouldNotHaveUnzippedMe.txt').not_to exist
+      expect(sandbox + 'agent/lib64/libdtagent.so').to exist
     end
 
     it 'updates JAVA_OPTS' do
       component.release
       expect(java_opts).to include(
-        '-agentpath:$PWD/.java-buildpack/dyna_trace_agent/home/agent/lib64/'\
+        '-agentpath:$PWD/.java-buildpack/dyna_trace_agent/agent/lib64/'\
         'libdtagent.so=name=test-application-name_Monitoring,server=test-host-name')
     end
   end
@@ -62,7 +61,7 @@ describe JavaBuildpack::Framework::DynaTraceAgent do
     it 'updates JAVA_OPTS with custom profile' do
       component.release
       expect(java_opts).to include(
-        '-agentpath:$PWD/.java-buildpack/dyna_trace_agent/home/agent/lib64/'\
+        '-agentpath:$PWD/.java-buildpack/dyna_trace_agent/agent/lib64/'\
         'libdtagent.so=name=test-application-name_test-profile,server=test-host-name')
     end
 
