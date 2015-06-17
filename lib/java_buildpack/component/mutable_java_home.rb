@@ -35,7 +35,7 @@ module JavaBuildpack
       attr_accessor :version
 
       # Whether or not the version of Java is 8 or later
-      # @return [Boolean] +true+ if the version is 1.8.0 or later
+      # @return [Boolean] +true+ if and only if the version is 1.8.0 or later
       def java_8_or_later?
         @version >= VERSION_8
       end
