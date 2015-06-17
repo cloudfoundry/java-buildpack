@@ -39,7 +39,7 @@ module JavaBuildpack
       #
       # @return [String] the path of +JAVA_HOME+ as an environment variable
       def as_env_var
-        "JAVA_HOME=#{root}"
+        "JAVA_HOME=#{qualify_path root}"
       end
 
       # Whether or not the version of Java is 8 or later
@@ -49,9 +49,9 @@ module JavaBuildpack
         @delegate.java_8_or_later?
       end
 
-      # @return [String] the root of the droplet's +JAVA_HOME+ formatted as +$PWD/<value>+
+      # @return [Pathname] the root of the droplet's +JAVA_HOME+
       def root
-        qualify_path @delegate.root
+        @delegate.root
       end
 
       # @return # @return [JavaBuildpack::Util::TokenizedVersion] the tokenized droplet's +VERSION+

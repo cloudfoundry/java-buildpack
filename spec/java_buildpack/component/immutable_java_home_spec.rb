@@ -34,7 +34,7 @@ describe JavaBuildpack::Component::ImmutableJavaHome do
   end
 
   it 'returns the qualified delegate root' do
-    expect(immutable_java_home.root).to eq('$PWD/test-java-home')
+    expect(immutable_java_home.root.to_s).to eq('test-java-home')
   end
 
   it 'returns the delegate version' do

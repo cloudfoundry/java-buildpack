@@ -17,8 +17,10 @@
 require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/container/java_main'
+require 'java_buildpack/util/qualify_path'
 
 describe JavaBuildpack::Container::JavaMain do
+  include JavaBuildpack::Util
   include_context 'component_helper'
 
   shared_context 'explicit_main_class' do
@@ -57,18 +59,18 @@ describe JavaBuildpack::Container::JavaMain do
 
     it 'returns command' do
 
-      expect(component.release).to eq("#{java_home.root}/bin/java -cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:" \
-                                        "$PWD/.additional_libs/test-jar-2.jar #{java_opts_str} " \
-                                        'test-java-main-class')
+      expect(component.release).to eq("#{qualify_path java_home.root, droplet.root}/bin/java -cp $PWD/.:$PWD/." \
+                                        'additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar' \
+                                        " #{java_opts_str} test-java-main-class")
     end
   end
 
   it 'returns additional classpath entries when Class-Path is specified',
      app_fixture: 'container_main' do
 
-    expect(component.release).to eq("#{java_home.root}/bin/java -cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:" \
-                                      '$PWD/.additional_libs/test-jar-2.jar:$PWD/alpha.jar:$PWD/bravo.jar:' \
-                                      "$PWD/charlie.jar #{java_opts_str} test-main-class")
+    expect(component.release).to eq("#{qualify_path java_home.root, droplet.root}/bin/java -cp $PWD/.:$PWD/." \
+                                      'additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar:$PWD/' \
+                                      "alpha.jar:$PWD/bravo.jar:$PWD/charlie.jar #{java_opts_str} test-main-class")
   end
 
   context do
@@ -76,34 +78,34 @@ describe JavaBuildpack::Container::JavaMain do
 
     it 'returns command line arguments when they are specified' do
 
-      expect(component.release).to eq("#{java_home.root}/bin/java -cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:" \
-                                        "$PWD/.additional_libs/test-jar-2.jar #{java_opts_str} " \
-                                        'test-java-main-class some arguments')
+      expect(component.release).to eq("#{qualify_path java_home.root, droplet.root}/bin/java -cp $PWD/.:$PWD/." \
+                                        'additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar' \
+                                        " #{java_opts_str} test-java-main-class some arguments")
     end
   end
 
   it 'releases Spring boot applications with a JarLauncher in the MANIFEST.MF by specifying a port',
      app_fixture: 'container_main_spring_boot_jar_launcher' do
 
-    expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.root}/bin/java -cp $PWD/.:" \
-                                        '$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
-                                        "#{java_opts_str} org.springframework.boot.loader.JarLauncher")
+    expect(component.release).to eq("SERVER_PORT=$PORT #{qualify_path java_home.root, droplet.root}/bin/java -cp $PWD" \
+                                        '/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar' \
+                                        " #{java_opts_str} org.springframework.boot.loader.JarLauncher")
   end
 
   it 'releases Spring boot applications with a WarLauncher in the MANIFEST.MF by specifying a port',
      app_fixture: 'container_main_spring_boot_war_launcher' do
 
-    expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.root}/bin/java -cp $PWD/.:" \
-                                        '$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
-                                        "#{java_opts_str} org.springframework.boot.loader.WarLauncher")
+    expect(component.release).to eq("SERVER_PORT=$PORT #{qualify_path java_home.root, droplet.root}/bin/java -cp $PWD" \
+                                        '/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar' \
+                                        " #{java_opts_str} org.springframework.boot.loader.WarLauncher")
   end
 
   it 'releases Spring boot applications with a PropertiesLauncher in the MANIFEST.MF by specifying a port',
      app_fixture: 'container_main_spring_boot_properties_launcher' do
 
-    expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.root}/bin/java -cp $PWD/.:" \
-                                        '$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
-                                        "#{java_opts_str} org.springframework.boot.loader.PropertiesLauncher")
+    expect(component.release).to eq("SERVER_PORT=$PORT #{qualify_path java_home.root, droplet.root}/bin/java -cp $PWD" \
+                                        '/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar' \
+                                        " #{java_opts_str} org.springframework.boot.loader.PropertiesLauncher")
   end
 
   context do
@@ -111,9 +113,9 @@ describe JavaBuildpack::Container::JavaMain do
 
     it 'releases Spring boot applications with a JarLauncher in the configuration by specifying a port' do
 
-      expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.root}/bin/java -cp $PWD/.:" \
-                                        '$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
-                                        "#{java_opts_str} org.springframework.boot.loader.JarLauncher")
+      expect(component.release).to eq("SERVER_PORT=$PORT #{qualify_path java_home.root, droplet.root}/bin/java -cp " \
+                                        '$PWD/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/' \
+                                        "test-jar-2.jar #{java_opts_str} org.springframework.boot.loader.JarLauncher")
     end
   end
 
@@ -122,9 +124,9 @@ describe JavaBuildpack::Container::JavaMain do
 
     it 'releases Spring boot applications with a WarLauncher in the configuration by specifying a port' do
 
-      expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.root}/bin/java -cp $PWD/.:" \
-                                        '$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
-                                        "#{java_opts_str} org.springframework.boot.loader.WarLauncher")
+      expect(component.release).to eq("SERVER_PORT=$PORT #{qualify_path java_home.root, droplet.root}/bin/java -cp " \
+                                        '$PWD/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/' \
+                                        "test-jar-2.jar #{java_opts_str} org.springframework.boot.loader.WarLauncher")
     end
   end
 
@@ -133,9 +135,10 @@ describe JavaBuildpack::Container::JavaMain do
 
     it 'releases Spring boot applications with a PropertiesLauncher in the configuration by specifying a port' do
 
-      expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.root}/bin/java -cp $PWD/.:" \
-                                        '$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
-                                        "#{java_opts_str} org.springframework.boot.loader.PropertiesLauncher")
+      expect(component.release).to eq("SERVER_PORT=$PORT #{qualify_path java_home.root, droplet.root}/bin/java " \
+                                        '-cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs' \
+                                        "/test-jar-2.jar #{java_opts_str} org.springframework.boot.loader." \
+                                        'PropertiesLauncher')
     end
   end
 
