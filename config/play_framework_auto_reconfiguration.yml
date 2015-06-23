@@ -18,5 +18,5 @@
 # avoid conflicts.
 ---
 version: 1.+
-repository_root: "{default.repository.root}/auto-reconfiguration"
+repository_root: ! '{default.repository.root}/auto-reconfiguration'
 enabled: true

@@ -16,5 +16,5 @@
 # Configuration for the Play JPA Plugin framework
 ---
 version: 1.+
-repository_root: "{default.repository.root}/play-jpa-plugin"
+repository_root: ! '{default.repository.root}/play-jpa-plugin'
 enabled: true

@@ -16,6 +16,7 @@
 
 require 'java_buildpack/util'
 require 'java_buildpack/util/configuration_utils'
+require 'fileutils'
 require 'logging_helper'
 require 'pathname'
 require 'spec_helper'
@@ -24,24 +25,32 @@ require 'yaml'
 describe JavaBuildpack::Util::ConfigurationUtils do
   include_context 'logging_helper'
 
+  let(:test_data) do
+    { 'foo'     => { 'one' => '1', 'two' => 2 },
+      'bar'     => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } },
+      'version' => '1.7.1' }
+  end
+
   it 'not load absent configuration file' do
     allow_any_instance_of(Pathname).to receive(:exist?).and_return(false)
     expect(described_class.load('test')).to eq({})
+  end
+
+  it 'write configuration file' do
+    described_class.write('test', test_data)
+    expect(described_class.load('test')).to eq(test_data)
+    Pathname.new(File.expand_path('../../../config/test.yml', File.dirname(__FILE__))).delete
   end
 
   context do
 
     before do
       allow_any_instance_of(Pathname).to receive(:exist?).and_return(true)
-      allow(YAML).to receive(:load_file).and_return('foo' => { 'one' => '1', 'two' => 2 },
-                                                    'bar' => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } },
-                                                    'version' => '1.7.1')
+      allow(YAML).to receive(:load_file).and_return(test_data)
     end
 
     it 'load configuration file' do
-      expect(described_class.load('test')).to eq('foo' => { 'one' => '1', 'two' => 2 },
-                                                 'bar' => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } },
-                                                 'version' => '1.7.1')
+      expect(described_class.load('test')).to eq(test_data)
     end
 
     context do

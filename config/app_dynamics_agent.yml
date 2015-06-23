@@ -16,6 +16,6 @@
 # Configuration for the New Relic framework
 ---
 version: 4.0.+
-repository_root: "{default.repository.root}/app-dynamics"
-default_node_name: "$(expr \"$VCAP_APPLICATION\" : \'.*instance_index[\": ]*\\([[:digit:]]*\\).*\')"
+repository_root: ! '{default.repository.root}/app-dynamics'
+default_node_name: ! '$(expr "$VCAP_APPLICATION" : ''.*instance_index[": ]*\([[:digit:]]*\).*'')'
 default_tier_name: CloudFoundry

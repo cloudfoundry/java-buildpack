@@ -18,4 +18,4 @@
 # avoid conflicts.
 ---
 version: 1.+
-repository_root: "{default.repository.root}/spring-boot-cli"
+repository_root: ! '{default.repository.root}/spring-boot-cli'
