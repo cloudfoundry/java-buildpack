@@ -37,11 +37,11 @@ describe JavaBuildpack::Util::ConfigurationUtils do
   end
 
   it 'write configuration file' do
-    test_file = Pathname.new(File.expand_path('../../../config/tomcat.yml', File.dirname(__FILE__)))
+    test_file = Pathname.new(File.expand_path('../../../config/open_jdk_jre.yml', File.dirname(__FILE__)))
     original_content = file_contents test_file
-    loaded_content = described_class.load('tomcat')
-    described_class.write('tomcat', loaded_content)
-    expect(described_class.load('tomcat')).to eq(loaded_content)
+    loaded_content = described_class.load('open_jdk_jre')
+    described_class.write('open_jdk_jre', loaded_content)
+    expect(described_class.load('open_jdk_jre')).to eq(loaded_content)
     expect(file_contents test_file).to eq(original_content)
   end
 
