@@ -105,6 +105,7 @@ describe JavaBuildpack::Util::ConfigurationUtils do
     header = []
     File.open(file, 'r') do |f|
       f.each do |line|
+        break if line =~ /^---/
         header << line
       end
     end

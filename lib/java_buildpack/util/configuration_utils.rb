@@ -65,8 +65,6 @@ module JavaBuildpack
 
             File.open(file, 'w') do |f|
               header.each { |line| f.write line }
-              # f.write(header.join('\n'))
-              # f.write('\n')
               YAML.dump(new_content, f)
             end
           else
