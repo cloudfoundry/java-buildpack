@@ -64,7 +64,7 @@ module JavaBuildpack
             header = header(file)
 
             File.open(file, 'w') do |f|
-              header.each { |line| f.write line}
+              header.each { |line| f.write line }
               # f.write(header.join('\n'))
               # f.write('\n')
               YAML.dump(new_content, f)
@@ -72,9 +72,7 @@ module JavaBuildpack
           else
             logger.debug { "No configuration file #{file} found" } if should_log
           end
-
         end
-
 
         private
 

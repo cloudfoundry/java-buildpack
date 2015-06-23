@@ -37,9 +37,12 @@ describe JavaBuildpack::Util::ConfigurationUtils do
   end
 
   it 'write configuration file' do
-    described_class.write('test', test_data)
-    expect(described_class.load('test')).to eq(test_data)
-    Pathname.new(File.expand_path('../../../config/test.yml', File.dirname(__FILE__))).delete
+    test_file = Pathname.new(File.expand_path('../../../config/tomcat.yml', File.dirname(__FILE__)))
+    original_content = file_contents test_file
+    loaded_content = described_class.load('tomcat')
+    described_class.write('tomcat', loaded_content)
+    expect(described_class.load('tomcat')).to eq(loaded_content)
+    expect(file_contents test_file).to eq(original_content)
   end
 
   context do
@@ -94,6 +97,18 @@ describe JavaBuildpack::Util::ConfigurationUtils do
 
     end
 
+  end
+
+  private
+
+  def file_contents(file)
+    header = []
+    File.open(file, 'r') do |f|
+      f.each do |line|
+        header << line
+      end
+    end
+    header
   end
 
 end
