@@ -26,45 +26,58 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        FileUtils.mkdir_p logs_dir
         download_jar
         @droplet.copy_resources
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.java_opts
-          .add_javaagent(@droplet.sandbox + jar_name)
-          .add_system_property('newrelic.home', @droplet.sandbox)
-          .add_system_property('newrelic.config.license_key', license_key)
-          .add_system_property('newrelic.config.app_name', "#{application_name}")
-          .add_system_property('newrelic.config.log_file_path', logs_dir)
-        @droplet.java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
+        credentials = @application.services.find_service(FILTER)['credentials']
+        java_opts   = @droplet.java_opts
+        configuration = {}
+
+        apply_configuration(credentials, configuration)
+        apply_user_configuration(credentials, configuration)
+        write_java_opts(java_opts, configuration)
+
+        java_opts.add_javaagent(@droplet.sandbox + jar_name)
+                 .add_system_property('newrelic.home', @droplet.sandbox)
+        java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, 'licenseKey'
+        @application.services.one_service? FILTER, [LICENSE_KEY, LICENSE_KEY_USER]
       end
 
       private
 
       FILTER = /newrelic/.freeze
 
-      private_constant :FILTER
+      LICENSE_KEY = 'licenseKey'.freeze
 
-      def application_name
-        @application.details['application_name']
+      LICENSE_KEY_USER = 'license_key'.freeze
+
+      private_constant :FILTER, :LICENSE_KEY, :LICENSE_KEY_USER
+
+      def apply_configuration(credentials, configuration)
+        configuration['log_file_name'] = 'STDOUT'
+        configuration[LICENSE_KEY_USER] = credentials[LICENSE_KEY]
+        configuration['app_name'] = @application.details['application_name']
       end
 
-      def license_key
-        @application.services.find_service(FILTER)['credentials']['licenseKey']
+      def apply_user_configuration(credentials, configuration)
+        credentials.each do |key, value|
+          configuration[key] = value
+        end
       end
 
-      def logs_dir
-        @droplet.sandbox + 'logs'
+      def write_java_opts(java_opts, configuration)
+        configuration.each do |key, value|
+          java_opts.add_system_property("newrelic.config.#{key}", value)
+        end
       end
 
     end
