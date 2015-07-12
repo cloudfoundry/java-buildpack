@@ -47,7 +47,7 @@ common: &default_settings
   # This setting is dynamic, so changes do not require restarting your application.
   # The levels in increasing order of verboseness are: off, severe, warning, info, fine, finer, finest
   # Default is info.
-  log_level: off
+  log_level: info
 
   # Log all data to and from New Relic in plain text.
   # This setting is dynamic, so changes do not require restarting your application.
@@ -82,7 +82,7 @@ common: &default_settings
   # application code, so response times will not be directly affected
   # by this change.
   # Default is true.
-  ssl: true
+  ssl: false
 
   # Proxy settings for connecting to the New Relic server.
   #
