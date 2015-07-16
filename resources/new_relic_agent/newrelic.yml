@@ -47,7 +47,7 @@ common: &default_settings
   # This setting is dynamic, so changes do not require restarting your application.
   # The levels in increasing order of verboseness are: off, severe, warning, info, fine, finer, finest
   # Default is info.
-  log_level: finer
+  log_level: severe
 
   # Log all data to and from New Relic in plain text.
   # This setting is dynamic, so changes do not require restarting your application.
@@ -61,7 +61,7 @@ common: &default_settings
   # The maximum number of bytes to write to any one log file.
   # The log_file_count must be set greater than 1.
   # Default is 0 (no limit).
-  #log_limit_in_kbytes: 0
+  log_limit_in_kbytes: 2
 
   # Override other log rolling configuration and roll the logs daily.
   # Default is false.
@@ -82,7 +82,7 @@ common: &default_settings
   # application code, so response times will not be directly affected
   # by this change.
   # Default is true.
-  ssl: true
+  ssl: false
 
   # Proxy settings for connecting to the New Relic server.
   #
