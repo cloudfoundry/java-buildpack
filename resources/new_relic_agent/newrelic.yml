@@ -173,7 +173,7 @@ common: &default_settings
     # Error collector is enabled by default. Set this to false to turn
     # it off. This feature is only available at the higher product levels.
     # Default is true.
-    enabled: true
+    enabled: false
 
     # To stop specific exceptions from reporting to New Relic, set this property
     # to a comma separated list of full class names.
