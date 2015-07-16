@@ -5,9 +5,11 @@
       <w>appdynamics</w>
       <w>argv</w>
       <w>atpack</w>
+      <w>chrystoki</w>
       <w>codeclimate</w>
       <w>constantized</w>
       <w>constantizes</w>
+      <w>cpio</w>
       <w>creat</w>
       <w>dhttp</w>
       <w>dirname</w>
@@ -33,7 +35,9 @@
       <w>jsome</w>
       <w>jtest</w>
       <w>killjava</w>
+      <w>libcryptoki</w>
       <w>ljust</w>
+      <w>lunaclient</w>
       <w>mainclass</w>
       <w>metaspace</w>
       <w>mkdir</w>
@@ -63,6 +67,7 @@
       <w>rstrip</w>
       <w>rubo</w>
       <w>rubocop</w>
+      <w>safenet</w>
       <w>scriptdir</w>
       <w>shellwords</w>
       <w>simplecov</w>

@@ -19,6 +19,7 @@ require 'application_helper'
 require 'logging_helper'
 require 'java_buildpack/component/additional_libraries'
 require 'java_buildpack/component/droplet'
+require 'java_buildpack/component/environment_variables'
 require 'java_buildpack/component/java_opts'
 require 'java_buildpack/component/immutable_java_home'
 require 'java_buildpack/util/snake_case'
@@ -35,7 +36,8 @@ shared_context 'droplet_helper' do
   let(:component_id) { described_class.to_s.split('::').last.snake_case }
 
   let(:droplet) do
-    JavaBuildpack::Component::Droplet.new(additional_libraries, component_id, java_home, java_opts, app_dir)
+    JavaBuildpack::Component::Droplet.new(additional_libraries, component_id, environment_variables,
+                                          java_home, java_opts, app_dir)
   end
 
   let(:sandbox) { droplet.sandbox }
@@ -43,6 +45,12 @@ shared_context 'droplet_helper' do
   let(:java_home) do
     delegate = double('MutableJavaHome', root: app_dir + '.test-java-home', version: %w(1 7 55 u60))
     JavaBuildpack::Component::ImmutableJavaHome.new delegate, app_dir
+  end
+
+  let(:environment_variables) do
+    java_opts = JavaBuildpack::Component::EnvironmentVariables.new app_dir
+    java_opts.concat %w(test-var-2 test-var-1)
+    java_opts
   end
 
   let(:java_opts) do

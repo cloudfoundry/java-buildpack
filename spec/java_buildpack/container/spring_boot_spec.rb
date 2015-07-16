@@ -69,8 +69,16 @@ describe JavaBuildpack::Container::SpringBoot do
   it 'returns command',
      app_fixture: 'container_spring_boot_staged' do
 
-    expect(component.release).to eq("SERVER_PORT=$PORT #{java_home.as_env_var} JAVA_OPTS=\"test-opt-2 test-opt-1\" " \
-                                    '$PWD/bin/application')
+    expect(component.release).to eq("#{env_vars_str} #{java_home.as_env_var} " \
+                                      "JAVA_OPTS=#{java_opts_str} $PWD/bin/application")
+  end
+
+  def env_vars_str
+    "#{environment_variables.join(' ')}"
+  end
+
+  def java_opts_str
+    "\"#{java_opts.join(' ')}\""
   end
 
 end

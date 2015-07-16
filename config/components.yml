@@ -37,6 +37,7 @@ frameworks:
 # - "JavaBuildpack::Framework::DynaTraceAgent"
   - "JavaBuildpack::Framework::JavaOpts"
   - "JavaBuildpack::Framework::JrebelAgent"
+#  - "JavaBuildpack::Framework::LunaSecurityProvider"
   - "JavaBuildpack::Framework::MariaDbJDBC"
   - "JavaBuildpack::Framework::NewRelicAgent"
   - "JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration"

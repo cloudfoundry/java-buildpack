@@ -41,6 +41,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         [
+          @droplet.environment_variables.as_env_vars,
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
           qualify_path(start_script(root), @droplet.root)

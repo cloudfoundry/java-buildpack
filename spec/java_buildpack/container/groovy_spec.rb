@@ -91,7 +91,7 @@ describe JavaBuildpack::Container::Groovy do
   it 'returns command',
      app_fixture: 'container_groovy_main_method' do
 
-    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} " \
+    expect(component.release).to eq("#{env_vars_str} #{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} " \
                                     '$PWD/.java-buildpack/groovy/bin/groovy -cp $PWD/.additional_libs/test-jar-1.jar:' \
                                     '$PWD/.additional_libs/test-jar-2.jar Application.groovy Alpha.groovy ' \
                                     'directory/Beta.groovy invalid.groovy')
@@ -100,10 +100,14 @@ describe JavaBuildpack::Container::Groovy do
   it 'returns command with included JARs',
      app_fixture: 'container_groovy_with_jars' do
 
-    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} " \
+    expect(component.release).to eq("#{env_vars_str} #{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} " \
                                     '$PWD/.java-buildpack/groovy/bin/groovy -cp $PWD/.additional_libs/test-jar-1.jar:' \
                                     '$PWD/.additional_libs/test-jar-2.jar:$PWD/Alpha.jar:$PWD/directory/Beta.jar ' \
                                     'Application.groovy invalid.groovy')
+  end
+
+  def env_vars_str
+    "#{environment_variables.join(' ')}"
   end
 
   def java_opts_str

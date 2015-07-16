@@ -45,10 +45,12 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT'
+
         [
+          @droplet.environment_variables.as_env_vars,
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
-          'SERVER_PORT=$PORT',
           qualify_path(@droplet.sandbox + 'bin/spring', @droplet.root),
           'run',
           @droplet.additional_libraries.as_classpath,

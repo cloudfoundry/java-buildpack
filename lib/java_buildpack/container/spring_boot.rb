@@ -35,7 +35,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Container::DistZipLike#release)
       def release
-        "SERVER_PORT=$PORT #{super}"
+        @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT'
+        super
       end
 
       protected

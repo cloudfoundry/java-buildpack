@@ -46,7 +46,7 @@ module JavaBuildpack
       # ensure that the path is always accurate.
       #
       # @param [Pathname] path the path to the +agentpath+ shared library
-      # @param [Properties] properties to append to the agentpath entry
+      # @param [Properties] props to append to the agentpath entry
       # @return [JavaOpts]     +self+ for chaining
       def add_agentpath_with_props(path, props)
         add_preformatted_options "-agentpath:#{qualify_path path}=" + props.map { |k, v| "#{k}=#{v}" }.join(',')

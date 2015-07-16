@@ -51,7 +51,8 @@ describe JavaBuildpack::Container::DistZipLike do
   it 'returns command',
      app_fixture: 'container_dist_zip' do
 
-    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=\"test-opt-2 test-opt-1\" $PWD/bin/application")
+    expect(component.release).to eq("test-var-2 test-var-1 #{java_home.as_env_var} " \
+                                      'JAVA_OPTS="test-opt-2 test-opt-1" $PWD/bin/application')
   end
 
 end
