@@ -68,7 +68,7 @@ The framework can be configured by modifying the [`config/dyna_trace_agent.yml`]
 | `version` | The version of DynaTrace to use. This buildpack framework has been tested on 6.1.0.
 
 ### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/ca_wily_agent` directory in the buildpack fork.  For example, to override the default profile add your custom profile to `resources/introscope_agent/`.
+The framework can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/dyna_trace_agent` directory in the buildpack fork.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/dyna_trace_agent.yml`]: ../config/dyna_trace_agent.yml
