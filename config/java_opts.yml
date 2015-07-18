@@ -16,4 +16,5 @@
 # JAVA_OPTS configuration
 ---
 from_environment: false
-java_opts: -Djavax.net.debug=all
+java_opts: -Djavax.net.debug=all -Djdk.tls.client.protocols="TLSv1,TLSv1.1,TLSv1.2" -Dhttps.protocols="TLSv1,TLSv1.1,TLSv1.2"
+
