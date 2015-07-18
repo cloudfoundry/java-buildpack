@@ -7,6 +7,7 @@
 # This section is for settings common to all environments.
 # Do not add anything above this next line.
 common: &default_settings
+  use_private_ssl: true
   #
   # ============================== LICENSE KEY ===============================
 
@@ -82,7 +83,7 @@ common: &default_settings
   # application code, so response times will not be directly affected
   # by this change.
   # Default is true.
-  ssl: false
+  ssl: true
 
   # Proxy settings for connecting to the New Relic server.
   #
