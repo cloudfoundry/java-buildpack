@@ -15,6 +15,6 @@
 
 # JAVA_OPTS configuration
 ---
-from_environment: true
+from_environment: false
 java_opts: -Djdk.tls.client.protocols="TLSv1,TLSv1.1,TLSv1.2" -Dhttps.protocols="TLSv1,TLSv1.1,TLSv1.2"
 
