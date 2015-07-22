@@ -35,15 +35,17 @@ module JavaBuildpack
         # configuration, if present. Will not add a new configuration key where an existing one does not exist.
         #
         # @param [String] identifier the identifier of the configuration to load
+        # @param [Boolean] clean_nil_values whether empty/nil values should be removed along with their keys from the
+        #                                  returned configuration.
         # @param [Boolean] should_log whether the contents of the configuration file should be logged.  This value
         #                             should be left to its default and exists to allow the logger to use the utility.
         # @return [Hash] the configuration or an empty hash if the configuration file does not exist
-        def load(identifier, should_log = true)
+        def load(identifier, clean_nil_values = true, should_log = true)
           file = file_name(identifier)
 
           if file.exist?
             user_provided = ENV[environment_variable_name(identifier)]
-            configuration = load_configuration(file, user_provided, should_log)
+            configuration = load_configuration(file, user_provided, clean_nil_values, should_log)
           else
             logger.debug { "No configuration file #{file} found" } if should_log
           end
@@ -80,6 +82,17 @@ module JavaBuildpack
 
         private_constant :CONFIG_DIRECTORY, :ENVIRONMENT_VARIABLE_PATTERN
 
+        def clean_nil_values(configuration)
+          configuration.each do |key, value|
+            if value.is_a?(Hash)
+              configuration[key] = clean_nil_values value
+            elsif value.nil?
+              configuration.delete key
+            end
+          end
+          configuration
+        end
+
         def file_name(identifier)
           CONFIG_DIRECTORY + "#{identifier}.yml"
         end
@@ -96,7 +109,7 @@ module JavaBuildpack
           header
         end
 
-        def load_configuration(file, user_provided, should_log)
+        def load_configuration(file, user_provided, clean_nil_values, should_log)
           configuration = YAML.load_file(file)
           logger.debug { "Configuration from #{file}: #{configuration}" } if should_log
 
@@ -105,15 +118,14 @@ module JavaBuildpack
             if user_provided_value.is_a?(Hash)
               configuration = do_merge(configuration, user_provided_value, should_log)
             elsif user_provided_value.is_a?(Array)
-              user_provided_value.each do |new_prop|
-                configuration = do_merge(configuration, new_prop, should_log)
-              end
+              user_provided_value.each { |new_prop| configuration = do_merge(configuration, new_prop, should_log) }
             else
               fail "User configuration value is not valid: #{user_provided_value}"
             end
             logger.debug { "Configuration from #{file} modified with: #{user_provided}" } if should_log
           end
 
+          clean_nil_values configuration if clean_nil_values
           configuration
         end
 

@@ -46,6 +46,14 @@ describe JavaBuildpack::Framework::JavaOpts do
     end
   end
 
+  context do
+    let(:configuration) { { 'java_opts' => nil } }
+
+    it 'does not detect with nil java_opts configuration' do
+      expect(component.detect).to be_nil
+    end
+  end
+
   it 'does not detect without java_opts configuration' do
     expect(component.detect).to be_nil
   end

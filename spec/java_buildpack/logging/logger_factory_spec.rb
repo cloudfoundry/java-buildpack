@@ -183,7 +183,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
   context do
 
     before do
-      allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('logging', false)
+      allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('logging', true, false)
                                                           .and_return('default_log_level' => 'DEBUG')
       described_class.instance.setup app_dir
     end
@@ -208,7 +208,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
   context do
 
     before do
-      allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('logging', false).and_return({})
+      allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('logging', true, false).and_return({})
       described_class.instance.setup app_dir
     end
 

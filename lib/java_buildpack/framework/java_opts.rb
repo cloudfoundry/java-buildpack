@@ -75,7 +75,7 @@ module JavaBuildpack
       end
 
       def supports_configuration?
-        @configuration.key? CONFIGURATION_PROPERTY
+        @configuration.key?(CONFIGURATION_PROPERTY) && !@configuration[CONFIGURATION_PROPERTY].nil?
       end
 
       def supports_environment?

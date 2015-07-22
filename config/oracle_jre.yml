@@ -15,22 +15,25 @@
 
 # Configuration for JRE repositories keyed by vendor
 # Pre Java 1.8, permgen was used instead of metaspace.  Please see the documentation for more detail.
----
+
 # You must specify a the repository root of an Oracle JRE repository. Please see the documentation for more detail.
 # e.g.  repository_root: "http://example.com/oracle-jre/{platform}/{architecture}"
-
+---
 jre:
   version: 1.8.0_+
   repository_root: ""
 memory_calculator:
   version: 1.+
-  repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
+  repository_root: ! '{default.repository.root}/memory-calculator/{platform}/{architecture}'
   memory_sizes:
+    heap:
     metaspace: 64m..
+    native:
     permgen: 64m..
+    stack:
   memory_heuristics:
     heap: 75
     metaspace: 10
+    native: 10
     permgen: 10
     stack: 5
-    native: 10
