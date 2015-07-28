@@ -45,7 +45,10 @@ describe JavaBuildpack::Jre::OpenJDKLike do
                                'metaspace' => '10',
                                'permgen'   => '10',
                                'stack'     => '5',
-                               'native'    => '10' } }
+                               'native'    => '10' },
+      'memory_initials'   => { 'heap'      => '100%',
+                               'metaspace' => '100%',
+                               'permgen'   => '100%' } }
   end
 
   it 'always supports' do
@@ -67,7 +70,9 @@ describe JavaBuildpack::Jre::OpenJDKLike do
     java_home.version = version_7
     expect(component.command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like/bin/' \
                                     'java-buildpack-memory-calculator-0.0.0 -memorySizes=permgen:64m.. ' \
-                                    '-memoryWeights=heap:75,permgen:10,stack:5,native:10 -totMemory=$MEMORY_LIMIT)')
+                                    '-memoryWeights=heap:75,permgen:10,stack:5,native:10 ' \
+                                    '-memoryInitials=heap:100%,permgen:100% ' \
+                                    '-totMemory=$MEMORY_LIMIT)')
   end
 
 end

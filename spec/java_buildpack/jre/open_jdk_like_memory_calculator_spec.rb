@@ -37,7 +37,10 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
                                'metaspace' => '10',
                                'permgen'   => '10',
                                'stack'     => '5',
-                               'native'    => '10' } }
+                               'native'    => '10' },
+      'memory_initials'   => { 'heap'      => '100%',
+                               'metaspace' => '100%',
+                               'permgen'   => '100%' } }
   end
 
   it 'copies executable to bin directory',
@@ -70,6 +73,7 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
 
     expect(component).to receive(:shell).with("#{memory_calculator} -memorySizes=permgen:64m.. " \
                                               '-memoryWeights=heap:75,permgen:10,stack:5,native:10 ' \
+                                              '-memoryInitials=heap:100%,permgen:100% ' \
                                               '-totMemory=$MEMORY_LIMIT')
 
     component.compile
@@ -81,7 +85,9 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
 
     expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
                           'java-buildpack-memory-calculator-0.0.0 -memorySizes=permgen:64m.. ' \
-                          '-memoryWeights=heap:75,permgen:10,stack:5,native:10 -totMemory=$MEMORY_LIMIT)')
+                          '-memoryWeights=heap:75,permgen:10,stack:5,native:10 ' \
+                          '-memoryInitials=heap:100%,permgen:100% ' \
+                          '-totMemory=$MEMORY_LIMIT)')
   end
 
   it 'create memory calculation command for Java 8' do
@@ -90,7 +96,9 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
 
     expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
                           'java-buildpack-memory-calculator-0.0.0 -memorySizes=metaspace:64m.. ' \
-                          '-memoryWeights=heap:75,metaspace:10,stack:5,native:10 -totMemory=$MEMORY_LIMIT)')
+                          '-memoryWeights=heap:75,metaspace:10,stack:5,native:10 ' \
+                          '-memoryInitials=heap:100%,metaspace:100% ' \
+                          '-totMemory=$MEMORY_LIMIT)')
   end
 
   it 'adds $CALCULATED_MEMORY to the JAVA_OPTS' do
