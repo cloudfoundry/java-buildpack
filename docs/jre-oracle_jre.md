@@ -40,7 +40,7 @@ The JRE can also be configured by overlaying a set of resources on the default d
 ### Memory
 The total available memory is specified when an application is pushed as part of it's configuration. The Java buildpack uses this value to control the JRE's use of various regions of memory. The JRE memory settings can be influenced by configuring the `memory_sizes` and/or `memory_heuristics` mappings.
 
-Note: if the total available memory is scaled up or down, the Java buildpack does not re-calculate the JRE memory settings until the next time the appication is pushed.
+Note: if the total available memory is scaled up or down, the Java buildpack will re-calculate the JRE memory settings the next time the appication is started.
 
 #### Memory Sizes
 The following optional properties may be specified in the `memory_sizes` mapping.
