@@ -48,7 +48,7 @@ common: &default_settings
   # This setting is dynamic, so changes do not require restarting your application.
   # The levels in increasing order of verboseness are: off, severe, warning, info, fine, finer, finest
   # Default is info.
-  log_level: finer
+  log_level: info
 
   # Log all data to and from New Relic in plain text.
   # This setting is dynamic, so changes do not require restarting your application.
@@ -83,7 +83,7 @@ common: &default_settings
   # application code, so response times will not be directly affected
   # by this change.
   # Default is true.
-  ssl: false
+  ssl: true
 
   # Proxy settings for connecting to the New Relic server.
   #
@@ -164,7 +164,7 @@ common: &default_settings
     # The higher the setting, the greater the variety.
     # Set this to 0 to always report the slowest transaction trace.
     # Default is 20.
-    top_n: 20
+    top_n: 50
 
 
   # Error collector captures information about uncaught exceptions and
@@ -174,7 +174,7 @@ common: &default_settings
     # Error collector is enabled by default. Set this to false to turn
     # it off. This feature is only available at the higher product levels.
     # Default is true.
-    enabled: false
+    enabled: true
 
     # To stop specific exceptions from reporting to New Relic, set this property
     # to a comma separated list of full class names.
