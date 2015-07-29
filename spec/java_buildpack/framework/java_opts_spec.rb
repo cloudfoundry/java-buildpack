@@ -87,6 +87,18 @@ describe JavaBuildpack::Framework::JavaOpts do
   end
 
   context do
+    let(:configuration) do
+      { 'java_opts' => '-javaagent:agent.jar=port="\$PORT",host=localhost' }
+    end
+
+    it 'allows escaped characters' do
+      component.release
+
+      expect(java_opts).to include('-javaagent:agent.jar=port=$PORT,host=localhost')
+    end
+  end
+
+  context do
     let(:configuration) { { 'java_opts' => '-Xms1024M' } }
 
     it 'raises an error if a -Xms is configured' do
