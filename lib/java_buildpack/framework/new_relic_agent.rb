@@ -31,7 +31,7 @@ module JavaBuildpack
         @droplet.copy_resources
       end
 
-      # (see JavaBuildpack::Component::BaseComponent#release)
+      # (see JavaBuildpack::Component::BaseComponent#release) VCAP_ZONE
       def release
         @droplet.java_opts
         .add_javaagent(@droplet.sandbox + jar_name)
@@ -39,7 +39,7 @@ module JavaBuildpack
         .add_system_property('newrelic.config.license_key', license_key)
         .add_system_property('newrelic.config.app_name', "'#{application_name}'")
         .add_system_property('newrelic.config.log_file_path', logs_dir)
-        .add_system_property('newrelic.config.log_level', "finer")
+        .add_system_property('newrelic.config.log_level', "info")
         @droplet.java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.version[1] == '8'
         @droplet.java_opts.add_system_property('newrelic.config.proxy_host', proxy_host) if !proxy_host.nil? and !proxy_host.empty?
         @droplet.java_opts.add_system_property('newrelic.config.proxy_user', proxy_user) if !proxy_user.nil? and !proxy_user.empty?
@@ -76,19 +76,19 @@ module JavaBuildpack
       end
 
       def proxy_host
-        @application.services.find_service(PROXY_FILTER)['credentials']['host']
+        @application.services.find_service(PROXY_FILTER)['credentials'][ENV['VCAP_ZONE']]['host']
       end
 
       def proxy_user
-        @application.services.find_service(PROXY_FILTER)['credentials']['username']
+        @application.services.find_service(PROXY_FILTER)['credentials'][ENV['VCAP_ZONE']]['username']
       end
 
       def proxy_password
-        @application.services.find_service(PROXY_FILTER)['credentials']['password']
+        @application.services.find_service(PROXY_FILTER)['credentials'][ENV['VCAP_ZONE']]['password']
       end
 
       def proxy_port
-        @application.services.find_service(PROXY_FILTER)['credentials']['port']
+        @application.services.find_service(PROXY_FILTER)['credentials'][ENV['VCAP_ZONE']]['port']
       end
 
     end
