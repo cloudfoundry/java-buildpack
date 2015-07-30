@@ -31,7 +31,7 @@ module JavaBuildpack
         @droplet.copy_resources
       end
 
-      # (see JavaBuildpack::Component::BaseComponent#release) VCAP_ZONE
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.java_opts
         .add_javaagent(@droplet.sandbox + jar_name)
@@ -76,19 +76,19 @@ module JavaBuildpack
       end
 
       def proxy_host
-        @application.services.find_service(PROXY_FILTER)['credentials'][ENV['VCAP_ZONE']]['host']
+        @application.services.find_service(PROXY_FILTER)['credentials']['host']
       end
 
       def proxy_user
-        @application.services.find_service(PROXY_FILTER)['credentials'][ENV['VCAP_ZONE']]['username']
+        @application.services.find_service(PROXY_FILTER)['credentials']['username']
       end
 
       def proxy_password
-        @application.services.find_service(PROXY_FILTER)['credentials'][ENV['VCAP_ZONE']]['password']
+        @application.services.find_service(PROXY_FILTER)['credentials']['password']
       end
 
       def proxy_port
-        @application.services.find_service(PROXY_FILTER)['credentials'][ENV['VCAP_ZONE']]['port']
+        @application.services.find_service(PROXY_FILTER)['credentials']['port']
       end
 
     end
