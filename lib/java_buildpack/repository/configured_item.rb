@@ -35,7 +35,7 @@ module JavaBuildpack
         # @param [Hash] configuration the configuration
         # @option configuration [String] :repository_root the root directory of the repository
         # @option configuration [String] :version the version of the file to resolve
-        # @param [Block, nil] version_validator an optional version validation block
+        # @yield [Block] optional version_validator to yield to
         # @return [String] the URI of the chosen version of the file
         # @return [JavaBuildpack::Util::TokenizedVersion] the chosen version of the file
         def find_item(component_name, configuration)

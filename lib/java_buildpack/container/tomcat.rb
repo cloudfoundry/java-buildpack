@@ -38,6 +38,7 @@ module JavaBuildpack
         @droplet.java_opts.add_system_property 'http.port', '$PORT'
 
         [
+          @droplet.environment_variables.as_env_vars,
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
           "$PWD/#{(@droplet.sandbox + 'bin/catalina.sh').relative_path_from(@droplet.root)}",
