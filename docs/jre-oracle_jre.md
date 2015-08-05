@@ -78,7 +78,7 @@ represent a maximum heap size three times as large as the maximum PermGen size, 
 Memory weightings are used together with memory ranges to calculate the amount of memory for each memory type, as follows.
 
 #### Memory Initials
-Memory initials are configured in the `memory_initials` mapping of [`config/open_jdk_jre.yml`][]. Each initial is a percentage of the given type of memory. Valid memory types are `heap`, `permgen`, and `metaspace`. For example, the following initials:
+Memory initials are configured in the `memory_initials` mapping of [`config/oracle_jre.yml`][]. Each initial is a percentage of the given type of memory. Valid memory types are `heap`, `permgen`, and `metaspace`. For example, the following initials:
 
 ```yaml
 memory_initials:
