@@ -30,7 +30,8 @@ The JRE can be configured by modifying the [`config/oracle_jre.yml`][] file in t
 | Name | Description
 | ---- | -----------
 | `memory_sizes` | Optional memory sizes, described below under "Memory Sizes".
-| `memory_heuristics` | Default memory size weightings, described below under "Memory Weightings.
+| `memory_heuristics` | Default memory size weightings, described below under "Memory Weightings".
+| `memory_initials` | Initial memory sizes, described below under "Memory Initials".
 | `repository_root` | The URL of the Oracle repository index ([details][repositories]).
 | `version` | The version of Java runtime to use.  Candidate versions can be found in the the repository that you have created to house the JREs. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
 
@@ -75,6 +76,21 @@ memory_heuristics:
 represent a maximum heap size three times as large as the maximum PermGen size, and so on.
 
 Memory weightings are used together with memory ranges to calculate the amount of memory for each memory type, as follows.
+
+#### Memory Initials
+Memory initials are configured in the `memory_initials` mapping of [`config/oracle_jre.yml`][]. Each initial is a percentage of the given type of memory. Valid memory types are `heap`, `permgen`, and `metaspace`. For example, the following initials:
+
+```yaml
+memory_initials:
+  heap: 50%
+  permgen: 25%
+```
+
+Given a maximum heap (Xmx) of 1G and a maximum permgen (-XX:MaxPermsize) of 256M an initial heap (Xms) of 512M and an initial permgen (-XX:Permsize) of 64M would be used.
+
+If no initial value is specified for a memory type the JVM default will be used.
+
+A value of 100% for each memory types is generally recommended for best performance.  Smaller values will potentially preserve unused system memory for other tenants on the same host.  Using the G1 garbage collector along with aggressive `MinHeapFreeRatio` and `MaxHeapFreeRatio` values the JVM will actually release unused heap back to the system up to the initial value.
 
 #### Memory Calculation
 Memory calculation happens before every `start` of an application and is performed by an external program, the [Java Buildpack Memory Calculator]. There is no need to `restage` an application after scaling the memory as restarting will cause the memory settings to be recalculated. 

@@ -36,7 +36,8 @@ module JavaBuildpack
         end
 
         shell "#{qualify_path memory_calculator, Pathname.new(Dir.pwd)} -memorySizes=#{memory_sizes @configuration} " \
-              "-memoryWeights=#{memory_weights @configuration} -totMemory=$MEMORY_LIMIT"
+              "-memoryWeights=#{memory_weights @configuration} -memoryInitials=#{memory_initials @configuration} " \
+              '-totMemory=$MEMORY_LIMIT'
       end
 
       # Returns a fully qualified memory calculation command to be prepended to the buildpack's command sequence
@@ -45,7 +46,7 @@ module JavaBuildpack
       def memory_calculation_command
         "CALCULATED_MEMORY=$(#{qualify_path memory_calculator, @droplet.root} " \
         "-memorySizes=#{memory_sizes @configuration} -memoryWeights=#{memory_weights @configuration} " \
-        '-totMemory=$MEMORY_LIMIT)'
+        "-memoryInitials=#{memory_initials @configuration} -totMemory=$MEMORY_LIMIT)"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -73,6 +74,11 @@ module JavaBuildpack
 
       def memory_weights(configuration)
         memory_sizes = version_specific configuration['memory_heuristics']
+        memory_sizes.map { |k, v| "#{k}:#{v}" }.join(',')
+      end
+
+      def memory_initials(configuration)
+        memory_sizes = version_specific configuration['memory_initials']
         memory_sizes.map { |k, v| "#{k}:#{v}" }.join(',')
       end
 
