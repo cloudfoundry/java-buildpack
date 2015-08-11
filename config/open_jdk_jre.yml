@@ -20,7 +20,7 @@ jre:
   version: 1.8.0_+
   repository_root: ! '{default.repository.root}/openjdk/{platform}/{architecture}'
 memory_calculator:
-  version: 1.+
+  version: 2.+
   repository_root: ! '{default.repository.root}/memory-calculator/{platform}/{architecture}'
   memory_sizes:
     heap: 
