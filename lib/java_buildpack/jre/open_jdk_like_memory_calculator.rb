@@ -17,6 +17,7 @@
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/jre'
+require 'java_buildpack/util/shell'
 require 'java_buildpack/util/qualify_path'
 require 'open3'
 
@@ -31,21 +32,22 @@ module JavaBuildpack
       def compile
         download(@version, @uri) do |file|
           FileUtils.mkdir_p memory_calculator.parent
-          FileUtils.cp_r(file.path, memory_calculator)
+          if @version[0] < '2'
+            unpack_calculator file
+          else
+            unpack_compressed_calculator file
+          end
           memory_calculator.chmod 0755
         end
 
-        shell "#{qualify_path memory_calculator, Pathname.new(Dir.pwd)} -memorySizes=#{memory_sizes @configuration} " \
-              "-memoryWeights=#{memory_weights @configuration} -totMemory=$MEMORY_LIMIT"
+        show_settings memory_calculation_string(Pathname.new(Dir.pwd))
       end
 
       # Returns a fully qualified memory calculation command to be prepended to the buildpack's command sequence
       #
       # @return [String] the memory calculation command
       def memory_calculation_command
-        "CALCULATED_MEMORY=$(#{qualify_path memory_calculator, @droplet.root} " \
-        "-memorySizes=#{memory_sizes @configuration} -memoryWeights=#{memory_weights @configuration} " \
-        '-totMemory=$MEMORY_LIMIT)'
+        "CALCULATED_MEMORY=$(#{memory_calculation_string(@droplet.root)})"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -66,6 +68,17 @@ module JavaBuildpack
         @droplet.sandbox + "bin/java-buildpack-memory-calculator-#{@version}"
       end
 
+      def memory_calculator_tar
+        platform = `uname -s` =~ /Darwin/ ? 'darwin' : 'linux'
+        @droplet.sandbox + "bin/java-buildpack-memory-calculator-#{platform}"
+      end
+
+      def memory_calculation_string(relative_path)
+        "#{qualify_path memory_calculator, relative_path} -memorySizes=#{memory_sizes @configuration} " \
+              "-memoryWeights=#{memory_weights @configuration} -memoryInitials=#{memory_initials @configuration} " \
+              '-totMemory=$MEMORY_LIMIT'
+      end
+
       def memory_sizes(configuration)
         memory_sizes = version_specific configuration['memory_sizes']
         memory_sizes.map { |k, v| "#{k}:#{v}" }.join(',')
@@ -74,6 +87,20 @@ module JavaBuildpack
       def memory_weights(configuration)
         memory_sizes = version_specific configuration['memory_heuristics']
         memory_sizes.map { |k, v| "#{k}:#{v}" }.join(',')
+      end
+
+      def memory_initials(configuration)
+        memory_sizes = version_specific configuration['memory_initials']
+        memory_sizes.map { |k, v| "#{k}:#{v}" }.join(',')
+      end
+
+      def unpack_calculator(file)
+        FileUtils.cp_r(file.path, memory_calculator)
+      end
+
+      def unpack_compressed_calculator(file)
+        shell "tar xzf #{file.path} -C #{memory_calculator.parent} 2>&1"
+        FileUtils.mv(memory_calculator_tar, memory_calculator)
       end
 
       def version_specific(configuration)
@@ -86,7 +113,7 @@ module JavaBuildpack
         configuration
       end
 
-      def shell(*args)
+      def show_settings(*args)
         Open3.popen3(*args) do |_stdin, stdout, stderr, wait_thr|
           status         = wait_thr.value
           stderr_content = stderr.gets nil

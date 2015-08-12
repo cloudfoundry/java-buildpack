@@ -37,14 +37,17 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
                                'metaspace' => '10',
                                'permgen'   => '10',
                                'stack'     => '5',
-                               'native'    => '10' } }
+                               'native'    => '10' },
+      'memory_initials'   => { 'heap'      => '100%',
+                               'metaspace' => '100%',
+                               'permgen'   => '100%' } }
   end
 
   it 'copies executable to bin directory',
      cache_fixture: 'stub-memory-calculator' do
 
     java_home.version = version_7
-    allow(component).to receive(:shell)
+    allow(component).to receive(:show_settings)
 
     component.compile
 
@@ -55,11 +58,39 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
      cache_fixture: 'stub-memory-calculator' do
 
     java_home.version = version_7
-    allow(component).to receive(:shell)
+    allow(component).to receive(:show_settings)
 
     component.compile
 
     expect(File.stat(sandbox + "bin/java-buildpack-memory-calculator-#{version}").mode).to eq(0100755)
+  end
+
+  context do
+
+    let(:version) { '3.0.0' }
+
+    it 'copies executable to bin directory from a compressed archive',
+       cache_fixture: 'stub-memory-calculator.tar.gz' do
+
+      java_home.version = version_7
+      allow(component).to receive(:show_settings)
+
+      component.compile
+
+      expect(sandbox + "bin/java-buildpack-memory-calculator-#{version}").to exist
+    end
+
+    it 'chmods executable to 0755 from a compressed archive',
+       cache_fixture: 'stub-memory-calculator.tar.gz' do
+
+      java_home.version = version_7
+      allow(component).to receive(:show_settings)
+
+      component.compile
+
+      expect(File.stat(sandbox + "bin/java-buildpack-memory-calculator-#{version}").mode).to eq(0100755)
+    end
+
   end
 
   it 'runs the memory calculator to sanity check',
@@ -68,9 +99,10 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
     java_home.version = version_7
     memory_calculator = qualify_path(sandbox + "bin/java-buildpack-memory-calculator-#{version}", Pathname.new(Dir.pwd))
 
-    expect(component).to receive(:shell).with("#{memory_calculator} -memorySizes=permgen:64m.. " \
-                                              '-memoryWeights=heap:75,permgen:10,stack:5,native:10 ' \
-                                              '-totMemory=$MEMORY_LIMIT')
+    expect(component).to receive(:show_settings).with("#{memory_calculator} -memorySizes=permgen:64m.. " \
+                                                      '-memoryWeights=heap:75,permgen:10,stack:5,native:10 ' \
+                                                      '-memoryInitials=heap:100%,permgen:100% ' \
+                                                      '-totMemory=$MEMORY_LIMIT')
 
     component.compile
   end
@@ -81,7 +113,9 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
 
     expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
                           'java-buildpack-memory-calculator-0.0.0 -memorySizes=permgen:64m.. ' \
-                          '-memoryWeights=heap:75,permgen:10,stack:5,native:10 -totMemory=$MEMORY_LIMIT)')
+                          '-memoryWeights=heap:75,permgen:10,stack:5,native:10 ' \
+                          '-memoryInitials=heap:100%,permgen:100% ' \
+                          '-totMemory=$MEMORY_LIMIT)')
   end
 
   it 'create memory calculation command for Java 8' do
@@ -90,7 +124,9 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
 
     expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
                           'java-buildpack-memory-calculator-0.0.0 -memorySizes=metaspace:64m.. ' \
-                          '-memoryWeights=heap:75,metaspace:10,stack:5,native:10 -totMemory=$MEMORY_LIMIT)')
+                          '-memoryWeights=heap:75,metaspace:10,stack:5,native:10 ' \
+                          '-memoryInitials=heap:100%,metaspace:100% ' \
+                          '-totMemory=$MEMORY_LIMIT)')
   end
 
   it 'adds $CALCULATED_MEMORY to the JAVA_OPTS' do
