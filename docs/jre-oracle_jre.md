@@ -8,7 +8,7 @@ The Oracle JRE provides Java runtimes from [Oracle][] project.  No versions of t
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
-    <td><tt>oracle=&lang;version&rang;</tt></td>
+    <td><tt>oracle=&lang;version&rang;, open-jdk-like-memory-calculator=&lang;version&rang;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script

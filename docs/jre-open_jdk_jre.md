@@ -8,7 +8,7 @@ The OpenJDK JRE provides Java runtimes from the [OpenJDK][] project.  Versions o
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
-    <td><tt>open-jdk=&lang;version&rang;</tt></td>
+    <td><tt>open-jdk=&lang;version&rang;, open-jdk-like-memory-calculator=&lang;version&rang;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
