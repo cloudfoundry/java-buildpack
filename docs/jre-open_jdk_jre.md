@@ -30,9 +30,9 @@ The JRE can be configured by modifying the [`config/open_jdk_jre.yml`][] file in
 The JRE can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/open_jdk_jre` directory in the buildpack fork. For example, to add the JCE Unlimited Strength `local_policy.jar` add your file to `resources/open_jdk_jre/lib/security/local_policy.jar`.
 
 ### Memory
-The total available memory is specified when an application is pushed as part of it's configuration. The Java buildpack uses this value to control the JRE's use of various regions of memory. The JRE memory settings can be influenced by configuring the `memory_sizes` and/or `memory_heuristics` mappings.
+The total available memory is specified when an application is pushed as part of it's configuration. The Java buildpack uses this value to control the JRE's use of various regions of memory. The JRE memory settings can be influenced by configuring the `memory_sizes`, `memory_heuristics`, `memory_initials` and/or `stack_threads` mappings.
 
-Note: if the total available memory is scaled up or down, the Java buildpack will re-calculate the JRE memory settings the next time the appication is started.
+Note: if the total available memory is scaled up or down, the Java buildpack will re-calculate the JRE memory settings the next time the application is started.
 
 #### Memory Sizes
 The following optional properties may be specified in the `memory_sizes` mapping.
@@ -82,6 +82,14 @@ Given a maximum heap (Xmx) of 1G and a maximum permgen (-XX:MaxPermsize) of 256M
 If no initial value is specified for a memory type the JVM default will be used.
 
 A value of 100% for each memory types is generally recommended for best performance.  Smaller values will potentially preserve unused system memory for other tenants on the same host.  Using the G1 garbage collector along with aggressive `MinHeapFreeRatio` and `MaxHeapFreeRatio` values the JVM will actually release unused heap back to the system up to the initial value.
+
+#### Stack Threads
+
+The amount of memory that should be allocated to the stack is given as an amount of memory per thread with the command line option `-Xss`. The default behaviour is to use an estimate of the number of threads based on the total memory for the application. If an explicit number of threads should be used for the calculation of stack memory then it should be specified like the following example: 
+
+```yaml
+stack_threads: 500
+```
 
 #### Memory Calculation
 Memory calculation happens before every `start` of an application and is performed by an external program, the [Java Buildpack Memory Calculator]. There is no need to `restage` an application after scaling the memory as restarting will cause the memory settings to be recalculated. 

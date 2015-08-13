@@ -75,8 +75,8 @@ module JavaBuildpack
 
       def memory_calculation_string(relative_path)
         "#{qualify_path memory_calculator, relative_path} -memorySizes=#{memory_sizes @configuration} " \
-              "-memoryWeights=#{memory_weights @configuration} -memoryInitials=#{memory_initials @configuration} " \
-              '-totMemory=$MEMORY_LIMIT'
+              "-memoryWeights=#{memory_weights @configuration} -memoryInitials=#{memory_initials @configuration}" \
+              "#{stack_threads @configuration} -totMemory=$MEMORY_LIMIT"
       end
 
       def memory_sizes(configuration)
@@ -85,13 +85,13 @@ module JavaBuildpack
       end
 
       def memory_weights(configuration)
-        memory_sizes = version_specific configuration['memory_heuristics']
-        memory_sizes.map { |k, v| "#{k}:#{v}" }.join(',')
+        memory_heuristics = version_specific configuration['memory_heuristics']
+        memory_heuristics.map { |k, v| "#{k}:#{v}" }.join(',')
       end
 
       def memory_initials(configuration)
-        memory_sizes = version_specific configuration['memory_initials']
-        memory_sizes.map { |k, v| "#{k}:#{v}" }.join(',')
+        memory_initials = version_specific configuration['memory_initials']
+        memory_initials.map { |k, v| "#{k}:#{v}" }.join(',')
       end
 
       def unpack_calculator(file)
@@ -101,6 +101,10 @@ module JavaBuildpack
       def unpack_compressed_calculator(file)
         shell "tar xzf #{file.path} -C #{memory_calculator.parent} 2>&1"
         FileUtils.mv(memory_calculator_tar, memory_calculator)
+      end
+
+      def stack_threads(configuration)
+        configuration['stack_threads'] ? " -stackThreads=#{configuration['stack_threads']}" : ''
       end
 
       def version_specific(configuration)

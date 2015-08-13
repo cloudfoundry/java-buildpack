@@ -22,6 +22,7 @@ jre:
 memory_calculator:
   version: 2.+
   repository_root: ! '{default.repository.root}/memory-calculator/{platform}/{architecture}'
+  stack_threads: 
   memory_sizes:
     heap: 
     metaspace: 64m..

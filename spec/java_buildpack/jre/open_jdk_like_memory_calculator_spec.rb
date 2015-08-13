@@ -135,4 +135,21 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
     expect(java_opts).to include('$CALCULATED_MEMORY')
   end
 
+  context do
+
+    let(:configuration) { super().merge 'stack_threads' => '200' }
+
+    it 'create memory calculation command with stack threads specified' do
+      java_home.version = version_7
+      command           = component.memory_calculation_command
+
+      expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
+                            'java-buildpack-memory-calculator-0.0.0 -memorySizes=permgen:64m.. ' \
+                            '-memoryWeights=heap:75,permgen:10,stack:5,native:10 ' \
+                            '-memoryInitials=heap:100%,permgen:100% ' \
+                            '-stackThreads=200 -totMemory=$MEMORY_LIMIT)')
+    end
+
+  end
+
 end
