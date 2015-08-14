@@ -18,6 +18,7 @@
 tomcat:
   version: 8.0.+
   repository_root: ! '{default.repository.root}/tomcat'
+  context_path:
 lifecycle_support:
   version: 2.+
   repository_root: ! '{default.repository.root}/tomcat-lifecycle-support'

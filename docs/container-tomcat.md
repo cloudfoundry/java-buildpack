@@ -12,7 +12,7 @@ The Tomcat Container allows servlet 2 and 3 web applications to be run.  These a
 </table>
 Tags are printed to standard output by the buildpack detect script
 
-If the application uses Spring, [Spring profiles][] can be specified by setting the [`SPRING_PROFILES_ACTIVE`][] environment variable. This is automatically detected and used by Spring. The Spring Auto-reconfiguration Framework will specify the `cloud` profile in addition to any others. 
+If the application uses Spring, [Spring profiles][] can be specified by setting the [`SPRING_PROFILES_ACTIVE`][] environment variable. This is automatically detected and used by Spring. The Spring Auto-reconfiguration Framework will specify the `cloud` profile in addition to any others.
 
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
@@ -45,8 +45,23 @@ The container can be configured by modifying the [`config/tomcat.yml`][] file in
 | `redis_store.repository_root` | The URL of the Redis Store repository index ([details][repositories]).
 | `redis_store.timeout` | The Redis connection timeout (in milliseconds).
 | `redis_store.version` | The version of Redis Store to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/redis-store/index.yml).
+| `tomcat.context_path` | The context path to expose the application at.
 | `tomcat.repository_root` | The URL of the Tomcat repository index ([details][repositories]).
 | `tomcat.version` | The version of Tomcat to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat/index.yml).
+
+### Common configurations
+The version of Tomcat can be configured by setting an environment variable.
+
+```
+$ cf set-env my-application JBP_CONFIG_TOMCAT 'tomcat: { version: 7.0.+ }'
+```
+
+The context path that an application is deployed at can be configured by setting an environment variable.
+
+```
+$ cf set-env my-application JBP_CONFIG_TOMCAT 'tomcat: { context_path: /first-segement/second-segment }'
+```
+
 
 ### Additional Resources
 The container can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/tomcat` directory in the buildpack fork.  For example, to override the default `logging.properties` add your custom file to `resources/tomcat/conf/logging.properties`.
