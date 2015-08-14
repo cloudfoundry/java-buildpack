@@ -95,6 +95,33 @@ describe JavaBuildpack::Container::TomcatInstance do
     expect(root_webapp + '.test-file').not_to exist
   end
 
+  context do
+    let(:configuration) { { 'context_path' => '/first-segment/second-segment' } }
+
+    it 'links only the application files and directories to the ROOT webapp',
+       app_fixture:   'container_tomcat_with_index',
+       cache_fixture: 'stub-tomcat.tar.gz' do
+
+      FileUtils.touch(app_dir + '.test-file')
+
+      component.compile
+
+      root_webapp = app_dir + '.java-buildpack/tomcat/webapps/first-segment#second-segment'
+
+      web_inf = root_webapp + 'WEB-INF'
+      expect(web_inf).to exist
+      expect(web_inf).to be_symlink
+      expect(web_inf.readlink).to eq((app_dir + 'WEB-INF').relative_path_from(root_webapp))
+
+      index = root_webapp + 'index.html'
+      expect(index).to exist
+      expect(index).to be_symlink
+      expect(index.readlink).to eq((app_dir + 'index.html').relative_path_from(root_webapp))
+
+      expect(root_webapp + '.test-file').not_to exist
+    end
+  end
+
   it 'links the Tomcat datasource JAR to the ROOT webapp when that JAR is present',
      app_fixture:   'container_tomcat',
      cache_fixture: 'stub-tomcat7.tar.gz' do

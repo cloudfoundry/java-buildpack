@@ -10,7 +10,7 @@ The `java-buildpack` is a [Cloud Foundry][] buildpack for running JVM-based appl
 To use this buildpack specify the URI of the repository when pushing an application to Cloud Foundry:
 
 ```bash
-cf push <APP-NAME> -p <ARTIFACT> -b https://github.com/cloudfoundry/java-buildpack.git
+$ cf push <APP-NAME> -p <ARTIFACT> -b https://github.com/cloudfoundry/java-buildpack.git
 ```
 
 ## Examples
@@ -29,11 +29,15 @@ The buildpack supports extension through the use of Git repository forking. The 
 
 Buildpack configuration can be overridden with an environment variable matching the configuration file you wish to override minus the `.yml` extension and with a prefix of `JBP_CONFIG`. It is not possible to add new configuration properties and properties with `nil` or empty values will be ignored by the buildpack. The value of the variable should be valid inline yaml. For example, to change the default version of Java to 7 and adjust the memory heuristics apply this environment variable to the application.
 
-```cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '[jre: {version: 1.7.0_+}, memory_calculator: {memory_heuristics: {heap: 85, stack: 10}}]'```
+```bash
+$ cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE 'jre: { version: 1.7.0_+ }'
+```
 
 If the key or value contains a special character such as `:` it should be escaped with double quotes. For example, to change the default repository path for the buildpack.
 
-```cf set-env my-application JBP_CONFIG_REPOSITORY '[ default_repository_root: "http://repo.example.io" ]'```
+```bash
+$ cf set-env my-application JBP_CONFIG_REPOSITORY 'default_repository_root: "http://repo.example.io"'
+```
 
 Environment variable can also be specified in the applications `manifest` file. See the [Environment Variables][] documentation for more information.
 
@@ -92,8 +96,8 @@ The buildpack can be packaged up so that it can be uploaded to Cloud Foundry usi
 The online package is a version of the buildpack that is as minimal as possible and is configured to connect to the network for all dependencies.  This package is about 50K in size.  To create the online package, run:
 
 ```bash
-bundle install
-bundle exec rake package
+$ bundle install
+$ bundle exec rake package
 ...
 Creating build/java-buildpack-cfd6b17.zip
 ```
@@ -104,8 +108,8 @@ The offline package is a version of the buildpack designed to run without access
 To pin the version of dependencies used by the buildpack to the ones currently resolvable use the `PINNED=true` argument. This will update the [`config/` directory][] to contain exact version of each dependency instead of version ranges.
 
 ```bash
-bundle install
-bundle exec rake package OFFLINE=true PINNED=true
+$ bundle install
+$ bundle exec rake package OFFLINE=true PINNED=true
 ...
 Creating build/java-buildpack-offline-cfd6b17.zip
 ```
@@ -114,8 +118,8 @@ Creating build/java-buildpack-offline-cfd6b17.zip
 Keeping track of different versions of the buildpack can be difficult.  To help with this, the rake `package` task puts a version discriminator in the name of the created package file.  The default value for this discriminator is the current Git hash (e.g. `cfd6b17`).  To change the version when creating a package, use the `VERSION=<VERSION>` argument:
 
 ```bash
-bundle install
-bundle exec rake package VERSION=2.1
+$ bundle install
+$ bundle exec rake package VERSION=2.1
 ...
 Creating build/java-buildpack-2.1.zip
 ```
@@ -124,8 +128,8 @@ Creating build/java-buildpack-2.1.zip
 To run the tests, do the following:
 
 ```bash
-bundle install
-bundle exec rake
+$ bundle install
+$ bundle exec rake
 ```
 
 [Running Cloud Foundry locally][] is useful for privately testing new features.
