@@ -58,7 +58,7 @@ module JavaBuildpack
       puts BUILDPACK_MESSAGE % @buildpack_version
 
       container = component_detection('container', @containers, true).first
-      fail 'No container can run this application' unless container
+      no_container unless container
 
       component_detection('JRE', @jres, true).first.compile
       component_detection('framework', @frameworks, false).each(&:compile)
@@ -71,7 +71,7 @@ module JavaBuildpack
     # @return [String] The payload required to run the application.
     def release
       container = component_detection('container', @containers, true).first
-      fail 'No container can run this application' unless container
+      no_container unless container
 
       commands = []
       commands << component_detection('JRE', @jres, true).first.release
@@ -174,6 +174,12 @@ module JavaBuildpack
 
     def names(components)
       components.map { |component| component.class.to_s.space_case }.join(', ')
+    end
+
+    def no_container
+      fail 'No container can run this application. Please ensure that you’ve pushed a valid JVM artifact or ' \
+           'artifacts using the -p command line argument or path manifest entry. Information about valid JVM ' \
+           'artifacts can be found at https://github.com/cloudfoundry/java-buildpack#additional-documentation. '
     end
 
     def require_component(component)
