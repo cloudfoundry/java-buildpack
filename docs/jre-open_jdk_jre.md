@@ -101,7 +101,7 @@ The total available memory is first allocated to each memory type in proportion 
 Termination is guaranteed since there is a finite number of memory types and in each iteration either none of the remaining memory sizes is constrained by the corresponding range and allocation terminates or at least one memory size is constrained by the corresponding range and is omitted from the next iteration.
 
 #### Custom CA Certificates
-Use the [`copy_resources()`][] functionality included in the buildpack.  The `resources` directory can contain a directory that will be overlaid on top of the component's sandbox directory. Put a custom `cacerts` file into `resources/open_jdk//lib/security` and it will be copied into `<open-jdk-sandbox>/lib/securtity/cacerts`.  This strategy has been used to add [JCE Unlimited Strength][].
+Use the [`copy_resources()`][] functionality included in the buildpack.  The `resources` directory can contain a directory that will be overlaid on top of the component's sandbox directory. Put a custom `cacerts` file into `resources/open_jdk/lib/security` and it will be copied into `<open-jdk-sandbox>/lib/securtity/cacerts`.  This strategy has been used to add [JCE Unlimited Strength][].
 
 [`config/open_jdk_jre.yml`]: ../config/open_jdk_jre.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
