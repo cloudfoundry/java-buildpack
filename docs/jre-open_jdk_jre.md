@@ -27,7 +27,13 @@ The JRE can be configured by modifying the [`config/open_jdk_jre.yml`][] file in
 | `version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [centos6][], [lucid][], [mountainlion][], and [precise][]. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
 
 ### Additional Resources
-The JRE can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/open_jdk_jre` directory in the buildpack fork. For example, to add the JCE Unlimited Strength `local_policy.jar` add your file to `resources/open_jdk_jre/lib/security/local_policy.jar`.
+The JRE can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/open_jdk_jre` directory in the buildpack fork.
+
+#### JCE Unlimited Strength
+To add the JCE Unlimited Strength `local_policy.jar`, add your file to `resources/open_jdk_jre/lib/security/local_policy.jar`.  This file will be overlayed onto the OpenJDK distribution.
+
+#### Custom CA Certificates
+To add custom SSL certificates, add your `cacerts` file to `resources/open_jdk_jre/lib/security/cacerts`.  This file will be overlayed onto the OpenJDK distribution.
 
 ### Memory
 The total available memory is specified when an application is pushed as part of it's configuration. The Java buildpack uses this value to control the JRE's use of various regions of memory. The JRE memory settings can be influenced by configuring the `memory_sizes`, `memory_heuristics`, `memory_initials` and/or `stack_threads` mappings.
@@ -85,14 +91,14 @@ A value of 100% for each memory types is generally recommended for best performa
 
 #### Stack Threads
 
-The amount of memory that should be allocated to the stack is given as an amount of memory per thread with the command line option `-Xss`. The default behaviour is to use an estimate of the number of threads based on the total memory for the application. If an explicit number of threads should be used for the calculation of stack memory then it should be specified like the following example: 
+The amount of memory that should be allocated to the stack is given as an amount of memory per thread with the command line option `-Xss`. The default behaviour is to use an estimate of the number of threads based on the total memory for the application. If an explicit number of threads should be used for the calculation of stack memory then it should be specified like the following example:
 
 ```yaml
 stack_threads: 500
 ```
 
 #### Memory Calculation
-Memory calculation happens before every `start` of an application and is performed by an external program, the [Java Buildpack Memory Calculator]. There is no need to `restage` an application after scaling the memory as restarting will cause the memory settings to be recalculated. 
+Memory calculation happens before every `start` of an application and is performed by an external program, the [Java Buildpack Memory Calculator]. There is no need to `restage` an application after scaling the memory as restarting will cause the memory settings to be recalculated.
 
 The total available memory is allocated into heap, Metaspace or PermGen (depending on the version of Oracle), stack, and native memory types.
 
