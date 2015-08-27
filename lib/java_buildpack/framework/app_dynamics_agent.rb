@@ -26,7 +26,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_zip false
+        download_zip(false, @droplet.sandbox, 'AppDynamics Agent')
         @droplet.copy_resources
       end
 
