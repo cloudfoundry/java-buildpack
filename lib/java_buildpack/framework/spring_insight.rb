@@ -102,18 +102,11 @@ module JavaBuildpack
       def install_insight(agent_dir)
         root = Pathname.glob(agent_dir + 'springsource-insight-uber-agent-*')[0]
 
-        # init_container_libs root
-        # init_insight_cloudfoundry_agent_plugin root
         init_insight root
         init_insight_properties agent_dir
         init_insight_agent_plugins root
         init_weaver root
       end
-
-      # def init_container_libs(root)
-      #   move container_libs_directory,
-      #        root + 'agents/tomcat/7/lib/insight-agent-*.jar'
-      # end
 
       def init_insight(root)
         move insight_directory,
@@ -133,29 +126,16 @@ module JavaBuildpack
       end
 
       def init_insight_agent_plugins(root)
-        # move insight_directory + 'agent-plugins',
-        #      root + 'cloudfoundry/insight-agent-cloudfoundry-*.jar'
         move insight_directory + 'agent-plugins',
              root + 'agents/tomcat/7/lib/insight-agent-*.jar'
-        # move insight_directory + 'agent-plugins',
-        #      root + 'cloudfoundry/cloudfoundry-runtime-*.jar'
         transport_jar = transport_plugin root
         move insight_directory + 'agent-plugins', transport_jar
       end
-
-      # def init_insight_cloudfoundry_agent_plugin(root)
-      #   move container_libs_directory,
-      #        root + 'cloudfoundry/cloudfoundry-runtime-*.jar'
-      # end
 
       def init_weaver(root)
         move weaver_directory,
              root + 'cloudfoundry/insight-weaver-*.jar'
       end
-
-      # def container_libs_directory
-      #   @droplet.root + '.spring-insight/container-libs'
-      # end
 
       def find_insight_agent
         service     = @application.services.find_service FILTER
