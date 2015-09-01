@@ -13,7 +13,7 @@ The AppDynamics Agent Framework causes an application to be automatically config
 Tags are printed to standard output by the buildpack detect script
 
 ## User-Provided Service
-When binding AppDynamics using a user-provided service, it must have name or tag with `app-dynamics` in it.  The credential payload can contain the following entries:
+When binding AppDynamics using a user-provided service, it must have name or tag with `app-dynamics` or `appdynamics` in it.  The credential payload can contain the following entries:
 
 | Name | Description
 | ---- | -----------
