@@ -55,7 +55,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /app-dynamics/.freeze
+      FILTER = /app[-]?dynamics/.freeze
 
       private_constant :FILTER
 
