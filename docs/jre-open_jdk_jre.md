@@ -24,7 +24,7 @@ The JRE can be configured by modifying the [`config/open_jdk_jre.yml`][] file in
 | `memory_heuristics` | Default memory size weightings, described below under "Memory Weightings".
 | `memory_initials` | Initial memory sizes, described below under "Memory Initials".
 | `repository_root` | The URL of the OpenJDK repository index ([details][repositories]).
-| `version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [centos6][], [lucid][], [mountainlion][], and [precise][]. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
+| `version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [mountainlion][], [precise][], and [trusty][]. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
 
 ### Additional Resources
 The JRE can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/open_jdk_jre` directory in the buildpack fork.
@@ -108,11 +108,10 @@ Termination is guaranteed since there is a finite number of memory types and in 
 
 [`config/open_jdk_jre.yml`]: ../config/open_jdk_jre.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[centos6]: http://download.pivotal.io.s3.amazonaws.com/openjdk/centos6/x86_64/index.yml
 [Java Buildpack Memory Calculator]: https://github.com/cloudfoundry/java-buildpack-memory-calculator
-[lucid]: http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml
 [mountainlion]: http://download.pivotal.io.s3.amazonaws.com/openjdk/mountainlion/x86_64/index.yml
 [OpenJDK]: http://openjdk.java.net
 [precise]: http://download.pivotal.io.s3.amazonaws.com/openjdk/precise/x86_64/index.yml
 [repositories]: extending-repositories.md
+[trusty]: http://download.pivotal.io.s3.amazonaws.com/openjdk/trusty/x86_64/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering

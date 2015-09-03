@@ -55,7 +55,7 @@ end
 | Variable | Description |
 | -------- | ----------- |
 | `{default.repository.root}` | The common root for all repositories.  Currently defaults to `http://download.pivotal.io.s3.amazonaws.com`.
-| `{platform}` | The platform that the application is running on.  Currently detects `centos6`, `lucid`, `mountainlion`, and `precise`.
+| `{platform}` | The platform that the application is running on.  Currently detects `mountainlion`, `precise`, and `trusty`.
 | `{architecture}` | The architecture of the system as returned by Ruby.  The value is typically one of `x86_64` or `x86`.
 
 ## Configuration
@@ -95,5 +95,5 @@ In addition to declaring a specific versions to use, you can also specify a boun
 [`config/repository.yml`]: ../config/repository.yml
 [`JavaBuildpack::Repository::ConfiguredItem`]: ../lib/java_buildpack/repository/configured_item.rb
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[example]: http://download.pivotal.io.s3.amazonaws.com/openjdk/lucid/x86_64/index.yml
+[example]: http://download.pivotal.io.s3.amazonaws.com/openjdk/trusty/x86_64/index.yml
 
