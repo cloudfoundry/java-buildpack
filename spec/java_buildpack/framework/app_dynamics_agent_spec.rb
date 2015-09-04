@@ -22,8 +22,9 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
   include_context 'component_helper'
 
   let(:configuration) do
-    { 'default_tier_name' => 'test-tier-name',
-      'default_node_name' => "$(expr \"$VCAP_APPLICATION\" : '.*instance_index[\": ]*\\([[:digit:]]*\\).*')" }
+    { 'default_tier_name'        => nil,
+      'default_node_name'        => "$(expr \"$VCAP_APPLICATION\" : '.*instance_index[\": ]*\\([[:digit:]]*\\).*')",
+      'default_application_name' => nil }
   end
 
   it 'does not detect without app-dynamics-n/a service' do
@@ -65,7 +66,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/app_dynamics_agent/javaagent.jar')
         expect(java_opts).to include('-Dappdynamics.controller.hostName=test-host-name')
         expect(java_opts).to include('-Dappdynamics.agent.applicationName=test-application-name')
-        expect(java_opts).to include('-Dappdynamics.agent.tierName=test-tier-name')
+        expect(java_opts).to include('-Dappdynamics.agent.tierName=test-application-name')
         expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' \
                                      '\'.*instance_index[": ]*\\([[:digit:]]*\\).*\')')
       end

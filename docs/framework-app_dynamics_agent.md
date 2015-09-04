@@ -13,7 +13,7 @@ The AppDynamics Agent Framework causes an application to be automatically config
 Tags are printed to standard output by the buildpack detect script
 
 ## User-Provided Service
-When binding AppDynamics using a user-provided service, it must have name or tag with `app-dynamics` or `appdynamics` in it.  The credential payload can contain the following entries:
+When binding AppDynamics using a user-provided service, it must have name or tag with `app-dynamics` or `appdynamics` in it. The credential payload can contain the following entries:
 
 | Name | Description
 | ---- | -----------
@@ -31,18 +31,18 @@ To provide more complex values such as the `tier-name`, using the interactive mo
 ## Configuration
 For general information on configuring the buildpack, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/app_dynamics_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+The framework can be configured by modifying the [`config/app_dynamics_agent.yml`][] file in the buildpack fork. The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------
-| `default_application_name` | This is not provided by default but can be added to specify the application name in the AppDynamics dashboard.  This can be overridden with an `application-name` entry in the credentials payload.
-| `default_tier_name` | The default tier name for this application in the AppDynamics dashboard.  This can be overridden with a `tier-name` entry in the credentials payload.
-| `default_node_name` | The default node name for this application in the AppDynamics dashboard.  The default value is an expression that will be evaluated based on the `instance_index` of the application. This can be overridden with a `node-name` entry in the credentials payload.
+| `default_application_name` | This is omitted by default but can be added to specify the application name in the AppDynamics dashboard. This can be overridden by an `application-name` entry in the credentials payload. If neither are supplied the default is the `application_name` as specified by Cloud Foundry.
+| `default_node_name` | The default node name for this application in the AppDynamics dashboard. The default value is an expression that will be evaluated based on the `instance_index` of the application. This can be overridden by a `node-name` entry in the credentials payload.
+| `default_tier_name` | This is omitted by default but can be added to specify the tier name for this application in the AppDynamics dashboard. This can be overridden by a `tier-name` entry in the credentials payload. If neither are supplied the default is the `application_name` as specified by Cloud Foundry.
 | `repository_root` | The URL of the AppDynamics repository index ([details][repositories]).
 | `version` | The version of AppDynamics to use. Candidate versions can be found in [this listing][].
 
 ### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/app_dynamics_agent` directory in the buildpack fork.  For example, to override the default `app-agent-config.xml` add your custom file to `resources/app_dynamics_agent/conf/app-agent-config.xml`.
+The framework can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/app_dynamics_agent` directory in the buildpack fork. For example, to override the default `app-agent-config.xml` add your custom file to `resources/app_dynamics_agent/conf/app-agent-config.xml`.
 
 [`config/app_dynamics_agent.yml`]: ../config/app_dynamics_agent.yml
 [AppDynamics Service]: http://www.appdynamics.com

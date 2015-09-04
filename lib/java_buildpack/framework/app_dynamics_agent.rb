@@ -97,7 +97,8 @@ module JavaBuildpack
       end
 
       def tier_name(java_opts, credentials)
-        name = credentials['tier-name'] || @configuration['default_tier_name']
+        name = credentials['tier-name'] || @configuration['default_tier_name'] ||
+          @application.details['application_name']
         java_opts.add_system_property('appdynamics.agent.tierName', "#{name}")
       end
 
