@@ -31,13 +31,15 @@ jres:
   - "JavaBuildpack::Jre::OpenJdkJRE"
 # - "JavaBuildpack::Jre::OracleJRE"
 
+# Frameworks are processed in order. Any Java Opts added by the JavaOpts framework will be specified in the start
+# command after any Java Opts added by previous frameworks.
+
 frameworks:
   - "JavaBuildpack::Framework::AppDynamicsAgent"
 # - "JavaBuildpack::Framework::IntroscopeAgent"
 # - "JavaBuildpack::Framework::DynaTraceAgent"
-  - "JavaBuildpack::Framework::JavaOpts"
   - "JavaBuildpack::Framework::JrebelAgent"
-#  - "JavaBuildpack::Framework::LunaSecurityProvider"
+# - "JavaBuildpack::Framework::LunaSecurityProvider"
   - "JavaBuildpack::Framework::MariaDbJDBC"
   - "JavaBuildpack::Framework::NewRelicAgent"
   - "JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration"
@@ -45,3 +47,4 @@ frameworks:
   - "JavaBuildpack::Framework::PostgresqlJDBC"
   - "JavaBuildpack::Framework::SpringAutoReconfiguration"
   - "JavaBuildpack::Framework::SpringInsight"
+  - "JavaBuildpack::Framework::JavaOpts"

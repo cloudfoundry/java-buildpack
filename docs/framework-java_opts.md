@@ -27,6 +27,8 @@ The framework can be configured by creating or modifying the [`config/java_opts.
 
 Any `JAVA_OPTS` from either the config file or environment variables that configure memory options will cause deployment to fail as they're not allowed. Memory options are configured by the buildpack and may not be modified.
 
+Any `JAVA_OPTS` from either the config file or environment variables will be specified in the start command after any Java Opts added by other frameworks.
+
 ## Example
 ```yaml
 # JAVA_OPTS configuration
