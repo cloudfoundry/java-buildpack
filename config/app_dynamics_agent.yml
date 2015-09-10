@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for the New Relic framework
+# Configuration for the AppDynamics framework
 ---
 version: 4.1.+
 repository_root: ! '{default.repository.root}/app-dynamics'
