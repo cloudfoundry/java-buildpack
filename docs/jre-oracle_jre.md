@@ -39,7 +39,7 @@ The JRE can be configured by modifying the [`config/oracle_jre.yml`][] file in t
 The JRE can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/oracle_jre` directory in the buildpack fork.
 
 #### JCE Unlimited Strength
-To add the JCE Unlimited Strength `local_policy.jar`, add your file to `resources/oracle_jre/lib/security/local_policy.jar`.  This file will be overlayed onto the Oracle distribution.
+To add the JCE Unlimited Strength `local_policy.jar`, add your file to `resources/oracle_jre/lib/security/local_policy.jar`. In case you you'r using the 'server jre', then the file should go to `resources/oracle_jre/jre/lib/security/local_policy.jar`. This file will be overlayed onto the Oracle distribution.
 
 #### Custom CA Certificates
 To add custom SSL certificates, add your `cacerts` file to `resources/oracle_jre/lib/security/cacerts`.  This file will be overlayed onto the Oracle distribution.
