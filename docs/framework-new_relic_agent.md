@@ -28,7 +28,7 @@ The credential payload of the service may contain the following entries:
 | `***` | (Optional) Any additional entries will be applied as a system property appended to `-Dnewrelic.config.` to allow full configuration of the agent.
 
 ## Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
+For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
 The framework can be configured by modifying the [`config/new_relic_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 

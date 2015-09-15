@@ -25,7 +25,7 @@ If the application uses Spring, [Spring profiles][] can be specified by setting 
 If the main class is Spring Boot's `JarLauncher`, `PropertiesLauncher` or `WarLauncher`, the Java Main Container adds a `--server.port` argument to the command so that the application uses the correct port.
 
 ## Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
+For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
 The container can be configured by modifying the `config/java_main.yml` file in the buildpack fork.
 

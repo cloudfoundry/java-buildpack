@@ -31,7 +31,7 @@ The credential payload of the service may contain the following entries:
 To provide more complex values such as the `agent-name`, using the interactive mode when creating a user-provided service will manage the character escaping automatically. For example, the default `agent-name` could be set with a value of `agent-$(expr "$VCAP_APPLICATION" : '.*application_name[": ]*\([[:word:]]*\).*')` to calculate a value from the Cloud Foundry application name.
 
 ## Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
+For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
 The framework can be configured by modifying the [`config/introscope_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 

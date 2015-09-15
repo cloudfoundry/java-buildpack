@@ -16,7 +16,7 @@ Tags are printed to standard output by the buildpack detect script
 
 
 ## Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
+For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
 The framework can be configured by creating or modifying the [`config/java_opts.yml`][] file in the buildpack fork.
 

@@ -59,7 +59,7 @@ end
 | `{architecture}` | The architecture of the system as returned by Ruby.  The value is typically one of `x86_64` or `x86`.
 
 ## Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
+For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
 Repositories can be configured by modifying the [`config/repository.yml`][] file in the buildpack fork.
 

@@ -27,7 +27,7 @@ When binding to the Luna Security Provider using a user-provided service, it mus
 To provide more complex values such as the PEM certificates, using the interactive mode when creating a user-provided service will manage the character escaping automatically.
 
 ## Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
+For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
 The framework can be configured by modifying the [`config/luna_security_provider.yml`][] file in the buildpack. The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 

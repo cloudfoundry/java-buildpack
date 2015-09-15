@@ -14,7 +14,7 @@ The OpenJDK JRE provides Java runtimes from the [OpenJDK][] project.  Versions o
 Tags are printed to standard output by the buildpack detect script
 
 ## Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
+For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
 The JRE can be configured by modifying the [`config/open_jdk_jre.yml`][] file in the buildpack fork.  The JRE uses the [`Repository` utility support][repositories] and so it supports the [version syntax][]  defined there.
 
