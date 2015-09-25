@@ -46,7 +46,9 @@ To add custom SSL certificates, add your `cacerts` file to `resources/oracle_jre
 ### Memory
 The total available memory is specified when an application is pushed as part of it's configuration. The Java buildpack uses this value to control the JRE's use of various regions of memory. The JRE memory settings can be influenced by configuring the `memory_sizes`, `memory_heuristics`, `memory_initials` and/or `stack_threads` mappings.
 
-Note: if the total available memory is scaled up or down, the Java buildpack will re-calculate the JRE memory settings the next time the application is started.
+Note: If the total available memory is scaled up or down, the Java buildpack will re-calculate the JRE memory settings the next time the application is started.
+
+Note: If setting an initial Stack size, depending on the version of Java and the operating system used by Cloud Foundry the JRE will require a minimum `-Xss` value. This tends to be between `100k` and `250k`.
 
 #### Memory Sizes
 The following optional properties may be specified in the `memory_sizes` mapping.
