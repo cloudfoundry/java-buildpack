@@ -66,12 +66,20 @@ module JavaBuildpack
         parsed_java_opts.concat ENV[ENVIRONMENT_VARIABLE].shellsplit if supports_environment?
 
         parsed_java_opts.map do |java_opt|
-          if /(?<key>.+)=(?<value>.+)/ =~ java_opt
-            "#{key}=#{value.shellescape}"
+          if /(?<key>.+?)=(?<value>.+)/ =~ java_opt
+            "#{key}=#{parse_shell_string(value)}"
           else
             java_opt
           end
         end
+      end
+
+      def parse_shell_string(str)
+        return "''" if str.empty?
+        str = str.dup
+        str.gsub!(%r{([^A-Za-z0-9_\-.,:\/@\n$\\])}, '\\\\\\1')
+        str.gsub!(/\n/, "'\n'")
+        str
       end
 
       def supports_configuration?
