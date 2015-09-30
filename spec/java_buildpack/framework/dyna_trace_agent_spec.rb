@@ -69,7 +69,7 @@ describe JavaBuildpack::Framework::DynaTraceAgent do
 
   context do
 
-    let(:environment) { { 'DYNATRACE_AGENT_NAME' => 'environment-set-application-name' } }
+    let(:environment) { { 'JBP_CONFIG_DYNATRACE_AGENT_NAME' => 'environment-set-application-name' } }
 
     before do
       allow(services).to receive(:one_service?).with(/dynatrace/, 'server').and_return(true)
