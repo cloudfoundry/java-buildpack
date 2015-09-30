@@ -66,4 +66,23 @@ describe JavaBuildpack::Framework::DynaTraceAgent do
     end
 
   end
+
+  context do
+
+    let(:environment) { { 'JBP_CONFIG_DYNATRACE_AGENT_NAME' => 'environment-set-application-name' } }
+
+    before do
+      allow(services).to receive(:one_service?).with(/dynatrace/, 'server').and_return(true)
+      allow(services).to receive(:find_service).and_return('credentials' => { 'server' => 'test-host-name' })
+    end
+
+    it 'updates JAVA_OPTS with custom environment variable' do 
+      component.release
+      expect(java_opts).to include(
+        '-agentpath:$PWD/.java-buildpack/dyna_trace_agent/agent/lib64/'\
+        'libdtagent.so=name=environment-set-application-name,server=test-host-name')
+    end
+
+  end
+
 end
