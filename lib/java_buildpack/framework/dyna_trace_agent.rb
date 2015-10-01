@@ -59,7 +59,7 @@ module JavaBuildpack
       end
 
       def agent_name
-        "#{@application.details['application_name']}_#{profile_name}"
+        @configuration['default_agent_name'] || "#{@application.details['application_name']}_#{profile_name}"
       end
 
       def architecture
