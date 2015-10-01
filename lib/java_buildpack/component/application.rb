@@ -17,7 +17,7 @@
 require 'java_buildpack/component'
 require 'java_buildpack/component/services'
 require 'java_buildpack/util/filtering_pathname'
-require 'yaml'
+require 'json'
 
 module JavaBuildpack
   module Component
@@ -68,7 +68,7 @@ module JavaBuildpack
       end
 
       def parse(input)
-        input ? YAML.load(input) : {}
+        input ? JSON.load(input) : {}
       end
 
     end
