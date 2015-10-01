@@ -17,3 +17,4 @@
 ---
 version: 6.1.0_+
 repository_root: ""
+default_agent_name:

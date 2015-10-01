@@ -66,6 +66,7 @@ The framework can be configured by modifying the [`config/dyna_trace_agent.yml`]
 | ---- | -----------
 | `repository_root` | The URL of the DynaTrace repository index ([details][repositories]).
 | `version` | The version of DynaTrace to use. This buildpack framework has been tested on 6.1.0.
+| `default_agent_name` | This is omitted by default but can be added to set the DynaTrace agent name. If it is not specified then `#{application_name}_#{profile_name}` is used, where `application_name` is defined by Cloud Foundry.
 
 ### Additional Resources
 The framework can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/dyna_trace_agent` directory in the buildpack fork.
