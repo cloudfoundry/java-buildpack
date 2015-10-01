@@ -17,7 +17,7 @@
 require 'spec_helper'
 require 'java_buildpack/component/application'
 require 'java_buildpack/component/services'
-require 'yaml'
+require 'json'
 
 shared_context 'application_helper' do
 
@@ -26,8 +26,8 @@ shared_context 'application_helper' do
   previous_environment = ENV.to_hash
 
   let(:environment) do
-    { 'test-key'      => 'test-value', 'VCAP_APPLICATION' => vcap_application.to_yaml,
-      'VCAP_SERVICES' => vcap_services.to_yaml }
+    { 'test-key'      => 'test-value', 'VCAP_APPLICATION' => vcap_application.to_json,
+      'VCAP_SERVICES' => vcap_services.to_json }
   end
 
   before do
