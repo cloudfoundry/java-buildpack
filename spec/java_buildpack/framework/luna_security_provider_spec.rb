@@ -28,17 +28,35 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/luna/,
-                                                     'host',
-                                                     'host-certificate',
-                                                     'client-private-key',
-                                                     'client-certificate').and_return(true)
+      allow(services).to receive(:one_service?).with(/luna/, 'client', 'servers', 'groups').and_return(true)
+
       allow(services).to receive(:find_service)
-                           .and_return('credentials' => { 'server'             => 'test-server',
-                                                          'host'               => 'test-host',
-                                                          'host-certificate'   => 'test-host-cert',
-                                                          'client-private-key' => 'test-private-key',
-                                                          'client-certificate' => 'test-client-cert' })
+                           .and_return('credentials' => {
+                                         'client'  => {
+                                           'certificate' => "-----BEGIN CERTIFICATE-----\n" \
+                                           "test-client-cert\n-----END CERTIFICATE-----",
+                                           'private-key' => "-----BEGIN RSA PRIVATE KEY-----\n" \
+                                           "test-client-private-key\n-----END RSA PRIVATE KEY-----"
+                                         },
+                                         'servers' => [
+                                           {
+                                             'name'        => 'test-server-1',
+                                             'certificate' => "-----BEGIN CERTIFICATE-----\n" \
+                                             "test-server-1-cert\n-----END CERTIFICATE-----"
+                                           }, {
+                                             'name'        => 'test-server-2',
+                                             'certificate' => "-----BEGIN CERTIFICATE-----\n" \
+                                             "test-server-2-cert\n-----END CERTIFICATE-----"
+                                           }],
+                                         'groups'  => [
+                                           {
+                                             'label'   => 'test-group-1',
+                                             'members' => %w(test-group-1-member-1 test-group-1-member-2)
+                                           }, {
+                                             'label'   => 'test-group-2',
+                                             'members' => %w(test-group-2-member-1 test-group-2-member-2)
+                                           }
+                                         ] })
     end
 
     it 'detects with luna-n/a service' do
@@ -68,21 +86,25 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
 
       component.compile
 
-      expect(sandbox + 'usr/safenet/lunaclient/cert/server/CAFile.pem').to exist
-      expect(sandbox + 'usr/safenet/lunaclient/cert/client/ClientNameCert.pem').to exist
-      expect(sandbox + 'usr/safenet/lunaclient/cert/client/ClientNameKey.pem').to exist
+      expect(sandbox + 'usr/safenet/lunaclient/cert/client/client-certificate.pem').to exist
+      expect(sandbox + 'usr/safenet/lunaclient/cert/client/client-private-key.pem').to exist
+      expect(sandbox + 'usr/safenet/lunaclient/cert/server/server-certificates.pem').to exist
 
-      check_file_contents(sandbox + 'usr/safenet/lunaclient/cert/server/CAFile.pem', 'test-host-cert')
-      check_file_contents(sandbox + 'usr/safenet/lunaclient/cert/client/ClientNameCert.pem', 'test-client-cert')
-      check_file_contents(sandbox + 'usr/safenet/lunaclient/cert/client/ClientNameKey.pem', 'test-private-key')
+      check_file_contents(sandbox + 'usr/safenet/lunaclient/cert/client/client-certificate.pem',
+                          'spec/fixtures/framework_luna_security_provider/client-certificate.pem')
+      check_file_contents(sandbox + 'usr/safenet/lunaclient/cert/client/client-private-key.pem',
+                          'spec/fixtures/framework_luna_security_provider/client-private-key.pem')
+      check_file_contents(sandbox + 'usr/safenet/lunaclient/cert/server/server-certificates.pem',
+                          'spec/fixtures/framework_luna_security_provider/server-certificates.pem')
     end
 
-    it 'writes host information',
+    it 'writes configuration',
        cache_fixture: 'stub-luna-security-provider.tar' do
 
       component.compile
 
-      expect(File.read(sandbox + 'Chrystoki.conf')).to include('ServerName00 = test-host')
+      expect(sandbox + 'Chrystoki.conf').to exist
+      check_file_contents(sandbox + 'Chrystoki.conf', 'spec/fixtures/framework_luna_security_provider/Chrystoki.conf')
     end
 
     it 'updates environment variables' do
@@ -98,8 +120,8 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
                                    'luna_security_provider/usr/safenet/lunaclient/jsp/lib')
     end
 
-    def check_file_contents(file, contents)
-      expect(File.read(file)).to eq contents
+    def check_file_contents(actual, expected)
+      expect(File.read(actual)).to eq File.read(expected)
     end
 
   end

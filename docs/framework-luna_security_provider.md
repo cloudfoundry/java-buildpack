@@ -19,12 +19,70 @@ When binding to the Luna Security Provider using a user-provided service, it mus
 
 | Name | Description
 | ---- | -----------
-| `host` | The controller host name
-| `host-certificate` | A PEM encoded host certificate
-| `client-private-key` | A PEM encoded client private key
-| `client-certificate` | A PEM encoded client certificate
+| `client` | A hash containing client configuration
+| `servers` | An array of hashes containing server configuration
+| `groups` | An array of hashes containing group configuration
 
-To provide more complex values such as the PEM certificates, using the interactive mode when creating a user-provided service will manage the character escaping automatically.
+#### Client Configuration
+| Name | Description
+| ---- | -----------
+| `certificate` | A PEM encoded client certificate
+| `private-key` | A PEM encoded client private key
+
+#### Server Configuration
+| Name | Description
+| ---- | -----------
+| `certificate` | A PEM encoded server certificate
+| `name` | A host name or address
+
+#### Group Configuration
+| Name | Description
+| ---- | -----------
+| `label` | The label for the group
+| `members` | An array of group member serial numbers
+
+### Example Credentials Payload
+```
+{
+  "client": {
+    "certificate": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+    "private-key": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+  },
+  "servers": [
+    {
+      "name": "test-host-1",
+      "certificate": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+    },
+    {
+      "name": "test-host-2",
+      "certificate": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+    }
+  ],
+  "groups": [
+    {
+      "label": "test-group-1",
+      "members": [
+        "test-serial-number-1",
+        "test-serial-number-2"
+      ]
+    },
+    {
+      "label": "test-group-2",
+      "members": [
+        "test-serial-number-3",
+        "test-serial-number-4"
+      ]
+    }
+  ]
+}
+```
+
+### Creating Credential Payload
+In order to create the credentials payload, you should collapse the JSON payload to a single line and set it like the following
+
+```
+$ cf create-user-provided-service luna -p '{"client":{"certificate":"-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----","private-key":"-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"},"servers":[{"name":"test-host-1","certificate":"-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"},{"name":"test-host-2","certificate":"-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"}],"groups":[{"label":"test-group-1","members":["test-serial-number-1","test-serial-number-2"]},{"label":"test-group-2","members":["test-serial-number-3","test-serial-number-4"]}]}'
+```
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
