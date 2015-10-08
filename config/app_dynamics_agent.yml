@@ -15,8 +15,8 @@
 
 # Configuration for the AppDynamics framework
 ---
-version: 4.1.+
+version: 4.1.4_2
 repository_root: ! '{default.repository.root}/app-dynamics'
-default_application_name:
+default_application_name: 
 default_node_name: ! '$(expr "$VCAP_APPLICATION" : ''.*instance_index[": ]*\([[:digit:]]*\).*'')'
-default_tier_name:
+default_tier_name: 
