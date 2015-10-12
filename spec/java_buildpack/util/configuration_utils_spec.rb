@@ -59,15 +59,15 @@ describe JavaBuildpack::Util::ConfigurationUtils do
     end
 
     it 'load configuration file and clean nil values' do
-      expect(described_class.load('test', true)).to eq('foo'      => { 'one' => '1', 'two' => 2 },
-                                                       'bar'      => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } },
-                                                       'version'  => '1.7.1')
+      expect(described_class.load('test', true)).to eq('foo'     => { 'one' => '1', 'two' => 2 },
+                                                       'bar'     => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } },
+                                                       'version' => '1.7.1')
     end
 
     context do
 
       let(:environment) do
-        { 'JBP_CONFIG_TEST' => '[bar: {alpha: {one: 3, two: {one: 3}}, bravo: newValue}, foo: lion]' }
+        { 'JBP_CONFIG_TEST' => '{bar: {alpha: {one: 3, two: {one: 3}}, bravo: newValue}, foo: lion}' }
       end
 
       it 'overlays matching environment variables' do
@@ -82,7 +82,7 @@ describe JavaBuildpack::Util::ConfigurationUtils do
     context do
 
       let(:environment) do
-        { 'JBP_CONFIG_TEST' => 'version: 1.8.+' }
+        { 'JBP_CONFIG_TEST' => '{version: 1.8.+}' }
       end
 
       it 'overlays simple matching environment variable' do
@@ -96,7 +96,7 @@ describe JavaBuildpack::Util::ConfigurationUtils do
     context do
 
       let(:environment) do
-        { 'JBP_CONFIG_TEST' => 'version 1.8.+' }
+        { 'JBP_CONFIG_TEST' => 'Not an array or a hash' }
       end
 
       it 'raises an exception when invalid override value is specified' do
