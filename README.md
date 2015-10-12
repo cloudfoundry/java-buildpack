@@ -36,7 +36,7 @@ $ cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '[jre: { version: 1.7.0_+ }]
 To add command line arguments to a Java app you can use `JBP_CONFIG_JAVA_MAIN`, like this:
 
 ```bash
-$ cf set-env my-application JBP_CONFIG_JAVA_MAIN '[arguments: "--foo=bar a b c"]'
+$ cf set-env my-application JBP_CONFIG_JAVA_MAIN '[arguments: "--server.port=\$PORT --foo=bar a b c"]'
 ```
 
 If the key or value contains a special character such as `:` it should be escaped with double quotes. For example, to change the default repository path for the buildpack.
