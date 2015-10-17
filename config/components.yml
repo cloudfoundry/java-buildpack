@@ -36,8 +36,9 @@ jres:
 
 frameworks:
   - "JavaBuildpack::Framework::AppDynamicsAgent"
-# - "JavaBuildpack::Framework::IntroscopeAgent"
+  - "JavaBuildpack::Framework::Debug"
 # - "JavaBuildpack::Framework::DynaTraceAgent"
+# - "JavaBuildpack::Framework::IntroscopeAgent"
   - "JavaBuildpack::Framework::JrebelAgent"
 # - "JavaBuildpack::Framework::LunaSecurityProvider"
   - "JavaBuildpack::Framework::MariaDbJDBC"
