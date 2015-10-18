@@ -48,14 +48,14 @@ $ cf set-env my-application JBP_CONFIG_JAVA_MAIN '{arguments: "-server.port=\$PO
 Environment variable can also be specified in the applications `manifest` file. For example, to specify an environment variable in an applications manifest file that disables Auto-reconfiguration.
 
 ```bash
-  env: 
+  env:
     JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{enabled: false}'
 ```
 
 This final example shows how to change the version of Tomcat that is used by the buildpack with an environment variable specified in the applications manifest file.
 
 ```bash
-  env: 
+  env:
     JBP_CONFIG_TOMCAT: '{tomcat: { version: 8.0.+ }}'
 ```
 
@@ -77,8 +77,9 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 	* [Tomcat](docs/container-tomcat.md) ([Configuration](docs/container-tomcat.md#configuration))
 * Standard Frameworks
 	* [AppDynamics Agent](docs/framework-app_dynamics_agent.md) ([Configuration](docs/framework-app_dynamics_agent.md#configuration))
-	* [Introscope Agent](docs/framework-introscope_agent.md) ([Configuration](docs/framework-introscope_agent.md#configuration))
+	* [Debug](docs/framework-debug.md) ([Configuration](docs/debug.md#configuration))
 	* [DynaTrace Agent](docs/framework-dyna_trace_agent.md) ([Configuration](docs/framework-dyna_trace_agent.md#configuration))
+	* [Introscope Agent](docs/framework-introscope_agent.md) ([Configuration](docs/framework-introscope_agent.md#configuration))
 	* [Java Options](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))
 	* [JRebel Agent](docs/framework-jrebel_agent.md) ([Configuration](docs/framework-jrebel_agent.md#configuration))
 	* [Luna Security Provider](docs/framework-luna_security_provider.md) ([Configuration](docs/framework-luna_security_provider.md#configuration))
