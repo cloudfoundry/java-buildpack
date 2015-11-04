@@ -21,8 +21,21 @@ The framework can be configured by creating or modifying the [`config/debug.yml`
 | Name | Description
 | ---- | -----------
 | `enabled` | Whether to enable Java debuging
-| `port` | The port that the debug agent will listen on
+| `port` | The port that the debug agent will listen on.  Defaults to `8000`.
 | `suspend` | Whether to suspend execution until a debugger has attached.  Note, enabling this may cause application start to timeout and be restarted.
+
+## Creating SSH Tunnel
+After starting an application with debugging enabled, an SSH tunnel must be created to the container.  To create that SSH container, execute the following command:
+
+```bash
+$ cf ssh -N -T -L <LOCAL_PORT>:localhost:<REMOTE_PORT> <APPLICATION_NAME>
+```
+
+The `REMOTE_PORT` should match the `port` configuration for the application (`8000` by default).  The `LOCAL_PORT` can be any open port on your computer, but typically matches the `REMOTE_PORT` where possible.
+
+Once the SSH tunnel has been created, your IDE should connect to `localhost` for debugging.
+
+![Eclipse Configuration](framework-debug-eclipse.png)
 
 [`config/debug.yml`]: ../config/debug.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
