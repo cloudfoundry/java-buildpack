@@ -21,12 +21,12 @@ require 'java_buildpack/util/dash_case'
 module JavaBuildpack
   module Framework
 
-    # Encapsulates the functionality for contributing Java debug options to an application.
-    class Debug < JavaBuildpack::Component::BaseComponent
+    # Encapsulates the functionality for contributing Java JMX options to an application.
+    class Jmx < JavaBuildpack::Component::BaseComponent
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
-        enabled? ? "#{Debug.to_s.dash_case}=#{port}" : nil
+        enabled? ? "#{Jmx.to_s.dash_case}=#{port}" : nil
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -35,25 +35,21 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.java_opts.add_preformatted_options debug
+        @droplet.java_opts
+          .add_system_property('java.rmi.server.hostname', '127.0.0.1')
+          .add_system_property('com.sun.management.jmxremote.authenticate', false)
+          .add_system_property('com.sun.management.jmxremote.port', port)
+          .add_system_property('com.sun.management.jmxremote.rmi.port', port)
       end
 
       private
-
-      def debug
-        "-agentlib:jdwp=transport=dt_socket,server=y,address=#{port},suspend=#{suspend}"
-      end
 
       def enabled?
         @configuration['enabled']
       end
 
       def port
-        @configuration['port'] || 8000
-      end
-
-      def suspend
-        @configuration['suspend'] ? 'y' : 'n'
+        @configuration['port'] || 5000
       end
 
     end
