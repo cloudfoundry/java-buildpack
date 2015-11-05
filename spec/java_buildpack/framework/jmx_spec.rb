@@ -16,9 +16,9 @@
 
 require 'spec_helper'
 require 'component_helper'
-require 'java_buildpack/framework/debug'
+require 'java_buildpack/framework/jmx'
 
-describe JavaBuildpack::Framework::Debug do
+describe JavaBuildpack::Framework::Jmx do
   include_context 'component_helper'
 
   it 'does not detect if not enabled' do
@@ -29,35 +29,27 @@ describe JavaBuildpack::Framework::Debug do
     let(:configuration) { { 'enabled' => true } }
 
     it 'detects when enabled' do
-      expect(component.detect).to eq('debug=8000')
+      expect(component.detect).to eq('jmx=5000')
     end
 
-    it 'uses 8000 as the default port' do
+    it 'uses 5000 as the default port' do
       component.release
-      expect(java_opts).to include('-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n')
-    end
-
-    it 'does not suspend by default' do
-      component.release
-      expect(java_opts).to include('-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n')
+      expect(java_opts).to include '-Djava.rmi.server.hostname=127.0.0.1'
+      expect(java_opts).to include '-Dcom.sun.management.jmxremote.authenticate=false'
+      expect(java_opts).to include '-Dcom.sun.management.jmxremote.port=5000'
+      expect(java_opts).to include '-Dcom.sun.management.jmxremote.rmi.port=5000'
     end
   end
 
   context do
-    let(:configuration) { { 'enabled' => true, 'port' => 8001 } }
+    let(:configuration) { { 'enabled' => true, 'port' => 5001 } }
 
     it 'uses configured port' do
       component.release
-      expect(java_opts).to include('-agentlib:jdwp=transport=dt_socket,server=y,address=8001,suspend=n')
-    end
-  end
-
-  context do
-    let(:configuration) { { 'enabled' => true, 'suspend' => true } }
-
-    it 'uses configured suspend' do
-      component.release
-      expect(java_opts).to include('-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=y')
+      expect(java_opts).to include '-Djava.rmi.server.hostname=127.0.0.1'
+      expect(java_opts).to include '-Dcom.sun.management.jmxremote.authenticate=false'
+      expect(java_opts).to include '-Dcom.sun.management.jmxremote.port=5001'
+      expect(java_opts).to include '-Dcom.sun.management.jmxremote.rmi.port=5001'
     end
   end
 

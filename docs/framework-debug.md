@@ -8,7 +8,7 @@ The Debug Framework contributes Java debug configuration to the application at r
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
-    <td><tt>debug</tt></td>
+    <td><tt>debug=&lt;port&gt;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
@@ -20,7 +20,7 @@ The framework can be configured by creating or modifying the [`config/debug.yml`
 
 | Name | Description
 | ---- | -----------
-| `enabled` | Whether to enable Java debuging
+| `enabled` | Whether to enable Java debugging
 | `port` | The port that the debug agent will listen on.  Defaults to `8000`.
 | `suspend` | Whether to suspend execution until a debugger has attached.  Note, enabling this may cause application start to timeout and be restarted.
 
