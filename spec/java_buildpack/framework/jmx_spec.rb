@@ -36,6 +36,7 @@ describe JavaBuildpack::Framework::Jmx do
       component.release
       expect(java_opts).to include '-Djava.rmi.server.hostname=127.0.0.1'
       expect(java_opts).to include '-Dcom.sun.management.jmxremote.authenticate=false'
+      expect(java_opts).to include '-Dcom.sun.management.jmxremote.ssl=false'
       expect(java_opts).to include '-Dcom.sun.management.jmxremote.port=5000'
       expect(java_opts).to include '-Dcom.sun.management.jmxremote.rmi.port=5000'
     end
@@ -48,6 +49,7 @@ describe JavaBuildpack::Framework::Jmx do
       component.release
       expect(java_opts).to include '-Djava.rmi.server.hostname=127.0.0.1'
       expect(java_opts).to include '-Dcom.sun.management.jmxremote.authenticate=false'
+      expect(java_opts).to include '-Dcom.sun.management.jmxremote.ssl=false'
       expect(java_opts).to include '-Dcom.sun.management.jmxremote.port=5001'
       expect(java_opts).to include '-Dcom.sun.management.jmxremote.rmi.port=5001'
     end
