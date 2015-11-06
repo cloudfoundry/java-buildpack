@@ -38,6 +38,7 @@ module JavaBuildpack
         @droplet.java_opts
           .add_system_property('java.rmi.server.hostname', '127.0.0.1')
           .add_system_property('com.sun.management.jmxremote.authenticate', false)
+          .add_system_property('com.sun.management.jmxremote.ssl', false)
           .add_system_property('com.sun.management.jmxremote.port', port)
           .add_system_property('com.sun.management.jmxremote.rmi.port', port)
       end
