@@ -111,7 +111,7 @@ To run the tests, do the following:
 bundle install
 bundle exec rake
 ```
-Setting up New Relic monitoring in shop apps
+## Setting up New Relic monitoring in shop apps
 ```
 Note, these steps are only necessary in the absence of a new relic service within a nimbus space. All you should need to do after that is to bind your app to the service (which provides the licence key to the agent):
 
