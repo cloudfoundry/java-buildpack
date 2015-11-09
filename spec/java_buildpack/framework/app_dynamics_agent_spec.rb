@@ -22,7 +22,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
   include_context 'component_helper'
 
   let(:configuration) do
-    { 'default_tier_name'        => nil,
+    { 'default_tier_name'        => "$(expr \"$VCAP_APPLICATION\" : ''.*application_name[\": ]*\\([-_a-zA-Z0-9]*\\).*''):$(expr \"$VCAP_APPLICATION\" : ''.*instance_index[\": ]*\\([[:digit:]]*\\).*'')",
       'default_node_name'        => "$(expr \"$VCAP_APPLICATION\" : '.*instance_index[\": ]*\\([[:digit:]]*\\).*')",
       'default_application_name' => nil }
   end
