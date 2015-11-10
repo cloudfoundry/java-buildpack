@@ -104,6 +104,7 @@ module JavaBuildpack
       @buildpack_version = BuildpackVersion.new
 
       log_environment_variables
+      log_application_contents
 
       mutable_java_home   = Component::MutableJavaHome.new
       immutable_java_home = Component::ImmutableJavaHome.new mutable_java_home, app_dir
@@ -165,6 +166,12 @@ module JavaBuildpack
                                                 component_info['java_opts'], component_info['app_dir'])
         }
         component.constantize.new(context)
+      end
+    end
+
+    def log_application_contents
+      @logger.debug do
+        "Application Contents: #{Dir['**/*/', '**/*.*'].sort}"
       end
     end
 

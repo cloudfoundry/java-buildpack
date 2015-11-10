@@ -39,7 +39,7 @@ module JavaBuildpack
       attr_reader :environment
 
       # @!attribute [r] root
-      # @return [JavaBuildpack::Util::FilteringPathname] the root of the application's fileystem filtered so that it
+      # @return [JavaBuildpack::Util::FilteringPathname] the root of the application's filesystem filtered so that it
       #                                                  only shows files that have been uploaded by the user
       attr_reader :root
 
