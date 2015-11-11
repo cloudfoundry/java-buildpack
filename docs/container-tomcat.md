@@ -53,13 +53,13 @@ The container can be configured by modifying the [`config/tomcat.yml`][] file in
 The version of Tomcat can be configured by setting an environment variable.
 
 ```
-$ cf set-env my-application JBP_CONFIG_TOMCAT 'tomcat: { version: 7.0.+ }'
+$ cf set-env my-application JBP_CONFIG_TOMCAT '{tomcat: { version: 7.0.+ }}'
 ```
 
 The context path that an application is deployed at can be configured by setting an environment variable.
 
 ```
-$ cf set-env my-application JBP_CONFIG_TOMCAT 'tomcat: { context_path: /first-segement/second-segment }'
+$ cf set-env my-application JBP_CONFIG_TOMCAT '{tomcat: { context_path: /first-segment/second-segment }}'
 ```
 
 
@@ -67,7 +67,7 @@ $ cf set-env my-application JBP_CONFIG_TOMCAT 'tomcat: { context_path: /first-se
 The container can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/tomcat` directory in the buildpack fork.  For example, to override the default `logging.properties` add your custom file to `resources/tomcat/conf/logging.properties`.
 
 ## Session Replication
-By default, the Tomcat instance is configured to store all Sessions and their data in memory.  Under certain cirmcumstances it my be appropriate to persist the Sessions and their data to a repository.  When this is the case (small amounts of data that should survive the failure of any individual instance), the buildpack can automatically configure Tomcat to do so by binding an appropriate service.
+By default, the Tomcat instance is configured to store all Sessions and their data in memory.  Under certain circumstances it my be appropriate to persist the Sessions and their data to a repository.  When this is the case (small amounts of data that should survive the failure of any individual instance), the buildpack can automatically configure Tomcat to do so by binding an appropriate service.
 
 ### Redis
 To enable Redis-based session replication, simply bind a Redis service containing a name, label, or tag that has `session-replication` as a substring.
