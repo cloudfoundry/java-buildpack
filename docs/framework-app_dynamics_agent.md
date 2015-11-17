@@ -19,7 +19,7 @@ When binding AppDynamics using a user-provided service, it must have name or tag
 | ---- | -----------
 | `account-access-key` | (Optional) The account access key to use when authenticating with the controller
 | `account-name` | (Optional) The account name to use when authenticating with the controller
-| `application-name` | (Optional) the applicationa's name
+| `application-name` | (Optional) the application's name
 | `host-name` | The controller host name
 | `node-name` | (Optional) the application's node name
 | `port` | (Optional) The controller port
