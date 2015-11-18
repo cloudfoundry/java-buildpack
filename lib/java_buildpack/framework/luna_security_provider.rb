@@ -151,6 +151,10 @@ EOS
       def write_epilogue(f)
         f.write <<EOS
 }
+
+HAConfiguration = {
+  HAOnly = 1;
+}
 EOS
       end
 
@@ -167,7 +171,6 @@ EOS
         f.write <<EOS
 
 LunaSA Client = {
-  HAOnly    = 1;
   NetClient = 1;
 
   ClientCertFile    = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/cert/client/client-certificate.pem')};
