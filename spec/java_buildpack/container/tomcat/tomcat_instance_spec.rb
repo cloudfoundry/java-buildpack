@@ -98,7 +98,7 @@ describe JavaBuildpack::Container::TomcatInstance do
   context do
     let(:configuration) { { 'context_path' => '/first-segment/second-segment' } }
 
-    it 'links only the application files and directories to the ROOT webapp',
+    it 'links only the application files and directories to the first-segment#second-segment webapp',
        app_fixture:   'container_tomcat_with_index',
        cache_fixture: 'stub-tomcat.tar.gz' do
 
