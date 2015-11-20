@@ -57,10 +57,12 @@ module JavaBuildpack
 
       def release_text
         [
+          @droplet.java_opts.as_env_var,
+          '&&',
           @droplet.environment_variables.as_env_vars,
           "#{qualify_path @droplet.java_home.root, @droplet.root}/bin/java",
+          '$JAVA_OPTS',
           @droplet.additional_libraries.as_classpath,
-          @droplet.java_opts.join(' '),
           main_class,
           arguments
         ].flatten.compact.join(' ')
