@@ -60,6 +60,7 @@ module JavaBuildpack
           @droplet.java_opts.as_env_var,
           '&&',
           @droplet.environment_variables.as_env_vars,
+          'eval',
           "#{qualify_path @droplet.java_home.root, @droplet.root}/bin/java",
           '$JAVA_OPTS',
           @droplet.additional_libraries.as_classpath,
