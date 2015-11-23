@@ -56,6 +56,7 @@ module JavaBuildpack
           [
             @droplet.environment_variables.as_env_vars,
             @droplet.java_home.as_env_var,
+            'exec',
             qualify_path(start_script, @droplet.root),
             java_opts
           ].flatten.compact.join(' ')
