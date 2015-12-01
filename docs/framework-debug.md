@@ -33,7 +33,7 @@ $ cf ssh -N -T -L <LOCAL_PORT>:localhost:<REMOTE_PORT> <APPLICATION_NAME>
 
 The `REMOTE_PORT` should match the `port` configuration for the application (`8000` by default).  The `LOCAL_PORT` can be any open port on your computer, but typically matches the `REMOTE_PORT` where possible.
 
-Once the SSH tunnel has been created, your IDE should connect to `localhost` for debugging.
+Once the SSH tunnel has been created, your IDE should connect to `localhost:8000` for debugging.
 
 ![Eclipse Configuration](framework-debug-eclipse.png)
 
