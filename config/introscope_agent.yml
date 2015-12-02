@@ -17,4 +17,4 @@
 ---
 repository_root: ""
 version: 9.7.+
-default_agent_name: "$(expr \"$VCAP_APPLICATION\" : \'.*application_name[\": ]*\\([A-Za-z0-9_-]*\\).*\')"
+default_agent_name: ! '$(ruby -e "require ''json'' ; puts JSON.parse(ENV[''VCAP_APPLICATION''])[''application_name'']")'
