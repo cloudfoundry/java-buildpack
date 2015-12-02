@@ -18,5 +18,5 @@
 version: 4.1.+
 repository_root: ! '{default.repository.root}/app-dynamics'
 default_application_name:
-default_node_name: ! '$(expr "$VCAP_APPLICATION" : ''.*application_name[": ]*\([-_a-zA-Z0-9]*\).*''):$(expr "$VCAP_APPLICATION" : ''.*instance_index[": ]*\([[:digit:]]*\).*'')'
+default_node_name: ! '$(ruby -e "require ''json'' ; a = JSON.parse(ENV[''VCAP_APPLICATION'']); puts \"#{a[''application_name'']}:#{a[''instance_index'']}\"")'
 default_tier_name:
