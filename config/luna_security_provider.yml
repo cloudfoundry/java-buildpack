@@ -15,5 +15,5 @@
 
 # Configuration for the Dynatrace framework
 ---
-version: 5.3.+
+version: 5.+
 repository_root: ""
