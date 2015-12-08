@@ -17,3 +17,4 @@
 ---
 version: 5.+
 repository_root: ""
+logging_enabled: false

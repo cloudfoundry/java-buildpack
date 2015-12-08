@@ -72,13 +72,14 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
       expect(sandbox + 'java.security').to exist
     end
 
-    it 'unpacks the luna jar',
+    it 'unpacks the luna tar',
        cache_fixture: 'stub-luna-security-provider.tar' do
 
       component.compile
 
       expect(sandbox + 'usr/safenet/lunaclient/lib/libCryptoki2_64.so').to exist
       expect(sandbox + 'usr/safenet/lunaclient/jsp/lib/stub.file').to exist
+      expect(sandbox + 'usr/safenet/lunaclient/lib/libcklog2.so').not_to exist
     end
 
     it 'write certificate files',
@@ -118,6 +119,30 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
                                    'luna_security_provider/java.security')
       expect(java_opts).to include('-Djava.ext.dirs=$PWD/.test-java-home/lib/ext:$PWD/.java-buildpack/' \
                                    'luna_security_provider/usr/safenet/lunaclient/jsp/lib')
+    end
+
+    context do
+      let(:configuration) { { 'logging_enabled' => true } }
+
+      it 'unpacks the luna tar',
+         cache_fixture: 'stub-luna-security-provider.tar' do
+
+        component.compile
+
+        expect(sandbox + 'usr/safenet/lunaclient/lib/libCryptoki2_64.so').to exist
+        expect(sandbox + 'usr/safenet/lunaclient/jsp/lib/stub.file').to exist
+        expect(sandbox + 'usr/safenet/lunaclient/lib/libcklog2.so').to exist
+      end
+
+      it 'writes configuration',
+         cache_fixture: 'stub-luna-security-provider.tar' do
+
+        component.compile
+
+        expect(sandbox + 'Chrystoki.conf').to exist
+        check_file_contents(sandbox + 'Chrystoki.conf',
+                            'spec/fixtures/framework_luna_security_provider_logging/Chrystoki.conf')
+      end
     end
 
     def check_file_contents(actual, expected)
