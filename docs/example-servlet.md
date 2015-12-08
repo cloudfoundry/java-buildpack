@@ -26,7 +26,7 @@ The following example shows how deploy the sample application located in the [Ja
 
 ```bash
 $ mvn package
-$ cf push web-servlet-2-application -p target/web-servlet-2-application-1.0.0.BUILD-SNAPSHOT.war -b https://github.com/cloudfoundry/java-buildpack.git -b https://github.com/cloudfoundry/java-buildpack.git
+$ cf push web-servlet-2-application -p target/web-servlet-2-application-1.0.0.BUILD-SNAPSHOT.war -b https://github.com/cloudfoundry/java-buildpack.git
 
 -----> Downloading Open Jdk JRE 1.7.0_51 from http://.../openjdk/lucid/x86_64/openjdk-1.7.0_51.tar.gz (0.0s)
        Expanding Open Jdk JRE to .java-buildpack/open_jdk_jre (1.1s)
