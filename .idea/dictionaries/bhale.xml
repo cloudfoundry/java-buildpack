@@ -6,11 +6,13 @@
       <w>argv</w>
       <w>atpack</w>
       <w>chrystoki</w>
+      <w>cklog</w>
       <w>codeclimate</w>
       <w>constantized</w>
       <w>constantizes</w>
       <w>cpio</w>
       <w>creat</w>
+      <w>cryptoki</w>
       <w>dhttp</w>
       <w>dirname</w>
       <w>distapplication</w>
@@ -37,10 +39,13 @@
       <w>jsome</w>
       <w>jtest</w>
       <w>killjava</w>
+      <w>libcklog</w>
+      <w>libcrpytoki</w>
       <w>libcryptoki</w>
       <w>libyjpagent</w>
       <w>ljust</w>
       <w>lunaclient</w>
+      <w>lunajsp</w>
       <w>mainclass</w>
       <w>metaspace</w>
       <w>mkdir</w>
