@@ -17,6 +17,7 @@
 require 'spec_helper'
 require 'java_buildpack/component/application'
 require 'java_buildpack/component/services'
+require 'java_buildpack/logging/logger_factory'
 require 'json'
 
 shared_context 'application_helper' do
@@ -39,6 +40,7 @@ shared_context 'application_helper' do
   end
 
   let(:application) do
+    JavaBuildpack::Logging::LoggerFactory.instance.setup app_dir
     JavaBuildpack::Component::Application.new app_dir
   end
 
