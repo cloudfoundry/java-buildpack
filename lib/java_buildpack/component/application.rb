@@ -51,9 +51,14 @@ module JavaBuildpack
       #
       # @param [Pathname] root the root of the application
       def initialize(root)
-        log_file = JavaBuildpack::Logging::LoggerFactory.instance.log_file
-        initial  = children(root).delete(log_file)
-        @root    = JavaBuildpack::Util::FilteringPathname.new(root, ->(path) { initial.member? path }, false)
+        initial = children(root)
+
+        if Logging::LoggerFactory.instance.initialized
+          log_file = JavaBuildpack::Logging::LoggerFactory.instance.log_file
+          initial.delete(log_file)
+        end
+
+        @root = JavaBuildpack::Util::FilteringPathname.new(root, ->(path) { initial.member? path }, false)
 
         @environment = ENV.to_hash
         @details     = parse(@environment.delete('VCAP_APPLICATION'))
