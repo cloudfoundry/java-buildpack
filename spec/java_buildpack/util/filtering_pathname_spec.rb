@@ -169,8 +169,7 @@ describe JavaBuildpack::Util::FilteringPathname do
     filtering_target.each_entry do |entry|
       entries << entry
     end
-    expect(entries.to_set)
-      .to eq([Pathname.new('.'), Pathname.new('..'), Pathname.new('.java-buildpack.log'), Pathname.new('good')].to_set)
+    expect(entries.to_set).to eq([Pathname.new('.'), Pathname.new('..'), Pathname.new('good')].to_set)
   end
 
   it 'delegates each_line when the file is filtered in' do
@@ -185,8 +184,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'returns each visible entry from entries' do
-    expect(filtering_target.entries.to_set)
-      .to eq([Pathname.new('.'), Pathname.new('..'), Pathname.new('.java-buildpack.log'), Pathname.new('good')].to_set)
+    expect(filtering_target.entries.to_set).to eq([Pathname.new('.'), Pathname.new('..'), Pathname.new('good')].to_set)
   end
 
   it 'delegates opendir when the directory is filtered in' do
@@ -210,21 +208,19 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'returns each child as a filtered pathname from children' do
-    expect(filtering_target.children).to eq([app_dir + '.java-buildpack.log', app_dir + 'good'])
+    expect(filtering_target.children).to eq([app_dir + 'good'])
   end
 
   it 'returns each child as a pathname from children(false)' do
-    expect(filtering_target.children(false)).to eq([Pathname.new('.java-buildpack.log'), Pathname.new('good')])
+    expect(filtering_target.children(false)).to eq([Pathname.new('good')])
   end
 
   it 'yields each child as a filtered pathname from each_child' do
-    expect { |b| filtering_target.each_child(&b) }
-      .to yield_successive_args(app_dir + '.java-buildpack.log', app_dir + 'good')
+    expect { |b| filtering_target.each_child(&b) }.to yield_successive_args(app_dir + 'good')
   end
 
   it 'yields each child as a pathname from each_child(false)' do
-    expect { |b| filtering_target.each_child(false, &b) }
-      .to yield_successive_args(Pathname.new('.java-buildpack.log'), Pathname.new('good'))
+    expect { |b| filtering_target.each_child(false, &b) }.to yield_successive_args(Pathname.new('good'))
   end
 
   it 'yields each component of the path from each_filename' do
