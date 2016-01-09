@@ -31,7 +31,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
   end
 
   it 'logs all levels to file',
-     log_level: 'FATAL' do
+     :enable_log_file, log_level: 'FATAL' do
 
     trigger
 
