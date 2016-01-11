@@ -46,8 +46,13 @@ module JavaBuildpack
       # @return [Void]
       def setup(app_dir)
         @monitor.synchronize do
-          @log_file    = app_dir + '.java-buildpack.log'
-          @delegates   = [file_logger, console_logger]
+          configuration = JavaBuildpack::Util::ConfigurationUtils.load('logging', true, false)
+
+          @log_file = app_dir + '.java-buildpack.log'
+
+          @delegates = [console_logger(configuration)]
+          @delegates << file_logger if configuration['enable_log_file']
+
           @initialized = true
         end
       end
@@ -100,9 +105,9 @@ module JavaBuildpack
 
       private
 
-      def console_logger
+      def console_logger(configuration)
         logger           = Logger.new($stderr)
-        logger.level     = severity
+        logger.level     = severity(configuration)
         logger.formatter = lambda do |severity, _datetime, klass, message|
           "#{klass.ljust(32)} #{severity.ljust(5)} #{message}\n"
         end
@@ -126,11 +131,10 @@ module JavaBuildpack
         $VERBOSE || $DEBUG ? 'DEBUG' : nil
       end
 
-      def severity
+      def severity(configuration)
         severity = ENV['JBP_LOG_LEVEL']
         severity = ruby_mode unless severity
-        severity =
-          JavaBuildpack::Util::ConfigurationUtils.load('logging', true, false)['default_log_level'] unless severity
+        severity = configuration['default_log_level'] unless severity
         severity = 'INFO' unless severity
 
         "::Logger::Severity::#{severity.upcase}".constantize
