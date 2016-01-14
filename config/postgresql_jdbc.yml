@@ -15,5 +15,5 @@
 
 # Configuration for the Postgresql JDBC framework
 ---
-version: 9.4.+
+version: 9.4.1207
 repository_root: ! '{default.repository.root}/postgresql-jdbc'
