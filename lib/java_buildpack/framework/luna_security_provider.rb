@@ -165,7 +165,9 @@ EOS
 }
 
 HAConfiguration = {
+  AutoReconnectInterval = 60;
   HAOnly = 1;
+  ReconnAtt = 20;
 }
 EOS
       end
