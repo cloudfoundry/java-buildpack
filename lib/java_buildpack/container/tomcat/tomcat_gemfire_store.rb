@@ -18,6 +18,11 @@ require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/container/tomcat/tomcat_utils'
 require 'java_buildpack/container/tomcat/gemfire/gemfire'
+require 'java_buildpack/container/tomcat/gemfire/gemfire_log4j_api'
+require 'java_buildpack/container/tomcat/gemfire/gemfire_log4j_core'
+require 'java_buildpack/container/tomcat/gemfire/gemfire_log4j_jcl'
+require 'java_buildpack/container/tomcat/gemfire/gemfire_log4j_jul'
+require 'java_buildpack/container/tomcat/gemfire/gemfire_log4j_slf4j_impl'
 require 'java_buildpack/container/tomcat/gemfire/gemfire_logging_api'
 require 'java_buildpack/container/tomcat/gemfire/gemfire_logging'
 require 'java_buildpack/container/tomcat/gemfire/gemfire_modules'
@@ -48,6 +53,11 @@ module JavaBuildpack
       def sub_components(context)
         [
           GemFire.new(sub_configuration_context(context, 'gemfire')),
+          GemFireLog4jApi.new(sub_configuration_context(context, 'gemfire_log4j_api')),
+          GemFireLog4jCore.new(sub_configuration_context(context, 'gemfire_log4j_core')),
+          GemFireLog4jJcl.new(sub_configuration_context(context, 'gemfire_log4j_jcl')),
+          GemFireLog4jJul.new(sub_configuration_context(context, 'gemfire_log4j_jul')),
+          GemFireLog4jSlf4jImpl.new(sub_configuration_context(context, 'gemfire_log4j_slf4j_impl')),
           GemFireLoggingApi.new(sub_configuration_context(context, 'gemfire_logging_api')),
           GemFireLogging.new(sub_configuration_context(context, 'gemfire_logging')),
           GemFireModules.new(sub_configuration_context(context, 'gemfire_modules')),
