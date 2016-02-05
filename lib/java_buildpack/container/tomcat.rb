@@ -18,6 +18,7 @@ require 'java_buildpack/component/modular_component'
 require 'java_buildpack/container'
 require 'java_buildpack/container/tomcat/tomcat_insight_support'
 require 'java_buildpack/container/tomcat/tomcat_instance'
+require 'java_buildpack/container/tomcat/tomcat_external_configuration'
 require 'java_buildpack/container/tomcat/tomcat_lifecycle_support'
 require 'java_buildpack/container/tomcat/tomcat_logging_support'
 require 'java_buildpack/container/tomcat/tomcat_access_logging_support'
@@ -49,7 +50,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::ModularComponent#sub_components)
       def sub_components(context)
-        [
+        components = [
           TomcatInstance.new(sub_configuration_context(context, 'tomcat')),
           TomcatLifecycleSupport.new(sub_configuration_context(context, 'lifecycle_support')),
           TomcatLoggingSupport.new(sub_configuration_context(context, 'logging_support')),
@@ -58,6 +59,12 @@ module JavaBuildpack
           TomcatGemfireStore.new(sub_configuration_context(context, 'gemfire_store')),
           TomcatInsightSupport.new(context)
         ]
+
+        tomcat_configuration = @configuration['tomcat']
+        components << TomcatExternalConfiguration.new(sub_configuration_context(context, 'external_configuration')) if
+          tomcat_configuration['external_configuration_enabled']
+
+        components
       end
 
       # (see JavaBuildpack::Component::ModularComponent#supports?)
