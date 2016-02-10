@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -100,7 +100,21 @@ describe JavaBuildpack::Util::ConfigurationUtils do
       end
 
       it 'raises an exception when invalid override value is specified' do
-        expect { described_class.load('test') }.to raise_error(/User configuration value is not valid/)
+        expect { described_class.load('test') }.to raise_error(
+          /User configuration value in environment variable JBP_CONFIG_TEST is not valid/)
+      end
+
+    end
+
+    context do
+
+      let(:environment) do
+        { 'JBP_CONFIG_TEST' => '{version:1.8.+}' }
+      end
+
+      it 'diagnoses invalid YAML syntax' do
+        expect { described_class.load('test') }.to raise_error(
+          /User configuration value in environment variable JBP_CONFIG_TEST has invalid syntax/)
       end
 
     end

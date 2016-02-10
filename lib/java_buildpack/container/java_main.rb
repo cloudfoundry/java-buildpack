@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ require 'java_buildpack/container'
 require 'java_buildpack/util/dash_case'
 require 'java_buildpack/util/java_main_utils'
 require 'java_buildpack/util/qualify_path'
+require 'java_buildpack/util/spring_boot_utils'
 
 module JavaBuildpack
   module Container
@@ -29,6 +30,14 @@ module JavaBuildpack
     class JavaMain < JavaBuildpack::Component::BaseComponent
       include JavaBuildpack::Util
 
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        super(context)
+        @spring_boot_utils = JavaBuildpack::Util::SpringBootUtils.new
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
         main_class ? JavaMain.to_s.dash_case : nil
@@ -36,15 +45,22 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
+        return unless @spring_boot_utils.is?(@application)
+        @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.additional_libraries.insert 0, @application.root
         manifest_class_path.each { |path| @droplet.additional_libraries << path }
-        @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT' if boot_launcher?
 
-        release_text
+        if @spring_boot_utils.is?(@application)
+          @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT'
+        else
+          @droplet.additional_libraries.insert 0, @application.root
+        end
+
+        classpath = @spring_boot_utils.is?(@application) ? '-cp $PWD/.' : @droplet.additional_libraries.as_classpath
+        release_text(classpath)
       end
 
       private
@@ -55,7 +71,7 @@ module JavaBuildpack
 
       private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
 
-      def release_text
+      def release_text(classpath)
         [
           @droplet.java_opts.as_env_var,
           '&&',
@@ -64,7 +80,7 @@ module JavaBuildpack
           'exec',
           "#{qualify_path @droplet.java_home.root, @droplet.root}/bin/java",
           '$JAVA_OPTS',
-          @droplet.additional_libraries.as_classpath,
+          classpath,
           main_class,
           arguments
         ].flatten.compact.join(' ')
@@ -72,10 +88,6 @@ module JavaBuildpack
 
       def arguments
         @configuration[ARGUMENTS_PROPERTY]
-      end
-
-      def boot_launcher?
-        main_class =~ /^org\.springframework\.boot\.loader\.(?:[JW]ar|Properties)Launcher$/
       end
 
       def main_class

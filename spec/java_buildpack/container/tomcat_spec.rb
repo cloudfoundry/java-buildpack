@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,10 +35,11 @@ describe JavaBuildpack::Container::Tomcat do
       'lifecycle_support'      => lifecycle_support_configuration,
       'logging_support'        => logging_support_configuration,
       'access_logging_support' => access_logging_support_configuration,
-      'redis_store'            => redis_store_configuration }
+      'redis_store'            => redis_store_configuration,
+      'external_configuration' => tomcat_external_configuration }
   end
 
-  let(:tomcat_configuration) { double('tomcat-configuration') }
+  let(:tomcat_configuration) { { 'external_configuration_enabled' => false } }
 
   let(:lifecycle_support_configuration) { double('lifecycle-support-configuration') }
 
@@ -47,6 +48,8 @@ describe JavaBuildpack::Container::Tomcat do
   let(:access_logging_support_configuration) { double('logging-support-configuration') }
 
   let(:redis_store_configuration) { double('redis-store-configuration') }
+
+  let(:tomcat_external_configuration) { double('tomcat_external_configuration') }
 
   it 'detects WEB-INF',
      app_fixture: 'container_tomcat' do
@@ -86,6 +89,18 @@ describe JavaBuildpack::Container::Tomcat do
     expect(component.command).to eq("test-var-2 test-var-1 #{java_home.as_env_var} JAVA_OPTS=\"test-opt-2 " \
                                       'test-opt-1 -Dhttp.port=$PORT" exec $PWD/.java-buildpack/tomcat/bin/catalina.sh' \
                                       ' run')
+  end
+
+  context do
+
+    let(:tomcat_configuration) { { 'external_configuration_enabled' => true } }
+
+    it 'creates submodule TomcatExternalConfiguration' do
+      expect(JavaBuildpack::Container::TomcatExternalConfiguration)
+        .to receive(:new).with(sub_configuration_context(tomcat_external_configuration))
+
+      component.sub_components context
+    end
   end
 
 end

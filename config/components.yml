@@ -1,5 +1,5 @@
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ jres:
 
 frameworks:
   - "JavaBuildpack::Framework::AppDynamicsAgent"
+  - "JavaBuildpack::Framework::ContainerCertificateTrustStore"
   - "JavaBuildpack::Framework::Debug"
 # - "JavaBuildpack::Framework::DynaTraceAgent"
 # - "JavaBuildpack::Framework::IntroscopeAgent"
@@ -47,6 +48,7 @@ frameworks:
   - "JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration"
   - "JavaBuildpack::Framework::PlayFrameworkJPAPlugin"
   - "JavaBuildpack::Framework::PostgresqlJDBC"
+  - "JavaBuildpack::Framework::RuxitAgent"
   - "JavaBuildpack::Framework::SpringAutoReconfiguration"
   - "JavaBuildpack::Framework::SpringInsight"
   - "JavaBuildpack::Framework::YourKitProfiler"

@@ -1,5 +1,5 @@
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,10 @@ tomcat:
   version: 8.0.+
   repository_root: ! '{default.repository.root}/tomcat'
   context_path:
+  external_configuration_enabled: false
+external_configuration:
+  version: 1.+
+  # repository_root: ""
 lifecycle_support:
   version: 2.+
   repository_root: ! '{default.repository.root}/tomcat-lifecycle-support'
