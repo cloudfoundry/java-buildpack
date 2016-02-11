@@ -3,7 +3,8 @@ The Tomcat Container allows servlet 2 and 3 web applications to be run.  These a
 
 <table>
   <tr>
-    <td><strong>Detection Criterion</strong></td><td>Existence of a <tt>WEB-INF/</tt> folder in the application directory and <a href="container-java_main.md">Java Main</a> not detected</td>
+    <td><strong>Detection Criterion</strong></td>
+    <td>Existence of a <tt>WEB-INF/</tt> folder in the application directory and <a href="container-java_main.md">Java Main</a> not detected</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
