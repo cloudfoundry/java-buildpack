@@ -41,7 +41,7 @@ Please carefully follow the whitespace and formatting conventions already presen
 ## Add Apache license header to all new classes
 ```ruby
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -58,16 +58,16 @@ Please carefully follow the whitespace and formatting conventions already presen
 require ...;
 ```
 ## Update Apache license header to modified files as necessary
-Always check the date range in the license header. For example, if you've modified a file in 2015 whose header still reads
+Always check the date range in the license header. For example, if you've modified a file in 2016 whose header still reads
 
 ```ruby
  # Copyright 2013 the original author or authors.
 ```
 
-then be sure to update it to 2015 appropriately
+then be sure to update it to 2016 appropriately
 
 ```ruby
- # Copyright 2013-2015 the original author or authors.
+ # Copyright 2013-2016 the original author or authors.
 ```
 
 ## Submit RSpec test cases for all behavior changes
