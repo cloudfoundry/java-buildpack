@@ -22,7 +22,7 @@ The framework can be configured by creating or modifying the [`config/debug.yml`
 | ---- | -----------
 | `enabled` | Whether to enable Java debugging
 | `port` | The port that the debug agent will listen on.  Defaults to `8000`.
-| `suspend` | Whether to suspend execution until a debugger has attached.  Note, enabling this may cause application start to timeout and be restarted.
+| `suspend` | Whether to suspend execution until a debugger has attached.  Note, you cannot ssh to a container until the container has decided the application is running.  Therefore when enabling this setting you must also push the application using the parameter `-u none` which disables container health checking.
 
 ## Creating SSH Tunnel
 After starting an application with debugging enabled, an SSH tunnel must be created to the container.  To create that SSH container, execute the following command:
