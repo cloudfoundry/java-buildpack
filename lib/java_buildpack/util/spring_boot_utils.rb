@@ -38,7 +38,12 @@ module JavaBuildpack
           @jar_finder.is?(application)
       end
 
+      # The lib directory of Spring Boot used by the application
+      #
+      # @param [Droplet] droplet the droplet to search
+      # @return [String] the lib directory of Spring Boot used by the application
       def lib(droplet)
+        return boot_inf_lib_dir(droplet) if boot_inf_lib_dir(droplet).exist?
         return web_inf_lib_dir(droplet) if web_inf_lib_dir(droplet).exist?
         return lib_dir(droplet) if lib_dir(droplet).exist?
         fail('No lib directory found')
@@ -58,6 +63,10 @@ module JavaBuildpack
       SPRING_BOOT_VERSION = 'Spring-Boot-Version'.freeze
 
       private_constant :SPRING_BOOT_VERSION
+
+      def boot_inf_lib_dir(droplet)
+        droplet.root + 'BOOT-INF/lib'
+      end
 
       def lib_dir(droplet)
         droplet.root + 'lib'

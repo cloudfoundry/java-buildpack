@@ -65,6 +65,12 @@ describe JavaBuildpack::Util::SpringBootUtils do
     expect(utils.version(application)).to match(/1.2.5.RELEASE/)
   end
 
+  it 'returns BOOT-INF/lib as lib directory' do
+    FileUtils.mkdir_p(app_dir + 'BOOT-INF/lib')
+
+    expect(utils.lib(droplet)).to eq(droplet.root + 'BOOT-INF/lib')
+  end
+
   it 'returns WEB-INF/lib as lib directory' do
     FileUtils.mkdir_p(app_dir + 'WEB-INF/lib')
 
