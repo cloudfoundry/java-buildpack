@@ -38,6 +38,12 @@ module JavaBuildpack
           @jar_finder.is?(application)
       end
 
+      def lib(droplet)
+        return web_inf_lib_dir(droplet) if web_inf_lib_dir(droplet).exist?
+        return lib_dir(droplet) if lib_dir(droplet).exist?
+        fail('No lib directory found')
+      end
+
       # The version of Spring Boot used by the application
       #
       # @param [Application] application the application to search
@@ -52,6 +58,14 @@ module JavaBuildpack
       SPRING_BOOT_VERSION = 'Spring-Boot-Version'.freeze
 
       private_constant :SPRING_BOOT_VERSION
+
+      def lib_dir(droplet)
+        droplet.root + 'lib'
+      end
+
+      def web_inf_lib_dir(droplet)
+        droplet.root + 'WEB-INF/lib'
+      end
 
     end
 

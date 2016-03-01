@@ -15,11 +15,11 @@
 # limitations under the License.
 
 require 'spec_helper'
-require 'application_helper'
+require 'droplet_helper'
 require 'java_buildpack/util/spring_boot_utils'
 
 describe JavaBuildpack::Util::SpringBootUtils do
-  include_context 'application_helper'
+  include_context 'droplet_helper'
 
   let(:utils) { described_class.new }
 
@@ -63,6 +63,22 @@ describe JavaBuildpack::Util::SpringBootUtils do
      app_fixture: 'container_main_spring_boot_jar_launcher' do
 
     expect(utils.version(application)).to match(/1.2.5.RELEASE/)
+  end
+
+  it 'returns WEB-INF/lib as lib directory' do
+    FileUtils.mkdir_p(app_dir + 'WEB-INF/lib')
+
+    expect(utils.lib(droplet)).to eq(droplet.root + 'WEB-INF/lib')
+  end
+
+  it 'returns lib as lib directory' do
+    FileUtils.mkdir_p(app_dir + 'lib')
+
+    expect(utils.lib(droplet)).to eq(droplet.root + 'lib')
+  end
+
+  it 'fails if there are no lib directories' do
+    expect { utils.lib(droplet) }.to raise_error
   end
 
 end
