@@ -45,9 +45,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        if @spring_boot_utils.is?(@application)
-          @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
-        end
+        return unless @spring_boot_utils.is?(@application)
+        @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -60,7 +59,8 @@ module JavaBuildpack
           @droplet.additional_libraries.insert 0, @application.root
         end
 
-        release_text
+        classpath = @spring_boot_utils.is?(@application) ? '-cp $PWD/.' : @droplet.additional_libraries.as_classpath
+        release_text(classpath)
       end
 
       private
@@ -71,29 +71,19 @@ module JavaBuildpack
 
       private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
 
-      def release_text
-        release = [
+      def release_text(classpath)
+        [
           @droplet.java_opts.as_env_var,
           '&&',
           @droplet.environment_variables.as_env_vars,
           'eval',
           'exec',
           "#{qualify_path @droplet.java_home.root, @droplet.root}/bin/java",
-          '$JAVA_OPTS'
-        ]
-
-        if @spring_boot_utils.is?(@application)
-          release << '-cp $PWD/.'
-        else
-          release << @droplet.additional_libraries.as_classpath
-        end
-
-        release << [
+          '$JAVA_OPTS',
+          classpath,
           main_class,
           arguments
-        ]
-
-        release.flatten.compact.join(' ')
+        ].flatten.compact.join(' ')
       end
 
       def arguments
