@@ -35,22 +35,34 @@ describe JavaBuildpack::Util::SpringBootUtils do
     expect(utils.is?(application)).to be
   end
 
+  it 'detects a JAR Spring Boot application',
+     app_fixture: 'container_main_spring_boot_jar_launcher' do
+
+    expect(utils.is?(application)).to be
+  end
+
   it 'does not detect a non-Spring Boot application',
      app_fixture: 'container_main' do
 
     expect(utils.is?(application)).not_to be
   end
 
-  it 'determines the version a dist Spring Boot application',
+  it 'determines the version of a dist Spring Boot application',
      app_fixture: 'container_spring_boot_dist' do
 
     expect(utils.version(application)).to match(/1.0.0.RELEASE/)
   end
 
-  it 'determines the version a staged Spring Boot application',
+  it 'determines the version of a staged Spring Boot application',
      app_fixture: 'container_spring_boot_staged' do
 
     expect(utils.version(application)).to match(/1.0.0.RELEASE/)
+  end
+
+  it 'determines the version of a JAR Spring Boot application',
+     app_fixture: 'container_main_spring_boot_jar_launcher' do
+
+    expect(utils.version(application)).to match(/1.2.5.RELEASE/)
   end
 
 end

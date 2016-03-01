@@ -19,6 +19,7 @@ require 'java_buildpack/container'
 require 'java_buildpack/util/dash_case'
 require 'java_buildpack/util/java_main_utils'
 require 'java_buildpack/util/qualify_path'
+require 'java_buildpack/util/spring_boot_utils'
 
 module JavaBuildpack
   module Container
@@ -28,6 +29,14 @@ module JavaBuildpack
     # of Java +main()+ applications.
     class JavaMain < JavaBuildpack::Component::BaseComponent
       include JavaBuildpack::Util
+
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        super(context)
+        @spring_boot_utils = JavaBuildpack::Util::SpringBootUtils.new
+      end
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
@@ -42,7 +51,10 @@ module JavaBuildpack
       def release
         @droplet.additional_libraries.insert 0, @application.root
         manifest_class_path.each { |path| @droplet.additional_libraries << path }
-        @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT' if boot_launcher?
+
+        if @spring_boot_utils.is?(@application)
+          @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT'
+        end
 
         release_text
       end
@@ -72,10 +84,6 @@ module JavaBuildpack
 
       def arguments
         @configuration[ARGUMENTS_PROPERTY]
-      end
-
-      def boot_launcher?
-        main_class =~ /^org\.springframework\.boot\.loader\.(?:[JW]ar|Properties)Launcher$/
       end
 
       def main_class
