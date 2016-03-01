@@ -45,15 +45,19 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
+        if @spring_boot_utils.is?(@application)
+          @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
+        end
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.additional_libraries.insert 0, @application.root
         manifest_class_path.each { |path| @droplet.additional_libraries << path }
 
         if @spring_boot_utils.is?(@application)
           @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT'
+        else
+          @droplet.additional_libraries.insert 0, @application.root
         end
 
         release_text
@@ -68,18 +72,28 @@ module JavaBuildpack
       private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
 
       def release_text
-        [
+        release = [
           @droplet.java_opts.as_env_var,
           '&&',
           @droplet.environment_variables.as_env_vars,
           'eval',
           'exec',
           "#{qualify_path @droplet.java_home.root, @droplet.root}/bin/java",
-          '$JAVA_OPTS',
-          @droplet.additional_libraries.as_classpath,
+          '$JAVA_OPTS'
+        ]
+
+        if @spring_boot_utils.is?(@application)
+          release << '-cp $PWD/.'
+        else
+          release << @droplet.additional_libraries.as_classpath
+        end
+
+        release << [
           main_class,
           arguments
-        ].flatten.compact.join(' ')
+        ]
+
+        release.flatten.compact.join(' ')
       end
 
       def arguments
