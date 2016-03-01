@@ -38,7 +38,7 @@ module JavaBuildpack
         jar application
       end
 
-      # The version of of the JAR file used by the application
+      # The version of the JAR file used by the application
       #
       # @param [Application] application the application to search
       # @return [String] the version of the JAR file used by the application

@@ -115,41 +115,4 @@ describe JavaBuildpack::Container::JavaMain do
                                       'test-jar-2.jar org.springframework.boot.loader.PropertiesLauncher')
   end
 
-  context do
-    let(:configuration) { { 'java_main_class' => 'org.springframework.boot.loader.JarLauncher' } }
-
-    it 'releases Spring boot applications with a JarLauncher in the configuration by specifying a port' do
-
-      expect(component.release).to eq('JAVA_OPTS="test-opt-2 test-opt-1" && test-var-2 test-var-1 SERVER_PORT=$PORT ' \
-                                        "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
-                                        '-cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/' \
-                                        'test-jar-2.jar org.springframework.boot.loader.JarLauncher')
-    end
-  end
-
-  context do
-    let(:configuration) { { 'java_main_class' => 'org.springframework.boot.loader.WarLauncher' } }
-
-    it 'releases Spring boot applications with a WarLauncher in the configuration by specifying a port' do
-
-      expect(component.release).to eq('JAVA_OPTS="test-opt-2 test-opt-1" && test-var-2 test-var-1 SERVER_PORT=$PORT ' \
-                                        "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
-                                        '-cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/' \
-                                        'test-jar-2.jar org.springframework.boot.loader.WarLauncher')
-    end
-  end
-
-  context do
-    let(:configuration) { { 'java_main_class' => 'org.springframework.boot.loader.PropertiesLauncher' } }
-
-    it 'releases Spring boot applications with a PropertiesLauncher in the configuration by specifying a port' do
-
-      expect(component.release).to eq('JAVA_OPTS="test-opt-2 test-opt-1" && test-var-2 test-var-1 SERVER_PORT=$PORT ' \
-                                        "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
-                                        '-cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs' \
-                                        '/test-jar-2.jar org.springframework.boot.loader.' \
-                                        'PropertiesLauncher')
-    end
-  end
-
 end
