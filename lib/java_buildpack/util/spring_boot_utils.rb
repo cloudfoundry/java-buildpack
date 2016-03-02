@@ -43,9 +43,18 @@ module JavaBuildpack
       # @param [Droplet] droplet the droplet to search
       # @return [String] the lib directory of Spring Boot used by the application
       def lib(droplet)
-        return boot_inf_lib_dir(droplet) if boot_inf_lib_dir(droplet).exist?
-        return web_inf_lib_dir(droplet) if web_inf_lib_dir(droplet).exist?
-        return lib_dir(droplet) if lib_dir(droplet).exist?
+        candidate = manifest_lib_dir(droplet)
+        return candidate if candidate && candidate.exist?
+
+        candidate = boot_inf_lib_dir(droplet)
+        return candidate if candidate && candidate.exist?
+
+        candidate = web_inf_lib_dir(droplet)
+        return candidate if candidate && candidate.exist?
+
+        candidate = lib_dir(droplet)
+        return candidate if candidate && candidate.exist?
+
         fail('No lib directory found')
       end
 
@@ -60,12 +69,19 @@ module JavaBuildpack
 
       private
 
+      SPRING_BOOT_LIB = 'Spring-Boot-Lib'.freeze
+
       SPRING_BOOT_VERSION = 'Spring-Boot-Version'.freeze
 
-      private_constant :SPRING_BOOT_VERSION
+      private_constant :SPRING_BOOT_LIB, :SPRING_BOOT_VERSION
 
       def boot_inf_lib_dir(droplet)
         droplet.root + 'BOOT-INF/lib'
+      end
+
+      def manifest_lib_dir(droplet)
+        value = JavaBuildpack::Util::JavaMainUtils.manifest(droplet)[SPRING_BOOT_LIB]
+        value ? droplet.root + value : nil
       end
 
       def lib_dir(droplet)
