@@ -83,6 +83,14 @@ describe JavaBuildpack::Util::SpringBootUtils do
     expect(utils.lib(droplet)).to eq(droplet.root + 'lib')
   end
 
+  it 'returns manifest value as lib directory',
+     app_fixture: 'container_main_spring_boot_jar_launcher' do
+
+    FileUtils.mkdir_p(app_dir + 'manifest-lib-value')
+
+    expect(utils.lib(droplet)).to eq(droplet.root + 'manifest-lib-value/')
+  end
+
   it 'fails if there are no lib directories' do
     expect { utils.lib(droplet) }.to raise_error
   end
