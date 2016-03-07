@@ -39,3 +39,7 @@ memory_calculator:
     heap: 100%
     metaspace: 100%
     permgen: 100%
+restart_mechanism:
+  version: 0.0.+
+  repository_root: https://raw.githubusercontent.com/rafaelri/jvmkill/master/binaries/{architecture}
+  type: script
