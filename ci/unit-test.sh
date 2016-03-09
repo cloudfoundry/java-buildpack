@@ -2,6 +2,8 @@
 
 set -e
 
+eval "$(rbenv init -)"
+
 pushd java-buildpack
   rbenv install --skip-existing
   bundle install
