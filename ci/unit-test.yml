@@ -1,0 +1,9 @@
+---
+platform: linux
+image: docker://cfje/java-buildpack
+
+inputs:
+- name: java-buildpack
+
+run:
+  path: java-buildpack/ci/unit-test.sh
