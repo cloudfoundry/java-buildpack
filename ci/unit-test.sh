@@ -2,7 +2,7 @@
 
 set -e
 
-pushd cf-java-client
+pushd java-buildpack
   rbenv install --skip-existing
   bundle install
   bundle exec rake
