@@ -17,59 +17,58 @@
 ---
 tomcat:
   version: 8.0.+
-  repository_root: ! '{default.repository.root}/tomcat'
-  context_path:
+  repository_root: "{default.repository.root}/tomcat"
+  context_path: 
   external_configuration_enabled: false
 external_configuration:
   version: 1.+
-  # repository_root: ""
 lifecycle_support:
   version: 2.+
-  repository_root: ! '{default.repository.root}/tomcat-lifecycle-support'
+  repository_root: "{default.repository.root}/tomcat-lifecycle-support"
 logging_support:
   version: 2.+
-  repository_root: ! '{default.repository.root}/tomcat-logging-support'
+  repository_root: "{default.repository.root}/tomcat-logging-support"
 access_logging_support:
   version: 2.+
-  repository_root: ! '{default.repository.root}/tomcat-access-logging-support'
+  repository_root: "{default.repository.root}/tomcat-access-logging-support"
   access_logging: disabled
 redis_store:
   version: 1.+
-  repository_root: ! '{default.repository.root}/redis-store'
+  repository_root: "{default.repository.root}/redis-store"
   database: 0
   timeout: 2000
   connection_pool_size: 2
 gemfire_store:
   gemfire:
     version: 8.+
-    repository_root: ! '{default.repository.root}/gem-fire'
+    repository_root: "{default.repository.root}/gem-fire"
   gemfire_modules:
     version: 8.+
-    repository_root: ! '{default.repository.root}/gem-fire-modules'
+    repository_root: "{default.repository.root}/gem-fire-modules"
   gemfire_modules_tomcat7:
     version: 8.+
-    repository_root: ! '{default.repository.root}/gem-fire-modules-tomcat7'
+    repository_root: "{default.repository.root}/gem-fire-modules-tomcat7"
   gemfire_security:
     version: 8.+
-    repository_root: ! '{default.repository.root}/gem-fire-security'
+    repository_root: "{default.repository.root}/gem-fire-security"
   gemfire_logging:
     version: 1.7.7
-    repository_root: ! '{default.repository.root}/slf4j-jdk14'
+    repository_root: "{default.repository.root}/slf4j-jdk14"
   gemfire_logging_api:
     version: 1.7.7
-    repository_root: ! '{default.repository.root}/slf4j-api'
+    repository_root: "{default.repository.root}/slf4j-api"
   gemfire_log4j_api:
     version: 2.1.0
-    repository_root: ! '{default.repository.root}/log4j-api'
+    repository_root: "{default.repository.root}/log4j-api"
   gemfire_log4j_core:
     version: 2.1.0
-    repository_root: ! '{default.repository.root}/log4j-core'
+    repository_root: "{default.repository.root}/log4j-core"
   gemfire_log4j_jcl:
     version: 2.1.0
-    repository_root: ! '{default.repository.root}/log4j-jcl'
+    repository_root: "{default.repository.root}/log4j-jcl"
   gemfire_log4j_jul:
     version: 2.1.0
-    repository_root: ! '{default.repository.root}/log4j-jul'
+    repository_root: "{default.repository.root}/log4j-jul"
   gemfire_log4j_slf4j_impl:
     version: 2.1.0
-    repository_root: ! '{default.repository.root}/log4j-slf4j-impl'
+    repository_root: "{default.repository.root}/log4j-slf4j-impl"

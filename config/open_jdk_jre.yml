@@ -18,10 +18,10 @@
 ---
 jre:
   version: 1.8.0_+
-  repository_root: ! '{default.repository.root}/openjdk/{platform}/{architecture}'
+  repository_root: "{default.repository.root}/openjdk/{platform}/{architecture}"
 memory_calculator:
   version: 2.+
-  repository_root: ! '{default.repository.root}/memory-calculator/{platform}/{architecture}'
+  repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
   stack_threads: 
   memory_sizes:
     heap: 
