@@ -7,3 +7,6 @@ inputs:
 
 run:
   path: java-buildpack/ci/unit-test.sh
+
+params:
+  RBENV_VERSION:
