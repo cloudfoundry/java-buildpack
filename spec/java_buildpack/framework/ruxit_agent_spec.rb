@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2016 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,12 +45,52 @@ describe JavaBuildpack::Framework::RuxitAgent do
     end
 
     it 'updates JAVA_OPTS' do
-      allow(services).to receive(:find_service).and_return('credentials' => { 'tenant' => 'testtenant',
-                                                                              'tenanttoken' => 'testtoken' })
+      allow(services).to receive(:find_service).and_return('credentials' => { 'tenant'      => 'test-tenant',
+                                                                              'tenanttoken' => 'test-token' })
       component.release
 
-      expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/ruxit_agent/agent/lib64/libruxitagentloader.so='\
-      'server=https://testtenant.live.ruxit.com:443/communication,tenant=testtenant,tenanttoken=testtoken')
+      expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/ruxit_agent/agent/lib64/libruxitagentloader.so=' \
+      'server=https://test-tenant.live.ruxit.com:443/communication,tenant=test-tenant,tenanttoken=test-token')
+    end
+
+    it 'updates JAVA_OPTS with custom server' do
+      allow(services).to receive(:find_service).and_return('credentials' => { 'server'      => 'test-server',
+                                                                              'tenant'      => 'test-tenant',
+                                                                              'tenanttoken' => 'test-token' })
+      component.release
+
+      expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/ruxit_agent/agent/lib64/libruxitagentloader.so=' \
+      'server=test-server,tenant=test-tenant,tenanttoken=test-token')
+    end
+
+    it 'updates environment variables' do
+      allow(services).to receive(:find_service).and_return('credentials' => { 'tenant'      => 'test-tenant',
+                                                                              'tenanttoken' => 'test-token' })
+      component.release
+
+      expect(environment_variables).to include('RUXIT_APPLICATIONID=test-application-name')
+      expect(environment_variables).to include('RUXIT_CLUSTER_ID=test-application-name')
+      expect(environment_variables).to include('RUXIT_HOST_ID=test-application-name_${CF_INSTANCE_INDEX}')
+    end
+
+    context do
+
+      let(:environment) do
+        { 'RUXIT_APPLICATIONID' => 'test-application-id',
+          'RUXIT_CLUSTER_ID'    => 'test-cluster-id',
+          'RUXIT_HOST_ID'       => 'test-host-id' }
+      end
+
+      it 'does not update environment variables if they exist', :show_output do
+        allow(services).to receive(:find_service).and_return('credentials' => { 'tenant'      => 'test-tenant',
+                                                                                'tenanttoken' => 'test-token' })
+        component.release
+
+        expect(environment_variables).not_to include(/RUXIT_APPLICATIONID/)
+        expect(environment_variables).not_to include(/RUXIT_CLUSTER_ID/)
+        expect(environment_variables).not_to include(/RUXIT_HOST_ID/)
+      end
+
     end
 
   end

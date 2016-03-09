@@ -23,7 +23,7 @@ The credential payload of the service may contain the following entries:
 
 | Name | Description
 | ---- | -----------
-| `tenant` | Your Ruxit tenant ID is the unique identifier of your Ruxit environment. You can find it easily by looking at the URL in your browser when you are logged into your Ruxit environment. The subdomain {tenant} in https://{tenant}.live.ruxit.com represents your tenant ID.
+| `tenant` | Your Ruxit tenant ID is the unique identifier of your Ruxit environment. You can find it easily by looking at the URL in your browser when you are logged into your Ruxit environment. The subdomain `{tenant}` in `https://{tenant}.live.ruxit.com` represents your tenant ID.
 | `tenanttoken` | The token for your Ruxit environment. You can find it in the deploy Ruxit section within your environment.
 | `server` | (Optional) The Ruxit server connection URL to connect to. Use `host:port` format for a specific port number. Uses `https://{tenant}.live.ruxit.com:443/communication` by default.
 

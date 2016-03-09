@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2016 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,24 +16,13 @@
 
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
-require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/framework'
-require 'java_buildpack/util/qualify_path'
 
 module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for enabling zero-touch Ruxit support.
     class RuxitAgent < JavaBuildpack::Component::VersionedDependencyComponent
-
-      # Creates an instance
-      #
-      # @param [Hash] context a collection of utilities used the component
-      def initialize(context)
-        super(context)
-        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger RuxitAgent
-        @logger.debug { "Agent URI to be used: #{@uri.inspect}" }
-      end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
@@ -44,88 +33,65 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         credentials = @application.services.find_service(FILTER)['credentials']
-        environment = @application.environment
-        java_opts   = @droplet.java_opts
-        droplet_env = @droplet.environment_variables
-        agent_conf = {}
-        env = {}
 
-        apply_agent_conf(credentials, agent_conf)
-        apply_user_agent_conf(credentials, agent_conf)
-        apply_default_environment_variables(env)
-        apply_user_environment_variables(environment, env)
+        @droplet.java_opts.add_agentpath_with_props(agent_path,
+                                                    SERVER      => server(credentials),
+                                                    TENANT      => tenant(credentials),
+                                                    TENANTTOKEN => tenanttoken(credentials))
 
-        @logger.debug { "agent_conf: #{agent_conf.inspect}" }
-        @logger.debug { "ruxit_env: #{env.inspect}" }
+        environment           = @application.environment
+        environment_variables = @droplet.environment_variables
 
-        env.each do |key, value|
-          droplet_env.add_environment_variable(key, value)
+        unless environment.key?(RUXIT_APPLICATION_ID)
+          environment_variables.add_environment_variable(RUXIT_APPLICATION_ID, application_id)
         end
-        java_opts.add_agentpath_with_props(agent_path, agent_conf)
+
+        unless environment.key?(RUXIT_CLUSTER_ID)
+          environment_variables.add_environment_variable(RUXIT_CLUSTER_ID, cluster_id)
+        end
+
+        environment_variables.add_environment_variable(RUXIT_HOST_ID, host_id) unless environment.key?(RUXIT_HOST_ID)
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, TENANT, TENANT_TOKEN
+        @application.services.one_service? FILTER, TENANT, TENANTTOKEN
       end
 
       private
 
       FILTER = /ruxit/.freeze
-      SERVER = 'server'.freeze
-      TENANT = 'tenant'.freeze
-      TENANT_TOKEN = 'tenanttoken'.freeze
+
       RUXIT_APPLICATION_ID = 'RUXIT_APPLICATIONID'.freeze
+
       RUXIT_CLUSTER_ID = 'RUXIT_CLUSTER_ID'.freeze
+
       RUXIT_HOST_ID = 'RUXIT_HOST_ID'.freeze
 
-      private_constant :FILTER, :SERVER, :TENANT, :TENANT_TOKEN
-      private_constant :RUXIT_CLUSTER_ID, :RUXIT_APPLICATION_ID, :RUXIT_HOST_ID
+      SERVER = 'server'.freeze
 
-      def apply_agent_conf(credentials, agent_conf)
-        agent_conf[SERVER] = server(credentials)
-        agent_conf[TENANT] = tenant(credentials)
-        agent_conf[TENANT_TOKEN] = credentials[TENANT_TOKEN]
-      end
+      TENANT = 'tenant'.freeze
 
-      def apply_user_agent_conf(credentials, agent_conf)
-        credentials.each do |key, value|
-          agent_conf[key] = value if [SERVER, TENANT, TENANT_TOKEN].include?(key)
-        end
-      end
+      TENANTTOKEN = 'tenanttoken'.freeze
 
-      def apply_default_environment_variables(env)
-        env[RUXIT_APPLICATION_ID] = @application.details['application_name']
-        env[RUXIT_CLUSTER_ID] = @application.details['application_name']
-        env[RUXIT_HOST_ID] = "#{@application.details['application_name']}_${CF_INSTANCE_INDEX}"
-      end
-
-      def apply_user_environment_variables(environment, env)
-        environment.each do |key, value|
-          env[key] = value if key.start_with?('RUXIT_')
-        end
-      end
-
-      def server(credentials)
-        credentials[SERVER] || "https://#{tenant(credentials)}.live.ruxit.com:443/communication"
-      end
-
-      def tenant(credentials)
-        credentials[TENANT]
-      end
+      private_constant :FILTER, :RUXIT_APPLICATION_ID, :RUXIT_CLUSTER_ID, :RUXIT_HOST_ID, :SERVER, :TENANT, :TENANTTOKEN
 
       def agent_dir
         @droplet.sandbox + 'agent'
       end
 
       def agent_path
-        agent_dir + lib_name + 'libruxitagentloader.so'
+        agent_dir + 'lib64/libruxitagentloader.so'
       end
 
-      def architecture
-        `uname -m`.strip
+      def application_id
+        @application.details['application_name']
+      end
+
+      def cluster_id
+        @application.details['application_name']
       end
 
       def expand(file)
@@ -138,16 +104,30 @@ module JavaBuildpack
         end
       end
 
-      def lib_name
-        architecture == 'x86_64' || architecture == 'i686' ? 'lib64' : 'lib'
+      def host_id
+        "#{@application.details['application_name']}_${CF_INSTANCE_INDEX}"
+      end
+
+      def server(credentials)
+        credentials[SERVER] || "https://#{tenant(credentials)}.live.ruxit.com:443/communication"
+      end
+
+      def tenant(credentials)
+        credentials[TENANT]
+      end
+
+      def tenanttoken(credentials)
+        credentials[TENANTTOKEN]
       end
 
       def unpack_agent(root)
         FileUtils.mkdir_p(agent_dir)
         FileUtils.mv(root + 'agent/bin', agent_dir)
         FileUtils.mv(root + 'agent/conf', agent_dir)
-        FileUtils.mv(root + 'agent' + lib_name, agent_dir)
+        FileUtils.mv(root + 'agent/lib64', agent_dir)
       end
+
     end
+
   end
 end
