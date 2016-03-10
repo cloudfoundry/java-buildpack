@@ -24,4 +24,4 @@ inputs:
 - name: java-buildpack
 
 run:
-  path: java-buildpack/ci/package.sh
+  path: java-buildpack/ci/package-test.sh
