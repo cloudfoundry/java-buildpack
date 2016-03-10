@@ -15,5 +15,5 @@ pushd merged
   git remote add upstream ../upstream
   git fetch upstream
 
-  git merge --no-ff --log $COMMIT
+  git merge --no-ff --log --no-edit $COMMIT
 popd
