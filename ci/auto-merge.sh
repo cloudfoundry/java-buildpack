@@ -13,7 +13,7 @@ pushd merged
   git config --local user.email "buildmaster@springframework.org"
 
   git remote add upstream ../upstream
-  git fetch upstream
+  git fetch upstream --no-tags
 
   git merge --no-ff --log --no-edit $COMMIT
 popd
