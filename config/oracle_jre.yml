@@ -22,7 +22,7 @@
 repository_root: "https://s3-eu-west-1.amazonaws.com/shop-pipeline"
 version: 1.8.0_+
 memory_sizes:
-  metaspace: 64m..
+  metaspace: 128m..
 #  permgen: 64m..
 memory_heuristics:
   heap: 75
