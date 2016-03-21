@@ -123,7 +123,7 @@ module JavaBuildpack
           downloaded = false
 
           http.request request do |response|
-            @logger.debug { "Response headers: #{response.to_hash}"}
+            @logger.debug { "Response headers: #{response.to_hash}" }
             @logger.debug { "Response status: #{response.code}" }
 
             if response.is_a? Net::HTTPOK
