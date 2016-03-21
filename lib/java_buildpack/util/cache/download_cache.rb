@@ -144,6 +144,8 @@ module JavaBuildpack
         end
 
         def cache_content(response, cached_file)
+          compressed = compressed?(response)
+
           cached_file.cached(File::CREAT | File::WRONLY | File::BINARY) do |f|
             @logger.debug { "Persisting content to #{f.path}" }
 
@@ -152,7 +154,7 @@ module JavaBuildpack
             f.fsync
           end
 
-          validate_size response['Content-Length'], cached_file
+          validate_size response['Content-Length'], cached_file unless compressed
         end
 
         def cache_etag(response, cached_file)
@@ -181,6 +183,10 @@ module JavaBuildpack
             f.write last_modified
             f.fsync
           end
+        end
+
+        def compressed?(response)
+          %w(br compress deflate gzip x-gzip).include?(response['Content-Encoding'])
         end
 
         def debug_ssl(http)
@@ -300,7 +306,7 @@ module JavaBuildpack
           actual_size = cached_file.cached(File::RDONLY) { |f| f.size }
           @logger.debug { "Validated content size #{actual_size} is #{expected_size}" }
 
-          return if expected_size.to_i == actual_size
+          return if (expected_size.to_i == actual_size)
 
           cached_file.destroy
           fail InferredNetworkFailure, "Content has invalid size.  Was #{actual_size}, should be #{expected_size}."

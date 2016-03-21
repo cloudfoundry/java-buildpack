@@ -170,6 +170,18 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
   end
 
+  it 'ignores incorrect size when encoded' do
+    stub_request(:get, uri)
+      .to_return(status: 200, body: 'foo-cac', headers: { Etag:              'foo-etag',
+                                                          'Content-Encoding' => 'gzip',
+                                                          'Last-Modified'    => 'foo-last-modified',
+                                                          'Content-Length'   => 10 })
+
+    touch immutable_cache_root, 'cached', 'old-foo-cached'
+
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cac/)
+  end
+
   context do
 
     let(:environment) { { 'http_proxy' => 'http://proxy:9000', 'HTTP_PROXY' => nil } }
