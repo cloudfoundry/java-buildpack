@@ -37,6 +37,7 @@ jres:
 frameworks:
 # - "JavaBuildpack::Framework::AppDynamicsAgent"
   - "JavaBuildpack::Framework::ContainerCertificateTrustStore"
+  - "JavaBuildpack::Framework::ContainerCustomizer"
   - "JavaBuildpack::Framework::Debug"
 # - "JavaBuildpack::Framework::DynaTraceAgent"
 # - "JavaBuildpack::Framework::IntroscopeAgent"
