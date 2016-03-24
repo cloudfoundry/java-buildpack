@@ -11,7 +11,7 @@ AllCops:
 Metrics/AbcSize:
  Max: 22
 Metrics/ClassLength:
-  Max: 200
+  Max: 250
 Metrics/CyclomaticComplexity:
   Max: 10
 Metrics/LineLength:
