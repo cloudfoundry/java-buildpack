@@ -19,9 +19,11 @@ require 'java_buildpack/util/cache'
 require 'java_buildpack/util/cache/cached_file'
 require 'java_buildpack/util/cache/inferred_network_failure'
 require 'java_buildpack/util/cache/internet_availability'
+require 'java_buildpack/util/configuration_utils'
 require 'java_buildpack/util/sanitizer'
 require 'monitor'
 require 'net/http'
+require 'openssl'
 require 'pathname'
 require 'tmpdir'
 require 'uri'
@@ -136,11 +138,17 @@ module JavaBuildpack
             elsif redirect?(response)
               downloaded = update URI(response['Location']), cached_file
             else
-              fail InferredNetworkFailure, "Bad response: #{response}"
+              fail InferredNetworkFailure, "#{response.code} #{response.message}\n#{response.body}"
             end
           end
 
           downloaded
+        end
+
+        def ca_file(http_options)
+          return unless CA_FILE.exist?
+          http_options[:ca_file] = CA_FILE.to_s
+          @logger.debug { "Adding additional CA certificates from #{CA_FILE}" }
         end
 
         def cache_content(response, cached_file)
@@ -183,6 +191,22 @@ module JavaBuildpack
             f.write last_modified
             f.fsync
           end
+        end
+
+        def client_authentication(http_options)
+          client_authentication = JavaBuildpack::Util::ConfigurationUtils.load('cache')['client_authentication']
+
+          certificate_location = client_authentication['certificate_location']
+          File.open(certificate_location) do |f|
+            http_options[:cert] = OpenSSL::X509::Certificate.new f.read
+            @logger.debug { "Adding client certificate from #{certificate_location}" }
+          end if certificate_location
+
+          private_key_location = client_authentication['private_key_location']
+          File.open(private_key_location) do |f|
+            http_options[:key] = OpenSSL::PKey.read f.read, client_authentication['private_key_password']
+            @logger.debug { "Adding private key from #{private_key_location}" }
+          end if private_key_location
         end
 
         def compressed?(response)
@@ -230,10 +254,8 @@ module JavaBuildpack
             http_options[:use_ssl] = true
             @logger.debug { 'Adding HTTP options for secure connection' }
 
-            if CA_FILE.exist?
-              http_options[:ca_file] = CA_FILE.to_s
-              @logger.debug { "Adding additional certs from #{CA_FILE}" }
-            end
+            ca_file http_options
+            client_authentication http_options
           end
 
           http_options
@@ -294,7 +316,7 @@ module JavaBuildpack
               InternetAvailability.instance.available false, "Request failed: #{e.message}"
               raise e
             else
-              @logger.warn { "Request failure #{failures}, retrying: #{e.message}" }
+              @logger.warn { "Request failure #{failures}, retrying.  Failure: #{e.message}" }
               retry
             end
           end
