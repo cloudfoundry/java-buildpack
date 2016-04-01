@@ -121,10 +121,8 @@ module JavaBuildpack
       end
 
       def unpack_agent(root)
-        FileUtils.mkdir_p(agent_dir)
-        FileUtils.mv(root + 'agent/bin', agent_dir)
-        FileUtils.mv(root + 'agent/conf', agent_dir)
-        FileUtils.mv(root + 'agent/lib64', agent_dir)
+        FileUtils.mkdir_p(@droplet.sandbox)
+        FileUtils.mv(root + 'agent', @droplet.sandbox)
       end
 
     end
