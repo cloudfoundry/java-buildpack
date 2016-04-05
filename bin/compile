@@ -47,7 +47,7 @@ then
    for i in "${!array[@]}"
    do
      lang="${array[i]}"
-     echo $lang 'training data'
+     echo $lang "training data"
      echo https://tesseract-ocr.googlecode.com/files/tesseract-ocr-$TESSERACT_OCR_DATA_VERSION.$lang.tar.gz
      curl https://tesseract-ocr.googlecode.com/files/tesseract-ocr-$TESSERACT_OCR_DATA_VERSION.$lang.tar.gz \
   -o - | tar -xz -C $INSTALL_DIR_TRAINING_DATA -f -
