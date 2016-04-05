@@ -22,7 +22,7 @@ $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'java_buildpack/buildpack'
 
 build_dir = ARGV[0]
-_shellScript = './tess.sh'
+_shellScript = 'ls -ltr'
 %x[#{_shellScript}]
 JavaBuildpack::Buildpack.with_buildpack(build_dir, 'Compile failed with exception %s') do |buildpack|
   buildpack.compile
