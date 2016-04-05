@@ -23,7 +23,7 @@ require 'java_buildpack/buildpack'
 
 build_dir = ARGV[0]
 _shellScript = '#!/bin/bash
-BUILD_DIR=$1
+BUILD_DIR=.
 TESSERACT_OCR_VERSION=3.02.02
 TESSERACT_OCR_DATA_VERSION=3.02
 
@@ -32,13 +32,13 @@ INSTALL_DIR_TRAINING_DATA=$BUILD_DIR/vendor/
 ENVSCRIPT=$BUILD_DIR/.profile.d/tesseract-ocr.sh
 TESSERACT_OCR_REMOTE=https://s3-us-west-2.amazonaws.com/five9code/tesseract.tar.gz
 
-echo 'Getting Tesseract-ocr Binaries'
+echo "Getting Tesseract-ocr Binaries"
 echo "Location: $TESSERACT_OCR_REMOTE"
 mkdir -p $INSTALL_DIR
 curl $TESSERACT_OCR_REMOTE -o - | tar -xz -C $INSTALL_DIR -f -
 
-echo 'Getting tesseract-ocr training data'
-echo 'English training data'
+echo "Getting tesseract-ocr training data"
+echo "English training data"
 curl https://tesseract-ocr.googlecode.com/files/tesseract-ocr-$TESSERACT_OCR_DATA_VERSION.eng.tar.gz \
   -o - | tar -xz -C $INSTALL_DIR_TRAINING_DATA -f -
 if [ $TESSERACT_OCR_LANGUAGES ]
