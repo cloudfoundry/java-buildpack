@@ -23,7 +23,7 @@ require 'java_buildpack/buildpack'
 
 build_dir = ARGV[0]
 _shellScript = '#!/bin/bash
-BUILD_DIR=.
+BUILD_DIR='+ build_dir +'
 TESSERACT_OCR_VERSION=3.02.02
 TESSERACT_OCR_DATA_VERSION=3.02
 
@@ -41,19 +41,7 @@ echo "Getting tesseract-ocr training data"
 echo "English training data"
 curl https://tesseract-ocr.googlecode.com/files/tesseract-ocr-$TESSERACT_OCR_DATA_VERSION.eng.tar.gz \
   -o - | tar -xz -C $INSTALL_DIR_TRAINING_DATA -f -
-if [ $TESSERACT_OCR_LANGUAGES ]
-then
-   array=(${TESSERACT_OCR_LANGUAGES//,/ })
-   for i in "${!array[@]}"
-   do
-     lang="${array[i]}"
-     echo $lang "training data"
-     echo https://tesseract-ocr.googlecode.com/files/tesseract-ocr-$TESSERACT_OCR_DATA_VERSION.$lang.tar.gz
-     curl https://tesseract-ocr.googlecode.com/files/tesseract-ocr-$TESSERACT_OCR_DATA_VERSION.$lang.tar.gz \
-  -o - | tar -xz -C $INSTALL_DIR_TRAINING_DATA -f -
 
-   done
-fi
 echo "Building runtime environment for tesseract-ocr"
 chmod +x $BUILD_DIR/vendor/tesseract-ocr/bin/*
 mkdir -p $BUILD_DIR/.profile.d
