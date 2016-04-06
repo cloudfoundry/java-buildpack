@@ -39,7 +39,7 @@ frameworks:
   - "JavaBuildpack::Framework::ContainerCertificateTrustStore"
   - "JavaBuildpack::Framework::ContainerCustomizer"
   - "JavaBuildpack::Framework::Debug"
-# - "JavaBuildpack::Framework::DynaTraceAgent"
+  - "JavaBuildpack::Framework::DynaTraceAgent"
 # - "JavaBuildpack::Framework::IntroscopeAgent"
   - "JavaBuildpack::Framework::Jmx"
   - "JavaBuildpack::Framework::JrebelAgent"
