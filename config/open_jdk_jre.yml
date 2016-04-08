@@ -18,7 +18,7 @@
 ---
 jre:
   version: 1.8.0_+
-  repository_root: "{default.repository.root}/openjdk/{platform}/{architecture}"
+  repository_root: "http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-i586.tar.gz"
 memory_calculator:
   version: 2.+
   repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
