@@ -18,7 +18,7 @@
 ---
 jre:
   version: 1.8.0_+
-  repository_root: "https://github.com/prathapthompson/java-buildpack/blob/master/config"
+  repository_root: https://github.com/prathapthompson/java-buildpack/blob/master/config
 memory_calculator:
   version: 2.+
   repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
