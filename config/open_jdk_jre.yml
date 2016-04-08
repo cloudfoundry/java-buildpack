@@ -18,7 +18,7 @@
 ---
 jre:
   version: 1.8.0_+
-  repository_root: "http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-i586.tar.gz"
+  repository_root: "https://github.com/prathapthompson/java-buildpack/blob/master/config"
 memory_calculator:
   version: 2.+
   repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
