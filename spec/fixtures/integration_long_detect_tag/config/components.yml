@@ -22,6 +22,6 @@ containers:
 # Please see the documentation for more detail.
 jres:
  - "JavaBuildpack::Jre::OpenJdkJRE"
- #- "JavaBuildpack::Jre::OracleJRE"
+# - "JavaBuildpack::Jre::OracleJRE"
 
 frameworks: []
