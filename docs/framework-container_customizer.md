@@ -20,8 +20,8 @@ The framework can be configured by modifying the [`config/container_customizer.y
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the MariaDB JDBC repository index ([details][repositories]).
-| `version` | The version of MariaDB JDBC to use. Candidate versions can be found in [this listing][].
+| `repository_root` | The URL of the Container Customizer repository index ([details][repositories]).
+| `version` | The version of Container Customizer to use. Candidate versions can be found in [this listing][].
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/container_customizer.yml`]: ../config/container_customizer.yml
