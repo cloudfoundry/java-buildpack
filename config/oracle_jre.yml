@@ -21,7 +21,7 @@
 ---
 jre:
   version: 1.8.0_+
-  repository_root: "https://dl.dropboxusercontent.com/u/5917110/server-jre-8u92-linux-x64.tar.gz"
+  repository_root: "http://ec2-52-90-30-129.compute-1.amazonaws.com/"
 memory_calculator:
   version: 2.+
   repository_root: ! '{default.repository.root}/memory-calculator/{platform}/{architecture}'
