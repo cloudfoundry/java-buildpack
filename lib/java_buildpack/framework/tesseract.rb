@@ -34,14 +34,14 @@ module JavaBuildpack
           @droplet.copy_resources
           shell "mkdir #{@droplet.sandbox}/vendor"
           shell "tar xzf #{@droplet.sandbox}/tesseract-archive.tar.gz -C #{@droplet.sandbox}/vendor --strip-components=1 2>&1"
-
-          @droplet.environment_variables.add_environment_variable 'PATH', @droplet.sandbox + "vendor:$PATH"
-          @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + "vendor/lib:$PATH"
+          shell "rm #{@droplet.sandbox}/tesseract-archive.tar.gz"
         end
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        @droplet.environment_variables.add_environment_variable 'PATH', @droplet.sandbox + "/vendor:$PATH"
+        @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + "/vendor/libs:$LD_LIBRARY_PATH"
         #shell "export PATH=\"#{@droplet.sandbox}/vendor:\$PATH\""
         #credentials = @application.services.find_service(FILTER)['credentials']
         #java_opts   = @droplet.java_opts
