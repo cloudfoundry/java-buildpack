@@ -42,7 +42,7 @@ module JavaBuildpack
       def release
         @droplet.environment_variables.add_environment_variable 'PATH', "/home/vcap/app/.java-buildpack/tesseract/vendor/:$PATH"
         @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', "/home/vcap/app/.java-buildpack/tesseract/vendor/libs:$LD_LIBRARY_PATH"
-        @droplet.environment_variables.add_environment_variable 'CLASSPATH', "/home/vcap/app/.java-buildpack/tesseract/vendor/libs:$CLASSPATH"
+        #@droplet.environment_variables.add_environment_variable 'CLASSPATH', "/home/vcap/app/.java-buildpack/tesseract/vendor/libs:$CLASSPATH"
         @droplet.environment_variables.add_environment_variable 'TESSEARCT_DATA_PATH', "/home/vcap/app/.java-buildpack/tesseract/vendor/tesseract-ocr"
         #shell "export PATH=\"#{@droplet.sandbox}/vendor:\$PATH\""
         #credentials = @application.services.find_service(FILTER)['credentials']
