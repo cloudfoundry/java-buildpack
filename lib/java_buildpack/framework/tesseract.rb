@@ -41,7 +41,8 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.environment_variables.add_environment_variable 'PATH', @droplet.sandbox + "/vendor:$PATH"
-        @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + "/vendor/libs"
+        @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + "/vendor/libs:$LD_LIBRARY_PATH"
+        @droplet.environment_variables.add_environment_variable 'CLASSPATH', @droplet.sandbox + "/vendor/libs:$CLASSPATH"
         #shell "export PATH=\"#{@droplet.sandbox}/vendor:\$PATH\""
         #credentials = @application.services.find_service(FILTER)['credentials']
         #java_opts   = @droplet.java_opts
