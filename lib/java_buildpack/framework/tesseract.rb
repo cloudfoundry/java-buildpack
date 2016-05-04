@@ -53,7 +53,7 @@ module JavaBuildpack
         #         .add_system_property('newrelic.home', @droplet.sandbox)
         #java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
         @droplet.environment_variables.add_environment_variable 'PATH', "#{@droplet.sandbox}/vendor:$PATH"
-        @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', "#{@droplet.sandbox}/vendor:$PATH"
+        @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', "#{@droplet.sandbox}/vendor/lib:$PATH"
       end
 
       protected
