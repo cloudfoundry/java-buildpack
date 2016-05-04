@@ -28,7 +28,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        with_timing "Expanding tesseract ocr" do
+        with_timing "Expanding Tesseract OCR" do
           @droplet.copy_resources
           shell "mkdir #{@droplet.sandbox}/vendor"
           shell "tar xzf #{@droplet.sandbox}/tesseract-archive.tar.gz -C #{@droplet.sandbox}/vendor --strip-components=1 2>&1"
