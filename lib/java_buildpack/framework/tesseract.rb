@@ -24,8 +24,6 @@ module JavaBuildpack
 
       def detect
         true
-        #logger = Logging::LoggerFactory.instance.get_logger Buildpack
-        #logger.debug { "************got into my detect *********" }
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -42,59 +40,15 @@ module JavaBuildpack
       def release
         @droplet.environment_variables.add_environment_variable 'PATH', "/home/vcap/app/.java-buildpack/tesseract/vendor/:$PATH"
         @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', "/home/vcap/app/.java-buildpack/tesseract/vendor/libs:$LD_LIBRARY_PATH"
-        #@droplet.environment_variables.add_environment_variable 'CLASSPATH', "/home/vcap/app/.java-buildpack/tesseract/vendor/libs:$CLASSPATH"
         @droplet.environment_variables.add_environment_variable 'TESSEARCT_DATA_PATH', "/home/vcap/app/.java-buildpack/tesseract/vendor/tesseract-ocr"
-        #shell "export PATH=\"#{@droplet.sandbox}/vendor:\$PATH\""
-        #credentials = @application.services.find_service(FILTER)['credentials']
-        #java_opts   = @droplet.java_opts
-        #configuration = {}
-
-        #apply_configuration(credentials, configuration)
-        #apply_user_configuration(credentials, configuration)
-        #write_java_opts(java_opts, configuration)
-
-        #java_opts.add_javaagent(@droplet.sandbox + jar_name)
-        #         .add_system_property('newrelic.home', @droplet.sandbox)
-        #java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
-        #@droplet.environment_variables.add_environment_variable 'PATH', @droplet.sandbox + "vendor:$PATH"
-        #@droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + "vendor/lib:$PATH"
+        
       end
 
       protected
 
-      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         true
       end
-
-      # private
-
-      # FILTER = /newrelic/.freeze
-
-      # LICENSE_KEY = 'licenseKey'.freeze
-
-      # LICENSE_KEY_USER = 'license_key'.freeze
-
-      # private_constant :FILTER, :LICENSE_KEY, :LICENSE_KEY_USER
-
-      # def apply_configuration(credentials, configuration)
-      #   configuration['log_file_name'] = 'STDOUT'
-      #   configuration[LICENSE_KEY_USER] = credentials[LICENSE_KEY]
-      #   configuration['app_name'] = @application.details['space_name'].concat('-').concat(@application.details['application_name'])
-      # end
-
-      # def apply_user_configuration(credentials, configuration)
-      #   credentials.each do |key, value|
-      #     configuration[key] = value
-      #   end
-      # end
-
-      # def write_java_opts(java_opts, configuration)
-      #   configuration.each do |key, value|
-      #     java_opts.add_system_property("newrelic.config.#{key}", value)
-      #   end
-      # end
-
     end
 
   end
