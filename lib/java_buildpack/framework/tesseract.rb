@@ -35,6 +35,8 @@ module JavaBuildpack
           shell "mkdir #{@droplet.sandbox}/vendor"
           shell "tar xzf #{@droplet.sandbox}/tesseract-archive.tar.gz -C #{@droplet.sandbox}/vendor --strip-components=1 2>&1"
 
+          @droplet.environment_variables.add_environment_variable 'PATH', @droplet.sandbox + "vendor:$PATH"
+          @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + "vendor/lib:$PATH"
         end
       end
 
@@ -52,8 +54,8 @@ module JavaBuildpack
         #java_opts.add_javaagent(@droplet.sandbox + jar_name)
         #         .add_system_property('newrelic.home', @droplet.sandbox)
         #java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
-        @droplet.environment_variables.add_environment_variable 'PATH', "#{@droplet.sandbox}/vendor:$PATH"
-        @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', "#{@droplet.sandbox}/vendor/lib:$PATH"
+        #@droplet.environment_variables.add_environment_variable 'PATH', @droplet.sandbox + "vendor:$PATH"
+        #@droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + "vendor/lib:$PATH"
       end
 
       protected
