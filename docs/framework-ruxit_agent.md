@@ -1,6 +1,6 @@
+# Dynatrace Ruxit Agent Framework
 [Dynatrace Ruxit](http://www.dynatrace.com/en/ruxit/) is your full stack monitoring solution - powered by artificial intelligence. Dynatrace Ruxit allows you insights into all application requests from the users click in the browser down to the database statement and code-level.
 
-# Dynatrace Ruxit Agent Framework
 The Ruxit Agent Framework causes an application to be automatically configured to work with a bound [Ruxit Service][] instance (Free trials available).
 
 <table>
@@ -19,7 +19,7 @@ The Ruxit Agent Framework causes an application to be automatically configured t
 Tags are printed to standard output by the buildpack detect script
 
 ## User-Provided Service
-Users may optionally provide their own Ruxit service. A user-provided Ruxit service must have a name or tag with `ruxit` in it so that the Ruxit Agent Framework will automatically configure the application to work with the service.
+Users must provide their own Ruxit service. A user-provided Ruxit service must have a name or tag with `ruxit` in it so that the Ruxit Agent Framework will automatically configure the application to work with the service.
 
 The credential payload of the service may contain the following entries:
 
