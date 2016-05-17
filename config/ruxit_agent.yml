@@ -16,4 +16,4 @@
 # Configuration for the Ruxit framework
 ---
 version: 1.+
-repository_root: http://download.ruxit.com/agent/paas/cloudfoundry/java
+repository_root: https://download.ruxit.com/agent/paas/cloudfoundry/java
