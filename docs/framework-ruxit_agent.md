@@ -1,4 +1,6 @@
-# Ruxit Agent Framework
+# Dynatrace Ruxit Agent Framework
+[Dynatrace Ruxit](http://www.dynatrace.com/en/ruxit/) is your full stack monitoring solution - powered by artificial intelligence. Dynatrace Ruxit allows you insights into all application requests from the users click in the browser down to the database statement and code-level.
+
 The Ruxit Agent Framework causes an application to be automatically configured to work with a bound [Ruxit Service][] instance (Free trials available).
 
 <table>
@@ -16,8 +18,8 @@ The Ruxit Agent Framework causes an application to be automatically configured t
 </table>
 Tags are printed to standard output by the buildpack detect script
 
-## User-Provided Service (Optional)
-Users may optionally provide their own Ruxit service. A user-provided Ruxit service must have a name or tag with `ruxit` in it so that the Ruxit Agent Framework will automatically configure the application to work with the service.
+## User-Provided Service
+Users must provide their own Ruxit service. A user-provided Ruxit service must have a name or tag with `ruxit` in it so that the Ruxit Agent Framework will automatically configure the application to work with the service.
 
 The credential payload of the service may contain the following entries:
 
@@ -39,9 +41,12 @@ The framework can be configured by modifying the [`config/ruxit_agent.yml`][] fi
 | `repository_root` | The URL of the Ruxit repository index ([details][repositories]).
 | `version` | The version of Ruxit to use. Candidate versions can be found in [this listing][].
 
+## Support
+This buildpack is currently Beta. If you have any questions or problems regarding the build pack itself please don't hesitate to contact Dynatrace Ruxit on https://answers.ruxit.com/, be sure to use "cloudfoundry" as a topic.
+
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/ruxit_agent.yml`]: ../config/ruxit_agent.yml
-[Ruxit Service]: https://ruxit.com
+[Ruxit Service]: http://www.dynatrace.com/en/ruxit/
 [repositories]: extending-repositories.md
-[this listing]: http://download.ruxit.com/agent/paas/cloudfoundry/java/index.yml
+[this listing]: https://download.ruxit.com/agent/paas/cloudfoundry/java/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
