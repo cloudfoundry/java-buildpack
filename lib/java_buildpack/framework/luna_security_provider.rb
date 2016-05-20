@@ -28,7 +28,9 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download(@version, @uri) { |file| expand file }
+        download_tar
+        setup_ext_dir
+
         @droplet.copy_resources
 
         credentials = @application.services.find_service(FILTER)['credentials']
@@ -63,59 +65,48 @@ module JavaBuildpack
         @droplet.sandbox + 'Chrystoki.conf'
       end
 
-      def cklog(root)
-        Dir[root + 'cklog-*.x86_64.rpm'][0]
-      end
-
       def client_certificate
-        @droplet.sandbox + 'usr/safenet/lunaclient/cert/client/client-certificate.pem'
+        @droplet.sandbox + 'client-certificate.pem'
       end
 
       def client_private_key
-        @droplet.sandbox + 'usr/safenet/lunaclient/cert/client/client-private-key.pem'
+        @droplet.sandbox + 'client-private-key.pem'
       end
 
-      def expand(file)
-        with_timing "Expanding Luna Client to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
-          Dir.mktmpdir do |root|
-            root = Pathname.new(root)
+      def ext_dir
+        @droplet.sandbox + 'ext'
+      end
 
-            FileUtils.mkdir_p root
-            shell "tar x#{compression_flag(file)}f #{file.path} -C #{root} --strip 3 2>&1"
+      def luna_provider_jar
+        @droplet.sandbox + 'jsp/LunaProvider.jar'
+      end
 
-            install_client root
-          end
+      def luna_api_so
+        @droplet.sandbox + 'jsp/64/libLunaAPI.so'
+      end
+
+      def lib_cryptoki
+        @droplet.sandbox + 'libs/64/libCryptoki2.so'
+      end
+
+      def lib_cklog
+        @droplet.sandbox + 'libs/64/libcklog2.so'
+      end
+
+      def setup_ext_dir
+        FileUtils.mkdir ext_dir
+        [luna_provider_jar, luna_api_so].each do |file|
+          FileUtils.ln_s file.relative_path_from(ext_dir), ext_dir, force: true
         end
       end
 
       def ext_dirs
         "#{qualify_path(@droplet.java_home.root + 'lib/ext', @droplet.root)}:" \
-        "#{qualify_path(@droplet.sandbox + 'usr/safenet/lunaclient/jsp/lib', @droplet.root)}"
-      end
-
-      def install_client(root)
-        FileUtils.mkdir_p @droplet.sandbox
-
-        Dir.chdir(@droplet.sandbox) do
-          shell "#{rpm2cpio} < #{libcrpytoki root} | cpio -id ./usr/safenet/lunaclient/lib/libCryptoki2_64.so"
-          shell "#{rpm2cpio} < #{lunajsp root} | cpio -id ./usr/safenet/lunaclient/jsp/lib/*"
-
-          if logging?
-            shell "#{rpm2cpio} < #{cklog root} | cpio -id ./usr/safenet/lunaclient/lib/libcklog2.so"
-          end
-        end
-      end
-
-      def libcrpytoki(root)
-        Dir[root + 'libcryptoki-*.x86_64.rpm'][0]
+        "#{qualify_path(ext_dir, @droplet.root)}"
       end
 
       def logging?
         @configuration['logging_enabled']
-      end
-
-      def lunajsp(root)
-        Dir[root + 'lunajsp-*.x86_64.rpm'][0]
       end
 
       def padded_index(index)
@@ -126,12 +117,8 @@ module JavaBuildpack
         path.relative_path_from(@droplet.root)
       end
 
-      def rpm2cpio
-        Pathname.new(File.expand_path('../rpm2cpio.py', __FILE__))
-      end
-
       def server_certificates
-        @droplet.sandbox + 'usr/safenet/lunaclient/cert/server/server-certificates.pem'
+        @droplet.sandbox + 'server-certificates.pem'
       end
 
       def write_client(client)
@@ -191,7 +178,7 @@ EOS
           write_logging(f)
         else
           f.write <<EOS
-  LibUNIX64 = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/lib/libCryptoki2_64.so')};
+  LibUNIX64 = #{relative(lib_cryptoki)};
 }
 EOS
         end
@@ -199,12 +186,12 @@ EOS
 
       def write_logging(f)
         f.write <<EOS
-  LibUNIX64 = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/lib/libcklog2.so')};
+  LibUNIX64 = #{relative(lib_cklog)};
 }
 
 CkLog2 = {
   Enabled      = 1;
-  LibUNIX64    = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/lib/libCryptoki2_64.so')};
+  LibUNIX64    = #{relative(lib_cryptoki)};
   LoggingMask  = ALL_FUNC;
   LogToStreams = 1;
   NewFormat    = 1;
@@ -220,11 +207,10 @@ EOS
 LunaSA Client = {
   NetClient = 1;
 
-  ClientCertFile    = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/cert/client/client-certificate.pem')};
-  ClientPrivKeyFile = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/cert/client/client-private-key.pem')};
-  HtlDir            = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/htl')};
-  ServerCAFile      = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/cert/server/server-certificates.pem')};
-  SSLConfigFile     = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/bin/openssl.cnf')};
+  ClientCertFile    = #{relative(client_certificate)};
+  ClientPrivKeyFile = #{relative(client_private_key)};
+  HtlDir            = #{relative(@droplet.sandbox + 'htl')};
+  ServerCAFile      = #{relative(server_certificates)};
 
 EOS
       end
