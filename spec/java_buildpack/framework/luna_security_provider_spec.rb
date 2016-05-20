@@ -77,9 +77,10 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
 
       component.compile
 
-      expect(sandbox + 'usr/safenet/lunaclient/lib/libCryptoki2_64.so').to exist
-      expect(sandbox + 'usr/safenet/lunaclient/jsp/lib/stub.file').to exist
-      expect(sandbox + 'usr/safenet/lunaclient/lib/libcklog2.so').not_to exist
+      expect(sandbox + 'libs/64/libCryptoki2.so').to exist
+      expect(sandbox + 'libs/64/libcklog2.so').to exist
+      expect(sandbox + 'jsp/LunaProvider.jar').to exist
+      expect(sandbox + 'jsp/64/libLunaAPI.so').to exist
     end
 
     it 'write certificate files',
@@ -87,15 +88,15 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
 
       component.compile
 
-      expect(sandbox + 'usr/safenet/lunaclient/cert/client/client-certificate.pem').to exist
-      expect(sandbox + 'usr/safenet/lunaclient/cert/client/client-private-key.pem').to exist
-      expect(sandbox + 'usr/safenet/lunaclient/cert/server/server-certificates.pem').to exist
+      expect(sandbox + 'client-certificate.pem').to exist
+      expect(sandbox + 'client-private-key.pem').to exist
+      expect(sandbox + 'server-certificates.pem').to exist
 
-      check_file_contents(sandbox + 'usr/safenet/lunaclient/cert/client/client-certificate.pem',
+      check_file_contents(sandbox + 'client-certificate.pem',
                           'spec/fixtures/framework_luna_security_provider/client-certificate.pem')
-      check_file_contents(sandbox + 'usr/safenet/lunaclient/cert/client/client-private-key.pem',
+      check_file_contents(sandbox + 'client-private-key.pem',
                           'spec/fixtures/framework_luna_security_provider/client-private-key.pem')
-      check_file_contents(sandbox + 'usr/safenet/lunaclient/cert/server/server-certificates.pem',
+      check_file_contents(sandbox + 'server-certificates.pem',
                           'spec/fixtures/framework_luna_security_provider/server-certificates.pem')
     end
 
@@ -118,21 +119,11 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
       expect(java_opts).to include('-Djava.security.properties=$PWD/.java-buildpack/' \
                                    'luna_security_provider/java.security')
       expect(java_opts).to include('-Djava.ext.dirs=$PWD/.test-java-home/lib/ext:$PWD/.java-buildpack/' \
-                                   'luna_security_provider/usr/safenet/lunaclient/jsp/lib')
+                                   'luna_security_provider/ext')
     end
 
     context do
       let(:configuration) { { 'logging_enabled' => true } }
-
-      it 'unpacks the luna tar',
-         cache_fixture: 'stub-luna-security-provider.tar' do
-
-        component.compile
-
-        expect(sandbox + 'usr/safenet/lunaclient/lib/libCryptoki2_64.so').to exist
-        expect(sandbox + 'usr/safenet/lunaclient/jsp/lib/stub.file').to exist
-        expect(sandbox + 'usr/safenet/lunaclient/lib/libcklog2.so').to exist
-      end
 
       it 'writes configuration',
          cache_fixture: 'stub-luna-security-provider.tar' do

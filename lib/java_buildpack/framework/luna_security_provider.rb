@@ -28,7 +28,6 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-
         download_tar
         setup_ext_dir
 
@@ -67,11 +66,11 @@ module JavaBuildpack
       end
 
       def client_certificate
-        @droplet.sandbox + 'usr/safenet/lunaclient/cert/client/client-certificate.pem'
+        @droplet.sandbox + 'client-certificate.pem'
       end
 
       def client_private_key
-        @droplet.sandbox + 'usr/safenet/lunaclient/cert/client/client-private-key.pem'
+        @droplet.sandbox + 'client-private-key.pem'
       end
 
       def ext_dir
@@ -91,14 +90,13 @@ module JavaBuildpack
       end
 
       def lib_cklog
-        sandbox + 'libs/64/libcklog2.so'
+        @droplet.sandbox + 'libs/64/libcklog2.so'
       end
 
       def setup_ext_dir
         FileUtils.mkdir ext_dir
-        files = [luna_provider_jar, luna_api_so]
-        files.each do |file|
-          FileUtils.ln_s file.relative_path_from(ext_dir), ext_dir, :force => true
+        [luna_provider_jar, luna_api_so].each do |file|
+          FileUtils.ln_s file.relative_path_from(ext_dir), ext_dir, force: true
         end
       end
 
@@ -120,7 +118,7 @@ module JavaBuildpack
       end
 
       def server_certificates
-        @droplet.sandbox + 'usr/safenet/lunaclient/cert/server/server-certificates.pem'
+        @droplet.sandbox + 'server-certificates.pem'
       end
 
       def write_client(client)
@@ -209,11 +207,10 @@ EOS
 LunaSA Client = {
   NetClient = 1;
 
-  ClientCertFile    = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/cert/client/client-certificate.pem')};
-  ClientPrivKeyFile = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/cert/client/client-private-key.pem')};
-  HtlDir            = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/htl')};
-  ServerCAFile      = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/cert/server/server-certificates.pem')};
-  SSLConfigFile     = #{relative(@droplet.sandbox + 'usr/safenet/lunaclient/bin/openssl.cnf')};
+  ClientCertFile    = #{relative(client_certificate)};
+  ClientPrivKeyFile = #{relative(client_private_key)};
+  HtlDir            = #{relative(@droplet.sandbox + 'htl')};
+  ServerCAFile      = #{relative(server_certificates)};
 
 EOS
       end
