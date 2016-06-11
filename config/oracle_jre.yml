@@ -27,9 +27,9 @@ memory_calculator:
   repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
   stack_threads: 300
   memory_sizes:
-    heap:
+    heap: 
     metaspace: 64m..
-    native:
+    native: 
     permgen: 64m..
     stack: 228k..
   memory_heuristics:
