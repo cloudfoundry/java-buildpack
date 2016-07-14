@@ -27,14 +27,11 @@ containers:
 
 # In order to use Oracle JREs instead of OpenJDK, you must comment out the OpenJDK line and uncomment the Oracle line.
 # In order to use Zulu JREs instead of OpenJDK, you must comment out the OpenJDK line and uncomment the Zulu line.
-# To use Zulu JRE instead of OpenJDK without forking java-buildpack, set environment variable:
-# cf set-env <app_name> JBP_CONFIG_COMPONENTS '{jres: ["JavaBuildpack::Jre::ZuluJRE"]}'
-# cf restage <app_name>
 # Please see the documentation for more detail.
 jres:
   - "JavaBuildpack::Jre::OpenJdkJRE"
-# -  "JavaBuildpack::Jre::ZuluJRE"
 # - "JavaBuildpack::Jre::OracleJRE"
+# - "JavaBuildpack::Jre::ZuluJRE"
 
 # Frameworks are processed in order. Any Java Opts added by the JavaOpts framework will be specified in the start
 # command after any Java Opts added by previous frameworks.

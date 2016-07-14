@@ -21,7 +21,7 @@
 ---
 jre:
   version: 1.8.0_+
-  repository_root: "http://cdn.azul.com/zulu/bin"
+  repository_root: "https://cdn.azul.com/zulu/bin"
 memory_calculator:
   version: 2.+
   repository_root: ! '{default.repository.root}/memory-calculator/{platform}/{architecture}'
