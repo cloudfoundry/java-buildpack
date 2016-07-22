@@ -35,8 +35,10 @@ describe JavaBuildpack::Container::TomcatLoggingSupport do
     expect(sandbox + "endorsed/tomcat_logging_support-#{version}.jar").to exist
   end
 
-  it 'does nothing during release' do
+  it 'sets java.endorsed.dirs during release' do
     component.release
+
+    expect(java_opts).to include('-Djava.endorsed.dirs=$PWD/.java-buildpack/tomcat/endorsed')
   end
 
 end
