@@ -26,10 +26,12 @@ containers:
   - "JavaBuildpack::Container::Tomcat"
 
 # In order to use Oracle JREs instead of OpenJDK, you must comment out the OpenJDK line and uncomment the Oracle line.
+# In order to use Zulu JREs instead of OpenJDK, you must comment out the OpenJDK line and uncomment the Zulu line.
 # Please see the documentation for more detail.
 jres:
   - "JavaBuildpack::Jre::OpenJdkJRE"
 # - "JavaBuildpack::Jre::OracleJRE"
+# - "JavaBuildpack::Jre::ZuluJRE"
 
 # Frameworks are processed in order. Any Java Opts added by the JavaOpts framework will be specified in the start
 # command after any Java Opts added by previous frameworks.
