@@ -29,7 +29,7 @@ describe JavaBuildpack::Framework::RuxitAgent do
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/ruxit/, 'tenant', 'tenanttoken').and_return(true)
+      allow(services).to receive(:one_service?).with(/ruxit|dynatrace/, 'tenant', 'tenanttoken').and_return(true)
     end
 
     it 'detects with ruxit-n/a service' do

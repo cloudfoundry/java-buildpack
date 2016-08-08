@@ -62,7 +62,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /ruxit/.freeze
+      FILTER = /ruxit|dynatrace/.freeze
 
       RUXIT_APPLICATION_ID = 'RUXIT_APPLICATIONID'.freeze
 

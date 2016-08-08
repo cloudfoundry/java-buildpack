@@ -41,7 +41,9 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, 'server'
+        (@application.services.one_service? FILTER, 'server') &&
+        !(@application.services.one_service? FILTER, 'tenant') &&
+        !(@application.services.one_service? FILTER, 'tenanttoken')
       end
 
       private
