@@ -37,6 +37,7 @@ module JavaBuildpack
         .add_javaagent(@droplet.sandbox + jar_name)
         .add_system_property('newrelic.home', @droplet.sandbox)
         .add_system_property('newrelic.config.license_key', license_key)
+        .add_system_property('newrelic.config.agent_enabled', agent_enabled)
         .add_system_property('newrelic.config.app_name', "'#{application_name}'")
         .add_system_property('newrelic.config.log_file_path', logs_dir)
         .add_system_property('newrelic.config.log_level', "info")
@@ -69,6 +70,10 @@ module JavaBuildpack
 
       def license_key
         @application.services.find_service(FILTER)['credentials']['licenseKey']
+      end
+
+      def agent_enabled
+        ENV['agent_enabled']
       end
 
       def logs_dir
