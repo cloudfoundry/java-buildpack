@@ -19,7 +19,7 @@ common: &default_settings
   # Agent Enabled
   # Use this setting to force the agent to run or not run.
   # Default is true.
-  # agent_enabled: true
+  agent_enabled: ''
 
   # Set to true to enable support for auto app naming.
   # The name of each web app is detected automatically
