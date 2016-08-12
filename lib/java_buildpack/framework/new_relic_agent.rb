@@ -73,7 +73,8 @@ module JavaBuildpack
       end
 
       def agent_enabled
-        ENV['agent_enabled']
+         enabled = ENV['new_relic_agent_enabled']
+         enabled.to_s == '' ? false : enabled
       end
 
       def logs_dir
