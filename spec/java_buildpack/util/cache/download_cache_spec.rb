@@ -172,7 +172,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   context do
 
-    let(:environment) { { 'http_proxy' => 'http://proxy:9000' } }
+    let(:environment) { { 'http_proxy' => 'http://proxy:9000', 'HTTP_PROXY' => nil } }
 
     it 'uses http_proxy if specified' do
       stub_request(:get, uri)
@@ -189,7 +189,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   context do
 
-    let(:environment) { { 'HTTP_PROXY' => 'http://proxy:9000' } }
+    let(:environment) { { 'HTTP_PROXY' => 'http://proxy:9000', 'http_proxy' => nil } }
 
     it 'uses HTTP_PROXY if specified' do
       stub_request(:get, uri)
@@ -206,7 +206,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   context do
 
-    let(:environment) { { 'https_proxy' => 'http://proxy:9000' } }
+    let(:environment) { { 'https_proxy' => 'http://proxy:9000', 'HTTPS_PROXY' => nil } }
 
     it 'uses https_proxy if specified and URL is secure' do
       stub_request(:get, uri_secure)
@@ -223,7 +223,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   context do
 
-    let(:environment) { { 'HTTPS_PROXY' => 'http://proxy:9000' } }
+    let(:environment) { { 'HTTPS_PROXY' => 'http://proxy:9000', 'https_proxy' => nil } }
 
     it 'uses HTTPS_PROXY if specified and URL is secure' do
       stub_request(:get, uri_secure)

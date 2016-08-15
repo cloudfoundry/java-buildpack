@@ -26,7 +26,6 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        FileUtils.mkdir_p logs_dir
         download_jar
         @droplet.copy_resources
       end
@@ -51,7 +50,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, 'licenseKey'
+        @application.services.one_service? FILTER, [LICENSE_KEY, LICENSE_KEY_USER]
       end
 
       p
@@ -59,20 +58,37 @@ module JavaBuildpack
       FILTER = /newrelic/.freeze
       PROXY_FILTER = /proxy/.freeze
 
+<<<<<<< HEAD
       private_constant :FILTER
       private_constant :PROXY_FILTER
 
       def application_name
         # @application.details['new_relic_application_name']
         ENV['new_relic_application_name']
+=======
+      LICENSE_KEY = 'licenseKey'.freeze
+
+      LICENSE_KEY_USER = 'license_key'.freeze
+
+      private_constant :FILTER, :LICENSE_KEY, :LICENSE_KEY_USER
+
+      def apply_configuration(credentials, configuration)
+        configuration['log_file_name'] = 'STDOUT'
+        configuration[LICENSE_KEY_USER] = credentials[LICENSE_KEY]
+        configuration['app_name'] = @application.details['application_name']
+>>>>>>> tags/v3.6
       end
 
-      def license_key
-        @application.services.find_service(FILTER)['credentials']['licenseKey']
+      def apply_user_configuration(credentials, configuration)
+        credentials.each do |key, value|
+          configuration[key] = value
+        end
       end
 
-      def logs_dir
-        @droplet.sandbox + 'logs'
+      def write_java_opts(java_opts, configuration)
+        configuration.each do |key, value|
+          java_opts.add_system_property("newrelic.config.#{key}", value)
+        end
       end
 
       def proxy_host

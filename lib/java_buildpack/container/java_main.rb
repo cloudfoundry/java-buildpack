@@ -18,6 +18,7 @@ require 'java_buildpack/component/base_component'
 require 'java_buildpack/container'
 require 'java_buildpack/util/dash_case'
 require 'java_buildpack/util/java_main_utils'
+require 'java_buildpack/util/qualify_path'
 
 module JavaBuildpack
   module Container
@@ -26,6 +27,7 @@ module JavaBuildpack
     # method. This isn't a _container_ in the traditional sense, but contains the functionality to manage the lifecycle
     # of Java +main()+ applications.
     class JavaMain < JavaBuildpack::Component::BaseComponent
+      include JavaBuildpack::Util
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
@@ -40,6 +42,7 @@ module JavaBuildpack
       def release
         @droplet.additional_libraries.insert 0, @application.root
         manifest_class_path.each { |path| @droplet.additional_libraries << path }
+        @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT' if boot_launcher?
 
         release_text
       end
@@ -54,10 +57,14 @@ module JavaBuildpack
 
       def release_text
         [
-          port,
-          "#{@droplet.java_home.root}/bin/java",
+          @droplet.java_opts.as_env_var,
+          '&&',
+          @droplet.environment_variables.as_env_vars,
+          'eval',
+          'exec',
+          "#{qualify_path @droplet.java_home.root, @droplet.root}/bin/java",
+          '$JAVA_OPTS',
           @droplet.additional_libraries.as_classpath,
-          @droplet.java_opts.join(' '),
           main_class,
           arguments
         ].flatten.compact.join(' ')
@@ -67,6 +74,10 @@ module JavaBuildpack
         @configuration[ARGUMENTS_PROPERTY]
       end
 
+      def boot_launcher?
+        main_class =~ /^org\.springframework\.boot\.loader\.(?:[JW]ar|Properties)Launcher$/
+      end
+
       def main_class
         JavaBuildpack::Util::JavaMainUtils.main_class(@application, @configuration)
       end
@@ -74,10 +85,6 @@ module JavaBuildpack
       def manifest_class_path
         values = JavaBuildpack::Util::JavaMainUtils.manifest(@application)[CLASS_PATH_PROPERTY]
         values.nil? ? [] : values.split(' ').map { |value| @droplet.root + value }
-      end
-
-      def port
-        main_class =~ /^org\.springframework\.boot\.loader\.(?:[JW]ar|Properties)Launcher$/ ? 'SERVER_PORT=$PORT' : nil
       end
 
     end

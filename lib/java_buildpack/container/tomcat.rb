@@ -23,6 +23,7 @@ require 'java_buildpack/container/tomcat/tomcat_logging_support'
 require 'java_buildpack/container/tomcat/tomcat_access_logging_support'
 require 'java_buildpack/container/tomcat/tomcat_redis_store'
 require 'java_buildpack/container/tomcat/tomcat_gemfire_store'
+require 'java_buildpack/util/java_main_utils'
 
 module JavaBuildpack
   module Container
@@ -37,8 +38,10 @@ module JavaBuildpack
         @droplet.java_opts.add_system_property 'http.port', '$PORT'
 
         [
+          @droplet.environment_variables.as_env_vars,
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
+          'exec',
           "$PWD/#{(@droplet.sandbox + 'bin/catalina.sh').relative_path_from(@droplet.root)}",
           'run'
         ].flatten.compact.join(' ')

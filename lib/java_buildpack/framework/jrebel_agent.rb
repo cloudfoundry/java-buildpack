@@ -24,36 +24,49 @@ module JavaBuildpack
     # Encapsulates the functionality for enabling zero-touch JRebel support.
     class JrebelAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
+      def initialize(context, &version_validator)
+        super(context, &version_validator)
+        @component_name = 'JRebel Agent'
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_zip false
-        FileUtils.mv(download_location + 'jrebel.jar', @droplet.sandbox + jar_name)
-        FileUtils.remove_dir(download_location, true)
+        download_zip
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.java_opts
-          .add_javaagent(@droplet.sandbox + jar_name)
-          .add_bootclasspath_p(@droplet.sandbox + jar_name)
+          .add_agentpath(@droplet.sandbox + ('lib/' + lib_name))
           .add_system_property('rebel.remoting_plugin', true)
+          .add_system_property('rebel.log', true)
+          .add_system_property('rebel.cloud.platform', 'cloudfoundry/java-buildpack')
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        jrebel_configured?(@application.root) || jrebel_configured?(@application.root + 'WEB-INF/classes')
+        jrebel_configured?(@application.root) || jrebel_configured?(@application.root + 'WEB-INF/classes') ||
+          jars_with_jrebel_configured?(@application.root)
       end
 
       private
 
       def jrebel_configured?(root_path)
-        (root_path + 'rebel.xml').exist? && (root_path + 'rebel-remote.xml').exist?
+        (root_path + 'rebel-remote.xml').exist?
       end
 
-      def download_location
-        @droplet.sandbox + 'jrebel'
+      def jars_with_jrebel_configured?(root_path)
+        (root_path + '**/*.jar').glob.any? { |jar| ! `unzip -l "#{jar}" | grep "rebel-remote\\.xml$"`.strip.empty? }
+      end
+
+      def lib_name
+        architecture == 'x86_64' || architecture == 'i686' ? 'libjrebel64.so' : 'libjrebel32.so'
+      end
+
+      def architecture
+        `uname -m`.strip
       end
 
     end

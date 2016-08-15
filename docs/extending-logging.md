@@ -24,7 +24,7 @@ logger.debug { "#{costly_method}" }
 ```
 
 ## Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
+For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
 The console logging severity filter is set to `DEBUG`, `INFO`, `WARN`, `ERROR`, `FATAL` using the following strategies in descending priority:
 

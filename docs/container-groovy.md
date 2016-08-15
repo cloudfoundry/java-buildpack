@@ -22,7 +22,7 @@ Tags are printed to standard output by the buildpack detect script
 Any JAR files found in the application are automatically added to the classpath at runtime.
 
 ## Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
+For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
 The container can be configured by modifying the [`config/groovy.yml`][] file in the buildpack fork.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 

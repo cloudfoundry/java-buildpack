@@ -47,7 +47,7 @@ module JavaBuildpack
         #
         # @param [Boolean] available whether the internet is available
         # @param [String, nil] message an optional message to be printed when the availability is set
-        # @yields an environment with internet availability temporarily overridden if block given
+        # @yield an environment with internet availability temporarily overridden if block given
         def available(available, message = nil)
           @monitor.synchronize do
             if block_given?

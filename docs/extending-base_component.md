@@ -48,7 +48,7 @@ def release
 # @param [String] uri
 # @param [String] name an optional name for the download.  Defaults to +@component_name+.
 # @return [Void]
-def download(version, uri, name = @component_name, &block)
+def download(version, uri, name = @component_name)
 
 # Downloads a given JAR file and stores it.
 #
@@ -57,6 +57,7 @@ def download(version, uri, name = @component_name, &block)
 # @param [String] jar_name the name to save the jar as
 # @param [Pathname] target_directory the directory to store the JAR file in.  Defaults to the component's sandbox.
 # @param [String] name an optional name for the download.  Defaults to +@component_name+.
+# @return [Void]
 def download_jar(version, uri, jar_name, target_directory = @droplet.sandbox, name = @component_name)
 
 # Downloads a given TAR file and expands it.
@@ -65,6 +66,7 @@ def download_jar(version, uri, jar_name, target_directory = @droplet.sandbox, na
 # @param [String] uri the uri of the download
 # @param [Pathname] target_directory the directory to expand the TAR file to.  Defaults to the component's sandbox.
 # @param [String] name an optional name for the download and expansion.  Defaults to +@component_name+.
+# @return [Void]
 def download_tar(version, uri, target_directory = @droplet.sandbox, name = @component_name)
 
 # Downloads a given ZIP file and expands it.
@@ -72,11 +74,13 @@ def download_tar(version, uri, target_directory = @droplet.sandbox, name = @comp
 # @param [Boolean] strip_top_level whether to strip the top-level directory when expanding. Defaults to +true+.
 # @param [Pathname] target_directory the directory to expand the ZIP file to.  Defaults to the component's sandbox.
 # @param [String] name an optional name for the download.  Defaults to +@component_name+.
+# @return [Void]
 def download_zip(version, uri, strip_top_level = true, target_directory = @droplet.sandbox, name = @component_name)
 
 # Wrap the execution of a block with timing information
 #
 # @param [String] caption the caption to print when timing starts
+# @return [Void]
 def with_timing(caption)
 ```
 

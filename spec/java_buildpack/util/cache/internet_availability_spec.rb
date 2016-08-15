@@ -41,14 +41,18 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
     end
   end
 
-  it 'records availability' do
+  it 'records availability',
+     :enable_log_file do
+
     described_class.instance.available false
 
     expect(described_class.instance.available?).not_to be
     expect(log_contents).not_to match(/Internet availability set to false/)
   end
 
-  it 'records availability with message' do
+  it 'records availability with message',
+     :enable_log_file do
+
     described_class.instance.available false, 'test message'
 
     expect(described_class.instance.available?).not_to be

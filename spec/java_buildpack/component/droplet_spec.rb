@@ -41,6 +41,10 @@ describe JavaBuildpack::Component::Droplet do
     expect(droplet.java_opts).to equal(java_opts)
   end
 
+  it 'returns environment_variables' do
+    expect(droplet.environment_variables).to equal(environment_variables)
+  end
+
   it 'returns an existent child if in application' do
     FileUtils.touch(app_dir + 'test-file')
 

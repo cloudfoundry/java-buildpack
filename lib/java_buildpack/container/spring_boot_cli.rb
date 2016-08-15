@@ -45,10 +45,13 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT'
+
         [
+          @droplet.environment_variables.as_env_vars,
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
-          'SERVER_PORT=$PORT',
+          'exec',
           qualify_path(@droplet.sandbox + 'bin/spring', @droplet.root),
           'run',
           @droplet.additional_libraries.as_classpath,
@@ -60,7 +63,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        gf = JavaBuildpack::Util::GroovyUtils.groovy_files(@application)
+        gf = JavaBuildpack::Util::GroovyUtils.groovy_files(@application).reject { |file| logback_file? file }
         gf.length > 0 && all_pogo_or_configuration(gf) && no_main_method(gf) && no_shebang(gf) && !web_inf?
       end
 
@@ -70,6 +73,10 @@ module JavaBuildpack
         JavaBuildpack::Util::GroovyUtils.groovy_files(@application).map do |gf|
           gf.relative_path_from(@application.root)
         end
+      end
+
+      def logback_file?(path)
+        %r{ch/qos/logback/.*\.groovy$} =~ path.to_s
       end
 
       def no_main_method(groovy_files)

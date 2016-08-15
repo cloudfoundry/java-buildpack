@@ -45,7 +45,7 @@ module JavaBuildpack
 
     # Creates a new instance
     def initialize(should_log = true)
-      configuration = JavaBuildpack::Util::ConfigurationUtils.load 'version', should_log
+      configuration = JavaBuildpack::Util::ConfigurationUtils.load('version', true, should_log)
       @hash         = configuration['hash'] || hash
       @offline      = configuration['offline'] || ENV['OFFLINE'].to_b
       @remote       = configuration['remote'] || remote

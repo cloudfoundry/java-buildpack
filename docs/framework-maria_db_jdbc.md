@@ -24,7 +24,7 @@ Tags are printed to standard output by the buildpack detect script
 Users may optionally provide their own MariaDB or MySQL service. A user-provided MariaDB or MySQL service must have a name or tag with `mariadb` or `mysql` in it so that the MariaDB JDBC Framework will automatically download the JDBC driver JAR and place it on the classpath.
 
 ## Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
+For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
 The framework can be configured by modifying the [`config/maria_db_jdbc.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 

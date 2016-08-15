@@ -21,7 +21,11 @@ require 'java_buildpack/framework/app_dynamics_agent'
 describe JavaBuildpack::Framework::AppDynamicsAgent do
   include_context 'component_helper'
 
-  let(:configuration) { { 'default_tier_name' => 'test-tier-name' } }
+  let(:configuration) do
+    { 'default_tier_name'        => nil,
+      'default_node_name'        => "$(expr \"$VCAP_APPLICATION\" : '.*instance_index[\": ]*\\([[:digit:]]*\\).*')",
+      'default_application_name' => nil }
+  end
 
   it 'does not detect without app-dynamics-n/a service' do
     expect(component.detect).to be_nil
@@ -32,7 +36,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
     let(:credentials) { {} }
 
     before do
-      allow(services).to receive(:one_service?).with(/app-dynamics/, 'host-name').and_return(true)
+      allow(services).to receive(:one_service?).with(/app[-]?dynamics/, 'host-name').and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => credentials)
     end
 
@@ -61,8 +65,8 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/app_dynamics_agent/javaagent.jar')
         expect(java_opts).to include('-Dappdynamics.controller.hostName=test-host-name')
-        expect(java_opts).to include("-Dappdynamics.agent.applicationName='test-application-name'")
-        expect(java_opts).to include("-Dappdynamics.agent.tierName='test-tier-name'")
+        expect(java_opts).to include('-Dappdynamics.agent.applicationName=test-application-name')
+        expect(java_opts).to include('-Dappdynamics.agent.tierName=test-application-name')
         expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' \
                                      '\'.*instance_index[": ]*\\([[:digit:]]*\\).*\')')
       end
@@ -73,7 +77,27 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
         it 'adds tier_name from credentials to JAVA_OPTS if specified' do
           component.release
 
-          expect(java_opts).to include("-Dappdynamics.agent.tierName='another-test-tier-name'")
+          expect(java_opts).to include('-Dappdynamics.agent.tierName=another-test-tier-name')
+        end
+      end
+
+      context do
+        let(:credentials) { super().merge 'application-name' => 'another-test-application-name' }
+
+        it 'adds application_name from credentials to JAVA_OPTS if specified' do
+          component.release
+
+          expect(java_opts).to include('-Dappdynamics.agent.applicationName=another-test-application-name')
+        end
+      end
+
+      context do
+        let(:credentials) { super().merge 'node-name' => 'another-test-node-name' }
+
+        it 'adds node_name from credentials to JAVA_OPTS if specified' do
+          component.release
+
+          expect(java_opts).to include('-Dappdynamics.agent.nodeName=another-test-node-name')
         end
       end
 

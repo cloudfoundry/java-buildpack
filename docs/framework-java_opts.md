@@ -14,9 +14,8 @@ The Java Options Framework contributes arbitrary Java options to the application
 </table>
 Tags are printed to standard output by the buildpack detect script
 
-
 ## Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
+For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
 The framework can be configured by creating or modifying the [`config/java_opts.yml`][] file in the buildpack fork.
 
@@ -26,6 +25,39 @@ The framework can be configured by creating or modifying the [`config/java_opts.
 | `java_opts` | The Java options to use when running the application. All values are used without modification when invoking the JVM. The options are specified as a single YAML scalar in plain style or enclosed in single or double quotes.
 
 Any `JAVA_OPTS` from either the config file or environment variables that configure memory options will cause deployment to fail as they're not allowed. Memory options are configured by the buildpack and may not be modified.
+
+Any `JAVA_OPTS` from either the config file or environment variables will be specified in the start command after any Java Opts added by other frameworks.
+
+## Escaping strings
+
+Java options will have special characters escaped when used in the shell command that starts the Java application but the `$` and `\` characters will not be escaped. This is to allow Java options to include environment variables when the application starts.
+
+```bash
+cf set-env my-application JAVA_OPTS '-Dexample.port=$PORT'
+```
+
+If an escaped `$` or `\` character is needed in the Java options they will have to be escaped manually. For example, to obtain this output in the start command.
+
+```bash
+-Dexample.other=something.\$dollar.\\slash
+```
+
+From the command line use;
+```bash
+cf set-env my-application JAVA_OPTS '-Dexample.other=something.\\\\\$dollar.\\\\\\\slash'
+```
+
+From the [`config/java_opts.yml`][] file use;
+```yaml
+from_environment: true
+java_opts: '-Dexample.other=something.\\$dollar.\\\\slash'
+```
+
+Finally, from the applications manifest use;
+```yaml
+  env:
+    JAVA_OPTS: '-Dexample.other=something.\\\\\$dollar.\\\\\\\slash'
+```
 
 ## Example
 ```yaml

@@ -17,7 +17,7 @@
 require 'java_buildpack/component'
 require 'java_buildpack/component/services'
 require 'java_buildpack/util/filtering_pathname'
-require 'yaml'
+require 'json'
 
 module JavaBuildpack
   module Component
@@ -39,7 +39,7 @@ module JavaBuildpack
       attr_reader :environment
 
       # @!attribute [r] root
-      # @return [JavaBuildpack::Util::FilteringPathname] the root of the application's fileystem filtered so that it
+      # @return [JavaBuildpack::Util::FilteringPathname] the root of the application's filesystem filtered so that it
       #                                                  only shows files that have been uploaded by the user
       attr_reader :root
 
@@ -52,7 +52,13 @@ module JavaBuildpack
       # @param [Pathname] root the root of the application
       def initialize(root)
         initial = children(root)
-        @root   = JavaBuildpack::Util::FilteringPathname.new(root, ->(path) { initial.member? path }, false)
+
+        if Logging::LoggerFactory.instance.initialized
+          log_file = JavaBuildpack::Logging::LoggerFactory.instance.log_file
+          initial.delete(log_file)
+        end
+
+        @root = JavaBuildpack::Util::FilteringPathname.new(root, ->(path) { initial.member? path }, false)
 
         @environment = ENV.to_hash
         @details     = parse(@environment.delete('VCAP_APPLICATION'))
@@ -68,7 +74,7 @@ module JavaBuildpack
       end
 
       def parse(input)
-        input ? YAML.load(input) : {}
+        input ? JSON.load(input) : {}
       end
 
     end

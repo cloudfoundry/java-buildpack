@@ -51,6 +51,12 @@ describe JavaBuildpack::Container::SpringBootCLI do
     expect(component.detect).to be_nil
   end
 
+  it 'does not detect Logback Groovy files',
+     app_fixture: 'container_groovy_logback' do
+
+    expect(component.detect).to be_nil
+  end
+
   it 'does not detect a Groovy file which has a shebang but which also contains a class',
      app_fixture: 'container_groovy_shebang_containing_class' do
 
@@ -87,10 +93,14 @@ describe JavaBuildpack::Container::SpringBootCLI do
   it 'returns command',
      app_fixture: 'container_spring_boot_cli_valid_app' do
 
-    expect(component.release).to eq("#{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} SERVER_PORT=$PORT " \
-                                    '$PWD/.java-buildpack/spring_boot_cli/bin/spring run ' \
+    expect(component.release).to eq("#{env_vars_str} #{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} " \
+                                    'exec $PWD/.java-buildpack/spring_boot_cli/bin/spring run ' \
                                     '-cp $PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
                                     'directory/pogo_4.groovy invalid.groovy pogo_1.groovy pogo_2.groovy pogo_3.groovy')
+  end
+
+  def env_vars_str
+    "#{environment_variables.join(' ')}"
   end
 
   def java_opts_str

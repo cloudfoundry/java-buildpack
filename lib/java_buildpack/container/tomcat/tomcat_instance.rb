@@ -87,7 +87,7 @@ module JavaBuildpack
       end
 
       def expand(file)
-        with_timing "Expanding Tomcat to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
+        with_timing "Expanding #{@component_name} to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
           FileUtils.mkdir_p @droplet.sandbox
           shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 --exclude webapps 2>&1"
 
@@ -99,6 +99,8 @@ module JavaBuildpack
 
       def root
         tomcat_webapps + (ENV['app_context'] || 'ROOT')
+#        context_path = (@configuration['context_path'] || 'ROOT').sub(%r{^/}, '').gsub(%r{/}, '#')
+#        tomcat_webapps + context_path
       end
 
       def tomcat_datasource_jar

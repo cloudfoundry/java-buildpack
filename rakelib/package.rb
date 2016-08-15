@@ -32,7 +32,7 @@ module Package
 
   BUILDPACK_VERSION = JavaBuildpack::BuildpackVersion.new(false).freeze
 
-  PLATFORMS = %w(centos6 lucid mountainlion precise trusty).freeze
+  PLATFORMS = %w(mountainlion precise trusty).freeze
 
   STAGING_DIR = "#{BUILD_DIR}/staging".freeze
 

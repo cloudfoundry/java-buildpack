@@ -69,8 +69,9 @@ module JavaBuildpack
       # Container components are also expected to create the command required to run the application.  These components
       # are expected to read the +context+ values and take them into account when creating the command.
       #
-      # @return [void, String] components other than containers are not expected to return any value.  Container
-      #                        components are expected to return the command required to run the application.
+      # @return [void, String] components other than containers and JREs are not expected to return any value.
+      #                        Container and JRE components are expected to return a command required to run the
+      #                        application.
       def release
         fail "Method 'release' must be defined"
       end
@@ -121,7 +122,7 @@ module JavaBuildpack
         download(version, uri, name) do |file|
           with_timing "Expanding #{name} to #{target_directory.relative_path_from(@droplet.root)}" do
             FileUtils.mkdir_p target_directory
-            shell "tar xzf #{file.path} -C #{target_directory} --strip 1 2>&1"
+            shell "tar x#{compression_flag(file)}f #{file.path} -C #{target_directory} --strip 1 2>&1"
           end
         end
       end
@@ -163,6 +164,26 @@ module JavaBuildpack
         yield
 
         puts "(#{(Time.now - start_time).duration})"
+      end
+
+      private
+
+      def gzipped?(file)
+        file.path.end_with? '.gz'
+      end
+
+      def bzipped?(file)
+        file.path.end_with? '.bz2'
+      end
+
+      def compression_flag(file)
+        if gzipped?(file)
+          'z'
+        elsif bzipped?(file)
+          'j'
+        else
+          ''
+        end
       end
 
     end

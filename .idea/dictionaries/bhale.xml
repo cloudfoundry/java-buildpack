@@ -5,14 +5,19 @@
       <w>appdynamics</w>
       <w>argv</w>
       <w>atpack</w>
+      <w>chrystoki</w>
+      <w>cklog</w>
       <w>codeclimate</w>
       <w>constantized</w>
       <w>constantizes</w>
+      <w>cpio</w>
       <w>creat</w>
+      <w>cryptoki</w>
       <w>dhttp</w>
       <w>dirname</w>
       <w>distapplication</w>
       <w>dnewrelic</w>
+      <w>enterprisemanager</w>
       <w>etag</w>
       <w>extname</w>
       <w>ffoo</w>
@@ -24,13 +29,23 @@
       <w>getwd</w>
       <w>heroku</w>
       <w>httpok</w>
+      <w>introscope</w>
+      <w>isengard</w>
       <w>javaagent</w>
       <w>jdk's</w>
+      <w>jmxremote</w>
+      <w>jrebel</w>
       <w>jres</w>
       <w>jsome</w>
       <w>jtest</w>
       <w>killjava</w>
+      <w>libcklog</w>
+      <w>libcrpytoki</w>
+      <w>libcryptoki</w>
+      <w>libyjpagent</w>
       <w>ljust</w>
+      <w>lunaclient</w>
+      <w>lunajsp</w>
       <w>mainclass</w>
       <w>metaspace</w>
       <w>mkdir</w>
@@ -46,6 +61,8 @@
       <w>pathnames</w>
       <w>permgen</w>
       <w>pkill</w>
+      <w>postofficehub</w>
+      <w>preformatted</w>
       <w>progname</w>
       <w>proto</w>
       <w>ratpack</w>
@@ -58,9 +75,12 @@
       <w>rstrip</w>
       <w>rubo</w>
       <w>rubocop</w>
+      <w>safenet</w>
       <w>scriptdir</w>
+      <w>sessionname</w>
       <w>shellwords</w>
       <w>simplecov</w>
+      <w>socketfactory</w>
       <w>stderr</w>
       <w>strftime</w>
       <w>stringifies</w>

@@ -39,29 +39,22 @@ module JavaBuildpack
       #
       # @return [String] the path of +JAVA_HOME+ as an environment variable
       def as_env_var
-        "JAVA_HOME=#{root}"
+        "JAVA_HOME=#{qualify_path root}"
       end
 
-      # Execute a block with the +JAVA_HOME+ environment variable set
+      # Whether or not the version of Java is 8 or later
       #
-      # @yield yields to block with the +JAVA_HOME+ environment variable set
-      # @return [Object] the returned value of the block
-      def do_with
-        previous_value = ENV['JAVA_HOME']
-        begin
-          ENV['JAVA_HOME'] = @delegate.root.cleanpath.to_s
-          yield
-        ensure
-          ENV['JAVA_HOME'] = previous_value
-        end
+      # @return [Boolean] +true+ iff the version is 1.8.0 or later
+      def java_8_or_later?
+        @delegate.java_8_or_later?
       end
 
-      # @return [String] the root of the droplet's +JAVA_HOME+ formatted as +$PWD/<value>+
+      # @return [Pathname] the root of the droplet's +JAVA_HOME+
       def root
-        qualify_path @delegate.root
+        @delegate.root
       end
 
-      # @return [String] the version of Java being used by the droplet
+      # @return # @return [JavaBuildpack::Util::TokenizedVersion] the tokenized droplet's +VERSION+
       def version
         @delegate.version
       end

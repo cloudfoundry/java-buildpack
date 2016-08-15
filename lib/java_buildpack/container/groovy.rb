@@ -53,8 +53,10 @@ module JavaBuildpack
         add_libs
 
         [
+          @droplet.environment_variables.as_env_vars,
           @droplet.java_home.as_env_var,
           @droplet.java_opts.as_env_var,
+          'exec',
           qualify_path(@droplet.sandbox + 'bin/groovy', @droplet.root),
           @droplet.additional_libraries.as_classpath,
           relative_main_groovy,

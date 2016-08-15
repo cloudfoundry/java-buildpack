@@ -28,7 +28,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_jar(jar_name, tomcat_lib)
+        download_jar(jar_name, tomcat_lib, 'GemFire Security')
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
