@@ -74,7 +74,7 @@ module JavaBuildpack
 #        configuration['log_file_name'] = 'STDOUT'
 #        configuration[LICENSE_KEY_USER] = credentials[LICENSE_KEY]
 #        configuration['app_name'] = @application.details['application_name']
-#      end
+      end
 
       def apply_user_configuration(credentials, configuration)
         credentials.each do |key, value|
