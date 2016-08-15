@@ -64,16 +64,14 @@ module JavaBuildpack
       def application_name
         # @application.details['new_relic_application_name']
         ENV['new_relic_application_name']
-#      LICENSE_KEY = 'licenseKey'.freeze
-#
-#      LICENSE_KEY_USER = 'license_key'.freeze
-#
-#      private_constant :FILTER, :LICENSE_KEY, :LICENSE_KEY_USER
-#
-#      def apply_configuration(credentials, configuration)
-#        configuration['log_file_name'] = 'STDOUT'
-#        configuration[LICENSE_KEY_USER] = credentials[LICENSE_KEY]
-#        configuration['app_name'] = @application.details['application_name']
+      end
+
+      def license_key
+        @application.services.find_service(FILTER)['credentials']['licenseKey']
+      end
+
+      def logs_dir
+        @droplet.sandbox + 'logs'
       end
 
       def apply_user_configuration(credentials, configuration)
