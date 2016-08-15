@@ -58,23 +58,23 @@ module JavaBuildpack
       FILTER = /newrelic/.freeze
       PROXY_FILTER = /proxy/.freeze
 
-#      private_constant :FILTER
-#      private_constant :PROXY_FILTER
+      private_constant :FILTER
+      private_constant :PROXY_FILTER
+
+      def application_name
+        # @application.details['new_relic_application_name']
+        ENV['new_relic_application_name']
+#      LICENSE_KEY = 'licenseKey'.freeze
 #
-#      def application_name
-#        # @application.details['new_relic_application_name']
-#        ENV['new_relic_application_name']
-      LICENSE_KEY = 'licenseKey'.freeze
-
-      LICENSE_KEY_USER = 'license_key'.freeze
-
-      private_constant :FILTER, :LICENSE_KEY, :LICENSE_KEY_USER
-
-      def apply_configuration(credentials, configuration)
-        configuration['log_file_name'] = 'STDOUT'
-        configuration[LICENSE_KEY_USER] = credentials[LICENSE_KEY]
-        configuration['app_name'] = @application.details['application_name']
-      end
+#      LICENSE_KEY_USER = 'license_key'.freeze
+#
+#      private_constant :FILTER, :LICENSE_KEY, :LICENSE_KEY_USER
+#
+#      def apply_configuration(credentials, configuration)
+#        configuration['log_file_name'] = 'STDOUT'
+#        configuration[LICENSE_KEY_USER] = credentials[LICENSE_KEY]
+#        configuration['app_name'] = @application.details['application_name']
+#      end
 
       def apply_user_configuration(credentials, configuration)
         credentials.each do |key, value|
