@@ -33,10 +33,15 @@ describe JavaBuildpack::Jre::OpenJDKLike do
 
   let(:configuration) do
     { 'jre'               => jre_configuration,
-      'memory_calculator' => memory_calculator_configuration }
+      'memory_calculator' => memory_calculator_configuration,
+      'jvmkill_agent'     => jvmkill_agent_configuration }
   end
 
   let(:jre_configuration) { instance_double('jre_configuration') }
+
+  let(:jvmkill_agent_configuration) do
+    {}
+  end
 
   let(:memory_calculator_configuration) do
     { 'memory_sizes'      => { 'metaspace' => '64m..',
@@ -62,6 +67,8 @@ describe JavaBuildpack::Jre::OpenJDKLike do
       .to receive(:new).with(sub_configuration_context(jre_configuration).merge(component_name: 'Stub Open JDK Like'))
     allow(JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator)
       .to receive(:new).with(sub_configuration_context(memory_calculator_configuration))
+    expect(JavaBuildpack::Jre::JvmkillAgent)
+      .to receive(:new).with(sub_configuration_context(jvmkill_agent_configuration))
 
     component.sub_components context
   end

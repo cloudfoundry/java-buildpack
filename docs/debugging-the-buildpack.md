@@ -75,8 +75,7 @@ addons: []
 config_vars: {}
 default_process_types:
   web: JAVA_HOME=$PWD/.java-buildpack/open_jdk_jre JAVA_OPTS="-Djava.io.tmpdir=$TMPDIR
-    -XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk_jre/bin/killjava.sh -Xmx382293K
-    -Xms382293K -XX:MaxPermSize=64M -XX:PermSize=64M -Xss995K -Dalpha=bravo -Dhttp.port=$PORT"
+    -Xmx382293K -Xms382293K -XX:MaxPermSize=64M -XX:PermSize=64M -Xss995K -Dalpha=bravo -Dhttp.port=$PORT"
     $PWD/.java-buildpack/tomcat/bin/catalina.sh run
 ```
 
@@ -112,7 +111,7 @@ $ $BUILDPACK_ROOT/bin/compile . $TMPDIR
 -----> Downloading Spring Auto Reconfiguration 1.4.0_RELEASE from https://java-buildpack.cloudfoundry.org/auto-reconfiguration/auto-reconfiguration-1.4.0_RELEASE.jar (found in cache)
 
 $ $BUILDPACK_ROOT/bin/release . | ruby -e "require \"yaml\"; puts YAML.load(STDIN.read)[\"default_process_types\"][\"web\"]"
-PATH=$PWD/.java-buildpack/open_jdk_jre/bin:$PATH JAVA_HOME=$PWD/.java-buildpack/open_jdk_jre $PWD/play-application-1.0.0.BUILD-SNAPSHOT/bin/play-application -J-Djava.io.tmpdir=$TMPDIR -J-XX:OnOutOfMemoryError=$PWD/.java-buildpack/open_jdk_jre/bin/killjava.sh -J-XX:MaxPermSize=64M -J-XX:PermSize=64M -J-javaagent:$PWD/.java-buildpack/app_dynamics_agent/javaagent.jar -J-Dappdynamics.agent.applicationName='' -J-Dappdynamics.agent.tierName='Cloud Foundry' -J-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : '.*instance_id[": ]*"\([a-z0-9]\+\)".*') -J-Dappdynamics.agent.accountAccessKey=[REDACTED] -J-Dappdynamics.agent.accountName=[REDACTED] -J-Dappdynamics.controller.hostName=[REDACTED] -J-Dappdynamics.controller.port=443 -J-Dappdynamics.controller.ssl.enabled=true -J-Dhttp.port=$PORT
+PATH=$PWD/.java-buildpack/open_jdk_jre/bin:$PATH JAVA_HOME=$PWD/.java-buildpack/open_jdk_jre $PWD/play-application-1.0.0.BUILD-SNAPSHOT/bin/play-application -J-Djava.io.tmpdir=$TMPDIR -J-XX:MaxPermSize=64M -J-XX:PermSize=64M -J-javaagent:$PWD/.java-buildpack/app_dynamics_agent/javaagent.jar -J-Dappdynamics.agent.applicationName='' -J-Dappdynamics.agent.tierName='Cloud Foundry' -J-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : '.*instance_id[": ]*"\([a-z0-9]\+\)".*') -J-Dappdynamics.agent.accountAccessKey=[REDACTED] -J-Dappdynamics.agent.accountName=[REDACTED] -J-Dappdynamics.controller.hostName=[REDACTED] -J-Dappdynamics.controller.port=443 -J-Dappdynamics.controller.ssl.enabled=true -J-Dhttp.port=$PORT
 ```
 
 You can trigger different behaviour in the buildpack by setting the `VCAP_SERVICES` environment variable. For example, to fake the binding of a service.
