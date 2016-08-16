@@ -12,7 +12,7 @@ The applications Cloud Foundry name is used as the `agent group` in DynaTrace, a
   <tr>
     <td><strong>Detection Criterion</strong></td><td>Existence of a single bound DynaTrace service.
       <ul>
-        <li>Existence of a DynaTrace service is defined as the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>dynatrace</code> as a substring.</li>
+        <li>Existence of a DynaTrace service is defined as the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>dynatrace</code> as a substring and contains <code>server</code> field in the credentials. Note: The credentials must <b>NOT</b> contain <code>tenant</code> and <code>tenanttoken</code> in order to make sure the detection mechanism does not interfere with Dynatrace Ruxit integration.</li>
       </ul>
     </td>
   </tr>
@@ -33,7 +33,7 @@ The credential payload of the service may contain the following entries:
 | `server` | The DynaTrace collector hostname to connect to. Use `host:port` format for a specific port number.
 | `profile` | (Optional) The DynaTrace server profile this is associated with. Uses `Monitoring` by default.
 
-**NOTE** 
+**NOTE**
 
 Be sure to open an Application Security Group to your DynaTrace collector prior to starting the application:
 ```
