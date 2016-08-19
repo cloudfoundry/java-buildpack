@@ -27,9 +27,9 @@ inputs:
 outputs:
 - name: merged
 
+run:
+  path: upstream/ci/auto-merge.sh
+
 params:
   GIT_USER_EMAIL:
   GIT_USER_NAME:
-
-run:
-  path: upstream/ci/auto-merge.sh
