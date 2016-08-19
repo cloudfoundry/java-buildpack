@@ -26,8 +26,12 @@ shared_context 'application_helper' do
   previous_environment = ENV.to_hash
 
   let(:environment) do
-    { 'test-key'      => 'test-value', 'VCAP_APPLICATION' => vcap_application.to_json,
-      'VCAP_SERVICES' => vcap_services.to_json }
+    { 'test-key'                                => 'test-value',
+      'VCAP_APPLICATION'                        => vcap_application.to_json,
+      'VCAP_SERVICES'                           => vcap_services.to_json,
+      'BACKEND'                                 => 'development',
+      'new_relic_application_name'              => 'test-application-name'
+    }
   end
 
   before do

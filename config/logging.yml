@@ -16,4 +16,4 @@
 # Logging configuration
 ---
 default_log_level: INFO
-enable_log_file: false
+enable_log_file: true

@@ -94,18 +94,17 @@ module JavaBuildpack
 
     private
 
-    def get_vcap_services
+    def vcap_services
       JSON(ENV['VCAP_SERVICES'] || '{}')
     end
 
-    def get_mongodb_credentials
-      get_vcap_services["mongodb-2.2"][0]["credentials"]
+    def mongodb_credentials
+      vcap_services['mongodb-2.2'][0]['credentials']
     end
 
-    def get_mongodb_url
-      get_mongodb_credentials["url"]
+    def mongodb_url
+      mongodb_credentials['url']
     end
-
 
     BUILDPACK_MESSAGE = '-----> Java Buildpack Version: %s'.freeze
 

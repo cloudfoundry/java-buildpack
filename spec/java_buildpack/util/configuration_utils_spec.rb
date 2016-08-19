@@ -41,9 +41,9 @@ describe JavaBuildpack::Util::ConfigurationUtils do
   it 'write configuration file' do
     test_file        = Pathname.new(File.expand_path('../../../config/open_jdk_jre.yml', File.dirname(__FILE__)))
     original_content = file_contents test_file
-    loaded_content   = described_class.load('open_jdk_jre', false)
+    loaded_content   = described_class.load('open_jdk_jre.yml', false)
     described_class.write('open_jdk_jre', loaded_content)
-    expect(described_class.load('open_jdk_jre', false)).to eq(loaded_content)
+    expect(described_class.load('open_jdk_jre.yml', false)).to eq(loaded_content)
     expect(file_contents test_file).to eq(original_content)
   end
 

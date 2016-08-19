@@ -99,8 +99,6 @@ module JavaBuildpack
 
       def root
         tomcat_webapps + (ENV['app_context'] || 'ROOT')
-#        context_path = (@configuration['context_path'] || 'ROOT').sub(%r{^/}, '').gsub(%r{/}, '#')
-#        tomcat_webapps + context_path
       end
 
       def tomcat_datasource_jar
