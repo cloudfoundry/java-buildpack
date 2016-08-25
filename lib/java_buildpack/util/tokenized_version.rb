@@ -141,12 +141,12 @@ module JavaBuildpack
       def validate(allow_wildcards)
         wildcarded = false
         each do |value|
-          if value == WILDCARD && !allow_wildcards
+          if !value.nil? && value.end_with?(WILDCARD) && !allow_wildcards
             raise "Invalid version '#{@version}': wildcards are not allowed this context"
           end
 
           raise "Invalid version '#{@version}': no characters are allowed after a wildcard" if wildcarded && value
-          wildcarded = true if value == WILDCARD
+          wildcarded = true if !value.nil? && value.end_with?(WILDCARD)
         end
         raise "Invalid version '#{@version}': missing component" if !wildcarded && compact.length < 3
       end
@@ -156,7 +156,7 @@ module JavaBuildpack
       end
 
       def valid_qualifier(qualifier)
-        qualifier.nil? || qualifier.empty? || qualifier =~ /^[-\.a-zA-Z\d]*$/ || qualifier =~ /^\+$/
+        qualifier.nil? || qualifier.empty? || qualifier =~ /^[-\.a-zA-Z\d]*[\+]?$/
       end
     end
 
