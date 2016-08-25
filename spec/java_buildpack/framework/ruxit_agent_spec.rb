@@ -81,7 +81,7 @@ describe JavaBuildpack::Framework::RuxitAgent do
           'RUXIT_HOST_ID'       => 'test-host-id' }
       end
 
-      it 'does not update environment variables if they exist', :show_output do
+      it 'does not update environment variables if they exist' do
         allow(services).to receive(:find_service).and_return('credentials' => { 'tenant'      => 'test-tenant',
                                                                                 'tenanttoken' => 'test-token' })
         component.release

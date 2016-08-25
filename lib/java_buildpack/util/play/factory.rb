@@ -43,7 +43,7 @@ module JavaBuildpack
               Pre22Staged.new(droplet)
             ].select(&:supports?)
 
-            fail "Play Framework application version cannot be determined: #{candidates}" if candidates.size > 1
+            raise "Play Framework application version cannot be determined: #{candidates}" if candidates.size > 1
             candidates.empty? ? nil : candidates.first
           end
 

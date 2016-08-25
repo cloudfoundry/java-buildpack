@@ -41,7 +41,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.java_opts
+        @droplet
+          .java_opts
           .add_agentpath_with_props(file_name,
                                     'dir'  => snapshots, 'logdir' => logs,
                                     'port' => port, 'sessionname' => session_name)

@@ -43,7 +43,8 @@ module JavaBuildpack
       def release
         @droplet.environment_variables.add_environment_variable 'ChrystokiConfigurationPath', @droplet.sandbox
 
-        @droplet.java_opts
+        @droplet
+          .java_opts
           .add_system_property('java.security.properties', @droplet.sandbox + 'java.security')
           .add_system_property('java.ext.dirs', ext_dirs)
       end
@@ -57,7 +58,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /luna/.freeze
+      FILTER = /luna/
 
       private_constant :FILTER
 

@@ -36,7 +36,7 @@ module JavaBuildpack
         @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger RepositoryIndex
 
         @default_repository_root = JavaBuildpack::Util::ConfigurationUtils.load('repository')['default_repository_root']
-                                     .chomp('/')
+                                                                          .chomp('/')
 
         cache.get("#{canonical repository_root}#{INDEX_PATH}") do |file|
           @index = YAML.load_file(file)
@@ -51,7 +51,7 @@ module JavaBuildpack
       # @return [String] the URI of the file found
       def find_item(version)
         found_version = VersionResolver.resolve(version, @index.keys)
-        fail "No version resolvable for '#{version}' in #{@index.keys.join(', ')}" if found_version.nil?
+        raise "No version resolvable for '#{version}' in #{@index.keys.join(', ')}" if found_version.nil?
         uri = @index[found_version.to_s]
         [found_version, uri]
       end
@@ -73,10 +73,10 @@ module JavaBuildpack
 
       def canonical(raw)
         cooked = raw
-                   .gsub(/\{default.repository.root\}/, @default_repository_root)
-                   .gsub(/\{platform\}/, platform)
-                   .gsub(/\{architecture\}/, architecture)
-                   .chomp('/')
+                 .gsub(/\{default.repository.root\}/, @default_repository_root)
+                 .gsub(/\{platform\}/, platform)
+                 .gsub(/\{architecture\}/, architecture)
+                 .chomp('/')
         @logger.debug { "#{raw} expanded to #{cooked}" }
         cooked
       end
@@ -92,7 +92,7 @@ module JavaBuildpack
         elsif !`which lsb_release 2> /dev/null`.empty?
           `lsb_release -cs`.strip
         else
-          fail 'Unable to determine platform'
+          raise 'Unable to determine platform'
         end
       end
 

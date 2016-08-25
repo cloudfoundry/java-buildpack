@@ -64,8 +64,8 @@ module JavaBuildpack
 
         def repository_root(configuration)
           unless configuration.key? KEY_REPOSITORY_ROOT
-            fail "A repository root must be specified as a key-value pair of '#{KEY_REPOSITORY_ROOT}'' to the URI of " \
-                 'the repository.'
+            raise "A repository root must be specified as a key-value pair of '#{KEY_REPOSITORY_ROOT}' to the URI " \
+                  'of the repository.'
           end
 
           configuration[KEY_REPOSITORY_ROOT]

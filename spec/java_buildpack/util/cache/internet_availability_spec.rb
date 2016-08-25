@@ -32,7 +32,7 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
 
     before do
       allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('cache')
-                                                          .and_return('remote_downloads' => 'disabled')
+        .and_return('remote_downloads' => 'disabled')
       described_class.instance.send :initialize
     end
 

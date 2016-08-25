@@ -47,29 +47,27 @@ module Package
 
     private
 
-    ARCHITECTURE_PATTERN = /\{architecture\}/.freeze
+    ARCHITECTURE_PATTERN = /\{architecture\}/
 
-    DEFAULT_REPOSITORY_ROOT_PATTERN = /\{default.repository.root\}/.freeze
+    DEFAULT_REPOSITORY_ROOT_PATTERN = /\{default.repository.root\}/
 
-    PLATFORM_PATTERN = /\{platform\}/.freeze
+    PLATFORM_PATTERN = /\{platform\}/
 
     private_constant :ARCHITECTURE_PATTERN, :DEFAULT_REPOSITORY_ROOT_PATTERN, :PLATFORM_PATTERN
 
     def augment(raw, key, pattern, candidates, &block)
       if raw.respond_to? :at
         raw.map(&block)
-      else
-        if raw[:uri] =~ pattern
-          candidates.map do |candidate|
-            dup       = raw.clone
-            dup[key]  = candidate
-            dup[:uri] = raw[:uri].gsub pattern, candidate
+      elsif raw[:uri] =~ pattern
+        candidates.map do |candidate|
+          dup       = raw.clone
+          dup[key]  = candidate
+          dup[:uri] = raw[:uri].gsub pattern, candidate
 
-            dup
-          end
-        else
-          raw
+          dup
         end
+      else
+        raw
       end
     end
 
@@ -121,7 +119,7 @@ module Package
       configurations = []
 
       if repository_configuration?(configuration)
-        configuration['component_id'] = component_id
+        configuration['component_id']     = component_id
         configuration['sub_component_id'] = sub_component_id if sub_component_id
         configurations << configuration
       else
@@ -181,7 +179,7 @@ module Package
     end
 
     def pin_version(old_configuration, version)
-      component_id = old_configuration['component_id']
+      component_id     = old_configuration['component_id']
       sub_component_id = old_configuration['sub_component_id']
       rake_output_message "Pinning #{sub_component_id ? sub_component_id : component_id} version to #{version}"
       configuration_to_update = JavaBuildpack::Util::ConfigurationUtils.load(component_id, false, true)
@@ -200,8 +198,8 @@ module Package
     end
 
     def version(configuration, index)
-      JavaBuildpack::Repository::VersionResolver.resolve(
-        JavaBuildpack::Util::TokenizedVersion.new(configuration['version']), index.keys)
+      JavaBuildpack::Repository::VersionResolver
+        .resolve(JavaBuildpack::Util::TokenizedVersion.new(configuration['version']), index.keys)
     end
 
   end

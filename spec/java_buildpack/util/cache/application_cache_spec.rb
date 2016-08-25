@@ -30,7 +30,8 @@ describe JavaBuildpack::Util::Cache::ApplicationCache do
   before do
     ARGV[1] = nil
 
-    stub_request(:get, 'http://foo-uri/').with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+    stub_request(:get, 'http://foo-uri/')
+      .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
       .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     stub_request(:head, 'http://foo-uri/')

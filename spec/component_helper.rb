@@ -33,7 +33,7 @@ shared_context 'component_helper' do
   include_context 'internet_availability_helper'
   include_context 'logging_helper'
 
-  let(:application_cache) { double('ApplicationCache') }
+  let(:application_cache) { instance_double('ApplicationCache') }
 
   let(:component) { described_class.new context }
   let(:configuration) { {} }
@@ -55,7 +55,7 @@ shared_context 'component_helper' do
     cache_fixture = example.metadata[:cache_fixture]
     if cache_fixture
       allow(application_cache).to receive(:get).with(uri)
-                                    .and_yield(Pathname.new("spec/fixtures/#{cache_fixture}").open, false)
+        .and_yield(Pathname.new("spec/fixtures/#{cache_fixture}").open, false)
     end
   end
 

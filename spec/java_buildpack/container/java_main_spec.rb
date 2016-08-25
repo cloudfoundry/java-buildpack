@@ -106,7 +106,7 @@ describe JavaBuildpack::Container::JavaMain do
     end
   end
 
-  it 'releases Spring boot applications with a JarLauncher in the MANIFEST.MF by specifying a port', :show_output,
+  it 'releases Spring boot applications with a JarLauncher in the MANIFEST.MF by specifying a port',
      app_fixture: 'container_main_spring_boot_jar_launcher' do
 
     expect(component.release).to eq('JAVA_OPTS="test-opt-2 test-opt-1" && test-var-2 test-var-1 SERVER_PORT=$PORT ' \

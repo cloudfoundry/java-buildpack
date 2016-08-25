@@ -43,7 +43,7 @@ module JavaBuildpack
           root + 'lib'
         end
 
-        alias_method :root, :find_single_directory
+        alias root find_single_directory
 
       end
 

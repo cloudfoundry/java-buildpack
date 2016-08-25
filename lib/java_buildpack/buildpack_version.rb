@@ -98,7 +98,7 @@ module JavaBuildpack
 
     private
 
-    GIT_DIR = (Pathname.new(__FILE__).dirname.join('..', '..', '.git')).freeze
+    GIT_DIR = Pathname.new(__FILE__).dirname.join('..', '..', '.git').freeze
 
     private_constant :GIT_DIR
 

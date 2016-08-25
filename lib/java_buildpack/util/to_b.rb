@@ -19,9 +19,9 @@ class String
 
   # Converts a +String+ to a boolean
   #
-  # @return [Boolean] +true+ if +<STRING>.downcase == 'true'+.  +false+ otherwise
+  # @return [Boolean] +true+ if +<STRING>.casecmp 'true'+.  +false+ otherwise
   def to_b
-    downcase == 'true'
+    casecmp 'true'
   end
 
 end

@@ -32,18 +32,20 @@ describe JavaBuildpack::Framework::SpringInsight do
 
     before do
       allow(services).to receive(:one_service?)
-                           .with(/p-insight/, 'agent_download_url', 'service_instance_id').and_return(true)
-      allow(services).to receive(:find_service)
-                           .and_return('label'       => 'p-insight',
-                                       'credentials' => {
-                                         'version'             => '2.0.0',
-                                         'agent_download_url'  => 'test-uri/services/config/agent-download',
-                                         'agent_password'      => 'foo',
-                                         'agent_username'      => 'bar',
-                                         'service_instance_id' => '12345' })
+        .with(/p-insight/, 'agent_download_url', 'service_instance_id').and_return(true)
+      allow(services).to receive(:find_service).and_return(
+        'label'       => 'p-insight',
+        'credentials' => {
+          'version'             => '2.0.0',
+          'agent_download_url'  => 'test-uri/services/config/agent-download',
+          'agent_password'      => 'foo',
+          'agent_username'      => 'bar',
+          'service_instance_id' => '12345'
+        }
+      )
       allow(application_cache).to receive(:get)
-                                    .with('test-uri/services/config/agent-download')
-                                    .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open, false)
+        .with('test-uri/services/config/agent-download')
+        .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open, false)
     end
 
     it 'does detect with spring-insight-n/a service' do
@@ -83,19 +85,21 @@ describe JavaBuildpack::Framework::SpringInsight do
 
     it 'does extract Spring Insight from the Uber Agent zip file and copy the ActiveMQ plugin' do
       allow(services).to receive(:one_service?)
-                           .with(/p-insight/, 'agent_download_url', 'service_instance_id').and_return(true)
-      allow(services).to receive(:find_service)
-                           .and_return('label'       => 'p-insight',
-                                       'credentials' => {
-                                         'version'             => '2.0.0',
-                                         'agent_download_url'  => 'test-uri/services/config/agent-download',
-                                         'agent_password'      => 'foo',
-                                         'agent_username'      => 'bar',
-                                         'service_instance_id' => '12345',
-                                         'agent_transport'     => 'activemq' })
+        .with(/p-insight/, 'agent_download_url', 'service_instance_id').and_return(true)
+      allow(services).to receive(:find_service).and_return(
+        'label'       => 'p-insight',
+        'credentials' => {
+          'version'             => '2.0.0',
+          'agent_download_url'  => 'test-uri/services/config/agent-download',
+          'agent_password'      => 'foo',
+          'agent_username'      => 'bar',
+          'service_instance_id' => '12345',
+          'agent_transport'     => 'activemq'
+        }
+      )
       allow(application_cache).to receive(:get)
-                                    .with('test-uri/services/config/agent-download')
-                                    .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open, false)
+        .with('test-uri/services/config/agent-download')
+        .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open, false)
 
       component.compile
 

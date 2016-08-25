@@ -47,8 +47,8 @@ module JavaBuildpack
             var_name      = environment_variable_name(identifier)
             user_provided = ENV[var_name]
             configuration = load_configuration(file, user_provided, var_name, clean_nil_values, should_log)
-          else
-            logger.debug { "No configuration file #{file} found" } if should_log
+          elsif should_log
+            logger.debug { "No configuration file #{file} found" }
           end
 
           configuration || {}
@@ -70,8 +70,8 @@ module JavaBuildpack
               header.each { |line| f.write line }
               YAML.dump(new_content, f)
             end
-          else
-            logger.debug { "No configuration file #{file} found" } if should_log
+          elsif should_log
+            logger.debug { "No configuration file #{file} found" }
           end
         end
 
@@ -79,7 +79,7 @@ module JavaBuildpack
 
         CONFIG_DIRECTORY = Pathname.new(File.expand_path('../../../config', File.dirname(__FILE__))).freeze
 
-        ENVIRONMENT_VARIABLE_PATTERN = 'JBP_CONFIG_'
+        ENVIRONMENT_VARIABLE_PATTERN = 'JBP_CONFIG_'.freeze
 
         private_constant :CONFIG_DIRECTORY, :ENVIRONMENT_VARIABLE_PATTERN
 
@@ -103,7 +103,7 @@ module JavaBuildpack
           File.open(file, 'r') do |f|
             f.each do |line|
               break if line =~ /^---/
-              fail unless line =~ /^#/ || line =~ /^$/
+              raise unless line =~ /^#/ || line =~ /^$/
               header << line
             end
           end
@@ -134,7 +134,7 @@ module JavaBuildpack
           elsif user_provided_value.is_a?(Array)
             user_provided_value.each { |new_prop| configuration = do_merge(configuration, new_prop, should_log) }
           else
-            fail "User configuration value in environment variable #{var_name} is not valid: #{user_provided_value}"
+            raise "User configuration value in environment variable #{var_name} is not valid: #{user_provided_value}"
           end
           configuration
         end
@@ -143,8 +143,8 @@ module JavaBuildpack
           hash_v2.each do |key, value|
             if hash_v1.key? key
               hash_v1[key] = do_resolve_value(key, hash_v1[key], value, should_log)
-            else
-              logger.warn { "User config value for '#{key}' is not valid, existing property not present" } if should_log
+            elsif should_log
+              logger.warn { "User config value for '#{key}' is not valid, existing property not present" }
             end
           end
           hash_v1
@@ -152,7 +152,7 @@ module JavaBuildpack
 
         def do_resolve_value(key, v1, v2, should_log)
           return do_merge(v1, v2, should_log) if v1.is_a?(Hash) && v2.is_a?(Hash)
-          return v2 if (!v1.is_a?(Hash)) && (!v2.is_a?(Hash))
+          return v2 if !v1.is_a?(Hash) && !v2.is_a?(Hash)
           logger.warn { "User config value for '#{key}' is not valid, must be of a similar type" } if should_log
           v1
         end

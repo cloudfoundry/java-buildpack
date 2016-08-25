@@ -49,8 +49,8 @@ module JavaBuildpack
         # @param [Array] additional_args any additional arguments to be passed to the block
         # @yield [file, additional_args] the cached file and any additional arguments passed in
         # @return [Void]
-        def cached(mode_enc, *additional_args, &block)
-          @cached.open(mode_enc) { |f| block.call f, *additional_args }
+        def cached(mode_enc, *additional_args, &_)
+          @cached.open(mode_enc) { |f| yield f, *additional_args }
         end
 
         # Returns whether or not data is cached.
@@ -72,8 +72,8 @@ module JavaBuildpack
         # @param [Array] additional_args any additional arguments to be passed to the block
         # @yield [file] the etag file
         # @return [Void]
-        def etag(mode_enc, *additional_args, &block)
-          @etag.open(mode_enc) { |f| block.call f, *additional_args }
+        def etag(mode_enc, *additional_args, &_)
+          @etag.open(mode_enc) { |f| yield f, *additional_args }
         end
 
         # Returns whether or not an etag is stored.
@@ -90,8 +90,8 @@ module JavaBuildpack
         # @param [Array] additional_args any additional arguments to be passed to the block
         # @yield [file] the last modified file
         # @return [Void]
-        def last_modified(mode_enc, *additional_args, &block)
-          @last_modified.open(mode_enc) { |f| block.call f, *additional_args }
+        def last_modified(mode_enc, *additional_args, &_)
+          @last_modified.open(mode_enc) { |f| yield f, *additional_args }
         end
 
         # Returns whether or not a last modified time stamp is stored.

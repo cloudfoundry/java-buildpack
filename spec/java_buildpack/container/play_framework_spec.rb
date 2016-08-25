@@ -22,7 +22,7 @@ require 'java_buildpack/util/play/factory'
 describe JavaBuildpack::Container::PlayFramework do
   include_context 'component_helper'
 
-  let(:delegate) { double('delegate') }
+  let(:delegate) { instance_double('delegate') }
 
   context do
 
@@ -31,19 +31,19 @@ describe JavaBuildpack::Container::PlayFramework do
     end
 
     it 'delegates detect' do
-      expect(delegate).to receive(:version).and_return('0.0.0')
+      allow(delegate).to receive(:version).and_return('0.0.0')
 
       expect(component.detect).to eq('play-framework=0.0.0')
     end
 
     it 'delegates compile' do
-      expect(delegate).to receive(:compile)
+      allow(delegate).to receive(:compile)
 
       component.compile
     end
 
     it 'delegates release' do
-      expect(delegate).to receive(:release)
+      allow(delegate).to receive(:release)
 
       component.release
     end

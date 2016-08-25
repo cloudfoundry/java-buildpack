@@ -43,7 +43,7 @@ shared_context 'droplet_helper' do
   let(:sandbox) { droplet.sandbox }
 
   let(:java_home) do
-    delegate = double('MutableJavaHome', root: app_dir + '.test-java-home', version: %w(1 7 55 u60))
+    delegate = instance_double('MutableJavaHome', root: app_dir + '.test-java-home', version: %w(1 7 55 u60))
     JavaBuildpack::Component::ImmutableJavaHome.new delegate, app_dir
   end
 

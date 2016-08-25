@@ -56,7 +56,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /introscope/.freeze
+      FILTER = /introscope/
 
       private_constant :FILTER
 
@@ -66,7 +66,7 @@ module JavaBuildpack
 
       def agent_name(java_opts, credentials)
         name = credentials['agent-name'] || @configuration['default_agent_name']
-        java_opts.add_system_property('com.wily.introscope.agent.agentName', "#{name}")
+        java_opts.add_system_property('com.wily.introscope.agent.agentName', name.to_s)
       end
 
       def default_process_name(java_opts)
@@ -75,7 +75,7 @@ module JavaBuildpack
 
       def host_name(java_opts, credentials)
         host_name = credentials['host-name']
-        fail "'host-name' credential must be set" unless host_name
+        raise "'host-name' credential must be set" unless host_name
         java_opts.add_system_property 'introscope.agent.enterprisemanager.transport.tcp.host.DEFAULT', host_name
       end
 

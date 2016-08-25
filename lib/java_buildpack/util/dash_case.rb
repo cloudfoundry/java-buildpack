@@ -21,7 +21,8 @@ class String
   #
   # @return [String] The dash case rendering of this +String+
   def dash_case
-    split('::').last
+    split('::')
+      .last
       .gsub(/([A-Z]+)([A-Z][a-z])/, '\1-\2')
       .gsub(/([a-z\d])([A-Z])/, '\1-\2')
       .downcase

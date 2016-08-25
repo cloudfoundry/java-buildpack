@@ -55,14 +55,14 @@ module JavaBuildpack
 
       private
 
-      FILTER = /app[-]?dynamics/.freeze
+      FILTER = /app[-]?dynamics/
 
       private_constant :FILTER
 
       def application_name(java_opts, credentials)
         name = credentials['application-name'] || @configuration['default_application_name'] ||
           @application.details['application_name']
-        java_opts.add_system_property('appdynamics.agent.applicationName', "#{name}")
+        java_opts.add_system_property('appdynamics.agent.applicationName', name.to_s)
       end
 
       def account_access_key(java_opts, credentials)
@@ -77,13 +77,13 @@ module JavaBuildpack
 
       def host_name(java_opts, credentials)
         host_name = credentials['host-name']
-        fail "'host-name' credential must be set" unless host_name
+        raise "'host-name' credential must be set" unless host_name
         java_opts.add_system_property 'appdynamics.controller.hostName', host_name
       end
 
       def node_name(java_opts, credentials)
         name = credentials['node-name'] || @configuration['default_node_name']
-        java_opts.add_system_property('appdynamics.agent.nodeName', "#{name}")
+        java_opts.add_system_property('appdynamics.agent.nodeName', name.to_s)
       end
 
       def port(java_opts, credentials)
@@ -99,7 +99,7 @@ module JavaBuildpack
       def tier_name(java_opts, credentials)
         name = credentials['tier-name'] || @configuration['default_tier_name'] ||
           @application.details['application_name']
-        java_opts.add_system_property('appdynamics.agent.tierName', "#{name}")
+        java_opts.add_system_property('appdynamics.agent.tierName', name.to_s)
       end
 
     end

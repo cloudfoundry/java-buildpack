@@ -70,12 +70,12 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
 
   context do
 
-    let(:web_xml_modifier) { double('WebXmlModifier') }
+    let(:web_xml_modifier) { instance_double('WebXmlModifier') }
 
     before do
       allow(JavaBuildpack::Framework::WebXmlModifier).to receive(:new).and_return(web_xml_modifier)
-      expect(web_xml_modifier).to receive(:augment_root_context)
-      expect(web_xml_modifier).to receive(:augment_servlet_contexts)
+      allow(web_xml_modifier).to receive(:augment_root_context)
+      allow(web_xml_modifier).to receive(:augment_servlet_contexts)
       allow(web_xml_modifier).to receive(:to_s).and_return('Test Content')
     end
 

@@ -36,7 +36,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.java_opts
+        @droplet
+          .java_opts
           .add_agentpath(@droplet.sandbox + ('lib/' + lib_name))
           .add_system_property('rebel.remoting_plugin', true)
           .add_system_property('rebel.log', true)
@@ -58,7 +59,7 @@ module JavaBuildpack
       end
 
       def jars_with_jrebel_configured?(root_path)
-        (root_path + '**/*.jar').glob.any? { |jar| ! `unzip -l "#{jar}" | grep "rebel-remote\\.xml$"`.strip.empty? }
+        (root_path + '**/*.jar').glob.any? { |jar| !`unzip -l "#{jar}" | grep "rebel-remote\\.xml$"`.strip.empty? }
       end
 
       def lib_name

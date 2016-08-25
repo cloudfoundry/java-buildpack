@@ -18,22 +18,23 @@ require 'spec_helper'
 require 'application_helper'
 require 'logging_helper'
 require 'java_buildpack/buildpack'
+require 'java_buildpack/component/base_component'
 
 describe JavaBuildpack::Buildpack do
   include_context 'application_helper'
   include_context 'logging_helper'
 
-  let(:stub_container1) { double('StubContainer1', detect: nil, component_name: 'StubContainer1') }
+  let(:stub_container1) { instance_double('StubContainer2', detect: nil, component_name: 'StubContainer1') }
 
-  let(:stub_container2) { double('StubContainer2', detect: nil, component_name: 'StubContainer2') }
+  let(:stub_container2) { instance_double('StubContainer2', detect: nil, component_name: 'StubContainer2') }
 
-  let(:stub_framework1) { double('StubFramework1', detect: nil) }
+  let(:stub_framework1) { instance_double('StubFramework1', detect: nil) }
 
-  let(:stub_framework2) { double('StubFramework2', detect: nil) }
+  let(:stub_framework2) { instance_double('StubFramework2', detect: nil) }
 
-  let(:stub_jre1) { double('StubJre1', detect: nil, component_name: 'StubJre1') }
+  let(:stub_jre1) { instance_double('StubJre1', detect: nil, component_name: 'StubJre1') }
 
-  let(:stub_jre2) { double('StubJre2', detect: nil, component_name: 'StubJre2') }
+  let(:stub_jre2) { instance_double('StubJre2', detect: nil, component_name: 'StubJre2') }
 
   let(:buildpack) do
     buildpack = nil
@@ -65,7 +66,7 @@ describe JavaBuildpack::Buildpack do
     allow(stub_container2).to receive(:detect).and_return('stub-container-2')
 
     expect { buildpack.detect }
-      .to raise_error(/Application can be run by more than one container: Double, Double/)
+      .to raise_error(/Application can be run by more than one container/)
   end
 
   it 'raises an error if more than one JRE can run an application' do
@@ -73,7 +74,7 @@ describe JavaBuildpack::Buildpack do
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
     allow(stub_jre2).to receive(:detect).and_return('stub-jre-2')
 
-    expect { buildpack.detect }.to raise_error(/Application can be run by more than one JRE: Double, Double/)
+    expect { buildpack.detect }.to raise_error(/Application can be run by more than one JRE/)
   end
 
   it 'returns no detections if no container can run an application' do
@@ -85,11 +86,11 @@ describe JavaBuildpack::Buildpack do
     before do
       allow(JavaBuildpack::Util::ConfigurationUtils)
         .to receive(:load).with('components')
-              .and_return(
-                'containers' => [],
-                'frameworks' => ['JavaBuildpack::Framework::JavaOpts'],
-                'jres'       => []
-              )
+        .and_return(
+          'containers' => [],
+          'frameworks' => ['JavaBuildpack::Framework::JavaOpts'],
+          'jres'       => []
+        )
     end
 
     it 'requires files needed for components' do
@@ -102,11 +103,11 @@ describe JavaBuildpack::Buildpack do
     allow(stub_framework1).to receive(:detect).and_return('stub-framework-1')
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
 
-    expect(stub_container1).to receive(:compile)
+    allow(stub_container1).to receive(:compile)
     expect(stub_container2).not_to receive(:compile)
-    expect(stub_framework1).to receive(:compile)
+    allow(stub_framework1).to receive(:compile)
     expect(stub_framework2).not_to receive(:compile)
-    expect(stub_jre1).to receive(:compile)
+    allow(stub_jre1).to receive(:compile)
     expect(stub_jre2).not_to receive(:compile)
 
     buildpack.compile
@@ -116,13 +117,12 @@ describe JavaBuildpack::Buildpack do
     allow(stub_container1).to receive(:detect).and_return('stub-container-1')
     allow(stub_framework1).to receive(:detect).and_return('stub-framework-1')
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
-    allow(stub_container1).to receive(:release).and_return('test-command')
 
-    expect(stub_container1).to receive(:release)
+    allow(stub_container1).to receive(:release).and_return('test-command')
     expect(stub_container2).not_to receive(:release)
-    expect(stub_framework1).to receive(:release)
+    allow(stub_framework1).to receive(:release)
     expect(stub_framework2).not_to receive(:release)
-    expect(stub_jre1).to receive(:release)
+    allow(stub_jre1).to receive(:release)
     expect(stub_jre2).not_to receive(:release)
 
     expect(buildpack.release)
@@ -130,45 +130,49 @@ describe JavaBuildpack::Buildpack do
   end
 
   it 'loads configuration file matching JRE class name' do
-    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_jre1')
-    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_jre2')
-    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_framework1')
-    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_framework2')
-    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_container1')
-    expect(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_container2')
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_jre1')
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_jre2')
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_framework1')
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_framework2')
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_container1')
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_container2')
 
     buildpack.detect
   end
 
   it 'handles exceptions' do
-    expect { with_buildpack { |_buildpack| fail 'an exception' } }.to raise_error SystemExit
+    expect { with_buildpack { |_buildpack| raise 'an exception' } }.to raise_error SystemExit
     expect(stderr.string).to match(/an exception/)
   end
 
-  def with_buildpack(&block)
-    described_class.with_buildpack(app_dir, 'Error %s') do |buildpack|
-      block.call buildpack
-    end
+  def with_buildpack(&_)
+    described_class.with_buildpack(app_dir, 'Error %s') { |buildpack| yield buildpack }
   end
 
 end
 
 module Test
-  class StubContainer1
+  class StubContainer1 < JavaBuildpack::Component::BaseComponent
+    attr_reader :component_name
   end
 
-  class StubContainer2
+  class StubContainer2 < JavaBuildpack::Component::BaseComponent
+    attr_reader :component_name
   end
 
-  class StubJre1
+  class StubJre1 < JavaBuildpack::Component::BaseComponent
+    attr_reader :component_name
   end
 
-  class StubJre2
+  class StubJre2 < JavaBuildpack::Component::BaseComponent
+    attr_reader :component_name
   end
 
-  class StubFramework1
+  class StubFramework1 < JavaBuildpack::Component::BaseComponent
+    attr_reader :component_name
   end
 
-  class StubFramework2
+  class StubFramework2 < JavaBuildpack::Component::BaseComponent
+    attr_reader :component_name
   end
 end

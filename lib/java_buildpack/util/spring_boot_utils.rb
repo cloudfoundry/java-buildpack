@@ -55,7 +55,7 @@ module JavaBuildpack
         candidate = lib_dir(droplet)
         return candidate if candidate && candidate.exist?
 
-        fail('No lib directory found')
+        raise 'No lib directory found'
       end
 
       # The version of Spring Boot used by the application

@@ -53,7 +53,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /newrelic/.freeze
+      FILTER = /newrelic/
 
       LICENSE_KEY = 'licenseKey'.freeze
 

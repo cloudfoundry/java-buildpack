@@ -49,8 +49,6 @@ module JavaBuildpack
           JavaBuildpack::Util::Properties.new(manifest_file)
         end
 
-        private
-
         MAIN_CLASS_PROPERTY = 'java_main_class'.freeze
 
         MANIFEST_PROPERTY = 'Main-Class'.freeze

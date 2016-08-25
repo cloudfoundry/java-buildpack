@@ -42,8 +42,8 @@ module JavaBuildpack
           tokenized_versions          = versions.map { |version| create_token(version) }.compact
 
           version = tokenized_versions
-                      .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
-                      .max { |a, b| a <=> b }
+                    .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
+                    .max { |a, b| a <=> b }
 
           version
         end
@@ -67,7 +67,7 @@ module JavaBuildpack
             TOKENIZED_WILDCARD
           else
             unless candidate_version.is_a?(JavaBuildpack::Util::TokenizedVersion)
-              fail "Invalid TokenizedVersion '#{candidate_version}'"
+              raise "Invalid TokenizedVersion '#{candidate_version}'"
             end
 
             candidate_version

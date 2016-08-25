@@ -83,7 +83,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /session_replication/.freeze
+      FILTER = /session_replication/
 
       FLUSH_VALVE_CLASS_NAME = 'com.gopivotal.manager.SessionFlushValve'.freeze
 

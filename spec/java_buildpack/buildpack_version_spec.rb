@@ -29,7 +29,7 @@ describe JavaBuildpack::BuildpackVersion do
   before do |example|
     configuration = example.metadata[:configuration] || {}
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('version', true, true)
-                                                        .and_return(configuration)
+      .and_return(configuration)
   end
 
   it 'creates offline version string from config/version.yml',
@@ -58,14 +58,14 @@ describe JavaBuildpack::BuildpackVersion do
     git_dir = Pathname.new('.git').expand_path
 
     allow_any_instance_of(described_class).to receive(:system)
-                                                .with('which git > /dev/null')
-                                                .and_return(true)
+      .with('which git > /dev/null')
+      .and_return(true)
     allow_any_instance_of(described_class).to receive(:`)
-                                                .with("git --git-dir=#{git_dir} rev-parse --short HEAD")
-                                                .and_return('test-hash')
+      .with("git --git-dir=#{git_dir} rev-parse --short HEAD")
+      .and_return('test-hash')
     allow_any_instance_of(described_class).to receive(:`)
-                                                .with("git --git-dir=#{git_dir} config --get remote.origin.url")
-                                                .and_return('test-remote')
+      .with("git --git-dir=#{git_dir} config --get remote.origin.url")
+      .and_return('test-remote')
 
     expect(buildpack_version.to_s).to match(/test-remote#test-hash/)
     expect(buildpack_version.to_s(false)).to match(/test-remote#test-hash/)
@@ -107,14 +107,14 @@ describe JavaBuildpack::BuildpackVersion do
 
     git_dir = Pathname.new('.git').expand_path
     allow_any_instance_of(described_class).to receive(:system)
-                                              .with('which git > /dev/null')
-                                              .and_return(true)
+      .with('which git > /dev/null')
+      .and_return(true)
     allow_any_instance_of(described_class).to receive(:`)
-                                              .with("git --git-dir=#{git_dir} rev-parse --short HEAD")
-                                              .and_return('test-hash')
+      .with("git --git-dir=#{git_dir} rev-parse --short HEAD")
+      .and_return('test-hash')
     allow_any_instance_of(described_class).to receive(:`)
-                                              .with("git --git-dir=#{git_dir} config --get remote.origin.url")
-                                              .and_return('test-remote')
+      .with("git --git-dir=#{git_dir} config --get remote.origin.url")
+      .and_return('test-remote')
 
     expect(buildpack_version.to_s).to eq('test-version | test-remote#test-hash')
   end
