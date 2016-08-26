@@ -79,7 +79,11 @@ end
 
 class StubOpenJDKLike < JavaBuildpack::Jre::OpenJDKLike
 
-  public :command, :sub_components, :supports?
+  public :command, :sub_components
+
+  def supports?
+    super
+  end
 
 end
 
