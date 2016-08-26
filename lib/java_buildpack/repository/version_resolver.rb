@@ -76,10 +76,12 @@ module JavaBuildpack
 
         def matches?(tokenized_candidate_version, tokenized_version)
           (0..3).all? do |i|
-            tokenized_candidate_version[i].nil? ||
-              tokenized_candidate_version[i] == JavaBuildpack::Util::TokenizedVersion::WILDCARD ||
-              tokenized_candidate_version[i] == tokenized_version[i]
+            tokenized_candidate_version[i].nil? || as_regex(tokenized_candidate_version[i]) =~ tokenized_version[i]
           end
+        end
+
+        def as_regex(version)
+          /^#{version.gsub(JavaBuildpack::Util::TokenizedVersion::WILDCARD, '.*')}/
         end
 
       end

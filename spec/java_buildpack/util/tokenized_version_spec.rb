@@ -62,6 +62,14 @@ describe JavaBuildpack::Util::TokenizedVersion do
     expect { described_class.new('1.6_26') }.to raise_error(/Invalid/)
   end
 
+  it 'accepts wildcards when legal' do
+    described_class.new('+')
+    described_class.new('1.+')
+    described_class.new('1.1.+')
+    described_class.new('1.1.1_+')
+    described_class.new('1.1.1_1+')
+  end
+
   it 'raises an exception when micro version is missing' do
     expect { described_class.new('1.6') }.to raise_error(/Invalid/)
   end
@@ -76,10 +84,6 @@ describe JavaBuildpack::Util::TokenizedVersion do
 
   it 'raises an exception when micro version is not legal' do
     expect { described_class.new('1.6.0+') }.to raise_error(/Invalid/)
-  end
-
-  it 'raises an exception when qualifier version is not legal' do
-    expect { described_class.new('1.6.0_05+') }.to raise_error(/Invalid/)
   end
 
   it 'raises an exception when the qualifier is not letter, number, or hyphen' do
@@ -114,6 +118,7 @@ describe JavaBuildpack::Util::TokenizedVersion do
     expect { described_class.new('1.+', false) }.to raise_error(/Invalid/)
     expect { described_class.new('1.1.+', false) }.to raise_error(/Invalid/)
     expect { described_class.new('1.1.1_+', false) }.to raise_error(/Invalid/)
+    expect { described_class.new('1.1.1_1+', false) }.to raise_error(/Invalid/)
   end
 
   it 'raises an exception when a version ends with a component separator' do
