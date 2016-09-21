@@ -1,7 +1,7 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2016 the original author or authors.
+# Copyright (c) 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,12 +15,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-$stdout.sync = true
-$stderr.sync = true
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+# Kill script for use as the parameter of OpenJDK's -XX:OnOutOfMemoryError
 
-require 'java_buildpack/buildpack'
+set -e
 
-build_dir = ARGV[0]
+echo "
+Process Status (Before)
+=======================
+$(ps -ef)
 
-JavaBuildpack::Buildpack.with_buildpack(build_dir, 'Compile failed with exception %s', &:compile)
+ulimit (Before)
+===============
+$(ulimit -a)
+
+Free Disk Space (Before)
+========================
+$(df -h)
+"
+
+pkill -9 -f .*-XX:OnOutOfMemoryError=.*killjava.*
+
+echo "
+Process Status (After)
+======================
+$(ps -ef)
+
+ulimit (After)
+==============
+$(ulimit -a)
+
+Free Disk Space (After)
+=======================
+$(df -h)
+"

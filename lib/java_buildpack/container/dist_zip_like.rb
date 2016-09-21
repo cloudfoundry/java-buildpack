@@ -34,7 +34,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        start_script(root).chmod 0755
+        start_script(root).chmod 0o755
         augment_classpath_content
       end
 
@@ -55,7 +55,7 @@ module JavaBuildpack
       #
       # @return [String] the id of this container
       def id
-        fail "Method 'id' must be defined"
+        raise "Method 'id' must be defined"
       end
 
       # The root directory of the application
@@ -69,14 +69,14 @@ module JavaBuildpack
       #
       # @return [Boolean] whether or not this component supports this application
       def supports?
-        fail "Method 'supports?' must be defined"
+        raise "Method 'supports?' must be defined"
       end
 
       private
 
       PATTERN_APP_CLASSPATH = /^declare -r app_classpath=\"(.*)\"$/
 
-      PATTERN_CLASSPATH = /^CLASSPATH=(.*)$/.freeze
+      PATTERN_CLASSPATH = /^CLASSPATH=(.*)$/
 
       private_constant :PATTERN_APP_CLASSPATH, :PATTERN_CLASSPATH
 

@@ -56,7 +56,7 @@ module JavaBuildpack
       #
       # @return [Boolean] whether or not this component supports this application
       def supports?
-        fail "Method 'supports?' must be defined"
+        raise "Method 'supports?' must be defined"
       end
 
       # Downloads a given JAR file and stores it.

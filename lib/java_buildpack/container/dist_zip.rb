@@ -56,7 +56,7 @@ module JavaBuildpack
       private
 
       def jars?
-        (lib_dir + '*.jar').glob.any?
+        (lib_dir + '**/*.jar').glob.any?
       end
 
       def lib_dir

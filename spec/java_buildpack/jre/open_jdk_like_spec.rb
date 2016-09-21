@@ -36,7 +36,7 @@ describe JavaBuildpack::Jre::OpenJDKLike do
       'memory_calculator' => memory_calculator_configuration }
   end
 
-  let(:jre_configuration) { double('jre_configuration') }
+  let(:jre_configuration) { instance_double('jre_configuration') }
 
   let(:memory_calculator_configuration) do
     { 'memory_sizes'      => { 'metaspace' => '64m..',
@@ -58,9 +58,9 @@ describe JavaBuildpack::Jre::OpenJDKLike do
   it 'creates submodules' do
     allow_any_instance_of(StubOpenJDKLike).to receive(:supports?).and_return false
 
-    expect(JavaBuildpack::Jre::OpenJDKLikeJre)
+    allow(JavaBuildpack::Jre::OpenJDKLikeJre)
       .to receive(:new).with(sub_configuration_context(jre_configuration).merge(component_name: 'Stub Open JDK Like'))
-    expect(JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator)
+    allow(JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator)
       .to receive(:new).with(sub_configuration_context(memory_calculator_configuration))
 
     component.sub_components context
@@ -79,7 +79,11 @@ end
 
 class StubOpenJDKLike < JavaBuildpack::Jre::OpenJDKLike
 
-  public :command, :sub_components, :supports?
+  public :command, :sub_components
+
+  def supports?
+    super
+  end
 
 end
 

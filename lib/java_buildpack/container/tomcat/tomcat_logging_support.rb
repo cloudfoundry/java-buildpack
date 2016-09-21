@@ -29,6 +29,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        @droplet.java_opts.add_system_property 'java.endorsed.dirs',
+                                               "$PWD/#{endorsed.relative_path_from(@droplet.root)}"
       end
 
       protected

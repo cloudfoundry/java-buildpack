@@ -39,7 +39,7 @@ module JavaBuildpack
         #
         # @return [Pathname] the root of the play application
         def root
-          fail "Method 'root' must be defined"
+          raise "Method 'root' must be defined"
         end
 
       end

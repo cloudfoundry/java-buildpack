@@ -45,7 +45,7 @@ describe JavaBuildpack::Component::ModularComponent do
 
   context do
 
-    let(:sub_component) { double('sub_component') }
+    let(:sub_component) { instance_double('sub_component') }
 
     before do
       allow_any_instance_of(StubModularComponent).to receive(:supports?).and_return(true)
@@ -62,13 +62,13 @@ describe JavaBuildpack::Component::ModularComponent do
     end
 
     it 'calls compile on each sub_component' do
-      expect(sub_component).to receive(:compile).twice
+      allow(sub_component).to receive(:compile).twice
 
       component.compile
     end
 
     it 'calls release on each sub_component and then command' do
-      expect(sub_component).to receive(:release).twice
+      allow(sub_component).to receive(:release).twice
       allow_any_instance_of(StubModularComponent).to receive(:command).and_return('test-command')
 
       expect(component.release).to eq('test-command')

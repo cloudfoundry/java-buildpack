@@ -36,7 +36,7 @@ module JavaBuildpack
         # (see JavaBuildpack::Component::BaseComponent#compile)
         def compile
           update_file start_script, ORIGINAL_BOOTSTRAP, REPLACEMENT_BOOTSTRAP
-          start_script.chmod 0755
+          start_script.chmod 0o755
           augment_classpath
         end
 
@@ -80,28 +80,28 @@ module JavaBuildpack
         #
         # @return [Void]
         def augment_classpath
-          fail "Method 'augment_classpath' must be defined"
+          raise "Method 'augment_classpath' must be defined"
         end
 
         # Returns the +JAVA_OPTS+ in the form that they need to be added to the command line
         #
         # @return [Array<String>] the +JAVA_OPTS+ in the form that they need to be added to the command line
         def java_opts
-          fail "Method 'java_opts' must be defined"
+          raise "Method 'java_opts' must be defined"
         end
 
         # Returns the path to the play application library dir.  May return +nil+ if no library dir exists.
         #
         # @return [Pathname] the path to the play application library dir.  May return +nil+ if no library dir exists.
         def lib_dir
-          fail "Method 'lib_dir' must be defined"
+          raise "Method 'lib_dir' must be defined"
         end
 
         # Returns the path to the play application start script.  May return +nil+ if no script exists.
         #
         # @return [Pathname] the path to the play application start script.  May return +nil+ if no script exists.
         def start_script
-          fail "Method 'start_script' must be defined"
+          raise "Method 'start_script' must be defined"
         end
 
         # Updates the contents of a file

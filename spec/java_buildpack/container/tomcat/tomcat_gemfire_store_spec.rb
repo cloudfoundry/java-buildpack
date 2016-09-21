@@ -37,21 +37,20 @@ describe JavaBuildpack::Container::TomcatGemfireStore do
       'gemfire_modules_tomcat7' => gemfire_modules_tomcat7_configuration,
       'gemfire_security'        => gemfire_security_configuration,
       'gemfire_logging'         => gemfire_logging_configuration,
-      'gemfire_logging_api'     => gemfire_logging_api_configuration
-    }
+      'gemfire_logging_api'     => gemfire_logging_api_configuration }
   end
 
-  let(:gemfire_configuration) { double('gemfire-configuration') }
+  let(:gemfire_configuration) { instance_double('gemfire-configuration') }
 
-  let(:gemfire_modules_configuration) { double('gemfire-modules-configuration') }
+  let(:gemfire_modules_configuration) { instance_double('gemfire-modules-configuration') }
 
-  let(:gemfire_modules_tomcat7_configuration) { double('gemfire-modules_tomcat7-configuration') }
+  let(:gemfire_modules_tomcat7_configuration) { instance_double('gemfire-modules_tomcat7-configuration') }
 
-  let(:gemfire_security_configuration) { double('gemfire-security-configuration') }
+  let(:gemfire_security_configuration) { instance_double('gemfire-security-configuration') }
 
-  let(:gemfire_logging_configuration) { double('gemfire-logging-configuration') }
+  let(:gemfire_logging_configuration) { instance_double('gemfire-logging-configuration') }
 
-  let(:gemfire_logging_api_configuration) { double('gemfire-logging-api-configuration') }
+  let(:gemfire_logging_api_configuration) { instance_double('gemfire-logging-api-configuration') }
 
   it 'does not detect without a session_replication service' do
     expect(component.detect).to be_nil
@@ -62,17 +61,17 @@ describe JavaBuildpack::Container::TomcatGemfireStore do
   end
 
   it 'creates submodules' do
-    expect(JavaBuildpack::Container::GemFire)
+    allow(JavaBuildpack::Container::GemFire)
       .to receive(:new).with(sub_configuration_context(gemfire_configuration))
-    expect(JavaBuildpack::Container::GemFireModules)
+    allow(JavaBuildpack::Container::GemFireModules)
       .to receive(:new).with(sub_configuration_context(gemfire_modules_configuration))
-    expect(JavaBuildpack::Container::GemFireModulesTomcat7)
+    allow(JavaBuildpack::Container::GemFireModulesTomcat7)
       .to receive(:new).with(sub_configuration_context(gemfire_modules_tomcat7_configuration))
-    expect(JavaBuildpack::Container::GemFireSecurity)
+    allow(JavaBuildpack::Container::GemFireSecurity)
       .to receive(:new).with(sub_configuration_context(gemfire_security_configuration))
-    expect(JavaBuildpack::Container::GemFireLogging)
+    allow(JavaBuildpack::Container::GemFireLogging)
       .to receive(:new).with(sub_configuration_context(gemfire_logging_configuration))
-    expect(JavaBuildpack::Container::GemFireLoggingApi)
+    allow(JavaBuildpack::Container::GemFireLoggingApi)
       .to receive(:new).with(sub_configuration_context(gemfire_logging_api_configuration))
 
     component.sub_components context
@@ -82,7 +81,7 @@ describe JavaBuildpack::Container::TomcatGemfireStore do
 
     before do
       allow(services).to receive(:one_service?).with(/session_replication/, 'locators', 'username', 'password')
-                           .and_return(true)
+        .and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => { 'locators' => %w(1.0.0.2[45] 1.0.0.4[54]),
                                                                               'username' => 'test-username',
                                                                               'password' => 'test-password' })

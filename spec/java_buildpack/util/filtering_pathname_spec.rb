@@ -95,8 +95,8 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'filters the result of join' do
-    expect(filtering_target.join 'good').to exist
-    expect(filtering_target.join 'bad').not_to exist
+    expect(filtering_target.join('good')).to exist
+    expect(filtering_target.join('bad')).not_to exist
   end
 
   it 'filters the result of parent', :filter do
@@ -151,7 +151,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   it 'delegates relative_path_from' do
     target              = filtering_target + 'test1'
     underlying_pathname = target.send :pathname
-    expect(underlying_pathname).to receive(:relative_path_from) { Pathname.new('test1') }
+    allow(underlying_pathname).to receive(:relative_path_from) { Pathname.new('test1') }
     relative_path = target.relative_path_from(Pathname.new(app_dir))
     expect(relative_path).to eq(Pathname.new('test1'))
   end
@@ -175,7 +175,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   it 'delegates each_line when the file is filtered in' do
     target              = filtering_target + 'good'
     underlying_pathname = target.send :pathname
-    expect(underlying_pathname).to receive(:each_line).and_yield('test-line')
+    allow(underlying_pathname).to receive(:each_line).and_yield('test-line')
     expect { |b| target.each_line(&b) }.to yield_successive_args('test-line')
   end
 
@@ -188,7 +188,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates opendir when the directory is filtered in' do
-    expect(app_dir).to receive(:opendir).and_yield('test-dir')
+    allow(app_dir).to receive(:opendir).and_yield('test-dir')
     expect { |b| filtering_target.opendir(&b) }.to yield_successive_args('test-dir')
   end
 
@@ -199,7 +199,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   it 'delegates sysopen when the file is filtered in' do
     target              = filtering_target + 'good'
     underlying_pathname = target.send :pathname
-    expect(underlying_pathname).to receive(:sysopen).and_yield(999)
+    allow(underlying_pathname).to receive(:sysopen).and_yield(999)
     expect { |b| target.sysopen(&b) }.to yield_successive_args(999)
   end
 
@@ -216,7 +216,8 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'yields each child as a filtered pathname from each_child' do
-    expect { |b| filtering_target.each_child(&b) }.to yield_successive_args(app_dir + 'good')
+    expect { |b| filtering_target.each_child(&b) }
+      .to yield_successive_args(described_class.new(app_dir + 'good', filter_none, true))
   end
 
   it 'yields each child as a pathname from each_child(false)' do
@@ -228,22 +229,26 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'yields each element of the path from descend' do
-    expect { |b| filename_target.descend(&b) }.to yield_successive_args(Pathname.new('/'), Pathname.new('/a'),
-                                                                        Pathname.new('/a/b'))
+    expect { |b| filename_target.descend(&b) }
+      .to yield_successive_args(described_class.new(Pathname.new('/'), filter_none, true),
+                                described_class.new(Pathname.new('/a'), filter_none, true),
+                                described_class.new(Pathname.new('/a/b'), filter_none, true))
   end
 
   it 'yields each element of the path from ascend' do
-    expect { |b| filename_target.ascend(&b) }.to yield_successive_args(Pathname.new('/a/b'), Pathname.new('/a'),
-                                                                       Pathname.new('/'))
+    expect { |b| filename_target.ascend(&b) }
+      .to yield_successive_args(described_class.new(Pathname.new('/a/b'), filter_none, true),
+                                described_class.new(Pathname.new('/a'), filter_none, true),
+                                described_class.new(Pathname.new('/'), filter_none, true))
   end
 
   it 'raises error if chmod is called on an immutable instance' do
-    expect { immutable_target.chmod(0644) }.to raise_error(/FilteringPathname is immutable/)
+    expect { immutable_target.chmod(0o644) }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'delegates if chmod is called on a mutable instance' do
-    expect(app_dir).to receive(:chmod)
-    mutable_target.chmod(0644)
+    allow(app_dir).to receive(:chmod)
+    mutable_target.chmod(0o644)
   end
 
   it 'raises error if chown is called on an immutable instance' do
@@ -251,7 +256,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if chown is called on a mutable instance' do
-    expect(app_dir).to receive(:chown)
+    allow(app_dir).to receive(:chown)
     mutable_target.chown('test-user', 100)
   end
 
@@ -260,17 +265,17 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if delete is called on a mutable instance' do
-    expect(app_dir).to receive(:delete)
+    allow(app_dir).to receive(:delete)
     mutable_target.delete
   end
 
   it 'raises error if lchmod is called on an immutable instance' do
-    expect { immutable_target.lchmod(0644) }.to raise_error(/FilteringPathname is immutable/)
+    expect { immutable_target.lchmod(0o644) }.to raise_error(/FilteringPathname is immutable/)
   end
 
   it 'delegates if lchmod is called on a mutable instance' do
-    expect(app_dir).to receive(:lchmod)
-    mutable_target.lchmod(0644)
+    allow(app_dir).to receive(:lchmod)
+    mutable_target.lchmod(0o644)
   end
 
   it 'raises error if lchown is called on an immutable instance' do
@@ -278,7 +283,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if lchown is called on a mutable instance' do
-    expect(app_dir).to receive(:lchown)
+    allow(app_dir).to receive(:lchown)
     mutable_target.lchown('test-user', 100)
   end
 
@@ -287,7 +292,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if make_link is called on a mutable instance' do
-    expect(app_dir).to receive(:make_link)
+    allow(app_dir).to receive(:make_link)
     mutable_target.make_link('test')
   end
 
@@ -296,7 +301,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if make_symlink is called on a mutable instance' do
-    expect(app_dir).to receive(:make_symlink)
+    allow(app_dir).to receive(:make_symlink)
     mutable_target.make_symlink('test')
   end
 
@@ -305,7 +310,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if mkdir is called on a mutable instance' do
-    expect(app_dir).to receive(:mkdir)
+    allow(app_dir).to receive(:mkdir)
     mutable_target.mkdir('test')
   end
 
@@ -317,34 +322,32 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if open is called on an immutable instance with a non-mutating mode' do
-    expect(app_dir).to receive(:open)
+    allow(app_dir).to receive(:open)
     immutable_target.open('r') { |_| }
   end
 
   it 'delegates if open is called on a mutable instance' do
-    expect(app_dir).to receive(:open)
+    allow(app_dir).to receive(:open)
     mutable_target.open('w') { |_| }
   end
 
   it 'delegates if open is called on a mutable instance with permissions' do
-    expect(app_dir).to receive(:open).with('w', 0755)
-    mutable_target.open('w', 0755) { |_| }
+    allow(app_dir).to receive(:open).with('w', 0o755)
+    mutable_target.open('w', 0o755) { |_| }
   end
 
   it 'delegates if open is called on a mutable instance with permissions and options' do
-    expect(app_dir).to receive(:open).with('w', 0755, external_encoding: 'UTF-8')
-    mutable_target.open('w', 0755, external_encoding: 'UTF-8') { |_| }
+    allow(app_dir).to receive(:open).with('w', 0o755, external_encoding: 'UTF-8')
+    mutable_target.open('w', 0o755, external_encoding: 'UTF-8') { |_| }
   end
 
   it 'delegates if open is called on a mutable instance with options but no permissions' do
-    expect(app_dir).to receive(:open).with('w', external_encoding: 'UTF-8')
+    allow(app_dir).to receive(:open).with('w', external_encoding: 'UTF-8')
     mutable_target.open('w', external_encoding: 'UTF-8') { |_| }
   end
 
   it 'copes with options on open' do
-    content = (immutable_target + 'good').open('r', external_encoding: 'UTF-8') do |file|
-      file.read
-    end
+    content = (immutable_target + 'good').open('r', external_encoding: 'UTF-8', &:read)
     expect(content).to eq('good')
   end
 
@@ -353,7 +356,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if rename is called on a mutable instance' do
-    expect(app_dir).to receive(:rename)
+    allow(app_dir).to receive(:rename)
     mutable_target.rename('test')
   end
 
@@ -362,7 +365,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if rmdir is called on a mutable instance' do
-    expect(app_dir).to receive(:rmdir)
+    allow(app_dir).to receive(:rmdir)
     mutable_target.rmdir
   end
 
@@ -371,7 +374,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if unlink is called on a mutable instance' do
-    expect(app_dir).to receive(:unlink)
+    allow(app_dir).to receive(:unlink)
     mutable_target.unlink
   end
 
@@ -380,7 +383,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if untaint is called on a mutable instance' do
-    expect(app_dir).to receive(:untaint)
+    allow(app_dir).to receive(:untaint)
     mutable_target.untaint
   end
 
@@ -389,7 +392,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if taint is called on a mutable instance' do
-    expect(app_dir).to receive(:taint)
+    allow(app_dir).to receive(:taint)
     mutable_target.taint
   end
 
@@ -398,7 +401,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if mkpath is called on a mutable instance' do
-    expect(app_dir).to receive(:mkpath)
+    allow(app_dir).to receive(:mkpath)
     mutable_target.mkpath
   end
 
@@ -407,7 +410,7 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if rmtree is called on a mutable instance' do
-    expect(app_dir).to receive(:rmtree)
+    allow(app_dir).to receive(:rmtree)
     mutable_target.rmtree
   end
 
@@ -418,7 +421,7 @@ describe JavaBuildpack::Util::FilteringPathname do
 
   it 'globs and yields the result' do
     g = strict_filtering_target + '*'
-    expect { |b| g.glob(&b) }.to yield_successive_args(app_dir + 'good')
+    expect { |b| g.glob(&b) }.to yield_successive_args(described_class.new(app_dir + 'good', filter_none, true))
   end
 
   it 'raises error if getwd is used' do

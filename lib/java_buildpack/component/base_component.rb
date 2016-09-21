@@ -50,7 +50,7 @@ module JavaBuildpack
       #                                      an +Array<String>+ that uniquely identifies the component (e.g.
       #                                      +open_jdk=1.7.0_40+).  Otherwise, +nil+.
       def detect
-        fail "Method 'detect' must be defined"
+        raise "Method 'detect' must be defined"
       end
 
       # Modifies the application's file system.  The component is expected to transform the application's file system in
@@ -59,7 +59,7 @@ module JavaBuildpack
       #
       # @return [Void]
       def compile
-        fail "Method 'compile' must be defined"
+        raise "Method 'compile' must be defined"
       end
 
       # Modifies the application's runtime configuration. The component is expected to transform members of the
@@ -73,7 +73,7 @@ module JavaBuildpack
       #                        Container and JRE components are expected to return a command required to run the
       #                        application.
       def release
-        fail "Method 'release' must be defined"
+        raise "Method 'release' must be defined"
       end
 
       protected

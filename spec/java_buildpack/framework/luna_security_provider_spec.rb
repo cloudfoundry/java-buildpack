@@ -30,33 +30,32 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
     before do
       allow(services).to receive(:one_service?).with(/luna/, 'client', 'servers', 'groups').and_return(true)
 
-      allow(services).to receive(:find_service)
-                           .and_return('credentials' => {
-                                         'client'  => {
-                                           'certificate' => "-----BEGIN CERTIFICATE-----\n" \
-                                           "test-client-cert\n-----END CERTIFICATE-----",
-                                           'private-key' => "-----BEGIN RSA PRIVATE KEY-----\n" \
-                                           "test-client-private-key\n-----END RSA PRIVATE KEY-----"
-                                         },
-                                         'servers' => [
-                                           {
-                                             'name'        => 'test-server-1',
-                                             'certificate' => "-----BEGIN CERTIFICATE-----\n" \
-                                             "test-server-1-cert\n-----END CERTIFICATE-----"
-                                           }, {
-                                             'name'        => 'test-server-2',
-                                             'certificate' => "-----BEGIN CERTIFICATE-----\n" \
-                                             "test-server-2-cert\n-----END CERTIFICATE-----"
-                                           }],
-                                         'groups'  => [
-                                           {
-                                             'label'   => 'test-group-1',
-                                             'members' => %w(test-group-1-member-1 test-group-1-member-2)
-                                           }, {
-                                             'label'   => 'test-group-2',
-                                             'members' => %w(test-group-2-member-1 test-group-2-member-2)
-                                           }
-                                         ] })
+      allow(services).to receive(:find_service).and_return(
+        'credentials' => {
+          'client' => {
+            'certificate' => "-----BEGIN CERTIFICATE-----\ntest-client-cert\n-----END CERTIFICATE-----",
+            'private-key' => "-----BEGIN RSA PRIVATE KEY-----\ntest-client-private-key\n-----END RSA PRIVATE KEY-----"
+          },
+          'servers' => [
+            {
+              'name'        => 'test-server-1',
+              'certificate' => "-----BEGIN CERTIFICATE-----\ntest-server-1-cert\n-----END CERTIFICATE-----"
+            }, {
+              'name'        => 'test-server-2',
+              'certificate' => "-----BEGIN CERTIFICATE-----\ntest-server-2-cert\n-----END CERTIFICATE-----"
+            }
+          ],
+          'groups' => [
+            {
+              'label'   => 'test-group-1',
+              'members' => %w(test-group-1-member-1 test-group-1-member-2)
+            }, {
+              'label'   => 'test-group-2',
+              'members' => %w(test-group-2-member-1 test-group-2-member-2)
+            }
+          ]
+        }
+      )
     end
 
     it 'detects with luna-n/a service' do

@@ -69,7 +69,8 @@ module JavaBuildpack
       CONTEXT_INITIALIZER_ADDITIONAL = %w(
         org.cloudfoundry.reconfiguration.spring.CloudProfileApplicationContextInitializer
         org.cloudfoundry.reconfiguration.spring.CloudPropertySourceApplicationContextInitializer
-        org.cloudfoundry.reconfiguration.spring.CloudAutoReconfigurationApplicationContextInitializer).freeze
+        org.cloudfoundry.reconfiguration.spring.CloudAutoReconfigurationApplicationContextInitializer
+      ).freeze
 
       CONTEXT_INITIALIZER_CLASSES = 'contextInitializerClasses'.freeze
 
@@ -87,7 +88,7 @@ module JavaBuildpack
         classes = classes_string.value.strip.split(/[,;\s]+/)
         classes = classes.concat CONTEXT_INITIALIZER_ADDITIONAL
 
-        classes_string.value = classes.join(',') # rubocop:disable Lint/UselessSetterCall
+        classes_string.value = classes.join(',')
       end
 
       def context_loader_listener?
@@ -97,7 +98,7 @@ module JavaBuildpack
       def create_param(root, param_type, name, value)
         load_on_startup = xpath(root, 'load-on-startup')
         if load_on_startup.any?
-          param = REXML::Element.new param_type
+          param                                  = REXML::Element.new param_type
           load_on_startup.first.previous_sibling = param
         else
           param = REXML::Element.new param_type, root

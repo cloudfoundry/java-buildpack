@@ -30,7 +30,7 @@ module JavaBuildpack
         # Creates an instance of the cache that is backed by the the application cache
         def initialize
           application_cache_directory = ARGV[1]
-          fail 'Application cache directory is undefined' if application_cache_directory.nil?
+          raise 'Application cache directory is undefined' if application_cache_directory.nil?
           super(Pathname.new(application_cache_directory), CACHED_RESOURCES_DIRECTORY)
         end
 

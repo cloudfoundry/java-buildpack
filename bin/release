@@ -23,8 +23,6 @@ require 'java_buildpack/buildpack'
 
 build_dir = ARGV[0]
 
-output = JavaBuildpack::Buildpack.with_buildpack(build_dir, 'Release failed with exception %s') do |buildpack|
-  buildpack.release
-end
+output = JavaBuildpack::Buildpack.with_buildpack(build_dir, 'Release failed with exception %s', &:release)
 
 puts output

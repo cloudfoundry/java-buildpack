@@ -45,6 +45,10 @@ describe JavaBuildpack::Repository::VersionResolver do
     expect(described_class.resolve(tokenized_version('1.8.0_+'), versions)).to eq(tokenized_version('1.8.0_05'))
   end
 
+  it 'resolves a partial-wildcard qualifier' do
+    expect(described_class.resolve(tokenized_version('1.7.0_1+'), versions)).to eq(tokenized_version('1.7.0_19'))
+  end
+
   it 'resolves a non-wildcard version' do
     expect(described_class.resolve(tokenized_version('1.6.0_26'), versions)).to eq(tokenized_version('1.6.0_26'))
     expect(described_class.resolve(tokenized_version('2.0.0'), versions)).to eq(tokenized_version('2.0.0'))

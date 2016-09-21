@@ -23,8 +23,8 @@ popd
 git clone downstream merged
 
 pushd merged
-  git config --local user.name "Spring Buildmaster"
-  git config --local user.email "buildmaster@springframework.org"
+  git config --local user.name "$GIT_USER_NAME"
+  git config --local user.email $GIT_USER_EMAIL
 
   git remote add upstream ../upstream
   git fetch upstream --no-tags

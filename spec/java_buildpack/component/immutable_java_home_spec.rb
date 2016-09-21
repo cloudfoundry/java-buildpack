@@ -16,15 +16,16 @@
 
 require 'spec_helper'
 require 'java_buildpack/component/immutable_java_home'
+require 'java_buildpack/component/mutable_java_home'
 require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Component::ImmutableJavaHome do
 
   let(:delegate) do
-    double('delegate',
-           root:             Pathname.new('test-java-home'),
-           java_8_or_later?: true,
-           version:          JavaBuildpack::Util::TokenizedVersion.new('1.2.3_u04'))
+    instance_double(JavaBuildpack::Component::MutableJavaHome,
+                    root:             Pathname.new('test-java-home'),
+                    java_8_or_later?: true,
+                    version:          JavaBuildpack::Util::TokenizedVersion.new('1.2.3_u04'))
   end
 
   let(:immutable_java_home) { described_class.new delegate, Pathname.new('.') }

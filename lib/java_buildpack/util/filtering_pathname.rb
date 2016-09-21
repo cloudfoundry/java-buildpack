@@ -55,7 +55,7 @@ module JavaBuildpack
       #         +false+ (to filter out the pathname).  Defaults to keeping everything
       # @param [Boolean] mutable +true+ if and only if the +FilteringPathname+ may be used to mutate the file system
       def initialize(pathname, filter, mutable)
-        fail 'Non-absolute pathname' unless pathname.absolute?
+        raise 'Non-absolute pathname' unless pathname.absolute?
 
         @pathname = pathname
         @filter   = filter
@@ -154,11 +154,11 @@ module JavaBuildpack
       private_constant :MUTATORS
 
       def check_file_does_not_exist(file)
-        fail "#{file} should not exist" if file.exist?
+        raise "#{file} should not exist" if file.exist?
       end
 
       def check_mutable
-        fail 'FilteringPathname is immutable' unless @mutable
+        raise 'FilteringPathname is immutable' unless @mutable
       end
 
       def comparison_target(other)
@@ -222,7 +222,7 @@ module JavaBuildpack
       end
 
       def filter(pathname)
-        fail 'Non-absolute pathname' unless pathname.absolute?
+        raise 'Non-absolute pathname' unless pathname.absolute?
         @filter.call(pathname.cleanpath)
       end
 

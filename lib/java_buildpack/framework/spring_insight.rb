@@ -44,14 +44,16 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
-          true, 'The Spring Insight download location is always accessible') do
+          true, 'The Spring Insight download location is always accessible'
+        ) do
           download(@version, @uri) { |file| expand file }
         end
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.java_opts
+        @droplet
+          .java_opts
           .add_javaagent(weaver_jar)
           .add_system_property('insight.base', insight_directory)
           .add_system_property('insight.logs', logs_directory)
@@ -71,7 +73,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /p-insight/.freeze
+      FILTER = /p-insight/
 
       private_constant :FILTER
 
@@ -168,7 +170,7 @@ module JavaBuildpack
 
       def uber_agent_zip(location)
         candidates = Pathname.glob(location + 'springsource-insight-uber-agent-*.zip')
-        fail 'There was not exactly one Uber Agent zip' if candidates.size != 1
+        raise 'There was not exactly one Uber Agent zip' if candidates.size != 1
         candidates[0]
       end
 

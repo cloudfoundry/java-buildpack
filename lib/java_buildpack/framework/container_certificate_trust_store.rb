@@ -38,7 +38,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
-        (supports_configuration? && supports_file?) ? id(certificates.length) : nil
+        supports_configuration? && supports_file? ? id(certificates.length) : nil
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -54,7 +54,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.java_opts
+        @droplet
+          .java_opts
           .add_system_property('javax.net.ssl.trustStore', trust_store)
           .add_system_property('javax.net.ssl.trustStorePassword', password)
       end

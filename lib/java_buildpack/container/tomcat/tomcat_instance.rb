@@ -53,14 +53,19 @@ module JavaBuildpack
         true
       end
 
-      private
-
       TOMCAT_8 = JavaBuildpack::Util::TokenizedVersion.new('8.0.0').freeze
 
       private_constant :TOMCAT_8
 
+      # Checks whether Tomcat instance is Tomcat 7 compatible
+      def tomcat_7_compatible
+        @version < TOMCAT_8
+      end
+
+      private
+
       def configure_jasper
-        return unless @version < TOMCAT_8
+        return unless tomcat_7_compatible
 
         document = read_xml server_xml
         server   = REXML::XPath.match(document, '/Server').first
@@ -77,7 +82,7 @@ module JavaBuildpack
         document = read_xml context_xml
         context  = REXML::XPath.match(document, '/Context').first
 
-        if @version < TOMCAT_8
+        if tomcat_7_compatible
           context.add_attribute 'allowLinking', true
         else
           context.add_element 'Resources', 'allowLinking' => true

@@ -1,7 +1,6 @@
-#!/usr/bin/env ruby
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2016 the original author or authors.
+# Copyright 2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,12 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-$stdout.sync = true
-$stderr.sync = true
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+require 'fileutils'
+require 'java_buildpack/jre'
+require 'java_buildpack/jre/open_jdk_like'
 
-require 'java_buildpack/buildpack'
+module JavaBuildpack
+  module Jre
 
-build_dir = ARGV[0]
+    # Encapsulates the detect, compile, and release functionality for selecting an Zulu JRE.
+    class ZuluJRE < OpenJDKLike
+    end
 
-JavaBuildpack::Buildpack.with_buildpack(build_dir, 'Compile failed with exception %s', &:compile)
+  end
+end

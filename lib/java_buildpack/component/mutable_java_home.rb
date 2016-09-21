@@ -40,8 +40,6 @@ module JavaBuildpack
         @version >= VERSION_8
       end
 
-      private
-
       VERSION_8 = JavaBuildpack::Util::TokenizedVersion.new('1.8.0').freeze
 
       private_constant :VERSION_8

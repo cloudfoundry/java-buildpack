@@ -1,5 +1,5 @@
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2016 the original author or authors.
+# Copyright 2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,28 +16,28 @@
 # Configuration for JRE repositories keyed by vendor
 # Pre Java 1.8, permgen was used instead of metaspace.  Please see the documentation for more detail.
 
-# You must specify a the repository root of an Oracle JRE repository. Please see the documentation for more detail.
-# e.g.  repository_root: "http://example.com/oracle-jre/{platform}/{architecture}"
+# You must specify a the repository root of an Zulu JRE repository. Please see the documentation for more detail.
+# e.g.  repository_root: "http://example.com/zulu-jre/{platform}/{architecture}"
 ---
 jre:
   version: 1.8.0_10+
-  repository_root: ""
+  repository_root: "https://cdn.azul.com/zulu/bin"
 memory_calculator:
   version: 2.+
-  repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
-  stack_threads: 300
+  repository_root: ! '{default.repository.root}/memory-calculator/{platform}/{architecture}'
+  stack_threads:
   memory_sizes:
-    heap: 
+    heap:
     metaspace: 64m..
-    native: 
+    native:
     permgen: 64m..
-    stack: 228k..
+    stack:
   memory_heuristics:
-    heap: 65
+    heap: 75
     metaspace: 10
-    native: 15
+    native: 10
     permgen: 10
-    stack: 10
+    stack: 5
   memory_initials:
     heap: 100%
     metaspace: 100%

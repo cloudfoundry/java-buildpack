@@ -29,12 +29,14 @@ describe JavaBuildpack::Util::ConfigurationUtils do
     { 'foo'      => { 'one' => '1', 'two' => 2 },
       'bar'      => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } },
       'version'  => '1.7.1',
-      'not_here' => nil
-    }
+      'not_here' => nil }
   end
 
   it 'not load absent configuration file' do
-    allow_any_instance_of(Pathname).to receive(:exist?).and_return(false)
+    pathname = instance_double(Pathname)
+    allow(Pathname).to receive(:new).and_return(pathname)
+    allow(pathname).to receive(:exist?).and_return(false)
+
     expect(described_class.load('test')).to eq({})
   end
 
@@ -44,13 +46,16 @@ describe JavaBuildpack::Util::ConfigurationUtils do
     loaded_content   = described_class.load('open_jdk_jre', false)
     described_class.write('open_jdk_jre', loaded_content)
     expect(described_class.load('open_jdk_jre', false)).to eq(loaded_content)
-    expect(file_contents test_file).to eq(original_content)
+    expect(file_contents(test_file)).to eq(original_content)
   end
 
   context do
 
     before do
-      allow_any_instance_of(Pathname).to receive(:exist?).and_return(true)
+      pathname = instance_double(Pathname)
+      allow(Pathname).to receive(:new).and_return(pathname)
+      allow(pathname).to receive(:exist?).and_return(true)
+
       allow(YAML).to receive(:load_file).and_return(test_data)
     end
 
@@ -100,8 +105,8 @@ describe JavaBuildpack::Util::ConfigurationUtils do
       end
 
       it 'raises an exception when invalid override value is specified' do
-        expect { described_class.load('test') }.to raise_error(
-          /User configuration value in environment variable JBP_CONFIG_TEST is not valid/)
+        expect { described_class.load('test') }
+          .to raise_error(/User configuration value in environment variable JBP_CONFIG_TEST is not valid/)
       end
 
     end
@@ -113,8 +118,8 @@ describe JavaBuildpack::Util::ConfigurationUtils do
       end
 
       it 'diagnoses invalid YAML syntax' do
-        expect { described_class.load('test') }.to raise_error(
-          /User configuration value in environment variable JBP_CONFIG_TEST has invalid syntax/)
+        expect { described_class.load('test') }
+          .to raise_error(/User configuration value in environment variable JBP_CONFIG_TEST has invalid syntax/)
       end
 
     end

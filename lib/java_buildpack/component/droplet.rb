@@ -88,7 +88,10 @@ module JavaBuildpack
 
         @sandbox = JavaBuildpack::Util::FilteringPathname.new(sandbox_root, ->(path) { in?(path, sandbox_root) }, true)
         @root    = JavaBuildpack::Util::FilteringPathname.new(
-          root, ->(path) { !in?(path, buildpack_root) || in?(path, @sandbox) }, true)
+          root,
+          ->(path) { !in?(path, buildpack_root) || in?(path, @sandbox) },
+          true
+        )
       end
 
       # Copy resources from a components resources directory to a directory

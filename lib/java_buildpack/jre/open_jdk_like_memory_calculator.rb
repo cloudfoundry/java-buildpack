@@ -37,7 +37,7 @@ module JavaBuildpack
           else
             unpack_compressed_calculator file
           end
-          memory_calculator.chmod 0755
+          memory_calculator.chmod 0o755
         end
 
         show_settings memory_calculation_string(Pathname.new(Dir.pwd))
@@ -125,11 +125,8 @@ module JavaBuildpack
 
           puts "       #{stderr_content}" if stderr_content
 
-          if status == 0
-            puts "       Memory Settings: #{stdout_content}"
-          else
-            fail
-          end
+          raise unless status.success?
+          puts "       Memory Settings: #{stdout_content}"
         end
       end
 

@@ -24,7 +24,7 @@ module JavaBuildpack
       include Comparable
 
       # The wildcard component.
-      WILDCARD = '+'
+      WILDCARD = '+'.freeze
 
       # Create a tokenized version based on the input string.
       #
@@ -48,11 +48,11 @@ module JavaBuildpack
       def <=>(other)
         comparison = 0
         i          = 0
-        while comparison == 0 && i < 3
+        while comparison.zero? && i < 3
           comparison = self[i].to_i <=> other[i].to_i
           i += 1
         end
-        comparison = qualifier_compare(non_nil_qualifier(self[3]), non_nil_qualifier(other[3])) if comparison == 0
+        comparison = qualifier_compare(non_nil_qualifier(self[3]), non_nil_qualifier(other[3])) if comparison.zero?
 
         comparison
       end
@@ -69,7 +69,7 @@ module JavaBuildpack
       # @param [Integer] maximum_components the maximum number of components this version is allowed to have
       # @raise if this version has more than the given number of components
       def check_size(maximum_components)
-        fail "Malformed version #{self}: too many version components" if self[maximum_components]
+        raise "Malformed version #{self}: too many version components" if self[maximum_components]
       end
 
       private
@@ -87,13 +87,13 @@ module JavaBuildpack
           major_or_minor = nil
           tail = nil
         else
-          fail "Invalid version '#{s}': must not end in '.'" if s[-1] == '.'
-          fail "Invalid version '#{s}': missing component" if s =~ /\.[\._]/
+          raise "Invalid version '#{s}': must not end in '.'" if s[-1] == '.'
+          raise "Invalid version '#{s}': missing component" if s =~ /\.[\._]/
           tokens = s.match(/^([^\.]+)(?:\.(.*))?/)
 
           major_or_minor, tail = tokens[1..-1]
 
-          fail "Invalid major or minor version '#{major_or_minor}'" unless valid_major_minor_or_micro major_or_minor
+          raise "Invalid major or minor version '#{major_or_minor}'" unless valid_major_minor_or_micro major_or_minor
         end
 
         [major_or_minor, tail]
@@ -104,13 +104,13 @@ module JavaBuildpack
           micro = nil
           qualifier = nil
         else
-          fail "Invalid version '#{s}': must not end in '_'" if s[-1] == '_'
+          raise "Invalid version '#{s}': must not end in '_'" if s[-1] == '_'
           tokens = s.match(/^([^\_]+)(?:_(.*))?/)
 
           micro, qualifier = tokens[1..-1]
 
-          fail "Invalid micro version '#{micro}'" unless valid_major_minor_or_micro micro
-          fail "Invalid qualifier '#{qualifier}'" unless valid_qualifier qualifier
+          raise "Invalid micro version '#{micro}'" unless valid_major_minor_or_micro micro
+          raise "Invalid qualifier '#{qualifier}'" unless valid_qualifier qualifier
         end
 
         [micro, qualifier]
@@ -124,12 +124,12 @@ module JavaBuildpack
         comparison = 0
 
         i = 0
-        until comparison != 0 || i == minimum_qualifier_length(a, b)
+        until comparison.nonzero? || i == minimum_qualifier_length(a, b)
           comparison = char_compare(a[i], b[i])
           i += 1
         end
 
-        comparison = a.length <=> b.length if comparison == 0
+        comparison = a.length <=> b.length if comparison.zero?
 
         comparison
       end
@@ -141,14 +141,14 @@ module JavaBuildpack
       def validate(allow_wildcards)
         wildcarded = false
         each do |value|
-          if value == WILDCARD && !allow_wildcards
-            fail "Invalid version '#{@version}': wildcards are not allowed this context"
+          if !value.nil? && value.end_with?(WILDCARD) && !allow_wildcards
+            raise "Invalid version '#{@version}': wildcards are not allowed this context"
           end
 
-          fail "Invalid version '#{@version}': no characters are allowed after a wildcard" if wildcarded && value
-          wildcarded = true if value == WILDCARD
+          raise "Invalid version '#{@version}': no characters are allowed after a wildcard" if wildcarded && value
+          wildcarded = true if !value.nil? && value.end_with?(WILDCARD)
         end
-        fail "Invalid version '#{@version}': missing component" if !wildcarded && compact.length < 3
+        raise "Invalid version '#{@version}': missing component" if !wildcarded && compact.length < 3
       end
 
       def valid_major_minor_or_micro(major_minor_or_micro)
@@ -156,7 +156,7 @@ module JavaBuildpack
       end
 
       def valid_qualifier(qualifier)
-        qualifier.nil? || qualifier.empty? || qualifier =~ /^[-\.a-zA-Z\d]*$/ || qualifier =~ /^\+$/
+        qualifier.nil? || qualifier.empty? || qualifier =~ /^[-\.a-zA-Z\d]*[\+]?$/
       end
     end
 
