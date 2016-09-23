@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for the Ruxit framework
+# Configuration for the Dynatrace SaaS/Managed framework
 ---
 version: 1.+
 repository_root: https://download.ruxit.com/agent/paas/cloudfoundry/java

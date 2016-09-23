@@ -23,7 +23,7 @@ module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for enabling zero-touch Dynatrace support.
-    class DynaTraceAgent < JavaBuildpack::Component::VersionedDependencyComponent
+    class DynatraceAppmonAgent < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Util
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -69,7 +69,7 @@ module JavaBuildpack
       end
 
       def expand(file)
-        with_timing "Expanding Dynatrace to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
+        with_timing "Expanding Dynatrace Appmon to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
           Dir.mktmpdir do |root|
             root_path = Pathname.new(root)
             shell "unzip -qq #{file.path} -d #{root_path} 2>&1"
