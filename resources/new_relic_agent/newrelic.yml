@@ -257,21 +257,21 @@ common: &default_settings
 
 development:
   <<: *default_settings
-    agent_enabled: false
-    attributes:
-      enabled: false
-    transaction_tracer:
-      enabled: false
-    error_collector:
-      enabled: false
-    transaction_events:
-      enabled: false
-    cross_application_tracer:
-      enabled: false
-    thread_profiler:
-      enabled: false
-    browser_monitoring:
-      auto_instrument: false
+  agent_enabled: false
+  attributes:
+    enabled: false
+  transaction_tracer:
+    enabled: false
+  error_collector:
+    enabled: false
+  transaction_events:
+    enabled: false
+  cross_application_tracer:
+    enabled: false
+  thread_profiler:
+    enabled: false
+  browser_monitoring:
+    auto_instrument: false
 
 test:
   <<: *default_settings
