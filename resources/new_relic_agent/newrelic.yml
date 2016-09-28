@@ -283,7 +283,7 @@ production:
 
 staging:
   <<: *default_settings
-  agent_enabled: false
+  agent_enabled: true
   attributes:
     enabled: false
   transaction_tracer:
