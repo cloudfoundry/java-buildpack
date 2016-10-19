@@ -17,16 +17,16 @@
 # If Java 7 is required, permgen will be used instead of metaspace. Please see the documentation for more detail.
 ---
 jre:
-  version: 1.8.0_10+
+  version: 1.8.0_11+
   repository_root: "{default.repository.root}/openjdk/{platform}/{architecture}"
 memory_calculator:
   version: 2.+
   repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
   stack_threads: 300
   memory_sizes:
-    heap: 
+    heap:
     metaspace: 64m..
-    native: 
+    native:
     permgen: 64m..
     stack: 228k..
   memory_heuristics:
