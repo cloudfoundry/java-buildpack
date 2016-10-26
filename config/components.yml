@@ -48,6 +48,7 @@ frameworks:
   - "JavaBuildpack::Framework::DynatraceOneAgent"
   - "JavaBuildpack::Framework::GoogleStackdriverDebugger"
 # - "JavaBuildpack::Framework::IntroscopeAgent"
+  - "JavaBuildpack::Framework::JavaMemoryAssistant"
   - "JavaBuildpack::Framework::Jmx"
   - "JavaBuildpack::Framework::JrebelAgent"
   - "JavaBuildpack::Framework::LunaSecurityProvider"
