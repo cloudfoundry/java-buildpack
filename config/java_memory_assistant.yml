@@ -1,3 +1,4 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -12,14 +13,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-require 'webmock/rspec'
-WebMock.disable_net_connect!(allow: 'codeclimate.com')
-
-require 'java_buildpack/util/cache/yield_file_with_content'
-require 'java_buildpack/util/file/droplet_sandbox_path'
-
-RSpec.configure do |config|
-  config.run_all_when_everything_filtered = true
-  config.filter_run :focus
-end
+---
+version: 0.1.0
+repository_root: https://raw.githubusercontent.com/SAP/java-memory-assistant/repository
+enabled: true
+heap_dump_folder:
+check_interval: 5s
+max_frequency: 1/1m
+max_dump_count: 1
+log_level:
+thresholds:
+  heap:
+  code_cache:
+  metaspace:
+  perm_gen:
+  compressed_class:
+  eden:
+  survivor:
+  old_gen: 50%

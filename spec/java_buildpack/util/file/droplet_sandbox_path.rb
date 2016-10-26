@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,13 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'webmock/rspec'
-WebMock.disable_net_connect!(allow: 'codeclimate.com')
+require 'rspec/expectations'
 
-require 'java_buildpack/util/cache/yield_file_with_content'
-require 'java_buildpack/util/file/droplet_sandbox_path'
-
-RSpec.configure do |config|
-  config.run_all_when_everything_filtered = true
-  config.filter_run :focus
+RSpec::Matchers.define :droplet_sandbox_path do |expected|
+  match { |actual| actual.to_s.end_with? expected }
 end

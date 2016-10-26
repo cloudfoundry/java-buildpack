@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+#
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -12,14 +15,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# Kill upload of a file to S3
+# (c) Michele Mancioppi <michele.mancioppi@sap.com>
 
-require 'webmock/rspec'
-WebMock.disable_net_connect!(allow: 'codeclimate.com')
+set -eu
 
-require 'java_buildpack/util/cache/yield_file_with_content'
-require 'java_buildpack/util/file/droplet_sandbox_path'
-
-RSpec.configure do |config|
-  config.run_all_when_everything_filtered = true
-  config.filter_run :focus
-end
+ps -NC | grep 'upload-to-s3' | awk '{ print $1 }' | xargs kill -9
