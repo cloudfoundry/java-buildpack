@@ -33,6 +33,22 @@ The credential payload of the service may contain the following entries:
 | `server` | The Dynatrace collector hostname to connect to. Use `host:port` format for a specific port number.
 | `profile` | (Optional) The Dynatrace server profile this is associated with. Uses `Monitoring` by default.
 
+### Example Dynatrace User-Provided Service Payload
+```
+{
+  "server":"my-dynatrace-server:my-port",
+  "profile":"my-dynatrace-profile"
+}
+```
+
+### Creating Dynatrace User-Provided Service Payload
+In order to create the Dynatrace configuration payload, you should collapse the JSON payload to a single line and set it like the following... The user-provided Dynatrace Appmon service must have a name of or tag with `dynatrace` in it.  For example: my-dynatrace-service.  
+
+``` 
+cf cups my-dynatrace-service -p '{"server":"my-dynatrace-server:my-port","profile":"my-dynatrace-profile"}'
+cf bind-service my-app-name my-dynatrace-service
+```
+
 **NOTE**
 
 Be sure to open an Application Security Group to your Dynatrace collector prior to starting the application:
