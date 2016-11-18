@@ -33,6 +33,12 @@ The credential payload of the service may contain the following entries:
 | `server` | The Dynatrace collector hostname to connect to. Use `host:port` format for a specific port number.
 | `profile` | (Optional) The Dynatrace server profile this is associated with. Uses `Monitoring` by default.
 
+Example:
+```bash 
+cf cups dynatrace -p '{"server":"my-dynatrace-server","profile":"my-dynatrace-profile"}'
+cf bind-service my-app-name dynatrace
+```
+
 **NOTE**
 
 Be sure to open an Application Security Group to your Dynatrace collector prior to starting the application:
