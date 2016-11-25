@@ -25,9 +25,10 @@ The credential payload of the service may contain the following entries:
 
 | Name | Description
 | ---- | -----------
-| `environmentid` | Your Dynatrace environment ID is the unique identifier of your Dynatrace environment. You can find it easily by looking at the URL in your browser when you are logged into your Dynatrace environment. The subdomain `<environmentId>` in `https://<environmentId>.live.dynatrace.com` represents your environment ID. The `environmentid` replaces deprecated ~~`tenant`~~ option.
+| `environmentid` | Your Dynatrace environment ID is the unique identifier of your Dynatrace environment. You can find it in the deploy Dynatrace section within your environment. The `environmentid` replaces deprecated ~~`tenant`~~ option.
 | `apitoken` | The token for integrating your Dynatrace environment with Cloud Foundry. You can find it in the deploy Dynatrace section within your environment. The `apitoken` replaces deprecated ~~`tenanttoken`~~ option.
-| `endpoint` | (Optional) The Dynatrace connection endpoint to connect to. By default this is the endpoint of Dynatrace SaaS. If you are using Dynatrace Managed please specify the endpoint properly, e.g. `https://<your-managed-server-url>/e/<environmentId>`. The `endpoint` replaces deprecated ~~`server`~~ option.
+| `apiurl` | (Optional) The base URL of the Dynatrace API. If you are using Dynatrace Managed you will need to set this property to `https://<your-managed-server-url>/e/<environmentId>/api`. If you are using Dynatrace SaaS you don't need to set this property.
+| `endpoint`  | (Deprecated) The Dynatrace connection endpoint the agent connects to. Please use `apiurl` in combination with `apitoken` for Dynatrace Managed.
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
