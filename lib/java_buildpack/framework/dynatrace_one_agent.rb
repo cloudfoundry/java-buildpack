@@ -86,12 +86,14 @@ module JavaBuildpack
 
       APITOKEN = 'apitoken'.freeze
 
+      APIURL = 'apiurl'.freeze
+
       ENVIRONMENTID = 'environmentid'.freeze
 
       ENDPOINT = 'endpoint'.freeze
 
       private_constant :FILTER, :RUXIT_APPLICATION_ID, :RUXIT_HOST_ID, :SERVER, :TENANT, :TENANTTOKEN, :APITOKEN
-      private_constant :ENVIRONMENTID, :ENDPOINT
+      private_constant :ENVIRONMENTID, :ENDPOINT, :APIURL
 
       def agent_dir
         @droplet.sandbox + 'agent'
@@ -105,10 +107,17 @@ module JavaBuildpack
 
       def agent_download_url
         credentials = @application.services.find_service(FILTER)['credentials']
-        download_uri = server(credentials).gsub('/communication', '').gsub(':8443', '').gsub(':443', '')
-        download_uri += '/api/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64&'
+        download_uri = "#{api_base_url}/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64&"
         download_uri += "Api-Token=#{credentials[APITOKEN]}"
         ['latest', download_uri]
+      end
+
+      def api_base_url
+        credentials = @application.services.find_service(FILTER)['credentials']
+        return credentials[APIURL] unless credentials[APIURL].nil?
+        base_url = credentials[ENDPOINT] || credentials[SERVER] || "https://#{tenant(credentials)}.live.dynatrace.com"
+        base_url = base_url.gsub('/communication', '').concat('/api').gsub(':8443', '').gsub(':443', '')
+        base_url
       end
 
       def application_id
@@ -130,7 +139,13 @@ module JavaBuildpack
       end
 
       def server(credentials)
-        credentials[ENDPOINT] || credentials[SERVER] || "https://#{tenant(credentials)}.live.dynatrace.com"
+        given_endp = credentials[ENDPOINT] || credentials[SERVER] || "https://#{tenant(credentials)}.live.dynatrace.com"
+        supports_apitoken? ? server_from_api : given_endp
+      end
+
+      def server_from_api
+        endpoints = JSON.parse(File.read(@droplet.sandbox + 'manifest.json'))['communicationEndpoints']
+        endpoints.join('\;')
       end
 
       def tenant(credentials)
