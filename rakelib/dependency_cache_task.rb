@@ -170,8 +170,8 @@ module Package
         pin_version(configuration, found_version.to_s) if ENV['PINNED'].to_b
 
         if found_version.nil?
-          rake_output_message "Unable to resolve version '#{configuration['version']}' for platform " \
-                              "'#{index_configuration[:platform]}'"
+          raise "Unable to resolve version '#{configuration['version']}' for platform " \
+                "'#{index_configuration[:platform]}'"
         end
 
         uris << index[found_version.to_s] unless found_version.nil?
