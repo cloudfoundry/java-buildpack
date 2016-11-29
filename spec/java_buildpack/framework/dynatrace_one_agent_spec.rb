@@ -61,8 +61,8 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
       component.release
 
       expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
-      'liboneagentloader.so=server=https://test-tenant.live.dynatrace.com,tenant=test-tenant,' \
-      'tenanttoken=token-from-file')
+      'liboneagentloader.so=server=https://endpoint1/communication\\;https://endpoint2/communication,' \
+      'tenant=test-tenant,tenanttoken=token-from-file')
     end
 
     it 'updates JAVA_OPTS with custom server and deprecated tenanttoken',
@@ -85,8 +85,8 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
       component.release
 
       expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
-      'liboneagentloader.so=server=test-server,tenant=test-tenant,' \
-      'tenanttoken=token-from-file')
+      'liboneagentloader.so=server=https://endpoint1/communication\\;https://endpoint2/communication,' \
+      'tenant=test-tenant,tenanttoken=token-from-file')
     end
 
     it 'updates environment variables',
