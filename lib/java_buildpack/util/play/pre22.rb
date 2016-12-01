@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,26 +16,34 @@
 
 require 'java_buildpack/util/play/base'
 
-module JavaBuildpack::Util::Play
+module JavaBuildpack
+  module Util
+    module Play
 
-  # Base class for inspection and modification of Play applications up to and including Play 2.1.x.
-  class Pre22 < Base
+      # Base class for inspection and modification of Play applications up to and including Play 2.1.x.
+      class Pre22 < Base
 
-    protected
+        protected
 
-    def start_script
-      root ? root + 'start' : nil
+        # (see JavaBuildpack::Util::Play::Base#java_opts)
+        def java_opts
+          @droplet.java_opts
+        end
+
+        # (see JavaBuildpack::Util::Play::Base#start_script)
+        def start_script
+          root ? root + 'start' : nil
+        end
+
+        # Returns the root of the play application
+        #
+        # @return [Pathname] the root of the play application
+        def root
+          raise "Method 'root' must be defined"
+        end
+
+      end
+
     end
-
-    protected
-
-    # Returns the root of the play application
-    #
-    # @return [Pathname] the root of the play application
-    def root
-      fail "Method 'root' must be defined"
-    end
-
   end
-
 end

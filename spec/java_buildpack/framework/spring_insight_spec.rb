@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,57 +17,97 @@
 require 'spec_helper'
 require 'component_helper'
 require 'fileutils'
+require 'internet_availability_helper'
 require 'java_buildpack/framework/spring_insight'
 
 describe JavaBuildpack::Framework::SpringInsight do
   include_context 'component_helper'
+  include_context 'internet_availability_helper'
 
-  it 'should not detect without spring-insight-n/a service' do
+  it 'does not detect without spring-insight-n/a service' do
     expect(component.detect).to be_nil
   end
 
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/insight/).and_return(true)
-      allow(services).to receive(:find_service).and_return('label'       => 'insight-1.0',
-                                                           'credentials' => { 'dashboard_url' => 'test-uri' })
-      allow(application_cache).to receive(:get).with('test-uri/services/config/agent-download')
-                                  .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open)
+      allow(services).to receive(:one_service?)
+        .with(/p-insight/, 'agent_download_url', 'service_instance_id').and_return(true)
+      allow(services).to receive(:find_service).and_return(
+        'label'       => 'p-insight',
+        'credentials' => {
+          'version'             => '2.0.0',
+          'agent_download_url'  => 'test-uri/services/config/agent-download',
+          'agent_password'      => 'foo',
+          'agent_username'      => 'bar',
+          'service_instance_id' => '12345'
+        }
+      )
+      allow(application_cache).to receive(:get)
+        .with('test-uri/services/config/agent-download')
+        .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open, false)
     end
 
-    it 'should detect with spring-insight-n/a service' do
-      expect(component.detect).to eq('spring-insight=1.0')
+    it 'does detect with spring-insight-n/a service' do
+      expect(component.detect).to eq('spring-insight=2.0.0')
     end
 
-    it 'should extract Spring Insight from the Uber Agent zip file inside the Agent Installer jar' do
+    it 'does extract Spring Insight from the Uber Agent zip file inside the Agent Installer jar' do
       component.compile
 
-      container_libs_dir     = app_dir + '.spring-insight/container-libs'
-      extra_applications_dir = app_dir + '.spring-insight/extra-applications'
-
-      expect(sandbox + 'weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar').to exist
-      expect(container_libs_dir + 'insight-bootstrap-generic-1.2.3-CI-SNAPSHOT.jar').to exist
-      expect(container_libs_dir + 'insight-bootstrap-tomcat-common-1.2.5-CI-SNAPSHOT.jar').to exist
+      expect(sandbox + 'weaver/insight-weaver-2.0.0-CI-SNAPSHOT.jar').to exist
       expect(sandbox + 'insight/conf/insight.properties').to exist
-      expect(sandbox + 'insight/collection-plugins/test-collection-plugins').to exist
-      expect(extra_applications_dir + 'insight-agent').to exist
-      expect(extra_applications_dir + 'insight-agent/WEB-INF/lib/insight-agent-http-1.9.3-CI-SNAPSHOT.jar').to exist
-      expect(extra_applications_dir + 'insight-agent/WEB-INF/lib/insight-agent-cloudfoundry-1.2.3.jar').to exist
-      expect(container_libs_dir + 'cloudfoundry-runtime-1.2.3.jar').to exist
+      expect(sandbox + 'insight/agent-plugins/insight-agent-rabbitmq-core-2.0.0-CI-SNAPSHOT.jar').to exist
     end
 
-    it 'should update JAVA_OPTS',
+    it 'does guarantee that internet access is available when downloading' do
+      expect_any_instance_of(JavaBuildpack::Util::Cache::InternetAvailability)
+        .to receive(:available).with(true, 'The Spring Insight download location is always accessible')
+
+      component.compile
+    end
+
+    it 'does update JAVA_OPTS',
        app_fixture: 'framework_spring_insight' do
 
       component.release
 
-      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/spring_insight/weaver/insight-weaver-1.2.4-CI-SNAPSHOT.jar')
+      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/spring_insight/weaver/' \
+                                   'insight-weaver-1.2.4-CI-SNAPSHOT.jar')
       expect(java_opts).to include('-Dinsight.base=$PWD/.java-buildpack/spring_insight/insight')
       expect(java_opts).to include('-Dinsight.logs=$PWD/.java-buildpack/spring_insight/insight/logs')
       expect(java_opts).to include('-Daspectj.overweaving=true')
       expect(java_opts).to include('-Dorg.aspectj.tracing.factory=default')
     end
+  end
+
+  context do
+
+    it 'does extract Spring Insight from the Uber Agent zip file and copy the ActiveMQ plugin' do
+      allow(services).to receive(:one_service?)
+        .with(/p-insight/, 'agent_download_url', 'service_instance_id').and_return(true)
+      allow(services).to receive(:find_service).and_return(
+        'label'       => 'p-insight',
+        'credentials' => {
+          'version'             => '2.0.0',
+          'agent_download_url'  => 'test-uri/services/config/agent-download',
+          'agent_password'      => 'foo',
+          'agent_username'      => 'bar',
+          'service_instance_id' => '12345',
+          'agent_transport'     => 'activemq'
+        }
+      )
+      allow(application_cache).to receive(:get)
+        .with('test-uri/services/config/agent-download')
+        .and_yield(Pathname.new('spec/fixtures/stub-insight-agent.jar').open, false)
+
+      component.compile
+
+      expect(sandbox + 'weaver/insight-weaver-2.0.0-CI-SNAPSHOT.jar').to exist
+      expect(sandbox + 'insight/conf/insight.properties').to exist
+      expect(sandbox + 'insight/agent-plugins/insight-agent-activemq-2.0.0-CI-SNAPSHOT.jar').to exist
+    end
+
   end
 
 end

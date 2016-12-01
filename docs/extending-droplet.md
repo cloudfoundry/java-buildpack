@@ -32,7 +32,8 @@ attr_reader :sandbox
 
 # Copy resources from a components resources directory to a directory
 #
-# @param [Pathname] target_directory the directory to copy to.  Default to a component's +sandbox+
+# @param [Pathname] target_directory the directory to copy to.  Defaults to the component's +sandbox+.
+# @return [Void]
 def copy_resources(target_directory = @sandbox)
 ```
 
@@ -48,6 +49,7 @@ def as_classpath
 # Symlink the contents of the collection to a destination directory.
 #
 # @param [Pathname] destination the destination to link to
+# @return [Void]
 def link_to(destination)
 ```
 
@@ -58,7 +60,7 @@ The id of the component, as determined by the buildpack.  This is used in variou
 One of two helper types (`JavaBuildpack::Component::ImmutableJavaHome`, `JavaBuildpack::Component::MutableJavaHome`) that enables the mutation and retrieval of the droplet's `JAVA_HOME`.  Components that are JREs will be given the `MutableJavaHome` in order to set the value.  All other components will be given the `ImmutableJavaHome` in order to retrieve the value.
 
 ```ruby
-# Returns the path of +JAVA_HOME+ as an environment variable formatted as +JAVA_HOME="$PWD/<value>"+
+# Returns the path of +JAVA_HOME+ as an environment variable formatted as +JAVA_HOME=$PWD/<value>+
 #
 # @return [String] the path of +JAVA_HOME+ as an environment variable
 def as_env_var
@@ -66,9 +68,10 @@ def as_env_var
 # Execute a block with the +JAVA_HOME+ environment variable set
 #
 # @yield yields to block with the +JAVA_HOME+ environment variable set
+# @return [Object] the returned value of the block
 def do_with
 
-# @return [String] the root of the droplet's +JAVA_HOME+
+# @return [String] the root of the droplet's +JAVA_HOME+ formatted as +$PWD/<value>+
 def root
 
 # Sets the root of the droplet's +JAVA_HOME+

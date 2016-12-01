@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,37 +18,42 @@ require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 
-module JavaBuildpack::Framework
+module JavaBuildpack
+  module Framework
 
-  # Encapsulates the functionality for enabling the MariaDB JDBC client.
-  class MariaDbJDBC < JavaBuildpack::Component::VersionedDependencyComponent
+    # Encapsulates the functionality for enabling the MariaDB JDBC client.
+    class MariaDbJDBC < JavaBuildpack::Component::VersionedDependencyComponent
 
-    def compile
-      download_jar
-      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
-    end
+      # (see JavaBuildpack::Component::BaseComponent#compile)
+      def compile
+        download_jar
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      end
 
-    def release
-      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
-    end
+      # (see JavaBuildpack::Component::BaseComponent#release)
+      def release
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      end
 
-    protected
+      protected
 
-    def supports?
-      has_service? && !has_driver?
-    end
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
+      def supports?
+        service? && !driver?
+      end
 
-    private
+      private
 
-    def has_driver?
-      %w(mariadb-java-client*.jar mysql-connector-java*.jar).any? do |candidate|
-        (@application.root + '**' + candidate).glob.any?
+      def driver?
+        %w(mariadb-java-client*.jar mysql-connector-java*.jar).any? do |candidate|
+          (@application.root + '**' + candidate).glob.any?
+        end
+      end
+
+      def service?
+        [/mysql/, /mariadb/].any? { |filter| @application.services.one_service? filter, 'uri' }
       end
     end
 
-    def has_service?
-      [/mysql/, /mariadb/].any? { |filter| @application.services.one_service? filter }
-    end
   end
-
 end

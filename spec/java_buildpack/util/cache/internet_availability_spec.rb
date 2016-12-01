@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,45 +24,57 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
   include_context 'internet_availability_helper'
   include_context 'logging_helper'
 
-  it 'should use internet by default' do
-    expect(described_class.use_internet?).to be
+  it 'uses internet by default' do
+    expect(described_class.instance.available?).to be
   end
 
-  it 'should not have stored internet availability by default' do
-    expect(described_class.internet_availability_stored?).not_to be
+  context do
+
+    before do
+      allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('cache')
+        .and_return('remote_downloads' => 'disabled')
+      described_class.instance.send :initialize
+    end
+
+    it 'does not use internet if remote downloads are disabled' do
+      expect(described_class.instance.available?).not_to be
+    end
   end
 
-  it 'should not use internet if remote downloads are disabled' do
-    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('cache')
-                                                      .and_return('remote_downloads' => 'disabled')
+  it 'records availability',
+     :enable_log_file do
 
-    expect(described_class.use_internet?).not_to be
-    expect(described_class.internet_availability_stored?).to be
+    described_class.instance.available false
+
+    expect(described_class.instance.available?).not_to be
+    expect(log_contents).not_to match(/Internet availability set to false/)
   end
 
-  it 'should raise error if remote downloads are wrongly configured' do
-    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('cache').and_return('remote_downloads' => 'x')
+  it 'records availability with message',
+     :enable_log_file do
 
-    expect { described_class.use_internet? }.to raise_error /Invalid remote_downloads configuration/
+    described_class.instance.available false, 'test message'
+
+    expect(described_class.instance.available?).not_to be
+    expect(log_contents).to match(/Internet availability set to false: test message/)
   end
 
-  it 'should record availability of the internet' do
-    described_class.internet_available
-    expect(described_class.internet_availability_stored?).to be
-    expect(described_class.use_internet?).to be
+  it 'temporarily sets internet unavailable' do
+    expect(described_class.instance.available?).to be
+
+    described_class.instance.available(false) { expect(described_class.instance.available?).not_to be }
+
+    expect(described_class.instance.available?).to be
   end
 
-  it 'should record unavailability of the internet but not log the first time' do
-    described_class.internet_unavailable('test reason')
-    expect(described_class.internet_availability_stored?).to be
-    expect(described_class.use_internet?).not_to be
-    expect(log_contents).not_to match /test reason/
-  end
+  it 'temporarily sets internet available',
+     :disable_internet do
 
-  it 'should record unavailability of the internet and log after the first time' do
-    described_class.internet_unavailable('test reason')
-    described_class.internet_unavailable('another reason')
-    expect(log_contents).to match /another reason/
+    expect(described_class.instance.available?).not_to be
+
+    described_class.instance.available(true) { expect(described_class.instance.available?).to be }
+
+    expect(described_class.instance.available?).not_to be
   end
 
 end

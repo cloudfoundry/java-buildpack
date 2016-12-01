@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,28 +18,33 @@ require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 require 'java_buildpack/util/play/factory'
 
-module JavaBuildpack::Framework
+module JavaBuildpack
+  module Framework
 
-  # Encapsulates the functionality for enabling cloud auto-reconfiguration in Play applications. Note that Spring auto-
-  # reconfiguration is covered by the SpringAutoReconfiguration framework. The reconfiguration performed here is to
-  # override Play application configuration to bind a Play application to cloud resources.
-  class PlayFrameworkAutoReconfiguration < JavaBuildpack::Component::VersionedDependencyComponent
+    # Encapsulates the functionality for enabling cloud auto-reconfiguration in Play applications. Note that Spring
+    # auto- reconfiguration is covered by the SpringAutoReconfiguration framework. The reconfiguration performed here is
+    # to override Play application configuration to bind a Play application to cloud resources.
+    class PlayFrameworkAutoReconfiguration < JavaBuildpack::Component::VersionedDependencyComponent
 
-    def compile
-      download_jar
-      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
-    end
+      # (see JavaBuildpack::Component::BaseComponent#compile)
+      def compile
+        download_jar
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      end
 
-    def release
-      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
-    end
+      # (see JavaBuildpack::Component::BaseComponent#release)
+      def release
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      end
 
-    protected
+      protected
 
-    def supports?
-      JavaBuildpack::Util::Play::Factory.create @droplet
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
+      def supports?
+        @configuration['enabled'] && JavaBuildpack::Util::Play::Factory.create(@droplet)
+      end
+
     end
 
   end
-
 end

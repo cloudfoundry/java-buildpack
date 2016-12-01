@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,22 +17,28 @@
 require 'java_buildpack/util'
 require 'open3'
 
-# A mixin that provides a +shell()+ command
-module JavaBuildpack::Util::Shell
+module JavaBuildpack
+  module Util
 
-  # A +system()+-like command that ensure that the execution fails if the command returns a non-zero exit code
-  #
-  # @param [String] command the command to run
-  def shell(command)
-    Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
-      if wait_thr.value != 0
-        puts "\nCommand '#{command}' has failed"
-        puts "STDOUT: #{stdout.gets}"
-        puts "STDERR: #{stderr.gets}"
+    # A mixin that provides a +shell()+ command
+    module Shell
 
-        fail
+      # A +system()+-like command that ensure that the execution fails if the command returns a non-zero exit code
+      #
+      # @param [Object] args The command to run
+      # @return [Void]
+      def shell(*args)
+        Open3.popen3(*args) do |_stdin, stdout, stderr, wait_thr|
+          unless wait_thr.value.success?
+            puts "\nCommand '#{args.join ' '}' has failed"
+            puts "STDOUT: #{stdout.gets nil}"
+            puts "STDERR: #{stderr.gets nil}"
+
+            raise
+          end
+        end
       end
+
     end
   end
-
 end

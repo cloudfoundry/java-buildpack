@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,25 +17,26 @@
 require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/new_relic_agent'
+require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Framework::NewRelicAgent do
   include_context 'component_helper'
 
-  it 'should not detect without newrelic-n/a service' do
+  it 'does not detect without newrelic-n/a service' do
     expect(component.detect).to be_nil
   end
 
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/newrelic/).and_return(true)
+      allow(services).to receive(:one_service?).with(/newrelic/, %w(licenseKey license_key)).and_return(true)
     end
 
-    it 'should detect with newrelic-n/a service' do
+    it 'detects with newrelic-n/a service' do
       expect(component.detect).to eq("new-relic-agent=#{version}")
     end
 
-    it 'should download New Relic agent JAR',
+    it 'downloads New Relic agent JAR',
        cache_fixture: 'stub-new-relic-agent.jar' do
 
       component.compile
@@ -43,7 +44,7 @@ describe JavaBuildpack::Framework::NewRelicAgent do
       expect(sandbox + "new_relic_agent-#{version}.jar").to exist
     end
 
-    it 'should copy resources',
+    it 'copies resources',
        cache_fixture: 'stub-new-relic-agent.jar' do
 
       component.compile
@@ -51,16 +52,40 @@ describe JavaBuildpack::Framework::NewRelicAgent do
       expect(sandbox + 'newrelic.yml').to exist
     end
 
-    it 'should update JAVA_OPTS' do
+    it 'updates JAVA_OPTS' do
       allow(services).to receive(:find_service).and_return('credentials' => { 'licenseKey' => 'test-license-key' })
+      allow(java_home).to receive(:java_8_or_later?).and_return(JavaBuildpack::Util::TokenizedVersion.new('1.7.0_u10'))
 
       component.release
 
       expect(java_opts).to include("-javaagent:$PWD/.java-buildpack/new_relic_agent/new_relic_agent-#{version}.jar")
       expect(java_opts).to include('-Dnewrelic.home=$PWD/.java-buildpack/new_relic_agent')
       expect(java_opts).to include('-Dnewrelic.config.license_key=test-license-key')
-      expect(java_opts).to include("-Dnewrelic.config.app_name='test-application-name'")
-      expect(java_opts).to include('-Dnewrelic.config.log_file_path=$PWD/.java-buildpack/new_relic_agent/logs')
+      expect(java_opts).to include('-Dnewrelic.config.app_name=test-application-name')
+      expect(java_opts).to include('-Dnewrelic.config.log_file_name=STDOUT')
+    end
+
+    it 'updates JAVA_OPTS with additional options' do
+      allow(services).to receive(:find_service).and_return('credentials' => { 'licenseKey' => 'test-license-key',
+                                                                              'license_key' => 'different-license-key',
+                                                                              'app_name' => 'different-name',
+                                                                              'foo' => 'bar' })
+      allow(java_home).to receive(:java_8_or_later?).and_return(JavaBuildpack::Util::TokenizedVersion.new('1.7.0_u10'))
+
+      component.release
+
+      expect(java_opts).to include('-Dnewrelic.config.license_key=different-license-key')
+      expect(java_opts).to include('-Dnewrelic.config.app_name=different-name')
+      expect(java_opts).to include('-Dnewrelic.config.foo=bar')
+    end
+
+    it 'updates JAVA_OPTS on Java 8' do
+      allow(services).to receive(:find_service).and_return('credentials' => { 'licenseKey' => 'test-license-key' })
+      allow(java_home).to receive(:java_8_or_later?).and_return(JavaBuildpack::Util::TokenizedVersion.new('1.8.0_u10'))
+
+      component.release
+
+      expect(java_opts).to include('-Dnewrelic.enable.java.8=true')
     end
 
   end

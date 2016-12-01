@@ -3,7 +3,8 @@ The Play Framework Container allows Play Framework applications to be run.
 
 <table>
   <tr>
-    <td><strong>Detection Criteria</strong></td><td>The Play Framework start script and the Play Framework runtime JAR exist in the appropriate subdirectories of the application directory or one of its immediate subdirectories (but not in both)</td>
+    <td><strong>Detection Criteria</strong></td>
+    <td>The Play Framework start script and the Play Framework runtime JAR exist in the appropriate subdirectories of the application directory or one of its immediate subdirectories (but not in both)</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>

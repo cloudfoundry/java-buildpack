@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ require 'java_buildpack/component/versioned_dependency_component'
 describe JavaBuildpack::Component::VersionedDependencyComponent do
   include_context 'component_helper'
 
-  let(:versioned_dependency_component) { StubVersionedDependencyComponent.new context }
+  let(:component) { StubVersionedDependencyComponent.new context }
 
-  it 'should fail if methods are unimplemented' do
-    expect { versioned_dependency_component.compile }.to raise_error
-    expect { versioned_dependency_component.release }.to raise_error
-    expect { versioned_dependency_component.supports? }.to raise_error
+  it 'fails if methods are unimplemented' do
+    expect { component.compile }.to raise_error
+    expect { component.release }.to raise_error
+    expect { component.supports? }.to raise_error
   end
 
   context do
@@ -34,8 +34,8 @@ describe JavaBuildpack::Component::VersionedDependencyComponent do
       allow_any_instance_of(StubVersionedDependencyComponent).to receive(:supports?).and_return(false)
     end
 
-    it 'should return nil from detect if not supported' do
-      expect(versioned_dependency_component.detect).to be_nil
+    it 'returns nil from detect if not supported' do
+      expect(component.detect).to be_nil
     end
   end
 
@@ -45,35 +45,35 @@ describe JavaBuildpack::Component::VersionedDependencyComponent do
       allow_any_instance_of(StubVersionedDependencyComponent).to receive(:supports?).and_return(true)
     end
 
-    it 'should return name and version string from detect if supported' do
-      expect(versioned_dependency_component.detect).to eq("stub-versioned-dependency-component=#{version}")
+    it 'returns name and version string from detect if supported' do
+      expect(component.detect).to eq("stub-versioned-dependency-component=#{version}")
     end
 
-    it 'should download jar file and put it in the sandbox',
+    it 'downloads jar file and put it in the sandbox',
        cache_fixture: 'stub-download.jar' do
 
-      versioned_dependency_component.download_jar
+      component.download_jar
       expect(droplet.sandbox + "versioned_dependency_component-#{version}.jar").to exist
     end
 
-    it 'should download and expand TAR file in the sandbox',
+    it 'downloads and expand TAR file in the sandbox',
        cache_fixture: 'stub-download.tar.gz' do
 
-      versioned_dependency_component.download_tar
+      component.download_tar
       expect(droplet.sandbox + 'test-file').to exist
     end
 
-    it 'should download and expand ZIP file in the sandbox',
+    it 'downloads and expand ZIP file in the sandbox',
        cache_fixture: 'stub-download.zip' do
 
-      versioned_dependency_component.download_zip(false)
+      component.download_zip(false)
       expect(droplet.sandbox + 'test-file').to exist
     end
 
-    it 'should download and expand ZIP file, stripping the top level directory in the sandbox',
+    it 'downloads and expand ZIP file, stripping the top level directory in the sandbox',
        cache_fixture: 'stub-download-with-top-level.zip' do
 
-      versioned_dependency_component.download_zip
+      component.download_zip
       expect(droplet.sandbox + 'test-file').to exist
     end
   end

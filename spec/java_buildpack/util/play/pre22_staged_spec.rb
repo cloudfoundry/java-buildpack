@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,59 +21,72 @@ require 'java_buildpack/util/play/pre22_staged'
 describe JavaBuildpack::Util::Play::Pre22Staged do
   include_context 'component_helper'
 
-  before do
-    java_home
-    java_opts
-  end
-
   context do
 
     let(:trigger) { described_class.new(droplet).supports? }
 
-    it 'should not recognize non-applications' do
+    it 'does not recognize non-applications' do
       expect(trigger).not_to be
     end
 
-    it 'should not recognize Play 2.0 dist applications',
+    it 'does not recognize Play 2.0 dist applications',
        app_fixture: 'container_play_2.0_dist' do
 
       expect(trigger).not_to be
     end
 
-    it 'should not recognize Play 2.1 dist applications',
+    it 'does not recognize Play 2.1 dist applications',
        app_fixture: 'container_play_2.1_dist' do
 
       expect(trigger).not_to be
     end
 
-    it 'should recognize Play 2.1 staged (or equivalently 2.0 staged) applications',
+    it 'recognizes Play 2.1 staged (or equivalently 2.0 staged) applications',
        app_fixture: 'container_play_2.1_staged' do
 
       expect(trigger).to be
     end
 
-    it 'should not recognize Play 2.2 dist applications',
+    it 'does not recognize Play 2.2 dist applications',
        app_fixture: 'container_play_2.2_dist' do
 
       expect(trigger).not_to be
     end
 
-    it 'should not recognize Play 2.2 staged applications',
+    it 'does not recognize Play 2.2 staged applications',
        app_fixture: 'container_play_2.2_staged' do
+
+      expect(trigger).not_to be
+    end
+
+    it 'does not recognize a Ratpack application',
+       app_fixture: 'container_ratpack_dist' do
+
+      expect(trigger).not_to be
+    end
+
+    it 'does not recognize a Spring Boot application',
+       app_fixture: 'container_spring_boot_dist' do
+
+      expect(trigger).not_to be
+    end
+
+    it 'does not recognize a distZip application',
+       app_fixture: 'container_dist_zip' do
 
       expect(trigger).not_to be
     end
   end
 
-  context app_fixture: 'container_play_2.1_staged' do
+  context nil, app_fixture: 'container_play_2.1_staged' do
 
     let(:play_app) { described_class.new(droplet) }
 
-    it 'should correctly determine the version of a Play 2.1 staged (or equivalently 2.0 staged) application' do
+    it 'determines the version of a Play 2.1 staged (or equivalently 2.0 staged) application' do
       expect(play_app.version).to eq('2.1.4')
     end
 
-    it 'should add additional libraries to staged directory of a Play 2.1 staged (or equivalently 2.0 staged) application' do
+    it 'adds additional libraries to staged directory of a Play 2.1 staged (or equivalently 2.0 staged) application' do
       play_app.compile
 
       staged_dir = app_dir + 'staged'
@@ -89,9 +102,9 @@ describe JavaBuildpack::Util::Play::Pre22Staged do
       expect(test_jar_2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(staged_dir))
     end
 
-    it 'should return command' do
-      expect(play_app.release).to eq("PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} $PWD/start " +
-                                         'test-opt-2 test-opt-1 -Dhttp.port=$PORT')
+    it 'returns command' do
+      expect(play_app.release).to eq("test-var-2 test-var-1 PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} " \
+                                       'exec $PWD/start test-opt-2 test-opt-1 -Dhttp.port=$PORT')
     end
 
   end

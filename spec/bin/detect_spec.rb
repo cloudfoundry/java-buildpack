@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,18 +17,33 @@
 require 'spec_helper'
 require 'integration_helper'
 
-describe 'detect script', :integration do
+describe 'detect script', :integration do # rubocop:disable RSpec/DescribeClass
   include_context 'integration_helper'
 
-  it 'should return zero if success',
+  it 'returns zero if success',
      app_fixture: 'integration_valid' do
 
-    run("bin/detect #{app_dir}") { |status| expect(status).to be_success }
+    run("bin/detect #{app_dir}") do |status|
+      expect(status).to be_success
+      expect(stdout.string.rstrip.length).to be < 255
+    end
   end
 
-  it 'should fail to detect when no containers detect' do
+  it 'fails to detect when no containers detect' do
     run("bin/detect #{app_dir}") do |status|
       expect(status).not_to be_success
+      expect(stdout.string).to be_empty
+    end
+  end
+
+  it 'truncates long detect strings',
+     app_fixture:       'integration_valid',
+     buildpack_fixture: 'integration_long_detect_tag' do
+
+    run("bin/detect #{app_dir}") do |status|
+      expect(status).to be_success
+      expect(stdout.string.rstrip.length).to eq 255
+      expect(stdout.string.rstrip).to end_with '...'
     end
   end
 

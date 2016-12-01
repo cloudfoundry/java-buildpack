@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ CodeClimate::TestReporter.start
 
 require 'webmock/rspec'
 WebMock.disable_net_connect!(allow: 'codeclimate.com')
+
+require 'java_buildpack/util/cache/yield_file_with_content'
 
 RSpec.configure do |config|
   config.run_all_when_everything_filtered = true

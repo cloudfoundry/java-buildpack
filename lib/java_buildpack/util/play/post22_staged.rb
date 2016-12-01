@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,17 +16,22 @@
 
 require 'java_buildpack/util/play/post22'
 
-module JavaBuildpack::Util::Play
+module JavaBuildpack
+  module Util
+    module Play
 
-  # Encapsulate inspection and modification of Play staged applications from Play 2.2.0 onwards.
-  class Post22Staged < Post22
+      # Encapsulate inspection and modification of Play staged applications from Play 2.2.0 onwards.
+      class Post22Staged < Post22
 
-    protected
+        protected
 
-    def root
-      @droplet.root
+        # (see JavaBuildpack::Util::Play::Post22#root)
+        def root
+          @droplet.root
+        end
+
+      end
+
     end
-
   end
-
 end

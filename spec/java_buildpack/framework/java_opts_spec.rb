@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,94 +22,183 @@ describe JavaBuildpack::Framework::JavaOpts do
   include_context 'component_helper'
 
   context do
-    let(:configuration) { super().merge('java_opts' => '-Xmx1024M') }
+    let(:configuration) { { 'java_opts' => '-Xmx1024M' } }
 
-    it 'should detect with java.opts configuration' do
+    it 'detects with java.opts configuration' do
       expect(component.detect).to eq('java-opts')
     end
   end
 
-  it 'should not detect without java_opts configuration' do
+  context do
+    let(:configuration) { { 'from_environment' => true } }
+    let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
+
+    it 'detects with ENV and with from_environment configuration' do
+      expect(component.detect).to eq('java-opts')
+    end
+  end
+
+  context do
+    let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
+
+    it 'does not detect with ENV and without from_environment configuration' do
+      expect(component.detect).to be_nil
+    end
+  end
+
+  context do
+    let(:configuration) { { 'java_opts' => nil } }
+
+    it 'does not detect with nil java_opts configuration' do
+      expect(component.detect).to be_nil
+    end
+  end
+
+  it 'does not detect without java_opts configuration' do
     expect(component.detect).to be_nil
   end
 
   context do
     let(:configuration) do
-      super().merge('java_opts' => '-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y ' +
-          "-XX:OnOutOfMemoryError='kill -9 %p'")
+      { 'java_opts' => '-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y ' \
+          "-XX:OnOutOfMemoryError='kill -9 %p'" }
     end
 
-    it 'should add split java_opts to context' do
+    it 'adds split java_opts to context' do
       component.release
-
       expect(java_opts).to include('-Xdebug')
       expect(java_opts).to include('-Xnoagent')
-      expect(java_opts).to include('-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y')
-      expect(java_opts).to include('-XX:OnOutOfMemoryError=kill\ -9\ %p')
+      expect(java_opts).to include('-Xrunjdwp:transport=dt_socket,server\=y,address\=8000,suspend\=y')
+      expect(java_opts).to include('-XX:OnOutOfMemoryError=kill\ -9\ \%p')
     end
   end
 
   context do
-    let(:configuration) { super().merge('java_opts' => '-Xms1024M') }
+    let(:configuration) do
+      { 'java_opts' => '-Dtest=!£%^&*()<>[]{};~`' }
+    end
 
-    it 'should raise an error if a -Xms is configured' do
-      expect { component.compile }.to raise_error /-Xms/
+    it 'escapes special characters' do
+      component.release
+      expect(java_opts).to include('-Dtest=\!\£\%\^\&\*\(\)\<\>\[\]\{\}\;\~\`')
     end
   end
 
   context do
-    let(:configuration) { super().merge('java_opts' => '-Xmx1024M') }
+    let(:configuration) do
+      { 'java_opts' => '-Dtest=$DOLLAR\\\SLASH' }
+    end
 
-    it 'should raise an error if a -Xmx is configured' do
-      expect { component.compile }.to raise_error /-Xmx/
+    it 'does not escape the shell variable character from configuration' do
+      component.release
+      expect(java_opts).to include('-Dtest=$DOLLAR\SLASH')
     end
   end
 
   context do
-    let(:configuration) { super().merge('java_opts' => '-XX:MaxMetaspaceSize=128M') }
+    let(:configuration) { { 'from_environment' => true } }
+    let(:environment) { { 'JAVA_OPTS' => '-Dtest=$dollar\\\slash' } }
 
-    it 'should raise an error if a -XX:MaxMetaspaceSize is configured' do
-      expect { component.compile }.to raise_error /-XX:MaxMetaspaceSize/
+    it 'does not escape the shell variable character from environment' do
+      component.release
+      expect(java_opts).to include('-Dtest=$dollar\slash')
     end
   end
 
   context do
-    let(:configuration) { super().merge('java_opts' => '-XX:MetaspaceSize=128M') }
+    let(:configuration) do
+      { 'java_opts' => '-Dtest=something.\\\$dollar.\\\\\\\slash' }
+    end
 
-    it 'should raise an error if a -XX:MetaspaceSize is configured' do
-      expect { component.compile }.to raise_error /-XX:MetaspaceSize/
+    it 'can escape non-escaped characters ' do
+      component.release
+      expect(java_opts).to include('-Dtest=something.\\$dollar.\\\slash')
     end
   end
 
   context do
-    let(:configuration) { super().merge('java_opts' => '-XX:MaxPermSize=128M') }
+    let(:configuration) do
+      { 'java_opts' => '-javaagent:agent.jar=port=$PORT,host=localhost' }
+    end
 
-    it 'should raise an error if a -XX:MaxPermSize is configured' do
-      expect { component.compile }.to raise_error /-XX:MaxPermSize/
+    it 'escapes equal signs after the first one' do
+      component.release
+      expect(java_opts).to include('-javaagent:agent.jar=port\\=$PORT,host\\=localhost')
     end
   end
 
   context do
-    let(:configuration) { super().merge('java_opts' => '-XX:PermSize=128M') }
+    let(:configuration) { { 'java_opts' => '-Xms1024M' } }
 
-    it 'should raise an error if a -XX:PermSize is configured' do
-      expect { component.compile }.to raise_error /-XX:PermSize/
+    it 'raises an error if a -Xms is configured' do
+      expect { component.compile }.to raise_error(/-Xms/)
     end
   end
 
   context do
-    let(:configuration) { super().merge('java_opts' => '-Xss1M') }
+    let(:configuration) { { 'java_opts' => '-Xmx1024M' } }
 
-    it 'should raise an error if a -Xss is configured' do
-      expect { component.compile }.to raise_error /-Xss/
+    it 'raises an error if a -Xmx is configured' do
+      expect { component.compile }.to raise_error(/-Xmx/)
     end
   end
 
   context do
-    let(:java_opts) { super() << '-Xmx30m -Xms30m' }
+    let(:configuration) { { 'java_opts' => '-XX:MaxMetaspaceSize=128M' } }
 
-    it 'should not allow multiple options in a single array entry' do
-      expect { component.release }.to raise_error /Invalid Java option contains more than one option/
+    it 'raises an error if a -XX:MaxMetaspaceSize is configured' do
+      expect { component.compile }.to raise_error(/-XX:MaxMetaspaceSize/)
+    end
+  end
+
+  context do
+    let(:configuration) { { 'java_opts' => '-XX:MetaspaceSize=128M' } }
+
+    it 'raises an error if a -XX:MetaspaceSize is configured' do
+      expect { component.compile }.to raise_error(/-XX:MetaspaceSize/)
+    end
+  end
+
+  context do
+    let(:configuration) { { 'java_opts' => '-XX:MaxPermSize=128M' } }
+
+    it 'raises an error if a -XX:MaxPermSize is configured' do
+      expect { component.compile }.to raise_error(/-XX:MaxPermSize/)
+    end
+  end
+
+  context do
+    let(:configuration) { { 'java_opts' => '-XX:PermSize=128M' } }
+
+    it 'raises an error if a -XX:PermSize is configured' do
+      expect { component.compile }.to raise_error(/-XX:PermSize/)
+    end
+  end
+
+  context do
+    let(:configuration) { { 'java_opts' => '-Xss1M' } }
+
+    it 'raises an error if a -Xss is configured' do
+      expect { component.compile }.to raise_error(/-Xss/)
+    end
+  end
+
+  context do
+    let(:configuration) { { 'from_environment' => true } }
+    let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
+
+    it 'includes values specified in ENV[JAVA_OPTS]' do
+      component.release
+      expect(java_opts).to include('-Dalpha=bravo')
+    end
+  end
+
+  context do
+    let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
+
+    it 'does not include values specified in ENV[JAVA_OPTS] without from_environment' do
+      component.release
+      expect(java_opts).not_to include('-Dalpha=bravo')
     end
   end
 

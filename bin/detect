@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,12 +23,11 @@ require 'java_buildpack/buildpack'
 
 build_dir = ARGV[0]
 
-components = JavaBuildpack::Buildpack.with_buildpack(build_dir, 'Detect failed with exception %s') do |buildpack|
-  buildpack.detect
-end.compact
+components = JavaBuildpack::Buildpack.with_buildpack(build_dir, 'Detect failed with exception %s', &:detect).compact
 
 if components.empty?
   abort
 else
-  puts components.join(' ')
+  str = components.join(' ')
+  puts str.length > 255 ? str.slice(0..251) + '...' : str
 end

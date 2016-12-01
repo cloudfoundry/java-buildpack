@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,40 +19,48 @@ require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/framework'
 require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
 
-module JavaBuildpack::Framework
+module JavaBuildpack
+  module Framework
 
-  # Encapsulates the detect, compile, and release functionality for enabling cloud auto-reconfiguration in Spring
-  # applications.
-  class SpringAutoReconfiguration < JavaBuildpack::Component::VersionedDependencyComponent
+    # Encapsulates the detect, compile, and release functionality for enabling cloud auto-reconfiguration in Spring
+    # applications.
+    class SpringAutoReconfiguration < JavaBuildpack::Component::VersionedDependencyComponent
 
-    def initialize(context)
-      super(context)
-      @logger = JavaBuildpack::Logging::LoggerFactory.get_logger SpringAutoReconfiguration
-    end
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        super(context)
+        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger SpringAutoReconfiguration
+      end
 
-    def compile
-      download_jar
-      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      # (see JavaBuildpack::Component::BaseComponent#compile)
+      def compile
+        download_jar
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
 
-      modify_web_xml
-    end
+        modify_web_xml
+      end
 
-    def release
-      @droplet.additional_libraries << (@droplet.sandbox + jar_name)
-    end
+      # (see JavaBuildpack::Component::BaseComponent#release)
+      def release
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+      end
 
-    protected
+      protected
 
-    def supports?
-      (@droplet.root + '**/*spring-core*.jar').glob.any?
-    end
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
+      def supports?
+        @configuration['enabled'] && (@droplet.root + '**/*spring-core*.jar').glob.any?
+      end
 
-    private
+      private
 
-    def modify_web_xml
-      web_xml = @droplet.root + 'WEB-INF/web.xml'
+      def modify_web_xml
+        web_xml = @droplet.root + 'WEB-INF/web.xml'
 
-      if web_xml.exist?
+        return unless web_xml.exist?
+
         puts '       Modifying /WEB-INF/web.xml for Auto Reconfiguration'
         @logger.debug { "  Original web.xml: #{web_xml.read}" }
 
@@ -67,8 +75,8 @@ module JavaBuildpack::Framework
 
         @logger.debug { "  Modified web.xml: #{web_xml.read}" }
       end
+
     end
 
   end
-
 end

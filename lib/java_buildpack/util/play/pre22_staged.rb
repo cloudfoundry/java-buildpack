@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,29 +16,32 @@
 
 require 'java_buildpack/util/play/pre22'
 
-module JavaBuildpack::Util::Play
+module JavaBuildpack
+  module Util
+    module Play
 
-  # Encapsulate inspection and modification of Play staged applications up to and including Play 2.1.x.
-  class Pre22Staged < Pre22
+      # Encapsulate inspection and modification of Play staged applications up to and including Play 2.1.x.
+      class Pre22Staged < Pre22
 
-    protected
+        protected
 
-    def augment_classpath
-      @droplet.additional_libraries.link_to lib_dir
+        # (see JavaBuildpack::Util::Play::Base#augment_classpath)
+        def augment_classpath
+          @droplet.additional_libraries.link_to lib_dir
+        end
+
+        # (see JavaBuildpack::Util::Play::Base#lib_dir)
+        def lib_dir
+          root + 'staged'
+        end
+
+        # (see JavaBuildpack::Util::Play::Pre22#root)
+        def root
+          @droplet.root
+        end
+
+      end
+
     end
-
-    def java_opts
-      @droplet.java_opts
-    end
-
-    def lib_dir
-      root + 'staged'
-    end
-
-    def root
-      @droplet.root
-    end
-
   end
-
 end
