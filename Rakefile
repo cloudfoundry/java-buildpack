@@ -1,5 +1,6 @@
+# Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,29 +14,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'rake/clean'
+
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new
+CLEAN.include 'coverage'
+
+require 'rubocop/rake_task'
+RuboCop::RakeTask.new { |t| t.requires << 'rubocop-rspec' }
 
 require 'yard'
 YARD::Rake::YardocTask.new
+CLEAN.include '.yardoc', 'doc'
 
-require 'rubocop/rake_task'
-Rubocop::RakeTask.new
-
-require 'open3'
+desc 'Check that all APIs have been documented'
 task :check_api_doc do
-  puts "\nChecking API documentation..."
-  output = Open3.capture3("yard stats --list-undoc")[0]
-  if output !~ /100.00% documented/
-  	puts "\nFailed due to undocumented public API:\n\n#{output}"
-  	exit 1
-  else
-  	puts "\n#{output}\n"
-  end
+  output = `yard stats --list-undoc`
+  abort "\nFailed due to undocumented public API:\n\n#{output}" if output !~ /100.00% documented/
 end
 
-require 'rake/clean'
-CLEAN.include %w(.yardoc coverage)
-CLOBBER.include %w(doc pkg)
+$LOAD_PATH.unshift File.expand_path('..', __FILE__)
+require 'rakelib/dependency_cache_task'
+require 'rakelib/stage_buildpack_task'
+require 'rakelib/package_task'
+Package::DependencyCacheTask.new
+Package::StageBuildpackTask.new(Dir['bin/**/*', 'config/**/*', 'lib/**/*', 'resources/**/*']
+                                  .reject { |f| File.directory? f })
+Package::PackageTask.new
 
-task :default => [ :rubocop, :check_api_doc, :spec ]
+task default: %w(rubocop check_api_doc spec)

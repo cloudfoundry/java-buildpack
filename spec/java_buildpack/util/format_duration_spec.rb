@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 require 'spec_helper'
 require 'java_buildpack/util/format_duration'
 
-describe 'format duration' do
+describe 'duration' do # rubocop:disable RSpec/DescribeClass
 
-  it 'should display seconds' do
+  it 'displays seconds' do
     expect_time_string '0.0s', MILLISECOND
     expect_time_string '0.1s', TENTH
     expect_time_string '1.0s', SECOND
@@ -27,14 +27,14 @@ describe 'format duration' do
     expect_time_string '1.1s', SECOND + TENTH + MILLISECOND
   end
 
-  it 'should display minutes' do
+  it 'displays minutes' do
     expect_time_string '1m 0s', MINUTE
     expect_time_string '1m 1s', MINUTE + SECOND
     expect_time_string '1m 1s', MINUTE + SECOND + TENTH
     expect_time_string '1m 1s', MINUTE + SECOND + TENTH + MILLISECOND
   end
 
-  it 'should display hours' do
+  it 'displays hours' do
     expect_time_string '1h 0m', HOUR
     expect_time_string '1h 1m', HOUR + MINUTE
     expect_time_string '1h 1m', HOUR + MINUTE + SECOND
@@ -46,13 +46,13 @@ describe 'format duration' do
 
   MILLISECOND = 0.001
 
-  TENTH = 100 * MILLISECOND
+  TENTH = (100 * MILLISECOND).freeze
 
-  SECOND = 10 * TENTH
+  SECOND = (10 * TENTH).freeze
 
-  MINUTE = 60 * SECOND
+  MINUTE = (60 * SECOND).freeze
 
-  HOUR = 60 * MINUTE
+  HOUR = (60 * MINUTE).freeze
 
   def expect_time_string(expected, time)
     expect(time.duration).to eq(expected)

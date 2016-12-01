@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,55 +15,82 @@
 # limitations under the License.
 
 require 'spec_helper'
+require 'logging_helper'
 require 'java_buildpack/component/services'
 
 describe JavaBuildpack::Component::Services do
+  include_context 'logging_helper'
 
   let(:service) do
     { 'name'        => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
-      'credentials' => { 'uri' => 'test-uri' } }
+      'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' } }
   end
 
   let(:services) { described_class.new('test' => [service]) }
 
-  it 'should return false from one_service? if there is no service that matches' do
-    expect(services.one_service? 'bad-test').not_to be
-    expect(services.one_service? /bad-test/).not_to be
+  it 'returns false from one_service? if there is no service that matches' do
+    expect(services.one_service?('bad-test')).not_to be
+    expect(services.one_service?(/bad-test/)).not_to be
   end
 
-  it 'should return true from one_service? if there is a matching name' do
-    expect(services.one_service? 'test-name').to be
-    expect(services.one_service? /test-name/).to be
+  it 'returns true from one_service? if there is a matching name' do
+    expect(services.one_service?('test-name')).to be
+    expect(services.one_service?(/test-name/)).to be
   end
 
-  it 'should return true from one_service? if there is a matching label' do
-    expect(services.one_service? 'test-label').to be
-    expect(services.one_service? /test-label/).to be
+  it 'returns true from one_service? if there is a matching label' do
+    expect(services.one_service?('test-label')).to be
+    expect(services.one_service?(/test-label/)).to be
   end
 
-  it 'should return true from one_service? if there is a matching tag' do
-    expect(services.one_service? 'test-tag').to be
-    expect(services.one_service? /test-tag/).to be
+  it 'returns true from one_service? if there is a matching tag' do
+    expect(services.one_service?('test-tag')).to be
+    expect(services.one_service?(/test-tag/)).to be
   end
 
-  it 'should return nil from find_service? if there is no service that matches' do
-    expect(services.find_service 'bad-test').to be_nil
-    expect(services.find_service /bad-test/).to be_nil
+  it 'returns false from one_service? if there is a matching service without required credentials' do
+    expect(services.one_service?('test-tag', 'bad-credential')).not_to be
+    expect(services.one_service?(/test-tag/, 'bad-credential')).not_to be
   end
 
-  it 'should return true from one_service? if there is a matching name' do
-    expect(services.find_service 'test-name').to be(service)
-    expect(services.find_service /test-name/).to be(service)
+  it 'returns true from one_service? if there is a matching service with required credentials' do
+    expect(services.one_service?('test-tag', 'uri')).to be
+    expect(services.one_service?(/test-tag/, 'uri')).to be
   end
 
-  it 'should return true from one_service? if there is a matching label' do
-    expect(services.find_service 'test-label').to be(service)
-    expect(services.find_service /test-label/).to be(service)
+  it 'returns true from one_service? if there is a matching service with one required group credentials' do
+    expect(services.one_service?('test-tag', %w(uri other))).to be
+    expect(services.one_service?(/test-tag/, %w(uri other))).to be
   end
 
-  it 'should return true from one_service? if there is a matching tag' do
-    expect(services.find_service 'test-tag').to be(service)
-    expect(services.find_service /test-tag/).to be(service)
+  it 'returns true from one_service? if there is a matching service with two required group credentials' do
+    expect(services.one_service?('test-tag', %w(h1 h2))).to be
+    expect(services.one_service?(/test-tag/, %w(h1 h2))).to be
+  end
+
+  it 'returns false from one_service? if there is a matching service with no required group credentials' do
+    expect(services.one_service?('test-tag', %w(foo bar))).not_to be
+    expect(services.one_service?(/test-tag/, %w(foo bar))).not_to be
+  end
+
+  it 'returns nil from find_service? if there is no service that matches' do
+    expect(services.find_service('bad-test')).to be_nil
+    expect(services.find_service(/bad-test/)).to be_nil
+  end
+
+  it 'returns service from find_service? if there is a matching name' do
+    expect(services.find_service('test-name')).to be(service)
+    expect(services.find_service(/test-name/)).to be(service)
+  end
+
+  it 'returns service from find_service? if there is a matching label' do
+    expect(services.find_service('test-label')).to be(service)
+    expect(services.find_service(/test-label/)).to be(service)
+  end
+
+  it 'returns service from find_service? if there is a matching tag' do
+    expect(services.find_service('test-tag')).to be(service)
+    expect(services.find_service(/test-tag/)).to be(service)
   end
 
 end

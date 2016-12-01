@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ require 'application_helper'
 require 'logging_helper'
 require 'java_buildpack/component/additional_libraries'
 require 'java_buildpack/component/droplet'
+require 'java_buildpack/component/environment_variables'
 require 'java_buildpack/component/java_opts'
 require 'java_buildpack/component/immutable_java_home'
 require 'java_buildpack/util/snake_case'
@@ -35,14 +36,21 @@ shared_context 'droplet_helper' do
   let(:component_id) { described_class.to_s.split('::').last.snake_case }
 
   let(:droplet) do
-    JavaBuildpack::Component::Droplet.new(additional_libraries, component_id, java_home, java_opts, app_dir)
+    JavaBuildpack::Component::Droplet.new(additional_libraries, component_id, environment_variables,
+                                          java_home, java_opts, app_dir)
   end
 
   let(:sandbox) { droplet.sandbox }
 
   let(:java_home) do
-    JavaBuildpack::Component::ImmutableJavaHome.new double('MutableJavaHome', root: app_dir + '.test-java-home'),
-                                                    app_dir
+    delegate = instance_double('MutableJavaHome', root: app_dir + '.test-java-home', version: %w(1 7 55 u60))
+    JavaBuildpack::Component::ImmutableJavaHome.new delegate, app_dir
+  end
+
+  let(:environment_variables) do
+    java_opts = JavaBuildpack::Component::EnvironmentVariables.new app_dir
+    java_opts.concat %w(test-var-2 test-var-1)
+    java_opts
   end
 
   let(:java_opts) do

@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,441 +16,313 @@
 
 require 'spec_helper'
 require 'application_helper'
-require 'buildpack_cache_helper'
 require 'internet_availability_helper'
 require 'logging_helper'
 require 'fileutils'
 require 'java_buildpack/util/cache/download_cache'
-require 'java_buildpack/util/cache/internet_availability'
+require 'net/http'
 
 describe JavaBuildpack::Util::Cache::DownloadCache do
   include_context 'application_helper'
   include_context 'internet_availability_helper'
   include_context 'logging_helper'
 
-  let(:download_cache) { described_class.new(app_dir) }
+  let(:ca_certs_directory) { instance_double('Pathname', exist?: false, to_s: 'test-path') }
 
-  let(:trigger) { download_cache.get('http://foo-uri/') {} }
+  let(:mutable_cache_root) { app_dir + 'mutable' }
 
-  it 'should download (during internet availability checking) from a uri if the cached file does not exist' do
-    stub_request(:get, 'http://foo-uri/')
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-    .to_return(status: 304, body: '', headers: {})
+  let(:immutable_cache_root) { app_dir + 'immutable' }
 
-    trigger
+  let(:uri) { 'http://foo-uri/' }
 
-    expect_complete_cache
+  let(:uri_credentials) { 'http://test-username:test-password@foo-uri/' }
+
+  let(:uri_secure) { 'https://foo-uri/' }
+
+  let(:download_cache) { described_class.new(mutable_cache_root, immutable_cache_root) }
+
+  before do
+    described_class.const_set :CA_FILE, ca_certs_directory
   end
 
-  it 'should download (after internet availability checking) from a uri if the cached file does not exist',
-     :skip_availability_check do
+  it 'raises error if file cannot be found',
+     :disable_internet do
 
-    stub_request(:get, 'http://foo-uri/')
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-    .to_return(status: 304, body: '', headers: {})
-
-    download_cache.get('http://foo-uri/') {}
-
-    expect_complete_cache
+    expect { download_cache.get uri }.to raise_error('Unable to find cached file for http://foo-uri/')
   end
 
-  it 'should deliver cached data',
-     :skip_availability_check do
+  it 'returns file from immutable cache if internet is disabled',
+     :disable_internet do
 
-    stub_request(:get, 'http://foo-uri/')
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-    .to_return(status: 304, body: '', headers: {})
+    touch immutable_cache_root, 'cached', 'foo-cached'
 
-    download_cache.get('http://foo-uri/') do |data_file|
-      expect(data_file.read).to eq('foo-cached')
-    end
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
   end
 
-  it 'should not raise error if download cannot be completed but retrying succeeds' do
-    stub_request(:get, 'http://foo-uri/').to_raise(SocketError).then
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-    .to_return(status: 304, body: '', headers: {})
+  it 'returns file from mutable cache if internet is disabled',
+     :disable_internet do
 
-    trigger
+    touch mutable_cache_root, 'cached', 'foo-cached'
 
-    expect_complete_cache
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
   end
 
-  it 'should not raise error if download succeeds and HEAD request cannot be completed but retrying succeeds' do
-    stub_request(:get, 'http://foo-uri/')
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-    .to_raise(SocketError).then
-    .to_return(status: 304, body: '', headers: {})
+  it 'downloads if cached file does not exist' do
+    stub_request(:get, uri)
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
-    trigger
+    allow(Net::HTTP).to receive(:Proxy).and_call_original
+    expect(Net::HTTP).not_to receive(:Proxy).with('proxy', 9000, nil, nil)
 
-    expect_complete_cache
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
+    expect_complete_cache mutable_cache_root
   end
 
-  it 'should use cached copy if HEAD fails',
-     :skip_availability_check do
-    stub_request(:head, 'http://foo-uri/').to_raise(SocketError)
+  it 'downloads with credentials if cached file does not exist' do
+    stub_request(:get, uri)
+      .with(headers: { 'Authorization' => 'Basic dGVzdC11c2VybmFtZTp0ZXN0LXBhc3N3b3Jk' })
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
-    touch app_dir, 'cached', 'foo-cached'
-    touch app_dir, 'etag', 'foo-etag'
+    allow(Net::HTTP).to receive(:Proxy).and_call_original
+    expect(Net::HTTP).not_to receive(:Proxy).with('proxy', 9000, nil, nil)
 
-    trigger
+    expect { |b| download_cache.get uri_credentials, &b }.to yield_file_with_content(/foo-cached/)
+    expect_complete_cache mutable_cache_root
   end
 
-  it 'should check using HEAD if the cached file exists and etag exists',
-     :skip_availability_check do
+  it 'follows redirects' do
+    stub_request(:get, uri)
+      .to_return(status: 301, headers: { Location: uri_secure })
+    stub_request(:get, uri_secure)
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
-    stub_request(:head, 'http://foo-uri/').with(headers: { 'If-None-Match' => 'foo-etag' })
-    .to_return(status: 304, body: 'foo-cached', headers: {})
-
-    touch app_dir, 'cached', 'foo-cached'
-    touch app_dir, 'etag', 'foo-etag'
-
-    trigger
-
-    expect_file_content 'cached', 'foo-cached'
-    expect_file_content 'etag', 'foo-etag'
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
+    expect_complete_cache mutable_cache_root
   end
 
-  it 'should check using HEAD if the cached file exists and last modified exists',
-     :skip_availability_check do
+  it 'retries failed downloads' do
+    stub_request(:get, uri)
+      .to_raise(SocketError)
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
-    stub_request(:head, 'http://foo-uri/').with(headers: { 'If-Modified-Since' => 'foo-last-modified' })
-    .to_return(status: 304, body: 'foo-cached', headers: {})
-
-    touch app_dir, 'cached', 'foo-cached'
-    touch app_dir, 'last_modified', 'foo-last-modified'
-
-    trigger
-
-    expect_file_content 'cached', 'foo-cached'
-    expect_file_content 'last_modified', 'foo-last-modified'
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
+    expect_complete_cache mutable_cache_root
   end
 
-  it 'should check using HEAD if the cached file exists, etag exists, and last modified exists' do
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'If-None-Match' => 'foo-etag', 'If-Modified-Since' => 'foo-last-modified' })
-    .to_return(status: 304, body: 'foo-cached', headers: {})
+  it 'returns cached data if unknown error occurs' do
+    stub_request(:get, uri)
+      .to_raise('DNS Error')
 
-    touch app_dir, 'cached', 'foo-cached'
-    touch app_dir, 'etag', 'foo-etag'
-    touch app_dir, 'last_modified', 'foo-last-modified'
+    touch immutable_cache_root, 'cached', 'foo-cached'
 
-    trigger
-
-    expect_complete_cache
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
   end
 
-  it 'should download from a uri if the cached file does not exist, etag exists, and last modified exists' do
-    stub_request(:get, 'http://foo-uri/')
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-    .to_return(status: 304, body: '', headers: {})
+  it 'returns cached data if retry limit is reached' do
+    stub_request(:get, uri)
+      .to_return(status: 500)
 
-    touch app_dir, 'etag', 'foo-etag'
-    touch app_dir, 'last_modified', 'foo-last-modified'
+    touch immutable_cache_root, 'cached', 'foo-cached'
 
-    trigger
-
-    expect_complete_cache
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
   end
 
-  it 'should not download from a uri if the cached file exists and the etag and last modified do not exist' do
-    touch app_dir, 'cached', 'foo-cached'
+  it 'does not overwrite existing information if 304 is received' do
+    stub_request(:get, uri)
+      .with(headers: { 'If-None-Match' => 'foo-etag', 'If-Modified-Since' => 'foo-last-modified' })
+      .to_return(status: 304, body: '', headers: {})
 
-    trigger
+    touch mutable_cache_root, 'cached', 'foo-cached'
+    touch mutable_cache_root, 'etag', 'foo-etag'
+    touch mutable_cache_root, 'last_modified', 'foo-last-modified'
 
-    expect_file_content 'cached', 'foo-cached'
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
+    expect_complete_cache mutable_cache_root
   end
 
-  it 'should not overwrite existing information if 304 is received' do
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'If-None-Match' => 'foo-etag', 'If-Modified-Since' => 'foo-last-modified' })
-    .to_return(status: 304, body: '', headers: {})
+  it 'overwrites existing information if 304 is not received' do
+    stub_request(:get, uri)
+      .with(headers: { 'If-None-Match' => 'old-foo-etag', 'If-Modified-Since' => 'old-foo-last-modified' })
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
-    touch app_dir, 'cached', 'foo-cached'
-    touch app_dir, 'etag', 'foo-etag'
-    touch app_dir, 'last_modified', 'foo-last-modified'
+    touch mutable_cache_root, 'cached', 'old-foo-cached'
+    touch mutable_cache_root, 'etag', 'old-foo-etag'
+    touch mutable_cache_root, 'last_modified', 'old-foo-last-modified'
 
-    trigger
+    expect { |b| download_cache.get uri, &b }.to yield_with_args(be_a(File), true)
 
-    expect_complete_cache
+    touch mutable_cache_root, 'cached', 'old-foo-cached'
+    touch mutable_cache_root, 'etag', 'old-foo-etag'
+    touch mutable_cache_root, 'last_modified', 'old-foo-last-modified'
+
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
+
+    expect_complete_cache mutable_cache_root
   end
 
-  it 'should use the cache if HEAD returns a bad HTTP response' do
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'If-None-Match' => 'foo-etag', 'If-Modified-Since' => 'foo-last-modified' })
-    .to_return(status: 500, body: '', headers: {})
+  it 'discards content with incorrect size' do
+    stub_request(:get, uri)
+      .to_return(status: 200, body: 'foo-cac', headers: { Etag:            'foo-etag',
+                                                          'Last-Modified'  => 'foo-last-modified',
+                                                          'Content-Length' => 10 })
 
-    touch app_dir, 'cached', 'foo-cached'
-    touch app_dir, 'etag', 'foo-etag'
-    touch app_dir, 'last_modified', 'foo-last-modified'
+    touch immutable_cache_root, 'cached', 'old-foo-cached'
 
-    trigger
-
-    expect(stderr.string).to match('Unable to check whether or not http://foo-uri/ has been modified due to Bad HTTP response: 500')
-    expect_complete_cache
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
   end
 
-  it 'should overwrite existing information if 304 is not received',
-     :skip_availability_check do
+  it 'ignores incorrect size when encoded' do
+    stub_request(:get, uri)
+      .to_return(status: 200, body: 'foo-cac', headers: { Etag:              'foo-etag',
+                                                          'Content-Encoding' => 'gzip',
+                                                          'Last-Modified'    => 'foo-last-modified',
+                                                          'Content-Length'   => 10 })
 
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-    .to_return(status: 200, body: '', headers: {})
-    stub_request(:get, 'http://foo-uri/')
-    .to_return(status: 200, body: 'bar-cached', headers: { Etag: 'bar-etag', 'Last-Modified' => 'bar-last-modified' })
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'bar-last-modified', 'If-None-Match' => 'bar-etag', 'User-Agent' => 'Ruby' })
-    .to_return(status: 304, body: '', headers: {})
+    touch immutable_cache_root, 'cached', 'old-foo-cached'
 
-    touch app_dir, 'cached', 'foo-cached'
-    touch app_dir, 'etag', 'foo-etag'
-    touch app_dir, 'last_modified', 'foo-last-modified'
-
-    trigger
-
-    expect_file_content 'cached', 'bar-cached'
-    expect_file_content 'etag', 'bar-etag'
-    expect_file_content 'last_modified', 'bar-last-modified'
-  end
-
-  it 'should not overwrite existing information if the update request fails',
-     :skip_availability_check do
-
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-    .to_return(status: 200, body: '', headers: {})
-    stub_request(:get, 'http://foo-uri/')
-    .to_raise(SocketError)
-
-    touch app_dir, 'cached', 'foo-cached'
-    touch app_dir, 'etag', 'foo-etag'
-    touch app_dir, 'last_modified', 'foo-last-modified'
-
-    trigger
-
-    expect_complete_cache
-
-    expect(stderr.string).to match('HTTP request failed:')
-  end
-
-  it 'should not overwrite existing information if the HEAD request fails',
-     :skip_availability_check do
-
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-    .to_raise(SocketError)
-
-    touch app_dir, 'cached', 'foo-cached'
-    touch app_dir, 'etag', 'foo-etag'
-    touch app_dir, 'last_modified', 'foo-last-modified'
-
-    trigger
-
-    expect_complete_cache
-
-    expect(stderr.string).to match('Unable to check whether or not http://foo-uri/ has been modified due to Exception from WebMock. Using cached version.')
-  end
-
-  it 'should pass read-only file to block' do
-    stub_request(:get, 'http://foo-uri/')
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
-    stub_request(:head, 'http://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-    .to_return(status: 304, body: '', headers: {})
-
-    download_cache.get('http://foo-uri/') do |file|
-      expect(file.read).to eq('foo-cached')
-      expect { file.write('bar') }.to raise_error(IOError, 'not opened for writing')
-    end
-  end
-
-  it 'should delete the cached file if it exists' do
-    expect_file_deleted 'cached'
-  end
-
-  it 'should delete the etag file if it exists' do
-    expect_file_deleted 'etag'
-  end
-
-  it 'should delete the last_modified file if it exists' do
-    expect_file_deleted 'last_modified'
-  end
-
-  it 'should delete the lock file if it exists' do
-    expect_file_deleted 'lock'
-  end
-
-  it 'should use the cached copy if the HEAD request cannot be made because, for example, the DNS is unavailable' do
-    allow(Net::HTTP).to receive(:start).and_raise('DNS error')
-
-    touch app_dir, 'cached', 'foo-cached'
-    touch app_dir, 'etag', 'foo-etag'
-    touch app_dir, 'last_modified', 'foo-last-modified'
-
-    download_cache.get('http://foo-uri/') do |file|
-      expect(file.read).to eq('foo-cached')
-    end
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cac/)
   end
 
   context do
-    include_context 'buildpack_cache_helper'
 
-    it 'should use the buildpack cache if the download cannot be done because, for example, the DNS is unavailable' do
-      allow(Net::HTTP).to receive(:start).and_raise('DNS error')
+    let(:environment) { { 'http_proxy' => 'http://proxy:9000', 'HTTP_PROXY' => nil } }
 
-      touch java_buildpack_cache_dir, 'cached', 'foo-stashed'
+    it 'uses http_proxy if specified' do
+      stub_request(:get, uri)
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag:           'foo-etag',
+                                                               'Last-Modified' => 'foo-last-modified' })
 
-      download_cache.get('http://foo-uri/') do |file|
-        expect(file.read).to eq('foo-stashed')
-      end
+      allow(Net::HTTP).to receive(:Proxy).and_call_original
+      allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
+
+      download_cache.get(uri) {}
     end
 
-    it 'should use the buildpack cache if the download cannot be completed' do
-      stub_request(:get, 'http://foo-uri/').to_raise(SocketError)
-
-      touch java_buildpack_cache_dir, 'cached', 'foo-stashed'
-
-      download_cache.get('http://foo-uri/') do |file|
-        expect(file.read).to eq('foo-stashed')
-      end
-    end
-
-    it 'should not use the buildpack cache if the download cannot be completed but a retry succeeds' do
-      stub_request(:get, 'http://foo-uri/').to_raise(SocketError).then
-      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
-      stub_request(:head, 'http://foo-uri/')
-      .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-      .to_return(status: 304, body: '', headers: {})
-
-      touch java_buildpack_cache_dir, 'cached', 'foo-stashed'
-
-      download_cache.get('http://foo-uri/') do |file|
-        expect(file.read).to eq('foo-cached')
-      end
-    end
-
-    it 'should not use the buildpack cache if the download succeeds and the HEAD request cannot be completed but a retry succeeds' do
-      stub_request(:get, 'http://foo-uri/')
-      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
-      stub_request(:head, 'http://foo-uri/')
-      .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-      .to_raise(SocketError).then
-      .to_return(status: 304, body: '', headers: {})
-
-      touch java_buildpack_cache_dir, 'cached', 'foo-stashed'
-
-      download_cache.get('http://foo-uri/') do |file|
-        expect(file.read).to eq('foo-cached')
-      end
-    end
-
-    it 'should use the buildpack cache if the download cannot be completed because Errno::ENETUNREACH is raised', :skip_availability_check do
-      stub_request(:get, 'http://foo-uri/').to_raise(Errno::ENETUNREACH)
-
-      touch java_buildpack_cache_dir, 'cached', 'foo-stashed'
-
-      download_cache.get('http://foo-uri/') do |file|
-        expect(file.read).to eq('foo-stashed')
-      end
-
-      expect(stderr.string).to match('Network is unreachable')
-    end
-
-    it 'should use the buildpack cache if the download is truncated' do
-      stub_request(:head, 'http://foo-uri/')
-      .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-      .to_return(status: 200, body: '', headers: {})
-      stub_request(:get, 'http://foo-uri/')
-      .to_return(status: 200, body: 'foo-cac', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified', 'Content-Length' => 10 })
-
-      touch java_buildpack_cache_dir, 'cached', 'foo-stashed'
-
-      download_cache.get('http://foo-uri/') do |file|
-        expect(file.read).to eq('foo-stashed')
-      end
-    end
-
-    it 'should use the buildpack cache if download returns 304' do
-      stub_request(:get, 'http://foo-uri/')
-      .to_return(status: 304, body: '', headers: {})
-
-      touch java_buildpack_cache_dir, 'cached', 'foo-stashed'
-
-      download_cache.get('http://foo-uri/') do |file|
-        expect(file.read).to eq('foo-stashed')
-      end
-    end
-
-    it 'should use the buildpack cache if the cache configuration disables remote downloads' do
-      expect(JavaBuildpack::Util::Cache::InternetAvailability).to receive(:use_internet?).at_least(:once).and_return(false)
-
-      touch java_buildpack_cache_dir, 'cached', 'foo-stashed'
-
-      download_cache.get('http://foo-uri/') do |file|
-        expect(file.read).to eq('foo-stashed')
-      end
-    end
-
-    it 'should raise error if download cannot be completed and buildpack cache does not contain the file' do
-      stub_request(:get, 'http://foo-uri/').to_raise(SocketError)
-
-      expect { trigger }.to raise_error %r(Buildpack cache does not contain http://foo-uri/)
-    end
-
-    it 'should raise error if a download attempt fails', :skip_availability_check do
-      stub_request(:get, 'http://bar-uri/').to_raise(SocketError)
-      expect { download_cache.get('http://bar-uri/') {} }.to raise_error %r(Buildpack cache does not contain http://bar-uri/)
-    end
   end
 
-  it 'should fail if a download attempt fails and there is no buildpack cache', :skip_availability_check do
-    stub_request(:get, 'http://bar-uri/').to_raise(SocketError)
-    expect { download_cache.get('http://bar-uri/') {} }.to raise_error /Buildpack cache not defined/
+  context do
+
+    let(:environment) { { 'HTTP_PROXY' => 'http://proxy:9000', 'http_proxy' => nil } }
+
+    it 'uses HTTP_PROXY if specified' do
+      stub_request(:get, uri)
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag:           'foo-etag',
+                                                               'Last-Modified' => 'foo-last-modified' })
+
+      allow(Net::HTTP).to receive(:Proxy).and_call_original
+      allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
+
+      download_cache.get(uri) {}
+    end
+
   end
 
-  it 'should support https downloads',
-     :skip_availability_check do
+  context do
 
-    stub_request(:get, 'https://foo-uri/')
-    .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
-    stub_request(:head, 'https://foo-uri/')
-    .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag', 'User-Agent' => 'Ruby' })
-    .to_return(status: 304, body: '', headers: {})
+    let(:environment) { { 'https_proxy' => 'http://proxy:9000', 'HTTPS_PROXY' => nil } }
 
-    download_cache.get('https://foo-uri/') {}
+    it 'uses https_proxy if specified and URL is secure' do
+      stub_request(:get, uri_secure)
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag:           'foo-etag',
+                                                               'Last-Modified' => 'foo-last-modified' })
+
+      allow(Net::HTTP).to receive(:Proxy).and_call_original
+      allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
+
+      download_cache.get(uri_secure) {}
+    end
+
+  end
+
+  context do
+
+    let(:environment) { { 'HTTPS_PROXY' => 'http://proxy:9000', 'https_proxy' => nil } }
+
+    it 'uses HTTPS_PROXY if specified and URL is secure' do
+      stub_request(:get, uri_secure)
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag:           'foo-etag',
+                                                               'Last-Modified' => 'foo-last-modified' })
+
+      allow(Net::HTTP).to receive(:Proxy).and_call_original
+      allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
+
+      download_cache.get(uri_secure) {}
+    end
+
+  end
+
+  it 'does not use ca_file if the URL is not secure and directory does not exist' do
+    stub_request(:get, uri)
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+
+    allow(Net::HTTP).to receive(:Proxy).and_call_original
+    allow(Net::HTTP).to receive(:start).with('foo-uri', 80, {}).and_call_original
+
+    download_cache.get(uri) {}
+  end
+
+  it 'does not use ca_file if the URL is not secure and directory does exist' do
+    stub_request(:get, uri)
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+
+    allow(ca_certs_directory).to receive(:exist?).and_return(true)
+    allow(Net::HTTP).to receive(:Proxy).and_call_original
+    allow(Net::HTTP).to receive(:start).with('foo-uri', 80, {}).and_call_original
+
+    download_cache.get(uri) {}
+  end
+
+  it 'does not use ca_file if the URL is secure and directory does not exist' do
+    stub_request(:get, uri_secure)
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+
+    allow(Net::HTTP).to receive(:Proxy).and_call_original
+    allow(Net::HTTP).to receive(:start).with('foo-uri', 443, use_ssl: true).and_call_original
+
+    download_cache.get(uri_secure) {}
+  end
+
+  it 'uses ca_file if the URL is secure and directory does exist' do
+    stub_request(:get, uri_secure)
+      .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
+
+    allow(ca_certs_directory).to receive(:exist?).and_return(true)
+    allow(Net::HTTP).to receive(:Proxy).and_call_original
+    allow(Net::HTTP).to receive(:start).with('foo-uri', 443, use_ssl: true, ca_file: 'test-path').and_call_original
+
+    download_cache.get(uri_secure) {}
+  end
+
+  it 'deletes the cached file if it exists' do
+    expect_file_deleted 'cached'
+  end
+
+  it 'deletes the etag file if it exists' do
+    expect_file_deleted 'etag'
+  end
+
+  it 'deletes the last_modified file if it exists' do
+    expect_file_deleted 'last_modified'
   end
 
   def cache_file(root, extension)
-    root + "http:%2F%2Ffoo-uri%2F.#{extension}"
+    root + "http%3A%2F%2Ffoo-uri%2F.#{extension}"
   end
 
-  def expect_complete_cache
-    expect_file_content 'cached', 'foo-cached'
-    expect_file_content 'etag', 'foo-etag'
-    expect_file_content 'last_modified', 'foo-last-modified'
+  def expect_complete_cache(root)
+    expect_file_content root, 'cached', 'foo-cached'
+    expect_file_content root, 'etag', 'foo-etag'
+    expect_file_content root, 'last_modified', 'foo-last-modified'
   end
 
-  def expect_file_content(extension, content = '')
-    file = cache_file app_dir, extension
+  def expect_file_content(root, extension, content = '')
+    file = cache_file root, extension
     expect(file).to exist
     expect(file.read).to eq(content)
   end
 
   def expect_file_deleted(extension)
-    file = touch app_dir, extension
+    file = touch mutable_cache_root, extension
     expect(file).to exist
 
     download_cache.evict('http://foo-uri/')
@@ -461,7 +333,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
   def touch(root, extension, content = '')
     file = cache_file root, extension
     FileUtils.mkdir_p file.dirname
-    file.open('w') { |f| f.write(content) }
+    file.open('w') { |f| f.write content }
 
     file
   end

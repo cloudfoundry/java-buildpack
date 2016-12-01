@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,53 +17,71 @@
 require 'pathname'
 require 'java_buildpack/util'
 
-module JavaBuildpack::Util
+module JavaBuildpack
+  module Util
 
-  # Utilities for dealing with Groovy applications
-  class GroovyUtils
+    # Utilities for dealing with Groovy applications
+    class GroovyUtils
 
-    private_class_method :new
+      private_class_method :new
 
-    class << self
+      class << self
 
-      # Indicates whether a file has a +main()+ method in it
-      #
-      # @param [File] file the file to scan
-      # @return [Boolean] +true+ if the file contains a +main()+ method, +false+ otherwise.
-      def main_method?(file)
-        file.read =~ /static void main\(/
+        # Indicates whether a file is a +beans+style configuration
+        #
+        # @param [File] file the file to scan
+        # @return [Boolean] +true+ if the file is a +beans+style configuration, +false+ otherwise.
+        def beans?(file)
+          safe_read(file) { Pathname.new(file).read =~ /beans[\s]*\{/ }
+        end
+
+        # Indicates whether a file has a +main()+ method in it
+        #
+        # @param [File] file the file to scan
+        # @return [Boolean] +true+ if the file contains a +main()+ method, +false+ otherwise.
+        def main_method?(file)
+          safe_read(file) { Pathname.new(file).read =~ /static void main\(/ }
+        end
+
+        # Indicates whether a file is a POGO
+        #
+        # @param [File] file the file to scan
+        # @return [Boolean] +true+ if the file is a POGO, +false+ otherwise.
+        def pogo?(file)
+          safe_read(file) { Pathname.new(file).read =~ /class [\w]+[\s\w]*\{/ }
+        end
+
+        # Indicates whether a file has a shebang
+        #
+        # @param [File] file the file to scan
+        # @return [Boolean] +true+ if the file has a shebang, +false+ otherwise.
+        def shebang?(file)
+          safe_read(file) { Pathname.new(file).read =~ /#!/ }
+        end
+
+        # Returns all the Ruby files in the given directory
+        #
+        # @param [JavaBuildpack::Component::Application] application the application to search
+        # @return [Array] a possibly empty list of files
+        def groovy_files(application)
+          (application.root + GROOVY_FILE_PATTERN).glob.reject(&:directory?).sort
+        end
+
+        private
+
+        GROOVY_FILE_PATTERN = '**/*.groovy'.freeze
+
+        private_constant :GROOVY_FILE_PATTERN
+
+        def safe_read(file)
+          yield
+        rescue => e
+          raise "Unable to read file #{file.path}: #{e.message}"
+        end
+
       end
-
-      # Indicates whether a file is a POGO
-      #
-      # @param [File] file the file to scan
-      # @return [Boolean] +true+ if the file is a POGO, +false+ otherwise.
-      def pogo?(file)
-        file.read =~ /class [\w]+ [\s\w]*{/
-      end
-
-      # Indicates whether a file has a shebang
-      #
-      # @param [File] file the file to scan
-      # @return [Boolean] +true+ if the file has a shebang, +false+ otherwise.
-      def shebang?(file)
-        file.read =~ /#!/
-      end
-
-      # Returns all the Ruby files in the given directory
-      #
-      # @param [Application] application the application to search
-      # @return [Array] a possibly empty list of files
-      def groovy_files(application)
-        (application.root + GROOVY_FILE_PATTERN).glob.reject { |path| path.directory? }.sort
-      end
-
-      private
-
-      GROOVY_FILE_PATTERN = '**/*.groovy'.freeze
 
     end
 
   end
-
 end

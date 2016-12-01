@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,35 +24,61 @@ describe JavaBuildpack::Util::Play::Post22 do
 
   let(:play_app) { described_class.new(droplet) }
 
-  before do
-    java_home
-    java_opts
-  end
-
-  it 'should raise error if root method is unimplemented' do
+  it 'raises error if root method is unimplemented' do
     expect { play_app.send(:root) }.to raise_error "Method 'root' must be defined"
   end
 
-  context app_fixture: 'container_play_2.2_staged' do
+  context nil, app_fixture: 'container_play_2.2_staged' do
 
     before do
       allow(play_app).to receive(:root).and_return(droplet.root)
     end
 
-    it 'should correctly determine the version of a Play 2.2 application' do
+    it 'determines the version of a Play 2.2 application' do
       expect(play_app.version).to eq('2.2.0')
     end
 
-    it 'should correctly extend the classpath' do
+    it 'extends the classpath' do
       play_app.compile
 
       expect((app_dir + 'bin/play-application').read)
-      .to match 'declare -r app_classpath="\$app_home/../.additional_libs/test-jar-1.jar:\$app_home/../.additional_libs/test-jar-2.jar:'
+        .to match 'declare -r app_classpath="\$app_home/../.additional_libs/test-jar-1.jar:' \
+        '\$app_home/../.additional_libs/test-jar-2.jar:'
     end
 
-    it 'should return command' do
-      expect(play_app.release).to eq("PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} $PWD/bin/play-application " +
-                                         '-Jtest-opt-2 -Jtest-opt-1 -J-Dhttp.port=$PORT')
+    it 'returns command' do
+      expect(play_app.release).to eq("test-var-2 test-var-1 PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} " \
+      'exec $PWD/bin/play-application -Jtest-opt-2 -Jtest-opt-1 -J-Dhttp.port=$PORT')
+    end
+
+    context do
+      let(:java_opts) { super() << '-Xmx30m -Xms30m' }
+
+      it 'does not allow multiple options in a single JAVA_OPTS array entry' do
+        expect { play_app.release }.to raise_error(/Invalid Java option contains more than one option/)
+      end
+    end
+
+    context do
+      let(:java_opts) { super() << '$CALCULATED_MEMORY' }
+
+      it 'does wraps the output of CALCULATED_MEMORY correctly' do
+        expect(play_app.release).to include('${CALCULATED_MEMORY//-/-J-}')
+      end
+    end
+
+    context do
+      let(:java_opts) do
+        super() << '-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : \'.' \
+        '*instance_id[": ]*"\([a-z0-9]\+\)".*\')'
+      end
+
+      it 'allows options with expressions' do
+        play_app.release
+
+        expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : \'.' \
+        '*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
+      end
     end
 
   end

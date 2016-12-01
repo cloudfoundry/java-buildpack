@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,12 +17,15 @@
 # A mixin that adds the ability to turn a +String+ into dash case
 class String
 
-  # Converts a string to dash case
+  # Converts a string to dash case.  For example, the Spring +DashCase+ would become +dash-case+.
+  #
+  # @return [String] The dash case rendering of this +String+
   def dash_case
-    split('::').last
-    .gsub(/([A-Z]+)([A-Z][a-z])/, '\1-\2')
-    .gsub(/([a-z\d])([A-Z])/, '\1-\2')
-    .downcase
+    split('::')
+      .last
+      .gsub(/([A-Z]+)([A-Z][a-z])/, '\1-\2')
+      .gsub(/([a-z\d])([A-Z])/, '\1-\2')
+      .downcase
   end
 
 end

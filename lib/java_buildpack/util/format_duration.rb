@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,9 +43,7 @@ class Numeric
     "#{seconds}.#{tenths}s"
   end
 
-  private
-
-  MILLISECOND = 0.001.freeze
+  MILLISECOND = 0.001
 
   TENTH = (100 * MILLISECOND).freeze
 
@@ -54,5 +52,7 @@ class Numeric
   MINUTE = (60 * SECOND).freeze
 
   HOUR = (60 * MINUTE).freeze
+
+  private_constant :MILLISECOND, :TENTH, :SECOND, :MINUTE, :HOUR
 
 end

@@ -19,17 +19,19 @@ The Groovy Container allows uncompiled Groovy files (i.e. `*.groovy`) to be run.
 </table>
 Tags are printed to standard output by the buildpack detect script
 
-## Configuration
-For general information on configuring the buildpack, refer to [Configuration and Extension][].
+Any JAR files found in the application are automatically added to the classpath at runtime.
 
-The container can be configured by modifying the [`config/groovy.yml`][] file.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+## Configuration
+For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
+
+The container can be configured by modifying the [`config/groovy.yml`][] file in the buildpack fork.  The container uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------
 | `repository_root` | The URL of the Groovy repository index ([details][repositories]).
 | `version` | The version of Groovy to use. Candidate versions can be found in [this listing][].
 
-[Configuration and Extension]: ../README.md#Configuration-and-Extension
+[Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/groovy.yml`]: ../config/groovy.yml
 [repositories]: extending-repositories.md
 [this listing]: http://download.pivotal.io.s3.amazonaws.com/groovy/index.yml

@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,34 +19,42 @@ require 'java_buildpack/container'
 require 'java_buildpack/util/dash_case'
 require 'java_buildpack/util/play/factory'
 
-module JavaBuildpack::Container
+module JavaBuildpack
+  module Container
 
-  # Encapsulates the detect, compile, and release functionality for Play applications.
-  class PlayFramework < JavaBuildpack::Component::BaseComponent
+    # Encapsulates the detect, compile, and release functionality for Play applications.
+    class PlayFramework < JavaBuildpack::Component::BaseComponent
 
-    def initialize(context)
-      super(context)
-      @delegate = JavaBuildpack::Util::Play::Factory.create @droplet
-    end
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        super(context)
+        @delegate = JavaBuildpack::Util::Play::Factory.create @droplet
+      end
 
-    def detect
-      @delegate ? id(@delegate.version) : nil
-    end
+      # (see JavaBuildpack::Component::BaseComponent#detect)
+      def detect
+        @delegate ? id(@delegate.version) : nil
+      end
 
-    def compile
-      @delegate.compile if @delegate
-    end
+      # (see JavaBuildpack::Component::BaseComponent#compile)
+      def compile
+        @delegate.compile if @delegate
+      end
 
-    def release
-      @delegate.release if @delegate
-    end
+      # (see JavaBuildpack::Component::BaseComponent#release)
+      def release
+        @delegate.release if @delegate
+      end
 
-    private
+      private
 
-    def id(version)
-      "#{PlayFramework.to_s.dash_case}=#{version}"
+      def id(version)
+        "#{PlayFramework.to_s.dash_case}=#{version}"
+      end
+
     end
 
   end
-
 end

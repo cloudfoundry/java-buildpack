@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,18 @@
 # limitations under the License.
 
 require 'java_buildpack/util'
+require 'pathname'
 
-# A module encapsulating all of the utility components for caching
-module JavaBuildpack::Util::Cache
+module JavaBuildpack
+  module Util
+
+    # A module encapsulating all of the utility components for caching
+    module Cache
+
+      # The location to find cached resources in the buildpack
+      CACHED_RESOURCES_DIRECTORY = Pathname.new(File.expand_path('../../../../resources/cache', __FILE__))
+
+    end
+
+  end
 end

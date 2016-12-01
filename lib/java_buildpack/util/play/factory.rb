@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,33 +20,37 @@ require 'java_buildpack/util/play/post22_staged'
 require 'java_buildpack/util/play/pre22_dist'
 require 'java_buildpack/util/play/pre22_staged'
 
-module JavaBuildpack::Util::Play
+module JavaBuildpack
+  module Util
+    module Play
 
-  # A factory for creating a version-appropriate play application delegate
-  class Factory
+      # A factory for creating a version-appropriate Play Framework application delegate
+      class Factory
 
-    private_class_method :new
+        private_class_method :new
 
-    class << self
+        class << self
 
-      # Creates a Play application based on the given application directory.
-      #
-      # @param [JavaBuildpack::Component::Droplet] droplet the droplet
-      # @return [JavaBuildpack::Util::Play::Base] the play application delegate
-      def create(droplet)
-        candidates = [
-            Post22Dist.new(droplet),
-            Post22Staged.new(droplet),
-            Pre22Dist.new(droplet),
-            Pre22Staged.new(droplet)
-        ].select { |candidate| candidate.supports? }
+          # Creates a Play Framework application based on the given application directory.
+          #
+          # @param [JavaBuildpack::Component::Droplet] droplet the droplet
+          # @return [JavaBuildpack::Util::Play::Base] the Plat Framework application delegate
+          def create(droplet)
+            candidates = [
+              Post22Dist.new(droplet),
+              Post22Staged.new(droplet),
+              Pre22Dist.new(droplet),
+              Pre22Staged.new(droplet)
+            ].select(&:supports?)
 
-        fail "Play application version cannot be determined: #{candidates}" if candidates.size > 1
-        candidates.empty? ? nil : candidates.first
+            raise "Play Framework application version cannot be determined: #{candidates}" if candidates.size > 1
+            candidates.empty? ? nil : candidates.first
+          end
+
+        end
+
       end
 
     end
-
   end
-
 end

@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,53 +14,72 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 
-module JavaBuildpack::Framework
+module JavaBuildpack
+  module Framework
 
-  # Encapsulates the functionality for enabling zero-touch New Relic support.
-  class NewRelicAgent < JavaBuildpack::Component::VersionedDependencyComponent
+    # Encapsulates the functionality for enabling zero-touch New Relic support.
+    class NewRelicAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
-    def compile
-      FileUtils.mkdir_p logs_dir
+      # (see JavaBuildpack::Component::BaseComponent#compile)
+      def compile
+        download_jar
+        @droplet.copy_resources
+      end
 
-      download_jar
-      @droplet.copy_resources
-    end
+      # (see JavaBuildpack::Component::BaseComponent#release)
+      def release
+        credentials = @application.services.find_service(FILTER)['credentials']
+        java_opts   = @droplet.java_opts
+        configuration = {}
 
-    def release
-      @droplet.java_opts
-      .add_javaagent(@droplet.sandbox + jar_name)
-      .add_system_property('newrelic.home', @droplet.sandbox)
-      .add_system_property('newrelic.config.license_key', license_key)
-      .add_system_property('newrelic.config.app_name', "'#{application_name}'")
-      .add_system_property('newrelic.config.log_file_path', logs_dir)
-    end
+        apply_configuration(credentials, configuration)
+        apply_user_configuration(credentials, configuration)
+        write_java_opts(java_opts, configuration)
 
-    protected
+        java_opts.add_javaagent(@droplet.sandbox + jar_name)
+                 .add_system_property('newrelic.home', @droplet.sandbox)
+        java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
+      end
 
-    def supports?
-      @application.services.one_service? FILTER
-    end
+      protected
 
-    private
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
+      def supports?
+        @application.services.one_service? FILTER, [LICENSE_KEY, LICENSE_KEY_USER]
+      end
 
-    FILTER = /newrelic/.freeze
+      private
 
-    def application_name
-      @application.details['application_name']
-    end
+      FILTER = /newrelic/
 
-    def license_key
-      @application.services.find_service(FILTER)['credentials']['licenseKey']
-    end
+      LICENSE_KEY = 'licenseKey'.freeze
 
-    def logs_dir
-      @droplet.sandbox + 'logs'
+      LICENSE_KEY_USER = 'license_key'.freeze
+
+      private_constant :FILTER, :LICENSE_KEY, :LICENSE_KEY_USER
+
+      def apply_configuration(credentials, configuration)
+        configuration['log_file_name'] = 'STDOUT'
+        configuration[LICENSE_KEY_USER] = credentials[LICENSE_KEY]
+        configuration['app_name'] = @application.details['application_name']
+      end
+
+      def apply_user_configuration(credentials, configuration)
+        credentials.each do |key, value|
+          configuration[key] = value
+        end
+      end
+
+      def write_java_opts(java_opts, configuration)
+        configuration.each do |key, value|
+          java_opts.add_system_property("newrelic.config.#{key}", value)
+        end
+      end
+
     end
 
   end
-
 end

@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,19 +21,31 @@ require 'java_buildpack/framework/play_framework_auto_reconfiguration'
 describe JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration do
   include_context 'component_helper'
 
-  it 'should detect with application configuration',
+  let(:configuration) { { 'enabled' => true } }
+
+  it 'detects with application configuration',
      app_fixture: 'container_play_2.1_dist' do
 
     expect(component.detect).to eq("play-framework-auto-reconfiguration=#{version}")
   end
 
-  it 'should not detect without application configuration',
+  it 'does not detect without application configuration',
      app_fixture: 'container_play_too_deep' do
 
     expect(component.detect).to be_nil
   end
 
-  it 'should download additional libraries',
+  context do
+    let(:configuration) { { 'enabled' => false } }
+
+    it 'does not detect if disabled',
+       app_fixture: 'container_play_2.1_dist' do
+
+      expect(component.detect).to be_nil
+    end
+  end
+
+  it 'downloads additional libraries',
      app_fixture:   'container_play_2.1_dist',
      cache_fixture: 'stub-auto-reconfiguration.jar' do
 
@@ -42,7 +54,7 @@ describe JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration do
     expect(sandbox + "play_framework_auto_reconfiguration-#{version}.jar").to exist
   end
 
-  it 'should add to the additional libraries',
+  it 'adds to the additional libraries',
      app_fixture:   'container_play_2.1_dist',
      cache_fixture: 'stub-auto-reconfiguration.jar' do
 
