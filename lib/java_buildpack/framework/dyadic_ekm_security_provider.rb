@@ -29,9 +29,9 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_tar
-       # setup_ext_dir
+        setup_ext_dir
 
-       # @droplet.copy_resources
+       @droplet.copy_resources
 
        credentials = @application.services.find_service(FILTER)['credentials']
        write_ekm_key credentials['key']
@@ -40,7 +40,8 @@ module JavaBuildpack
        # key credentials['client']
        # write_servers credentials['servers']
        # write_configuration credentials['servers'], credentials['groups']
-      end
+	   # @droplet.additional_libraries << (@droplet.sandbox + 'usr/lib/dsm/dsm-advapi-1.0.jar')
+	   end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
@@ -50,11 +51,11 @@ module JavaBuildpack
       @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + 'usr/lib'
         #@droplet.environment_variables.add_environment_variable 'ChrystokiConfigurationPath', @droplet.sandbox
 
-        #@droplet
-        #  .java_opts
-        #  .add_system_property('java.security.properties', @droplet.sandbox + 'java.security')
-        #  .add_system_property('java.ext.dirs', ext_dirs)
-        @droplet.additional_libraries << (@droplet.sandbox + 'usr/lib/dsm/dsm-advapi-1.0.jar')
+        @droplet
+          .java_opts
+          .add_system_property('java.security.properties', @droplet.sandbox + 'java.security')
+          .add_system_property('java.ext.dirs', ext_dirs)
+        #@droplet.additional_libraries << (@droplet.sandbox + 'usr/lib/dsm/dsm-advapi-1.0.jar')
       end
 
       protected
@@ -102,12 +103,14 @@ module JavaBuildpack
       def lib_cklog
         @droplet.sandbox + 'libs/64/libcklog2.so'
       end
+	  
+	  def dyadic_jar
+	   @droplet.sandbox + 'usr/lib/dsm/dsm-advapi-1.0.jar'
+	  end
 
       def setup_ext_dir
-        FileUtils.mkdir ext_dir
-        [luna_provider_jar, luna_api_so].each do |file|
-          FileUtils.ln_s file.relative_path_from(ext_dir), ext_dir, force: true
-        end
+        FileUtils.mkdir ext_dir     
+        FileUtils.ln_s dyadic_jar.relative_path_from(ext_dir), ext_dir, force: true     
       end
 
       def ext_dirs
