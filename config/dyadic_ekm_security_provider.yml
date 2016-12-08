@@ -16,5 +16,5 @@
 # Configuration for the Luna Security Provider framework
 ---
 version: 1.+
-repository_root: http://do-not-give-this-url-to-anyone.download.pivotal.io.s3.amazonaws.com/dyadic/
+repository_root: https://repo.dyadicsec.com/cust/pcf
 logging_enabled: false

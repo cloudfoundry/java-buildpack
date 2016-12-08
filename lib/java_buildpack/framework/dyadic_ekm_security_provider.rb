@@ -33,8 +33,11 @@ module JavaBuildpack
 
        # @droplet.copy_resources
 
-       # credentials = @application.services.find_service(FILTER)['credentials']
-       # write_client credentials['client']
+       credentials = @application.services.find_service(FILTER)['credentials']
+       write_ekm_key credentials['key']
+       write_ekm_cert credentials['ca']
+	   write_ekm_conf credentials['servers'], credentials['send_timeout'], credentials['recv_timeout'], credentials['retries']
+       # key credentials['client']
        # write_servers credentials['servers']
        # write_configuration credentials['servers'], credentials['groups']
       end
@@ -64,7 +67,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /luna/
+      FILTER = /dyadic/
 
       private_constant :FILTER
 
@@ -127,7 +130,19 @@ module JavaBuildpack
       def server_certificates
         @droplet.sandbox + 'server-certificates.pem'
       end
+	  
+	  def ekm_key
+	    @droplet.sandbox + 'etc/dsm/key.pem'
+      end
+      
+	  def ekm_cert
+	    @droplet.sandbox + 'etc/dsm/ca.crt'
+      end		  
 
+	  def ekm_conf
+	    @droplet.sandbox + 'etc/dsm/client.conf'
+      end
+	  
       def write_client(client)
         FileUtils.mkdir_p client_certificate.parent
         client_certificate.open(File::CREAT | File::WRONLY) do |f|
@@ -237,6 +252,27 @@ EOS
           servers.each { |server| f.write "#{server['certificate']}\n" }
         end
       end
+	  
+	  def write_ekm_key(key)
+        ekm_key.open(File::CREAT | File::WRONLY) do |f|
+          f.write key
+        end
+      end
+	  
+	  def write_ekm_cert(cert)
+        ekm_cert.open(File::CREAT | File::WRONLY) do |f|
+          f.write cert
+        end
+      end
+	  
+	  def write_ekm_conf(servers,send_timeout,recv_timeout,retries)
+        ekm_conf.open(File::CREAT | File::WRONLY) do |f|
+          f.write "servers = " + servers + "\n"
+		  f.write "send_timeout = " + send_timeout + "\n"
+		  f.write "recv_timeout = " + recv_timeout + "\n"
+		  f.write "retries = " + retries + "\n"
+        end
+      end  
 
     end
   end
