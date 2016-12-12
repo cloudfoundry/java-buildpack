@@ -128,62 +128,6 @@ describe JavaBuildpack::Framework::JavaOpts do
   end
 
   context do
-    let(:configuration) { { 'java_opts' => '-Xms1024M' } }
-
-    it 'raises an error if a -Xms is configured' do
-      expect { component.compile }.to raise_error(/-Xms/)
-    end
-  end
-
-  context do
-    let(:configuration) { { 'java_opts' => '-Xmx1024M' } }
-
-    it 'raises an error if a -Xmx is configured' do
-      expect { component.compile }.to raise_error(/-Xmx/)
-    end
-  end
-
-  context do
-    let(:configuration) { { 'java_opts' => '-XX:MaxMetaspaceSize=128M' } }
-
-    it 'raises an error if a -XX:MaxMetaspaceSize is configured' do
-      expect { component.compile }.to raise_error(/-XX:MaxMetaspaceSize/)
-    end
-  end
-
-  context do
-    let(:configuration) { { 'java_opts' => '-XX:MetaspaceSize=128M' } }
-
-    it 'raises an error if a -XX:MetaspaceSize is configured' do
-      expect { component.compile }.to raise_error(/-XX:MetaspaceSize/)
-    end
-  end
-
-  context do
-    let(:configuration) { { 'java_opts' => '-XX:MaxPermSize=128M' } }
-
-    it 'raises an error if a -XX:MaxPermSize is configured' do
-      expect { component.compile }.to raise_error(/-XX:MaxPermSize/)
-    end
-  end
-
-  context do
-    let(:configuration) { { 'java_opts' => '-XX:PermSize=128M' } }
-
-    it 'raises an error if a -XX:PermSize is configured' do
-      expect { component.compile }.to raise_error(/-XX:PermSize/)
-    end
-  end
-
-  context do
-    let(:configuration) { { 'java_opts' => '-Xss1M' } }
-
-    it 'raises an error if a -Xss is configured' do
-      expect { component.compile }.to raise_error(/-Xss/)
-    end
-  end
-
-  context do
     let(:configuration) { { 'from_environment' => true } }
     let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
 
