@@ -46,7 +46,6 @@ describe JavaBuildpack::Framework::JrebelAgent do
 
     component.compile
 
-    expect(sandbox + 'lib/jrebel.jar').to exist
     expect(sandbox + 'lib/libjrebel64.so').to exist
     expect(sandbox + 'lib/libjrebel32.so').to exist
   end
@@ -61,7 +60,6 @@ describe JavaBuildpack::Framework::JrebelAgent do
 
     expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/jrebel_agent/lib/libjrebel64.so')
     expect(java_opts).to include('-Drebel.remoting_plugin=true')
-    expect(java_opts).to include('-Drebel.log=true')
     expect(java_opts).to include('-Drebel.cloud.platform=cloudfoundry/java-buildpack')
   end
 

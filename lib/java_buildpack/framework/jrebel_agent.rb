@@ -40,7 +40,6 @@ module JavaBuildpack
           .java_opts
           .add_agentpath(@droplet.sandbox + ('lib/' + lib_name))
           .add_system_property('rebel.remoting_plugin', true)
-          .add_system_property('rebel.log', true)
           .add_system_property('rebel.cloud.platform', 'cloudfoundry/java-buildpack')
       end
 
