@@ -22,7 +22,7 @@ require 'java_buildpack/util/qualify_path'
 module JavaBuildpack
   module Framework
 
-    # Encapsulates the functionality for enabling zero-touch Safenet Luna HSM Java Security Provider support.
+    # Encapsulates the functionality for enabling zero-touch Dyadic EKM Java Security Provider support.
     class DyadicEkmSecurityProvider < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Util
 
@@ -34,13 +34,9 @@ module JavaBuildpack
        @droplet.copy_resources
 
        credentials = @application.services.find_service(FILTER)['credentials']
-       write_ekm_key credentials['key']
-       write_ekm_cert credentials['ca']
-	   write_ekm_conf credentials['servers'], credentials['send_timeout'], credentials['recv_timeout'], credentials['retries']
-       # key credentials['client']
-       # write_servers credentials['servers']
-       # write_configuration credentials['servers'], credentials['groups']
-	   # @droplet.additional_libraries << (@droplet.sandbox + 'usr/lib/dsm/dsm-advapi-1.0.jar')
+       write_key credentials['key']
+       write_cert credentials['ca']
+	   write_conf credentials['servers'], credentials['send_timeout'], credentials['recv_timeout'], credentials['retries']
 	   end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -49,21 +45,19 @@ module JavaBuildpack
           .java_opts
           .add_system_property('java.library.path', @droplet.sandbox + 'usr/lib')
       @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + 'usr/lib'
-        #@droplet.environment_variables.add_environment_variable 'ChrystokiConfigurationPath', @droplet.sandbox
 
         @droplet
           .java_opts
           .add_system_property('java.security.properties', @droplet.sandbox + 'java.security')
           .add_system_property('java.ext.dirs', ext_dirs)
-        #@droplet.additional_libraries << (@droplet.sandbox + 'usr/lib/dsm/dsm-advapi-1.0.jar')
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        #@application.services.one_service? FILTER, 'client', 'servers', 'groups'
-        true
+        @application.services.one_service? FILTER
+        #true
       end
 
       private
@@ -72,36 +66,8 @@ module JavaBuildpack
 
       private_constant :FILTER
 
-      def chrystoki
-        @droplet.sandbox + 'Chrystoki.conf'
-      end
-
-      def client_certificate
-        @droplet.sandbox + 'client-certificate.pem'
-      end
-
-      def client_private_key
-        @droplet.sandbox + 'client-private-key.pem'
-      end
-
       def ext_dir
         @droplet.sandbox + 'ext'
-      end
-
-      def luna_provider_jar
-        @droplet.sandbox + 'jsp/LunaProvider.jar'
-      end
-
-      def luna_api_so
-        @droplet.sandbox + 'jsp/64/libLunaAPI.so'
-      end
-
-      def lib_cryptoki
-        @droplet.sandbox + 'libs/64/libCryptoki2.so'
-      end
-
-      def lib_cklog
-        @droplet.sandbox + 'libs/64/libcklog2.so'
       end
 	  
 	  def dyadic_jar
@@ -117,159 +83,33 @@ module JavaBuildpack
         "#{qualify_path(@droplet.java_home.root + 'lib/ext', @droplet.root)}:" \
         "#{qualify_path(ext_dir, @droplet.root)}"
       end
-
-      def logging?
-        @configuration['logging_enabled']
-      end
-
-      def padded_index(index)
-        index.to_s.rjust(2, '0')
-      end
-
-      def relative(path)
-        path.relative_path_from(@droplet.root)
-      end
-
-      def server_certificates
-        @droplet.sandbox + 'server-certificates.pem'
-      end
 	  
-	  def ekm_key
+	  def key_file
 	    @droplet.sandbox + 'etc/dsm/key.pem'
       end
       
-	  def ekm_cert
+	  def cert_file
 	    @droplet.sandbox + 'etc/dsm/ca.crt'
       end		  
 
-	  def ekm_conf
+	  def conf_file
 	    @droplet.sandbox + 'etc/dsm/client.conf'
       end
-	  
-      def write_client(client)
-        FileUtils.mkdir_p client_certificate.parent
-        client_certificate.open(File::CREAT | File::WRONLY) do |f|
-          f.write "#{client['certificate']}\n"
-        end
-
-        FileUtils.mkdir_p client_private_key.parent
-        client_private_key.open(File::CREAT | File::WRONLY) do |f|
-          f.write "#{client['private-key']}\n"
-        end
-      end
-
-      def write_configuration(servers, groups)
-        chrystoki.open(File::APPEND | File::WRONLY) do |f|
-          write_prologue f
-          servers.each_with_index { |server, index| write_server f, index, server }
-          f.write <<EOS
-}
-
-VirtualToken = {
-EOS
-          groups.each_with_index { |group, index| write_group f, index, group }
-          write_epilogue f
-        end
-      end
-
-      def write_epilogue(f)
-        f.write <<EOS
-}
-
-HAConfiguration = {
-  AutoReconnectInterval = 60;
-  HAOnly = 1;
-  ReconnAtt = 20;
-}
-EOS
-      end
-
-      def write_group(f, index, group)
-        padded_index = padded_index index
-
-        f.write "  VirtualToken#{padded_index}Label   = #{group['label']};\n"
-        f.write "  VirtualToken#{padded_index}SN      = 1#{group['members'][0]};\n"
-        f.write "  VirtualToken#{padded_index}Members = #{group['members'].join(',')};\n"
-        f.write "\n"
-      end
-
-      def write_lib(f)
-        f.write <<EOS
-
-Chrystoki2 = {
-EOS
-
-        if logging?
-          write_logging(f)
-        else
-          f.write <<EOS
-  LibUNIX64 = #{relative(lib_cryptoki)};
-}
-EOS
-        end
-      end
-
-      def write_logging(f)
-        f.write <<EOS
-  LibUNIX64 = #{relative(lib_cklog)};
-}
-
-CkLog2 = {
-  Enabled      = 1;
-  LibUNIX64    = #{relative(lib_cryptoki)};
-  LoggingMask  = ALL_FUNC;
-  LogToStreams = 1;
-  NewFormat    = 1;
-}
-EOS
-      end
-
-      def write_prologue(f)
-        write_lib(f)
-
-        f.write <<EOS
-
-LunaSA Client = {
-  NetClient = 1;
-
-  ClientCertFile    = #{relative(client_certificate)};
-  ClientPrivKeyFile = #{relative(client_private_key)};
-  HtlDir            = #{relative(@droplet.sandbox + 'htl')};
-  ServerCAFile      = #{relative(server_certificates)};
-
-EOS
-      end
-
-      def write_server(f, index, server)
-        padded_index = padded_index index
-
-        f.write "  ServerName#{padded_index} = #{server['name']};\n"
-        f.write "  ServerPort#{padded_index} = 1792;\n"
-        f.write "  ServerHtl#{padded_index}  = 0;\n"
-        f.write "\n"
-      end
-
-      def write_servers(servers)
-        FileUtils.mkdir_p server_certificates.parent
-        server_certificates.open(File::CREAT | File::WRONLY) do |f|
-          servers.each { |server| f.write "#{server['certificate']}\n" }
-        end
-      end
-	  
-	  def write_ekm_key(key)
-        ekm_key.open(File::CREAT | File::WRONLY) do |f|
+	  	
+	  def write_key(key)
+        key_file.open(File::CREAT | File::WRONLY) do |f|
           f.write key
         end
       end
 	  
-	  def write_ekm_cert(cert)
-        ekm_cert.open(File::CREAT | File::WRONLY) do |f|
+	  def write_cert(cert)
+        cert_file.open(File::CREAT | File::WRONLY) do |f|
           f.write cert
         end
       end
 	  
-	  def write_ekm_conf(servers,send_timeout,recv_timeout,retries)
-        ekm_conf.open(File::CREAT | File::WRONLY) do |f|
+	  def write_conf(servers,send_timeout,recv_timeout,retries)
+        conf_file.open(File::CREAT | File::WRONLY) do |f|
           f.write "servers = " + servers + "\n"
 		  f.write "send_timeout = " + send_timeout + "\n"
 		  f.write "recv_timeout = " + recv_timeout + "\n"
