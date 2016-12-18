@@ -47,6 +47,7 @@ frameworks:
   - "JavaBuildpack::Framework::Jmx"
   - "JavaBuildpack::Framework::JrebelAgent"
   - "JavaBuildpack::Framework::LunaSecurityProvider"
+  - "JavaBuildpack::Framework::DyadicEkmSecurityProvider"
   - "JavaBuildpack::Framework::MariaDbJDBC"
   - "JavaBuildpack::Framework::NewRelicAgent"
   - "JavaBuildpack::Framework::PlayFrameworkAutoReconfiguration"
