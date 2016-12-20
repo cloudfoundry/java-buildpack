@@ -17,6 +17,7 @@
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
+require 'java_buildpack/util/cache/internet_availability'
 require 'json'
 
 module JavaBuildpack
@@ -35,7 +36,12 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download(@version, @uri) { |file| expand file }
+        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+          true, 'The Dynatrace One Agent download location is always accessible'
+        ) do
+          download(@version, @uri) { |file| expand file }
+        end
+
         @droplet.copy_resources
       end
 
