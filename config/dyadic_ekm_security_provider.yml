@@ -17,4 +17,3 @@
 ---
 version: 1.+
 repository_root: https://repo.dyadicsec.com/cust/pcf
-logging_enabled: false

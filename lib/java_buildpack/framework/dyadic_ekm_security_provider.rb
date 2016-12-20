@@ -31,33 +31,32 @@ module JavaBuildpack
         download_tar
         setup_ext_dir
 
-       @droplet.copy_resources
+        @droplet.copy_resources
 
-       credentials = @application.services.find_service(FILTER)['credentials']
-       write_key credentials['key']
-       write_cert credentials['ca']
-	   write_conf credentials['servers'], credentials['send_timeout'], credentials['recv_timeout'], credentials['retries']
-	   end
+        credentials = @application.services.find_service(FILTER)['credentials']
+        write_key credentials['key']
+        write_cert credentials['ca']
+        write_conf credentials['servers'], credentials['send_timeout'], credentials['recv_timeout'],
+                   credentials['retries']
+      end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-      @droplet
-          .java_opts
-          .add_system_property('java.library.path', @droplet.sandbox + 'usr/lib')
-      @droplet.environment_variables.add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + 'usr/lib'
+        @droplet
+          .environment_variables
+          .add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + 'usr/lib'
 
         @droplet
           .java_opts
-          .add_system_property('java.security.properties', @droplet.sandbox + 'java.security')
           .add_system_property('java.ext.dirs', ext_dirs)
+          .add_system_property('java.security.properties', @droplet.sandbox + 'java.security')
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER
-        #true
+        @application.services.one_service? FILTER, 'ca', 'key', 'recv_timeout', 'retries', 'send_timeout', 'servers'
       end
 
       private
@@ -66,56 +65,61 @@ module JavaBuildpack
 
       private_constant :FILTER
 
+      def cert_file
+        @droplet.sandbox + 'etc/dsm/ca.crt'
+      end
+
+      def conf_file
+        @droplet.sandbox + 'etc/dsm/client.conf'
+      end
+
+      def dyadic_jar
+        @droplet.sandbox + 'usr/lib/dsm/dsm-advapi-1.0.jar'
+      end
+
       def ext_dir
         @droplet.sandbox + 'ext'
-      end
-	  
-	  def dyadic_jar
-	   @droplet.sandbox + 'usr/lib/dsm/dsm-advapi-1.0.jar'
-	  end
-
-      def setup_ext_dir
-        FileUtils.mkdir ext_dir     
-        FileUtils.ln_s dyadic_jar.relative_path_from(ext_dir), ext_dir, force: true     
       end
 
       def ext_dirs
         "#{qualify_path(@droplet.java_home.root + 'lib/ext', @droplet.root)}:" \
         "#{qualify_path(ext_dir, @droplet.root)}"
       end
-	  
-	  def key_file
-	    @droplet.sandbox + 'etc/dsm/key.pem'
-      end
-      
-	  def cert_file
-	    @droplet.sandbox + 'etc/dsm/ca.crt'
-      end		  
 
-	  def conf_file
-	    @droplet.sandbox + 'etc/dsm/client.conf'
+      def key_file
+        @droplet.sandbox + 'etc/dsm/key.pem'
       end
-	  	
-	  def write_key(key)
-        key_file.open(File::CREAT | File::WRONLY) do |f|
-          f.write key
-        end
+
+      def setup_ext_dir
+        FileUtils.mkdir ext_dir
+        FileUtils.ln_s dyadic_jar.relative_path_from(ext_dir), ext_dir, force: true
       end
-	  
-	  def write_cert(cert)
+
+      def write_cert(cert)
+        FileUtils.mkdir_p cert_file.parent
         cert_file.open(File::CREAT | File::WRONLY) do |f|
-          f.write cert
+          f.write "#{cert}\n"
         end
       end
-	  
-	  def write_conf(servers,send_timeout,recv_timeout,retries)
+
+      def write_conf(servers, send_timeout, recv_timeout, retries)
+        FileUtils.mkdir_p conf_file.parent
         conf_file.open(File::CREAT | File::WRONLY) do |f|
-          f.write "servers = " + servers + "\n"
-		  f.write "send_timeout = " + send_timeout + "\n"
-		  f.write "recv_timeout = " + recv_timeout + "\n"
-		  f.write "retries = " + retries + "\n"
+          f.write <<EOS
+servers      = #{servers}
+send_timeout = #{send_timeout}
+recv_timeout = #{recv_timeout}
+retries      = #{retries}
+EOS
         end
-      end  
+      end
+
+      def write_key(key)
+        FileUtils.mkdir_p key_file.parent
+        key_file.open(File::CREAT | File::WRONLY) do |f|
+          f.write "#{key}\n"
+        end
+      end
 
     end
   end
