@@ -1,5 +1,5 @@
 # Luna Security Provider Framework
-The Luna Security Provider Framework causes an application to be automatically configured to work with a bound [Luna Security Service][]. **Note:** This framework is disabled by default.
+The Luna Security Provider Framework causes an application to be automatically configured to work with a bound [Luna Security Service][].
 
 <table>
   <tr>

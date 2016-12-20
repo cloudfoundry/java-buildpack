@@ -1,5 +1,5 @@
 # AppDynamics Agent Framework
-The AppDynamics Agent Framework causes an application to be automatically configured to work with a bound [AppDynamics Service][].
+The AppDynamics Agent Framework causes an application to be automatically configured to work with a bound [AppDynamics Service][].  **Note:** This framework is disabled by default.
 
 <table>
   <tr>
