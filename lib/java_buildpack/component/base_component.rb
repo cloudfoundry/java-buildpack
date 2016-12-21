@@ -21,6 +21,7 @@ require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/shell'
 require 'java_buildpack/util/space_case'
 require 'java_buildpack/util/sanitizer'
+require 'shellwords'
 
 module JavaBuildpack
   module Component
@@ -42,6 +43,8 @@ module JavaBuildpack
         @component_name = self.class.to_s.space_case
         @configuration  = context[:configuration]
         @droplet        = context[:droplet]
+        @default_command_environment = {}
+        resolve_command_environment
       end
 
       # If the component should be used when staging an application
@@ -76,7 +79,30 @@ module JavaBuildpack
         raise "Method 'release' must be defined"
       end
 
+      # release prepended by the command_environment
+      def main_release
+        (command_environment + ' ' + release).strip
+      end
+
       protected
+
+      # Build the environment that's passed on the command line
+      # @return [String] the environment as key=value string that can be passed to the shell command
+      def command_environment
+        @default_command_environment.collect { |key, value| "#{key}=#{value.to_s.shellescape}" }.join(' ')
+      end
+
+      # Resolve the environment that's passed on the command line
+      def resolve_command_environment
+        return if ENV['JBP_NO_MALLOC_TUNING'] && ENV['JBP_NO_MALLOC_TUNING'] != '0'
+        # set MALLOC_ARENA_MAX by default
+        @default_command_environment['MALLOC_ARENA_MAX'] = 2 unless ENV.key? 'MALLOC_ARENA_MAX'
+        # disable dynamic mmap threshold, see M_MMAP_THRESHOLD in "man mallopt"
+        @default_command_environment['MALLOC_MMAP_THRESHOLD_'] = 131_072 unless ENV.key? 'MALLOC_MMAP_THRESHOLD_'
+        @default_command_environment['MALLOC_TRIM_THRESHOLD_'] = 131_072 unless ENV.key? 'MALLOC_TRIM_THRESHOLD_'
+        @default_command_environment['MALLOC_TOP_PAD_'] = 131_072 unless ENV.key? 'MALLOC_TOP_PAD_'
+        @default_command_environment['MALLOC_MMAP_MAX_'] = 65_536 unless ENV.key? 'MALLOC_MMAP_MAX_'
+      end
 
       # Downloads an item with the given name and version from the given URI, then yields the resultant file to the
       # given # block.

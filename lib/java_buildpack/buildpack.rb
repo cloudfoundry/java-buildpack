@@ -73,20 +73,26 @@ module JavaBuildpack
       container = component_detection('container', @containers, true).first
       no_container unless container
 
-      commands = []
-      commands << component_detection('JRE', @jres, true).first.release
-      component_detection('framework', @frameworks, false).map(&:release)
-      commands << container.release
-
       payload = {
         'addons'                => [],
         'config_vars'           => {},
-        'default_process_types' => { 'web' => commands.flatten.compact.join(' && ') }
+        'default_process_types' => { 'web' => build_command(container).flatten.compact.join(' && ') }
       }.to_yaml
 
       @logger.debug { "Release Payload:\n#{payload}" }
 
       payload
+    end
+
+    private
+
+    def build_command(container)
+      commands = []
+      commands << component_detection('JRE', @jres, true).first.release
+      component_detection('framework', @frameworks, false).map(&:release)
+      command = container.respond_to?(:main_release) ? container.main_release : container.release
+      commands << command
+      commands
     end
 
     private_class_method :new

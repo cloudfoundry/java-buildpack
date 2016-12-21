@@ -33,4 +33,42 @@ describe 'release script', :integration do # rubocop:disable RSpec/DescribeClass
     end
   end
 
+  it 'add default command line environment as expected',
+     app_fixture: 'integration_valid' do
+
+    run("bin/release #{app_dir}") do |status|
+      expect(status).to be_success
+      expect(YAML.load(stdout.string)['default_process_types']['web']).to match(/.* MALLOC_ARENA_MAX=2 .*/)
+    end
+  end
+
+  it 'allow disabling malloc tuning',
+     app_fixture: 'integration_valid' do
+
+    ENV['JBP_NO_MALLOC_TUNING'] = '1'
+    run("bin/release #{app_dir}") do |status|
+      expect(status).to be_success
+      expect(YAML.load(stdout.string)['default_process_types']['web']).not_to match(/.* MALLOC_ARENA_MAX.*/)
+    end
+  end
+
+  it 'do malloc tuning when JBP_NO_MALLOC_TUNING=0',
+     app_fixture: 'integration_valid' do
+
+    ENV['JBP_NO_MALLOC_TUNING'] = '0'
+    run("bin/release #{app_dir}") do |status|
+      expect(status).to be_success
+      expect(YAML.load(stdout.string)['default_process_types']['web']).to match(/.* MALLOC_ARENA_MAX=2 .*/)
+    end
+  end
+
+  it 'when env contains value, don\'t include it to the command line',
+     app_fixture: 'integration_valid' do
+
+    ENV['MALLOC_ARENA_MAX'] = '4'
+    run("bin/release #{app_dir}") do |status|
+      expect(status).to be_success
+      expect(YAML.load(stdout.string)['default_process_types']['web']).not_to match(/.* MALLOC_ARENA_MAX.*/)
+    end
+  end
 end
