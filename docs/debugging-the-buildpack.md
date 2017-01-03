@@ -132,7 +132,7 @@ Running the different stages of the buildpack lifecycle can be made simpler with
 ```bash
 $ alias detect='$BUILDPACK_ROOT/bin/detect .'
 $ alias compile='$BUILDPACK_ROOT/bin/compile . $TMPDIR'
-$ alias release='$BUILDPACK_ROOT/bin/release . | ruby -e "require \"yaml\"; puts YAML.load(STDIN.read)[\"default_process_types\"][\"web\"]"'
+$ alias release='$BUILDPACK_ROOT/bin/release . | ruby -e "require \"yaml\"; puts YAML.load(STDIN.read)[\"default_process_types\"][\"web\"]" | sed "s| exec||"'
 ```
 
 [d]: extending-logging.md#configuration
