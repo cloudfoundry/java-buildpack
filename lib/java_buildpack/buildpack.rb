@@ -78,10 +78,12 @@ module JavaBuildpack
       component_detection('framework', @frameworks, false).map(&:release)
       commands << container.release
 
+      command = commands.flatten.compact.join(' && ')
+
       payload = {
         'addons'                => [],
         'config_vars'           => {},
-        'default_process_types' => { 'web' => commands.flatten.compact.join(' && ') }
+        'default_process_types' => { 'web' => command, 'task' => command }
       }.to_yaml
 
       @logger.debug { "Release Payload:\n#{payload}" }

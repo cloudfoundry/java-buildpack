@@ -126,7 +126,10 @@ describe JavaBuildpack::Buildpack do
     expect(stub_jre2).not_to receive(:release)
 
     expect(buildpack.release)
-      .to eq({ 'addons' => [], 'config_vars' => {}, 'default_process_types' => { 'web' => 'test-command' } }.to_yaml)
+      .to eq({ 'addons'                => [],
+               'config_vars'           => {},
+               'default_process_types' => { 'web'  => 'test-command',
+                                            'task' => 'test-command' } }.to_yaml)
   end
 
   it 'loads configuration file matching JRE class name' do
