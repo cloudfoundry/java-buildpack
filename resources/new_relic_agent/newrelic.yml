@@ -8,9 +8,10 @@ common: &default_settings
 
   # ============================== LICENSE KEY ===============================
   # You must specify the license key associated with your New Relic
-  # account.  This key binds your Agent's data to your account in the
-  # New Relic service.
-  license_key: 'your license key'
+  # account. For example, if your license key is 12345 use this:
+  # license_key: '12345'
+  # The key binds your Agent's data to your account in the New Relic service.
+  license_key: 'YOUR_LICENSE_KEY'
 
   # Agent Enabled
   # Use this setting to disable the agent instead of removing it from the startup command.
@@ -24,7 +25,8 @@ common: &default_settings
   # (useful for rollup reporting), separate the application names with ";".
   # For example, to report data to "My Application" and "My Application 2" use this:
   # app_name: My Application;My Application 2
-  # This setting is required.
+  # This setting is required. You can specify up to 3 different application names.
+  # The first application name is the primary app name.
   app_name: My Application
 
   # To enable high security, set this property to true. When in high
@@ -62,7 +64,7 @@ common: &default_settings
   # Default is 1.
   log_file_count: 1
 
-  # The maximum number of bytes to write to any one log file.
+  # The maximum number of kbytes to write to any one log file.
   # The log_file_count must be set greater than 1.
   # Default is 0 (no limit).
   log_limit_in_kbytes: 0
@@ -126,7 +128,7 @@ common: &default_settings
   transaction_tracer:
 
     # Transaction tracer is enabled by default. Set this to false to turn it off.
-    # This feature is not available to Lite accounts and is automatically disabled.
+    # This feature is not available to free accounts and is automatically disabled.
     # Default is true.
     enabled: true
 
@@ -195,16 +197,16 @@ common: &default_settings
     # this, you must provide any new value as an empty list is ignored.
     ignore_status_codes: 404
 
-  # Analytics Events are used for Histograms and Percentiles. Unaggregated data is collected
+  # Transaction Events are used for Histograms and Percentiles. Unaggregated data is collected
   # for each web transaction and sent to the server on harvest.
-  analytics_events:
+  transaction_events:
 
-    # Set to false to disable analytics events.
+    # Set to false to disable transaction events.
     # Default is true.
     enabled: true
 
     # Events are collected up to the configured amount. Afterwards, events are sampled to
-    # maintain an even distribution across the harvest cycle. Largest value accepted is 10000.
+    # maintain an even distribution across the harvest cycle.
     # Default is 2000.  Setting to 0 will disable.
     max_samples_stored: 2000
 
@@ -219,7 +221,7 @@ common: &default_settings
 
   # Thread profiler measures wall clock time, CPU time, and method call counts
   # in your application's threads as they run.
-  # This feature is not available to Lite accounts and is automatically disabled.
+  # This feature is not available to free accounts and is automatically disabled.
   thread_profiler:
 
     # Set to false to disable the thread profiler.
@@ -238,6 +240,34 @@ common: &default_settings
     # for instructions to add these manually to your pages.
     # Set this attribute to false to turn off this behavior.
     auto_instrument: true
+
+  class_transformer:
+    # This instrumentation reports the name of the user principal returned from
+    # HttpServletRequest.getUserPrincipal() when servlets and filters are invoked.
+    com.newrelic.instrumentation.servlet-user:
+      enabled: false
+
+    com.newrelic.instrumentation.spring-aop-2:
+      enabled: false
+
+    # Classes loaded by classloaders in this list will not be instrumented.
+    # This is a useful optimization for runtimes which use classloaders to
+    # load dynamic classes which the agent would not instrument.
+    classloader_excludes:
+      groovy.lang.GroovyClassLoader$InnerLoader,
+      org.codehaus.groovy.runtime.callsite.CallSiteClassLoader,
+      com.collaxa.cube.engine.deployment.BPELClassLoader,
+      org.springframework.data.convert.ClassGeneratingEntityInstantiator$ObjectInstantiatorClassGenerator,
+      org.mvel2.optimizers.impl.asm.ASMAccessorOptimizer$ContextClassLoader,
+      gw.internal.gosu.compiler.SingleServingGosuClassLoader,
+
+  # User-configurable custom labels for this agent.  Labels are name-value pairs.
+  # There is a maximum of 64 labels per agent.  Names and values are limited to 255 characters.
+  # Names and values may not contain colons (:) or semicolons (;).
+  labels:
+
+    # An example label
+    #label_name: label_value
 
 
 # Application Environments
