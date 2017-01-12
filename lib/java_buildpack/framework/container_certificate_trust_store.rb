@@ -14,41 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/component/base_component'
+require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
-require 'java_buildpack/util/dash_case'
-require 'java_buildpack/util/format_duration'
 require 'fileutils'
-require 'shellwords'
-require 'tempfile'
 
 module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for contributing container-based certificates to an application.
-    class ContainerCertificateTrustStore < JavaBuildpack::Component::BaseComponent
-
-      # Creates an instance
-      #
-      # @param [Hash] context a collection of utilities used the component
-      def initialize(context)
-        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger ContainerCertificateTrustStore
-        super(context)
-      end
-
-      # (see JavaBuildpack::Component::BaseComponent#detect)
-      def detect
-        supports_configuration? && supports_file? ? id(certificates.length) : nil
-      end
+    class ContainerCertificateTrustStore < JavaBuildpack::Component::VersionedDependencyComponent
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        puts '-----> Creating TrustStore with container certificates'
+        download_jar
 
-        resolved_certificates = certificates
-        with_timing(caption(resolved_certificates)) do
+        with_timing("Adding certificates to #{trust_store.relative_path_from(@droplet.root)}") do
           FileUtils.mkdir_p trust_store.parent
-          resolved_certificates.each_with_index { |certificate, index| add_certificate certificate, index }
+
+          shell "#{java} -jar #{@droplet.sandbox + jar_name} #{ca_certificates} #{trust_store} #{password}"
         end
       end
 
@@ -60,53 +43,31 @@ module JavaBuildpack
           .add_system_property('javax.net.ssl.trustStorePassword', password)
       end
 
+      protected
+
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
+      def supports?
+        supports_configuration? && supports_file?
+      end
+
       private
 
-      CA_CERTIFICATES = Pathname.new('/etc/ssl/certs/ca-certificates.crt').freeze
+      DARWIN_CERTIFICATES = Pathname.new('/etc/ssl/cert.pem').freeze
 
-      private_constant :CA_CERTIFICATES
+      UNIX_CERTIFICATES = Pathname.new('/etc/ssl/certs/ca-certificates.crt').freeze
 
-      def add_certificate(certificate, index)
-        @logger.debug { "Adding certificate\n#{certificate}" }
-
-        file = write_certificate certificate
-        shell "#{keytool} -importcert -noprompt -keystore #{trust_store} -storepass #{password} " \
-              "-file #{file.to_path} -alias certificate-#{index}"
-      end
+      private_constant :DARWIN_CERTIFICATES, :UNIX_CERTIFICATES
 
       def ca_certificates
-        CA_CERTIFICATES
-      end
-
-      def caption(resolved_certificates)
-        "Adding #{resolved_certificates.count} certificates to #{trust_store.relative_path_from(@droplet.root)}"
-      end
-
-      def certificates
-        certificates = []
-
-        certificate = nil
-        ca_certificates.each_line do |line|
-          if line =~ /BEGIN CERTIFICATE/
-            certificate = line
-          elsif line =~ /END CERTIFICATE/
-            certificate += line
-            certificates << certificate
-            certificate = nil
-          elsif !certificate.nil?
-            certificate += line
-          end
+        if `uname -s` =~ /Darwin/
+          DARWIN_CERTIFICATES
+        else
+          UNIX_CERTIFICATES
         end
-
-        certificates
       end
 
-      def id(count)
-        "#{self.class.to_s.dash_case}=#{count}"
-      end
-
-      def keytool
-        @droplet.java_home.root + 'bin/keytool'
+      def java
+        @droplet.java_home.root + 'bin/java'
       end
 
       def password
@@ -123,13 +84,6 @@ module JavaBuildpack
 
       def trust_store
         @droplet.sandbox + 'truststore.jks'
-      end
-
-      def write_certificate(certificate)
-        file = Tempfile.new('certificate-')
-        file.write(certificate)
-        file.fsync
-        file
       end
 
     end

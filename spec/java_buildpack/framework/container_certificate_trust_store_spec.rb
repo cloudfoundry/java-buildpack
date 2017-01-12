@@ -28,13 +28,7 @@ describe JavaBuildpack::Framework::ContainerCertificateTrustStore do
   it 'detects with ca-certificates file' do
     allow(component).to receive(:ca_certificates).and_return(ca_certificates)
 
-    expect(component.detect).to eq('container-certificate-trust-store=3')
-  end
-
-  it 'does not detect without ca-certificates file' do
-    allow(component).to receive(:ca_certificates).and_return(Pathname.new('spec/fixtures/ca-certificates-no-exist.crt'))
-
-    expect(component.detect).to be_nil
+    expect(component.detect).to eq('container-certificate-trust-store=0.0.0')
   end
 
   context do
@@ -47,23 +41,14 @@ describe JavaBuildpack::Framework::ContainerCertificateTrustStore do
     end
   end
 
-  it 'creates truststore' do
+  it 'creates truststore',
+     cache_fixture: 'stub-container-customizer.jar' do
+
     allow(component).to receive(:ca_certificates).and_return(ca_certificates)
-    allow(component).to receive(:write_certificate).and_return(Pathname.new('/certificate-0'),
-                                                               Pathname.new('/certificate-1'),
-                                                               Pathname.new('/certificate-2'))
-    allow(component).to receive(:shell).with("#{java_home.root}/bin/keytool -importcert -noprompt " \
-                                             "-keystore #{sandbox}/truststore.jks -storepass " \
-                                             'java-buildpack-trust-store-password -file /certificate-0 -alias ' \
-                                             'certificate-0')
-    allow(component).to receive(:shell).with("#{java_home.root}/bin/keytool -importcert -noprompt " \
-                                             "-keystore #{sandbox}/truststore.jks -storepass " \
-                                             'java-buildpack-trust-store-password -file /certificate-1 -alias ' \
-                                             'certificate-1')
-    allow(component).to receive(:shell).with("#{java_home.root}/bin/keytool -importcert -noprompt " \
-                                             "-keystore #{sandbox}/truststore.jks -storepass " \
-                                             'java-buildpack-trust-store-password -file /certificate-2 -alias ' \
-                                             'certificate-2')
+    allow(component).to receive(:shell).with("#{java_home.root}/bin/java -jar " \
+                                             "#{sandbox}/container_certificate_trust_store-0.0.0.jar " \
+                                             "#{ca_certificates} #{sandbox}/truststore.jks " \
+                                             'java-buildpack-trust-store-password')
 
     component.compile
   end

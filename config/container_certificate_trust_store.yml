@@ -15,4 +15,6 @@
 
 # Container certificate truststore configuration
 ---
-enabled: false
+version: 1.+
+repository_root: "{default.repository.root}/container-certificate-trust-store"
+enabled: true
