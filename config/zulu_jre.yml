@@ -20,7 +20,7 @@
 # e.g.  repository_root: "http://example.com/zulu-jre/{platform}/{architecture}"
 ---
 jre:
-  version: 1.8.0_11+
+  version: 1.8.0_12+
   repository_root: "https://cdn.azul.com/zulu/bin"
 memory_calculator:
   version: 2.+
