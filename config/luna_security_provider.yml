@@ -18,3 +18,4 @@
 version: 6.+
 repository_root: http://files.cf-hsm.io/luna-installer
 logging_enabled: false
+ha_logging_enabled: true
