@@ -47,8 +47,11 @@ describe JavaBuildpack::Framework::ContainerCertificateTrustStore do
     allow(component).to receive(:ca_certificates).and_return(ca_certificates)
     allow(component).to receive(:shell).with("#{java_home.root}/bin/java -jar " \
                                              "#{sandbox}/container_certificate_trust_store-0.0.0.jar " \
-                                             "#{ca_certificates} #{sandbox}/truststore.jks " \
-                                             'java-buildpack-trust-store-password')
+                                             "--container-source #{ca_certificates} " \
+                                             "--destination #{sandbox}/truststore.jks " \
+                                             '--destination-password java-buildpack-trust-store-password ' \
+                                             "--jre-source #{java_home.root}/lib/security/cacerts " \
+                                             '--jre-source-password changeit')
 
     component.compile
   end
