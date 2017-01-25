@@ -31,7 +31,9 @@ module JavaBuildpack
         with_timing("Adding certificates to #{trust_store.relative_path_from(@droplet.root)}") do
           FileUtils.mkdir_p trust_store.parent
 
-          shell "#{java} -jar #{@droplet.sandbox + jar_name} #{ca_certificates} #{trust_store} #{password}"
+          shell "#{java} -jar #{@droplet.sandbox + jar_name} --container-source #{ca_certificates} --destination " \
+                "#{trust_store} --destination-password #{password} --jre-source #{cacerts} --jre-source-password " \
+                'changeit'
         end
       end
 
@@ -64,6 +66,10 @@ module JavaBuildpack
         else
           UNIX_CERTIFICATES
         end
+      end
+
+      def cacerts
+        @droplet.java_home.root + 'lib/security/cacerts'
       end
 
       def java

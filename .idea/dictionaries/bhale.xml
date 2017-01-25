@@ -8,6 +8,7 @@
       <w>argv</w>
       <w>atpack</w>
       <w>bootclasspath</w>
+      <w>cacert</w>
       <w>chrystoki</w>
       <w>cklog</w>
       <w>codeclimate</w>
