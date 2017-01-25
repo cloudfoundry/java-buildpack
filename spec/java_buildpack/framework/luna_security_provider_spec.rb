@@ -122,7 +122,7 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
     end
 
     context do
-      let(:configuration) { { 'logging_enabled' => true } }
+      let(:configuration) { { 'logging_enabled' => true, 'ha_logging_enabled' => true } }
 
       it 'writes configuration',
          cache_fixture: 'stub-luna-security-provider.tar' do
