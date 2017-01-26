@@ -37,6 +37,12 @@ module Package
       directory parent
       file(target => [source, parent]) do |t|
         cp t.source, t.name
+
+        if t.source.start_with? 'bin'
+          chmod 0755, t.name
+        else
+          chmod 0644, t.name
+        end
       end
 
       target
