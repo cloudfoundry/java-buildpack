@@ -26,33 +26,33 @@ The buildpack supports extension through the use of Git repository forking. The 
 Buildpack configuration can be overridden with an environment variable matching the configuration file you wish to override minus the `.yml` extension and with a prefix of `JBP_CONFIG`. It is not possible to add new configuration properties and properties with `nil` or empty values will be ignored by the buildpack. The value of the variable should be valid inline yaml, referred to as `flow style` in the yaml spec ([Wikipedia] has a good description of this yaml syntax). For example, to change the default version of Java to 7 and adjust the memory heuristics apply this environment variable to the application.
 
 ```bash
-$ cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '{jre: { version: 1.7.0_+ }}'
+$ cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '{ jre: { version: 1.7.0_+ }, memory_calculator: { memory_heuristics: { heap: 85, stack: 10 } } }'
 ```
 
 If the key or value contains a special character such as `:` it should be escaped with double quotes. For example, to change the default repository path for the buildpack.
 
 ```bash
-$ cf set-env my-application JBP_CONFIG_REPOSITORY '{default_repository_root: "http://repo.example.io"}'
+$ cf set-env my-application JBP_CONFIG_REPOSITORY '{ default_repository_root: "http://repo.example.io" }'
 ```
 
 If the key or value contains an environment variable that you want to bind at runtime you need to escape it from your shell. For example, to add command line arguments containing an environment variable to a [Java Main](docs/container-java_main.md) application.
 
 ```bash
-$ cf set-env my-application JBP_CONFIG_JAVA_MAIN '{arguments: "-server.port=\$PORT -foo=bar"}'
+$ cf set-env my-application JBP_CONFIG_JAVA_MAIN '{ arguments: "-server.port=\$PORT -foo=bar" }'
 ```
 
 Environment variable can also be specified in the applications `manifest` file. For example, to specify an environment variable in an applications manifest file that disables Auto-reconfiguration.
 
 ```bash
   env:
-    JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{enabled: false}'
+    JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{ enabled: false }'
 ```
 
 This final example shows how to change the version of Tomcat that is used by the buildpack with an environment variable specified in the applications manifest file.
 
 ```bash
   env:
-    JBP_CONFIG_TOMCAT: '{tomcat: { version: 8.0.+ }}'
+    JBP_CONFIG_TOMCAT: '{ tomcat: { version: 8.0.+ } }'
 ```
 
 See the [Environment Variables][] documentation for more information.
