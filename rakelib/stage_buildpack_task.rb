@@ -39,9 +39,9 @@ module Package
         cp t.source, t.name
 
         if t.source.start_with? 'bin'
-          chmod 0755, t.name
+          chmod 0o755, t.name
         else
-          chmod 0644, t.name
+          chmod 0o644, t.name
         end
       end
 
