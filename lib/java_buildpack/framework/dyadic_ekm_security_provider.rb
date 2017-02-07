@@ -106,10 +106,11 @@ module JavaBuildpack
         FileUtils.mkdir_p conf_file.parent
         conf_file.open(File::CREAT | File::WRONLY) do |f|
           f.write <<EOS
-servers      = #{servers}
-send_timeout = #{send_timeout}
-recv_timeout = #{recv_timeout}
-retries      = #{retries}
+servers         = #{servers}
+send_timeout    = #{send_timeout}
+recv_timeout    = #{recv_timeout}
+retries         = #{retries}
+ha_mode_standby = 1
 EOS
         end
       end
