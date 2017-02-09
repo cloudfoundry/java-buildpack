@@ -156,7 +156,7 @@ module JavaBuildpack
       end
 
       def valid_qualifier(qualifier)
-        qualifier.nil? || qualifier.empty? || qualifier =~ /^[-\.a-zA-Z\d]*$/ || qualifier =~ /^\+$/
+        qualifier.nil? || qualifier.empty? || qualifier =~ /^[-\.a-zA-Z\d]*$/
       end
     end
 
