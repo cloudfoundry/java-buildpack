@@ -21,7 +21,7 @@
 ---
 jre:
   version: 1.8.0_12+
-  repository_root: ""
+  repository_root: "https://s3-eu-west-1.amazonaws.com/shop-pipeline"
 memory_calculator:
   version: 2.+
   repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
