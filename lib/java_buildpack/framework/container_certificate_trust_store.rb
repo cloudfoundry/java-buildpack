@@ -69,8 +69,7 @@ module JavaBuildpack
       end
 
       def cacerts
-          #Server JRE
-          @droplet.java_home_root + 'jre/lib/security/cacerts'
+        @droplet.java_home.root + 'jre/lib/security/cacerts'
       end
 
       def java
