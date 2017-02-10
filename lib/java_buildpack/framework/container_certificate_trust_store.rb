@@ -75,6 +75,7 @@ module JavaBuildpack
         else
           #Normal JRE
           @droplet.java_home.root + 'lib/security/cacerts'
+        end
       end
 
       def java
