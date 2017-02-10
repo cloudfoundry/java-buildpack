@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ describe JavaBuildpack::Container::Groovy do
   end
 
   def env_vars_str
-    "#{environment_variables.join(' ')}"
+    environment_variables.join(' ')
   end
 
   def java_opts_str

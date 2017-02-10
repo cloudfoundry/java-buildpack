@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ shared_context 'component_helper' do
   include_context 'internet_availability_helper'
   include_context 'logging_helper'
 
-  let(:application_cache) { double('ApplicationCache') }
+  let(:application_cache) { instance_double('ApplicationCache') }
 
   let(:component) { described_class.new context }
   let(:configuration) { {} }
@@ -55,7 +55,7 @@ shared_context 'component_helper' do
     cache_fixture = example.metadata[:cache_fixture]
     if cache_fixture
       allow(application_cache).to receive(:get).with(uri)
-                                    .and_yield(Pathname.new("spec/fixtures/#{cache_fixture}").open, false)
+        .and_yield(Pathname.new("spec/fixtures/#{cache_fixture}").open, false)
     end
   end
 

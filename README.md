@@ -1,8 +1,4 @@
 # Cloud Foundry Java Buildpack
-[![Build Status](https://travis-ci.org/cloudfoundry/java-buildpack.svg?branch=master)](https://travis-ci.org/cloudfoundry/java-buildpack)
-[![Dependency Status](https://gemnasium.com/cloudfoundry/java-buildpack.svg)](https://gemnasium.com/cloudfoundry/java-buildpack)
-[![Code Climate](https://codeclimate.com/repos/5224adaec7f3a3415107004c/badges/bc49f7d7f8dfc47057c8/gpa.svg)](https://codeclimate.com/repos/5224adaec7f3a3415107004c/feed)
-[![Code Climate](https://codeclimate.com/repos/5224adaec7f3a3415107004c/badges/bc49f7d7f8dfc47057c8/coverage.svg)](https://codeclimate.com/repos/5224adaec7f3a3415107004c/feed)
 
 The `java-buildpack` is a [Cloud Foundry][] buildpack for running JVM-based applications.  It is designed to run many JVM-based applications ([Grails][], [Groovy][], Java Main, [Play Framework][], [Spring Boot][], and Servlet) with no additional configuration, but supports configuration of the standard components, and extension to add custom components.
 
@@ -30,33 +26,33 @@ The buildpack supports extension through the use of Git repository forking. The 
 Buildpack configuration can be overridden with an environment variable matching the configuration file you wish to override minus the `.yml` extension and with a prefix of `JBP_CONFIG`. It is not possible to add new configuration properties and properties with `nil` or empty values will be ignored by the buildpack. The value of the variable should be valid inline yaml, referred to as `flow style` in the yaml spec ([Wikipedia] has a good description of this yaml syntax). For example, to change the default version of Java to 7 and adjust the memory heuristics apply this environment variable to the application.
 
 ```bash
-$ cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '{jre: { version: 1.7.0_+ }}'
+$ cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '{ jre: { version: 1.7.0_+ }, memory_calculator: { memory_heuristics: { heap: 85, stack: 10 } } }'
 ```
 
 If the key or value contains a special character such as `:` it should be escaped with double quotes. For example, to change the default repository path for the buildpack.
 
 ```bash
-$ cf set-env my-application JBP_CONFIG_REPOSITORY '{default_repository_root: "http://repo.example.io"}'
+$ cf set-env my-application JBP_CONFIG_REPOSITORY '{ default_repository_root: "http://repo.example.io" }'
 ```
 
 If the key or value contains an environment variable that you want to bind at runtime you need to escape it from your shell. For example, to add command line arguments containing an environment variable to a [Java Main](docs/container-java_main.md) application.
 
 ```bash
-$ cf set-env my-application JBP_CONFIG_JAVA_MAIN '{arguments: "-server.port=\$PORT -foo=bar"}'
+$ cf set-env my-application JBP_CONFIG_JAVA_MAIN '{ arguments: "-server.port=\$PORT -foo=bar" }'
 ```
 
 Environment variable can also be specified in the applications `manifest` file. For example, to specify an environment variable in an applications manifest file that disables Auto-reconfiguration.
 
 ```bash
   env:
-    JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{enabled: false}'
+    JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{ enabled: false }'
 ```
 
 This final example shows how to change the version of Tomcat that is used by the buildpack with an environment variable specified in the applications manifest file.
 
 ```bash
   env:
-    JBP_CONFIG_TOMCAT: '{tomcat: { version: 8.0.+ }}'
+    JBP_CONFIG_TOMCAT: '{ tomcat: { version: 8.0.+ } }'
 ```
 
 See the [Environment Variables][] documentation for more information.
@@ -77,8 +73,12 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 	* [Tomcat](docs/container-tomcat.md) ([Configuration](docs/container-tomcat.md#configuration))
 * Standard Frameworks
 	* [AppDynamics Agent](docs/framework-app_dynamics_agent.md) ([Configuration](docs/framework-app_dynamics_agent.md#configuration))
+	* [Container Certificate Trust Store](docs/framework-container_certificate_trust_store.md) ([Configuration](docs/framework-container_certificate_trust_store.md#configuration))
+	* [Container Customizer](docs/framework-container_customizer.md) ([Configuration](docs/framework-container_customizer.md#configuration))
 	* [Debug](docs/framework-debug.md) ([Configuration](docs/framework-debug.md#configuration))
-	* [DynaTrace Agent](docs/framework-dyna_trace_agent.md) ([Configuration](docs/framework-dyna_trace_agent.md#configuration))
+	* [Dyadic EKM Security Provider](docs/framework-dyadic_ekm_security_provider.md) ([Configuration](docs/framework-dyadic_ekm_security_provider.md#configuration))
+	* [Dynatrace Appmon Agent](docs/framework-dynatrace_appmon_agent.md) ([Configuration](docs/framework-dynatrace_appmon_agent.md#configuration))
+	* [Dynatrace SaaS/Managed OneAgent](docs/framework-dynatrace_one_agent.md) ([Configuration](docs/framework-dynatrace_one_agent.md#configuration))
 	* [Introscope Agent](docs/framework-introscope_agent.md) ([Configuration](docs/framework-introscope_agent.md#configuration))
 	* [Java Options](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))
 	* [JRebel Agent](docs/framework-jrebel_agent.md) ([Configuration](docs/framework-jrebel_agent.md#configuration))
@@ -95,6 +95,7 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 * Standard JREs
 	* [OpenJDK](docs/jre-open_jdk_jre.md) ([Configuration](docs/jre-open_jdk_jre.md#configuration))
 	* [Oracle](docs/jre-oracle_jre.md) ([Configuration](docs/jre-oracle_jre.md#configuration))
+	* [Azul Zulu](docs/jre-zulu_jre.md) ([Configuration](docs/jre-zulu_jre.md#configuration))
 * [Extending](docs/extending.md)
 	* [Application](docs/extending-application.md)
 	* [Droplet](docs/extending-droplet.md)
@@ -180,7 +181,7 @@ This buildpack is released under version 2.0 of the [Apache License][].
 
 [`config/` directory]: config
 [Apache License]: http://www.apache.org/licenses/LICENSE-2.0
-[Cloud Foundry]: http://www.cloudfoundry.com
+[Cloud Foundry]: http://www.cloudfoundry.org
 [contributor guidelines]: CONTRIBUTING.md
 [disables `remote_downloads`]: docs/extending-caches.md#configuration
 [Environment Variables]: http://docs.cloudfoundry.org/devguide/deploy-apps/manifest.html#env-block
@@ -190,6 +191,6 @@ This buildpack is released under version 2.0 of the [Apache License][].
 [Play Framework]: http://www.playframework.com
 [pull request]: https://help.github.com/articles/using-pull-requests
 [Pull requests]: http://help.github.com/send-pull-requests
-[Running Cloud Foundry locally]: http://docs.cloudfoundry.org/deploying/run-local.html
+[Running Cloud Foundry locally]: http://docs.cloudfoundry.org/deploying/boshlite/index.html
 [Spring Boot]: http://projects.spring.io/spring-boot/
 [Wikipedia]: https://en.wikipedia.org/wiki/YAML#Basic_components_of_YAML

@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ module JavaBuildpack
       # @return [Logger] the logger that was requested
       def get_logger(klass)
         @monitor.synchronize do
-          fail "Attempted to get Logger for #{short_class(klass)} before initialization" unless @initialized
+          raise "Attempted to get Logger for #{short_class(klass)} before initialization" unless @initialized
           DelegatingLogger.new wrapped_short_class(klass), @delegates
         end
       end
@@ -75,7 +75,7 @@ module JavaBuildpack
       # @return [Pathname] the location of the log file
       def log_file
         @monitor.synchronize do
-          fail 'Attempted to get log file before initialization' unless @initialized
+          raise 'Attempted to get log file before initialization' unless @initialized
           @log_file
         end
       end

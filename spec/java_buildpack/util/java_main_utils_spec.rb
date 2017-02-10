@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ describe JavaBuildpack::Util::JavaMainUtils do
 
   it 'uses a main class configuration in a configuration file' do
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('java_main')
-                                                        .and_return('java_main_class' => test_class_name)
+      .and_return('java_main_class' => test_class_name)
 
     expect(described_class.main_class(application)).to eq(test_class_name)
   end

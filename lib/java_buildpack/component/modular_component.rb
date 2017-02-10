@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ module JavaBuildpack
       # @return [void, String] components other than containers are not expected to return any value.  Container
       #                        components are expected to return the command required to run the application.
       def command
-        fail "Method 'command' must be defined"
+        raise "Method 'command' must be defined"
       end
 
       # The sub_components that make up this component
@@ -71,7 +71,7 @@ module JavaBuildpack
       # @return [Array<BaseComponent>] a collection of +BaseComponent+s that make up the sub_components of this
       #                                component
       def sub_components(_context)
-        fail "Method 'sub_components' must be defined"
+        raise "Method 'sub_components' must be defined"
       end
 
       # Returns a copy of the context, but with a subset of the original configuration
@@ -89,7 +89,7 @@ module JavaBuildpack
       #
       # @return [Boolean] whether or not this component supports this application
       def supports?
-        fail "Method 'supports?' must be defined"
+        raise "Method 'supports?' must be defined"
       end
 
     end

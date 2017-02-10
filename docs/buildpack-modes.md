@@ -1,8 +1,8 @@
 # Buildpack Modes
 The Java Buildpack has three execution modes as described in the blog post, ['Packaged and Offline Buildpacks'][l].
 
-* **Easy Mode:** Uses the repository at `https://download.run.pivotal.io`. This does not require any cloning or downloading unless you want to modify the Cloud Foundry provided buildpack. This is the default, and what we recommend to anyone who asks.
-* **Expert Mode:**   Refers to a repository hosted at a different location, possibly on an internal network.  The [structure of the repository][r] is defined as an HTTP-accessible collection of files. The repository root must contain an `index.yml` file that is a mapping of concrete versions to absolute URIs.  This repository can be created manually or [creating a replica](#replicating-the-repository-optional) for the repository at `https://download.run.pivotal.io`.  This is what we would recommend to any customer that didn’t want to access the Internet. It’s easy to keep applications secure and up-to-date, but requires the expertise to run a web-server and keep it up to date.
+* **Easy Mode:** Uses the repository at `https://java-buildpack.cloudfoundry.org`. This does not require any cloning or downloading unless you want to modify the Cloud Foundry provided buildpack. This is the default, and what we recommend to anyone who asks.
+* **Expert Mode:**   Refers to a repository hosted at a different location, possibly on an internal network.  The [structure of the repository][r] is defined as an HTTP-accessible collection of files. The repository root must contain an `index.yml` file that is a mapping of concrete versions to absolute URIs.  This repository can be created manually or [creating a replica](#replicating-the-repository-optional) for the repository at `https://java-buildpack.cloudfoundry.org`.  This is what we would recommend to any customer that didn’t want to access the Internet. It’s easy to keep applications secure and up-to-date, but requires the expertise to run a web-server and keep it up to date.
 * **Offline Mode:** Uses only the packaged internal cache. This is what we recommend if you wanted a single, self-contained artifact. The downside is having to package and keep all your dependencies up to date.
 
 
@@ -29,7 +29,7 @@ default_repository_root: https://<ALTERNATE_HOST>
 Once the buildpack has been modified, it needs to be packaged and uploaded to the Cloud Foundry instance.  In order to package the modified buildpack, refer to [Building Packages][p].  To add the buildpack to an instance of Cloud Foundry, use the `cf create-buildpack java-buildpack java-buildpack-v<VERSION>.zip` command.  For more details refer to the [Cloud Foundry buildpack documentation][b].
 
 ### Replicating the Repository _(Optional)_
-The easiest way to create a fully populated internal repository is to replicate the one found at `https://download.run.pivotal.io`.  The [Java Buildpack Dependency Builder][d] contains a `replicate` script that automates this process.  To use the script, issue the following commands from the root directory of a clone of this repository:
+The easiest way to create a fully populated internal repository is to replicate the one found at `https://java-buildpack.cloudfoundry.org`.  The [Java Buildpack Dependency Builder][d] contains a `replicate` script that automates this process.  To use the script, issue the following commands from the root directory of a clone of this repository:
 
 ```bash
 $ bundle install

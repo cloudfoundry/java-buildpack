@@ -1,5 +1,5 @@
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,6 @@
 # Note that the repository is shared with the Spring Auto Reconfiguration framework and should be kept in step to
 # avoid conflicts.
 ---
-version: 1.10.0_RELEASE
-repository_root: ! '{default.repository.root}/auto-reconfiguration'
+version: 1.+
+repository_root: "{default.repository.root}/auto-reconfiguration"
 enabled: true

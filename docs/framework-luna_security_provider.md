@@ -1,5 +1,5 @@
 # Luna Security Provider Framework
-The Luna Security Provider Framework causes an application to be automatically configured to work with a bound [Luna Security Service][]. **Note:** This framework is disabled by default.
+The Luna Security Provider Framework causes an application to be automatically configured to work with a bound [Luna Security Service][].
 
 <table>
   <tr>
@@ -91,6 +91,7 @@ The framework can be configured by modifying the [`config/luna_security_provider
 
 | Name | Description
 | ---- | -----------
+| `ha_logging_enabled` | Whether to enable HA logging for the Luna Security Provider.  Defaults to `true`.
 | `logging_enabled` | Whether to enable the logging wrapper for the Luna Security Provider.  Defaults to `false`.
 | `repository_root` | The URL of the Luna Security Provider repository index ([details][repositories]).
 | `version` | Version of the Luna Security Provider to use.

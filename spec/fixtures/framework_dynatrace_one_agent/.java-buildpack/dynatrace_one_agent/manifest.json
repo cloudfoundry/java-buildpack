@@ -1,0 +1,6 @@
+{
+  "version" : "1.105.147.20160930-153457",
+  "tenantUUID" : "tenant",
+  "tenantToken" : "token-from-file",
+  "communicationEndpoints" : [ "https://endpoint1/communication", "https://endpoint2/communication" ]
+}

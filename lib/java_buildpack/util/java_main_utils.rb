@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,8 +48,6 @@ module JavaBuildpack
           manifest_file = manifest_file.exist? ? manifest_file : nil
           JavaBuildpack::Util::Properties.new(manifest_file)
         end
-
-        private
 
         MAIN_CLASS_PROPERTY = 'java_main_class'.freeze
 
