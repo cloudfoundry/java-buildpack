@@ -55,6 +55,9 @@ module JavaBuildpack
 
       p
 
+      FILTER = /newrelic/
+      PROXY_FILTER = /proxy/
+      
       private_constant :FILTER
       private_constant :PROXY_FILTER
 
