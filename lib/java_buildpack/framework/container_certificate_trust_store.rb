@@ -69,7 +69,12 @@ module JavaBuildpack
       end
 
       def cacerts
-        @droplet.java_home.root + 'lib/security/cacerts'
+        if( File.file?(@droplet.java_home_root + 'jre/lib/security/cacerts') )
+          #Server JRE
+          @droplet.java_home_root + 'jre/lib/security/cacerts'
+        else
+          #Normal JRE
+          @droplet.java_home.root + 'lib/security/cacerts'
       end
 
       def java
