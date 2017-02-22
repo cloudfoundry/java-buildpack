@@ -16,7 +16,7 @@
 
 require 'spec_helper'
 require 'component_helper'
-require 'java_buildpack/framework/pa_security_provider'
+require 'java_buildpack/framework/protect_app_security_provider'
 
 describe JavaBuildpack::Framework::ProtectAppSecurityProvider do
   include_context 'component_helper'
@@ -28,56 +28,73 @@ describe JavaBuildpack::Framework::ProtectAppSecurityProvider do
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/protectapp/, 'client', 'trustedcerts').and_return(true)
+      allow(services).to receive(:one_service?).with(/protectapp/, 'client', 'trusted_certificates').and_return(true)
 
+      allow(services).to receive(:find_service).and_return(
+        'credentials' => {
+          'client' => {
+            'certificate' => "-----BEGIN CERTIFICATE-----\ntest-client-cert\n-----END CERTIFICATE-----",
+            'private_key' => "-----BEGIN RSA PRIVATE KEY-----\ntest-client-private-key\n-----END RSA PRIVATE KEY-----"
+          },
+          'trusted_certificates' => [
+            "-----BEGIN CERTIFICATE-----\ntest-server-1-cert\n-----END CERTIFICATE-----",
+            "-----BEGIN CERTIFICATE-----\ntest-server-2-cert\n-----END CERTIFICATE-----"
+          ],
+          'NAE_IP.1' => 'server_ip',
+          'foo' => 'bar'
+        }
+      )
     end
 
     it 'detects with protectapp-n/a service' do
-      expect(component.detect).to eq("protectapp-security-provider=#{version}")
+      expect(component.detect).to eq("protect-app-security-provider=#{version}")
+    end
+
+    it 'unpacks the protectapp zip',
+       cache_fixture: 'stub-protect-app-security-provider.zip' do
+
+      allow(component).to receive(:shell).with(start_with('unzip -qq')).and_call_original
+      allow(component).to receive(:shell).with(start_with('openssl pkcs12'))
+      allow(component).to receive(:shell).with(start_with("#{java_home.root}/bin/keytool -importkeystore"))
+      allow(component).to receive(:shell).with(start_with("#{java_home.root}/bin/keytool -importcert"))
+
+      component.compile
+
+      expect(sandbox + "ext/IngrianNAE-#{version}.jar").to exist
+      expect(sandbox + 'ext/Ingrianlog4j-core-2.1.jar').to exist
+      expect(sandbox + 'ext/Ingrianlog4j-api-2.1.jar').to exist
     end
 
     it 'copies resources',
-       cache_fixture: 'stub-protectapp-security-provider.zip' do
+       cache_fixture: 'stub-protect-app-security-provider.zip' do
+
+      allow(component).to receive(:shell).with(start_with('unzip -qq')).and_call_original
+      allow(component).to receive(:shell).with(start_with('openssl pkcs12'))
+      allow(component).to receive(:shell).with(start_with("#{java_home.root}/bin/keytool -importkeystore"))
+      allow(component).to receive(:shell).with(start_with("#{java_home.root}/bin/keytool -importcert"))
 
       component.compile
 
       expect(sandbox + 'IngrianNAE.properties').to exist
     end
 
-    it 'unpacks the protectapp zip',
-       cache_fixture: 'stub-protectapp-security-provider.zip' do
-
-      component.compile
-
-      expect(sandbox + 'IngrianNAE-#{version}.jar').to exist
-      expect(sandbox + 'Ingrianlog4j-core-2.1.jar').to exist
-      expect(sandbox + 'Ingrianlog4j-api-2.1.jar').to exist
-    end
-
-    it 'write certificate files',
-       cache_fixture: 'stub-protectapp-security-provider.zip' do
-
-      component.compile
-
-	  expect(sandbox + 'client-certificate.pem').to exist
-      expect(sandbox + 'client-private-key.pem').to exist
-	  expect(sandbox + 'trusted_certificates.pem').to exist
-	 expect(sandbox + 'clientwrap.p12').to exist
-	  
-	 # transfer to keystore
-	 expect(sandbox + 'keystore.jks').to exist
-
-    end
-	
-
     it 'updates JAVA_OPTS with additional options' do
-      allow(services).to receive(:find_service).and_return('credentials' => { '#{NAE_IP.1}' => 'server_ip',
-                                                                              '#{foo}' => 'bar' })
-
       component.release
 
+      expect(java_opts).to include('-Djava.ext.dirs=$PWD/.test-java-home/lib/ext:' \
+                                   '$PWD/.java-buildpack/protect_app_security_provider/ext')
+      expect(java_opts).to include('-Djava.security.properties=' \
+                                   '$PWD/.java-buildpack/protect_app_security_provider/java.security')
+      expect(java_opts).to include('-Dcom.ingrian.security.nae.IngrianNAE_Properties_Conf_Filename=' \
+                                   '$PWD/.java-buildpack/protect_app_security_provider/IngrianNAE.properties')
+      expect(java_opts).to include('-Dcom.ingrian.security.nae.Key_Store_Location=' \
+                                   '$PWD/.java-buildpack/protect_app_security_provider/nae-keystore.jks')
+      expect(java_opts).to include('-Dcom.ingrian.security.nae.Key_Store_Password=nae-keystore-password')
       expect(java_opts).to include('-Dcom.ingrian.security.nae.NAE_IP.1=server_ip')
       expect(java_opts).to include('-Dcom.ingrian.security.nae.foo=bar')
+
+      expect(java_opts).not_to include(start_with('-Dcom.ingrian.security.nae.client'))
+      expect(java_opts).not_to include(start_with('-Dcom.ingrian.security.nae.trusted_certificates'))
     end
 
   end

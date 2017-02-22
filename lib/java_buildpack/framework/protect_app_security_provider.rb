@@ -30,108 +30,61 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_zip
-
-		# copy default properties file
+        download_zip false
         @droplet.copy_resources
 
         credentials = @application.services.find_service(FILTER)['credentials']
-		
-        write_client credentials['client']
-        write_trusted_certs credentials['trustedcerts']
-				
-        certificates.each_with_index { |certificate, index| add_certificate certificate, index }
-        
-		# setup java keystore with provided values
-		merge_clientcert
-		import_clientcert
-		
+
+        pkcs12 = merge_client_credentials credentials['client']
+        add_client_credentials pkcs12
+
+        add_trusted_certificates credentials['trusted_certificates']
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-		credentials = @application.services.find_service(FILTER)['credentials']
+        credentials = @application.services.find_service(FILTER)['credentials']
         java_opts   = @droplet.java_opts
-		configuration = {}
-		
-		filter_known_input(credentials, configuration)
-		
-        write_java_opts(java_opts, configuration)
-        @droplet.java_opts
+
+        java_opts
           .add_system_property('java.ext.dirs', ext_dirs)
-		  .add_system_property('com.ingrian.security.nae.IngrianNAE_Properties_Conf_Filename', @droplet.sandbox + 'IngrianNAE.properties')
-		  .add_system_property('com.ingrian.security.nae.Key_Store_Location', key_store)
+          .add_system_property('java.security.properties', @droplet.sandbox + 'java.security')
+          .add_system_property('com.ingrian.security.nae.IngrianNAE_Properties_Conf_Filename',
+                               @droplet.sandbox + 'IngrianNAE.properties')
+          .add_system_property('com.ingrian.security.nae.Key_Store_Location', keystore)
           .add_system_property('com.ingrian.security.nae.Key_Store_Password', password)
+
+        credentials
+          .reject { |key, _| key =~ /^client$/ || key =~ /^trusted_certificates$/ }
+          .each { |key, value| java_opts.add_system_property("com.ingrian.security.nae.#{key}", value) }
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, 'client', 'trustedcerts'
+        @application.services.one_service? FILTER, 'client', 'trusted_certificates'
       end
 
       private
 
-      FILTER = /protectapp/.freeze
+      FILTER = /protectapp/
 
       private_constant :FILTER
-	  
-	  def merge_clientcert
-		
-        shell "openssl pkcs12 -export -in #{client_certificate} -inkey  #{client_private_key} -name  #{myclientcert} -out  #{myp12} -passout pass:#{password}" 
-      end
-	  
-	  def import_clientcert
-	  
-        shell "#{keytool} -importkeystore -noprompt -destkeystore #{key_store} -deststorepass #{password} " \
-			  "-srckeystore #{myp12} -srcstorepass #{password} -srcstoretype pkcs12" \
-              " -alias #{myclientcert}"
+
+      def add_client_credentials(pkcs12)
+        shell "#{keytool} -importkeystore -noprompt -destkeystore #{keystore} -deststorepass #{password} " \
+              "-srckeystore #{pkcs12.path} -srcstorepass #{password} -srcstoretype pkcs12" \
+              " -alias #{File.basename(pkcs12)}"
       end
 
-     def add_certificate(certificate, index)
+      def add_trusted_certificates(trusted_certificates)
+        trusted_certificates.each do |certificate|
+          pem = write_certificate certificate
 
-        file = write_certificate certificate
-        shell "#{keytool} -importcert -noprompt -keystore #{key_store} -storepass #{password} " \
-              "-file #{file.to_path} -alias certificate-#{index}"
-      end
-	  
-      def certificates
-        certificates = []
-
-        certificate = nil
-        File.open(trusted_certificates).each_line do |line|
-          if line =~ /BEGIN CERTIFICATE/
-            certificate = line
-          elsif line =~ /END CERTIFICATE/
-            certificate += line
-            certificates << certificate
-            certificate = nil
-          elsif !certificate.nil?
-            certificate += line
-          end
+          shell "#{keytool} -importcert -noprompt -keystore #{keystore} -storepass #{password} " \
+                "-file #{pem.path} -alias #{File.basename(pem)}"
         end
-
-        certificates
-      end
-
-      def keytool
-        @droplet.java_home.root + 'bin/keytool'
-      end
-
-      def password
-        'nae-jks-password'
-      end
-
-      def key_store
-        @droplet.sandbox + 'keystore.jks'
-      end
-
-      def write_certificate(certificate)
-        file = Tempfile.new('certificate-')
-        file.write(certificate)
-        file.fsync
-        file
       end
 
       def ext_dir
@@ -142,54 +95,45 @@ module JavaBuildpack
         "#{qualify_path(@droplet.java_home.root + 'lib/ext', @droplet.root)}:" \
         "#{qualify_path(ext_dir, @droplet.root)}"
       end
-	  
-	  def client_certificate
-		File.join(Dir.tmpdir,'/client-certificate.pem')
+
+      def keystore
+        @droplet.sandbox + 'nae-keystore.jks'
       end
 
-      def client_private_key
-		File.join(Dir.tmpdir,'/client-private-key.pem')
+      def keytool
+        @droplet.java_home.root + 'bin/keytool'
       end
 
-      def trusted_certificates
-        File.join(Dir.tmpdir, 'trusted_certificates.pem')
-      end
-	  
-	  def myclientcert
-        'myclientcert'
-      end
-	  
-	  def myp12
-        File.join(Dir.tmpdir,'/clientwrap.p12')
+      def merge_client_credentials(credentials)
+        certificate = write_certificate credentials['certificate']
+        private_key = write_private_key credentials['private_key']
+
+        pkcs12 = Tempfile.new('pkcs12-')
+        pkcs12.close
+
+        shell "openssl pkcs12 -export -in #{certificate.path} -inkey #{private_key.path} " \
+              "-name #{File.basename(pkcs12)} -out #{pkcs12.path} -passout pass:#{password}"
+
+        pkcs12
       end
 
-      def write_client(client)
-        File.open(client_certificate, File::CREAT | File::WRONLY) do |f|
-          f.write "#{client['certificate']}\n"
-        end
+      def password
+        'nae-keystore-password'
+      end
 
-        File.open(client_private_key, File::CREAT | File::WRONLY) do |f|
-          f.write "#{client['private-key']}\n"
+      def write_certificate(certificate)
+        Tempfile.open('certificate-') do |f|
+          f.write "#{certificate}\n"
+          f.sync
+          f
         end
       end
-	  
-      def write_trusted_certs(trusted_certs)
-        File.open(trusted_certificates,File::CREAT | File::WRONLY) do |f|
-          trusted_certs.each { |cert| f.write "#{cert}\n" }
-        end
-      end
-	  
-	  def filter_known_input(credentials, configuration)
-		credentials.each do |key, value|
-		  if key != "client" and key != "trustedcerts"
-		    configuration[key] = value
-		  end
-        end
-	  end
-	  
-	  def write_java_opts(java_opts, configuration2)
-        configuration2.each do |key, value|
-          	java_opts.add_system_property("com.ingrian.security.nae.#{key}", value )
+
+      def write_private_key(private_key)
+        Tempfile.open('private-key-') do |f|
+          f.write "#{private_key}\n"
+          f.sync
+          f
         end
       end
 
