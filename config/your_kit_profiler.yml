@@ -15,7 +15,7 @@
 
 # JMX configuration
 ---
-version: 2017.+
+version: 2017.02.50
 repository_root: "{default.repository.root}/your-kit/{platform}/{architecture}"
 enabled: false
 port: 10001
