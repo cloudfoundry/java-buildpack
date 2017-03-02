@@ -165,7 +165,7 @@ module Package
 
     def get_from_cache(configuration, index_configuration, uris)
       @cache.get(index_configuration[:uri]) do |f|
-        index         = YAML.load f
+        index         = YAML.safe_load f
         found_version = version(configuration, index)
         pin_version(configuration, found_version.to_s) if ENV['PINNED'].to_b
 

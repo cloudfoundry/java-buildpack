@@ -90,16 +90,16 @@ describe JavaBuildpack::Util::Play::Pre22Staged do
       play_app.compile
 
       staged_dir = app_dir + 'staged'
-      test_jar_1 = staged_dir + 'test-jar-1.jar'
-      test_jar_2 = staged_dir + 'test-jar-2.jar'
+      test_jar1 = staged_dir + 'test-jar-1.jar'
+      test_jar2 = staged_dir + 'test-jar-2.jar'
 
-      expect(test_jar_1).to exist
-      expect(test_jar_1).to be_symlink
-      expect(test_jar_1.readlink).to eq((additional_libs_directory + 'test-jar-1.jar').relative_path_from(staged_dir))
+      expect(test_jar1).to exist
+      expect(test_jar1).to be_symlink
+      expect(test_jar1.readlink).to eq((additional_libs_directory + 'test-jar-1.jar').relative_path_from(staged_dir))
 
-      expect(test_jar_2).to exist
-      expect(test_jar_2).to be_symlink
-      expect(test_jar_2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(staged_dir))
+      expect(test_jar2).to exist
+      expect(test_jar2).to be_symlink
+      expect(test_jar2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(staged_dir))
     end
 
     it 'returns command' do

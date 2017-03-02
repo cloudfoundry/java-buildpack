@@ -35,8 +35,7 @@ module JavaBuildpack
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
-      def release
-      end
+      def release; end
 
       protected
 

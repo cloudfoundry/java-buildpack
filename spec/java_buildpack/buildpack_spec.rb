@@ -24,17 +24,19 @@ describe JavaBuildpack::Buildpack do
   include_context 'application_helper'
   include_context 'logging_helper'
 
-  let(:stub_container1) { instance_double('StubContainer2', detect: nil, component_name: 'StubContainer1') }
+  let(:stub_container1) { instance_double('StubContainer1', detect: nil, component_name: 'StubContainer1') }
 
-  let(:stub_container2) { instance_double('StubContainer2', detect: nil, component_name: 'StubContainer2') }
+  let(:stub_container2) do
+    instance_double('StubContainer2', detect: nil, compile: nil, release: nil, component_name: 'StubContainer2')
+  end
 
   let(:stub_framework1) { instance_double('StubFramework1', detect: nil) }
 
-  let(:stub_framework2) { instance_double('StubFramework2', detect: nil) }
+  let(:stub_framework2) { instance_double('StubFramework2', detect: nil, compile: nil, release: nil) }
 
   let(:stub_jre1) { instance_double('StubJre1', detect: nil, component_name: 'StubJre1') }
 
-  let(:stub_jre2) { instance_double('StubJre2', detect: nil, component_name: 'StubJre2') }
+  let(:stub_jre2) { instance_double('StubJre2', detect: nil, compile: nil, release: nil, component_name: 'StubJre2') }
 
   let(:buildpack) do
     buildpack = nil
@@ -104,11 +106,11 @@ describe JavaBuildpack::Buildpack do
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
 
     allow(stub_container1).to receive(:compile)
-    expect(stub_container2).not_to receive(:compile)
+    expect(stub_container2).not_to have_received(:compile)
     allow(stub_framework1).to receive(:compile)
-    expect(stub_framework2).not_to receive(:compile)
+    expect(stub_framework2).not_to have_received(:compile)
     allow(stub_jre1).to receive(:compile)
-    expect(stub_jre2).not_to receive(:compile)
+    expect(stub_jre2).not_to have_received(:compile)
 
     buildpack.compile
   end
@@ -119,11 +121,11 @@ describe JavaBuildpack::Buildpack do
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
 
     allow(stub_container1).to receive(:release).and_return('test-command')
-    expect(stub_container2).not_to receive(:release)
+    expect(stub_container2).not_to have_received(:release)
     allow(stub_framework1).to receive(:release)
-    expect(stub_framework2).not_to receive(:release)
+    expect(stub_framework2).not_to have_received(:release)
     allow(stub_jre1).to receive(:release)
-    expect(stub_jre2).not_to receive(:release)
+    expect(stub_jre2).not_to have_received(:release)
 
     expect(buildpack.release)
       .to eq({ 'addons'                => [],

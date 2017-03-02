@@ -74,7 +74,7 @@ module JavaBuildpack
       end
 
       def parse(input)
-        input ? JSON.load(input) : {}
+        input ? JSON.parse(input) : {}
       end
 
     end

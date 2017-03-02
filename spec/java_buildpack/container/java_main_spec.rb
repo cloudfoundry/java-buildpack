@@ -61,15 +61,15 @@ describe JavaBuildpack::Container::JavaMain do
 
     lib = app_dir + 'lib'
 
-    test_jar_1 = lib + 'test-jar-1.jar'
-    test_jar_2 = lib + 'test-jar-2.jar'
-    expect(test_jar_1).to exist
-    expect(test_jar_1).to be_symlink
-    expect(test_jar_1.readlink).to eq((additional_libs_directory + 'test-jar-1.jar').relative_path_from(lib))
+    test_jar1 = lib + 'test-jar-1.jar'
+    test_jar2 = lib + 'test-jar-2.jar'
+    expect(test_jar1).to exist
+    expect(test_jar1).to be_symlink
+    expect(test_jar1.readlink).to eq((additional_libs_directory + 'test-jar-1.jar').relative_path_from(lib))
 
-    expect(test_jar_2).to exist
-    expect(test_jar_2).to be_symlink
-    expect(test_jar_2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(lib))
+    expect(test_jar2).to exist
+    expect(test_jar2).to be_symlink
+    expect(test_jar2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(lib))
   end
 
   context do

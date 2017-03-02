@@ -50,10 +50,10 @@ module JavaBuildpack
         download_tar
         @droplet.copy_resources
 
-        unless @droplet.java_home.java_8_or_later?
-          $stderr.puts "\n       WARNING: You are using #{@droplet.java_home.version}. Oracle has ended public " \
-                       "updates of Java 1.7 as of April 2015, possibly rendering your application vulnerable.\n\n"
-        end
+        return if @droplet.java_home.java_8_or_later?
+
+        $stderr.puts "\n       WARNING: You are using #{@droplet.java_home.version}. Oracle has ended public " \
+                     "updates of Java 1.7 as of April 2015, possibly rendering your application vulnerable.\n\n"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)

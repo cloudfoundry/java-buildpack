@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="All Tests" type="RSpecRunConfigurationType" factoryName="RSpec" singleton="true">
+  <configuration default="false" name="All Tests (2.2)" type="RSpecRunConfigurationType" factoryName="RSpec" singleton="true">
     <predefined_log_file id="RUBY_RSPEC" enabled="true" />
     <module name="java-buildpack" />
     <RSPEC_RUN_CONFIG_SETTINGS_ID NAME="RUBY_ARGS" VALUE="-e $stdout.sync=true;$stderr.sync=true;load($0=ARGV.shift)" />

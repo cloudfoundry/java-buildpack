@@ -28,8 +28,7 @@ module JavaBuildpack
       include JavaBuildpack::Container
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
-      def detect
-      end
+      def detect; end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
@@ -37,8 +36,7 @@ module JavaBuildpack
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
-      def release
-      end
+      def release; end
 
       private
 

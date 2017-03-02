@@ -30,8 +30,7 @@ module JavaBuildpack
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
-      def compile
-      end
+      def compile; end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release

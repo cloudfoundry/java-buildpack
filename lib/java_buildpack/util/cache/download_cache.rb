@@ -197,16 +197,21 @@ module JavaBuildpack
           client_authentication = JavaBuildpack::Util::ConfigurationUtils.load('cache')['client_authentication']
 
           certificate_location = client_authentication['certificate_location']
-          File.open(certificate_location) do |f|
-            http_options[:cert] = OpenSSL::X509::Certificate.new f.read
-            @logger.debug { "Adding client certificate from #{certificate_location}" }
-          end if certificate_location
+          if certificate_location
+            File.open(certificate_location) do |f|
+              http_options[:cert] = OpenSSL::X509::Certificate.new f.read
+              @logger.debug { "Adding client certificate from #{certificate_location}" }
+            end
+          end
 
           private_key_location = client_authentication['private_key_location']
+
+          return unless private_key_location
+
           File.open(private_key_location) do |f|
             http_options[:key] = OpenSSL::PKey.read f.read, client_authentication['private_key_password']
             @logger.debug { "Adding private key from #{private_key_location}" }
-          end if private_key_location
+          end
         end
 
         def compressed?(response)

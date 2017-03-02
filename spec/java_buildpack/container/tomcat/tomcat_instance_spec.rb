@@ -153,15 +153,15 @@ describe JavaBuildpack::Container::TomcatInstance do
 
     web_inf_lib = app_dir + 'WEB-INF/lib'
 
-    test_jar_1 = web_inf_lib + 'test-jar-1.jar'
-    test_jar_2 = web_inf_lib + 'test-jar-2.jar'
-    expect(test_jar_1).to exist
-    expect(test_jar_1).to be_symlink
-    expect(test_jar_1.readlink).to eq((additional_libs_directory + 'test-jar-1.jar').relative_path_from(web_inf_lib))
+    test_jar1 = web_inf_lib + 'test-jar-1.jar'
+    test_jar2 = web_inf_lib + 'test-jar-2.jar'
+    expect(test_jar1).to exist
+    expect(test_jar1).to be_symlink
+    expect(test_jar1.readlink).to eq((additional_libs_directory + 'test-jar-1.jar').relative_path_from(web_inf_lib))
 
-    expect(test_jar_2).to exist
-    expect(test_jar_2).to be_symlink
-    expect(test_jar_2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(web_inf_lib))
+    expect(test_jar2).to exist
+    expect(test_jar2).to be_symlink
+    expect(test_jar2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(web_inf_lib))
   end
 
 end

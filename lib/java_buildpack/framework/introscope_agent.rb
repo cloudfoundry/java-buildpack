@@ -85,9 +85,10 @@ module JavaBuildpack
       end
 
       def ssl_socket_factory(java_opts, credentials)
-        ssl = credentials['ssl'].to_b
+        return unless credentials['ssl'].to_b
+
         java_opts.add_system_property 'introscope.agent.enterprisemanager.transport.tcp.socketfactory.DEFAULT',
-                                      'com.wily.isengard.postofficehub.link.net.SSLSocketFactory' if ssl
+                                      'com.wily.isengard.postofficehub.link.net.SSLSocketFactory'
       end
 
     end

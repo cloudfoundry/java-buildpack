@@ -32,12 +32,7 @@ describe JavaBuildpack::Framework::Debug do
       expect(component.detect).to eq('debug=8000')
     end
 
-    it 'uses 8000 as the default port' do
-      component.release
-      expect(java_opts).to include('-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n')
-    end
-
-    it 'does not suspend by default' do
+    it 'uses 8000 as the default port and does not suspend by default' do
       component.release
       expect(java_opts).to include('-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n')
     end

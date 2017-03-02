@@ -116,7 +116,7 @@ module JavaBuildpack
 
           if user_provided
             begin
-              user_provided_value = YAML.load(user_provided)
+              user_provided_value = YAML.safe_load(user_provided)
               configuration       = merge_configuration(configuration, user_provided_value, var_name, should_log)
             rescue Psych::SyntaxError => ex
               raise "User configuration value in environment variable #{var_name} has invalid syntax: #{ex}"
