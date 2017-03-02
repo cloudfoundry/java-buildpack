@@ -1,5 +1,5 @@
 # Cloud Foundry Java Buildpack
-# Copyright 2016 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,22 +23,6 @@ jre:
   version: 1.8.0_12+
   repository_root: "https://cdn.azul.com/zulu/bin"
 memory_calculator:
-  version: 2.+
-  repository_root: ! '{default.repository.root}/memory-calculator/{platform}/{architecture}'
-  stack_threads:
-  memory_sizes:
-    heap: 
-    metaspace: 64m..
-    native: 
-    permgen: 64m..
-    stack:
-  memory_heuristics:
-    heap: 75
-    metaspace: 10
-    native: 10
-    permgen: 10
-    stack: 5
-  memory_initials:
-    heap: 100%
-    metaspace: 100%
-    permgen: 100%
+  version: 3.+
+  repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
+  stack_threads: 300

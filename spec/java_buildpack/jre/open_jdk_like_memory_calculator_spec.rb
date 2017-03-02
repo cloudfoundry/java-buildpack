@@ -24,29 +24,15 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
   include_context 'component_helper'
   include JavaBuildpack::Util
 
-  let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
+  let(:configuration) { { 'stack_threads' => '200' } }
 
-  let(:version_7) { VERSION_7 = JavaBuildpack::Util::TokenizedVersion.new('1.7.0_+') }
+  let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
 
   let(:version_8) { VERSION_8 = JavaBuildpack::Util::TokenizedVersion.new('1.8.0_+') }
 
-  let(:configuration) do
-    { 'memory_sizes' => { 'metaspace' => '64m..',
-                          'permgen'   => '64m..' },
-      'memory_heuristics' => { 'heap'      => '75',
-                               'metaspace' => '10',
-                               'permgen'   => '10',
-                               'stack'     => '5',
-                               'native'    => '10' },
-      'memory_initials' => { 'heap'      => '100%',
-                             'metaspace' => '100%',
-                             'permgen'   => '100%' } }
-  end
-
   it 'copies executable to bin directory',
-     cache_fixture: 'stub-memory-calculator' do
+     cache_fixture: 'stub-memory-calculator.tar.gz' do
 
-    java_home.version = version_7
     allow(component).to receive(:show_settings)
 
     component.compile
@@ -55,9 +41,8 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
   end
 
   it 'chmods executable to 0755',
-     cache_fixture: 'stub-memory-calculator' do
+     cache_fixture: 'stub-memory-calculator.tar.gz' do
 
-    java_home.version = version_7
     allow(component).to receive(:show_settings)
 
     component.compile
@@ -72,7 +57,6 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
     it 'copies executable to bin directory from a compressed archive',
        cache_fixture: 'stub-memory-calculator.tar.gz' do
 
-      java_home.version = version_7
       allow(component).to receive(:show_settings)
 
       component.compile
@@ -83,7 +67,6 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
     it 'chmods executable to 0755 from a compressed archive',
        cache_fixture: 'stub-memory-calculator.tar.gz' do
 
-      java_home.version = version_7
       allow(component).to receive(:show_settings)
 
       component.compile
@@ -93,61 +76,38 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
 
   end
 
-  it 'runs the memory calculator to sanity check',
-     cache_fixture: 'stub-memory-calculator' do
-
-    java_home.version = version_7
-    memory_calculator = qualify_path(sandbox + "bin/java-buildpack-memory-calculator-#{version}", Pathname.new(Dir.pwd))
-
-    allow(component).to receive(:show_settings).with("#{memory_calculator} -memorySizes=permgen:64m.. " \
-                                                      '-memoryWeights=heap:75,permgen:10,stack:5,native:10 ' \
-                                                      '-memoryInitials=heap:100%,permgen:100% ' \
-                                                      '-totMemory=$MEMORY_LIMIT')
-
-    component.compile
-  end
-
-  it 'create memory calculation command for Java 7' do
-    java_home.version = version_7
-    command           = component.memory_calculation_command
-
-    expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
-                          'java-buildpack-memory-calculator-0.0.0 -memorySizes=permgen:64m.. ' \
-                          '-memoryWeights=heap:75,permgen:10,stack:5,native:10 ' \
-                          '-memoryInitials=heap:100%,permgen:100% ' \
-                          '-totMemory=$MEMORY_LIMIT)')
-  end
-
-  it 'create memory calculation command for Java 8' do
-    java_home.version = version_8
-    command           = component.memory_calculation_command
-
-    expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
-                          'java-buildpack-memory-calculator-0.0.0 -memorySizes=metaspace:64m.. ' \
-                          '-memoryWeights=heap:75,metaspace:10,stack:5,native:10 ' \
-                          '-memoryInitials=heap:100%,metaspace:100% ' \
-                          '-totMemory=$MEMORY_LIMIT)')
-  end
-
   it 'adds $CALCULATED_MEMORY to the JAVA_OPTS' do
     component.release
 
     expect(java_opts).to include('$CALCULATED_MEMORY')
   end
 
+  it 'creates memory calculation command without vm options specified',
+     app_fixture: 'jre_memory_calculator_application' do
+
+    java_home.version = version_8
+
+    command = component.memory_calculation_command
+
+    expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
+                            'java-buildpack-memory-calculator-0.0.0 -totMemory=$MEMORY_LIMIT -stackThreads=200 ' \
+                            '-loadedClasses=5501 -poolType=metaspace)')
+  end
+
   context do
 
-    let(:configuration) { super().merge 'stack_threads' => '200' }
+    let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
 
-    it 'create memory calculation command with stack threads specified' do
-      java_home.version = version_7
-      command           = component.memory_calculation_command
+    it 'creates memory calculation command with vm options specified',
+       app_fixture: 'jre_memory_calculator_application' do
+
+      java_home.version = version_8
+
+      command = component.memory_calculation_command
 
       expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
-                            'java-buildpack-memory-calculator-0.0.0 -memorySizes=permgen:64m.. ' \
-                            '-memoryWeights=heap:75,permgen:10,stack:5,native:10 ' \
-                            '-memoryInitials=heap:100%,permgen:100% ' \
-                            '-stackThreads=200 -totMemory=$MEMORY_LIMIT)')
+                            'java-buildpack-memory-calculator-0.0.0 -totMemory=$MEMORY_LIMIT -stackThreads=200 ' \
+                            '-loadedClasses=5501 -poolType=metaspace -vmOptions=\'-Dalpha=bravo\')')
     end
 
   end

@@ -20,6 +20,7 @@ require 'java_buildpack/jre'
 require 'java_buildpack/util/shell'
 require 'java_buildpack/util/qualify_path'
 require 'open3'
+require 'tmpdir'
 
 module JavaBuildpack
   module Jre
@@ -32,15 +33,19 @@ module JavaBuildpack
       def compile
         download(@version, @uri) do |file|
           FileUtils.mkdir_p memory_calculator.parent
+
           if @version[0] < '2'
             unpack_calculator file
           else
             unpack_compressed_calculator file
           end
-          memory_calculator.chmod 0o755
-        end
 
-        show_settings memory_calculation_string(Pathname.new(Dir.pwd))
+          memory_calculator.chmod 0o755
+
+          puts "       Loaded Classes: #{class_count @configuration}, " \
+               "Threads: #{stack_threads @configuration}, " \
+               "JAVA_OPTS: '#{java_opts}'"
+        end
       end
 
       # Returns a fully qualified memory calculation command to be prepended to the buildpack's command sequence
@@ -64,6 +69,24 @@ module JavaBuildpack
 
       private
 
+      def actual_class_count(root)
+        (root + '**/*.class').glob.count +
+          (root + '**/*.groovy').glob.count +
+          (root + '**/*.jar').glob.inject(0) { |a, e| a + archive_class_count(e) }
+      end
+
+      def archive_class_count(archive)
+        `unzip -l #{archive} | grep '\\(\\.class\\|\\.groovy\\)$' | wc -l`.to_i
+      end
+
+      def class_count(configuration)
+        configuration['class_count'] || (0.2 * actual_class_count(@application.root)).ceil + 5500
+      end
+
+      def java_opts
+        ENV['JAVA_OPTS']
+      end
+
       def memory_calculator
         @droplet.sandbox + "bin/java-buildpack-memory-calculator-#{@version}"
       end
@@ -74,24 +97,22 @@ module JavaBuildpack
       end
 
       def memory_calculation_string(relative_path)
-        "#{qualify_path memory_calculator, relative_path} -memorySizes=#{memory_sizes @configuration} " \
-              "-memoryWeights=#{memory_weights @configuration} -memoryInitials=#{memory_initials @configuration}" \
-              "#{stack_threads @configuration} -totMemory=$MEMORY_LIMIT"
+        memory_calculation_string = [qualify_path(memory_calculator, relative_path)]
+        memory_calculation_string << '-totMemory=$MEMORY_LIMIT'
+        memory_calculation_string << "-stackThreads=#{stack_threads @configuration}"
+        memory_calculation_string << "-loadedClasses=#{class_count @configuration}"
+        memory_calculation_string << "-poolType=#{pool_type}"
+        memory_calculation_string << "-vmOptions='#{java_opts}'" if java_opts
+
+        memory_calculation_string.join(' ')
       end
 
-      def memory_sizes(configuration)
-        memory_sizes = version_specific configuration['memory_sizes']
-        memory_sizes.map { |k, v| "#{k}:#{v}" }.join(',')
+      def pool_type
+        @droplet.java_home.java_8_or_later? ? 'metaspace' : 'permgen'
       end
 
-      def memory_weights(configuration)
-        memory_heuristics = version_specific configuration['memory_heuristics']
-        memory_heuristics.map { |k, v| "#{k}:#{v}" }.join(',')
-      end
-
-      def memory_initials(configuration)
-        memory_initials = version_specific configuration['memory_initials']
-        memory_initials.map { |k, v| "#{k}:#{v}" }.join(',')
+      def stack_threads(configuration)
+        configuration['stack_threads']
       end
 
       def unpack_calculator(file)
@@ -101,33 +122,6 @@ module JavaBuildpack
       def unpack_compressed_calculator(file)
         shell "tar xzf #{file.path} -C #{memory_calculator.parent} 2>&1"
         FileUtils.mv(memory_calculator_tar, memory_calculator)
-      end
-
-      def stack_threads(configuration)
-        configuration['stack_threads'] ? " -stackThreads=#{configuration['stack_threads']}" : ''
-      end
-
-      def version_specific(configuration)
-        if @droplet.java_home.java_8_or_later?
-          configuration.delete 'permgen'
-        else
-          configuration.delete 'metaspace'
-        end
-
-        configuration
-      end
-
-      def show_settings(*args)
-        Open3.popen3(*args) do |_stdin, stdout, stderr, wait_thr|
-          status         = wait_thr.value
-          stderr_content = stderr.gets nil
-          stdout_content = stdout.gets nil
-
-          puts "       #{stderr_content}" if stderr_content
-
-          raise unless status.success?
-          puts "       Memory Settings: #{stdout_content}"
-        end
       end
 
     end
