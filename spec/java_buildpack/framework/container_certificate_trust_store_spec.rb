@@ -50,7 +50,7 @@ describe JavaBuildpack::Framework::ContainerCertificateTrustStore do
                                              "--container-source #{ca_certificates} " \
                                              "--destination #{sandbox}/truststore.jks " \
                                              '--destination-password java-buildpack-trust-store-password ' \
-                                             "--jre-source #{java_home.root}/lib/security/cacerts " \
+                                             "--jre-source #{java_home.root}/jre/lib/security/cacerts " \
                                              '--jre-source-password changeit')
 
     component.compile
