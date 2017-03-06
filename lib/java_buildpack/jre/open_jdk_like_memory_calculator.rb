@@ -77,10 +77,7 @@ module JavaBuildpack
       end
 
       def archive_class_count(archive)
-        a = `unzip -l #{archive} | grep '\\(\\.class\\|\\.groovy\\)$' | wc -l`.to_i
-        $stderr.puts "#{archive}: #{a}"
-
-        a
+        `unzip -l #{archive} | grep '\\(\\.class\\|\\.groovy\\)$' | wc -l`.to_i
       end
 
       def class_count(configuration)
