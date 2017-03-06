@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,23 +20,23 @@ require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
 describe JavaBuildpack::Framework::WebXmlModifier do
 
   it 'does not modify root if there is no ContextLoaderListener' do
-    assert_equality('web_root_no_contextLoaderListener') { |modifier| modifier.augment_root_context }
+    assert_equality('web_root_no_contextLoaderListener', &:augment_root_context)
   end
 
   it 'does not modify a servlet if is not a DispatcherServlet' do
-    assert_equality('web_servlet_no_DispatcherServlet') { |modifier| modifier.augment_root_context }
+    assert_equality('web_servlet_no_DispatcherServlet', &:augment_root_context)
   end
 
   it 'adds a new contextInitializerClasses if it does not exist' do
-    assert_equality('web_root_no_params') { |modifier| modifier.augment_root_context }
-    assert_equality('web_servlet_no_params') { |modifier| modifier.augment_servlet_contexts }
-    assert_equality('web_servlet_load_on_startup') { |modifier| modifier.augment_servlet_contexts }
+    assert_equality('web_root_no_params', &:augment_root_context)
+    assert_equality('web_servlet_no_params', &:augment_servlet_contexts)
+    assert_equality('web_servlet_load_on_startup', &:augment_servlet_contexts)
   end
 
   it 'updates existing contextInitializerClasses if it does exist' do
-    assert_equality('web_root_existing_params') { |modifier| modifier.augment_root_context }
-    assert_equality('web_servlet_existing_params') { |modifier| modifier.augment_servlet_contexts }
-    assert_equality('web_servlet_existing_load_on_startup') { |modifier| modifier.augment_servlet_contexts }
+    assert_equality('web_root_existing_params', &:augment_root_context)
+    assert_equality('web_servlet_existing_params', &:augment_servlet_contexts)
+    assert_equality('web_servlet_existing_load_on_startup', &:augment_servlet_contexts)
   end
 
   def assert_equality(fixture)

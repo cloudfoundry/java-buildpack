@@ -1,9 +1,9 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this candidate except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
 #      http://www.apache.org/licenses/LICENSE-2.0
@@ -64,7 +64,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         gf = JavaBuildpack::Util::GroovyUtils.groovy_files(@application).reject { |file| logback_file? file }
-        gf.length > 0 && all_pogo_or_configuration(gf) && no_main_method(gf) && no_shebang(gf) && !web_inf?
+        !gf.empty? && all_pogo_or_configuration(gf) && no_main_method(gf) && no_shebang(gf) && !web_inf?
       end
 
       private

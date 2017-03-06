@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -79,10 +79,12 @@ module JavaBuildpack
       component_detection('framework', @frameworks, false).map(&:release)
       commands << container.release
 
+      command = commands.flatten.compact.join(' && ')
+
       payload = {
         'addons'                => [],
         'config_vars'           => {},
-        'default_process_types' => { 'web' => commands.flatten.compact.join(' && ') }
+        'default_process_types' => { 'web' => command, 'task' => command }
       }.to_yaml
 
       @logger.debug { "Release Payload:\n#{payload}" }
@@ -159,7 +161,7 @@ module JavaBuildpack
         tags << result
       end
 
-      fail "Application can be run by more than one #{type}: #{names detected}" if unique && detected.size > 1
+      raise "Application can be run by more than one #{type}: #{names detected}" if unique && detected.size > 1
       [detected, tags]
     end
 
@@ -200,9 +202,9 @@ module JavaBuildpack
     end
 
     def no_container
-      fail 'No container can run this application. Please ensure that you’ve pushed a valid JVM artifact or ' \
-           'artifacts using the -p command line argument or path manifest entry. Information about valid JVM ' \
-           'artifacts can be found at https://github.com/cloudfoundry/java-buildpack#additional-documentation. '
+      raise 'No container can run this application. Please ensure that you’ve pushed a valid JVM artifact or ' \
+            'artifacts using the -p command line argument or path manifest entry. Information about valid JVM ' \
+            'artifacts can be found at https://github.com/cloudfoundry/java-buildpack#additional-documentation. '
     end
 
     def require_component(component)
@@ -231,7 +233,7 @@ module JavaBuildpack
       # @yield [Buildpack] the buildpack to work with
       # @return [Object] the return value from the given block
       def with_buildpack(app_dir, message)
-        app_dir     = Pathname.new(File.expand_path(app_dir))
+        app_dir = Pathname.new(File.expand_path(app_dir))
         Logging::LoggerFactory.instance.setup app_dir
         application = Component::Application.new(app_dir)
 

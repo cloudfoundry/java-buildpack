@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,15 +26,15 @@ class Numeric
   def duration
     remainder = self
 
-    hours     = (remainder / HOUR).to_int
+    hours = (remainder / HOUR).to_int
     remainder -= HOUR * hours
 
-    minutes   = (remainder / MINUTE).to_int
+    minutes = (remainder / MINUTE).to_int
     remainder -= MINUTE * minutes
 
     return "#{hours}h #{minutes}m" if hours > 0
 
-    seconds   = (remainder / SECOND).to_int
+    seconds = (remainder / SECOND).to_int
     remainder -= SECOND * seconds
 
     return "#{minutes}m #{seconds}s" if minutes > 0
@@ -43,7 +43,7 @@ class Numeric
     "#{seconds}.#{tenths}s"
   end
 
-  MILLISECOND = 0.001.freeze
+  MILLISECOND = 0.001
 
   TENTH = (100 * MILLISECOND).freeze
 

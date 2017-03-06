@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ module JavaBuildpack
               Pre22Staged.new(droplet)
             ].select(&:supports?)
 
-            fail "Play Framework application version cannot be determined: #{candidates}" if candidates.size > 1
+            raise "Play Framework application version cannot be determined: #{candidates}" if candidates.size > 1
             candidates.empty? ? nil : candidates.first
           end
 

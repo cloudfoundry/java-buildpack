@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -70,12 +70,12 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
 
   context do
 
-    let(:web_xml_modifier) { double('WebXmlModifier') }
+    let(:web_xml_modifier) { instance_double('WebXmlModifier') }
 
     before do
       allow(JavaBuildpack::Framework::WebXmlModifier).to receive(:new).and_return(web_xml_modifier)
-      expect(web_xml_modifier).to receive(:augment_root_context)
-      expect(web_xml_modifier).to receive(:augment_servlet_contexts)
+      allow(web_xml_modifier).to receive(:augment_root_context)
+      allow(web_xml_modifier).to receive(:augment_servlet_contexts)
       allow(web_xml_modifier).to receive(:to_s).and_return('Test Content')
     end
 

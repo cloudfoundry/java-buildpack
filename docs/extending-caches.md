@@ -46,6 +46,9 @@ Caching can be configured by modifying the [`config/cache.yml`][] file in the bu
 | Name | Description
 | ---- | -----------
 | `remote_downloads` | This property can take the value `enabled` or `disabled`. <p>The default value of `enabled` means that the buildpack will check the internet connection and remember the result for the remainder of the buildpack invocation. If the internet is available, it will then be used to download files. If the internet is not available, cache will be consulted instead. <p>Alternatively, the property may be set to `disabled` which avoids the check for an internet connection, does not attempt downloads, and consults the cache instead.
+| `client_authentication.certificate_location` | The path to a PEM or DER encoded certificate to use for SSL client certificate authentication
+| `client_authentication.private_key_location` | The path to a PEM or DER encoded DSA or RSA private key to use for SSL client certificate authentication
+| `client_authentication.private_key_password` | The password for the private key to use for SSL client certificate authentication
 
 ## `JavaBuildpack::Util::Cache::DownloadCache`
 The [`DownloadCache`][] is the most generic of the two caches.  It allows you to create a cache that persists files any that write access is available.  The constructor signature looks the following:

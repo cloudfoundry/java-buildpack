@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -88,7 +88,10 @@ module JavaBuildpack
 
         @sandbox = JavaBuildpack::Util::FilteringPathname.new(sandbox_root, ->(path) { in?(path, sandbox_root) }, true)
         @root    = JavaBuildpack::Util::FilteringPathname.new(
-          root, ->(path) { !in?(path, buildpack_root) || in?(path, @sandbox) }, true)
+          root,
+          ->(path) { !in?(path, buildpack_root) || in?(path, @sandbox) },
+          true
+        )
       end
 
       # Copy resources from a components resources directory to a directory

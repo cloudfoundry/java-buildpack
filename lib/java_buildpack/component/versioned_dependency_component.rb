@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ module JavaBuildpack
       #
       # @return [Boolean] whether or not this component supports this application
       def supports?
-        fail "Method 'supports?' must be defined"
+        raise "Method 'supports?' must be defined"
       end
 
       # Downloads a given JAR file and stores it.

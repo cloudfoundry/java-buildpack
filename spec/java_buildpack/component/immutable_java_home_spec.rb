@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +16,16 @@
 
 require 'spec_helper'
 require 'java_buildpack/component/immutable_java_home'
+require 'java_buildpack/component/mutable_java_home'
 require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Component::ImmutableJavaHome do
 
   let(:delegate) do
-    double('delegate',
-           root:             Pathname.new('test-java-home'),
-           java_8_or_later?: true,
-           version:          JavaBuildpack::Util::TokenizedVersion.new('1.2.3_u04'))
+    instance_double(JavaBuildpack::Component::MutableJavaHome,
+                    root:             Pathname.new('test-java-home'),
+                    java_8_or_later?: true,
+                    version:          JavaBuildpack::Util::TokenizedVersion.new('1.2.3_u04'))
   end
 
   let(:immutable_java_home) { described_class.new delegate, Pathname.new('.') }

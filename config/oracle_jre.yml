@@ -1,5 +1,5 @@
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,24 +20,24 @@
 # e.g.  repository_root: "http://example.com/oracle-jre/{platform}/{architecture}"
 ---
 jre:
-  version: 1.8.0_+
+  version: 1.8.0_12+
   repository_root: "https://s3-eu-west-1.amazonaws.com/shop-pipeline"
 memory_calculator:
   version: 2.+
-  repository_root: ! '{default.repository.root}/memory-calculator/{platform}/{architecture}'
-  stack_threads:
+  repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
+  stack_threads: 300
   memory_sizes:
-    heap:
+    heap: 
     metaspace: 128m..
-    native:
+    native: 
     permgen: 128m..
-    stack:
+    stack: 228k..
   memory_heuristics:
-    heap: 75
+    heap: 65
     metaspace: 10
-    native: 10
+    native: 15
     permgen: 10
-    stack: 5
+    stack: 10
   memory_initials:
     heap: 100%
     metaspace: 100%

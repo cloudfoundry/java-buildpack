@@ -1,5 +1,5 @@
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
 
 # Configuration for the AppDynamics framework
 ---
-version: 4.1.8_5
-repository_root: ! '{default.repository.root}/app-dynamics'
-default_application_name: 
+version: 4.+
+repository_root: ""
+default_application_name:
 default_node_name: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']);
   puts \"#{a['application_name']}:#{a['instance_index']}\"")
-default_tier_name: 
+default_tier_name:

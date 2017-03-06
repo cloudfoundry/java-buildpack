@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,41 +21,41 @@ require 'logger'
 describe JavaBuildpack::Logging::DelegatingLogger do
 
   let(:block) { ->() { 'test-message' } }
-  let(:delegate1) { double('delegate1') }
-  let(:delegate2) { double('delegate2') }
+  let(:delegate1) { instance_double('delegate1') }
+  let(:delegate2) { instance_double('delegate2') }
   let(:delegating_logger) { described_class.new('test-klass', [delegate1, delegate2]) }
 
   it 'delegates FATAL calls' do
-    expect(delegate1).to receive(:add).with(Logger::FATAL, nil, 'test-klass')
-    expect(delegate2).to receive(:add).with(Logger::FATAL, nil, 'test-klass')
+    allow(delegate1).to receive(:add).with(Logger::FATAL, nil, 'test-klass')
+    allow(delegate2).to receive(:add).with(Logger::FATAL, nil, 'test-klass')
 
     delegating_logger.fatal
   end
 
   it 'delegates ERROR calls' do
-    expect(delegate1).to receive(:add).with(Logger::ERROR, nil, 'test-klass')
-    expect(delegate2).to receive(:add).with(Logger::ERROR, nil, 'test-klass')
+    allow(delegate1).to receive(:add).with(Logger::ERROR, nil, 'test-klass')
+    allow(delegate2).to receive(:add).with(Logger::ERROR, nil, 'test-klass')
 
     delegating_logger.error
   end
 
   it 'delegates WARN calls' do
-    expect(delegate1).to receive(:add).with(Logger::WARN, nil, 'test-klass')
-    expect(delegate2).to receive(:add).with(Logger::WARN, nil, 'test-klass')
+    allow(delegate1).to receive(:add).with(Logger::WARN, nil, 'test-klass')
+    allow(delegate2).to receive(:add).with(Logger::WARN, nil, 'test-klass')
 
     delegating_logger.warn
   end
 
   it 'delegates INFO calls' do
-    expect(delegate1).to receive(:add).with(Logger::INFO, nil, 'test-klass')
-    expect(delegate2).to receive(:add).with(Logger::INFO, nil, 'test-klass')
+    allow(delegate1).to receive(:add).with(Logger::INFO, nil, 'test-klass')
+    allow(delegate2).to receive(:add).with(Logger::INFO, nil, 'test-klass')
 
     delegating_logger.info
   end
 
   it 'delegates DEBUG calls' do
-    expect(delegate1).to receive(:add).with(Logger::DEBUG, nil, 'test-klass')
-    expect(delegate2).to receive(:add).with(Logger::DEBUG, nil, 'test-klass')
+    allow(delegate1).to receive(:add).with(Logger::DEBUG, nil, 'test-klass')
+    allow(delegate2).to receive(:add).with(Logger::DEBUG, nil, 'test-klass')
 
     delegating_logger.debug
   end

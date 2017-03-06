@@ -1,0 +1,4 @@
+Spring-Boot-Lib: WEB-INF/lib/
+Spring-Boot-Version: 1.3.3.RELEASE
+Main-Class: org.springframework.boot.loader.WarLauncher
+

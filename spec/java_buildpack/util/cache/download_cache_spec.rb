@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
   include_context 'internet_availability_helper'
   include_context 'logging_helper'
 
-  let(:ca_certs_directory) { double exist?: false, to_s: 'test-path' }
+  let(:ca_certs_directory) { instance_double('Pathname', exist?: false, to_s: 'test-path') }
 
   let(:mutable_cache_root) { app_dir + 'mutable' }
 
@@ -79,7 +79,8 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
   end
 
   it 'downloads with credentials if cached file does not exist' do
-    stub_request(:get, uri_credentials)
+    stub_request(:get, uri)
+      .with(headers: { 'Authorization' => 'Basic dGVzdC11c2VybmFtZTp0ZXN0LXBhc3N3b3Jk' })
       .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     allow(Net::HTTP).to receive(:Proxy).and_call_original
@@ -170,17 +171,29 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
   end
 
+  it 'ignores incorrect size when encoded' do
+    stub_request(:get, uri)
+      .to_return(status: 200, body: 'foo-cac', headers: { Etag:              'foo-etag',
+                                                          'Content-Encoding' => 'gzip',
+                                                          'Last-Modified'    => 'foo-last-modified',
+                                                          'Content-Length'   => 10 })
+
+    touch immutable_cache_root, 'cached', 'old-foo-cached'
+
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cac/)
+  end
+
   context do
 
     let(:environment) { { 'http_proxy' => 'http://proxy:9000', 'HTTP_PROXY' => nil } }
 
     it 'uses http_proxy if specified' do
       stub_request(:get, uri)
-        .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag',
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag:           'foo-etag',
                                                                'Last-Modified' => 'foo-last-modified' })
 
       allow(Net::HTTP).to receive(:Proxy).and_call_original
-      expect(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
+      allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
 
       download_cache.get(uri) {}
     end
@@ -193,11 +206,11 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     it 'uses HTTP_PROXY if specified' do
       stub_request(:get, uri)
-        .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag',
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag:           'foo-etag',
                                                                'Last-Modified' => 'foo-last-modified' })
 
       allow(Net::HTTP).to receive(:Proxy).and_call_original
-      expect(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
+      allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
 
       download_cache.get(uri) {}
     end
@@ -210,11 +223,11 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     it 'uses https_proxy if specified and URL is secure' do
       stub_request(:get, uri_secure)
-        .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag',
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag:           'foo-etag',
                                                                'Last-Modified' => 'foo-last-modified' })
 
       allow(Net::HTTP).to receive(:Proxy).and_call_original
-      expect(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
+      allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
 
       download_cache.get(uri_secure) {}
     end
@@ -227,11 +240,11 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     it 'uses HTTPS_PROXY if specified and URL is secure' do
       stub_request(:get, uri_secure)
-        .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag',
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag:           'foo-etag',
                                                                'Last-Modified' => 'foo-last-modified' })
 
       allow(Net::HTTP).to receive(:Proxy).and_call_original
-      expect(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
+      allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
 
       download_cache.get(uri_secure) {}
     end
@@ -243,7 +256,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
       .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     allow(Net::HTTP).to receive(:Proxy).and_call_original
-    expect(Net::HTTP).to receive(:start).with('foo-uri', 80, {}).and_call_original
+    allow(Net::HTTP).to receive(:start).with('foo-uri', 80, {}).and_call_original
 
     download_cache.get(uri) {}
   end
@@ -254,7 +267,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     allow(ca_certs_directory).to receive(:exist?).and_return(true)
     allow(Net::HTTP).to receive(:Proxy).and_call_original
-    expect(Net::HTTP).to receive(:start).with('foo-uri', 80, {}).and_call_original
+    allow(Net::HTTP).to receive(:start).with('foo-uri', 80, {}).and_call_original
 
     download_cache.get(uri) {}
   end
@@ -264,7 +277,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
       .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     allow(Net::HTTP).to receive(:Proxy).and_call_original
-    expect(Net::HTTP).to receive(:start).with('foo-uri', 443, use_ssl: true).and_call_original
+    allow(Net::HTTP).to receive(:start).with('foo-uri', 443, use_ssl: true).and_call_original
 
     download_cache.get(uri_secure) {}
   end
@@ -275,7 +288,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     allow(ca_certs_directory).to receive(:exist?).and_return(true)
     allow(Net::HTTP).to receive(:Proxy).and_call_original
-    expect(Net::HTTP).to receive(:start).with('foo-uri', 443, use_ssl: true, ca_file: 'test-path').and_call_original
+    allow(Net::HTTP).to receive(:start).with('foo-uri', 443, use_ssl: true, ca_file: 'test-path').and_call_original
 
     download_cache.get(uri_secure) {}
   end

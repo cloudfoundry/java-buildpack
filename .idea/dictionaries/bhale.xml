@@ -2,9 +2,13 @@
   <dictionary name="bhale">
     <words>
       <w>addons</w>
+      <w>agentpath</w>
       <w>appdynamics</w>
+      <w>applicationid</w>
       <w>argv</w>
       <w>atpack</w>
+      <w>bootclasspath</w>
+      <w>cacert</w>
       <w>chrystoki</w>
       <w>cklog</w>
       <w>codeclimate</w>
@@ -42,6 +46,7 @@
       <w>libcklog</w>
       <w>libcrpytoki</w>
       <w>libcryptoki</w>
+      <w>libruxitagentloader</w>
       <w>libyjpagent</w>
       <w>ljust</w>
       <w>lunaclient</w>
@@ -63,6 +68,7 @@
       <w>pkill</w>
       <w>postofficehub</w>
       <w>preformatted</w>
+      <w>priv</w>
       <w>progname</w>
       <w>proto</w>
       <w>ratpack</w>
@@ -75,6 +81,7 @@
       <w>rstrip</w>
       <w>rubo</w>
       <w>rubocop</w>
+      <w>ruxit</w>
       <w>safenet</w>
       <w>scriptdir</w>
       <w>sessionname</w>
@@ -89,6 +96,7 @@
       <w>stubjre</w>
       <w>submodules</w>
       <w>tasklib</w>
+      <w>tenanttoken</w>
       <w>tmpdir</w>
       <w>tokenized</w>
       <w>uber</w>
@@ -102,6 +110,7 @@
       <w>webmock</w>
       <w>wildcarded</w>
       <w>wronly</w>
+      <w>xbootclasspath</w>
       <w>yardoc</w>
       <w>yieldparam</w>
       <w>zipfile</w>
