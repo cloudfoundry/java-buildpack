@@ -17,6 +17,7 @@
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/jre'
+require 'java_buildpack/util/filtering_pathname'
 require 'java_buildpack/util/shell'
 require 'java_buildpack/util/qualify_path'
 require 'open3'
@@ -72,15 +73,19 @@ module JavaBuildpack
       def actual_class_count(root)
         (root + '**/*.class').glob.count +
           (root + '**/*.groovy').glob.count +
-          (root + '**/*.jar').glob.inject(0) { |a, e| a + archive_class_count(e) }
+          (root + '**/*.jar').glob(File::FNM_DOTMATCH).inject(0) { |a, e| a + archive_class_count(e) }
       end
 
       def archive_class_count(archive)
-        `unzip -l #{archive} | grep '\\(\\.class\\|\\.groovy\\)$' | wc -l`.to_i
+        a = `unzip -l #{archive} | grep '\\(\\.class\\|\\.groovy\\)$' | wc -l`.to_i
+        $stderr.puts "#{archive}: #{a}"
+
+        a
       end
 
       def class_count(configuration)
-        configuration['class_count'] || (0.2 * actual_class_count(@application.root)).ceil + 5500
+        root = JavaBuildpack::Util::FilteringPathname.new(@droplet.root, ->(_) { true }, true)
+        configuration['class_count'] || (0.2 * actual_class_count(root)).ceil
       end
 
       def java_opts
