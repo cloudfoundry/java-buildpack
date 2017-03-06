@@ -82,7 +82,7 @@ module JavaBuildpack
 
       def class_count(configuration)
         root = JavaBuildpack::Util::FilteringPathname.new(@droplet.root, ->(_) { true }, true)
-        configuration['class_count'] || (0.2 * actual_class_count(root)).ceil
+        configuration['class_count'] || (0.35 * actual_class_count(root)).ceil
       end
 
       def java_opts
