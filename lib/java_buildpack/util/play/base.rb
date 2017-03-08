@@ -51,7 +51,8 @@ module JavaBuildpack
         # (see JavaBuildpack::Component::BaseComponent#release)
         def release
           @droplet.java_opts.add_system_property 'http.port', '$PORT'
-          @droplet.environment_variables.add_environment_variable 'PATH', "#{@droplet.java_home.root}/bin:$PATH"
+          @droplet.environment_variables
+                  .add_environment_variable 'PATH', "#{qualify_path(@droplet.java_home.root, @droplet.root)}/bin:$PATH"
 
           [
             @droplet.environment_variables.as_env_vars,
