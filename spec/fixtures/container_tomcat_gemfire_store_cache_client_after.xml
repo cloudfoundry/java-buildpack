@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE client-cache PUBLIC "-//GemStone Systems, Inc.//GemFire Declarative Caching 7.0//EN" "http://www.gemstone.com/dtd/cache7_0.dtd">
-<client-cache>
-    <pool name='sessions' subscription-enabled='true'>
-        <locator host='1.0.0.2' port='45'/>
-        <locator host='1.0.0.4' port='54'/>
-    </pool>
-</client-cache>
