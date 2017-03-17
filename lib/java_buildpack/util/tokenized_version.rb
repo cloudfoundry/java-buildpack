@@ -121,7 +121,7 @@ module JavaBuildpack
       end
 
       def qualifier_compare(a, b)
-        comparison = 0
+        comparison = a[/^\d+/].to_i <=> b[/^\d+/].to_i
 
         i = 0
         until comparison.nonzero? || i == minimum_qualifier_length(a, b)
