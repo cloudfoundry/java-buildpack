@@ -45,7 +45,7 @@ frameworks:
   - "JavaBuildpack::Framework::DynatraceOneAgent"
 # - "JavaBuildpack::Framework::IntroscopeAgent"
   - "JavaBuildpack::Framework::Jmx"
-#  - "JavaBuildpack::Framework::JrebelAgent"
+  - "JavaBuildpack::Framework::JrebelAgent"
   - "JavaBuildpack::Framework::LunaSecurityProvider"
   - "JavaBuildpack::Framework::DyadicEkmSecurityProvider"
   - "JavaBuildpack::Framework::MariaDbJDBC"
