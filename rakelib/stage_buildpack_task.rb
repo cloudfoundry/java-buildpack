@@ -38,7 +38,7 @@ module Package
       file(target => [source, parent]) do |t|
         cp t.source, t.name
 
-        if t.source.start_with? 'bin'
+        if t.source.include? 'bin'
           chmod 0o755, t.name
         else
           chmod 0o644, t.name
