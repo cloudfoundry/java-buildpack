@@ -134,7 +134,7 @@ To pin the version of dependencies used by the buildpack to the ones currently r
 
 ```bash
 $ bundle install
-$ bundle exec rake package OFFLINE=true PINNED=true
+$ bundle exec rake clean package OFFLINE=true PINNED=true
 ...
 Creating build/java-buildpack-offline-cfd6b17.zip
 ```
