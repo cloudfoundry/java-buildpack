@@ -91,7 +91,8 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
 
     expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
                             'java-buildpack-memory-calculator-0.0.0 -totMemory=$MEMORY_LIMIT -stackThreads=200 ' \
-                            '-loadedClasses=2 -poolType=metaspace)')
+                            '-loadedClasses=2 -poolType=metaspace) && echo JVM Memory Configuration: ' \
+                            '$CALCULATED_MEMORY')
   end
 
   context do
@@ -107,7 +108,8 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
 
       expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
                             'java-buildpack-memory-calculator-0.0.0 -totMemory=$MEMORY_LIMIT -stackThreads=200 ' \
-                            '-loadedClasses=2 -poolType=metaspace -vmOptions=\'-Dalpha=bravo\')')
+                            '-loadedClasses=2 -poolType=metaspace -vmOptions=\'-Dalpha=bravo\') && echo JVM Memory ' \
+                            'Configuration: $CALCULATED_MEMORY')
     end
 
   end

@@ -66,7 +66,8 @@ describe JavaBuildpack::Jre::OpenJDKLike do
     java_home.version = version_7
     expect(component.command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like/bin/' \
                                     'java-buildpack-memory-calculator-0.0.0 -totMemory=$MEMORY_LIMIT' \
-                                    ' -stackThreads=200 -loadedClasses=0 -poolType=permgen)')
+                                    ' -stackThreads=200 -loadedClasses=0 -poolType=permgen) && echo JVM Memory ' \
+                                    'Configuration: $CALCULATED_MEMORY')
 
   end
 
@@ -74,7 +75,8 @@ describe JavaBuildpack::Jre::OpenJDKLike do
     java_home.version = version_8
     expect(component.command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like/bin/' \
                                     'java-buildpack-memory-calculator-0.0.0 -totMemory=$MEMORY_LIMIT' \
-                                    ' -stackThreads=200 -loadedClasses=0 -poolType=metaspace)')
+                                    ' -stackThreads=200 -loadedClasses=0 -poolType=metaspace) && echo JVM Memory ' \
+                                    'Configuration: $CALCULATED_MEMORY')
 
   end
 
