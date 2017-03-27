@@ -124,7 +124,7 @@ The online package is a version of the buildpack that is as minimal as possible 
 
 ```bash
 $ bundle install
-$ bundle exec rake package
+$ bundle exec rake clean package
 ...
 Creating build/java-buildpack-cfd6b17.zip
 ```
@@ -136,7 +136,7 @@ To pin the version of dependencies used by the buildpack to the ones currently r
 
 ```bash
 $ bundle install
-$ bundle exec rake package OFFLINE=true PINNED=true
+$ bundle exec rake clean package OFFLINE=true PINNED=true
 ...
 Creating build/java-buildpack-offline-cfd6b17.zip
 ```
@@ -146,7 +146,7 @@ Keeping track of different versions of the buildpack can be difficult.  To help 
 
 ```bash
 $ bundle install
-$ bundle exec rake package VERSION=2.1
+$ bundle exec rake clean package VERSION=2.1
 ...
 Creating build/java-buildpack-2.1.zip
 ```
