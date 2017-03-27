@@ -36,4 +36,4 @@ RUN eval "$(rbenv init -)" \
  && rbenv install 2.3.3
 
 RUN eval "$(rbenv init -)" \
- && rbenv install 2.4.0
+ && rbenv install 2.4.1
