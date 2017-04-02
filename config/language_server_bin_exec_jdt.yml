@@ -16,4 +16,4 @@
 # Configuration for the New Relic framework
 ---
 version: 0.+
-repository_root: "https://buildpackcomponentrepository.cfapps.sap.hana.ondemand.com/jdt"
+repository_root: "https://buildpackcomponentrepository.cfapps.sap.hana.ondemand.com"
