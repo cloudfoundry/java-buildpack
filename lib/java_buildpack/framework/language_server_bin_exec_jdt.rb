@@ -49,7 +49,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.environment? BINEXEC
+        @application.environment.key?(BINEXEC)
       end
 
       private
