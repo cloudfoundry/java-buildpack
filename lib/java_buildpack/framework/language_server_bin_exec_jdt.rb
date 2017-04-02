@@ -27,6 +27,7 @@ module JavaBuildpack
       def compile
         download_tar
         @droplet.copy_resources
+        # FileUtils.mkdir_p 
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -53,27 +54,10 @@ module JavaBuildpack
 
       private
 
-      BINEXEC = 'exec'
+      BINEXEC = 'exec'.freeze
 
-       private_constant :BINEXEC
+      private_constant :BINEXEC
 
-      def apply_configuration(credentials, configuration)
-        configuration['log_file_name'] = 'STDOUT'
-        configuration[LICENSE_KEY_USER] = credentials[LICENSE_KEY]
-        configuration['app_name'] = @application.details['application_name']
-      end
-
-      def apply_user_configuration(credentials, configuration)
-        credentials.each do |key, value|
-          configuration[key] = value
-        end
-      end
-
-      def write_java_opts(java_opts, configuration)
-        configuration.each do |key, value|
-          java_opts.add_system_property("newrelic.config.#{key}", value)
-        end
-      end
 
     end
 
