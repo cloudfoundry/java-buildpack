@@ -30,7 +30,7 @@ module JavaBuildpack
         # Install LSP Server bin from from repository as a Versioned component
         @droplet.copy_resources
 
-        launchbin = @droplet.java_home.root + '/java -Declipse.application=org.eclipse.jdt.ls.core.id1 -Dosgi.bundles.defaultStartLevel=4 -Declipse.product=org.eclipse.jdt.ls.core.product -Dlog.protocol=true -Dlog.level=ALL -noverify -Xmx1G -jar ./plugins/org.eclipse.equinox.launcher_1.4.0.v20161219-1356.jar -configuration ./config_linux -data ~/app/.java-buildpack/language_server_bin_exec_jdt/jdt_ws_root'
+        launchbin = "#{qualify_path(@droplet.java_home.root, @droplet.root)}/java" + ' -Declipse.application=org.eclipse.jdt.ls.core.id1 -Dosgi.bundles.defaultStartLevel=4 -Declipse.product=org.eclipse.jdt.ls.core.product -Dlog.protocol=true -Dlog.level=ALL -noverify -Xmx1G -jar ./plugins/org.eclipse.equinox.launcher_1.4.0.v20161219-1356.jar -configuration ./config_linux -data ~/app/.java-buildpack/language_server_bin_exec_jdt/jdt_ws_root'
         puts 'LAUNCH SCRIPT ' + launchbin
         launchsh = File.open( @droplet.sandbox.root,'launcher.sh', "w+") { |launchsh| launchsh.write(launchbin) }
 
