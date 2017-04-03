@@ -26,8 +26,12 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_tar
+        # Install LSP Server bin from from repository as a Versioned component
         @droplet.copy_resources
-        # FileUtils.mkdir_p 
+
+        # Add Component root to environment_variables
+        environment_variables = @droplet.environment_variables
+        environment_variables.add_environment_variable('lspbin', @sandbox_root )
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
