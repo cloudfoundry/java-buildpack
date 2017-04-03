@@ -45,6 +45,23 @@ module JavaBuildpack
 #       java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
       end
 
+      # Downloads a given TAR file and expands it.
+      #
+      # @param [String] version the version of the download
+      # @param [String] uri the uri of the download
+      # @param [Pathname] target_directory the directory to expand the TAR file to.  Defaults to the component's
+      #                                    sandbox.
+      # @param [String] name an optional name for the download and expansion.  Defaults to +@component_name+.
+      # @return [Void]
+      def download_tar(version, uri, target_directory = @droplet.sandbox, name = @component_name)
+        download(version, uri, name) do |file|
+          with_timing "Expanding #{name} to #{target_directory.relative_path_from(@droplet.root)}" do
+            FileUtils.mkdir_p target_directory
+            shell "tar x#{compression_flag(file)}f #{file.path} -C #{target_directory} 2>&1"
+          end
+        end
+      end
+
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
