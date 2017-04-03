@@ -15,5 +15,5 @@
 
 # Configuration for the New Relic framework
 ---
-version: 0.+
+version: 0.1.+
 repository_root: "https://buildpackcomponentrepository.cfapps.sap.hana.ondemand.com"
