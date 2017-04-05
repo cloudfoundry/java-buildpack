@@ -43,6 +43,7 @@ frameworks:
   - "JavaBuildpack::Framework::Debug"
   - "JavaBuildpack::Framework::DynatraceAppmonAgent"
   - "JavaBuildpack::Framework::DynatraceOneAgent"
+  - "JavaBuildpack::Framework::GoogleStackdriverDebugger"
 # - "JavaBuildpack::Framework::IntroscopeAgent"
   - "JavaBuildpack::Framework::Jmx"
   - "JavaBuildpack::Framework::JrebelAgent"

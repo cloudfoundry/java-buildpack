@@ -46,7 +46,10 @@ shared_context 'application_helper' do
 
   let(:services) { application.services }
 
-  let(:vcap_application) { { 'application_name' => 'test-application-name' } }
+  let(:vcap_application) do
+    { 'application_name'    => 'test-application-name',
+      'application_version' => 'test-application-version' }
+  end
 
   let(:vcap_services) do
     { 'test-service-n/a' => [{ 'name'        => 'test-service-name', 'label' => 'test-service-n/a',
