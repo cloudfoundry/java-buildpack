@@ -114,21 +114,26 @@ module JavaBuildpack
       #
       # @param [String] version the version of the download
       # @param [String] uri the uri of the download
+      # @param [Boolean] strip_top_level whether to strip the top-level directory when expanding. Defaults to +true+.
       # @param [Pathname] target_directory the directory to expand the TAR file to.  Defaults to the component's
       #                                    sandbox.
       # @param [String] name an optional name for the download and expansion.  Defaults to +@component_name+.
       # @return [Void]
-      def download_tar(version, uri, target_directory = @droplet.sandbox, name = @component_name)
+      def download_tar(version, uri, strip_top_level = true, target_directory = @droplet.sandbox,
+                       name = @component_name)
         download(version, uri, name) do |file|
           with_timing "Expanding #{name} to #{target_directory.relative_path_from(@droplet.root)}" do
             FileUtils.mkdir_p target_directory
-            shell "tar x#{compression_flag(file)}f #{file.path} -C #{target_directory} --strip 1 2>&1"
+            shell "tar x#{compression_flag(file)}f #{file.path} -C #{target_directory} " \
+                  "#{'--strip 1' if strip_top_level} 2>&1"
           end
         end
       end
 
       # Downloads a given ZIP file and expands it.
       #
+      # @param [String] version the version of the download
+      # @param [String] uri the uri of the download
       # @param [Boolean] strip_top_level whether to strip the top-level directory when expanding. Defaults to +true+.
       # @param [Pathname] target_directory the directory to expand the ZIP file to.  Defaults to the component's
       #                                    sandbox.
