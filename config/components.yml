@@ -36,7 +36,7 @@ jres:
 # Frameworks are processed in order. Any Java Opts added by the JavaOpts framework will be specified in the start
 # command after any Java Opts added by previous frameworks.
 frameworks:
-# - "JavaBuildpack::Framework::AppDynamicsAgent"
+  - "JavaBuildpack::Framework::AppDynamicsAgent"
   - "JavaBuildpack::Framework::ContainerCertificateTrustStore"
   - "JavaBuildpack::Framework::ContainerCustomizer"
   - "JavaBuildpack::Framework::Debug"
