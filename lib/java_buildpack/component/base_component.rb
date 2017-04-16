@@ -62,9 +62,8 @@ module JavaBuildpack
         raise "Method 'compile' must be defined"
       end
 
-      # Modifies the application's runtime configuration. The component is expected to transform members of the
-      # +context+ # (e.g. +@java_home+, +@java_opts+, etc.) in whatever way is necessary to support the function of the
-      # component.
+      # Modifies the application's runtime configuration. The component is expected to transform members of the +context+ 
+      # (e.g. +@java_home+, +@java_opts+, etc.) in whatever way is necessary to support the function of the component.
       #
       # Container components are also expected to create the command required to run the application.  These components
       # are expected to read the +context+ values and take them into account when creating the command.
