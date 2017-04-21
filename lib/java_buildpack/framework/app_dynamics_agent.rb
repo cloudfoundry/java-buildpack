@@ -44,6 +44,14 @@ module JavaBuildpack
         host_name java_opts, credentials
         port java_opts, credentials
         ssl_enabled java_opts, credentials
+
+        if !@application.services.find_service(PROXY_FILTER).nil?
+          proxy_credentials = @application.services.find_service(PROXY_FILTER)['credentials']
+          proxy_host java_opts, proxy_credentials
+          proxy_port java_opts, proxy_credentials
+          proxy_user java_opts, proxy_credentials
+          proxy_password_file java_opts, proxy_credentials
+        end
       end
 
       protected
@@ -56,8 +64,10 @@ module JavaBuildpack
       private
 
       FILTER = /app[-]?dynamics/
+      PROXY_FILTER = /proxy/
 
       private_constant :FILTER
+      private_constant :PROXY_FILTER
 
       def application_name(java_opts, credentials)
         name = credentials['application-name'] || @configuration['default_application_name'] ||
@@ -102,7 +112,33 @@ module JavaBuildpack
         java_opts.add_system_property('appdynamics.agent.tierName', name.to_s)
       end
 
-    end
+      def proxy_host(java_opts, proxy_credentials)
+        host = proxy_credentials['host']
+        java_opts.add_system_property 'appdynamics.http.proxyHost', host if host
+      end
 
+      def proxy_user(java_opts, proxy_credentials)
+        user = proxy_credentials['username']
+        java_opts.add_system_property 'appdynamics.http.proxyUser', user if user
+      end
+
+      def proxy_port(java_opts, proxy_credentials)
+        port = proxy_credentials['port']
+        java_opts.add_system_property 'appdynamics.http.proxyPort', port if port
+      end
+
+      def proxy_password_file(java_opts, proxy_credentials)
+        password = proxy_credentials['password']
+        # needs to be a file.
+        if password
+          proxyFile = @droplet.sandbox + 'proxyPass.txt'
+          FileUtils.mkdir_p proxyFile.parent
+
+          File.write(proxyFile, password)
+
+          java_opts.add_system_property 'appdynamics.http.proxyPasswordFile', proxyFile
+        end
+      end
+    end
   end
 end

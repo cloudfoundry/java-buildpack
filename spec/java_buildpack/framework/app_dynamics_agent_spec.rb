@@ -34,10 +34,12 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
   context do
 
     let(:credentials) { {} }
+    let(:proxy_credentials) { {} }
 
     before do
       allow(services).to receive(:one_service?).with(/app[-]?dynamics/, 'host-name').and_return(true)
-      allow(services).to receive(:find_service).and_return('credentials' => credentials)
+      allow(services).to receive(:find_service).with(/app[-]?dynamics/).and_return('credentials' => credentials)
+      allow(services).to receive(:find_service).with(/proxy/).and_return('credentials' => proxy_credentials)
     end
 
     it 'detects with app-dynamics-n/a service' do
@@ -140,6 +142,48 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
           expect(java_opts).to include('-Dappdynamics.agent.accountAccessKey=test-account-access-key')
         end
       end
+
+
+      context do
+        let(:proxy_credentials) { { 'host' => 'test-proxy-host'} }
+
+        it 'adds proxyHost to JAVA_OPTS if specified' do
+          component.release
+
+          expect(java_opts).to include('-Dappdynamics.http.proxyHost=test-proxy-host')
+        end
+      end
+
+      context do
+        let(:proxy_credentials) { super().merge 'username' => 'test-proxy-user' }
+
+        it 'adds proxyUser to JAVA_OPTS if specified' do
+          component.release
+
+          expect(java_opts).to include('-Dappdynamics.http.proxyUser=test-proxy-user')
+        end
+      end
+      
+      context do
+        let(:proxy_credentials) { super().merge 'password' => 'test-proxy-pass' }
+
+        it 'adds proxyPassFile to JAVA_OPTS and creates proxy file if specified' do
+          component.release
+
+          expect(java_opts).to include('-Dappdynamics.http.proxyPasswordFile=$PWD/.java-buildpack/app_dynamics_agent/proxyPass.txt')
+        end
+      end
+
+    context do
+        let(:proxy_credentials) { super().merge 'port' => '3184' }
+
+        it 'adds proxyPort to JAVA_OPTS if specified' do
+          component.release
+
+          expect(java_opts).to include('-Dappdynamics.http.proxyPort=3184')
+        end
+      end
+
     end
 
   end
