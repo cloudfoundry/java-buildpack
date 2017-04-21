@@ -16,6 +16,7 @@
 
 require 'spec_helper'
 require 'component_helper'
+require 'fileutils'
 require 'java_buildpack/framework/container_certificate_trust_store'
 
 describe JavaBuildpack::Framework::ContainerCertificateTrustStore do
@@ -49,8 +50,44 @@ describe JavaBuildpack::Framework::ContainerCertificateTrustStore do
                                              "#{sandbox}/container_certificate_trust_store-0.0.0.jar " \
                                              "--container-source #{ca_certificates} " \
                                              "--destination #{sandbox}/truststore.jks " \
+                                             '--destination-password java-buildpack-trust-store-password')
+
+    component.compile
+  end
+
+  it 'creates truststore with jre source',
+     cache_fixture: 'stub-container-customizer.jar' do
+
+    cacerts = java_home.root + 'lib/security/cacerts'
+    FileUtils.mkdir_p(cacerts.parent)
+    FileUtils.touch(cacerts)
+
+    allow(component).to receive(:ca_certificates).and_return(ca_certificates)
+    allow(component).to receive(:shell).with("#{java_home.root}/bin/java -jar " \
+                                             "#{sandbox}/container_certificate_trust_store-0.0.0.jar " \
+                                             "--container-source #{ca_certificates} " \
+                                             "--destination #{sandbox}/truststore.jks " \
                                              '--destination-password java-buildpack-trust-store-password ' \
                                              "--jre-source #{java_home.root}/lib/security/cacerts " \
+                                             '--jre-source-password changeit')
+
+    component.compile
+  end
+
+  it 'creates truststore with server jre source',
+     cache_fixture: 'stub-container-customizer.jar' do
+
+    cacerts = java_home.root + 'jre/lib/security/cacerts'
+    FileUtils.mkdir_p(cacerts.parent)
+    FileUtils.touch(cacerts)
+
+    allow(component).to receive(:ca_certificates).and_return(ca_certificates)
+    allow(component).to receive(:shell).with("#{java_home.root}/bin/java -jar " \
+                                             "#{sandbox}/container_certificate_trust_store-0.0.0.jar " \
+                                             "--container-source #{ca_certificates} " \
+                                             "--destination #{sandbox}/truststore.jks " \
+                                             '--destination-password java-buildpack-trust-store-password ' \
+                                             "--jre-source #{java_home.root}/jre/lib/security/cacerts " \
                                              '--jre-source-password changeit')
 
     component.compile
