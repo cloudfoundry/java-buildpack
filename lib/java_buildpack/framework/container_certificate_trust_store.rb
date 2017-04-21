@@ -30,10 +30,7 @@ module JavaBuildpack
 
         with_timing("Adding certificates to #{trust_store.relative_path_from(@droplet.root)}") do
           FileUtils.mkdir_p trust_store.parent
-
-          shell "#{java} -jar #{@droplet.sandbox + jar_name} --container-source #{ca_certificates} --destination " \
-                "#{trust_store} --destination-password #{password} --jre-source #{cacerts} --jre-source-password " \
-                'changeit'
+          shell command
         end
       end
 
@@ -68,16 +65,28 @@ module JavaBuildpack
         end
       end
 
-      def cacerts
-        @droplet.java_home.root + 'lib/security/cacerts'
+      def command
+        command = "#{java} -jar #{@droplet.sandbox + jar_name} --container-source #{ca_certificates} --destination " \
+                    "#{trust_store} --destination-password #{password}"
+        command += " --jre-source #{jre_cacerts} --jre-source-password changeit" if jre_cacerts.exist?
+        command += " --jre-source #{server_jre_cacerts} --jre-source-password changeit" if server_jre_cacerts.exist?
+        command
       end
 
       def java
         @droplet.java_home.root + 'bin/java'
       end
 
+      def jre_cacerts
+        @droplet.java_home.root + 'lib/security/cacerts'
+      end
+
       def password
         'java-buildpack-trust-store-password'
+      end
+
+      def server_jre_cacerts
+        @droplet.java_home.root + 'jre/lib/security/cacerts'
       end
 
       def supports_configuration?
