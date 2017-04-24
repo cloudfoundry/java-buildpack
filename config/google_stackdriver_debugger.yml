@@ -15,5 +15,5 @@
 
 # Configuration for the Groovy container
 ---
-version: 2.+
+version: 2.12.0
 repository_root: "{default.repository.root}/google-stackdriver-debugger/{platform}/{architecture}"
