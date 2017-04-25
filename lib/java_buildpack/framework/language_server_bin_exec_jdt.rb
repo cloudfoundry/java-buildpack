@@ -30,7 +30,8 @@ module JavaBuildpack
         download_tar
         # Install LSP Server bin from from repository as a Versioned component
         @droplet.copy_resources
-        FileUtils.cp_r(@droplet.sandbox + '/.m2', @droplet.root )
+        FileUtils.mkdir_p @droplet.root + '.m2'
+        FileUtils.cp_r(@droplet.sandbox + '.m2/.', @droplet.root + '/.' )
 
       end
 
