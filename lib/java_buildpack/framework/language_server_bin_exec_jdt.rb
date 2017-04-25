@@ -32,6 +32,8 @@ module JavaBuildpack
         @droplet.copy_resources
         FileUtils.mkdir_p @droplet.root + '.m2'
         FileUtils.cp_r(@droplet.sandbox + '.m2/.', @droplet.root + '.m2' )
+        FileUtils.mkdir_p @droplet.root + 'di_ws_root'
+        FileUtils.mkdir_p @droplet.root + 'jdt_ws_root'
 
       end
 
