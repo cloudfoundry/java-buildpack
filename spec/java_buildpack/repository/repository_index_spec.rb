@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -37,23 +36,23 @@ describe JavaBuildpack::Repository::RepositoryIndex do
   it 'loads index' do
     allow(application_cache).to receive(:get).with(%r{/test-uri/index\.yml})
       .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
-    allow(JavaBuildpack::Repository::VersionResolver).to receive(:resolve).with('test-version', %w(resolved-version))
+    allow(JavaBuildpack::Repository::VersionResolver).to receive(:resolve).with('test-version', %w[resolved-version])
       .and_return('resolved-version')
 
     repository_index = described_class.new('{platform}/{architecture}/test-uri')
 
-    expect(repository_index.find_item('test-version')).to eq(%w(resolved-version resolved-uri))
+    expect(repository_index.find_item('test-version')).to eq(%w[resolved-version resolved-uri])
   end
 
   it 'copes with trailing slash in repository URI' do
     allow(application_cache).to receive(:get).with(%r{/test-uri/index\.yml})
       .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
-    allow(JavaBuildpack::Repository::VersionResolver).to receive(:resolve).with('test-version', %w(resolved-version))
+    allow(JavaBuildpack::Repository::VersionResolver).to receive(:resolve).with('test-version', %w[resolved-version])
       .and_return('resolved-version')
 
     repository_index = described_class.new('{platform}/{architecture}/test-uri/')
 
-    expect(repository_index.find_item('test-version')).to eq(%w(resolved-version resolved-uri))
+    expect(repository_index.find_item('test-version')).to eq(%w[resolved-version resolved-uri])
   end
 
   it 'substitutes the default repository root' do

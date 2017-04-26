@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -48,10 +47,10 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
           'groups' => [
             {
               'label'   => 'test-group-1',
-              'members' => %w(test-group-1-member-1 test-group-1-member-2)
+              'members' => %w[test-group-1-member-1 test-group-1-member-2]
             }, {
               'label'   => 'test-group-2',
-              'members' => %w(test-group-2-member-1 test-group-2-member-2)
+              'members' => %w[test-group-2-member-1 test-group-2-member-2]
             }
           ]
         }

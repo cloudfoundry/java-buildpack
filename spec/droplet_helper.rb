@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -43,19 +42,19 @@ shared_context 'droplet_helper' do
   let(:sandbox) { droplet.sandbox }
 
   let(:java_home) do
-    delegate = instance_double('MutableJavaHome', root: app_dir + '.test-java-home', version: %w(1 7 55 u60))
+    delegate = instance_double('MutableJavaHome', root: app_dir + '.test-java-home', version: %w[1 7 55 u60])
     JavaBuildpack::Component::ImmutableJavaHome.new delegate, app_dir
   end
 
   let(:environment_variables) do
     java_opts = JavaBuildpack::Component::EnvironmentVariables.new app_dir
-    java_opts.concat %w(test-var-2 test-var-1)
+    java_opts.concat %w[test-var-2 test-var-1]
     java_opts
   end
 
   let(:java_opts) do
     java_opts = JavaBuildpack::Component::JavaOpts.new app_dir
-    java_opts.concat %w(test-opt-2 test-opt-1)
+    java_opts.concat %w[test-opt-2 test-opt-1]
     java_opts
   end
 

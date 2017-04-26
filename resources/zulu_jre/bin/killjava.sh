@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright (c) 2013-2017 the original author or authors.
 #
