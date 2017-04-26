@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -27,7 +26,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
 
   let(:vcap_application) do
     { 'application_name' => 'test-application-name',
-      'application_uris' => %w(test-application-uri-0 test-application-uri-1) }
+      'application_uris' => %w[test-application-uri-0 test-application-uri-1] }
   end
 
   it 'does not detect without introscope-n/a service' do

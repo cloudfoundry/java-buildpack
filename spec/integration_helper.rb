@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -32,7 +31,7 @@ shared_context 'integration_helper' do
   end
 
   before do |example|
-    %w(bin config lib resources).each { |dir| FileUtils.cp_r dir, buildpack_dir }
+    %w[bin config lib resources].each { |dir| FileUtils.cp_r dir, buildpack_dir }
 
     buildpack_fixture = example.metadata[:buildpack_fixture]
     FileUtils.cp_r "spec/fixtures/#{buildpack_fixture.chomp}/.", buildpack_dir if buildpack_fixture
