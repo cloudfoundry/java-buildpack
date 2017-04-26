@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -59,18 +58,18 @@ describe JavaBuildpack::Component::Services do
   end
 
   it 'returns true from one_service? if there is a matching service with one required group credentials' do
-    expect(services.one_service?('test-tag', %w(uri other))).to be
-    expect(services.one_service?(/test-tag/, %w(uri other))).to be
+    expect(services.one_service?('test-tag', %w[uri other])).to be
+    expect(services.one_service?(/test-tag/, %w[uri other])).to be
   end
 
   it 'returns true from one_service? if there is a matching service with two required group credentials' do
-    expect(services.one_service?('test-tag', %w(h1 h2))).to be
-    expect(services.one_service?(/test-tag/, %w(h1 h2))).to be
+    expect(services.one_service?('test-tag', %w[h1 h2])).to be
+    expect(services.one_service?(/test-tag/, %w[h1 h2])).to be
   end
 
   it 'returns false from one_service? if there is a matching service with no required group credentials' do
-    expect(services.one_service?('test-tag', %w(foo bar))).not_to be
-    expect(services.one_service?(/test-tag/, %w(foo bar))).not_to be
+    expect(services.one_service?('test-tag', %w[foo bar])).not_to be
+    expect(services.one_service?(/test-tag/, %w[foo bar])).not_to be
   end
 
   it 'returns nil from find_service? if there is no service that matches' do

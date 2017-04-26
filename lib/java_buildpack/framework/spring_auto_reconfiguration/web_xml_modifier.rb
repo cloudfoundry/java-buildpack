@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -66,11 +65,11 @@ module JavaBuildpack
 
       private
 
-      CONTEXT_INITIALIZER_ADDITIONAL = %w(
+      CONTEXT_INITIALIZER_ADDITIONAL = %w[
         org.cloudfoundry.reconfiguration.spring.CloudProfileApplicationContextInitializer
         org.cloudfoundry.reconfiguration.spring.CloudPropertySourceApplicationContextInitializer
         org.cloudfoundry.reconfiguration.spring.CloudAutoReconfigurationApplicationContextInitializer
-      ).freeze
+      ].freeze
 
       CONTEXT_INITIALIZER_CLASSES = 'contextInitializerClasses'.freeze
 

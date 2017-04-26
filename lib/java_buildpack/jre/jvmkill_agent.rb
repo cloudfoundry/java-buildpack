@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2016 the original author or authors.
 #

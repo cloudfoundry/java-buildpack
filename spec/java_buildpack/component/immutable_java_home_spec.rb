@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -39,7 +38,7 @@ describe JavaBuildpack::Component::ImmutableJavaHome do
   end
 
   it 'returns the delegate version' do
-    expect(immutable_java_home.version).to eq(%w(1 2 3 u04))
+    expect(immutable_java_home.version).to eq(%w[1 2 3 u04])
   end
 
   it 'returns the delegate Java 8 or later' do

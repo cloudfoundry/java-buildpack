@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -23,7 +22,7 @@ describe JavaBuildpack::Repository::VersionResolver do
   include_context 'logging_helper'
 
   let(:versions) do
-    %w(1.6.0_26 1.6.0_27 1.6.0_112 1.6.0_102 1.6.0_45RELEASE 1.6.1_14 1.7.0_19 1.7.0_21 1.8.0_M-7 1.8.0_05 2.0.0 2.0.0a)
+    %w[1.6.0_26 1.6.0_27 1.6.0_112 1.6.0_102 1.6.0_45RELEASE 1.6.1_14 1.7.0_19 1.7.0_21 1.8.0_M-7 1.8.0_05 2.0.0 2.0.0a]
   end
 
   it 'resolves the default version if no candidate is supplied' do

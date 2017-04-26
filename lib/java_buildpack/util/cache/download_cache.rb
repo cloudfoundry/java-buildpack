@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -215,7 +214,7 @@ module JavaBuildpack
         end
 
         def compressed?(response)
-          %w(br compress deflate gzip x-gzip).include?(response['Content-Encoding'])
+          %w[br compress deflate gzip x-gzip].include?(response['Content-Encoding'])
         end
 
         def debug_ssl(http)
