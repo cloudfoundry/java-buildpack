@@ -59,6 +59,7 @@ module Package
       'groovy'                              => 'Groovy',
       'jre'                                 => 'OpenJDK JRE',
       'jrebel_agent'                        => 'JRebel Agent',
+      'jvmkill_agent'                       => 'jvmkill Agent',
       'lifecycle_support'                   => 'Tomcat Lifecycle Support',
       'logging_support'                     => 'Tomcat Logging Support',
       'luna_security_provider'              => 'Gemalto Luna Security Provider',
