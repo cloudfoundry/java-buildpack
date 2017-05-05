@@ -33,26 +33,11 @@ module Package
     def initialize
       JavaBuildpack::Logging::LoggerFactory.instance.setup "#{BUILD_DIR}/"
 
-      desc 'Display the versions of buildpack dependencies in human readable form'
-      task versions: [] do
-        v = versions
-
-        puts Terminal::Table.new title: "Java Buildpack #{v['buildpack']}",
-                                 rows:  v['dependencies']
-                                          .sort_by { |dependency| dependency['name'] }
-                                          .map { |dependency| [dependency['name'], dependency['version']] }
-      end
+      version_task
 
       namespace 'versions' do
-        desc 'Display the versions of buildpack dependencies in JSON form'
-        task json: [] do
-          puts JSON.pretty_generate(versions)
-        end
-
-        desc 'Display the versions of buildpack dependencies in YAML form'
-        task yaml: [] do
-          puts YAML.dump(versions)
-        end
+        version_json_task
+        version_yaml_task
       end
     end
 
@@ -92,7 +77,6 @@ module Package
     }.freeze
 
     PLATFORM_PATTERN = /\{platform\}/
-
 
     private_constant :ARCHITECTURE_PATTERN, :DEFAULT_REPOSITORY_ROOT_PATTERN, :NAME_MAPPINGS,
                      :PLATFORM_PATTERN
@@ -192,7 +176,6 @@ module Package
         index_configuration(configuration).each do |index_configuration|
           version, uri = get_from_cache(cache, configuration, index_configuration)
 
-
           dependency_versions << {
             'id'      => id,
             'name'    => NAME_MAPPINGS[id] || 'UNKNOWN',
@@ -221,6 +204,33 @@ module Package
     def version(configuration, index)
       JavaBuildpack::Repository::VersionResolver
         .resolve(JavaBuildpack::Util::TokenizedVersion.new(configuration['version']), index.keys)
+    end
+
+    def version_task
+      desc 'Display the versions of buildpack dependencies in human readable form'
+      task versions: [] do
+        v    = versions
+
+        rows = v['dependencies']
+               .sort_by { |dependency| dependency['name'] }
+               .map { |dependency| [dependency['name'], dependency['version']] }
+
+        puts Terminal::Table.new title: "Java Buildpack #{v['buildpack']}", rows: rows
+      end
+    end
+
+    def version_json_task
+      desc 'Display the versions of buildpack dependencies in JSON form'
+      task json: [] do
+        puts JSON.pretty_generate(versions)
+      end
+    end
+
+    def version_yaml_task
+      desc 'Display the versions of buildpack dependencies in YAML form'
+      task yaml: [] do
+        puts YAML.dump(versions)
+      end
     end
 
     def versions
