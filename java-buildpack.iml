@@ -290,6 +290,7 @@
     <orderEntry type="library" scope="PROVIDED" name="rubyzip (v1.2.1, rbenv: 2.2.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="safe_yaml (v1.0.4, rbenv: 2.2.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="tee (v1.0.0, rbenv: 2.2.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="terminal-table (v1.7.0, rbenv: 2.2.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="unicode-display_width (v1.2.1, rbenv: 2.2.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="webmock (v3.0.1, rbenv: 2.2.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="yard (v0.9.9, rbenv: 2.2.7) [gem]" level="application" />
