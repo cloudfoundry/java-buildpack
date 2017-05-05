@@ -41,6 +41,8 @@ GEM
     rubyzip (1.2.1)
     safe_yaml (1.0.4)
     tee (1.0.0)
+    terminal-table (1.7.0)
+      unicode-display_width (~> 1.1)
     unicode-display_width (1.2.1)
     webmock (3.0.1)
       addressable (>= 2.3.6)
@@ -59,6 +61,7 @@ DEPENDENCIES
   rubocop-rspec
   rubyzip
   tee
+  terminal-table
   webmock
   yard
 
