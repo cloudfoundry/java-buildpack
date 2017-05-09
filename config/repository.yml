@@ -15,4 +15,4 @@
 
 # Repository configuration
 ---
-default_repository_root: https://java-buildpack.cloudfoundry.org
+default_repository_root: https://minio.from-the.cloud:9000/java-buildpack
