@@ -31,7 +31,7 @@ module Package
 
   BUILDPACK_VERSION = JavaBuildpack::BuildpackVersion.new(false).freeze
 
-  PLATFORMS = %w[mountainlion trusty].freeze
+  PLATFORMS = %w[trusty].freeze
 
   STAGING_DIR = "#{BUILD_DIR}/staging".freeze
 
