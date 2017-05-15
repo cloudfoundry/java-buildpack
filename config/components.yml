@@ -42,6 +42,7 @@ frameworks:
   - "JavaBuildpack::Framework::Debug"
   - "JavaBuildpack::Framework::DynatraceAppmonAgent"
   - "JavaBuildpack::Framework::DynatraceOneAgent"
+  - "JavaBuildpack::Framework::FusionReactor"
 # - "JavaBuildpack::Framework::IntroscopeAgent"
   - "JavaBuildpack::Framework::Jmx"
 #  - "JavaBuildpack::Framework::JrebelAgent"
@@ -57,4 +58,3 @@ frameworks:
   - "JavaBuildpack::Framework::SpringInsight"
   - "JavaBuildpack::Framework::YourKitProfiler"
   - "JavaBuildpack::Framework::JavaOpts"
-  - "JavaBuildpack::Framework::FusionReactor"

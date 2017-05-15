@@ -15,5 +15,5 @@
 
 # Configuration for the FusionReactor framework
 ---
-version: 1.+
-repository_root: "{default.repository.root}/fusionreactor"
+version: 6.+
+repository_root: "http://cloudfoundry.fusionreactor.io"

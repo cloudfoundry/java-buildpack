@@ -21,25 +21,9 @@ module JavaBuildpack
     # Encapsulates the functionality for enabling FusionReactor support.
     class FusionReactor < JavaBuildpack::Component::VersionedDependencyComponent
 
-      def initialize(context, &version_validator)
-        @component_name                                  = 'FusionReactor'
-        @application                                     = context[:application]
-        @configuration                                   = context[:configuration]
-        @droplet                                         = context[:droplet]
-        return unless supports?
-        @version = 'latest'
-        @uri, @lib_uri, @password, @with_debug = find_agent
-      end
-
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_jar self.jar_name, @droplet.sandbox, @component_name
-        return unless @with_debug
-
-        download(@version, @lib_uri, lib_name) do |file|
-          FileUtils.mkdir_p @droplet.sandbox
-          FileUtils.cp_r(file.path, @droplet.sandbox + lib_name)
-        end
+        download_tar
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -47,9 +31,10 @@ module JavaBuildpack
         service     = @application.services.find_service FILTER
         credentials = service['credentials']
         java_opts   = @droplet.java_opts
+        password, with_debug, license = find_agent
 
-        java_opts.add_system_property('frlicense', credentials[LICENSE_KEY])
-        java_opts.add_system_property('fradminpassword', @password)
+        java_opts.add_system_property('frlicense', license)
+        java_opts.add_system_property('fradminpassword', password)
 
         credentials.each do |key, value|
           next if SYSTEM_KEYS.include? key
@@ -60,10 +45,9 @@ module JavaBuildpack
         props['name'] = credentials['instance_name'] || @application.details['application_name']
         props['address'] = credentials['instance_port'] || '8088'
 
-        java_opts.add_javaagent_with_props(@droplet.sandbox + jar_name, props)
+        java_opts.add_javaagent_with_props(@droplet.sandbox + 'fusionreactor/' + jar_name, props)
 
-        return unless @with_debug
-        java_opts.add_agentpath(@droplet.sandbox + lib_name)
+        java_opts.add_agentpath(@droplet.sandbox + 'fusionreactor/' + lib_name) if with_debug
       end
 
       protected
@@ -87,7 +71,7 @@ module JavaBuildpack
 
       LICENSE_KEY = 'license'
 
-      SYSTEM_KEYS = [LICENSE_KEY, 'version', 'password', 'debug', 'agent_download_url', 'lib_download_url']
+      SYSTEM_KEYS = [LICENSE_KEY, 'version', 'password', 'debug', 'instance_name', 'instance_port']
 
       private_constant :FILTER, :LICENSE_KEY
 
@@ -101,22 +85,13 @@ module JavaBuildpack
 
         password   = credentials['password']
         with_debug = credentials['debug']
-        uri        = credentials['agent_download_url']
-        lib_uri    = credentials['lib_download_url']
+        license    = credentials[LICENSE_KEY]
 
         if with_debug.nil?
           with_debug = true
         end
 
-        unless uri
-            uri = 'https://intergral-dl.s3.amazonaws.com/FR/Latest/fusionreactor.jar'
-        end
-
-        unless lib_uri
-          lib_uri = 'https://intergral-dl.s3.amazonaws.com/FR/Latest/libfrjvmti_x64.so'
-        end
-
-        [uri, lib_uri, password, with_debug]
+        [password, with_debug, license]
       end
     end
   end
