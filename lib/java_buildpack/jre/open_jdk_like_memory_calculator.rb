@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -53,7 +52,8 @@ module JavaBuildpack
       #
       # @return [String] the memory calculation command
       def memory_calculation_command
-        "CALCULATED_MEMORY=$(#{memory_calculation_string(@droplet.root)})"
+        "CALCULATED_MEMORY=$(#{memory_calculation_string(@droplet.root)}) && " \
+        'echo JVM Memory Configuration: $CALCULATED_MEMORY'
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)

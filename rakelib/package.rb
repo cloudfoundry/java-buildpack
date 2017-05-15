@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -26,13 +25,13 @@ module Package
     BUILDPACK_VERSION.version || 'unknown'
   end
 
-  ARCHITECTURES = %w(x86_64).freeze
+  ARCHITECTURES = %w[x86_64].freeze
 
   BUILD_DIR = 'build'.freeze
 
   BUILDPACK_VERSION = JavaBuildpack::BuildpackVersion.new(false).freeze
 
-  PLATFORMS = %w(mountainlion trusty).freeze
+  PLATFORMS = %w[trusty].freeze
 
   STAGING_DIR = "#{BUILD_DIR}/staging".freeze
 

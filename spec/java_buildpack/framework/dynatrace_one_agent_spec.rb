@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -29,8 +28,8 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/ruxit|dynatrace/, %w(environmentid tenant),
-                                                     %w(apitoken tenanttoken)).and_return(true)
+      allow(services).to receive(:one_service?).with(/ruxit|dynatrace/, %w[environmentid tenant],
+                                                     %w[apitoken tenanttoken]).and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => { 'apitoken' => 'test-apitoken',
                                                                               'tenant'   => 'test-tenant',
                                                                               'server'   => 'test-server' })

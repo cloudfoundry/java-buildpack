@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -38,7 +37,7 @@ module Package
       file(target => [source, parent]) do |t|
         cp t.source, t.name
 
-        if t.source.start_with? 'bin'
+        if t.source.include? 'bin'
           chmod 0o755, t.name
         else
           chmod 0o644, t.name

@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -148,8 +147,8 @@ module JavaBuildpack
 
       private
 
-      MUTATORS = [:chmod, :chown, :delete, :lchmod, :lchown, :make_link, :make_symlink, :mkdir, :mkpath, :rename,
-                  :rmdir, :rmtree, :taint, :unlink, :untaint].to_set.freeze
+      MUTATORS = %i[chmod chown delete lchmod lchown make_link make_symlink mkdir mkpath rename rmdir rmtree taint
+                    unlink untaint].to_set.freeze
 
       private_constant :MUTATORS
 

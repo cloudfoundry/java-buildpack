@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -121,7 +120,7 @@ module JavaBuildpack
       end
 
       def qualifier_compare(a, b)
-        comparison = 0
+        comparison = a[/^\d+/].to_i <=> b[/^\d+/].to_i
 
         i = 0
         until comparison.nonzero? || i == minimum_qualifier_length(a, b)

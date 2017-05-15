@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -37,9 +36,11 @@ $LOAD_PATH.unshift File.expand_path('..', __FILE__)
 require 'rakelib/dependency_cache_task'
 require 'rakelib/stage_buildpack_task'
 require 'rakelib/package_task'
+require 'rakelib/versions_task'
 Package::DependencyCacheTask.new
 Package::StageBuildpackTask.new(Dir['bin/**/*', 'config/**/*', 'lib/**/*', 'resources/**/*']
                                   .reject { |f| File.directory? f })
 Package::PackageTask.new
+Package::VersionsTask.new
 
-task default: %w(rubocop check_api_doc spec)
+task default: %w[rubocop check_api_doc spec]
