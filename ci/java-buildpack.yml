@@ -7,13 +7,6 @@ resources:
     uri: {{java-buildpack-git-uri}}
     private_key: {{github-private-key}}
 
-- name: java-buildpack-3.x
-  type: git
-  source:
-    uri: {{java-buildpack-git-uri}}
-    private_key: {{github-private-key}}
-    branch: 3.x
-
 - name: java-buildpack-latest
   type: docker-image
   source:
@@ -38,13 +31,8 @@ groups:
   - java-unit-2.2
   - java-unit-2.3
   - java-unit-2.4
-  - java-unit-2.2-3.x
-  - java-unit-2.3-3.x
-  - java-unit-2.4-3.x
   - java-package-online
   - java-package-offline
-  - java-package-online-3.x
-  - java-package-offline-3.x
 
 jobs:
 - name: docker-image
@@ -110,68 +98,6 @@ jobs:
       - java-unit-2.2
       - java-unit-2.3
       - java-unit-2.4
-  - do:
-    - task: package-test
-      file: java-buildpack/ci/package-test.yml
-      params:
-        OFFLINE: true
-        PINNED: true
-- name: java-unit-2.2-3.x
-  plan:
-  - aggregate:
-    - get: java-buildpack
-      resource: java-buildpack-3.x
-      trigger: true
-  - do:
-    - task: unit-test
-      file: java-buildpack/ci/unit-test.yml
-      params:
-        RBENV_VERSION: 2.2.7
-- name: java-unit-2.3-3.x
-  plan:
-  - aggregate:
-    - get: java-buildpack
-      resource: java-buildpack-3.x
-      trigger: true
-  - do:
-    - task: unit-test
-      file: java-buildpack/ci/unit-test.yml
-      params:
-        RBENV_VERSION: 2.3.4
-- name: java-unit-2.4-3.x
-  plan:
-  - aggregate:
-    - get: java-buildpack
-      resource: java-buildpack-3.x
-      trigger: true
-  - do:
-    - task: unit-test
-      file: java-buildpack/ci/unit-test.yml
-      params:
-        RBENV_VERSION: 2.4.1
-- name: java-package-online-3.x
-  plan:
-  - aggregate:
-    - get: java-buildpack
-      trigger: true
-      resource: java-buildpack-3.x
-      passed:
-      - java-unit-2.2-3.x
-      - java-unit-2.3-3.x
-      - java-unit-2.4-3.x
-  - do:
-    - task: package-test
-      file: java-buildpack/ci/package-test.yml
-- name: java-package-offline-3.x
-  plan:
-  - aggregate:
-    - get: java-buildpack
-      resource: java-buildpack-3.x
-      trigger: true
-      passed:
-      - java-unit-2.2-3.x
-      - java-unit-2.3-3.x
-      - java-unit-2.4-3.x
   - do:
     - task: package-test
       file: java-buildpack/ci/package-test.yml
