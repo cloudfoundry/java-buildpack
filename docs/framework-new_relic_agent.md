@@ -44,5 +44,5 @@ The framework can also be configured by overlaying a set of resources on the def
 [`config/new_relic_agent.yml`]: ../config/new_relic_agent.yml
 [New Relic Service]: https://newrelic.com
 [repositories]: extending-repositories.md
-[this listing]: http://download.pivotal.io.s3.amazonaws.com/new-relic/index.yml
+[this listing]: https://download.run.pivotal.io/new-relic/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
