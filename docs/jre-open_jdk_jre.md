@@ -102,6 +102,9 @@ JVM Memory Configuration: -XX:MaxDirectMemorySize=10M -XX:MaxMetaspaceSize=99199
     -XX:ReservedCodeCacheSize=240M -XX:CompressedClassSpaceSize=18134K -Xss1M -Xmx368042K
 ```
 
+#### Custom CA Certificates
+Use the [`copy_resources()`][] functionality included in the buildpack.  The `resources` directory can contain a directory that will be overlaid on top of the component's sandbox directory. Put a custom `cacerts` file into `resources/open_jdk/lib/security` and it will be copied into `<open-jdk-sandbox>/lib/securtity/cacerts`.  This strategy has been used to add [JCE Unlimited Strength][].
+
 [`config/open_jdk_jre.yml`]: ../config/open_jdk_jre.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [Java Buildpack Memory Calculator]: https://github.com/cloudfoundry/java-buildpack-memory-calculator
@@ -112,3 +115,5 @@ JVM Memory Configuration: -XX:MaxDirectMemorySize=10M -XX:MaxMetaspaceSize=99199
 [repositories]: extending-repositories.md
 [trusty]: http://download.pivotal.io.s3.amazonaws.com/openjdk/trusty/x86_64/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
+[`copy_resources()`]: https://github.com/cloudfoundry/java-buildpack/blob/master/docs/extending-droplet.md#copy_resources
+[JCE Unlimited Strength]: https://github.com/cloudfoundry/java-buildpack/issues/20
