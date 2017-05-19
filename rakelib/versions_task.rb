@@ -50,7 +50,6 @@ module Package
     NAME_MAPPINGS = {
       'access_logging_support'              => 'Tomcat Access Logging Support',
       'app_dynamics_agent'                  => 'AppDynamics Agent',
-      'container_certificate_trust_store'   => 'Container Certificate Trust Store',
       'container_customizer'                => 'Spring Boot Container Customizer',
       'container_security_provider'         => 'Container Security Provider',
       'dyadic_ekm_security_provider'        => 'Dyadic EKM Security Provider',
