@@ -1,3 +1,5 @@
+# Encoding: utf-8
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -48,6 +50,13 @@ describe JavaBuildpack::Component::VersionedDependencyComponent do
       expect(component.detect).to eq("stub-versioned-dependency-component=#{version}")
     end
 
+    it 'downloads and installs InstallAnywhere (tm) BIN file in the sandbox',
+       cache_fixture: 'stub-download.bin' do
+
+      component.download_bin
+      expect(droplet.sandbox + 'test-file').to exist
+    end
+
     it 'downloads jar file and put it in the sandbox',
        cache_fixture: 'stub-download.jar' do
 
@@ -81,6 +90,6 @@ end
 
 class StubVersionedDependencyComponent < JavaBuildpack::Component::VersionedDependencyComponent
 
-  public :supports?, :download_jar, :download_tar, :download_zip
+  public :supports?, :download_bin, :download_jar, :download_tar, :download_zip
 
 end

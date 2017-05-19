@@ -1,3 +1,5 @@
+# Encoding: utf-8
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -51,6 +53,13 @@ describe JavaBuildpack::Component::BaseComponent do
     expect(stdout.string).to match(/Downloading Stub Base Component #{version} from #{uri}/)
   end
 
+  it 'downloads and installs InstallAnywhere (tm) BIN file in the sandbox',
+     cache_fixture: 'stub-download.bin' do
+
+    component.download_bin(version, uri)
+    expect(droplet.sandbox + 'test-file').to exist
+  end
+
   it 'downloads jar file and put it in the sandbox',
      cache_fixture: 'stub-download.jar' do
 
@@ -91,6 +100,6 @@ class StubBaseComponent < JavaBuildpack::Component::BaseComponent
 
   attr_reader :application, :component_name, :configuration, :droplet
 
-  public :download, :download_jar, :download_tar, :download_zip, :with_timing
+  public :download, :download_bin, :download_jar, :download_tar, :download_zip, :with_timing
 
 end
