@@ -15,9 +15,10 @@
 
 require 'java_buildpack/component/modular_component'
 require 'java_buildpack/jre'
+require 'java_buildpack/jre/jvmkill_agent'
 require 'java_buildpack/jre/open_jdk_like_jre'
 require 'java_buildpack/jre/open_jdk_like_memory_calculator'
-require 'java_buildpack/jre/jvmkill_agent'
+require 'java_buildpack/jre/open_jdk_like_security_providers'
 
 module JavaBuildpack
   module Jre
@@ -38,6 +39,7 @@ module JavaBuildpack
           OpenJDKLikeJre.new(sub_configuration_context(context, 'jre')
                                .merge(component_name: self.class.to_s.space_case)),
           OpenJDKLikeMemoryCalculator.new(sub_configuration_context(context, 'memory_calculator')),
+          OpenJDKLikeSecurityProviders.new(context),
           JvmkillAgent.new(sub_configuration_context(context, 'jvmkill_agent'))
         ]
       end

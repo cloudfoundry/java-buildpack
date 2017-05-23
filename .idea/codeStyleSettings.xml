@@ -11,6 +11,7 @@
           <option name="INDENT_WHEN_CASES" value="false" />
           <option name="ALIGN_GROUP_FIELD_DECLARATIONS" value="true" />
           <option name="SPACE_WITHIN_BRACES" value="true" />
+          <option name="SPACE_WITHIN_ARRAY_INITIALIZER_BRACES" value="true" />
           <indentOptions>
             <option name="CONTINUATION_INDENT_SIZE" value="2" />
           </indentOptions>
