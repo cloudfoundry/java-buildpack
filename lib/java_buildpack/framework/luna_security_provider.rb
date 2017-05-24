@@ -31,7 +31,6 @@ module JavaBuildpack
         setup_ext_dir
 
         @droplet.copy_resources
-        @droplet.security_providers << 'com.safenetinc.luna.provider.LunaProvider'
 
         credentials = @application.services.find_service(FILTER)['credentials']
         write_client credentials['client']
@@ -42,7 +41,11 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.environment_variables.add_environment_variable 'ChrystokiConfigurationPath', @droplet.sandbox
-        @droplet.extension_directories << ext_dir
+
+        @droplet
+          .java_opts
+          .add_system_property('java.security.properties', @droplet.sandbox + 'java.security')
+          .add_system_property('java.ext.dirs', ext_dirs)
       end
 
       protected
@@ -95,6 +98,11 @@ module JavaBuildpack
         [luna_provider_jar, luna_api_so].each do |file|
           FileUtils.ln_s file.relative_path_from(ext_dir), ext_dir, force: true
         end
+      end
+
+      def ext_dirs
+        "#{qualify_path(@droplet.java_home.root + 'lib/ext', @droplet.root)}:" \
+        "#{qualify_path(ext_dir, @droplet.root)}"
       end
 
       def logging?

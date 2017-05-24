@@ -31,7 +31,6 @@ module JavaBuildpack
         setup_ext_dir
 
         @droplet.copy_resources
-        @droplet.security_providers << 'com.dyadicsec.provider.DYCryptoProvider'
 
         credentials = @application.services.find_service(FILTER)['credentials']
         write_key credentials['key']
@@ -42,10 +41,14 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.environment_variables
-                .add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + 'usr/lib'
+        @droplet
+          .environment_variables
+          .add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + 'usr/lib'
 
-        @droplet.extension_directories << ext_dir
+        @droplet
+          .java_opts
+          .add_system_property('java.ext.dirs', ext_dirs)
+          .add_system_property('java.security.properties', @droplet.sandbox + 'java.security')
       end
 
       protected
@@ -75,6 +78,11 @@ module JavaBuildpack
 
       def ext_dir
         @droplet.sandbox + 'ext'
+      end
+
+      def ext_dirs
+        "#{qualify_path(@droplet.java_home.root + 'lib/ext', @droplet.root)}:" \
+        "#{qualify_path(ext_dir, @droplet.root)}"
       end
 
       def key_file
