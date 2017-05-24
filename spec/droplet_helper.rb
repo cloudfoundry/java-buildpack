@@ -19,8 +19,10 @@ require 'logging_helper'
 require 'java_buildpack/component/additional_libraries'
 require 'java_buildpack/component/droplet'
 require 'java_buildpack/component/environment_variables'
-require 'java_buildpack/component/java_opts'
+require 'java_buildpack/component/extension_directories'
 require 'java_buildpack/component/immutable_java_home'
+require 'java_buildpack/component/java_opts'
+require 'java_buildpack/component/security_providers'
 require 'java_buildpack/util/snake_case'
 require 'pathname'
 
@@ -36,8 +38,10 @@ shared_context 'droplet_helper' do
 
   let(:droplet) do
     JavaBuildpack::Component::Droplet.new(additional_libraries, component_id, environment_variables,
-                                          java_home, java_opts, app_dir)
+                                          extension_directories, java_home, java_opts, app_dir, security_providers)
   end
+
+  let(:extension_directories) { JavaBuildpack::Component::ExtensionDirectories.new app_dir }
 
   let(:sandbox) { droplet.sandbox }
 
@@ -58,9 +62,16 @@ shared_context 'droplet_helper' do
     java_opts
   end
 
+  let(:security_providers) { JavaBuildpack::Component::SecurityProviders.new }
+
   before do
     FileUtils.cp_r 'spec/fixtures/additional_libs/.', additional_libs_directory
     additional_libs_directory.children.each { |child| additional_libraries << child }
+
+    extension_directories << sandbox + 'test-extension-directory-1'
+    extension_directories << sandbox + 'test-extension-directory-2'
+
+    security_providers.concat %w[test-security-provider-1 test-security-provider-2]
   end
 
 end

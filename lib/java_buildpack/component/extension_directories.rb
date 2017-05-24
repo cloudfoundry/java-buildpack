@@ -13,17 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'fileutils'
 require 'java_buildpack/component'
 require 'java_buildpack/util/qualify_path'
 
 module JavaBuildpack
   module Component
 
-    # An abstraction around the additional libraries provided to a droplet by components.
+    # An abstraction around the extension directories provided to a droplet by components.
     #
     # A new instance of this type should be created once for the application.
-    class AdditionalLibraries < Array
+    class ExtensionDirectories < Array
       include JavaBuildpack::Util
 
       # Creates an instance of the +JAVA_OPTS+ abstraction.
@@ -33,22 +32,12 @@ module JavaBuildpack
         @droplet_root = droplet_root
       end
 
-      # Returns the contents of the collection as a classpath formatted as +-cp <value1>:<value2>+
+      # Returns the contents of the collection as a colon-delimited paths formatted as +<value1>:<value2>+
       #
-      # @return [String] the contents of the collection as a classpath
-      def as_classpath
+      # @return [String] the contents of the collection as a colon-delimited collection of paths
+      def as_paths
         qualified_paths = sort.map { |path| qualify_path path }
-
-        "-cp #{qualified_paths.join ':'}" unless empty?
-      end
-
-      # Symlink the contents of the collection to a destination directory.
-      #
-      # @param [Pathname] destination the destination to link to
-      # @return [Void]
-      def link_to(destination)
-        FileUtils.mkdir_p destination
-        each { |path| (destination + path.basename).make_symlink(path.relative_path_from(destination)) }
+        qualified_paths.join ':' unless empty?
       end
 
     end

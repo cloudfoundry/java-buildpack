@@ -22,7 +22,7 @@ Metrics/LineLength:
 Metrics/MethodLength:
   Max: 18
 Metrics/ParameterLists:
-  Max: 6
+  Max: 8
 Metrics/PerceivedComplexity:
   Max: 10
 RSpec/ExampleLength:

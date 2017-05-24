@@ -37,8 +37,8 @@ jres:
 # command after any Java Opts added by previous frameworks.
 frameworks:
   - "JavaBuildpack::Framework::AppDynamicsAgent"
-  - "JavaBuildpack::Framework::ContainerCertificateTrustStore"
   - "JavaBuildpack::Framework::ContainerCustomizer"
+  - "JavaBuildpack::Framework::ContainerSecurityProvider"
   - "JavaBuildpack::Framework::Debug"
   - "JavaBuildpack::Framework::DynatraceAppmonAgent"
   - "JavaBuildpack::Framework::DynatraceOneAgent"
