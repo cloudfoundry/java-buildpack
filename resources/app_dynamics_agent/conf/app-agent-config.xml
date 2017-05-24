@@ -237,7 +237,8 @@
 
                     <!-- Specific Config required for Trading Async Apps -->
                     <include filter-type="STARTSWITH" filter-value="org.springframework.http.client/"/>
-
+                    <include filter-type="STARTSWITH" filter-value="org.springframework.web.client/"/>
+                    
                     <!-- exclude java and org -->
                     <excludes filter-type="STARTSWITH" filter-value="com.singularity/"/>
                     <excludes filter-type="STARTSWITH" filter-value="java/,javax/,com.sun/,sun/,org/,com/mysql"/>
