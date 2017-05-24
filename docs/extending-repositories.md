@@ -73,6 +73,15 @@ Access to repositories may be affected by the existence of network proxies.  In 
 ```bash
 cf set-env <APP_NAME> http_proxy http://username:password@host:port
 ```
+## Mirroring proxies
+In some cases you may want to mirror https://java-buildpack.cloudfoundry.org or another
+binary repository using a repository manager like artifactory or nexus without modifying the `index.yml` files under the repository. To do so
+add the following to [`config/repository.yml`][] replacing nexus with your mirror
+```
+binary_proxies:
+- from: https://java-buildpack.cloudfoundry.org
+  to: http://nexus:8081/repository/pcf-javabuildpack
+```
 
 ## Version Syntax and Ordering
 Versions are composed of major, minor, micro, and optional qualifier parts (`<major>.<minor>.<micro>[_<qualifier>]`).  The major, minor, and micro parts must be numeric.  The qualifier part is composed of letters, digits, and hyphens.  The lexical ordering of the qualifier is:
@@ -96,4 +105,3 @@ In addition to declaring a specific versions to use, you can also specify a boun
 [`JavaBuildpack::Repository::ConfiguredItem`]: ../lib/java_buildpack/repository/configured_item.rb
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [example]: http://download.pivotal.io.s3.amazonaws.com/openjdk/trusty/x86_64/index.yml
-
