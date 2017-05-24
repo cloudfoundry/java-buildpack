@@ -20,7 +20,7 @@ require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/shell'
 require 'java_buildpack/util/space_case'
 require 'java_buildpack/util/sanitizer'
-
+require 'java_buildpack/util/binary_proxy'
 module JavaBuildpack
   module Component
 
@@ -85,6 +85,7 @@ module JavaBuildpack
       # @param [String] name an optional name for the download.  Defaults to +@component_name+.
       # @return [Void]
       def download(version, uri, name = @component_name)
+        uri = JavaBuildpack::Util::BinaryProxy.proxy_for(uri)
         download_start_time = Time.now
         print "-----> Downloading #{name} #{version} from #{uri.sanitize_uri} "
 
