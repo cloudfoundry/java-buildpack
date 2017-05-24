@@ -19,6 +19,7 @@ require 'fileutils'
 require 'java_buildpack/container/tomcat'
 require 'java_buildpack/container/tomcat/tomcat_insight_support'
 require 'java_buildpack/container/tomcat/tomcat_instance'
+require 'java_buildpack/container/tomcat/tomcat_geode_store'
 require 'java_buildpack/container/tomcat/tomcat_lifecycle_support'
 require 'java_buildpack/container/tomcat/tomcat_logging_support'
 require 'java_buildpack/container/tomcat/tomcat_access_logging_support'
@@ -32,6 +33,7 @@ describe JavaBuildpack::Container::Tomcat do
   let(:configuration) do
     { 'tomcat'                 => tomcat_configuration,
       'lifecycle_support'      => lifecycle_support_configuration,
+      'geode_store'            => geode_store_configuration,
       'logging_support'        => logging_support_configuration,
       'access_logging_support' => access_logging_support_configuration,
       'redis_store'            => redis_store_configuration,
@@ -43,6 +45,8 @@ describe JavaBuildpack::Container::Tomcat do
   let(:lifecycle_support_configuration) { instance_double('lifecycle-support-configuration') }
 
   let(:logging_support_configuration) { instance_double('logging-support-configuration') }
+
+  let(:geode_store_configuration) { instance_double('geode_store_configuration') }
 
   let(:access_logging_support_configuration) { instance_double('logging-support-configuration') }
 
@@ -73,6 +77,8 @@ describe JavaBuildpack::Container::Tomcat do
       .to receive(:new).with(sub_configuration_context(tomcat_configuration))
     allow(JavaBuildpack::Container::TomcatLifecycleSupport)
       .to receive(:new).with(sub_configuration_context(lifecycle_support_configuration))
+    allow(JavaBuildpack::Container::TomcatGeodeStore)
+        .to receive(:new).with(sub_configuration_context(geode_store_configuration))
     allow(JavaBuildpack::Container::TomcatLoggingSupport)
       .to receive(:new).with(sub_configuration_context(logging_support_configuration))
     allow(JavaBuildpack::Container::TomcatAccessLoggingSupport)

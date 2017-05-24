@@ -229,7 +229,6 @@ module JavaBuildpack
         app_dir = Pathname.new(File.expand_path(app_dir))
         Logging::LoggerFactory.instance.setup app_dir
         application = Component::Application.new(app_dir)
-
         yield new(app_dir, application) if block_given?
       rescue => e
         handle_error(e, message)

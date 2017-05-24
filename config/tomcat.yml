@@ -39,3 +39,6 @@ redis_store:
   database: 0
   timeout: 2000
   connection_pool_size: 2
+geode_store:
+  version: 0.+
+  repository_root: "https://tomcat-javabuildpack-spike.s3.amazonaws.com/geode-store"
