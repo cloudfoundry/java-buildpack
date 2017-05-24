@@ -20,7 +20,6 @@ require 'java_buildpack/component/mutable_java_home'
 require 'java_buildpack/jre/open_jdk_like'
 require 'java_buildpack/jre/open_jdk_like_jre'
 require 'java_buildpack/jre/open_jdk_like_memory_calculator'
-require 'java_buildpack/jre/open_jdk_like_security_providers'
 
 describe JavaBuildpack::Jre::OpenJDKLike do
   include_context 'component_helper'
@@ -62,8 +61,6 @@ describe JavaBuildpack::Jre::OpenJDKLike do
       .to receive(:new).with(sub_configuration_context(jre_configuration).merge(component_name: 'Stub Open JDK Like'))
     allow(JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator)
       .to receive(:new).with(sub_configuration_context(memory_calculator_configuration))
-    allow(JavaBuildpack::Jre::OpenJDKLikeSecurityProviders)
-      .to receive(:new).with(context)
 
     component.sub_components context
   end

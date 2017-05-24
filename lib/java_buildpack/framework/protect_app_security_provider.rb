@@ -30,9 +30,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_zip false
-
         @droplet.copy_resources
-        @droplet.security_providers << 'com.ingrian.security.nae.IngrianProvider'
 
         credentials = @application.services.find_service(FILTER)['credentials']
 
@@ -44,12 +42,12 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.extension_directories << @droplet.sandbox + 'ext'
-
         credentials = @application.services.find_service(FILTER)['credentials']
         java_opts   = @droplet.java_opts
 
         java_opts
+          .add_system_property('java.ext.dirs', ext_dirs)
+          .add_system_property('java.security.properties', @droplet.sandbox + 'java.security')
           .add_system_property('com.ingrian.security.nae.IngrianNAE_Properties_Conf_Filename',
                                @droplet.sandbox + 'IngrianNAE.properties')
           .add_system_property('com.ingrian.security.nae.Key_Store_Location', keystore)
@@ -86,6 +84,15 @@ module JavaBuildpack
           shell "#{keytool} -importcert -noprompt -keystore #{keystore} -storepass #{password} " \
                 "-file #{pem.path} -alias #{File.basename(pem)}"
         end
+      end
+
+      def ext_dir
+        @droplet.sandbox + 'ext'
+      end
+
+      def ext_dirs
+        "#{qualify_path(@droplet.java_home.root + 'lib/ext', @droplet.root)}:" \
+        "#{qualify_path(ext_dir, @droplet.root)}"
       end
 
       def keystore

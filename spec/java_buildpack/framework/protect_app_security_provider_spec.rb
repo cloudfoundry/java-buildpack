@@ -64,19 +64,6 @@ describe JavaBuildpack::Framework::ProtectAppSecurityProvider do
       expect(sandbox + 'ext/Ingrianlog4j-api-2.1.jar').to exist
     end
 
-    it 'adds security provider',
-       cache_fixture: 'stub-protect-app-security-provider.zip' do
-
-      allow(component).to receive(:shell).with(start_with('unzip -qq')).and_call_original
-      allow(component).to receive(:shell).with(start_with('openssl pkcs12'))
-      allow(component).to receive(:shell).with(start_with("#{java_home.root}/bin/keytool -importkeystore"))
-      allow(component).to receive(:shell).with(start_with("#{java_home.root}/bin/keytool -importcert"))
-
-      component.compile
-
-      expect(security_providers).to include('com.ingrian.security.nae.IngrianProvider')
-    end
-
     it 'copies resources',
        cache_fixture: 'stub-protect-app-security-provider.zip' do
 
@@ -90,15 +77,13 @@ describe JavaBuildpack::Framework::ProtectAppSecurityProvider do
       expect(sandbox + 'IngrianNAE.properties').to exist
     end
 
-    it 'adds extension directory' do
-      component.release
-
-      expect(extension_directories).to include(droplet.sandbox + 'ext')
-    end
-
     it 'updates JAVA_OPTS with additional options' do
       component.release
 
+      expect(java_opts).to include('-Djava.ext.dirs=$PWD/.test-java-home/lib/ext:' \
+                                   '$PWD/.java-buildpack/protect_app_security_provider/ext')
+      expect(java_opts).to include('-Djava.security.properties=' \
+                                   '$PWD/.java-buildpack/protect_app_security_provider/java.security')
       expect(java_opts).to include('-Dcom.ingrian.security.nae.IngrianNAE_Properties_Conf_Filename=' \
                                    '$PWD/.java-buildpack/protect_app_security_provider/IngrianNAE.properties')
       expect(java_opts).to include('-Dcom.ingrian.security.nae.Key_Store_Location=' \

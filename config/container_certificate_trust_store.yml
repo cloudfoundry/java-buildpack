@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Container security provider configuration
+# Container certificate truststore configuration
 ---
-version: 1.+
-repository_root: "{default.repository.root}/container-security-provider"
+version: 2.+
+repository_root: "{default.repository.root}/container-certificate-trust-store"
+enabled: true
