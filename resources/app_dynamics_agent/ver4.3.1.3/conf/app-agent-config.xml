@@ -240,6 +240,7 @@
                     <include filter-type="STARTSWITH" filter-value="org.springframework.web.client/"/>
                     <include filter-type="STARTSWITH" filter-value="com.sky.trading.common.client/"/>
                     <include filter-type="STARTSWITH" filter-value="org.apache.http/"/>
+                    <include filter-type="STARTSWITH" filter-value="org.apache.tomcat.util.net/"/>
 
                     <!-- exclude java and org -->
                     <excludes filter-type="STARTSWITH" filter-value="com.singularity/"/>
