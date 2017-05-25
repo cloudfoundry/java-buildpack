@@ -1,5 +1,3 @@
-# Encoding: utf-8
-
 # Cloud Foundry Java Buildpack
 # Copyright 2017 the original author or authors.
 #
@@ -15,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'digest'
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/jre'
@@ -24,10 +23,7 @@ module JavaBuildpack
   module Jre
 
     # Encapsulates the detect, compile, and release functionality for selecting a JRE.
-    class IbmjreLike < JavaBuildpack::Component::VersionedDependencyComponent
-
-      # constant HEAP_RATIO is assigned the usual heap ratio required
-      HEAP_RATIO = 0.75
+    class IbmJreInitializer < JavaBuildpack::Component::VersionedDependencyComponent
 
       # Creates an instance
       #
@@ -51,7 +47,12 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_bin
+        download(@version, @uri['uri'], @component_name) do |file|
+          check_sha256(file, @uri['sha256sum'])
+          with_timing "Installing #{@component_name} to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
+            install_bin(@droplet.sandbox, file)
+          end
+        end
         @droplet.copy_resources
       end
 
@@ -68,8 +69,38 @@ module JavaBuildpack
 
       private
 
+      # constant HEAP_RATIO is the ratio of memory assigned to the heap
+      # as against the container total and is set using -Xmx.
+      HEAP_RATIO = 0.75
+
       KILO = 1024
 
+      # Installs the Downloaded InstallAnywhere (tm) BIN file to the target directory
+      #
+      # @param [String] target_directory, Where the java needs to be installed
+      # @param [File] file, InstallAnywhere (tm) BIN file
+      # @return [Void]
+      def install_bin(target_directory, file)
+        FileUtils.mkdir_p target_directory
+        response_file = Tempfile.new('response.properties')
+        response_file.puts('INSTALLER_UI=silent')
+        response_file.puts('LICENSE_ACCEPTED=TRUE')
+        response_file.puts("USER_INSTALL_DIR=#{target_directory}")
+        response_file.close
+
+        File.chmod(0o755, file.path) unless File.executable?(file.path)
+        shell "#{file.path} -i silent -f #{response_file.path} 2>&1"
+      end
+
+      # Checks the SHA256 Checksum of the file
+      #
+      # @param [File] file, The downloaded file
+      # @param [String] checksum, The string containing the SHA256 of the file
+      def check_sha256(file, checksum)
+        raise 'sha256 checksum does not match' unless Digest::SHA256.hexdigest(File.read(file.path)) == checksum
+      end
+
+      # Returns the max heap size ('-Xmx') value
       def mem_opts
         mopts = []
         total_memory = memory_limit_finder
@@ -83,6 +114,7 @@ module JavaBuildpack
         mopts
       end
 
+      # Returns the heap_ratio attribute in config file (if specified) or the HEAP_RATIO constant value
       def heap_ratio
         @configuration['heap_ratio'] || HEAP_RATIO
       end
@@ -94,6 +126,7 @@ module JavaBuildpack
         opts
       end
 
+      # Returns the container total memory limit in bytes
       def memory_limit_finder
         memory_limit = ENV['MEMORY_LIMIT']
         return nil unless memory_limit
@@ -102,6 +135,10 @@ module JavaBuildpack
         memory_limit_size
       end
 
+      # Returns the no. of bytes for a given string of minified size representation
+      #
+      # @param [String] size, A minified memory representation string
+      # @return [Integer] bytes, value of size in bytes
       def memory_size_bytes(size)
         if size == '0'
           bytes = 0
@@ -117,6 +154,11 @@ module JavaBuildpack
         bytes
       end
 
+      # Returns the no. of bytes for a given memory size unit
+      #
+      # @param [String] unit, Represents a Memory Size Unit
+      # @param [Integer] value
+      # @return [Integer] bytes, value of size in bytes
       def calculate_bytes(unit, value)
         if unit == 'b' || unit == 'B'
           bytes = value
@@ -127,20 +169,30 @@ module JavaBuildpack
         elsif unit == 'g' || unit == 'G'
           bytes = KILO * KILO * KILO * value
         else
-          raise "Invalid unit '#{unit}' in memory size '#{size}'"
+          raise "Invalid unit '#{unit}' in memory size"
         end
         bytes
       end
 
+      # Checks whether the given value is an Integer
+      #
+      # @param [String] v, value as a string
       def check_is_integer?(v)
         v = Float(v)
         v && v.floor == v
       end
 
+      # Calculates the Heap size as per the Heap ratio
+      #
+      # @param [Integer] membytes, total memory in bytes
+      # @param [Numeric] heapratio, Desired/Default Heap Ratio
       def heap_size_calculator(membytes, heapratio)
         memory_size_minified(membytes * heapratio)
       end
 
+      # Calculates the Memory Size in a Minified String Representation
+      #
+      # @param [Numeric] membytes, calculated heap size
       def memory_size_minified(membytes)
         giga = membytes / 2**(10 * 3)
         mega = membytes / 2**(10 * 2)
@@ -154,18 +206,20 @@ module JavaBuildpack
         end
       end
 
+      # Returns the minified memory string
+      #
+      # @param [Integer] order, calculated memory value
+      # @param [String] char, calculated memory unit
+      # @return [String] minified memory string
       def minified_size_calculator(order, char)
         order.to_i.to_s + char
       end
 
+      # Verifies whether heap ratio is valid
       def heap_ratio_verification(ratio)
         raise 'Invalid heap ratio' unless ratio.is_a? Numeric
-        raise 'heap ratio could not be greater than 100%' unless ratio < 1
+        raise 'heap ratio cannot be greater than 100%' unless ratio <= 1
         ratio
-      end
-
-      def num_check(num)
-        Float(num) / 100 < 1
       end
 
     end

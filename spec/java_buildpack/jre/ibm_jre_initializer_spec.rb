@@ -1,5 +1,3 @@
-# Encoding: utf-8
-
 # Cloud Foundry Java Buildpack
 # Copyright 2017 the original author or authors.
 #
@@ -18,16 +16,16 @@
 require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/component/mutable_java_home'
-require 'java_buildpack/jre/ibmjre_like'
+require 'java_buildpack/jre/ibm_jre_initializer'
 
-describe JavaBuildpack::Jre::IbmjreLike do
+describe JavaBuildpack::Jre::IbmJreInitializer do
   include_context 'component_helper'
   let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
 
-  it 'detects with id of ibmjre_like-<version>' do
-    expect(component.detect).to eq("ibmjre-like=#{version}")
+  it 'detects with id of ibm-jre-initializer-<version>' do
+    expect(component.detect).to eq("ibm-jre-initializer=#{version}")
   end
-  it 'installs the java from InstallAnywhere (tm) BIN file', cache_fixture: 'stub-java.bin' do
+  it 'installs java from bin', cache_fixture: 'stub-java.bin' do
     component.detect
     component.compile
     expect(sandbox + 'jre/bin/java').to exist

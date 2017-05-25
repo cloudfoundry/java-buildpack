@@ -1,5 +1,3 @@
-# Encoding: utf-8
-
 # Cloud Foundry Java Buildpack
 # Copyright 2017 the original author or authors.
 #
@@ -17,14 +15,14 @@
 
 require 'java_buildpack/component/modular_component'
 require 'java_buildpack/jre'
-require 'java_buildpack/jre/ibmjre_like'
+require 'java_buildpack/jre/ibm_jre_initializer'
 require 'java_buildpack/jre/jvmkill_agent'
 
 module JavaBuildpack
   module Jre
 
     # Encapsulates the detect, compile, and release functionality for selecting a JRE.
-    class IBMJRE < JavaBuildpack::Component::ModularComponent
+    class IbmJRE < JavaBuildpack::Component::ModularComponent
 
       protected
 
@@ -36,7 +34,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::ModularComponent#sub_components)
       def sub_components(context)
         [
-          IbmjreLike.new(sub_configuration_context(context, 'jre')
+          IbmJreInitializer.new(sub_configuration_context(context, 'jre')
                                .merge(component_name: self.class.to_s.space_case)),
           JvmkillAgent.new(sub_configuration_context(context, 'jvmkill_agent'))
         ]
