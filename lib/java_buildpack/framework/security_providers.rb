@@ -13,33 +13,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'java_buildpack/component/versioned_dependency_component'
+require 'java_buildpack/component/base_component'
 require 'java_buildpack/framework'
-require 'java_buildpack/util/qualify_path'
+require 'java_buildpack/util/dash_case'
 
 module JavaBuildpack
   module Framework
 
-    # Encapsulates the functionality for contributing a container-based security provider to an application.
-    class ContainerSecurityProvider < JavaBuildpack::Component::VersionedDependencyComponent
-      include JavaBuildpack::Util
+    # Encapsulates the functionality for contributing custom Security Providers to an application.
+    class SecurityProviders < JavaBuildpack::Component::BaseComponent
+
+      # (see JavaBuildpack::Component::BaseComponent#detect)
+      def detect
+        SecurityProviders.to_s.dash_case
+      end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_jar
-        @droplet.security_providers.insert 1, 'org.cloudfoundry.security.CloudFoundryContainerProvider'
+        @droplet.security_providers.write_to java_security
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.extension_directories << @droplet.sandbox
+        @droplet.java_opts
+                .add_system_property('java.ext.dirs', @droplet.extension_directories.as_paths)
+                .add_system_property('java.security.properties', java_security)
       end
 
-      protected
+      private
 
-      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
-      def supports?
-        true
+      def java_security
+        @droplet.sandbox + 'java.security'
       end
 
     end
