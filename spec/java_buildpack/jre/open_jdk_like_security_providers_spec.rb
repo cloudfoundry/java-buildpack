@@ -21,24 +21,22 @@ require 'java_buildpack/jre/open_jdk_like_security_providers'
 describe JavaBuildpack::Jre::OpenJDKLikeSecurityProviders do
   include_context 'component_helper'
 
-  it 'adds extension directories with no JRE default to system properties' do
+  it 'does not add extension directories with no JRE default' do
     component.release
 
-    expect(java_opts).to include('-Djava.ext.dirs=$PWD/.java-buildpack/open_jdk_like_security_providers/' \
-                                 'test-extension-directory-1:$PWD/.java-buildpack/open_jdk_like_security_providers/' \
-                                 'test-extension-directory-2')
+    expect(extension_directories).to contain_exactly(sandbox + 'test-extension-directory-1',
+                                                     sandbox + 'test-extension-directory-2')
   end
 
   it 'adds security providers' do
-
     FileUtils.mkdir_p(java_home.root + 'lib/security')
     FileUtils.cp 'spec/fixtures/java.security', java_home.root + 'lib/security'
 
     component.compile
 
-    expect(security_providers).to eq %w[sun.security.provider.Sun
-                                        test-security-provider-1
+    expect(security_providers).to eq %w[test-security-provider-1
                                         test-security-provider-2
+                                        sun.security.provider.Sun
                                         sun.security.rsa.SunRsaSign sun.security.ec.SunEC
                                         com.sun.net.ssl.internal.ssl.Provider
                                         com.sun.crypto.provider.SunJCE
@@ -49,20 +47,12 @@ describe JavaBuildpack::Jre::OpenJDKLikeSecurityProviders do
                                         apple.security.AppleProvider]
   end
 
-  it 'writes new security properties' do
-    component.compile
-
-    expect(sandbox + 'java.security').to exist
-  end
-
   it 'adds extension directories with JRE default to system properties' do
     FileUtils.mkdir_p(java_home.root + 'lib/security/java.security')
 
     component.release
 
-    expect(java_opts).to include('-Djava.ext.dirs=$PWD/.java-buildpack/open_jdk_like_security_providers/' \
-                                 'test-extension-directory-1:$PWD/.java-buildpack/open_jdk_like_security_providers/' \
-                                 'test-extension-directory-2:$PWD/.test-java-home/lib/ext')
+    expect(extension_directories).to include(java_home.root + 'lib/ext')
   end
 
   it 'adds extension directories with Server JRE default to system properties' do
@@ -70,16 +60,7 @@ describe JavaBuildpack::Jre::OpenJDKLikeSecurityProviders do
 
     component.release
 
-    expect(java_opts).to include('-Djava.ext.dirs=$PWD/.java-buildpack/open_jdk_like_security_providers/' \
-                                 'test-extension-directory-1:$PWD/.java-buildpack/open_jdk_like_security_providers/' \
-                                 'test-extension-directory-2:$PWD/.test-java-home/jre/lib/ext')
-  end
-
-  it 'adds security properties to system properties' do
-    component.release
-
-    expect(java_opts).to include('-Djava.security.properties=$PWD/.java-buildpack/open_jdk_like_security_providers/' \
-                                 'java.security')
+    expect(extension_directories).to include(java_home.root + 'jre/lib/ext')
   end
 
 end
