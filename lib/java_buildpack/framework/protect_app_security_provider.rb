@@ -32,7 +32,7 @@ module JavaBuildpack
         download_zip false
 
         @droplet.copy_resources
-        @droplet.security_providers << 'com.ingrian.security.nae.IngrianProvider'
+        @droplet.security_providers.insert 2, 'com.ingrian.security.nae.IngrianProvider'
 
         credentials = @application.services.find_service(FILTER)['credentials']
 

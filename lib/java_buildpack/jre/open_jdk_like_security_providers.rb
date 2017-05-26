@@ -31,25 +31,12 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        unless existing_security.nil?
-          existing = existing_security_providers existing_security
-
-          @droplet.security_providers.insert 0, existing.shift
-          @droplet.security_providers.concat existing
-        end
-
-        @droplet.security_providers.write_to new_security
+        @droplet.security_providers.concat existing_security_providers(java_security) unless java_security.nil?
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        unless existing_security.nil?
-          @droplet.extension_directories << existing_security.parent.parent + 'ext'
-        end
-
-        @droplet.java_opts
-                .add_system_property('java.ext.dirs', @droplet.extension_directories.as_paths)
-                .add_system_property('java.security.properties', new_security)
+        @droplet.extension_directories << java_security.parent.parent + 'ext' unless java_security.nil?
       end
 
       private
@@ -59,12 +46,6 @@ module JavaBuildpack
       SERVER_JRE_SECURITY = 'jre/lib/security/java.security'.freeze
 
       private_constant :JRE_SECURITY, :SERVER_JRE_SECURITY
-
-      def existing_security
-        return jre_security if jre_security.exist?
-        return server_jre_security if server_jre_security.exist?
-        nil
-      end
 
       def existing_security_providers(existing_security)
         JavaBuildpack::Util::Properties.new(existing_security)
@@ -77,12 +58,14 @@ module JavaBuildpack
         entry.first.match(/^security\.provider\.(\d+)/).captures.first.to_i
       end
 
-      def jre_security
-        @droplet.java_home.root + JRE_SECURITY
+      def java_security
+        return jre_security if jre_security.exist?
+        return server_jre_security if server_jre_security.exist?
+        nil
       end
 
-      def new_security
-        @droplet.sandbox + 'java.security'
+      def jre_security
+        @droplet.java_home.root + JRE_SECURITY
       end
 
       def server_jre_security
