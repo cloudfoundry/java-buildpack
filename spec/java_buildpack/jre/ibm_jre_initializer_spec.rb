@@ -20,38 +20,45 @@ require 'java_buildpack/jre/ibm_jre_initializer'
 
 describe JavaBuildpack::Jre::IbmJreInitializer do
   include_context 'component_helper'
+
   let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
 
   it 'detects with id of ibm-jre-initializer-<version>' do
     expect(component.detect).to eq("ibm-jre-initializer=#{version}")
   end
+
   it 'installs java from bin', cache_fixture: 'stub-java.bin' do
     component.detect
     component.compile
+
     expect(sandbox + 'jre/bin/java').to exist
   end
+
   it 'adds JAVA_HOME to java_home' do
     component
+
     expect(java_home.root).to eq(sandbox + 'jre/')
   end
+
   it 'adds java.io.tmpdir to java_opts' do
     component.detect
     component.release
+
     expect(java_opts).to include('-Djava.io.tmpdir=$TMPDIR')
   end
-  it 'adds tls options to java_opts' do
-    component.detect
-    component.release
-    expect(java_opts).to include('-Dcom.ibm.jsse2.overrideDefaultTLS=true')
-  end
+
   it 'adds Xtune to java_opts' do
     component.detect
     component.release
+
     expect(java_opts).to include('-Xtune:virtualized')
   end
+
   it 'adds Xshareclasses to java_opts' do
     component.detect
     component.release
+
     expect(java_opts).to include('-Xshareclasses:none')
   end
+
 end

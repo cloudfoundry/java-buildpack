@@ -63,7 +63,6 @@ module JavaBuildpack
           .add_system_property('java.io.tmpdir', '$TMPDIR')
         @droplet.java_opts << '-Xtune:virtualized'
         @droplet.java_opts.concat mem_opts
-        @droplet.java_opts.concat tls_opts
         @droplet.java_opts << '-Xshareclasses:none'
       end
 
@@ -74,6 +73,8 @@ module JavaBuildpack
       HEAP_RATIO = 0.75
 
       KILO = 1024
+
+      private_constant :HEAP_RATIO, :KILO
 
       # Installs the Downloaded InstallAnywhere (tm) BIN file to the target directory
       #
@@ -117,13 +118,6 @@ module JavaBuildpack
       # Returns the heap_ratio attribute in config file (if specified) or the HEAP_RATIO constant value
       def heap_ratio
         @configuration['heap_ratio'] || HEAP_RATIO
-      end
-
-      def tls_opts
-        opts = []
-        # enable all TLS protocols when SSLContext.getInstance("TLS") is called
-        opts << '-Dcom.ibm.jsse2.overrideDefaultTLS=true'
-        opts
       end
 
       # Returns the container total memory limit in bytes

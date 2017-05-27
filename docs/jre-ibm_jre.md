@@ -22,6 +22,11 @@ To use IBM JRE instead of OpenJDK without forking java-buildpack, set environmen
 | `repository_root` | The URL of the IBM JRE repository index ([details][repositories]).
 | `version` | The version of Java runtime to use.
 
+### TLS Options
+It is recommended to use the following Transport Layer Security (TLS) options for IBM JRE version 8 and above:
+
+`cf set-env <app_name> JAVA_OPTS '-Dcom.ibm.jsse2.overrideDefaultTLS=true'`
+
 ### Additional Resources
 The JRE can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/ibm_jre` directory in the buildpack fork.
 
