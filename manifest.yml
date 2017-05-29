@@ -1,0 +1,8 @@
+applications:
+- name: java_buildpack
+  host: java_buildpack
+  buildpack: https://github.com/rajnishpandey/javaBuildPack
+  instances: 2
+  memory: 512M
+  disk_quota: 512M
+  path: .
