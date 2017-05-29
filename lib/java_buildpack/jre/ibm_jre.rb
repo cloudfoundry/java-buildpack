@@ -36,7 +36,8 @@ module JavaBuildpack
         [
           IbmJreInitializer.new(sub_configuration_context(context, 'jre')
                                .merge(component_name: self.class.to_s.space_case)),
-          JvmkillAgent.new(sub_configuration_context(context, 'jvmkill_agent'))
+          JvmkillAgent.new(sub_configuration_context(context, 'jvmkill_agent')),
+          OpenJDKLikeSecurityProviders.new(context)
         ]
       end
 
