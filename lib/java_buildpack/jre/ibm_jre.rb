@@ -17,6 +17,7 @@ require 'java_buildpack/component/modular_component'
 require 'java_buildpack/jre'
 require 'java_buildpack/jre/ibm_jre_initializer'
 require 'java_buildpack/jre/jvmkill_agent'
+require 'java_buildpack/jre/open_jdk_like_security_providers'
 
 module JavaBuildpack
   module Jre
