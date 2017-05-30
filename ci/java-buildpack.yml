@@ -11,8 +11,8 @@ resources:
   type: docker-image
   source:
     repository: splatform/java-buildpack
-    username: {{dockerhub-username}}
-    password: {{dockerhub-password}}
+    username: {{docker-username}}
+    password: {{docker-password}}
     email: cf-ci-bot@suse.de
   
 - name: ubuntu-trusty
