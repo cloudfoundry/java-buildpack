@@ -16,7 +16,7 @@
 # JMX configuration
 ---
 version: 2017.+
-repository_root: "https://download.run.pivotal.io/your-kit/{platform}/{architecture}"
+repository_root: https://download.run.pivotal.io/your-kit/{platform}/{architecture}
 enabled: false
 port: 10001
 default_session_name: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']);
