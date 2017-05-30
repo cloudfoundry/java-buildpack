@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'digest'
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/jre'
@@ -60,9 +59,11 @@ module JavaBuildpack
         @droplet
           .java_opts
           .add_system_property('java.io.tmpdir', '$TMPDIR')
-        @droplet.java_opts << '-Xtune:virtualized'
+          .add_option('-XX:OnOutOfMemoryError', killjava)
+          .add_preformatted_options('-Xtune:virtualized')
+          .add_preformatted_options('-Xshareclasses:none')
+
         @droplet.java_opts.concat mem_opts
-        @droplet.java_opts << '-Xshareclasses:none'
       end
 
       private
@@ -94,13 +95,13 @@ module JavaBuildpack
 
       # Returns the max heap size ('-Xmx') value
       def mem_opts
-        mopts = []
+        mopts        = []
         total_memory = memory_limit_finder
         if total_memory.nil?
           # if no memory option has been set by cloudfoundry, we just assume defaults
         else
           calculated_heap_ratio = heap_ratio_verification(heap_ratio)
-          heap_size = heap_size_calculator(total_memory, calculated_heap_ratio)
+          heap_size             = heap_size_calculator(total_memory, calculated_heap_ratio)
           mopts.push "-Xmx#{heap_size}"
         end
         mopts
@@ -109,6 +110,10 @@ module JavaBuildpack
       # Returns the heap_ratio attribute in config file (if specified) or the HEAP_RATIO constant value
       def heap_ratio
         @configuration['heap_ratio'] || HEAP_RATIO
+      end
+
+      def killjava
+        @droplet.sandbox + 'jre/bin/killjava.sh'
       end
 
       # Returns the container total memory limit in bytes
@@ -129,7 +134,7 @@ module JavaBuildpack
           bytes = 0
         else
           raise "Invalid memory size '#{size}'" if !size || size.length < 2
-          unit = size[-1]
+          unit  = size[-1]
           value = size[0..-2]
           raise "Invalid memory size '#{size}'" unless check_is_integer? value
           value = size.to_i

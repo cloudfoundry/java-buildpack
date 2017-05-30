@@ -27,10 +27,7 @@ describe JavaBuildpack::Jre::IbmJRE do
 
   let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
 
-  let(:configuration) do
-    { 'jre' => jre_configuration,
-      'jvmkill_agent' => jvmkill_agent_configuration }
-  end
+  let(:configuration) { { 'jre' => jre_configuration } }
 
   let(:jre_configuration) { instance_double('jre_configuration') }
 
@@ -45,8 +42,6 @@ describe JavaBuildpack::Jre::IbmJRE do
 
     allow(JavaBuildpack::Jre::IbmJreInitializer)
       .to receive(:new).with(sub_configuration_context(jre_configuration).merge(component_name: 'Stub Ibm JRE'))
-    allow(JavaBuildpack::Jre::JvmkillAgent)
-      .to receive(:new).with(sub_configuration_context(jvmkill_agent_configuration))
 
     component.sub_components context
   end
@@ -64,7 +59,7 @@ class StubIbmJRE < JavaBuildpack::Jre::IbmJRE
 end
 
 def sub_configuration_context(configuration)
-  cntxt = context.clone
+  cntxt                 = context.clone
   cntxt[:configuration] = configuration
   cntxt
 end

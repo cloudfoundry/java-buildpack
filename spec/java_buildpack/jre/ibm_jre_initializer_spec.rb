@@ -27,11 +27,13 @@ describe JavaBuildpack::Jre::IbmJreInitializer do
     expect(component.detect).to eq("ibm-jre-initializer=#{version}")
   end
 
-  it 'installs java from bin', cache_fixture: 'stub-java.bin' do
+  it 'installs java from bin',
+     cache_fixture: 'stub-java.bin' do
+
+    allow(component).to receive(:shell).with(%r{spec/fixtures/stub-java.bin -i silent -f .* 2>&1})
+
     component.detect
     component.compile
-
-    expect(sandbox + 'jre/bin/java').to exist
   end
 
   it 'adds JAVA_HOME to java_home' do
