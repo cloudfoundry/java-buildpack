@@ -213,8 +213,8 @@ module Package
         v = versions
 
         rows = v['dependencies']
-                 .sort_by { |dependency| dependency['name'].downcase }
-                 .map { |dependency| [dependency['name'], dependency['version']] }
+               .sort_by { |dependency| dependency['name'].downcase }
+               .map { |dependency| [dependency['name'], dependency['version']] }
 
         puts Terminal::Table.new title: "Java Buildpack #{v['buildpack']}", rows: rows
       end
