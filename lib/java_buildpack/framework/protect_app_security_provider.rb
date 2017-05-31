@@ -60,8 +60,8 @@ module JavaBuildpack
         @droplet.java_opts
           .add_system_property('java.ext.dirs', ext_dirs)
 		  .add_system_property('com.ingrian.security.nae.IngrianNAE_Properties_Conf_Filename', @droplet.sandbox + 'IngrianNAE.properties')
-		  .add_system_property('com.ingrian.security.nae.Key_Store_Location', key_store)
-          .add_system_property('com.ingrian.security.nae.Key_Store_Password', password)
+		  .add_system_property('javax.net.ssl.keyStore', key_store)
+          .add_system_property('javax.net.ssl.keyStorePassword', password)
       end
 
       protected
