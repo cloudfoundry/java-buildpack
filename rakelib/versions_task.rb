@@ -19,7 +19,6 @@ require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/repository/version_resolver'
 require 'java_buildpack/util/configuration_utils'
 require 'java_buildpack/util/cache/download_cache'
-require 'json'
 require 'rake/tasklib'
 require 'rakelib/package'
 require 'terminal-table'
@@ -36,7 +35,8 @@ module Package
       version_task
 
       namespace 'versions' do
-        version_json_task
+        version_markdown_task
+        version_pivotal_network_task
         version_yaml_task
       end
     end
@@ -209,20 +209,31 @@ module Package
     def version_task
       desc 'Display the versions of buildpack dependencies in human readable form'
       task versions: [] do
-        v    = versions
+        v = versions
 
         rows = v['dependencies']
-               .sort_by { |dependency| dependency['name'].downcase }
-               .map { |dependency| [dependency['name'], dependency['version']] }
+                 .sort_by { |dependency| dependency['name'].downcase }
+                 .map { |dependency| [dependency['name'], dependency['version']] }
 
         puts Terminal::Table.new title: "Java Buildpack #{v['buildpack']}", rows: rows
       end
     end
 
-    def version_json_task
-      desc 'Display the versions of buildpack dependencies in JSON form'
-      task json: [] do
-        puts JSON.pretty_generate(versions)
+    def version_markdown_task
+      desc 'Display the versions of buildpack dependencies in Markdown form'
+      task markdown: [] do
+        versions['dependencies']
+          .sort_by { |dependency| dependency['name'].downcase }
+          .each { |dependency| puts "| #{dependency['name']} | `#{dependency['version']}` |" }
+      end
+    end
+
+    def version_pivotal_network_task
+      desc 'Display the versions of buildpack dependencies in Pivotal Network form'
+      task pivotal_network: [] do
+        versions['dependencies']
+          .sort_by { |dependency| dependency['name'].downcase }
+          .each { |dependency| puts "#{dependency['name']} #{dependency['version']}" }
       end
     end
 
