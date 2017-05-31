@@ -24,5 +24,5 @@ eval "$(rbenv init -)"
 
 pushd java-buildpack
   bundle install --quiet
-  bundle exec rake versions:json
+  bundle exec rake versions:pivotal_network
 popd
