@@ -69,7 +69,7 @@ module JavaBuildpack
       # @param [Hash] context the context of the component
       # @return [Array<BaseComponent>] a collection of +BaseComponent+s that make up the sub_components of this
       #                                component
-      def sub_components(context)
+      def sub_components(_context)
         raise "Method 'sub_components' must be defined"
       end
 
