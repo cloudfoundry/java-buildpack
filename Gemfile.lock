@@ -4,19 +4,17 @@ GEM
     addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
     ast (2.3.0)
-    coderay (1.1.1)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
     diff-lcs (1.3)
     hashdiff (0.3.4)
+<<<<<<< e29180669a96c6540eca218a4f777fb582b3e68a
     parallel (1.11.2)
+=======
+>>>>>>> make changes as asked per PR
     parser (2.4.0.0)
       ast (~> 2.2)
     powerpack (0.1.1)
-    pry (0.10.4)
-      coderay (~> 1.1.0)
-      method_source (~> 0.8.1)
-      slop (~> 3.4)
     public_suffix (2.0.5)
     rainbow (2.2.2)
       rake
@@ -47,7 +45,6 @@ GEM
     ruby-progressbar (1.8.1)
     rubyzip (1.2.1)
     safe_yaml (1.0.4)
-    slop (3.6.0)
     tee (1.0.0)
     terminal-table (1.8.0)
       unicode-display_width (~> 1.1, >= 1.1.1)
@@ -62,7 +59,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  pry
   rake
   redcarpet
   rspec

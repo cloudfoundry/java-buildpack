@@ -32,33 +32,19 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
     expect(component.detect).to be_nil
   end
 
-  it 'does nothing when it does not detect',
-     app_fixture:   'container_tomcat_geode_store',
-     cache_fixture: 'stub-geode-store.tar' do
-
-    component.compile
-
-    expect(sandbox + "lib/stub-geode-store/stub-jar-1.jar").not_to exist
-    expect(sandbox + "lib/stub-geode-store/stub-jar-2.jar").not_to exist
-  end
-
   context 'when there is a session-replication service' do
     before do
       allow(services).to receive(:one_service?).with(/session-replication/, 'locators', 'users')
         .and_return(true)
       allow(services).to receive(:find_service).and_return(
-          {
-            'credentials' => {
-                'locators' => ['some-locator[some-port]', 'some-other-locator[some-other-port]'],
-                'users' =>
-                    [
-                        {
-                            'password' => 'fake-password',
-                            'username' => 'cluster_operator'
-                        }
-                    ]
-            }
-          }
+        'credentials' => {
+          'locators' => ['some-locator[some-port]', 'some-other-locator[some-other-port]'],
+          'users' =>
+              [
+                { 'password' => 'fake-password',
+                  'username' => 'cluster_operator' }
+              ]
+        }
       )
 
     end
@@ -68,13 +54,13 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
     end
 
     it 'copies resources',
-      app_fixture:   'container_tomcat_geode_store',
-      cache_fixture: 'stub-geode-store.tar' do
+       app_fixture:   'container_tomcat_geode_store',
+       cache_fixture: 'stub-geode-store.tar' do
 
       component.compile
 
-      expect(sandbox + "lib/stub-geode-store/stub-jar-1.jar").to exist
-      expect(sandbox + "lib/stub-geode-store/stub-jar-2.jar").to exist
+      expect(sandbox + 'lib/stub-geode-store/stub-jar-1.jar').to exist
+      expect(sandbox + 'lib/stub-geode-store/stub-jar-2.jar').to exist
     end
 
     it 'mutates context.xml',
@@ -113,13 +99,12 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
 
       component.release
 
-      expect(java_opts).to include('-Dgemfire.security-client-auth-init=io.pivotal.cloudcache.ClientAuthInitialize.create')
+      expect(java_opts).to include(
+        '-Dgemfire.security-client-auth-init=io.pivotal.cloudcache.ClientAuthInitialize.create'
+      )
       expect(java_opts).to include('-Dgemfire.security-username=cluster_operator')
       expect(java_opts).to include('-Dgemfire.security-password=fake-password')
     end
 
-    it 'detects with a session-replication service' do
-      expect(component.detect).to eq("tomcat-geode-store=#{version}")
-    end
   end
 end

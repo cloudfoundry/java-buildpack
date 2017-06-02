@@ -107,6 +107,8 @@ module JavaBuildpack
 
         write_xml context_xml, document
       end
+
     end
+
   end
 end

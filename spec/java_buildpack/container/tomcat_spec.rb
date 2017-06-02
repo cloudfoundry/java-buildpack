@@ -17,12 +17,12 @@ require 'spec_helper'
 require 'component_helper'
 require 'fileutils'
 require 'java_buildpack/container/tomcat'
+require 'java_buildpack/container/tomcat/tomcat_access_logging_support'
+require 'java_buildpack/container/tomcat/tomcat_geode_store'
 require 'java_buildpack/container/tomcat/tomcat_insight_support'
 require 'java_buildpack/container/tomcat/tomcat_instance'
-require 'java_buildpack/container/tomcat/tomcat_geode_store'
 require 'java_buildpack/container/tomcat/tomcat_lifecycle_support'
 require 'java_buildpack/container/tomcat/tomcat_logging_support'
-require 'java_buildpack/container/tomcat/tomcat_access_logging_support'
 require 'java_buildpack/container/tomcat/tomcat_redis_store'
 
 describe JavaBuildpack::Container::Tomcat do
@@ -31,16 +31,16 @@ describe JavaBuildpack::Container::Tomcat do
   let(:component) { StubTomcat.new context }
 
   let(:configuration) do
-    { 'tomcat'                 => tomcat_configuration,
-      'lifecycle_support'      => lifecycle_support_configuration,
+    { 'access_logging_support' => access_logging_support_configuration,
+      'external_configuration' => tomcat_external_configuration,
       'geode_store'            => geode_store_configuration,
+      'lifecycle_support'      => lifecycle_support_configuration,
       'logging_support'        => logging_support_configuration,
-      'access_logging_support' => access_logging_support_configuration,
       'redis_store'            => redis_store_configuration,
-      'external_configuration' => tomcat_external_configuration }
+      'tomcat'                 => tomcat_configuration }
   end
 
-  let(:tomcat_configuration) { { 'external_configuration_enabled' => false } }
+  let(:access_logging_support_configuration) { instance_double('logging-support-configuration') }
 
   let(:lifecycle_support_configuration) { instance_double('lifecycle-support-configuration') }
 
@@ -48,9 +48,9 @@ describe JavaBuildpack::Container::Tomcat do
 
   let(:geode_store_configuration) { instance_double('geode_store_configuration') }
 
-  let(:access_logging_support_configuration) { instance_double('logging-support-configuration') }
-
   let(:redis_store_configuration) { instance_double('redis-store-configuration') }
+
+  let(:tomcat_configuration) { { 'external_configuration_enabled' => false } }
 
   let(:tomcat_external_configuration) { instance_double('tomcat_external_configuration') }
 
@@ -73,19 +73,19 @@ describe JavaBuildpack::Container::Tomcat do
   end
 
   it 'creates submodules' do
-    allow(JavaBuildpack::Container::TomcatInstance)
-      .to receive(:new).with(sub_configuration_context(tomcat_configuration))
-    allow(JavaBuildpack::Container::TomcatLifecycleSupport)
-      .to receive(:new).with(sub_configuration_context(lifecycle_support_configuration))
-    allow(JavaBuildpack::Container::TomcatGeodeStore)
-        .to receive(:new).with(sub_configuration_context(geode_store_configuration))
-    allow(JavaBuildpack::Container::TomcatLoggingSupport)
-      .to receive(:new).with(sub_configuration_context(logging_support_configuration))
     allow(JavaBuildpack::Container::TomcatAccessLoggingSupport)
       .to receive(:new).with(sub_configuration_context(access_logging_support_configuration))
+    allow(JavaBuildpack::Container::TomcatGeodeStore)
+      .to receive(:new).with(sub_configuration_context(geode_store_configuration))
+    allow(JavaBuildpack::Container::TomcatInstance)
+      .to receive(:new).with(sub_configuration_context(tomcat_configuration))
+    allow(JavaBuildpack::Container::TomcatInsightSupport).to receive(:new).with(context)
+    allow(JavaBuildpack::Container::TomcatLifecycleSupport)
+      .to receive(:new).with(sub_configuration_context(lifecycle_support_configuration))
+    allow(JavaBuildpack::Container::TomcatLoggingSupport)
+      .to receive(:new).with(sub_configuration_context(logging_support_configuration))
     allow(JavaBuildpack::Container::TomcatRedisStore)
       .to receive(:new).with(sub_configuration_context(redis_store_configuration))
-    allow(JavaBuildpack::Container::TomcatInsightSupport).to receive(:new).with(context)
 
     component.sub_components context
   end

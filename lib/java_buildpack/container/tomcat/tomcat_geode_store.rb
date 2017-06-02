@@ -25,14 +25,16 @@ module JavaBuildpack
     class TomcatGeodeStore < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Container
 
-      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
-      def supports?
-        @application.services.one_service? FILTER, KEY_LOCATORS, KEY_USERS
+      # (see JavaBuildpack::Component::BaseComponent#compile)
+      def compile
+        download_tar(false, tomcat_lib, tar_name)
+        mutate_context
+        mutate_server
+        create_cache_client_xml
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        return unless supports?
         credentials = @application.services.find_service(FILTER)['credentials']
         user = credentials[KEY_USERS].find { |u| u['username'] == 'cluster_operator' }
 
@@ -42,24 +44,14 @@ module JavaBuildpack
                                                'io.pivotal.cloudcache.ClientAuthInitialize.create'
       end
 
-      # (see JavaBuildpack::Component::BaseComponent#compile)
-      def compile
-        return unless supports?
-        download_tar(false, tomcat_lib, tar_name)
-        mutate_context
-        mutate_server
-        create_cache_client_xml
+      protected
+
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
+      def supports?
+        @application.services.one_service? FILTER, KEY_LOCATORS, KEY_USERS
       end
 
       private
-
-      def cache_client_xml_path
-        @droplet.sandbox + 'conf' + cache_client_xml
-      end
-
-      def cache_client_xml
-        'cache-client.xml'
-      end
 
       FILTER = /session-replication/
       KEY_LOCATORS = 'locators'.freeze
@@ -67,21 +59,60 @@ module JavaBuildpack
 
       SESSION_MANAGER_CLASS_NAME = 'org.apache.geode.modules.session.catalina.Tomcat8DeltaSessionManager'.freeze
       REGION_ATTRIBUTES_ID = 'PARTITION_REDUNDANT_HEAP_LRU'.freeze
-      CACHE_CLIENT_LISTENER_CLASS_NAME = 'org.apache.geode.modules.session.catalina.ClientServerCacheLifecycleListener'.freeze
+      CACHE_CLIENT_LISTENER_CLASS_NAME =
+        'org.apache.geode.modules.session.catalina.ClientServerCacheLifecycleListener'.freeze
       SCHEMA_URL = 'http://geode.apache.org/schema/cache'.freeze
       SCHEMA_INSTANCE_URL = 'http://www.w3.org/2001/XMLSchema-instance'.freeze
       SCHEMA_LOCATION = 'http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd'.freeze
-      LOCATOR_REGEXP = Regexp.new("([^\\[]+)\\[([^\\]]+)\\]").freeze
+      LOCATOR_REGEXP = Regexp.new('([^\\[]+)\\[([^\\]]+)\\]').freeze
       FUNCTION_SERVICE_CLASS_NAMES = [
         'org.apache.geode.modules.util.CreateRegionFunction',
         'org.apache.geode.modules.util.TouchPartitionedRegionEntriesFunction',
         'org.apache.geode.modules.util.TouchReplicatedRegionEntriesFunction',
-        'org.apache.geode.modules.util.RegionSizeFunction'].freeze
+        'org.apache.geode.modules.util.RegionSizeFunction'
+      ].freeze
 
-      private_constant :FILTER, :KEY_LOCATORS, :KEY_USERS
+      private_constant :FILTER, :KEY_LOCATORS, :KEY_USERS, :SESSION_MANAGER_CLASS_NAME, :REGION_ATTRIBUTES_ID,
+                       :CACHE_CLIENT_LISTENER_CLASS_NAME, :SCHEMA_URL, :SCHEMA_INSTANCE_URL, :SCHEMA_LOCATION,
+                       :LOCATOR_REGEXP, :FUNCTION_SERVICE_CLASS_NAMES
 
-      def tar_name
-        "geode-store-#{@version}.tar.gz"
+      def add_client_cache(document)
+        client_cache = document.add_element 'client-cache',
+                                            'xmlns' => SCHEMA_URL,
+                                            'xmlns:xsi' => SCHEMA_INSTANCE_URL,
+                                            'xsi:schemaLocation' => SCHEMA_LOCATION,
+                                            'version' => '1.0'
+
+        add_pool client_cache
+        add_function_service client_cache
+      end
+
+      def add_functions(function_service)
+        FUNCTION_SERVICE_CLASS_NAMES.each do |function_class_name|
+          function = function_service.add_element 'function'
+          class_name = function.add_element 'class-name'
+          class_name.add_text(function_class_name)
+        end
+      end
+
+      def add_function_service(client_cache)
+        function_service = client_cache.add_element 'function-service'
+        add_functions function_service
+      end
+
+      def add_listener(server)
+        server.add_element 'Listener',
+                           'className' => CACHE_CLIENT_LISTENER_CLASS_NAME
+      end
+
+      def add_locators(pool)
+        service = @application.services.find_service FILTER
+        service['credentials']['locators'].each do |locator|
+          match_info = LOCATOR_REGEXP.match(locator)
+          pool.add_element 'locator',
+                           'host' => match_info[1],
+                           'port' => match_info[2]
+        end
       end
 
       def add_manager(context)
@@ -91,22 +122,6 @@ module JavaBuildpack
                             'regionAttributesId' => REGION_ATTRIBUTES_ID
       end
 
-      def add_listener(server)
-        server.add_element 'Listener',
-                           'className' => CACHE_CLIENT_LISTENER_CLASS_NAME
-      end
-
-      def add_client_cache(document)
-        client_cache = document.add_element 'client-cache',
-                                'xmlns' => SCHEMA_URL,
-                                'xmlns:xsi' => SCHEMA_INSTANCE_URL,
-                                'xsi:schemaLocation' => SCHEMA_LOCATION,
-                                'version' => '1.0'
-
-        add_pool client_cache
-        add_function_service client_cache
-      end
-
       def add_pool(client_cache)
         pool = client_cache.add_element 'pool',
                                         'name' => 'sessions',
@@ -114,27 +129,12 @@ module JavaBuildpack
         add_locators pool
       end
 
-      def add_locators(pool)
-        service = @application.services.find_service FILTER
-        service['credentials']['locators'].each do |locator|
-           match_info = LOCATOR_REGEXP.match(locator)
-           pool.add_element 'locator',
-                            'host' => match_info[1],
-                            'port' => match_info[2]
-        end
+      def cache_client_xml
+        'cache-client.xml'
       end
 
-      def add_function_service(client_cache)
-        function_service = client_cache.add_element 'function-service'
-        add_functions function_service
-      end
-
-      def add_functions(function_service)
-        FUNCTION_SERVICE_CLASS_NAMES.each do |function_class_name|
-          function = function_service.add_element 'function'
-          class_name = function.add_element 'class-name'
-          class_name.add_text(function_class_name)
-        end
+      def cache_client_xml_path
+        @droplet.sandbox + 'conf' + cache_client_xml
       end
 
       def create_cache_client_xml
@@ -163,6 +163,12 @@ module JavaBuildpack
 
         write_xml server_xml, document
       end
+
+      def tar_name
+        "geode-store-#{@version}.tar.gz"
+      end
+
     end
+
   end
 end
