@@ -8,6 +8,17 @@ AllCops:
   Exclude:
   - 'build/**/*'
   - Gemfile            # TODO: Remove when upgrading to any version after 0.48.1
+Layout/EmptyLinesAroundBlockBody:
+  Exclude:
+  - 'spec/**/*.rb'
+Layout/EmptyLinesAroundClassBody:
+  Enabled: false
+Layout/EmptyLinesAroundModuleBody:
+  Enabled: false
+Layout/IndentHeredoc:  # TODO: Remove when dropping 2.2.x support
+  Enabled: false
+Layout/MultilineOperationIndentation:
+  Enabled: false
 Metrics/AbcSize:
  Max: 22
 Metrics/BlockLength:
@@ -39,16 +50,5 @@ RSpec/NestedGroups:
   Max: 4
 Style/Documentation:
   Enabled: false
-Style/EmptyLinesAroundBlockBody:
-  Exclude:
-  - 'spec/**/*.rb'
-Style/EmptyLinesAroundClassBody:
-  Enabled: false
-Style/EmptyLinesAroundModuleBody:
-  Enabled: false
-Style/IndentHeredoc:  # TODO: Remove when dropping 2.2.x support
-  Enabled: false
 Style/MethodMissing:
-  Enabled: false
-Style/MultilineOperationIndentation:
   Enabled: false
