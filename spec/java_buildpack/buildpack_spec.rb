@@ -87,11 +87,11 @@ describe JavaBuildpack::Buildpack do
     before do
       allow(JavaBuildpack::Util::ConfigurationUtils)
         .to receive(:load).with('components')
-        .and_return(
-          'containers' => [],
-          'frameworks' => ['JavaBuildpack::Framework::JavaOpts'],
-          'jres'       => []
-        )
+                          .and_return(
+                            'containers' => [],
+                            'frameworks' => ['JavaBuildpack::Framework::JavaOpts'],
+                            'jres'       => []
+                          )
     end
 
     it 'requires files needed for components' do
