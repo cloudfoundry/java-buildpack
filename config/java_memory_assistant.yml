@@ -1,4 +1,3 @@
-# Encoding: utf-8
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -14,20 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-version: 0.1.0
-repository_root: https://raw.githubusercontent.com/SAP/java-memory-assistant/repository
-enabled: true
-heap_dump_folder:
-check_interval: 5s
-max_frequency: 1/1m
-max_dump_count: 1
-log_level:
-thresholds:
-  heap:
-  code_cache:
-  metaspace:
-  perm_gen:
-  compressed_class:
-  eden:
-  survivor:
-  old_gen: 50%
+enabled: false
+agent:
+  version: 0.1.0
+  repository_root: https://raw.githubusercontent.com/michele-mancioppi/java-memory-assistant/repository
+  heap_dump_folder: dumps
+  check_interval: 5s
+  max_frequency: 1/1m
+  log_level:
+  thresholds:
+    heap:
+    code_cache:
+    metaspace:
+    perm_gen:
+    compressed_class:
+    eden:
+    survivor:
+    old_gen: 80%
+clean_up:
+  version: 0.1.0
+  repository_root: https://raw.githubusercontent.com/michele-mancioppi/java-memory-assistant/repository_cu
+  max_dump_count:
