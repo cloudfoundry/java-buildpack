@@ -65,6 +65,7 @@ module Package
       'luna_security_provider'              => 'Gemalto Luna Security Provider',
       'maria_db_jdbc'                       => 'MariaDB JDBC Driver',
       'memory_calculator'                   => 'Memory Calculator',
+      'metric_writer'                       => 'Metric Writer',
       'new_relic_agent'                     => 'New Relic Agent',
       'play_framework_auto_reconfiguration' => 'Play Framework Auto-reconfiguration',
       'play_framework_jpa_plugin'           => 'Play Framework JPA Plugin',
