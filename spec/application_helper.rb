@@ -46,7 +46,8 @@ shared_context 'application_helper' do
   let(:services) { application.services }
 
   let(:vcap_application) do
-    { 'application_name'    => 'test-application-name',
+    { 'application_id'      => 'test-application-id',
+      'application_name'    => 'test-application-name',
       'application_version' => 'test-application-version' }
   end
 
