@@ -20,25 +20,41 @@ module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for contributing a container-based security provider to an application.
-    class ContainerSecurityProvider < JavaBuildpack::Component::VersionedDependencyComponent
+    class MetricWriter < JavaBuildpack::Component::VersionedDependencyComponent
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar
-        @droplet.security_providers.insert 1, 'org.cloudfoundry.security.CloudFoundryContainerProvider'
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.extension_directories << @droplet.sandbox
+        credentials = @application.services.find_service(FILTER)['credentials']
+
+        @droplet.additional_libraries << (@droplet.sandbox + jar_name)
+        @droplet.java_opts
+                .add_system_property('cloudfoundry.metrics.accessToken', credentials[ACCESS_KEY])
+                .add_system_property('cloudfoundry.metrics.applicationId', @application.details['application_id'])
+                .add_system_property('cloudfoundry.metrics.endpoint', "https://#{credentials[HOSTNAME]}")
+                .add_system_property('cloudfoundry.metrics.instanceId', '$CF_INSTANCE_GUID')
+                .add_system_property('cloudfoundry.metrics.instanceIndex', '$CF_INSTANCE_INDEX')
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        true
+        @application.services.one_service? FILTER, ACCESS_KEY, HOSTNAME
       end
+
+      ACCESS_KEY = 'access_key'.freeze
+
+      FILTER = /metrics-forwarder/
+
+      HOSTNAME = 'hostname'.freeze
+
+      private_constant :ACCESS_KEY, :FILTER, :HOSTNAME
 
     end
 
