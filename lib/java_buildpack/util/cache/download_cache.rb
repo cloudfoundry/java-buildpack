@@ -265,8 +265,15 @@ module JavaBuildpack
           http_options
         end
 
+        def no_proxy?(uri)
+          hosts = (ENV['no_proxy'] || ENV['NO_PROXY'] || '').split ','
+          hosts.any? { |host| uri.host.end_with? host }
+        end
+
         def proxy(uri)
-          proxy_uri = if secure?(uri)
+          proxy_uri = if no_proxy?(uri)
+                        URI.parse('')
+                      elsif secure?(uri)
                         URI.parse(ENV['https_proxy'] || ENV['HTTPS_PROXY'] || '')
                       else
                         URI.parse(ENV['http_proxy'] || ENV['HTTP_PROXY'] || '')
