@@ -1,0 +1,11 @@
+<custom-interceptors>
+    <custom-interceptor>
+        <interceptor-class-name>com.singularity.ApacheHTTP43TransactionDecorator</interceptor-class-name>
+        <match-class type="matches-class">
+            <name filter-type="equals">org.apache.http.impl.nio.client.CloseableHttpAsyncClient</name>
+        </match-class>
+        <match-method>
+            <name>execute</name>
+        </match-method>
+    </custom-interceptor>
+</custom-interceptors>
