@@ -21,7 +21,7 @@ The credential payload of the service may contain the following entries:
 | Name | Description
 | ---- | -----------
 | `access_key` | The access key used to authenticate agains the endpoint
-| `hostname` | The hostname of the endpoint
+| `endpoint` | The endpoint
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].

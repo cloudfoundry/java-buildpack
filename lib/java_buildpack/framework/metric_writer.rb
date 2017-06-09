@@ -36,7 +36,7 @@ module JavaBuildpack
         @droplet.java_opts
                 .add_system_property('cloudfoundry.metrics.accessToken', credentials[ACCESS_KEY])
                 .add_system_property('cloudfoundry.metrics.applicationId', @application.details['application_id'])
-                .add_system_property('cloudfoundry.metrics.endpoint', "https://#{credentials[HOSTNAME]}")
+                .add_system_property('cloudfoundry.metrics.endpoint', credentials[ENDPOINT])
                 .add_system_property('cloudfoundry.metrics.instanceId', '$CF_INSTANCE_GUID')
                 .add_system_property('cloudfoundry.metrics.instanceIndex', '$CF_INSTANCE_INDEX')
       end
@@ -45,16 +45,16 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, ACCESS_KEY, HOSTNAME
+        @application.services.one_service? FILTER, ACCESS_KEY, ENDPOINT
       end
 
       ACCESS_KEY = 'access_key'.freeze
 
+      ENDPOINT = 'endpoint'.freeze
+
       FILTER = /metrics-forwarder/
 
-      HOSTNAME = 'hostname'.freeze
-
-      private_constant :ACCESS_KEY, :FILTER, :HOSTNAME
+      private_constant :ACCESS_KEY, :ENDPOINT, :FILTER
 
     end
 
