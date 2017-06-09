@@ -27,7 +27,7 @@ describe JavaBuildpack::Framework::MetricWriter do
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/metrics-forwarder/, 'access_key', 'hostname').and_return(true)
+      allow(services).to receive(:one_service?).with(/metrics-forwarder/, 'access_key', 'endpoint').and_return(true)
     end
 
     it 'detects with metric-forwarder service' do
@@ -54,7 +54,7 @@ describe JavaBuildpack::Framework::MetricWriter do
        cache_fixture: 'stub-metric-writer.jar' do
 
       allow(services).to receive(:find_service).and_return('credentials' => { 'access_key' => 'test-access-key',
-                                                                              'hostname'   => 'test-hostname' })
+                                                                              'endpoint'   => 'https://test-endpoint' })
 
       component.release
 
@@ -63,13 +63,13 @@ describe JavaBuildpack::Framework::MetricWriter do
 
     it 'updates JAVA_OPTS' do
       allow(services).to receive(:find_service).and_return('credentials' => { 'access_key' => 'test-access-key',
-                                                                              'hostname'   => 'test-hostname' })
+                                                                              'endpoint'   => 'https://test-endpoint' })
 
       component.release
 
       expect(java_opts).to include('-Dcloudfoundry.metrics.accessToken=test-access-key')
       expect(java_opts).to include('-Dcloudfoundry.metrics.applicationId=test-application-id')
-      expect(java_opts).to include('-Dcloudfoundry.metrics.endpoint=https://test-hostname')
+      expect(java_opts).to include('-Dcloudfoundry.metrics.endpoint=https://test-endpoint')
       expect(java_opts).to include('-Dcloudfoundry.metrics.instanceId=$CF_INSTANCE_GUID')
       expect(java_opts).to include('-Dcloudfoundry.metrics.instanceIndex=$CF_INSTANCE_INDEX')
     end
