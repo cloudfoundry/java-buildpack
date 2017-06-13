@@ -37,7 +37,7 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
   context do
     before do
       allow(services).to receive(:one_service?).with(/contrast[-]?security/,
-                                                     %w[teamserver_url username api_key service_key]).and_return(true)
+                                                     'teamserver_url','username', 'api_key', 'service_key').and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => :configuration)
     end
 
@@ -57,7 +57,7 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
 
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/contrast_security_agent/contrast-engine-0.0.0.jar'\
         '=$PWD/.java-buildpack/contrast_security_agent/contrast.config')
-      expect(java_opts).to include('-Dcontrast.dir=/tmp')
+      expect(java_opts).to include('-Dcontrast.dir=$TMPDIR')
       expect(java_opts).to include('-Dcontrast.override.appname=test-application-name')
     end
 

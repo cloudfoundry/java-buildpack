@@ -16,11 +16,9 @@
 # limitations under the License.
 
 require 'fileutils'
-require 'open-uri'
-require 'rexml/document'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
-require 'base64'
+require 'rexml/document'
 
 module JavaBuildpack
   module Framework
@@ -30,9 +28,6 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        load_credentials
-        FileUtils.mkdir_p(@droplet.sandbox)
-        @dir = @droplet.sandbox
         download_jar(boot_class_name)
         build_contrast_configuration
         @droplet.copy_resources
@@ -42,7 +37,7 @@ module JavaBuildpack
       def release
         app_name = @application.details['application_name'] || 'ROOT'
         java_opts = @droplet.java_opts
-        java_opts.add_system_property('contrast.dir', '/tmp')
+        java_opts.add_system_property('contrast.dir', '$TMPDIR')
         java_opts.add_system_property('contrast.override.appname', app_name)
         path = java_opts.qualify_path(@droplet.sandbox)
         java_opts.add_preformatted_options("-javaagent:#{path}/#{boot_class_name}=#{path}/contrast.config")
@@ -52,27 +47,27 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service?(CONTRAST_FILTER, [TEAMSERVER_URL, USERNAME, API_KEY, SERVICE_KEY])
+        @application.services.one_service?(CONTRAST_FILTER, TEAMSERVER_URL, USERNAME, API_KEY, SERVICE_KEY)
       end
 
       private
 
-      CONTRAST_FILTER = /contrast[-]?security/
-      private_constant :CONTRAST_FILTER
-
+      API_KEY = 'api_key'.freeze
+      CONTRAST_FILTER = 'contrast-security'.freeze
+      SERVICE_KEY = 'service_key'.freeze
       TEAMSERVER_URL = 'teamserver_url'.freeze
       USERNAME = 'username'.freeze
-      API_KEY = 'api_key'.freeze
-      SERVICE_KEY = 'service_key'.freeze
+
+      private_constant :API_KEY
+      private_constant :CONTRAST_FILTER
+      private_constant :SERVICE_KEY
+      private_constant :TEAMSERVER_URL
+      private_constant :USERNAME
 
       PLUGIN_PACKAGE = 'com.aspectsecurity.contrast.runtime.agent.plugins.'.freeze
 
-      def load_credentials
-        credentials = @application.services.find_service(CONTRAST_FILTER)['credentials']
-        @teamserver_url = credentials[TEAMSERVER_URL]
-        @username = credentials[USERNAME]
-        @api_key = credentials[API_KEY]
-        @service_key = credentials[SERVICE_KEY]
+      def credentials
+       @application.services.find_service(CONTRAST_FILTER)['credentials']
       end
 
       def boot_class_name
@@ -84,28 +79,31 @@ module JavaBuildpack
         doc = REXML::Document.new
         contrast = doc.add_element('contrast')
         (contrast.add_element 'id').add_text('default')
-        (contrast.add_element 'global-key').add_text(@api_key)
+        (contrast.add_element 'global-key').add_text(credentials[API_KEY])
         user = contrast.add_element('user')
-        (user.add_element 'id').add_text(@username)
-        (user.add_element 'key').add_text(@service_key)
-        (contrast.add_element 'url').add_text("#{@teamserver_url}/Contrast/s/")
+        (user.add_element 'id').add_text(credentials[USERNAME])
+        (user.add_element 'key').add_text(credentials[SERVICE_KEY])
+        (contrast.add_element 'url').add_text("#{credentials[TEAMSERVER_URL]}/Contrast/s/")
         (contrast.add_element 'results-mode').add_text('never')
 
         add_plugins(contrast)
 
-        File.open(File.join(@dir, 'contrast.config'), 'w+') do |file|
-          file.puts doc
-        end
+        contrast_config.open(File::CREAT | File::WRONLY) { |f| f.write(doc) }
       end
 
       def add_plugins(config)
+        plugin_package = 'com.aspectsecurity.contrast.runtime.agent.plugins.'
         plugin_group = config.add_element('plugins')
-        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.security.SecurityPlugin")
-        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.architecture.ArchitecturePlugin")
-        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.appupdater.ApplicationUpdatePlugin")
-        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.sitemap.SitemapPlugin")
-        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.frameworks.FrameworkSupportPlugin")
-        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.http.HttpPlugin")
+        (plugin_group.add_element 'plugin').add_text("#{plugin_package}.security.SecurityPlugin")
+        (plugin_group.add_element 'plugin').add_text("#{plugin_package}.architecture.ArchitecturePlugin")
+        (plugin_group.add_element 'plugin').add_text("#{plugin_package}.appupdater.ApplicationUpdatePlugin")
+        (plugin_group.add_element 'plugin').add_text("#{plugin_package}.sitemap.SitemapPlugin")
+        (plugin_group.add_element 'plugin').add_text("#{plugin_package}.frameworks.FrameworkSupportPlugin")
+        (plugin_group.add_element 'plugin').add_text("#{plugin_package}.http.HttpPlugin")
+      end
+
+      def contrast_config
+        @droplet.sandbox + 'contrast.config'
       end
 
     end

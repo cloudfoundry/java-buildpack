@@ -3,7 +3,7 @@ The Contrast Security Agent Framework causes an application to be automatically 
 
 <table>
   <tr>
-    <td><strong>Detection Criterion</strong></td><td>Existence of a single bound Contrast Security service. The existence of an Contrast Security service defined by the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service name, label or tag with <code>contrast-security</code> or <code>contrastsecurity</code> as a substring.
+    <td><strong>Detection Criterion</strong></td><td>Existence of a single bound Contrast Security service. The existence of an Contrast Security service defined by the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service name, label or tag with <code>contrast-security</code> as a substring.
 </td>
   </tr>
 </table>
@@ -14,11 +14,11 @@ When binding ContrastSecurity using a user-provided service, it must have name o
 
 | Name | Description
 | ---- | -----------
-| `teamserver_url` | (Optional) The base URL in which your user has access to and the URL to which the Agent will report. ex: https://app.contrastsecurity.com
-| `username` | (Required) The account name to use when downloading the agent
-| `org_uuid` | (Required) The org uuid to send app information to, this is the org that your bound application will appear within
-| `api_key` | (Required) Your user's api key
-| `service_key` | (Required) Your user's service key
+| `teamserver_url` | The base URL in which your user has access to and the URL to which the Agent will report. ex: https://app.contrastsecurity.com
+| `username` | The account name to use when downloading the agent
+| `org_uuid` | The org uuid to send app information to, this is the org that your bound application will appear within
+| `api_key` | Your user's api key
+| `service_key` | Your user's service key
 
 
 ## Configuration
