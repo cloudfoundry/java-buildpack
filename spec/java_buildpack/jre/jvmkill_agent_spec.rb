@@ -42,4 +42,17 @@ describe JavaBuildpack::Jre::JvmkillAgent do
     expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/jvmkill_agent/bin/jvmkill-0.0.0=printHeapHistogram=1')
   end
 
+  it 'adds heap dump parameter to JAVA_OPTS when volume service available' do
+    allow(services).to receive(:one_volume_service?).with(/heap-dump/).and_return(true)
+    allow(services).to receive(:find_service).and_return('volume_mounts' =>
+                                                           [{ 'container_dir' => 'test-container-dir' }])
+
+    component.release
+
+    expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/jvmkill_agent/bin/jvmkill-0.0.0=' \
+                                 'printHeapHistogram=1,heapDumpPath=test-container-dir/test-space-name-test-space-id/' \
+                                 'test-application-name-test-application-id/$CF_INSTANCE_INDEX-%FT%T%z-' \
+                                 '$CF_INSTANCE_GUID.hprof')
+  end
+
 end

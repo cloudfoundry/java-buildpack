@@ -4,11 +4,15 @@ Azul Zulu JRE provides Java runtimes developed by Azul team.  Versions of Java f
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td>Unconditional</td>
+    <td>Unconditional.  Existence of a single bound Volume Service will result in Terminal heap dumps being written.
+      <ul>
+        <li>Existence of a Volume Service service is defined as the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>heap-dump</code> as a substring.</li>
+      </ul>
+    </td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
-    <td><tt>open-jdk-like-jre=&lang;version&rang;, open-jdk-like-memory-calculator=&lang;version&rang;</tt></td>
+    <td><tt>open-jdk-like-jre=&lang;version&rang;, open-jdk-like-memory-calculator=&lang;version&rang;, jvmkill=&lang;version&rang;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script.
@@ -27,9 +31,11 @@ To use Zulu JRE instead of OpenJDK without forking java-buildpack, set environme
 
 | Name | Description
 | ---- | -----------
+| `jre.repository_root` | The URL of the Zulu repository index ([details][repositories]).
+| `jre.version` | The version of Java runtime to use. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
+| `jvmkill.repository_root` | The URL of the `jvmkill` repository index ([details][repositories]).
+| `jvmkill.version` | The version of `jvmkill` to use.  Candidate versions can be found in the listings for [mountainlion][jvmkill-mountainlion] and [trusty][jvmkill-trusty].
 | `memory_calculator` | Memory calculator defaults, described below under "Memory".
-| `repository_root` | The URL of the Zulu repository index ([details][repositories]).
-| `version` | The version of Java runtime to use. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
 
 ### Additional Resources
 The JRE can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/zulu_jre` directory in the buildpack fork.
@@ -39,6 +45,42 @@ To add the JCE Unlimited Strength `local_policy.jar`, add your file to `resource
 
 #### Custom CA Certificates
 To add custom SSL certificates, add your `cacerts` file to `resources/zulu_jre/lib/security/cacerts`.  This file will be overlayed onto the Zulu distribution.
+
+### `jvmkill`
+The `jvmkill` agent runs when an application has experience a resource exhaustion event.  When this event occurs, the agent will print out a histogram of the first 100 largest types by total number of bytes.
+
+```plain
+Resource exhaustion event: the JVM was unable to allocate memory from the heap.
+ResourceExhausted! (1/0)
+| Instance Count | Total Bytes | Class Name                                    |
+| 18273          | 313157136   | [B                                            |
+| 47806          | 7648568     | [C                                            |
+| 14635          | 1287880     | Ljava/lang/reflect/Method;                    |
+| 46590          | 1118160     | Ljava/lang/String;                            |
+| 8413           | 938504      | Ljava/lang/Class;                             |
+| 28573          | 914336      | Ljava/util/concurrent/ConcurrentHashMap$Node; |
+```
+
+It will also print out a summary of all of the memory spaces in the JVM.
+
+```plain
+Memory usage:
+   Heap memory: init 65011712, used 332392888, committed 351797248, max 351797248
+   Non-heap memory: init 2555904, used 63098592, committed 64815104, max 377790464
+Memory pool usage:
+   Code Cache: init 2555904, used 14702208, committed 15007744, max 251658240
+   PS Eden Space: init 16252928, used 84934656, committed 84934656, max 84934656
+   PS Survivor Space: init 2621440, used 0, committed 19398656, max 19398656
+   Compressed Class Space: init 0, used 5249512, committed 5505024, max 19214336
+   Metaspace: init 0, used 43150616, committed 44302336, max 106917888
+   PS Old Gen: init 43515904, used 247459792, committed 247463936, max 247463936
+```
+
+If a heap dump [Volume Service][] is bound, terminal heap dumps will be written with the pattern `"<CONTAINER_DIR>/<SPACE_NAME>-<SPACE_ID>/<APPLICATION_NAME>-<APPLICATION_ID>/<INSTANCE_INDEX>-<TIMESTAMP>-<INSTANCE_ID>.hprof`
+
+```plain
+Heapdump written to /var/vcap/data/9ae0b817-1446-4915-9990-74c1bb26f147/pcfdev-space-e91c5c39-b546-41d9-8095-9a45fa65df9e/java-main-application-892f20ab-9a53-441d-be3e-72c38f2a1055/0-2017-06-13T18:31:29+0000-7b23124e-7f0f-4a08-457b-60802d0a7326.hprof
+```
 
 ### Memory
 The total available memory for the application's container is specified when an application is pushed.
@@ -91,7 +133,7 @@ The container's total available memory is allocated into heap, metaspace and com
 direct memory, and stack memory settings.
 
 The memory calculation is described in more detail in the [Memory Calculator's README].
-  
+
 The inputs to the memory calculation, except the container's total memory (which is unknown at staging time), are logged during staging, for example:
 ```
 Loaded Classes: 13974, Threads: 300, JAVA_OPTS: ''
@@ -111,10 +153,13 @@ JVM Memory Configuration: -XX:MaxDirectMemorySize=10M -XX:MaxMetaspaceSize=99199
 
 [`config/components.yml`]: ../config/components.yml
 [`config/zulu_jre.yml`]: ../config/zulu_jre.yml
+[Azul Zulu]: https://www.azul.com/products/zulu/
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [Java Buildpack Memory Calculator]: https://github.com/cloudfoundry/java-buildpack-memory-calculator
+[jvmkill-mountainlion]: http://download.pivotal.io.s3.amazonaws.com/jvmkill/mountainlion/x86_64/index.yml
+[jvmkill-trusty]: http://download.pivotal.io.s3.amazonaws.com/jvmkill/trusty/x86_64/index.yml
 [Memory Calculator's README]: https://github.com/cloudfoundry/java-buildpack-memory-calculator
-[Zulu JRE]: jre-zulu_jre.md
-[Azul Zulu]: https://www.azul.com/products/zulu/
 [repositories]: extending-repositories.md
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
+[Volume Service]: https://docs.cloudfoundry.org/devguide/services/using-vol-services.html
+[Zulu JRE]: jre-zulu_jre.md

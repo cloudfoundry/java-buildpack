@@ -28,6 +28,15 @@ module JavaBuildpack
         concat raw.values.flatten
       end
 
+      # Compares the name, label, and tags of each service to the given +filter+.  The method returns the first service
+      # that the +filter+ matches.  If no service matches, returns +nil+
+      #
+      # @param [Regexp, String] filter a +RegExp+ or +String+ to match against the name, label, and tags of the services
+      # @return [Hash, nil] the first service that +filter+ matches.  If no service matches, returns +nil+.
+      def find_service(filter)
+        find(&matcher(filter))
+      end
+
       # Compares the name, label, and tags of each service to the given +filter+.  The method returns +true+ if the
       # +filter+ matches exactly one service, +false+ otherwise.
       #
@@ -55,13 +64,29 @@ module JavaBuildpack
         match
       end
 
-      # Compares the name, label, and tags of each service to the given +filter+.  The method returns the first service
-      # that the +filter+ matches.  If no service matches, returns +nil+
+      # Compares the name, lavel,a nd tags of each service to the given +filter+. The method returns +true+ if the
+      # +filter+ matches exactly one volume service, +false+ otherwise.
       #
       # @param [Regexp, String] filter a +RegExp+ or +String+ to match against the name, label, and tags of the services
-      # @return [Hash, nil] the first service that +filter+ matches.  If no service matches, returns +nil+.
-      def find_service(filter)
-        find(&matcher(filter))
+      # @return [Boolean] +true+ if the +filter+ matches exactly one volume service with the required credentials,
+      #                   +false+ otherwise.
+      def one_volume_service?(filter)
+        candidates = select(&matcher(filter))
+
+        match = false
+        if candidates.one?
+          volume_mounts = candidates.first['volume_mounts']
+          if !volume_mounts.nil?
+            match = volume_mounts.one?
+          else
+            logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger Services
+            logger.debug do
+              "A service with a name label or tag matching #{filter} was found, but was missing a volume_mount"
+            end
+          end
+        end
+
+        match
       end
 
       private
