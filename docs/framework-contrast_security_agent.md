@@ -10,7 +10,7 @@ The Contrast Security Agent Framework causes an application to be automatically 
 Tags are printed to standard output by the buildpack detect script
 
 ## User-Provided Service
-When binding ContrastSecurity using a user-provided service, it must have name or tag with `contrast-security` or `contrastsecurity` in it. The credential payload can contain the following entries:
+When binding ContrastSecurity using a user-provided service, it must have name or tag with `contrast-security` in it. The credential payload can contain the following entries:
 
 | Name | Description
 | ---- | -----------
