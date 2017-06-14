@@ -50,9 +50,9 @@ describe JavaBuildpack::Jre::JvmkillAgent do
     component.release
 
     expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/jvmkill_agent/bin/jvmkill-0.0.0=' \
-                                 'printHeapHistogram=1,heapDumpPath=test-container-dir/test-space-name-test-space-id/' \
-                                 'test-application-name-test-application-id/$CF_INSTANCE_INDEX-%FT%T%z-' \
-                                 '$CF_INSTANCE_GUID.hprof')
+                                 'printHeapHistogram=1,heapDumpPath=test-container-dir/test-space-name-test-spa/' \
+                                 'test-application-name-test-app/$CF_INSTANCE_INDEX-%FT%T%z-' \
+                                 '${CF_INSTANCE_GUID:0:8}.hprof')
   end
 
 end
