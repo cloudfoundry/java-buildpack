@@ -57,7 +57,7 @@ module JavaBuildpack
       private_constant :FILTER
 
       def application_identifier
-        "#{@application.details['application_name']}-#{@application.details['application_id']}"
+        "#{@application.details['application_name']}-#{@application.details['application_id'][0...8]}"
       end
 
       def container_dir
@@ -69,7 +69,7 @@ module JavaBuildpack
       end
 
       def instance_identifier
-        '$CF_INSTANCE_INDEX-%FT%T%z-$CF_INSTANCE_GUID'
+        '$CF_INSTANCE_INDEX-%FT%T%z-${CF_INSTANCE_GUID:0:8}'
       end
 
       def jvmkill_agent
@@ -77,7 +77,7 @@ module JavaBuildpack
       end
 
       def space_identifier
-        "#{@application.details['space_name']}-#{@application.details['space_id']}"
+        "#{@application.details['space_name']}-#{@application.details['space_id'][0...8]}"
       end
 
     end
