@@ -44,7 +44,9 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        heap_dump_folder = @configuration['heap_dump_folder']
+        environment_variables = @droplet.environment_variables
+
+        heap_dump_folder = @configuration['heap_dump_folder'] || default_heap_dump_folder
 
         # If there is a bound volume service, use the heap_dump_folder under the volume's path
         service = find_heap_dump_volume_service
@@ -61,6 +63,8 @@ module JavaBuildpack
 
         heap_dump_folder = 'dumps' unless heap_dump_folder
 
+        # This is needed by the clean_up module
+        environment_variables.add_environment_variable 'JMA_HEAP_DUMP_FOLDER', heap_dump_folder.to_s
         @droplet.java_opts.add_system_property 'jma.heap_dump_folder', "\"#{heap_dump_folder}\""
         @logger.info { "Heap dumps will be stored under '#{heap_dump_folder}'" }
       end
@@ -68,10 +72,15 @@ module JavaBuildpack
       private
 
       # Matcher for service names or tags associated with the Java Memory Assistant
-      FILTER = 'jbp-dumps'.freeze
+      FILTER = 'heap-dump'.freeze
 
       def find_heap_dump_volume_service
         @application.services.find_service FILTER
+      end
+
+      def default_heap_dump_folder
+        "#{@application.details['space_name']}-#{@application.details['space_id'][0...8]}/" \
+          "#{@application.details['application_name']}-#{@application.details['application_id'][0...8]}"
       end
 
     end

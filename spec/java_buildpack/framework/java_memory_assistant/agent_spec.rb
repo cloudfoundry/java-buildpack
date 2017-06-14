@@ -27,8 +27,6 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
 
   let(:vcap_application) do
     {
-      'application_name' => 'testapp',
-      'space_id' => '4f7f0547-8637-4109-9d4e-2242b410f452',
       'instance_index' => '42',
       'instance_id' => '406beca7-7692-41f4-9482-f32ae0a1da93'
     }
@@ -54,10 +52,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
 
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/java_memory_assistant_agent/' \
         'java-memory-assistant-1.2.3.jar')
-
       expect(java_opts).to include('-Djma.enabled=true')
-      expect(java_opts).to include('-Djma.heap_dump_name=4f7f05_testapp_%env:CF_INSTANCE_INDEX%_%ts:' \
-        'yyyyMMddmmssSS%_%env:CF_INSTANCE_GUID%.hprof')
 
       expect(java_opts).to include('-Djma.check_interval=5s')
       expect(java_opts).to include('-Djma.max_frequency=1/1m')
@@ -94,10 +89,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
 
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/java_memory_assistant_agent/' \
         'java-memory-assistant-0.1.0.jar')
-
       expect(java_opts).to include('-Djma.enabled=true')
-      expect(java_opts).to include('-Djma.heap_dump_name=4f7f05_testapp_%env:CF_INSTANCE_INDEX%_%ts:' \
-        'yyyyMMddmmssSS%_%env:CF_INSTANCE_GUID%.hprof')
       expect(java_opts).to include('-Djma.check_interval=10m')
       expect(java_opts).to include('-Djma.max_frequency=4/10h')
       expect(java_opts).to include('-Djma.log_level=DEBUG')

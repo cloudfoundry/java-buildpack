@@ -27,19 +27,29 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantHeapDumpFolder do
   let(:logger) { described_class.instance.get_logger String }
 
   context do
+    let(:vcap_application) do
+      {
+        'space_name' => '1234567890',
+        'space_id' => '0987654321',
+        'application_name' => 'abcdefghi',
+        'application_id' => 'ihgfedcba'
+      }
+    end
+
     let(:configuration) do
       {
         'heap_dump_folder' => nil
       }
     end
 
-    it 'uses the default for \'jma.heap_dump_folder\' if no value if specified', :enable_log_file, log_level: 'INFO' do
+    it 'uses the default for \'jma.heap_dump_folder\' if no value is specified', :enable_log_file, log_level: 'INFO' do
 
       component.release
 
-      expect(java_opts).to include('-Djma.heap_dump_folder="dumps"')
+      expect(java_opts).to include('-Djma.heap_dump_folder="1234567890-09876543/abcdefghi-ihgfedcb"')
+      expect(environment_variables).to include('JMA_HEAP_DUMP_FOLDER=1234567890-09876543/abcdefghi-ihgfedcb')
 
-      expect(log_contents).to match(/Heap dumps will be stored under 'dumps'/)
+      expect(log_contents).to match(%r{Heap dumps will be stored under '1234567890-09876543/abcdefghi-ihgfedcb'})
     end
 
   end
@@ -56,6 +66,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantHeapDumpFolder do
       component.release
 
       expect(java_opts).to include('-Djma.heap_dump_folder="test/folder"')
+      expect(environment_variables).to include('JMA_HEAP_DUMP_FOLDER=test/folder')
 
       expect(log_contents).to match(%r{Heap dumps will be stored under \'test/folder\'})
     end
@@ -70,7 +81,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantHeapDumpFolder do
     end
 
     before do
-      allow(services).to receive(:find_service).with('jbp-dumps')
+      allow(services).to receive(:find_service).with('heap-dump')
         .and_return('volume_mounts' =>
           [
             {
@@ -85,6 +96,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantHeapDumpFolder do
       component.release
 
       expect(java_opts).to include('-Djma.heap_dump_folder="/my_volume/test/folder"')
+      expect(environment_variables).to include('JMA_HEAP_DUMP_FOLDER=/my_volume/test/folder')
 
       expect(log_contents).to match(%r{Heap dumps will be stored under \'/my_volume/test/folder\'})
     end
@@ -99,7 +111,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantHeapDumpFolder do
     end
 
     before do
-      allow(services).to receive(:find_service).with('jbp-dumps')
+      allow(services).to receive(:find_service).with('heap-dump')
         .and_return('volume_mounts' =>
           [
             {

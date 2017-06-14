@@ -22,12 +22,24 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantCleanUp do
   include_context 'application_helper'
   include_context 'component_helper'
 
-  let(:max_dump_count) { StringIO.new }
+  let(:version) { '1.2.3' }
 
-  before do
-    allow(File).to receive(:open)
-      .with(sandbox + 'max_dump_count', 'w+')
-      .and_yield(max_dump_count)
+  context do
+
+    let(:configuration) do
+      {
+        'max_dump_count' => 1
+      }
+    end
+
+    it 'downloads and unpacks the cleanup command',
+       cache_fixture: 'stub-java-memory-assistant-cleanup.zip' do
+
+      component.compile
+
+      expect(sandbox + 'cleanup').to exist
+    end
+
   end
 
   context do
@@ -38,17 +50,12 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantCleanUp do
       }
     end
 
-    let(:version) { '1.2.3' }
-
     it 'configures clean up' do
       component.release
 
-      expect(java_opts).to include('-Djma.command.interpreter=/bin/sh')
+      expect(java_opts).to include('-Djma.command.interpreter=')
       expect(java_opts).to include('-Djma.execute.before=$PWD/.java-buildpack/java_memory_assistant_clean_up/' \
-        'bin/clean-up.sh')
-
-      expect(File).to have_received(:open).with(sandbox + 'max_dump_count', 'w+')
-      expect(max_dump_count.string).to eq('1')
+        'cleanup')
     end
 
   end
@@ -61,16 +68,12 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantCleanUp do
       }
     end
 
-    let(:version) { '1.2.3' }
-
     it 'does not configure clean up when max_dump_count is zero' do
       component.release
 
-      expect(java_opts).not_to include('-Djma.command.interpreter=/bin/sh')
+      expect(java_opts).not_to include('-Djma.command.interpreter=')
       expect(java_opts).not_to include('-Djma.execute.before=$PWD/.java-buildpack/java_memory_assistant_clean_up/' \
-        'bin/clean-up.sh')
-
-      expect(File).not_to have_received(:open).with(sandbox + 'max_dump_count', 'w+')
+        'cleanup')
     end
 
   end
@@ -81,16 +84,12 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantCleanUp do
       {}
     end
 
-    let(:version) { '1.2.3' }
-
     it 'does not configure clean up when max_dump_count is not set' do
       component.release
 
-      expect(java_opts).not_to include('-Djma.command.interpreter=/bin/sh')
+      expect(java_opts).not_to include('-Djma.command.interpreter=')
       expect(java_opts).not_to include('-Djma.execute.before=$PWD/.java-buildpack/java_memory_assistant_clean_up/' \
-        'bin/clean-up.sh')
-
-      expect(File).not_to have_received(:open).with(sandbox + 'max_dump_count', 'w+')
+        'cleanup')
     end
 
   end

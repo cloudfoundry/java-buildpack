@@ -37,7 +37,7 @@ module JavaBuildpack
         @droplet.java_opts.add_javaagent @droplet.sandbox + jar_name
 
         @droplet.java_opts.add_system_property 'jma.enabled', 'true'
-        @droplet.java_opts.add_system_property 'jma.heap_dump_name', name_pattern
+        @droplet.java_opts.add_system_property 'jma.heap_dump_name', %("#{name_pattern}")
 
         add_system_prop_if_config_present 'check_interval', 'jma.check_interval'
         add_system_prop_if_config_present 'max_frequency', 'jma.max_frequency'
@@ -63,12 +63,9 @@ module JavaBuildpack
       private
 
       def name_pattern
-        "#{@application.details['space_id'][0, 6]}_" \
-          "#{@application.details['application_name']}_" \
-          '%env:CF_INSTANCE_INDEX%_' \
-          '%ts:yyyyMMddmmssSS%_' \
-          '%env:CF_INSTANCE_GUID%' \
-          '.hprof'
+        # Double escaping quotes of doom. Nothing less would work.
+        %q(%env:CF_INSTANCE_INDEX%-%ts:yyyy-MM-dd'"'"'T'"'"'mm'"'"':'"'"'ss'"'"':'"'"'SSSZ%-) \
+          '%env:CF_INSTANCE_GUID[,8]%.hprof'
       end
 
       def add_system_prop_if_config_present(config_entry, system_property_name, quote_value = false)

@@ -27,7 +27,8 @@ module JavaBuildpack
       def compile
         return unless supports?
 
-        download_tar
+        download_zip false
+
         @droplet.copy_resources
       end
 
@@ -35,17 +36,18 @@ module JavaBuildpack
       def release
         return unless supports?
 
-        File.open(@droplet.sandbox + 'max_dump_count', 'w+') { |f| f.write(@configuration['max_dump_count']) }
+        environment_variables = @droplet.environment_variables
+        environment_variables.add_environment_variable 'JMA_MAX_DUMP_COUNT', @configuration['max_dump_count'].to_s
 
-        @droplet.java_opts.add_system_property('jma.command.interpreter', '/bin/sh')
-        @droplet.java_opts.add_system_property('jma.execute.before', @droplet.sandbox + 'bin/clean-up.sh')
+        @droplet.java_opts.add_system_property('jma.command.interpreter', '')
+        @droplet.java_opts.add_system_property('jma.execute.before', @droplet.sandbox + 'cleanup')
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @configuration['max_dump_count'] && @configuration['max_dump_count'].to_i > 0
+        @configuration['max_dump_count'].to_i > 0
       end
 
     end

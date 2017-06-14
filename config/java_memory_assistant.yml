@@ -15,8 +15,8 @@
 ---
 enabled: false
 agent:
-  version: 0.1.0
-  repository_root: https://raw.githubusercontent.com/michele-mancioppi/java-memory-assistant/repository
+  version: 0.+
+  repository_root: https://raw.githubusercontent.com/SAP/java-memory-assistant/repository
   heap_dump_folder: dumps
   check_interval: 5s
   max_frequency: 1/1m
@@ -29,8 +29,8 @@ agent:
     compressed_class:
     eden:
     survivor:
-    old_gen: 80%
+    old_gen: ">600MB"
 clean_up:
-  version: 0.1.0
-  repository_root: https://raw.githubusercontent.com/michele-mancioppi/java-memory-assistant/repository_cu
+  version: 0.+
+  repository_root: https://raw.githubusercontent.com/SAP/java-memory-assistant-tools/repository-cu
   max_dump_count:
