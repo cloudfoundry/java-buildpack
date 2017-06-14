@@ -1,0 +1,30 @@
+<activities>
+    <producer enabled = "true" in-process = "true">
+        <instrumentation>
+            <class-name>org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl</class-name>
+            <method-name>&lt;init&gt;</method-name>
+            <match-type>MATCHES_CLASS</match-type>
+        </instrumentation>
+        <correlation>
+            <payload-pointer>
+                <data-gatherer-type>INVOKED</data-gatherer-type>
+                <transformer-type>GETTER_METHODS</transformer-type>
+                <getter-chain>this</getter-chain>
+            </payload-pointer>
+        </correlation>
+    </producer>
+    <consumer enabled="true" in-process="true">
+            <instrumentation>
+                <class-name>org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl</class-name>
+                <method-name>responseCompleted</method-name>
+                <match-type>MATCHES_CLASS</match-type>
+            </instrumentation>
+            <correlation>
+                <payload-pointer>
+                    <data-gatherer-type>INVOKED</data-gatherer-type>
+                    <transformer-type>GETTER_METHODS</transformer-type>
+                    <getter-chain>this</getter-chain>
+                </payload-pointer>
+            </correlation>
+    </consumer>
+</activities>
