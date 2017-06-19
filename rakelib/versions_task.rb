@@ -52,6 +52,7 @@ module Package
       'app_dynamics_agent'                  => 'AppDynamics Agent',
       'container_customizer'                => 'Spring Boot Container Customizer',
       'container_security_provider'         => 'Container Security Provider',
+      'contrast_security_agent'             => 'Contrast Security Agent',
       'dyadic_ekm_security_provider'        => 'Dyadic EKM Security Provider',
       'dynatrace_appmon_agent'              => 'Dynatrace Appmon Agent',
       'dynatrace_one_agent'                 => 'Dynatrace OneAgent',
