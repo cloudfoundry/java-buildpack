@@ -6,6 +6,7 @@
       <w>appdynamics</w>
       <w>applicationid</w>
       <w>argv</w>
+      <w>aspectsecurity</w>
       <w>atpack</w>
       <w>bootclasspath</w>
       <w>buildpack</w>
@@ -22,6 +23,7 @@
       <w>dirname</w>
       <w>distapplication</w>
       <w>dnewrelic</w>
+      <w>dotmatch</w>
       <w>enterprisemanager</w>
       <w>etag</w>
       <w>extname</w>
@@ -98,6 +100,7 @@
       <w>stubjre</w>
       <w>submodules</w>
       <w>tasklib</w>
+      <w>teamserver</w>
       <w>tenanttoken</w>
       <w>tmpdir</w>
       <w>tokenized</w>

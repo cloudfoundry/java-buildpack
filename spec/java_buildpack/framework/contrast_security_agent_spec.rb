@@ -22,23 +22,21 @@ require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Framework::ContrastSecurityAgent do
   include_context 'component_helper'
-  let(:configuration) do
-    { 'teamserver_url' => 'a_url',
-      'org_uuid' => '12345',
-      'username' => 'contrast_user',
-      'api_key' => 'api_test',
-      'service_key' => 'service_test' }
-  end
 
   it 'does not detect without contrastsecurity service' do
     expect(component.detect).to be_nil
   end
 
   context do
+
     before do
-      allow(services).to receive(:one_service?).with(/contrast[-]?security/,
-                                                     'teamserver_url','username', 'api_key', 'service_key').and_return(true)
-      allow(services).to receive(:find_service).and_return('credentials' => :configuration)
+      allow(services).to receive(:one_service?).with(/contrast-security/, 'api_key', 'service_key', 'teamserver_url',
+                                                     'username').and_return(true)
+      allow(services).to receive(:find_service).and_return('credentials' => { 'teamserver_url' => 'a_url',
+                                                                              'org_uuid'       => '12345',
+                                                                              'username'       => 'contrast_user',
+                                                                              'api_key'        => 'api_test',
+                                                                              'service_key'    => 'service_test' })
     end
 
     it 'detects with contrastsecurity service' do
@@ -55,7 +53,7 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
     it 'updates JAVA_OPTS' do
       component.release
 
-      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/contrast_security_agent/contrast-engine-0.0.0.jar'\
+      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/contrast_security_agent/contrast-engine-0.0.0.jar' \
         '=$PWD/.java-buildpack/contrast_security_agent/contrast.config')
       expect(java_opts).to include('-Dcontrast.dir=$TMPDIR')
       expect(java_opts).to include('-Dcontrast.override.appname=test-application-name')
@@ -63,9 +61,11 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
 
     it 'created contrast.config',
        cache_fixture: 'stub-contrast-security-agent.jar' do
+
       component.compile
       expect(sandbox + 'contrast.config').to exist
     end
+
   end
 
 end

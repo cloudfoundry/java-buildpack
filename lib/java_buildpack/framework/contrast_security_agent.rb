@@ -18,6 +18,7 @@
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
+require 'java_buildpack/util/qualify_path'
 require 'rexml/document'
 
 module JavaBuildpack
@@ -25,88 +26,99 @@ module JavaBuildpack
 
     # Encapsulates the functionality for running the Contrast Security Agent support.
     class ContrastSecurityAgent < JavaBuildpack::Component::VersionedDependencyComponent
+      include JavaBuildpack::Util
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_jar(boot_class_name)
-        build_contrast_configuration
+        download_jar
         @droplet.copy_resources
+
+        write_configuration @application.services.find_service(CONTRAST_FILTER)['credentials']
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        app_name = @application.details['application_name'] || 'ROOT'
-        java_opts = @droplet.java_opts
-        java_opts.add_system_property('contrast.dir', '$TMPDIR')
-        java_opts.add_system_property('contrast.override.appname', app_name)
-        path = java_opts.qualify_path(@droplet.sandbox)
-        java_opts.add_preformatted_options("-javaagent:#{path}/#{boot_class_name}=#{path}/contrast.config")
+        @droplet.java_opts
+                .add_system_property('contrast.dir', '$TMPDIR')
+                .add_system_property('contrast.override.appname', application_name)
+                .add_preformatted_options("-javaagent:#{qualify_path(@droplet.sandbox + jar_name, @droplet.root)}=" \
+                                          "#{qualify_path(contrast_config, @droplet.root)}")
       end
 
       protected
 
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#jar_name)
+      def jar_name
+        "contrast-engine-#{@version.to_s.split('_')[0]}.jar"
+      end
+
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service?(CONTRAST_FILTER, TEAMSERVER_URL, USERNAME, API_KEY, SERVICE_KEY)
+        @application.services.one_service?(CONTRAST_FILTER, API_KEY, SERVICE_KEY, TEAMSERVER_URL, USERNAME)
       end
 
       private
 
       API_KEY = 'api_key'.freeze
-      CONTRAST_FILTER = 'contrast-security'.freeze
-      SERVICE_KEY = 'service_key'.freeze
-      TEAMSERVER_URL = 'teamserver_url'.freeze
-      USERNAME = 'username'.freeze
 
-      private_constant :API_KEY
-      private_constant :CONTRAST_FILTER
-      private_constant :SERVICE_KEY
-      private_constant :TEAMSERVER_URL
-      private_constant :USERNAME
+      CONTRAST_FILTER = 'contrast-security'.freeze
 
       PLUGIN_PACKAGE = 'com.aspectsecurity.contrast.runtime.agent.plugins.'.freeze
 
-      def credentials
-       @application.services.find_service(CONTRAST_FILTER)['credentials']
-      end
+      SERVICE_KEY = 'service_key'.freeze
 
-      def boot_class_name
-        version = @version.to_s.split('_')[0]
-        "contrast-engine-#{version}.jar"
-      end
+      TEAMSERVER_URL = 'teamserver_url'.freeze
 
-      def build_contrast_configuration
-        doc = REXML::Document.new
+      USERNAME = 'username'.freeze
+
+      private_constant :API_KEY, :CONTRAST_FILTER, :PLUGIN_PACKAGE, :SERVICE_KEY, :TEAMSERVER_URL, :USERNAME
+
+      def add_contrast(doc, credentials)
         contrast = doc.add_element('contrast')
         (contrast.add_element 'id').add_text('default')
         (contrast.add_element 'global-key').add_text(credentials[API_KEY])
-        user = contrast.add_element('user')
-        (user.add_element 'id').add_text(credentials[USERNAME])
-        (user.add_element 'key').add_text(credentials[SERVICE_KEY])
         (contrast.add_element 'url').add_text("#{credentials[TEAMSERVER_URL]}/Contrast/s/")
         (contrast.add_element 'results-mode').add_text('never')
 
-        add_plugins(contrast)
-
-        contrast_config.open(File::CREAT | File::WRONLY) { |f| f.write(doc) }
+        add_user contrast, credentials
+        add_plugins contrast
       end
 
-      def add_plugins(config)
-        plugin_package = 'com.aspectsecurity.contrast.runtime.agent.plugins.'
-        plugin_group = config.add_element('plugins')
-        (plugin_group.add_element 'plugin').add_text("#{plugin_package}.security.SecurityPlugin")
-        (plugin_group.add_element 'plugin').add_text("#{plugin_package}.architecture.ArchitecturePlugin")
-        (plugin_group.add_element 'plugin').add_text("#{plugin_package}.appupdater.ApplicationUpdatePlugin")
-        (plugin_group.add_element 'plugin').add_text("#{plugin_package}.sitemap.SitemapPlugin")
-        (plugin_group.add_element 'plugin').add_text("#{plugin_package}.frameworks.FrameworkSupportPlugin")
-        (plugin_group.add_element 'plugin').add_text("#{plugin_package}.http.HttpPlugin")
+      def add_plugins(contrast)
+        plugin_group = contrast.add_element('plugins')
+
+        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.security.SecurityPlugin")
+        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.architecture.ArchitecturePlugin")
+        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.appupdater.ApplicationUpdatePlugin")
+        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.sitemap.SitemapPlugin")
+        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.frameworks.FrameworkSupportPlugin")
+        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.http.HttpPlugin")
+      end
+
+      def add_user(contrast, credentials)
+        user = contrast.add_element('user')
+        (user.add_element 'id').add_text(credentials[USERNAME])
+        (user.add_element 'key').add_text(credentials[SERVICE_KEY])
+      end
+
+      def application_name
+        @application.details['application_name'] || 'ROOT'
       end
 
       def contrast_config
         @droplet.sandbox + 'contrast.config'
       end
 
+      def write_configuration(credentials)
+        doc = REXML::Document.new
+
+        add_contrast doc, credentials
+
+        contrast_config.open(File::CREAT | File::WRONLY) { |f| f.write(doc) }
+      end
+
     end
 
   end
+
 end
