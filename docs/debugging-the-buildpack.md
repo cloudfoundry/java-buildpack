@@ -124,7 +124,7 @@ JBP_LOG_LEVEL=DEBUG <BUILDPACK-CLONE>/bin/compile . $TMPDIR
 JBP_LOG_LEVEL=DEBUG <BUILDPACK-CLONE>/bin/release .
 ```
 
-##Aliases
+## Aliases
 
 Running the different stages of the buildpack lifecycle can be made simpler with the use of aliases and an environment variable to point at your local copy of the buildpack. The examples below pass in `.` to the scripts assuming you are calling them from the local working directory.
 

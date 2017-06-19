@@ -72,6 +72,71 @@ describe JavaBuildpack::Component::Services do
     expect(services.one_service?(/test-tag/, %w[foo bar])).not_to be
   end
 
+  it 'returns true from one_volume_service? if there is a matching name and no volume_mounts' do
+    expect(services.one_volume_service?('test-name')).not_to be
+    expect(services.one_volume_service?(/test-name/)).not_to be
+  end
+
+  it 'returns true from one_volume_service? if there is a matching label and no volume_mounts' do
+    expect(services.one_volume_service?('test-label')).not_to be
+    expect(services.one_volume_service?(/test-label/)).not_to be
+  end
+
+  it 'returns false from one_volume_service? if there is a matching tag and no volume_mounts' do
+    expect(services.one_volume_service?('test-tag')).not_to be
+    expect(services.one_volume_service?(/test-tag/)).not_to be
+  end
+
+  context do
+    let(:service) do
+      { 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+        'credentials'   => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
+        'volume_mounts' => [] }
+    end
+
+    it 'returns true from one_volume_service? if there is a matching name and empty volume_mounts' do
+      expect(services.one_volume_service?('test-name')).not_to be
+      expect(services.one_volume_service?(/test-name/)).not_to be
+    end
+
+    it 'returns true from one_volume_service? if there is a matching label and empty volume_mounts' do
+      expect(services.one_volume_service?('test-label')).not_to be
+      expect(services.one_volume_service?(/test-label/)).not_to be
+    end
+
+    it 'returns false from one_volume_service? if there is a matching tag and empty volume_mounts' do
+      expect(services.one_volume_service?('test-tag')).not_to be
+      expect(services.one_volume_service?(/test-tag/)).not_to be
+    end
+
+  end
+
+  context do
+    let(:service) do
+      { 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+        'credentials'   => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
+        'volume_mounts' => [{ 'container_dir' => '/var/vcap/data/9ae0b817-1446-4915-9990-74c1bb26f147',
+                              'device_type'   => 'shared',
+                              'mode'          => 'rw' }] }
+    end
+
+    it 'returns true from one_volume_service? if there is a matching name and empty volume_mounts' do
+      expect(services.one_volume_service?('test-name')).to be
+      expect(services.one_volume_service?(/test-name/)).to be
+    end
+
+    it 'returns true from one_volume_service? if there is a matching label and empty volume_mounts' do
+      expect(services.one_volume_service?('test-label')).to be
+      expect(services.one_volume_service?(/test-label/)).to be
+    end
+
+    it 'returns false from one_volume_service? if there is a matching tag and empty volume_mounts' do
+      expect(services.one_volume_service?('test-tag')).to be
+      expect(services.one_volume_service?(/test-tag/)).to be
+    end
+
+  end
+
   it 'returns nil from find_service? if there is no service that matches' do
     expect(services.find_service('bad-test')).to be_nil
     expect(services.find_service(/bad-test/)).to be_nil
