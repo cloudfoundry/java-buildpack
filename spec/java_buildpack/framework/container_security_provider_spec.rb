@@ -34,7 +34,7 @@ describe JavaBuildpack::Framework::ContainerSecurityProvider do
      cache_fixture: 'stub-container-security-provider.jar' do
 
     component.compile
-    expect(security_providers).to include('org.cloudfoundry.security.CloudFoundryContainerProvider')
+    expect(security_providers[1]).to eq('org.cloudfoundry.security.CloudFoundryContainerProvider')
   end
 
 end

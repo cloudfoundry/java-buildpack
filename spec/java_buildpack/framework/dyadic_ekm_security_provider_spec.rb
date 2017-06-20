@@ -91,7 +91,7 @@ describe JavaBuildpack::Framework::DyadicEkmSecurityProvider do
 
       component.compile
 
-      expect(security_providers).to include('com.dyadicsec.provider.DYCryptoProvider')
+      expect(security_providers.last).to eq('com.dyadicsec.provider.DYCryptoProvider')
     end
 
     it 'adds extension directory' do
