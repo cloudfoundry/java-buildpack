@@ -25,6 +25,7 @@ require 'java_buildpack/component/java_opts'
 require 'java_buildpack/component/mutable_java_home'
 require 'java_buildpack/component/security_providers'
 require 'java_buildpack/logging/logger_factory'
+require 'java_buildpack/util/colorize'
 require 'java_buildpack/util/configuration_utils'
 require 'java_buildpack/util/constantize'
 require 'java_buildpack/util/snake_case'
@@ -100,7 +101,7 @@ module JavaBuildpack
 
     private
 
-    BUILDPACK_MESSAGE = '-----> Java Buildpack Version: %s'.freeze
+    BUILDPACK_MESSAGE = "#{'----->'.red.bold} #{'Java Buildpack'.blue.bold} %s".freeze
 
     LOAD_ROOT = (Pathname.new(__FILE__).dirname + '..').freeze
 
