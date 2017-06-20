@@ -74,7 +74,7 @@ describe JavaBuildpack::Framework::ProtectAppSecurityProvider do
 
       component.compile
 
-      expect(security_providers).to include('com.ingrian.security.nae.IngrianProvider')
+      expect(security_providers.last).to eq('com.ingrian.security.nae.IngrianProvider')
     end
 
     it 'copies resources',

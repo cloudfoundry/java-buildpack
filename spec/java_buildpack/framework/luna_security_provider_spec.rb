@@ -115,7 +115,7 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
        cache_fixture: 'stub-luna-security-provider.tar' do
 
       component.compile
-      expect(security_providers).to include('com.safenetinc.luna.provider.LunaProvider')
+      expect(security_providers.last).to eq('com.safenetinc.luna.provider.LunaProvider')
     end
 
     it 'adds extension directory' do

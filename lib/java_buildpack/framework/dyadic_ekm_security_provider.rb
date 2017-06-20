@@ -31,7 +31,7 @@ module JavaBuildpack
         setup_ext_dir
 
         @droplet.copy_resources
-        @droplet.security_providers.insert 2, 'com.dyadicsec.provider.DYCryptoProvider'
+        @droplet.security_providers << 'com.dyadicsec.provider.DYCryptoProvider'
 
         credentials = @application.services.find_service(FILTER)['credentials']
         write_key credentials['key']
