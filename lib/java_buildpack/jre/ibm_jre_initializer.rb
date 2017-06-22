@@ -47,8 +47,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download(@version, @uri['uri'], @component_name) do |file|
-          check_sha256(file, @uri['sha256sum'])
+        download(@version, @uri, @component_name) do |file|
           with_timing "Installing #{@component_name} to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
             install_bin(@droplet.sandbox, file)
           end
@@ -91,14 +90,6 @@ module JavaBuildpack
 
         File.chmod(0o755, file.path) unless File.executable?(file.path)
         shell "#{file.path} -i silent -f #{response_file.path} 2>&1"
-      end
-
-      # Checks the SHA256 Checksum of the file
-      #
-      # @param [File] file, The downloaded file
-      # @param [String] checksum, The string containing the SHA256 of the file
-      def check_sha256(file, checksum)
-        raise 'sha256 checksum does not match' unless Digest::SHA256.hexdigest(File.read(file.path)) == checksum
       end
 
       # Returns the max heap size ('-Xmx') value
