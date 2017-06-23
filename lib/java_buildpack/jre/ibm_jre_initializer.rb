@@ -145,13 +145,13 @@ module JavaBuildpack
       # @param [Integer] value
       # @return [Integer] bytes, value of size in bytes
       def calculate_bytes(unit, value)
-        if unit == 'b' || unit == 'B'
+        if %w[b B].include?(unit)
           bytes = value
-        elsif unit == 'k' || unit == 'K'
+        elsif %w[k K].include?(unit)
           bytes = KILO * value
-        elsif unit == 'm' || unit == 'M'
+        elsif %w[m M].include?(unit)
           bytes = KILO * KILO * value
-        elsif unit == 'g' || unit == 'G'
+        elsif %w[g G].include?(unit)
           bytes = KILO * KILO * KILO * value
         else
           raise "Invalid unit '#{unit}' in memory size"
