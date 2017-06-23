@@ -31,8 +31,6 @@ describe JavaBuildpack::Jre::IbmJRE do
 
   let(:jre_configuration) { instance_double('jre_configuration') }
 
-  let(:jvmkill_agent_configuration) { {} }
-
   it 'supports anyway' do
     expect(component.supports?).to be
   end
