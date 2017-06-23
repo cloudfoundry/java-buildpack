@@ -34,16 +34,18 @@ module JavaBuildpack
       def release
         credentials = @application.services.find_service(FILTER)['credentials']
         java_opts   = @droplet.java_opts
-        java_opts.add_javaagent(@droplet.sandbox + 'Agent.jar')
-        java_opts.add_system_property('com.wily.introscope.agentProfile',
-                                      @droplet.sandbox + 'core/config/IntroscopeAgent.profile')
 
-        agent_host_name java_opts
-        agent_name java_opts, credentials
-        default_process_name java_opts
-        host_name java_opts, credentials
-        port java_opts, credentials
-        ssl_socket_factory java_opts, credentials
+        java_opts
+          .add_javaagent(agent_jar)
+          .add_system_property('com.wily.introscope.agentProfile', agent_profile)
+          .add_system_property('introscope.agent.hostName', agent_host_name)
+          .add_system_property('com.wily.introscope.agent.agentName', agent_name(credentials))
+          .add_system_property('introscope.agent.defaultProcessName', default_process_name)
+          .add_system_property('introscope.agent.enterprisemanager.transport.tcp.host.DEFAULT', host_name(credentials))
+          .add_system_property('agentManager.url.1', agent_manager(credentials))
+
+        add_port(credentials, java_opts)
+        add_socket_factory(credentials, java_opts)
       end
 
       protected
@@ -59,35 +61,55 @@ module JavaBuildpack
 
       private_constant :FILTER
 
-      def agent_host_name(java_opts)
-        java_opts.add_system_property('introscope.agent.hostName', @application.details['application_uris'][0])
+      def add_port(credentials, java_opts)
+        port = port(credentials)
+        java_opts.add_system_property('introscope.agent.enterprisemanager.transport.tcp.port.DEFAULT', port) if port
       end
 
-      def agent_name(java_opts, credentials)
-        name = credentials['agent-name'] || @configuration['default_agent_name']
-        java_opts.add_system_property('com.wily.introscope.agent.agentName', name.to_s)
+      def add_socket_factory(credentials, java_opts)
+        return unless ssl?(credentials)
+        java_opts.add_system_property('introscope.agent.enterprisemanager.transport.tcp.socketfactory.DEFAULT',
+                                      'com.wily.isengard.postofficehub.link.net.SSLSocketFactory')
       end
 
-      def default_process_name(java_opts)
-        java_opts.add_system_property('introscope.agent.defaultProcessName', @application.details['application_name'])
+      def agent_host_name
+        @application.details['application_uris'][0]
       end
 
-      def host_name(java_opts, credentials)
-        host_name = credentials['host-name']
-        raise "'host-name' credential must be set" unless host_name
-        java_opts.add_system_property 'introscope.agent.enterprisemanager.transport.tcp.host.DEFAULT', host_name
+      def agent_jar
+        @droplet.sandbox + 'Agent.jar'
       end
 
-      def port(java_opts, credentials)
-        port = credentials['port']
-        java_opts.add_system_property 'introscope.agent.enterprisemanager.transport.tcp.port.DEFAULT', port if port
+      def agent_manager(credentials)
+        agent_manager = ssl?(credentials) ? 'https://' : 'http://'
+        agent_manager += host_name(credentials)
+
+        port = port(credentials)
+        port ? "#{agent_manager}:#{port}" : agent_manager
       end
 
-      def ssl_socket_factory(java_opts, credentials)
-        return unless credentials['ssl'].to_b
+      def agent_name(credentials)
+        credentials['agent-name'] || @configuration['default_agent_name']
+      end
 
-        java_opts.add_system_property 'introscope.agent.enterprisemanager.transport.tcp.socketfactory.DEFAULT',
-                                      'com.wily.isengard.postofficehub.link.net.SSLSocketFactory'
+      def agent_profile
+        @droplet.sandbox + 'core/config/IntroscopeAgent.profile'
+      end
+
+      def default_process_name
+        @application.details['application_name']
+      end
+
+      def host_name(credentials)
+        credentials['host-name']
+      end
+
+      def port(credentials)
+        credentials['port']
+      end
+
+      def ssl?(credentials)
+        credentials['ssl'].to_b
       end
 
     end
