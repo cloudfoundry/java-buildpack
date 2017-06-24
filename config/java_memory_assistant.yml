@@ -33,4 +33,4 @@ agent:
 clean_up:
   version: 0.+
   repository_root: https://raw.githubusercontent.com/SAP/java-memory-assistant-tools/repository-cu
-  max_dump_count:
+  max_dump_count: 1
