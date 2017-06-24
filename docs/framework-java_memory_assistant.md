@@ -90,8 +90,8 @@ Normally, the filesystem of a container is ephemeral.
 That is, if your app crashes or it is shut down, the filesystem of its container is gone with it.
 And so are your precious heap dumps.
 
-To prevent heap dumps from "going down" with the container, you should consider storing them on a `volume service`
+To prevent heap dumps from "going down" with the container, you should consider storing them on a `volume service`.
 
 #### Container-mounted volumes
 
-If you are using a filesystem service that mounts persistent volumes to the container, it is enough to name one of the volume services `heap-dump` or tag one volume with `heap-dump`, and the path specified as the `heap_dump_folder` configuration will be resolved to `<mount-point>/<space_name>-<space_id[0,8]>/<application_name>-<application_id[0-8]>`.
+If you are using a filesystem service that mounts persistent volumes to the container, it is enough to name one of the volume services `heap-dump` or tag one volume with `heap-dump`, and the path specified as the `heap_dump_folder` configuration will be resolved against `<mount-point>/<space_name>-<space_id[0,8]>/<application_name>-<application_id[0-8]>`.
