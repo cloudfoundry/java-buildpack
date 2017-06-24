@@ -61,8 +61,6 @@ module JavaBuildpack
           @logger.info { "Using volume service mounted under '#{container_dir}' to store heap dumps" }
         end
 
-        heap_dump_folder = 'dumps' unless heap_dump_folder
-
         # This is needed by the clean_up module
         environment_variables.add_environment_variable 'JMA_HEAP_DUMP_FOLDER', heap_dump_folder.to_s
         @droplet.java_opts.add_system_property 'jma.heap_dump_folder', "\"#{heap_dump_folder}\""

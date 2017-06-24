@@ -20,7 +20,7 @@ The framework can be configured by modifying the [``config/java_memory_assistant
 | Name | Description
 | ---- | -----------
 | `enabled` | Whether to enable the Java Memory Assistant framework.
-| `agent.heap_dump_folder` | The folder on the container's filesystem where heap dumps are created. Default value: `$PWD/dumps`
+| `agent.heap_dump_folder` | The folder on the container's filesystem where heap dumps are created. Default value: `$PWD`
 | `agent.thresholds.<memory_area>` | This configuration allows to define thresholds for every memory area of the JVM. Thresholds can be defined in absolute percentages, e.g., `75%` creates a heap dump at 75% of the selected memory area. It is also possible to specify relative increases and decreases of memory usage: for example, `+5%/2m` will triggera heap dumpo if the particular memory area has increased by `5%` or more over the last two minutes. See below to check which memory areas are supported.
 | `agent.check_interval` | The interval between checks. Examples: `1s` (once a second), `3m` (every three minutes), `1h` (once every hour).
 | `agent.max_frequency` | Maximum amount of heap dumps that the Java Memory Assistant is allowed to create in any given amount of time. Examples: `1/30s` (one every thirty seconds), `2/3m` (two heap dumps every three minutes), `1/2h` (one heap dump every two hours). The time interval is checked every time one heap dump *should* be created, and compared with the timestamps of the previously created heap dumps to make sure that the maximum frequency is not exceeded. |
@@ -28,18 +28,14 @@ The framework can be configured by modifying the [``config/java_memory_assistant
 | `clean_up.max_dump_count` | Maximum amount of heap dumps that can be stored in the filesystem of the container; when the creation of a new heap dump would cause the threshold to be surpassed, the oldest heap dumps are removed from the file system. Default value: `1` |
 
 ### Heap Dump Names
+
 The heap dump filenames will be generated according to the following name pattern:
 
-`<SPACE-ID>_<APPLICATION-NAME>_<INSTANCE-INDEX>_%ts:yyyyMMddmmssSS%_<INSTANCE-ID>.hprof`
+`<INSTANCE-INDEX>-%ts:yyyyMMdd'T'mmssSSSZ%-<INSTANCE-ID[0,8]>.hprof`
 
-Since `<SPACE-ID>` and `<INSTANCE-INDEX>` are GUIDs and no one likes files with names over one-hundred characters, only their first 6 characters are used (à la Git). 
-The timestamp pattern `%ts:yyyyMMddmmssSS%` will generate a date like `20170102122430123` (to be read as: 2017, January 2nd at 12:24:30.123).
+The timestamp pattern `%ts:yyyyMMdd'T'mmssSSSZ%` is equivalent to the `%FT%T%z` pattern of [strftime](http://www.cplusplus.com/reference/ctime/strftime/) for [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601).
 
-This naming pattern provides meaningful natural sorting with heap dumps from many different applications belonging to different spaces.
-Notice that the addition of the `<INSTANCE-ID>` after the timestamp will tell you also if, in between two heap dumps from the instance `0` of a particular application, the container has been restarted (which causes the `<INSTANCE-ID>` to change).
-This way, you should not wonder why two apparently consecutive heap dumps seem to be impossibly different from one another, e.g., singletons that are initialized in the previous heap dump have magically disappeared from the second. 
-
-### Supported Memory Areas:
+### Supported Memory Areas
 
 | Memory Area            | Property Name    |
 |------------------------|------------------|
@@ -53,7 +49,7 @@ This way, you should not wonder why two apparently consecutive heap dumps seem t
 
 The default values can be found in the [``config/java_memory_assistant.yml``][] file.
 
-### Examples:
+### Examples
 
 Enable the Java Memory Assistant with its default settings:
 
@@ -87,7 +83,7 @@ Consider increasing the disk quota of your warden/garden container via the `cf s
 The aditional `200MB` is a rule-of-thumb, generous over-approximation of the amount of disk the buildpack and the application therein needs to run.
 If your application requires more filesystem than just a few tens of megabytes, you must increase the additional portion of the disk amount calculation accordingly.
 
-### Where to store heap dumps?
+### Where to best store heap dumps?
 
 Heap dumps are created by the Java Virtual Machine on a file on the filesystem mounted by the warden/garden container.
 Normally, the filesystem of a container is ephemeral.
@@ -98,4 +94,4 @@ To prevent heap dumps from "going down" with the container, you should consider 
 
 #### Container-mounted volumes
 
-If you are using a filesystem service that mounts persistent volumes to the container, it is enough to name one of the volume services `jbp-dumps` or tag one volume with `jbp-dumps`, and the path specified as the `heap_dump_folder` configuration will be resolved from the mount-point of that volume.
+If you are using a filesystem service that mounts persistent volumes to the container, it is enough to name one of the volume services `heap-dump` or tag one volume with `heap-dump`, and the path specified as the `heap_dump_folder` configuration will be resolved to `<mount-point>/<space_name>-<space_id[0,8]>/<application_name>-<application_id[0-8]>`.
