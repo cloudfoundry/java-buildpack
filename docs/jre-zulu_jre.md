@@ -76,10 +76,10 @@ Memory pool usage:
    PS Old Gen: init 43515904, used 247459792, committed 247463936, max 247463936
 ```
 
-If a heap dump [Volume Service][] is bound, terminal heap dumps will be written with the pattern `"<CONTAINER_DIR>/<SPACE_NAME>-<SPACE_ID>/<APPLICATION_NAME>-<APPLICATION_ID>/<INSTANCE_INDEX>-<TIMESTAMP>-<INSTANCE_ID>.hprof`
+If a heap dump [Volume Service][] is bound, terminal heap dumps will be written with the pattern `<CONTAINER_DIR>/<SPACE_NAME>-<SHORT_SPACE_ID>/<APPLICATION_NAME>-<SHORT_APPLICATION_ID>/<INSTANCE_INDEX>-<TIMESTAMP>-<SHORT_INSTANCE_ID>.hprof`
 
 ```plain
-Heapdump written to /var/vcap/data/9ae0b817-1446-4915-9990-74c1bb26f147/pcfdev-space-e91c5c39-b546-41d9-8095-9a45fa65df9e/java-main-application-892f20ab-9a53-441d-be3e-72c38f2a1055/0-2017-06-13T18:31:29+0000-7b23124e-7f0f-4a08-457b-60802d0a7326.hprof
+Heapdump written to /var/vcap/data/9ae0b817-1446-4915-9990-74c1bb26f147/pcfdev-space-e91c5c39/java-main-application-892f20ab/0-2017-06-13T18:31:29+0000-7b23124e.hprof
 ```
 
 ### Memory
