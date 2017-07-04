@@ -38,6 +38,15 @@ describe JavaBuildpack::Framework::JrebelAgent do
      app_fixture: 'framework_jrebel_app_war_with_jar' do
     expect(component.detect).to eq("jrebel-agent=#{version}")
   end
+  
+  context do
+    let(:configuration) { { 'enabled' => false } }
+    
+    it 'does not detect when not enabled',
+       app_fixture: 'framework_jrebel_app_simple' do
+      expect(component.detect).to be_nil
+    end
+  end
 
   it 'downloads the JRebel JAR and the native agent',
      app_fixture: 'framework_jrebel_app_simple',

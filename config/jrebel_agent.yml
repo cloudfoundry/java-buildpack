@@ -17,3 +17,4 @@
 ---
 version: 7.+
 repository_root: https://dl.zeroturnaround.com/jrebel
+enabled: true
