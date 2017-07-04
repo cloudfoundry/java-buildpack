@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -12,19 +13,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
----
-platform: linux
 
-image_resource:
-  type: docker-image
-  source:
-    repository: cfje/java-buildpack
+set -e -u
 
-inputs:
-- name: java-buildpack
+export GEM_HOME=$PWD/gems
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
-caches:
-- path: gems
+eval "$(rbenv init -)"
 
-run:
-  path: java-buildpack/ci/versions-pivotal-network.sh
+pushd java-buildpack
+  bundle install --quiet
+  bundle exec rake versions:json
+popd
