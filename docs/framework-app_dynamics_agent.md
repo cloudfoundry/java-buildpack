@@ -49,5 +49,5 @@ The framework can also be configured by overlaying a set of resources on the def
 [AppDynamics Service]: http://www.appdynamics.com
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [repositories]: extending-repositories.md
-[this listing]: http://download.pivotal.io.s3.amazonaws.com/app-dynamics/index.yml
+[this listing]: https://packages.appdynamics.com/java/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
