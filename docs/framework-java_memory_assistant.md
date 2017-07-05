@@ -15,7 +15,7 @@ Tags are printed to standard output by the buildpack detect script.
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [``config/java_memory_assistant.yml``][] file in the buildpack fork.
+The framework can be configured by modifying the [`config/java_memory_assistant.yml`][] file in the buildpack fork.
 
 | Name | Description
 | ---- | -----------
@@ -47,7 +47,7 @@ The timestamp pattern `%ts:yyyyMMdd'T'mmssSSSZ%` is equivalent to the `%FT%T%z` 
 | Survivor               | `survivor`         |
 | Old Generation         | `old_gen`          |
 
-The default values can be found in the [``config/java_memory_assistant.yml``][] file.
+The default values can be found in the [`config/java_memory_assistant.yml`][] file.
 
 ### Examples
 
@@ -113,3 +113,5 @@ To prevent heap dumps from "going down" with the container, you should consider 
 #### Container-mounted volumes
 
 If you are using a filesystem service that mounts persistent volumes to the container, it is enough to name one of the volume services `heap-dump` or tag one volume with `heap-dump`, and the path specified as the `heap_dump_folder` configuration will be resolved against `<mount-point>/<space_name>-<space_id[0,8]>/<application_name>-<application_id[0-8]>`.
+
+[`config/java_memory_assistant.yml`]: ../config/java_memory_assistant.yml

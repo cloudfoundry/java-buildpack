@@ -34,67 +34,64 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.java_opts.add_javaagent @droplet.sandbox + jar_name
-
-        @droplet.java_opts.add_system_property 'jma.enabled', 'true'
-        @droplet.java_opts.add_system_property 'jma.heap_dump_name', %("#{name_pattern}")
+        @droplet.java_opts
+                .add_javaagent(@droplet.sandbox + jar_name)
+                .add_system_property('jma.enabled', 'true')
+                .add_system_property('jma.heap_dump_name', %("#{name_pattern}"))
+                .add_system_property 'jma.log_level', normalized_log_level
 
         add_system_prop_if_config_present 'check_interval', 'jma.check_interval'
         add_system_prop_if_config_present 'max_frequency', 'jma.max_frequency'
 
-        @droplet.java_opts.add_system_property 'jma.log_level', log_level
+        return unless @configuration.key?('thresholds')
 
-        (@configuration['thresholds'] || {}).each do |key, value|
+        @configuration['thresholds'].each do |key, value|
           @droplet.java_opts.add_system_property "jma.thresholds.#{key}", value.to_s
         end
       end
 
       protected
 
-      def supports?
-        true
-      end
-
       # (see JavaBuildpack::Component::VersionedDependencyComponent#jar_name)
       def jar_name
         "java-memory-assistant-#{@version}.jar"
       end
 
+      def supports?
+        true
+      end
+
       private
+
+      LOG_LEVEL_MAPPING = {
+        'DEBUG' => 'DEBUG',
+        'WARN' => 'WARNING',
+        'INFO' => 'INFO',
+        'ERROR' => 'ERROR',
+        'FATAL' => 'ERROR'
+      }.freeze
+
+      private_constant :LOG_LEVEL_MAPPING
+
+      def add_system_prop_if_config_present(config_entry, system_property_name)
+        return unless @configuration.key?(config_entry)
+        @droplet.java_opts.add_system_property(system_property_name, @configuration[config_entry])
+      end
+
+      def log_level
+        @configuration['log_level'] || ENV['JBP_LOG_LEVEL'] || 'ERROR'
+      end
+
+      def normalized_log_level
+        normalized_log_level = LOG_LEVEL_MAPPING[log_level.upcase]
+        raise "Invalid value of the 'log_level' property: '#{log_level}'" unless normalized_log_level
+        normalized_log_level
+      end
 
       def name_pattern
         # Double escaping quotes of doom. Nothing less would work.
         %q(%env:CF_INSTANCE_INDEX%-%ts:yyyy-MM-dd'"'"'T'"'"'mm'"'"':'"'"'ss'"'"':'"'"'SSSZ%-) \
           '%env:CF_INSTANCE_GUID[,8]%.hprof'
-      end
-
-      def add_system_prop_if_config_present(config_entry, system_property_name, quote_value = false)
-        return unless @configuration[config_entry]
-
-        config_value = @configuration[config_entry]
-        config_value = '"' + config_value + '"' if quote_value
-
-        @droplet.java_opts.add_system_property(system_property_name, config_value)
-      end
-
-      def log_level
-        actual_log_level = @configuration['log_level'] || ENV['JBP_LOG_LEVEL'] || 'ERROR'
-
-        mapped_log_level = log_level_mapping[actual_log_level.upcase]
-
-        raise "Invalid value of the 'log_level' property: '#{actual_log_level}'" unless mapped_log_level
-
-        mapped_log_level
-      end
-
-      def log_level_mapping
-        {
-          'DEBUG' => 'DEBUG',
-          'WARN' => 'WARNING',
-          'INFO' => 'INFO',
-          'ERROR' => 'ERROR',
-          'FATAL' => 'ERROR'
-        }
       end
 
     end

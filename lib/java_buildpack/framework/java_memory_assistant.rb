@@ -28,9 +28,7 @@ module JavaBuildpack
       protected
 
       # (see JavaBuildpack::Component::ModularComponent#command)
-      def command
-        # Nothing to do here, the agent is initialized via java opts
-      end
+      def command; end
 
       # (see JavaBuildpack::Component::ModularComponent#sub_components)
       def sub_components(context)

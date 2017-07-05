@@ -28,19 +28,18 @@ module JavaBuildpack
         return unless supports?
 
         download_zip false
-
-        @droplet.copy_resources
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         return unless supports?
 
-        environment_variables = @droplet.environment_variables
-        environment_variables.add_environment_variable 'JMA_MAX_DUMP_COUNT', @configuration['max_dump_count'].to_s
+        @droplet.environment_variables
+                .add_environment_variable 'JMA_MAX_DUMP_COUNT', @configuration['max_dump_count'].to_s
 
-        @droplet.java_opts.add_system_property('jma.command.interpreter', '')
-        @droplet.java_opts.add_system_property('jma.execute.before', @droplet.sandbox + 'cleanup')
+        @droplet.java_opts
+                .add_system_property('jma.command.interpreter', '')
+                .add_system_property('jma.execute.before', @droplet.sandbox + 'cleanup')
       end
 
       protected

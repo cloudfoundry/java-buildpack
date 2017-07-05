@@ -82,13 +82,13 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantHeapDumpFolder do
 
     before do
       allow(services).to receive(:find_service).with('heap-dump')
-        .and_return('volume_mounts' =>
-          [
-            {
-              'container_dir' => '/my_volume',
-              'mode'          => 'rw'
-            }
-          ])
+                                               .and_return('volume_mounts' =>
+                                                 [
+                                                   {
+                                                     'container_dir' => '/my_volume',
+                                                     'mode'          => 'rw'
+                                                   }
+                                                 ])
     end
 
     it 'adds \'jma.heap_dump_folder\' with volume container_dir as path root', :enable_log_file, log_level: 'INFO' do
@@ -112,13 +112,13 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantHeapDumpFolder do
 
     before do
       allow(services).to receive(:find_service).with('heap-dump')
-        .and_return('volume_mounts' =>
-          [
-            {
-              'container_dir' => '/my_volume',
-              'mode'          => 'r'
-            }
-          ])
+                                               .and_return('volume_mounts' =>
+                                                 [
+                                                   {
+                                                     'container_dir' => '/my_volume',
+                                                     'mode'          => 'r'
+                                                   }
+                                                 ])
     end
 
     it 'fails if volume does not have write mode active', :enable_log_file, log_level: 'DEBUG' do
