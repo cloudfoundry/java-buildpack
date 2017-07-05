@@ -25,6 +25,7 @@ The framework can be configured by modifying the [`config/jrebel_agent.yml`][] f
 | ---- | -----------
 | `repository_root` | The URL of the JRebel repository index ([details][repositories]).
 | `version` | The version of JRebel to use. Candidate versions can be found in [this listing][].
+| `enabled` | Whether to activate JRebel (upon the presence of `rebel-remote.xml`) or not.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/jrebel_agent.yml`]: ../config/jrebel_agent.yml
