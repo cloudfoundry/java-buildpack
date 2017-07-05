@@ -33,7 +33,7 @@ The heap dump filenames will be generated according to the following name patter
 
 `<INSTANCE-INDEX>-%ts:yyyyMMdd'T'mmssSSSZ%-<INSTANCE-ID[0,8]>.hprof`
 
-The timestamp pattern `%ts:yyyyMMdd'T'mmssSSSZ%` is equivalent to the `%FT%T%z` pattern of [strftime](http://www.cplusplus.com/reference/ctime/strftime/) for [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601).
+The timestamp pattern `%ts:yyyyMMdd'T'mmssSSSZ%` is equivalent to the `%FT%T%z` pattern of [strftime](http://www.cplusplus.com/reference/ctime/strftime/) for [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601).  The default naming convention matches the [`jvmkill`][] naming convention.
 
 ### Supported Memory Areas
 
@@ -112,6 +112,7 @@ To prevent heap dumps from "going down" with the container, you should consider 
 
 #### Container-mounted volumes
 
-If you are using a filesystem service that mounts persistent volumes to the container, it is enough to name one of the volume services `heap-dump` or tag one volume with `heap-dump`, and the path specified as the `heap_dump_folder` configuration will be resolved against `<mount-point>/<space_name>-<space_id[0,8]>/<application_name>-<application_id[0-8]>`.
+If you are using a filesystem service that mounts persistent volumes to the container, it is enough to name one of the volume services `heap-dump` or tag one volume with `heap-dump`, and the path specified as the `heap_dump_folder` configuration will be resolved against `<mount-point>/<space_name>-<space_id[0,8]>/<application_name>-<application_id[0-8]>`. The default directory convention matches the [`jvmkill`][] directory convention.
 
 [`config/java_memory_assistant.yml`]: ../config/java_memory_assistant.yml
+[`jvmkill`]: jre-open_jdk_jre.md#jvmkill
