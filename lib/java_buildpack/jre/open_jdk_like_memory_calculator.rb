@@ -43,8 +43,7 @@ module JavaBuildpack
           memory_calculator.chmod 0o755
 
           puts "       Loaded Classes: #{class_count @configuration}, " \
-               "Threads: #{stack_threads @configuration}, " \
-               "JAVA_OPTS: '#{java_opts}'"
+               "Threads: #{stack_threads @configuration}"
         end
       end
 
@@ -53,13 +52,12 @@ module JavaBuildpack
       # @return [String] the memory calculation command
       def memory_calculation_command
         "CALCULATED_MEMORY=$(#{memory_calculation_string(@droplet.root)}) && " \
-        'echo JVM Memory Configuration: $CALCULATED_MEMORY'
+        'echo JVM Memory Configuration: $CALCULATED_MEMORY && ' \
+        'JAVA_OPTS="$JAVA_OPTS $CALCULATED_MEMORY"'
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
-      def release
-        @droplet.java_opts.add_preformatted_options '$CALCULATED_MEMORY'
-      end
+      def release; end
 
       protected
 
@@ -85,10 +83,6 @@ module JavaBuildpack
         configuration['class_count'] || (0.35 * actual_class_count(root)).ceil
       end
 
-      def java_opts
-        ENV['JAVA_OPTS']
-      end
-
       def memory_calculator
         @droplet.sandbox + "bin/java-buildpack-memory-calculator-#{@version}"
       end
@@ -104,7 +98,7 @@ module JavaBuildpack
         memory_calculation_string << "-stackThreads=#{stack_threads @configuration}"
         memory_calculation_string << "-loadedClasses=#{class_count @configuration}"
         memory_calculation_string << "-poolType=#{pool_type}"
-        memory_calculation_string << "-vmOptions='#{java_opts}'" if java_opts
+        memory_calculation_string << '-vmOptions="$JAVA_OPTS"'
 
         memory_calculation_string.join(' ')
       end

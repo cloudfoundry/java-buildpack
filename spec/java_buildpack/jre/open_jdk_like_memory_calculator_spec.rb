@@ -75,13 +75,7 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
 
   end
 
-  it 'adds $CALCULATED_MEMORY to the JAVA_OPTS' do
-    component.release
-
-    expect(java_opts).to include('$CALCULATED_MEMORY')
-  end
-
-  it 'creates memory calculation command without vm options specified',
+  it 'creates memory calculation command',
      app_fixture: 'jre_memory_calculator_application' do
 
     java_home.version = version_8
@@ -90,27 +84,8 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
 
     expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
                             'java-buildpack-memory-calculator-0.0.0 -totMemory=$MEMORY_LIMIT -stackThreads=200 ' \
-                            '-loadedClasses=2 -poolType=metaspace) && echo JVM Memory Configuration: ' \
-                            '$CALCULATED_MEMORY')
-  end
-
-  context do
-
-    let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
-
-    it 'creates memory calculation command with vm options specified',
-       app_fixture: 'jre_memory_calculator_application' do
-
-      java_home.version = version_8
-
-      command = component.memory_calculation_command
-
-      expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
-                            'java-buildpack-memory-calculator-0.0.0 -totMemory=$MEMORY_LIMIT -stackThreads=200 ' \
-                            '-loadedClasses=2 -poolType=metaspace -vmOptions=\'-Dalpha=bravo\') && echo JVM Memory ' \
-                            'Configuration: $CALCULATED_MEMORY')
-    end
-
+                            '-loadedClasses=2 -poolType=metaspace -vmOptions="$JAVA_OPTS") && echo JVM Memory ' \
+                            'Configuration: $CALCULATED_MEMORY && JAVA_OPTS="$JAVA_OPTS $CALCULATED_MEMORY"')
   end
 
 end

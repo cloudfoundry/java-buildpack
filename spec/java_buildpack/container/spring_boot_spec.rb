@@ -68,8 +68,7 @@ describe JavaBuildpack::Container::SpringBoot do
   it 'returns command',
      app_fixture: 'container_spring_boot_staged' do
 
-    expect(component.release).to eq("#{env_vars_str} #{java_home.as_env_var} " \
-                                      "JAVA_OPTS=#{java_opts_str} exec $PWD/bin/application")
+    expect(component.release).to eq("#{env_vars_str} #{java_home.as_env_var} exec $PWD/bin/application")
   end
 
   def env_vars_str

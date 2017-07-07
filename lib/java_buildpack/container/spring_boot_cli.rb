@@ -49,7 +49,6 @@ module JavaBuildpack
         [
           @droplet.environment_variables.as_env_vars,
           @droplet.java_home.as_env_var,
-          @droplet.java_opts.as_env_var,
           'exec',
           qualify_path(@droplet.sandbox + 'bin/spring', @droplet.root),
           'run',

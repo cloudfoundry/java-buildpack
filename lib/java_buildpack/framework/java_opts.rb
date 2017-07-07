@@ -26,7 +26,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
-        supports_configuration? || supports_environment? ? JavaOpts.to_s.dash_case : nil
+        JavaOpts.to_s.dash_case
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -34,7 +34,14 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.java_opts.concat parsed_java_opts
+        configured
+          .shellsplit
+          .map { |java_opt| /(?<key>.+?)=(?<value>.+)/ =~ java_opt ? "#{key}=#{escape_value(value)}" : java_opt }
+          .each { |java_opt| @droplet.java_opts << java_opt }
+
+        @droplet.java_opts << '$JAVA_OPTS' if from_environment?
+
+        @droplet.java_opts.as_env_var
       end
 
       private
@@ -43,39 +50,22 @@ module JavaBuildpack
 
       ENVIRONMENT_PROPERTY = 'from_environment'.freeze
 
-      ENVIRONMENT_VARIABLE = 'JAVA_OPTS'.freeze
+      private_constant :CONFIGURATION_PROPERTY, :ENVIRONMENT_PROPERTY
 
-      private_constant :CONFIGURATION_PROPERTY, :ENVIRONMENT_PROPERTY, :ENVIRONMENT_VARIABLE
-
-      def parsed_java_opts
-        parsed_java_opts = []
-
-        parsed_java_opts.concat @configuration[CONFIGURATION_PROPERTY].shellsplit if supports_configuration?
-        parsed_java_opts.concat ENV[ENVIRONMENT_VARIABLE].shellsplit if supports_environment?
-
-        parsed_java_opts.map do |java_opt|
-          if /(?<key>.+?)=(?<value>.+)/ =~ java_opt
-            "#{key}=#{parse_shell_string(value)}"
-          else
-            java_opt
-          end
-        end
+      def configured
+        @configuration[CONFIGURATION_PROPERTY] || ''
       end
 
-      def parse_shell_string(str)
+      def escape_value(str)
         return "''" if str.empty?
-        str = str.dup
-        str.gsub!(%r{([^A-Za-z0-9_\-.,:\/@\n$\\])}, '\\\\\\1')
-        str.gsub!(/\n/, "'\n'")
+
         str
+          .gsub(%r{([^A-Za-z0-9_\-.,:\/@\n$\\])}, '\\\\\\1')
+          .gsub(/\n/, "'\n'")
       end
 
-      def supports_configuration?
-        @configuration.key?(CONFIGURATION_PROPERTY) && !@configuration[CONFIGURATION_PROPERTY].nil?
-      end
-
-      def supports_environment?
-        @configuration[ENVIRONMENT_PROPERTY] && ENV.key?(ENVIRONMENT_VARIABLE)
+      def from_environment?
+        @configuration[ENVIRONMENT_PROPERTY]
       end
 
     end

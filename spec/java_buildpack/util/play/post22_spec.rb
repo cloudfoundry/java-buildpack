@@ -47,23 +47,7 @@ describe JavaBuildpack::Util::Play::Post22 do
 
     it 'returns command' do
       expect(play_app.release).to eq('test-var-2 test-var-1 PATH=$PWD/.test-java-home/bin:$PATH ' \
-      "#{java_home.as_env_var} exec $PWD/bin/play-application -Jtest-opt-2 -Jtest-opt-1 -J-Dhttp.port=$PORT")
-    end
-
-    context do
-      let(:java_opts) { super() << '-Xmx30m -Xms30m' }
-
-      it 'does not allow multiple options in a single JAVA_OPTS array entry' do
-        expect { play_app.release }.to raise_error(/Invalid Java option contains more than one option/)
-      end
-    end
-
-    context do
-      let(:java_opts) { super() << '$CALCULATED_MEMORY' }
-
-      it 'does wraps the output of CALCULATED_MEMORY correctly' do
-        expect(play_app.release).to include('${CALCULATED_MEMORY//-/-J-}')
-      end
+      "#{java_home.as_env_var} exec $PWD/bin/play-application ${JAVA_OPTS//-/-J-}")
     end
 
     context do
