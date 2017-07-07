@@ -44,7 +44,9 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT'
+        @droplet.environment_variables
+                .add_environment_variable('JAVA_OPTS', '$JAVA_OPTS')
+                .add_environment_variable('SERVER_PORT', '$PORT')
 
         [
           @droplet.environment_variables.as_env_vars,

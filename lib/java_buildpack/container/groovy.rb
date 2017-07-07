@@ -49,6 +49,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        @droplet.environment_variables.add_environment_variable 'JAVA_OPTS', '$JAVA_OPTS'
         add_libs
 
         [
