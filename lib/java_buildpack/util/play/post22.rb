@@ -39,15 +39,7 @@ module JavaBuildpack
 
         # (see JavaBuildpack::Util::Play::Base#java_opts)
         def java_opts
-          java_opts = @droplet.java_opts
-
-          java_opts.each do |option|
-            next unless option.shellsplit.length > 1 && !bash_expression?(option)
-
-            raise "Invalid Java option contains more than one option: '#{option}'"
-          end
-
-          java_opts.map { |option| option == '$CALCULATED_MEMORY' ? '${CALCULATED_MEMORY//-/-J-}' : "-J#{option}" }
+          '${JAVA_OPTS//-/-J-}'
         end
 
         # (see JavaBuildpack::Util::Play::Base#lib_dir)

@@ -103,7 +103,7 @@ describe JavaBuildpack::Util::Play::Pre22Staged do
 
     it 'returns command' do
       expect(play_app.release).to eq('test-var-2 test-var-1 PATH=$PWD/.test-java-home/bin:$PATH ' \
-                                     "#{java_home.as_env_var} exec $PWD/start test-opt-2 test-opt-1 -Dhttp.port=$PORT")
+                                     "#{java_home.as_env_var} exec $PWD/start $JAVA_OPTS")
     end
 
   end

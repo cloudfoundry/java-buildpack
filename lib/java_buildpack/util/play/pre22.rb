@@ -26,7 +26,7 @@ module JavaBuildpack
 
         # (see JavaBuildpack::Util::Play::Base#java_opts)
         def java_opts
-          @droplet.java_opts
+          '$JAVA_OPTS'
         end
 
         # (see JavaBuildpack::Util::Play::Base#start_script)

@@ -72,8 +72,6 @@ module JavaBuildpack
 
       def release_text(classpath)
         [
-          @droplet.java_opts.as_env_var,
-          '&&',
           @droplet.environment_variables.as_env_vars,
           'eval',
           'exec',

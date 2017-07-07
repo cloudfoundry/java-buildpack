@@ -129,8 +129,8 @@ describe JavaBuildpack::Buildpack do
     expect(buildpack.release)
       .to eq({ 'addons'                => [],
                'config_vars'           => {},
-               'default_process_types' => { 'web'  => 'test-command',
-                                            'task' => 'test-command' } }.to_yaml)
+               'default_process_types' => { 'web'  => 'JAVA_OPTS="" && test-command',
+                                            'task' => 'JAVA_OPTS="" && test-command' } }.to_yaml)
   end
 
   it 'loads configuration file matching JRE class name' do
