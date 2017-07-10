@@ -38,7 +38,8 @@ module JavaBuildpack
         apply_user_configuration(credentials, configuration)
         write_java_opts(java_opts, configuration)
 
-        java_opts.add_javaagent(@droplet.sandbox + jar_name)
+        # java_opts.add_javaagent(@droplet.sandbox + jar_name)
+        java_opts.add_javaagent(@droplet.sandbox + 'newrelic_vertx.jar')
                  .add_system_property('newrelic.home', @droplet.sandbox)
         java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
       end
