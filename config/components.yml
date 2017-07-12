@@ -58,3 +58,4 @@ frameworks:
   - "JavaBuildpack::Framework::YourKitProfiler"
   - "JavaBuildpack::Framework::JavaOpts"
   - "JavaBuildpack::Framework::LanguageServerBinExecJDT"
+  - "JavaBuildpack::Framework::LanguageServerNodeCDX"
