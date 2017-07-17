@@ -15,12 +15,13 @@
 
 require 'java_buildpack/component/modular_component'
 require 'java_buildpack/container'
+require 'java_buildpack/container/tomcat/tomcat_access_logging_support'
+require 'java_buildpack/container/tomcat/tomcat_external_configuration'
+require 'java_buildpack/container/tomcat/tomcat_geode_store'
 require 'java_buildpack/container/tomcat/tomcat_insight_support'
 require 'java_buildpack/container/tomcat/tomcat_instance'
-require 'java_buildpack/container/tomcat/tomcat_external_configuration'
 require 'java_buildpack/container/tomcat/tomcat_lifecycle_support'
 require 'java_buildpack/container/tomcat/tomcat_logging_support'
-require 'java_buildpack/container/tomcat/tomcat_access_logging_support'
 require 'java_buildpack/container/tomcat/tomcat_redis_store'
 require 'java_buildpack/util/java_main_utils'
 
@@ -50,9 +51,10 @@ module JavaBuildpack
       def sub_components(context)
         components = [
           TomcatInstance.new(sub_configuration_context(context, 'tomcat')),
+          TomcatAccessLoggingSupport.new(sub_configuration_context(context, 'access_logging_support')),
+          TomcatGeodeStore.new(sub_configuration_context(context, 'geode_store')),
           TomcatLifecycleSupport.new(sub_configuration_context(context, 'lifecycle_support')),
           TomcatLoggingSupport.new(sub_configuration_context(context, 'logging_support')),
-          TomcatAccessLoggingSupport.new(sub_configuration_context(context, 'access_logging_support')),
           TomcatRedisStore.new(sub_configuration_context(context, 'redis_store')),
           TomcatInsightSupport.new(context)
         ]
