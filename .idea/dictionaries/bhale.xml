@@ -6,7 +6,6 @@
       <w>appdynamics</w>
       <w>applicationid</w>
       <w>argv</w>
-      <w>aspectsecurity</w>
       <w>atpack</w>
       <w>bootclasspath</w>
       <w>buildpack</w>
@@ -100,7 +99,6 @@
       <w>stubjre</w>
       <w>submodules</w>
       <w>tasklib</w>
-      <w>teamserver</w>
       <w>tenanttoken</w>
       <w>tmpdir</w>
       <w>tokenized</w>

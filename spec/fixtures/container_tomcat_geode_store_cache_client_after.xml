@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<client-cache xmlns='http://geode.apache.org/schema/cache' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd' version='1.0'>
+    <pool name='sessions' subscription-enabled='true'>
+        <locator host='some-locator' port='some-port'/>
+        <locator host='some-other-locator' port='some-other-port'/>
+    </pool>
+    <function-service>
+        <function>
+            <class-name>org.apache.geode.modules.util.CreateRegionFunction</class-name>
+        </function>
+        <function>
+            <class-name>org.apache.geode.modules.util.TouchPartitionedRegionEntriesFunction</class-name>
+        </function>
+        <function>
+            <class-name>org.apache.geode.modules.util.TouchReplicatedRegionEntriesFunction</class-name>
+        </function>
+        <function>
+            <class-name>org.apache.geode.modules.util.RegionSizeFunction</class-name>
+        </function>
+    </function-service>
+</client-cache>
