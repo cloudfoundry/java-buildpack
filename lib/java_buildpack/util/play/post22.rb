@@ -39,7 +39,7 @@ module JavaBuildpack
 
         # (see JavaBuildpack::Util::Play::Base#java_opts)
         def java_opts
-          '${JAVA_OPTS//-/-J-}'
+          '$(for I in $JAVA_OPTS ; do echo "-J$I" ; done)'
         end
 
         # (see JavaBuildpack::Util::Play::Base#lib_dir)

@@ -47,7 +47,7 @@ describe JavaBuildpack::Util::Play::Post22 do
 
     it 'returns command' do
       expect(play_app.release).to eq('test-var-2 test-var-1 PATH=$PWD/.test-java-home/bin:$PATH ' \
-      "#{java_home.as_env_var} exec $PWD/bin/play-application ${JAVA_OPTS//-/-J-}")
+      "#{java_home.as_env_var} exec $PWD/bin/play-application $(for I in $JAVA_OPTS ; do echo \"-J$I\" ; done)")
     end
 
     context do
