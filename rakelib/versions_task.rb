@@ -179,9 +179,12 @@ module Package
         index_configuration(configuration).each do |index_configuration|
           version, uri = get_from_cache(cache, configuration, index_configuration)
 
+          name = NAME_MAPPINGS[id]
+          raise "Unable to resolve name for '#{id}'" unless name
+
           dependency_versions << {
             'id'      => id,
-            'name'    => NAME_MAPPINGS[id] || "UNKNOWN (#{id})",
+            'name'    => name,
             'uri'     => uri,
             'version' => version
           }
