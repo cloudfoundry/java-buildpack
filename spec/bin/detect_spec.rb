@@ -24,7 +24,7 @@ describe 'detect script', :integration do # rubocop:disable RSpec/DescribeClass
 
     run("bin/detect #{app_dir}") do |status|
       expect(status).to be_success
-      expect(stdout.string.rstrip.length).to be < 255
+      expect(stdout.string.rstrip.length).to be <= 255
     end
   end
 
