@@ -50,13 +50,17 @@ module Package
 
     NAME_MAPPINGS = {
       'access_logging_support'              => 'Tomcat Access Logging Support',
+      'agent'                               => 'Java Memory Assistant Agent',
       'app_dynamics_agent'                  => 'AppDynamics Agent',
+      'clean_up'                            => 'Java Memory Assistant Clean Up',
+      'client_certificate_mapper'           => 'Client Certificate Mapper',
       'container_customizer'                => 'Spring Boot Container Customizer',
       'container_security_provider'         => 'Container Security Provider',
       'contrast_security_agent'             => 'Contrast Security Agent',
       'dyadic_ekm_security_provider'        => 'Dyadic EKM Security Provider',
       'dynatrace_appmon_agent'              => 'Dynatrace Appmon Agent',
       'dynatrace_one_agent'                 => 'Dynatrace OneAgent',
+      'geode_store'                         => 'Apache Geode Tomcat Session Store',
       'google_stackdriver_debugger'         => 'Google Stackdriver Debugger',
       'groovy'                              => 'Groovy',
       'jre'                                 => 'OpenJDK JRE',
@@ -180,9 +184,12 @@ module Package
         index_configuration(configuration).each do |index_configuration|
           version, uri = get_from_cache(cache, configuration, index_configuration)
 
+          name = NAME_MAPPINGS[id]
+          raise "Unable to resolve name for '#{id}'" unless name
+
           dependency_versions << {
             'id'      => id,
-            'name'    => NAME_MAPPINGS[id] || "UNKNOWN (#{id})",
+            'name'    => name,
             'uri'     => uri,
             'version' => version
           }
