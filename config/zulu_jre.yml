@@ -28,4 +28,5 @@ jvmkill_agent:
 memory_calculator:
   version: 3.+
   repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
+  class_count: 
   stack_threads: 300
