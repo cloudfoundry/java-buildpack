@@ -17,18 +17,18 @@ enabled: false
 agent:
   version: 0.+
   repository_root: https://raw.githubusercontent.com/SAP/java-memory-assistant/repository
-  heap_dump_folder:
+  heap_dump_folder: 
   check_interval: 5s
   max_frequency: 1/1m
-  log_level:
+  log_level: 
   thresholds:
-    heap:
-    code_cache:
-    metaspace:
-    perm_gen:
-    compressed_class:
-    eden:
-    survivor:
+    heap: 
+    code_cache: 
+    metaspace: 
+    perm_gen: 
+    compressed_class: 
+    eden: 
+    survivor: 
     old_gen: ">600MB"
 clean_up:
   version: 0.+
