@@ -1,5 +1,5 @@
-# Introscope Agent Framework
-The Introscope Agent Framework causes an application to be automatically configured to work with a bound [Introscope service][].  **Note:** This framework is disabled by default.
+# CA Introscope APM Framework
+The CA Introscope APM Framework causes an application to be automatically configured to work with a bound [Introscope service][].
 
 <table>
   <tr>
@@ -24,9 +24,8 @@ The credential payload of the service may contain the following entries:
 | Name | Description
 | ---- | -----------
 | `agent-name` | (Optional) The name that should be given to this instance of the Introscope agent
-| `host-name` | The host name of the Introscope Enterprise Manager server
-| `ssl` | (Optional) Whether or not to use an SSL connection to the Introscope Enterprise Manager server
-| `port` | (Optional) The port of the Introscope Enterprise Manager server
+| `url` | The url of the Introscope Enterprise Manager server
+
 
 To provide more complex values such as the `agent-name`, using the interactive mode when creating a user-provided service will manage the character escaping automatically. For example, the default `agent-name` could be set with a value of `agent-$(expr "$VCAP_APPLICATION" : '.*application_name[": ]*\([[:word:]]*\).*')` to calculate a value from the Cloud Foundry application name.
 
