@@ -1,0 +1,8 @@
+name: VertxCustom
+version: 1.0
+enabled: true
+jmx:
+  - object_name: fleet-analytics:name=*
+    metrics:
+      - attributes: Count
+        type: simple
