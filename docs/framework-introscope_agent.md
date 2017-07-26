@@ -1,5 +1,5 @@
-# CA APM Framework
-The CA APM Framework causes an application to be automatically configured to work with a bound [Introscope service][].
+# CA Introscope APM Framework
+The CA Introscope APM Framework causes an application to be automatically configured to work with a bound [Introscope service][].
 
 <table>
   <tr>
