@@ -38,17 +38,26 @@ module JavaBuildpack
         java_opts.add_agentpath(@droplet.sandbox + 'lib/libTakipiAgent.so')
         application_name java_opts
         default_env_vars
-        config_env_vars
+        credentials = @application.services.find_service(FILTER)['credentials']
+        config_env_vars credentials
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @configuration['secret_key'] || @configuration['collector_host']
+        @application.services.one_service? FILTER, [SECRET_KEY, COLLECTOR_HOST]
       end
 
       private
+
+      FILTER = /takipi/
+
+      SECRET_KEY = 'secret_key'.freeze
+
+      COLLECTOR_HOST = 'collector_host'.freeze
+
+      private_constant :FILTER
 
       def jvm_lib_file
         @droplet.java_home.root + 'lib/amd64/server/libjvm.so'
@@ -67,15 +76,17 @@ module JavaBuildpack
         env.add_environment_variable('TAKIPI_MACHINE_NAME', node_name)
       end
 
-      def config_env_vars
+      def config_env_vars(credentials)
         env = @droplet.environment_variables
 
-        @configuration['secret_key'] &&
-          env.add_environment_variable('TAKIPI_SECRET_KEY', @configuration['secret_key'].to_s)
-        @configuration['collector_host'] &&
-          env.add_environment_variable('TAKIPI_MASTER_HOST', @configuration['collector_host'].to_s)
-        @configuration['collector_port'] &&
-          env.add_environment_variable('TAKIPI_MASTER_PORT', @configuration['collector_port'].to_s)
+        secret_key = credentials['secret_key']
+        env.add_environment_variable 'TAKIPI_SECRET_KEY', secret_key if secret_key
+
+        collector_host = credentials['collector_host']
+        env.add_environment_variable 'TAKIPI_MASTER_HOST', collector_host if collector_host
+
+        collector_port = credentials['collector_port']
+        env.add_environment_variable 'TAKIPI_MASTER_PORT', collector_port if collector_port
       end
 
       def application_name(java_opts)
@@ -84,11 +95,7 @@ module JavaBuildpack
       end
 
       def node_name
-        if @configuration['node_name_prefix'] && !@configuration['node_name_prefix'].empty?
-          "#{@configuration['node_name_prefix']}-$CF_INSTANCE_INDEX"
-        else
-          %q|$(ruby -rjson -e "puts JSON.parse(ENV['VCAP_APPLICATION'])['instance_id']")|
-        end
+        "#{@configuration['node_name_prefix']}-$CF_INSTANCE_INDEX"
       end
 
     end

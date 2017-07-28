@@ -21,14 +21,23 @@ require 'java_buildpack/util/find_single_directory'
 describe JavaBuildpack::Framework::TakipiAgent do
   include_context 'component_helper'
 
+  let(:configuration) do
+    {
+      'node_name_prefix' => nil
+    }
+  end
+
+  it 'does not detect without takipi-n/a service' do
+    expect(component.detect).to be_nil
+  end
+
   context do
-    let(:configuration) do
-      {
-        'uri' => 'test-uri',
-        'secret_key' => 'test-secret',
-        'collector_host' => 'test-host',
-        'collector_port' => 'test-port'
-      }
+
+    let(:credentials) { {} }
+
+    before do
+      allow(services).to receive(:one_service?).with(/takipi/, %w[secret_key collector_host]).and_return(true)
+      allow(services).to receive(:find_service).and_return('credentials' => credentials)
     end
 
     it 'expands Takipi agent tarball',
@@ -47,42 +56,50 @@ describe JavaBuildpack::Framework::TakipiAgent do
       expect(component.send(:find_single_directory)).not_to be_nil
     end
 
-    it 'updates JAVA_OPTS' do
-      component.release
-      expect(java_opts).to include('-agentlib:TakipiAgent')
-      expect(java_opts).to include('-Dtakipi.name=test-application-name')
-    end
+    context do
+      let(:credentials) { { 'collector_host' => 'test-host' } }
 
-    it 'updates default environment variables' do
-      component.release
-
-      expect(environment_variables).to include('LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/.java-buildpack/takipi_agent/lib')
-      expect(environment_variables).to include('JVM_LIB_FILE=$PWD/.test-java-home/lib/amd64/server/libjvm.so')
-      expect(environment_variables).to include('TAKIPI_HOME=$PWD/.java-buildpack/takipi_agent')
-    end
-
-    it 'updates user environment variables' do
-      component.release
-
-      expect(environment_variables).to include('TAKIPI_SECRET_KEY=test-secret')
-      expect(environment_variables).to include('TAKIPI_MASTER_HOST=test-host')
-      expect(environment_variables).to include('TAKIPI_MASTER_PORT=test-port')
-    end
-
-    context 'configuration overrides' do
-
-      let(:configuration) do
-        { 'node_name_prefix' => 'test-name',
-          'application_name' => 'test-name' }
-      end
-
-      it 'updates JAVA_OPTS' do
+      it 'updates default environment variables' do
         component.release
-        expect(java_opts).to include('-agentlib:TakipiAgent')
-        expect(java_opts).to include('-Dtakipi.name=test-name')
+
+        expect(environment_variables)
+          .to include('LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/.java-buildpack/takipi_agent/lib')
+        expect(environment_variables).to include('JVM_LIB_FILE=$PWD/.test-java-home/lib/amd64/server/libjvm.so')
+        expect(environment_variables).to include('TAKIPI_HOME=$PWD/.java-buildpack/takipi_agent')
       end
 
+      it 'updates user environment variables' do
+        component.release
+
+        expect(environment_variables).to include('TAKIPI_MASTER_HOST=test-host')
+      end
+
+      context 'secret key' do
+        let(:credentials) { super().merge 'secret_key' => 'test-key' }
+
+        it 'secret key set' do
+          component.release
+
+          expect(environment_variables).to include('TAKIPI_SECRET_KEY=test-key')
+        end
+      end
+
+      context 'configuration overrides' do
+
+        let(:configuration) do
+          { 'node_name_prefix' => 'test-name',
+            'application_name' => 'test-name' }
+        end
+
+        it 'update application name' do
+          component.release
+          expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/takipi_agent/lib/libTakipiAgent.so')
+          expect(java_opts).to include('-Dtakipi.name=test-name')
+        end
+
+      end
     end
+
   end
 
 end
