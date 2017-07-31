@@ -29,7 +29,9 @@ module JavaBuildpack
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
-      def compile; end
+      def compile
+        puts "-----> JMX Enabled on port #{port}"
+      end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release

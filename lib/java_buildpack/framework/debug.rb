@@ -29,7 +29,9 @@ module JavaBuildpack
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
-      def compile; end
+      def compile
+        puts "-----> Debugging Enabled on port #{port}#{', suspended on start' if @configuration['suspend']}"
+      end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
