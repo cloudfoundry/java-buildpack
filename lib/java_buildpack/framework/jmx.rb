@@ -25,7 +25,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
-        enabled? ? "#{Jmx.to_s.dash_case}=#{port}" : nil
+        enabled? ? "#{self.class.to_s.dash_case}=#{port}" : nil
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
