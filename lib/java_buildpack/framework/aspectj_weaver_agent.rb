@@ -54,7 +54,8 @@ module JavaBuildpack
       def aop_xml_exist?
         (@application.root + 'BOOT-INF/classes/META-INF/aop.xml').exist? ||
           (@application.root + 'BOOT-INF/classes/org/aspectj/aop.xml').exist? ||
-          (@application.root + 'META-INF/aop.xml').exist?
+          (@application.root + 'META-INF/aop.xml').exist? ||
+          (@application.root + 'org/aspectj/aop.xml').exist?
       end
 
       def enabled?
