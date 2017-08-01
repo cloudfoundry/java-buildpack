@@ -33,14 +33,14 @@ describe JavaBuildpack::Framework::AspectjWeaverAgent do
       expect(component.detect).to be_nil
     end
 
-    it 'detects when aop.xml in classes',
-       app_fixture: 'framework_aspectj_weaver_classes' do
+    it 'detects when aop.xml in BOOT-INF classes',
+       app_fixture: 'framework_aspectj_weaver_boot_inf_classes' do
 
       expect(component.detect).to eq('aspectj-weaver-agent=1.8.10')
     end
 
-    it 'detects when aop.xml in classes/META-INF',
-       app_fixture: 'framework_aspectj_weaver_classes_meta_inf' do
+    it 'detects when aop.xml in BOOT-INF/classes/META-INF',
+       app_fixture: 'framework_aspectj_weaver_boot_inf_classes_meta_inf' do
 
       expect(component.detect).to eq('aspectj-weaver-agent=1.8.10')
     end
@@ -57,8 +57,14 @@ describe JavaBuildpack::Framework::AspectjWeaverAgent do
       expect(component.detect).to eq('aspectj-weaver-agent=1.8.10')
     end
 
-    it 'adds java agent',
+    it 'detects when aop.xml in classes',
        app_fixture: 'framework_aspectj_weaver_classes' do
+
+      expect(component.detect).to eq('aspectj-weaver-agent=1.8.10')
+    end
+
+    it 'adds java agent',
+       app_fixture: 'framework_aspectj_weaver_boot_inf_classes' do
 
       component.release
       expect(java_opts).to include('-javaagent:$PWD/BOOT-INF/lib/aspectjweaver-1.8.10.jar')

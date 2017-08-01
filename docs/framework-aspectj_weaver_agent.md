@@ -4,7 +4,7 @@ The AspectJ Weaver Agent Framework configures the AspectJ Runtime Weaving Agent 
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td><tt>aspectjweaver-*.jar</tt> existing and <tt>BOOT-INF/classes/META-INF/aop.xml</tt>, <tt>BOOT-INF/classes/org/aspectj/aop.xml</tt>, or <tt>META-INF/aop.xml</tt> existing.</td>
+    <td><tt>aspectjweaver-*.jar</tt> existing and <tt>BOOT-INF/classes/META-INF/aop.xml</tt>, <tt>BOOT-INF/classes/org/aspectj/aop.xml</tt>, <tt>META-INF/aop.xml</tt>, or <tt>org/aspectj/aop.xml</tt> existing.</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
