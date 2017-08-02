@@ -105,9 +105,9 @@ module JavaBuildpack
         socket_factory_base = 'com.wily.isengard.postofficehub.link.net.'
 
         protocol_socket_factory = {
-          '' => socket_factory_base + 'DefaultSocketFactory',
-          'ssl' => socket_factory_base + 'SSLSocketFactory',
-          'http' => socket_factory_base + 'HttpTunnelingSocketFactory',
+          ''      => socket_factory_base + 'DefaultSocketFactory',
+          'ssl'   => socket_factory_base + 'SSLSocketFactory',
+          'http'  => socket_factory_base + 'HttpTunnelingSocketFactory',
           'https' => socket_factory_base + 'HttpsTunnelingSocketFactory'
         }
 
