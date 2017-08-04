@@ -63,6 +63,7 @@ module Package
       'geode_store'                         => 'Apache Geode Tomcat Session Store',
       'google_stackdriver_debugger'         => 'Google Stackdriver Debugger',
       'groovy'                              => 'Groovy',
+      'introscope_agent'                    => 'CA Introscope APM Framework',
       'jre'                                 => 'OpenJDK JRE',
       'jrebel_agent'                        => 'JRebel Agent',
       'jvmkill_agent'                       => 'jvmkill Agent',
