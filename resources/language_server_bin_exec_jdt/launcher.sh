@@ -1,12 +1,12 @@
 #!/bin/bash
 
-if [ -z $2] 
-    if [ -z $3]
+if [ -z $2] then
+    if [ -z $3] then
         moduleWs = "$2/$3"
     else 
         moduleWs = "$2"
     fi
-    if [ -e -d "$HOME/jdt_ws_root/$moduleWs"]
+    if [ -e -d "$HOME/jdt_ws_root/$moduleWs"] then
         echo 
     else
         mkdir $HOME/jdt_ws_root/$moduleWs
