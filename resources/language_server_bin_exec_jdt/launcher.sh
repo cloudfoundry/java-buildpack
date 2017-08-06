@@ -2,7 +2,7 @@
 
 if [ -z $2] 
     if [ -z $3]
-        moduleWs = "$2/$3""
+        moduleWs = "$2/$3"
     else 
         moduleWs = "$2"
     fi
