@@ -1,13 +1,13 @@
 #!/bin/bash
 
-if [ -z "$2"]; then
-if [ -z "$3"]; then
+if [ -n "$2" ]; then
+if [ -n "$3" ]; then
     moduleWs="$2/$3"
 else 
     moduleWs="$2"
 fi
 
-if [  "$HOME/jdt_ws_root/$moduleWs"  ] && [ -z moduleWs ]; then
+if [ -d "$HOME/jdt_ws_root/$moduleWs"  ] && [ -n "$moduleWs" ]; then
     echo "Already exists $moduleWs"
 else
     echo "Create $HOME/jdt_ws_root/$moduleWs"
