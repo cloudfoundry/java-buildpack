@@ -1,0 +1,8 @@
+name: VertxCustom
+version: 1.0
+enabled: true
+jmx:
+  - object_name: application-custom:name=*
+    metrics:
+      - attributes: Count,Value
+        type: simple
