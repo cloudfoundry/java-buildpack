@@ -16,16 +16,11 @@
 require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/takipi_agent'
-require 'java_buildpack/util/find_single_directory'
 
 describe JavaBuildpack::Framework::TakipiAgent do
   include_context 'component_helper'
 
-  let(:configuration) do
-    {
-      'node_name_prefix' => nil
-    }
-  end
+  let(:configuration) { { 'node_name_prefix' => nil } }
 
   it 'does not detect without takipi-n/a service' do
     expect(component.detect).to be_nil
@@ -40,20 +35,16 @@ describe JavaBuildpack::Framework::TakipiAgent do
       allow(services).to receive(:find_service).and_return('credentials' => credentials)
     end
 
+    it 'detects with takipi service' do
+      expect(component.detect).to eq("takipi-agent=#{version}")
+    end
+
     it 'expands Takipi agent tarball',
        cache_fixture: 'stub-takipi-agent.tar.gz' do
 
       component.compile
 
       expect(sandbox + 'lib/libTakipiAgent.so').to exist
-    end
-
-    it 'preserves find_single_directory results',
-       cache_fixture: 'stub-takipi-agent.tar.gz',
-       app_fixture: 'container_play_2.1_dist' do
-      component.compile
-      component.send(:extend, JavaBuildpack::Util)
-      expect(component.send(:find_single_directory)).not_to be_nil
     end
 
     context do
@@ -86,10 +77,7 @@ describe JavaBuildpack::Framework::TakipiAgent do
 
       context 'configuration overrides' do
 
-        let(:configuration) do
-          { 'node_name_prefix' => 'test-name',
-            'application_name' => 'test-name' }
-        end
+        let(:configuration) { { 'node_name_prefix' => 'test-name', 'application_name' => 'test-name' } }
 
         it 'update application name' do
           component.release
