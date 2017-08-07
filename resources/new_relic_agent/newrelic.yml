@@ -53,7 +53,7 @@ common: &default_settings
   # The levels in increasing order of verboseness are:
   #   off, severe, warning, info, fine, finer, finest
   # Default is info.
-  log_level: finer
+  log_level: info
 
   # Log all data sent to and from New Relic in plain text.
   # This setting is dynamic, so changes do not require restarting your application.
