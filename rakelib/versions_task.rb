@@ -81,6 +81,7 @@ module Package
       'redis_store'                         => 'Redis Session Store',
       'spring_auto_reconfiguration'         => 'Spring Auto-reconfiguration',
       'spring_boot_cli'                     => 'Spring Boot CLI',
+      'takipi_agent'                        => 'Takipi Agent',
       'tomcat'                              => 'Tomcat',
       'your_kit_profiler'                   => 'YourKit Profiler'
     }.freeze
