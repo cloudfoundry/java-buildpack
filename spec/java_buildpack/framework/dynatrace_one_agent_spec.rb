@@ -53,6 +53,31 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
       expect(sandbox + 'manifest.json').to exist
     end
 
+    it 'do not skip errors on default',
+       app_fixture: 'framework_dynatrace_one_agent' do
+
+      # allow(File).to receive(:file?).and_return(true)
+      allow(application_cache).to receive(:get)
+        .with('test-server/api/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64&' \
+        'Api-Token=test-apitoken')
+        .and_raise(RuntimeError.new('error'))
+      expect { component.compile }.to raise_error(RuntimeError)
+    end
+
+    it 'skiperrors durring download',
+       app_fixture: 'framework_dynatrace_one_agent' do
+      allow(services).to receive(:find_service).and_return('credentials' => { 'apitoken'   => 'test-apitoken',
+                                                                              'tenant'     => 'test-tenant',
+                                                                              'server'     => 'test-server',
+                                                                              'skiperrors' => 'true' })
+      # allow(File).to receive(:file?).and_return(true)
+      allow(application_cache).to receive(:get)
+        .with('test-server/api/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64&' \
+        'Api-Token=test-apitoken')
+        .and_raise(RuntimeError.new('error'))
+      component.compile
+    end
+
     it 'does update JAVA_OPTS with environmentid and apitoken',
        app_fixture: 'framework_dynatrace_one_agent' do
       allow(services).to receive(:find_service).and_return('credentials' => { 'environmentid' => 'test-tenant',
