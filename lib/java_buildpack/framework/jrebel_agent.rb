@@ -59,7 +59,9 @@ module JavaBuildpack
       end
 
       def jars_with_jrebel_configured?(root_path)
-        (root_path + '**/*.jar').glob.any? { |jar| !`unzip -l "#{jar}" | grep "rebel-remote\\.xml$"`.strip.empty? }
+        (root_path + '**/*.jar')
+          .glob.reject(&:directory?)
+          .any? { |jar| !`unzip -l "#{jar}" | grep "rebel-remote\\.xml$"`.strip.empty? }
       end
 
       def lib_name

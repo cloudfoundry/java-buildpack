@@ -44,12 +44,13 @@ describe JavaBuildpack::Framework::JrebelAgent do
 
     it 'does not detect when not enabled',
        app_fixture: 'framework_jrebel_app_simple' do
+
       expect(component.detect).to be_nil
     end
   end
 
   it 'downloads the JRebel JAR and the native agent',
-     app_fixture: 'framework_jrebel_app_simple',
+     app_fixture:   'framework_jrebel_app_simple',
      cache_fixture: 'stub-jrebel-archive.zip' do
 
     component.compile
@@ -59,7 +60,7 @@ describe JavaBuildpack::Framework::JrebelAgent do
   end
 
   it 'adds correct arguments to JAVA_OPTS',
-     app_fixture: 'framework_jrebel_app_simple',
+     app_fixture:   'framework_jrebel_app_simple',
      cache_fixture: 'stub-jrebel-archive.zip' do
 
     allow(component).to receive(:architecture).and_return('x86_64')
@@ -69,6 +70,14 @@ describe JavaBuildpack::Framework::JrebelAgent do
     expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/jrebel_agent/lib/libjrebel64.so')
     expect(java_opts).to include('-Drebel.remoting_plugin=true')
     expect(java_opts).to include('-Drebel.cloud.platform=cloudfoundry/java-buildpack')
+  end
+
+  it 'does not throw an error when a directory ends in .jar',
+     app_fixture: 'framework_jrebel_jar_directory' do
+
+    expect_any_instance_of(described_class).not_to receive(:`).with(start_with("unzip -l #{app_dir + 'directory.jar'}"))
+
+    component.detect
   end
 
 end

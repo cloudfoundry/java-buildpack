@@ -88,4 +88,13 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
                             'Configuration: $CALCULATED_MEMORY && JAVA_OPTS="$JAVA_OPTS $CALCULATED_MEMORY"')
   end
 
+  it 'does not throw an error when a directory ends in .jar',
+     app_fixture:   'jre_memory_calculator_jar_directory',
+     cache_fixture: 'stub-memory-calculator.tar.gz' do
+
+    expect_any_instance_of(described_class).not_to receive(:`).with(start_with("unzip -l #{app_dir + 'directory.jar'}"))
+
+    component.compile
+  end
+
 end

@@ -71,7 +71,8 @@ module JavaBuildpack
       def actual_class_count(root)
         (root + '**/*.class').glob.count +
           (root + '**/*.groovy').glob.count +
-          (root + '**/*.jar').glob(File::FNM_DOTMATCH).inject(0) { |a, e| a + archive_class_count(e) }
+          (root + '**/*.jar').glob(File::FNM_DOTMATCH).reject(&:directory?)
+                             .inject(0) { |a, e| a + archive_class_count(e) }
       end
 
       def archive_class_count(archive)
