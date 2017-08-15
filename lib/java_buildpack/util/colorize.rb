@@ -15,88 +15,136 @@
 
 class String
 
-  def bg_black
-    "\e[40m#{self}\e[0m"
+  @color_enabled = true
+
+  class << self
+    attr_accessor :color_enabled
   end
 
-  def bg_blue
-    "\e[44m#{self}\e[0m"
-  end
-
-  def bg_brown
-    "\e[43m#{self}\e[0m"
-  end
-
-  def bg_cyan
-    "\e[46m#{self}\e[0m"
-  end
-
-  def bg_gray
-    "\e[47m#{self}\e[0m"
-  end
-
-  def bg_green
-    "\e[42m#{self}\e[0m"
-  end
-
-  def bg_magenta
-    "\e[45m#{self}\e[0m"
-  end
-
-  def bg_red
-    "\e[41m#{self}\e[0m"
-  end
-
-  def black
-    "\e[30m#{self}\e[0m"
-  end
-
-  def blink
-    "\e[5m#{self}\e[25m"
-  end
-
-  def blue
-    "\e[34m#{self}\e[0m"
-  end
-
+  # Sets the string to bold
   def bold
+    return self unless @color_enabled
     "\e[1m#{self}\e[22m"
   end
 
-  def brown
-    "\e[33m#{self}\e[0m"
-  end
-
-  def cyan
-    "\e[36m#{self}\e[0m"
-  end
-
-  def gray
-    "\e[37m#{self}\e[0m"
-  end
-
-  def green
-    "\e[32m#{self}\e[0m"
-  end
-
+  # Sets the string to italic
   def italic
+    return self unless @color_enabled
     "\e[3m#{self}\e[23m"
   end
 
-  def magenta
-    "\e[35m#{self}\e[0m"
+  # Sets the string to underlined
+  def underline
+    return self unless @color_enabled
+    "\e[4m#{self}\e[24m"
   end
 
-  def red
-    "\e[31m#{self}\e[0m"
+  # Sets the string to blink
+  def blink
+    return self unless @color_enabled
+    "\e[5m#{self}\e[25m"
   end
 
+  # Sets the string reverse the current colors
   def reverse_color
+    return self unless @color_enabled
     "\e[7m#{self}\e[27m"
   end
 
-  def underline
-    "\e[4m#{self}\e[24m"
+  # Sets the string to black
+  def black
+    return self unless @color_enabled
+    "\e[30m#{self}\e[0m"
+  end
+
+  # Sets the string to red
+  def red
+    return self unless @color_enabled
+    "\e[31m#{self}\e[0m"
+  end
+
+  # Sets the string to green
+  def green
+    return self unless @color_enabled
+    "\e[32m#{self}\e[0m"
+  end
+
+  # Sets the string to yellow
+  def yellow
+    return self unless @color_enabled
+    "\e[33m#{self}\e[0m"
+  end
+
+  # Sets the string to blue
+  def blue
+    return self unless @color_enabled
+    "\e[34m#{self}\e[0m"
+  end
+
+  # Sets the string to magenta
+  def magenta
+    return self unless @color_enabled
+    "\e[35m#{self}\e[0m"
+  end
+
+  # Sets the string to cyan
+  def cyan
+    return self unless @color_enabled
+    "\e[36m#{self}\e[0m"
+  end
+
+  # Sets the string to white
+  def white
+    return self unless @color_enabled
+    "\e[37m#{self}\e[0m"
+  end
+
+  # Sets the string background to black
+  def bg_black
+    return self unless @color_enabled
+    "\e[40m#{self}\e[0m"
+  end
+
+  # Sets the string background to red
+  def bg_red
+    return self unless @color_enabled
+    "\e[41m#{self}\e[0m"
+  end
+
+  # Sets the string background to green
+  def bg_green
+    return self unless @color_enabled
+    "\e[42m#{self}\e[0m"
+  end
+
+  # Sets the string background to yellow
+  def bg_yellow
+    return self unless @color_enabled
+    "\e[43m#{self}\e[0m"
+  end
+
+  # Sets the string background to blue
+  def bg_blue
+    return self unless @color_enabled
+    "\e[44m#{self}\e[0m"
+  end
+
+  # Sets the string background to magenta
+  def bg_magenta
+    return self unless @color_enabled
+    "\e[45m#{self}\e[0m"
+  end
+
+  # Sets the string background to cyan
+  def bg_cyan
+    return self unless @color_enabled
+    "\e[46m#{self}\e[0m"
+  end
+
+  # Sets the string background to white
+  def bg_white
+    return self unless @color_enabled
+    "\e[47m#{self}\e[0m"
   end
 
 end

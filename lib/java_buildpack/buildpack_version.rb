@@ -14,6 +14,7 @@
 # limitations under the License.
 
 require 'java_buildpack'
+require 'java_buildpack/util/colorize'
 require 'java_buildpack/util/configuration_utils'
 require 'java_buildpack/util/to_b'
 

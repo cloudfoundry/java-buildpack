@@ -90,7 +90,12 @@ module JavaBuildpack
         print "#{'----->'.red.bold} Downloading #{name.blue.bold} #{version.to_s.blue} from #{uri.sanitize_uri} "
 
         JavaBuildpack::Util::Cache::ApplicationCache.new.get(uri) do |file, downloaded|
-          puts downloaded ? "(#{(Time.now - download_start_time).duration})".green.italic : '(found in cache)'.green.italic
+          if downloaded
+            puts "(#{(Time.now - download_start_time).duration})".green.italic
+          else
+            puts '(found in cache)'.green.italic
+          end
+
           yield file
         end
       end
