@@ -15,6 +15,7 @@
 
 require 'spec_helper'
 require 'tee'
+require 'java_buildpack/util/colorize'
 
 shared_context 'console_helper' do
 
@@ -32,6 +33,8 @@ shared_context 'console_helper' do
       $stdout.add STDOUT
       $stderr.add STDERR
     end
+
+    String.color_enabled = false
   end
 
   after do
