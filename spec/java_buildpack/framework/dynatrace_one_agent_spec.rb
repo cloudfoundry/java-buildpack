@@ -17,6 +17,7 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/dynatrace_one_agent'
 require 'java_buildpack/util/tokenized_version'
+require 'fileutils'
 
 describe JavaBuildpack::Framework::DynatraceOneAgent do
   include_context 'component_helper'
@@ -121,6 +122,20 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
 
       expect(environment_variables).to include('RUXIT_APPLICATIONID=test-application-name')
       expect(environment_variables).to include('RUXIT_HOST_ID=test-application-name_${CF_INSTANCE_INDEX}')
+    end
+
+    it 'Handle not existing files durring release',
+       app_fixture: 'framework_dynatrace_one_agent' do
+      allow(services).to receive(:find_service).and_return('credentials' => { 'server'        => 'test-server',
+                                                                              'environmentid' => 'test-tenant',
+                                                                              'apitoken'      => 'test-apitoken' })
+      FileUtils.rm( sandbox+'manifest.json')
+      FileUtils.rm(sandbox + 'agent/lib64/liboneagentloader.so')
+      component.release
+
+      expect(java_opts).not_to include('-agentpath:$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
+      'liboneagentloader.so=server=https://endpoint1/communication\\;https://endpoint2/communication,' \
+      'tenant=test-tenant,tenanttoken=token-from-file')
     end
 
     context do
