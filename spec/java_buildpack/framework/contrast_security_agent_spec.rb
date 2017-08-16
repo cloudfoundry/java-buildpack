@@ -33,7 +33,6 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
       allow(services).to receive(:one_service?).with(/contrast-security/, 'api_key', 'service_key', 'teamserver_url',
                                                      'username').and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => { 'teamserver_url' => 'a_url',
-                                                                              'org_uuid'       => '12345',
                                                                               'username'       => 'contrast_user',
                                                                               'api_key'        => 'api_test',
                                                                               'service_key'    => 'service_test' })
@@ -48,6 +47,27 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
 
       component.compile
       expect(sandbox + 'contrast-engine-0.0.0.jar').to exist
+    end
+
+    it 'uses contrast-engine for versions < 3.4.3' do
+
+      tokenized_version = JavaBuildpack::Util::TokenizedVersion.new('3.4.2_756')
+      allow(JavaBuildpack::Repository::ConfiguredItem).to receive(:find_item) do |&block|
+        block.call(tokenized_version) if block
+      end.and_return([tokenized_version, uri])
+
+      component.release
+      expect(java_opts.to_s).to include('contrast-engine-3.4.2.jar')
+    end
+
+    it 'uses java-agent for versions >= 3.4.3' do
+      tokenized_version = JavaBuildpack::Util::TokenizedVersion.new('3.4.3_000')
+      allow(JavaBuildpack::Repository::ConfiguredItem).to receive(:find_item) do |&block|
+        block.call(tokenized_version) if block
+      end.and_return([tokenized_version, uri])
+
+      component.release
+      expect(java_opts.to_s).to include('java-agent-3.4.3.jar')
     end
 
     it 'updates JAVA_OPTS' do
