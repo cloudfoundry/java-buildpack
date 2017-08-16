@@ -169,7 +169,7 @@ module JavaBuildpack
 
           return unless etag
 
-          @logger.debug { "Persisting etag: #{etag}" }
+          @logger.debug { "Persisting Etag: #{etag}" }
 
           cached_file.etag(File::CREAT | File::WRONLY | File::BINARY) do |f|
             f.truncate(0)
@@ -183,7 +183,7 @@ module JavaBuildpack
 
           return unless last_modified
 
-          @logger.debug { "Persisting last-modified: #{last_modified}" }
+          @logger.debug { "Persisting Last-Modified: #{last_modified}" }
 
           cached_file.last_modified(File::CREAT | File::WRONLY | File::BINARY) do |f|
             f.truncate(0)
@@ -293,10 +293,12 @@ module JavaBuildpack
           if cached_file.etag?
             cached_file.etag(File::RDONLY | File::BINARY) { |f| request['If-None-Match'] = File.read(f) }
           end
+          @logger.debug { "Adding If-None-Match: #{request['If-None-Match']}" }
 
           if cached_file.last_modified?
             cached_file.last_modified(File::RDONLY | File::BINARY) { |f| request['If-Modified-Since'] = File.read(f) }
           end
+          @logger.debug { "Adding If-Modified-Since: #{request['If-Modified-Since']}" }
 
           @logger.debug { "Request: #{request.path}, #{request.to_hash}" }
           request
@@ -307,8 +309,10 @@ module JavaBuildpack
         end
 
         def update(uri, cached_file)
-          proxy(uri).start(uri.host, uri.port, http_options(uri)) do |http|
-            @logger.debug { "HTTP: #{http.address}, #{http.port}, #{http_options(uri)}" }
+          http_options = http_options(uri)
+
+          proxy(uri).start(uri.host, uri.port, http_options) do |http|
+            @logger.debug { "HTTP: #{http.address}, #{http.port}, #{http_options}" }
             debug_ssl(http) if secure?(uri)
 
             attempt_update(cached_file, http, uri)
