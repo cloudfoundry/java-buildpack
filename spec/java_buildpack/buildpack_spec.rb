@@ -47,9 +47,9 @@ describe JavaBuildpack::Buildpack do
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).and_call_original
     allow(JavaBuildpack::Util::ConfigurationUtils)
       .to receive(:load).with('components').and_return(
-        'containers' => ['Test::StubContainer1', 'Test::StubContainer2'],
-        'frameworks' => ['Test::StubFramework1', 'Test::StubFramework2'],
-        'jres'       => ['Test::StubJre1', 'Test::StubJre2']
+        'containers' => %w[Test::StubContainer1 Test::StubContainer2],
+        'frameworks' => %w[Test::StubFramework1 Test::StubFramework2],
+        'jres'       => %w[Test::StubJre1 Test::StubJre2]
       )
 
     allow(Test::StubContainer1).to receive(:new).and_return(stub_container1)
