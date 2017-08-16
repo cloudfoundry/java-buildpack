@@ -39,9 +39,9 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.java_opts
-          .add_system_property('contrast.dir', '$TMPDIR')
-          .add_system_property('contrast.override.appname', application_name)
-          .add_preformatted_options("-javaagent:#{qualify_path(@droplet.sandbox + jar_name, @droplet.root)}=" \
+                .add_system_property('contrast.dir', '$TMPDIR')
+                .add_system_property('contrast.override.appname', application_name)
+                .add_preformatted_options("-javaagent:#{qualify_path(@droplet.sandbox + jar_name, @droplet.root)}=" \
                                           "#{qualify_path(contrast_config, @droplet.root)}")
       end
 
@@ -49,11 +49,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#jar_name)
       def jar_name
-        if @version < JAVA_AGENT_VERSION
-          "contrast-engine-#{@version[0]}.#{@version[1]}.#{@version[2]}.jar"
-        else
-          "java-agent-#{@version[0]}.#{@version[1]}.#{@version[2]}.jar"
-        end
+        @version < INFLECTION_VERSION ? "contrast-engine-#{short_version}.jar" : "java-agent-#{short_version}.jar"
       end
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
@@ -67,7 +63,7 @@ module JavaBuildpack
 
       CONTRAST_FILTER = 'contrast-security'.freeze
 
-      JAVA_AGENT_VERSION = JavaBuildpack::Util::TokenizedVersion.new('3.4.3').freeze
+      INFLECTION_VERSION = JavaBuildpack::Util::TokenizedVersion.new('3.4.3').freeze
 
       PLUGIN_PACKAGE = 'com.aspectsecurity.contrast.runtime.agent.plugins'.freeze
 
@@ -77,7 +73,8 @@ module JavaBuildpack
 
       USERNAME = 'username'.freeze
 
-      private_constant :API_KEY, :CONTRAST_FILTER, :PLUGIN_PACKAGE, :SERVICE_KEY, :TEAMSERVER_URL, :USERNAME, :JAVA_AGENT_VERSION
+      private_constant :API_KEY, :CONTRAST_FILTER, :INFLECTION_VERSION, :PLUGIN_PACKAGE, :SERVICE_KEY, :TEAMSERVER_URL,
+                       :USERNAME
 
       def add_contrast(doc, credentials)
         contrast = doc.add_element('contrast')
@@ -113,6 +110,10 @@ module JavaBuildpack
 
       def contrast_config
         @droplet.sandbox + 'contrast.config'
+      end
+
+      def short_version
+        "#{@version[0]}.#{@version[1]}.#{@version[2]}"
       end
 
       def write_configuration(credentials)
