@@ -30,7 +30,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        puts "-----> JMX Enabled on port #{port}"
+        puts "#{'----->'.red.bold} #{'JMX'.blue.bold} enabled on port #{port}"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)

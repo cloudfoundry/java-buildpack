@@ -30,7 +30,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        puts "-----> Debugging Enabled on port #{port}#{', suspended on start' if @configuration['suspend']}"
+        puts "#{'----->'.red.bold} #{'Debugging'.blue.bold} enabled on port #{port}#{suspend_message}"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -54,6 +54,10 @@ module JavaBuildpack
 
       def suspend
         @configuration['suspend'] ? 'y' : 'n'
+      end
+
+      def suspend_message
+        ', suspended on start' if @configuration['suspend']
       end
 
     end

@@ -203,9 +203,9 @@ module JavaBuildpack
     def log_cache_contents
       return unless JavaBuildpack::Util::Cache::ApplicationCache.available?
 
-      cache_root = Pathname.new JavaBuildpack::Util::Cache::ApplicationCache.application_cache_directory
-
       @logger.debug do
+        cache_root = Pathname.new JavaBuildpack::Util::Cache::ApplicationCache.application_cache_directory
+
         paths = []
         cache_root.find { |f| paths << f.relative_path_from(cache_root).to_s }
 

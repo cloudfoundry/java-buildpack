@@ -41,7 +41,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        puts "-----> AspectJ #{version} Runtime Weaving Enabled"
+        puts "#{'----->'.red.bold} #{'AspectJ'.blue.bold} #{version.to_s.blue} Runtime Weaving enabled"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)

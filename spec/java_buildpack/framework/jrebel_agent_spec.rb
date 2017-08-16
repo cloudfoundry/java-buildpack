@@ -26,16 +26,19 @@ describe JavaBuildpack::Framework::JrebelAgent do
 
   it 'detects when rebel-remote.xml is present in the top-level directory',
      app_fixture: 'framework_jrebel_app_simple' do
+
     expect(component.detect).to eq("jrebel-agent=#{version}")
   end
 
   it 'detects when rebel-remote.xml is present in WEB-INF/classes',
      app_fixture: 'framework_jrebel_app_war' do
+
     expect(component.detect).to eq("jrebel-agent=#{version}")
   end
 
   it 'detects when rebel-remote.xml is present inside an embedded JAR',
      app_fixture: 'framework_jrebel_app_war_with_jar' do
+
     expect(component.detect).to eq("jrebel-agent=#{version}")
   end
 
