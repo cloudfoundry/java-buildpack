@@ -31,21 +31,27 @@ module JavaBuildpack
       def initialize(context)
         super(context)
         @version, @uri = agent_download_url if supports? && supports_apitoken?
+        @logger        = JavaBuildpack::Logging::LoggerFactory.instance.get_logger DynatraceOneAgent
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
-          true, 'The Dynatrace One Agent download location is always accessible'
-        ) do
-          download(@version, @uri) { |file| expand file }
+        begin
+          JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+            true, 'The Dynatrace One Agent download location is always accessible'
+          ) do
+            download(@version, @uri) { |file| expand file }
+          end
+        rescue RuntimeError => e
+          skip_errors ? @logger.error { "Agent could not be downloaded, caused by: #{e}" } : raise
         end
-
         @droplet.copy_resources
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        return unless mainfest_exist
+
         credentials = @application.services.find_service(FILTER)['credentials']
 
         @droplet.java_opts.add_agentpath_with_props(agent_path,
@@ -97,7 +103,10 @@ module JavaBuildpack
 
       ENDPOINT = 'endpoint'.freeze
 
-      private_constant :FILTER, :RUXIT_APPLICATION_ID, :RUXIT_HOST_ID, :SERVER, :TENANT, :TENANTTOKEN, :APITOKEN
+      SKIP_ERRORS = 'skiperrors'.freeze
+
+      private_constant :FILTER, :RUXIT_APPLICATION_ID, :RUXIT_HOST_ID, :SERVER, :TENANT, :TENANTTOKEN, :APITOKEN,
+                       :SKIP_ERRORS
       private_constant :ENVIRONMENTID, :ENDPOINT, :APIURL
 
       def agent_dir
@@ -143,6 +152,10 @@ module JavaBuildpack
         "#{@application.details['application_name']}_${CF_INSTANCE_INDEX}"
       end
 
+      def mainfest_exist
+        File.file?(@droplet.sandbox + 'manifest.json')
+      end
+
       def server(credentials)
         given_endp = credentials[ENDPOINT] || credentials[SERVER] || "https://#{tenant(credentials)}.live.dynatrace.com"
         supports_apitoken? ? server_from_api : given_endp
@@ -151,6 +164,11 @@ module JavaBuildpack
       def server_from_api
         endpoints = JSON.parse(File.read(@droplet.sandbox + 'manifest.json'))['communicationEndpoints']
         endpoints.join('\;')
+      end
+
+      def skip_errors
+        credentials = @application.services.find_service(FILTER)['credentials']
+        'true'.casecmp(credentials[SKIP_ERRORS] || 'false').zero?
       end
 
       def tenant(credentials)

@@ -29,6 +29,7 @@ The credential payload of the service may contain the following entries:
 | `apitoken` | The token for integrating your Dynatrace environment with Cloud Foundry. You can find it in the deploy Dynatrace section within your environment. The `apitoken` replaces deprecated ~~`tenanttoken`~~ option.
 | `apiurl` | (Optional) The base URL of the Dynatrace API. If you are using Dynatrace Managed you will need to set this property to `https://<your-managed-server-url>/e/<environmentId>/api`. If you are using Dynatrace SaaS you don't need to set this property.
 | `endpoint`  | (Deprecated) The Dynatrace connection endpoint the agent connects to. Please use `apiurl` in combination with `apitoken` for Dynatrace Managed.
+| `skiperrors` | (Optional, default=false) Should errors during one agent download be skipped or not. Possible values are 'true' and 'false' |
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
