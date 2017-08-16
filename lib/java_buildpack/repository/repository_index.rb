@@ -16,8 +16,7 @@
 require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/repository'
 require 'java_buildpack/repository/version_resolver'
-require 'java_buildpack/util/cache'
-require 'java_buildpack/util/cache/download_cache'
+require 'java_buildpack/util/cache/cache_factory'
 require 'java_buildpack/util/configuration_utils'
 require 'rbconfig'
 require 'yaml'
@@ -66,8 +65,7 @@ module JavaBuildpack
       end
 
       def cache
-        JavaBuildpack::Util::Cache::DownloadCache.new(Pathname.new(Dir.tmpdir),
-                                                      JavaBuildpack::Util::Cache::CACHED_RESOURCES_DIRECTORY)
+        JavaBuildpack::Util::Cache::CacheFactory.create
       end
 
       def canonical(raw)

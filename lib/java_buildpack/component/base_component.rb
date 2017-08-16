@@ -15,7 +15,7 @@
 
 require 'fileutils'
 require 'java_buildpack/component'
-require 'java_buildpack/util/cache/application_cache'
+require 'java_buildpack/util/cache/cache_factory'
 require 'java_buildpack/util/colorize'
 require 'java_buildpack/util/format_duration'
 require 'java_buildpack/util/shell'
@@ -89,7 +89,7 @@ module JavaBuildpack
         download_start_time = Time.now
         print "#{'----->'.red.bold} Downloading #{name.blue.bold} #{version.to_s.blue} from #{uri.sanitize_uri} "
 
-        JavaBuildpack::Util::Cache::ApplicationCache.new.get(uri) do |file, downloaded|
+        JavaBuildpack::Util::Cache::CacheFactory.create.get(uri) do |file, downloaded|
           if downloaded
             puts "(#{(Time.now - download_start_time).duration})".green.italic
           else
