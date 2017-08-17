@@ -34,9 +34,11 @@ jres:
 # - "JavaBuildpack::Jre::OracleJRE"
 # - "JavaBuildpack::Jre::ZuluJRE"
 
-# Frameworks are processed in order. Any Java Opts added by the JavaOpts framework will be specified in the start
-# command after any Java Opts added by previous frameworks.
+# Frameworks are processed in order.
+# The MultiBuildpack framework is first in order to allow any framework to override contributions from earlier buildpacks
+# The JavaOpts is last in order to allow any user-defined JAVA_OPTS to override contributions from earlier frameworks
 frameworks:
+  - "JavaBuildpack::Framework::MultiBuildpack"
   - "JavaBuildpack::Framework::AppDynamicsAgent"
   - "JavaBuildpack::Framework::AspectjWeaverAgent"
   - "JavaBuildpack::Framework::ClientCertificateMapper"
