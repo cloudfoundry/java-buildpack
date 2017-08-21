@@ -15,6 +15,7 @@
 
 require 'spec_helper'
 require 'application_helper'
+require 'digest'
 require 'fileutils'
 require 'java_buildpack/util/cache/cached_file'
 
@@ -104,7 +105,7 @@ describe JavaBuildpack::Util::Cache::CachedFile do
   end
 
   def cache_file(extension)
-    app_dir + "http%3A%2F%2Ffoo-uri%2F.#{extension}"
+    app_dir + "#{Digest::SHA256.hexdigest('http://foo-uri/')}.#{extension}"
   end
 
   def touch(extension, content = '')
