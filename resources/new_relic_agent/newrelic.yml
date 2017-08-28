@@ -250,6 +250,9 @@ common: &default_settings
     com.newrelic.instrumentation.spring-aop-2:
       enabled: false
 
+    com.newrelic.instrumentation.mongodb-3.1:
+      enabled: false
+
     # Classes loaded by classloaders in this list will not be instrumented.
     # This is a useful optimization for runtimes which use classloaders to
     # load dynamic classes which the agent would not instrument.
