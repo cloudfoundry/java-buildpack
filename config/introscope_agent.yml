@@ -15,6 +15,6 @@
 
 # Configuration for the CA Wily framework
 ---
-repository_root: ""
-version: 9.7.+
-default_agent_name: ! '$(ruby -e "require ''json'' ; puts JSON.parse(ENV[''VCAP_APPLICATION''])[''application_name'']")'
+repository_root: https://ca.bintray.com/apm-agents
+version: 10.+
+default_agent_name: $(ruby -e "require 'json' ; puts JSON.parse(ENV['VCAP_APPLICATION'])['application_name']")

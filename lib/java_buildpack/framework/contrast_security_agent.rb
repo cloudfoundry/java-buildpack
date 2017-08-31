@@ -49,7 +49,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#jar_name)
       def jar_name
-        "contrast-engine-#{@version.to_s.split('_')[0]}.jar"
+        @version < INFLECTION_VERSION ? "contrast-engine-#{short_version}.jar" : "java-agent-#{short_version}.jar"
       end
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
@@ -63,7 +63,9 @@ module JavaBuildpack
 
       CONTRAST_FILTER = 'contrast-security'.freeze
 
-      PLUGIN_PACKAGE = 'com.aspectsecurity.contrast.runtime.agent.plugins.'.freeze
+      INFLECTION_VERSION = JavaBuildpack::Util::TokenizedVersion.new('3.4.3').freeze
+
+      PLUGIN_PACKAGE = 'com.aspectsecurity.contrast.runtime.agent.plugins'.freeze
 
       SERVICE_KEY = 'service_key'.freeze
 
@@ -71,7 +73,8 @@ module JavaBuildpack
 
       USERNAME = 'username'.freeze
 
-      private_constant :API_KEY, :CONTRAST_FILTER, :PLUGIN_PACKAGE, :SERVICE_KEY, :TEAMSERVER_URL, :USERNAME
+      private_constant :API_KEY, :CONTRAST_FILTER, :INFLECTION_VERSION, :PLUGIN_PACKAGE, :SERVICE_KEY, :TEAMSERVER_URL,
+                       :USERNAME
 
       def add_contrast(doc, credentials)
         contrast = doc.add_element('contrast')
@@ -107,6 +110,10 @@ module JavaBuildpack
 
       def contrast_config
         @droplet.sandbox + 'contrast.config'
+      end
+
+      def short_version
+        "#{@version[0]}.#{@version[1]}.#{@version[2]}"
       end
 
       def write_configuration(credentials)

@@ -41,18 +41,15 @@ module JavaBuildpack
           .add_system_property('introscope.agent.hostName', agent_host_name)
           .add_system_property('com.wily.introscope.agent.agentName', agent_name(credentials))
           .add_system_property('introscope.agent.defaultProcessName', default_process_name)
-          .add_system_property('introscope.agent.enterprisemanager.transport.tcp.host.DEFAULT', host_name(credentials))
-          .add_system_property('agentManager.url.1', agent_manager(credentials))
 
-        add_port(credentials, java_opts)
-        add_socket_factory(credentials, java_opts)
+        add_url(credentials, java_opts)
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, 'host-name'
+        @application.services.one_service? FILTER, 'url'
       end
 
       private
@@ -60,17 +57,6 @@ module JavaBuildpack
       FILTER = /introscope/
 
       private_constant :FILTER
-
-      def add_port(credentials, java_opts)
-        port = port(credentials)
-        java_opts.add_system_property('introscope.agent.enterprisemanager.transport.tcp.port.DEFAULT', port) if port
-      end
-
-      def add_socket_factory(credentials, java_opts)
-        return unless ssl?(credentials)
-        java_opts.add_system_property('introscope.agent.enterprisemanager.transport.tcp.socketfactory.DEFAULT',
-                                      'com.wily.isengard.postofficehub.link.net.SSLSocketFactory')
-      end
 
       def agent_host_name
         @application.details['application_uris'][0]
@@ -80,12 +66,27 @@ module JavaBuildpack
         @droplet.sandbox + 'Agent.jar'
       end
 
-      def agent_manager(credentials)
-        agent_manager = ssl?(credentials) ? 'https://' : 'http://'
-        agent_manager += host_name(credentials)
+      def add_url(credentials, java_opts)
+        agent_manager = url(credentials)
 
-        port = port(credentials)
-        port ? "#{agent_manager}:#{port}" : agent_manager
+        host, port, socket_factory = parse_url(agent_manager)
+        java_opts.add_system_property('agentManager.url.1', agent_manager)
+        java_opts.add_system_property('introscope.agent.enterprisemanager.transport.tcp.host.DEFAULT', host)
+        java_opts.add_system_property('introscope.agent.enterprisemanager.transport.tcp.port.DEFAULT', port)
+        java_opts.add_system_property('introscope.agent.enterprisemanager.transport.tcp.socketfactory.DEFAULT',
+                                      socket_factory)
+      end
+
+      # Parse the agent manager url, split first by '://', and then with ':'
+      # components is of the format [host, port, socket_factory]
+      def parse_url(url)
+        components = url.split('://')
+        components.unshift('') if components.length == 1
+        components[1] = components[1].split(':')
+        components.flatten!
+        components.push(protocol_mapping(components[0]))
+        components.shift
+        components
       end
 
       def agent_name(credentials)
@@ -100,18 +101,22 @@ module JavaBuildpack
         @application.details['application_name']
       end
 
-      def host_name(credentials)
-        credentials['host-name']
+      def protocol_mapping(protocol)
+        socket_factory_base = 'com.wily.isengard.postofficehub.link.net.'
+
+        protocol_socket_factory = {
+          ''      => socket_factory_base + 'DefaultSocketFactory',
+          'ssl'   => socket_factory_base + 'SSLSocketFactory',
+          'http'  => socket_factory_base + 'HttpTunnelingSocketFactory',
+          'https' => socket_factory_base + 'HttpsTunnelingSocketFactory'
+        }
+
+        protocol_socket_factory[protocol] || protocol
       end
 
-      def port(credentials)
-        credentials['port']
+      def url(credentials)
+        credentials['url']
       end
-
-      def ssl?(credentials)
-        credentials['ssl'].to_b
-      end
-
     end
   end
 end

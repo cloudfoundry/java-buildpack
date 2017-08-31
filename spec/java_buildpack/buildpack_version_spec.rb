@@ -21,6 +21,7 @@ require 'pathname'
 
 describe JavaBuildpack::BuildpackVersion do
   include_context 'application_helper'
+  include_context 'console_helper'
   include_context 'logging_helper'
 
   let(:buildpack_version) { described_class.new }

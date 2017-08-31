@@ -38,26 +38,6 @@ describe JavaBuildpack::Framework::JavaOpts do
   end
 
   context do
-    let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
-
-    it 'does not detect with ENV and without from_environment configuration' do
-      expect(component.detect).to be_nil
-    end
-  end
-
-  context do
-    let(:configuration) { { 'java_opts' => nil } }
-
-    it 'does not detect with nil java_opts configuration' do
-      expect(component.detect).to be_nil
-    end
-  end
-
-  it 'does not detect without java_opts configuration' do
-    expect(component.detect).to be_nil
-  end
-
-  context do
     let(:configuration) do
       { 'java_opts' => '-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y ' \
           "-XX:OnOutOfMemoryError='kill -9 %p'" }
@@ -95,16 +75,6 @@ describe JavaBuildpack::Framework::JavaOpts do
   end
 
   context do
-    let(:configuration) { { 'from_environment' => true } }
-    let(:environment) { { 'JAVA_OPTS' => '-Dtest=$dollar\\\slash' } }
-
-    it 'does not escape the shell variable character from environment' do
-      component.release
-      expect(java_opts).to include('-Dtest=$dollar\slash')
-    end
-  end
-
-  context do
     let(:configuration) do
       { 'java_opts' => '-Dtest=something.\\\$dollar.\\\\\\\slash' }
     end
@@ -128,21 +98,16 @@ describe JavaBuildpack::Framework::JavaOpts do
 
   context do
     let(:configuration) { { 'from_environment' => true } }
-    let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
 
-    it 'includes values specified in ENV[JAVA_OPTS]' do
+    it 'includes $JAVA_OPTS with from_environment' do
       component.release
-      expect(java_opts).to include('-Dalpha=bravo')
+      expect(java_opts).to include('$JAVA_OPTS')
     end
   end
 
-  context do
-    let(:environment) { { 'JAVA_OPTS' => '-Dalpha=bravo' } }
-
-    it 'does not include values specified in ENV[JAVA_OPTS] without from_environment' do
-      component.release
-      expect(java_opts).not_to include('-Dalpha=bravo')
-    end
+  it 'does not include $JAVA_OPTS without from_environment' do
+    component.release
+    expect(java_opts).not_to include('$JAVA_OPTS')
   end
 
 end

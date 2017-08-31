@@ -20,8 +20,8 @@ $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
 require 'java_buildpack/buildpack'
 
-build_dir = ARGV[0]
+app_dir = ARGV[0]
 
-output = JavaBuildpack::Buildpack.with_buildpack(build_dir, 'Release failed with exception %s', &:release)
+output = JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Release failed with exception %s', &:release)
 
 puts output

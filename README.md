@@ -26,7 +26,7 @@ The buildpack supports extension through the use of Git repository forking. The 
 Buildpack configuration can be overridden with an environment variable matching the configuration file you wish to override minus the `.yml` extension and with a prefix of `JBP_CONFIG`. It is not possible to add new configuration properties and properties with `nil` or empty values will be ignored by the buildpack. The value of the variable should be valid inline yaml, referred to as `flow style` in the yaml spec ([Wikipedia] has a good description of this yaml syntax). For example, to change the default version of Java to 7 and adjust the memory heuristics apply this environment variable to the application.
 
 ```bash
-$ cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '{ jre: { version: 1.8.0_+ }, memory_calculator: { stack_threads: 200 } }'
+$ cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '{ jre: { version: 1.7.0_+ }, memory_calculator: { stack_threads: 200 } }'
 ```
 
 If the key or value contains a special character such as `:` it should be escaped with double quotes. For example, to change the default repository path for the buildpack.
@@ -44,15 +44,15 @@ $ cf set-env my-application JBP_CONFIG_JAVA_MAIN '{ arguments: "-server.port=\$P
 Environment variable can also be specified in the applications `manifest` file. For example, to specify an environment variable in an applications manifest file that disables Auto-reconfiguration.
 
 ```bash
-  env:
-    JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{ enabled: false }'
+env:
+  JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{ enabled: false }'
 ```
 
 This final example shows how to change the version of Tomcat that is used by the buildpack with an environment variable specified in the applications manifest file.
 
 ```bash
-  env:
-    JBP_CONFIG_TOMCAT: '{ tomcat: { version: 8.0.+ } }'
+env:
+  JBP_CONFIG_TOMCAT: '{ tomcat: { version: 8.0.+ } }'
 ```
 
 See the [Environment Variables][] documentation for more information.
@@ -63,62 +63,67 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 * [Design](docs/design.md)
 * [Security](docs/security.md)
 * Standard Containers
-	* [Dist ZIP](docs/container-dist_zip.md)
-	* [Groovy](docs/container-groovy.md) ([Configuration](docs/container-groovy.md#configuration))
-	* [Java Main](docs/container-java_main.md) ([Configuration](docs/container-java_main.md#configuration))
-	* [Play Framework](docs/container-play_framework.md)
-	* [Ratpack](docs/container-ratpack.md)
-	* [Spring Boot](docs/container-spring_boot.md)
-	* [Spring Boot CLI](docs/container-spring_boot_cli.md) ([Configuration](docs/container-spring_boot_cli.md#configuration))
-	* [Tomcat](docs/container-tomcat.md) ([Configuration](docs/container-tomcat.md#configuration))
+  * [Dist ZIP](docs/container-dist_zip.md)
+  * [Groovy](docs/container-groovy.md) ([Configuration](docs/container-groovy.md#configuration))
+  * [Java Main](docs/container-java_main.md) ([Configuration](docs/container-java_main.md#configuration))
+  * [Play Framework](docs/container-play_framework.md)
+  * [Ratpack](docs/container-ratpack.md)
+  * [Spring Boot](docs/container-spring_boot.md)
+  * [Spring Boot CLI](docs/container-spring_boot_cli.md) ([Configuration](docs/container-spring_boot_cli.md#configuration))
+  * [Tomcat](docs/container-tomcat.md) ([Configuration](docs/container-tomcat.md#configuration))
 * Standard Frameworks
-	* [AppDynamics Agent](docs/framework-app_dynamics_agent.md) ([Configuration](docs/framework-app_dynamics_agent.md#configuration))
-	* [Container Customizer](docs/framework-container_customizer.md) ([Configuration](docs/framework-container_customizer.md#configuration))
-	* [Container Security Provider](docs/framework-container_security_provider.md) ([Configuration](docs/framework-container_security_provider.md#configuration))
-	* [Contrast Security Agent](docs/framework-contrast_security_agent.md) ([Configuration](docs/framework-contrast_security_agent.md#configuration))
-	* [Debug](docs/framework-debug.md) ([Configuration](docs/framework-debug.md#configuration))
-	* [Dyadic EKM Security Provider](docs/framework-dyadic_ekm_security_provider.md) ([Configuration](docs/framework-dyadic_ekm_security_provider.md#configuration))
-	* [Dynatrace Appmon Agent](docs/framework-dynatrace_appmon_agent.md) ([Configuration](docs/framework-dynatrace_appmon_agent.md#configuration))
-	* [Dynatrace SaaS/Managed OneAgent](docs/framework-dynatrace_one_agent.md) ([Configuration](docs/framework-dynatrace_one_agent.md#configuration))
-	* [Google Stackdriver Debugger](docs/framework-google_stackdriver_debugger.md) ([Configuration](docs/framework-google_stackdriver_debugger.md#configuration))
-	* [Introscope Agent](docs/framework-introscope_agent.md) ([Configuration](docs/framework-introscope_agent.md#configuration))
-	* [Java Options](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))
-	* [JRebel Agent](docs/framework-jrebel_agent.md) ([Configuration](docs/framework-jrebel_agent.md#configuration))
-	* [JMX](docs/framework-jmx.md) ([Configuration](docs/framework-jmx.md#configuration))
-	* [Luna Security Provider](docs/framework-luna_security_provider.md) ([Configuration](docs/framework-luna_security_provider.md#configuration))
-	* [MariaDB JDBC](docs/framework-maria_db_jdbc.md) ([Configuration](docs/framework-maria_db_jdbc.md#configuration)) (also supports MySQL)
-	* [Metric Writer](docs/framework-metric_writer.md) ([Configuration](docs/framework-metric_writer.md#configuration))
-	* [New Relic Agent](docs/framework-new_relic_agent.md) ([Configuration](docs/framework-new_relic_agent.md#configuration))
-	* [Play Framework Auto Reconfiguration](docs/framework-play_framework_auto_reconfiguration.md) ([Configuration](docs/framework-play_framework_auto_reconfiguration.md#configuration))
-	* [Play Framework JPA Plugin](docs/framework-play_framework_jpa_plugin.md) ([Configuration](docs/framework-play_framework_jpa_plugin.md#configuration))
-	* [PostgreSQL JDBC](docs/framework-postgresql_jdbc.md) ([Configuration](docs/framework-postgresql_jdbc.md#configuration))
-	* [ProtectApp Security Provider](docs/framework-protect_app_security_provider.md) ([Configuration](docs/framework-protect_app_security_provider.md#configuration))
-	* [Spring Auto Reconfiguration](docs/framework-spring_auto_reconfiguration.md) ([Configuration](docs/framework-spring_auto_reconfiguration.md#configuration))
-	* [Spring Insight](docs/framework-spring_insight.md)
-	* [YourKit Profiler](docs/framework-your_kit_profiler.md) ([Configuration](docs/framework-your_kit_profiler.md#configuration))
+  * [AppDynamics Agent](docs/framework-app_dynamics_agent.md) ([Configuration](docs/framework-app_dynamics_agent.md#configuration))
+  * [AspectJ Weaver Agent](docs/framework-aspectj_weaver_agent.md) ([Configuration](docs/framework-aspectj_weaver_agent.md#configuration))
+  * [Client Certificate Mapper](docs/framework-client_certificate_mapper.md) ([Configuration](docs/framework-client_certificate_mapper.md#configuration))
+  * [Container Customizer](docs/framework-container_customizer.md) ([Configuration](docs/framework-container_customizer.md#configuration))
+  * [Container Security Provider](docs/framework-container_security_provider.md) ([Configuration](docs/framework-container_security_provider.md#configuration))
+  * [Contrast Security Agent](docs/framework-contrast_security_agent.md) ([Configuration](docs/framework-contrast_security_agent.md#configuration))
+  * [Debug](docs/framework-debug.md) ([Configuration](docs/framework-debug.md#configuration))
+  * [Dyadic EKM Security Provider](docs/framework-dyadic_ekm_security_provider.md) ([Configuration](docs/framework-dyadic_ekm_security_provider.md#configuration))
+  * [Dynatrace Appmon Agent](docs/framework-dynatrace_appmon_agent.md) ([Configuration](docs/framework-dynatrace_appmon_agent.md#configuration))
+  * [Dynatrace SaaS/Managed OneAgent](docs/framework-dynatrace_one_agent.md) ([Configuration](docs/framework-dynatrace_one_agent.md#configuration))
+  * [Google Stackdriver Debugger](docs/framework-google_stackdriver_debugger.md) ([Configuration](docs/framework-google_stackdriver_debugger.md#configuration))
+  * [Introscope Agent](docs/framework-introscope_agent.md) ([Configuration](docs/framework-introscope_agent.md#configuration))
+  * [Java Memory Assistant](docs/framework-java_memory_assistant.md) ([Configuration](docs/framework-java_memory_assistant.md#configuration))
+  * [Java Options](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))
+  * [JRebel Agent](docs/framework-jrebel_agent.md) ([Configuration](docs/framework-jrebel_agent.md#configuration))
+  * [JMX](docs/framework-jmx.md) ([Configuration](docs/framework-jmx.md#configuration))
+  * [Luna Security Provider](docs/framework-luna_security_provider.md) ([Configuration](docs/framework-luna_security_provider.md#configuration))
+  * [MariaDB JDBC](docs/framework-maria_db_jdbc.md) ([Configuration](docs/framework-maria_db_jdbc.md#configuration)) (also supports MySQL)
+  * [Multiple Buildpack](docs/framework-multi_buildpack.md)
+  * [Metric Writer](docs/framework-metric_writer.md) ([Configuration](docs/framework-metric_writer.md#configuration))
+  * [New Relic Agent](docs/framework-new_relic_agent.md) ([Configuration](docs/framework-new_relic_agent.md#configuration))
+  * [Play Framework Auto Reconfiguration](docs/framework-play_framework_auto_reconfiguration.md) ([Configuration](docs/framework-play_framework_auto_reconfiguration.md#configuration))
+  * [Play Framework JPA Plugin](docs/framework-play_framework_jpa_plugin.md) ([Configuration](docs/framework-play_framework_jpa_plugin.md#configuration))
+  * [PostgreSQL JDBC](docs/framework-postgresql_jdbc.md) ([Configuration](docs/framework-postgresql_jdbc.md#configuration))
+  * [ProtectApp Security Provider](docs/framework-protect_app_security_provider.md) ([Configuration](docs/framework-protect_app_security_provider.md#configuration))
+  * [Spring Auto Reconfiguration](docs/framework-spring_auto_reconfiguration.md) ([Configuration](docs/framework-spring_auto_reconfiguration.md#configuration))
+  * [Spring Insight](docs/framework-spring_insight.md)
+  * [Takipi Agent](docs/framework-takipi_agent.md) ([Configuration](docs/framework-takipi_agent.md#configuration))
+  * [YourKit Profiler](docs/framework-your_kit_profiler.md) ([Configuration](docs/framework-your_kit_profiler.md#configuration))
 * Standard JREs
-	* [Azul Zulu](docs/jre-zulu_jre.md) ([Configuration](docs/jre-zulu_jre.md#configuration))
-	* [IBM® SDK, Java™ Technology Edition](docs/jre-ibm_jre.md) ([Configuration](docs/jre-ibm_jre.md#configuration))
-	* [OpenJDK](docs/jre-open_jdk_jre.md) ([Configuration](docs/jre-open_jdk_jre.md#configuration))
-	* [Oracle](docs/jre-oracle_jre.md) ([Configuration](docs/jre-oracle_jre.md#configuration))
+  * [Azul Zulu](docs/jre-zulu_jre.md) ([Configuration](docs/jre-zulu_jre.md#configuration))
+  * [IBM® SDK, Java™ Technology Edition](docs/jre-ibm_jre.md) ([Configuration](docs/jre-ibm_jre.md#configuration))
+  * [OpenJDK](docs/jre-open_jdk_jre.md) ([Configuration](docs/jre-open_jdk_jre.md#configuration))
+  * [Oracle](docs/jre-oracle_jre.md) ([Configuration](docs/jre-oracle_jre.md#configuration))
 * [Extending](docs/extending.md)
-	* [Application](docs/extending-application.md)
-	* [Droplet](docs/extending-droplet.md)
-	* [BaseComponent](docs/extending-base_component.md)
-	* [VersionedDependencyComponent](docs/extending-versioned_dependency_component.md)
-	* [ModularComponent](docs/extending-modular_component.md)
-	* [Caches](docs/extending-caches.md) ([Configuration](docs/extending-caches.md#configuration))
-	* [Logging](docs/extending-logging.md) ([Configuration](docs/extending-logging.md#configuration))
-	* [Repositories](docs/extending-repositories.md) ([Configuration](docs/extending-repositories.md#configuration))
-	* [Utilities](docs/extending-utilities.md)
+  * [Application](docs/extending-application.md)
+  * [Droplet](docs/extending-droplet.md)
+  * [BaseComponent](docs/extending-base_component.md)
+  * [VersionedDependencyComponent](docs/extending-versioned_dependency_component.md)
+  * [ModularComponent](docs/extending-modular_component.md)
+  * [Caches](docs/extending-caches.md) ([Configuration](docs/extending-caches.md#configuration))
+  * [Logging](docs/extending-logging.md) ([Configuration](docs/extending-logging.md#configuration))
+  * [Repositories](docs/extending-repositories.md) ([Configuration](docs/extending-repositories.md#configuration))
+  * [Utilities](docs/extending-utilities.md)
 * [Debugging the Buildpack](docs/debugging-the-buildpack.md)
 * [Buildpack Modes](docs/buildpack-modes.md)
 * Related Projects
-	* [Java Buildpack Dependency Builder](https://github.com/cloudfoundry/java-buildpack-dependency-builder)
-	* [Java Buildpack Memory Calculator](https://github.com/cloudfoundry/java-buildpack-memory-calculator)
-	* [Java Test Applications](https://github.com/cloudfoundry/java-test-applications)
-	* [Java Buildpack System Tests](https://github.com/cloudfoundry/java-buildpack-system-test)
-	* [jvmkill](https://github.com/cloudfoundry/jvmkill)
+  * [Java Buildpack Dependency Builder](https://github.com/cloudfoundry/java-buildpack-dependency-builder)
+  * [Java Buildpack Memory Calculator](https://github.com/cloudfoundry/java-buildpack-memory-calculator)
+  * [Java Test Applications](https://github.com/cloudfoundry/java-test-applications)
+  * [Java Buildpack System Tests](https://github.com/cloudfoundry/java-buildpack-system-test)
+  * [jvmkill](https://github.com/cloudfoundry/jvmkill)
 
 ## Building Packages
 The buildpack can be packaged up so that it can be uploaded to Cloud Foundry using the `cf create-buildpack` and `cf update-buildpack` commands.  In order to create these packages, the rake `package` task is used.

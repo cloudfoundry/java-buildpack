@@ -38,7 +38,7 @@ require 'rakelib/stage_buildpack_task'
 require 'rakelib/package_task'
 require 'rakelib/versions_task'
 Package::DependencyCacheTask.new
-Package::StageBuildpackTask.new(Dir['bin/**/*', 'config/**/*', 'lib/**/*', 'resources/**/*']
+Package::StageBuildpackTask.new(Dir['bin/**/*', 'config/**/*', 'lib/**/*', 'resources/**/*', 'LICENSE', 'NOTICE']
                                   .reject { |f| File.directory? f })
 Package::PackageTask.new
 Package::VersionsTask.new

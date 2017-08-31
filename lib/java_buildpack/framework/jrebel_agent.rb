@@ -46,8 +46,10 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        jrebel_configured?(@application.root) || jrebel_configured?(@application.root + 'WEB-INF/classes') ||
-          jars_with_jrebel_configured?(@application.root)
+        enabled? && (
+            jrebel_configured?(@application.root) ||
+            jrebel_configured?(@application.root + 'WEB-INF/classes') ||
+            jars_with_jrebel_configured?(@application.root))
       end
 
       private
@@ -57,7 +59,9 @@ module JavaBuildpack
       end
 
       def jars_with_jrebel_configured?(root_path)
-        (root_path + '**/*.jar').glob.any? { |jar| !`unzip -l "#{jar}" | grep "rebel-remote\\.xml$"`.strip.empty? }
+        (root_path + '**/*.jar')
+          .glob.reject(&:directory?)
+          .any? { |jar| !`unzip -l "#{jar}" | grep "rebel-remote\\.xml$"`.strip.empty? }
       end
 
       def lib_name
@@ -66,6 +70,10 @@ module JavaBuildpack
 
       def architecture
         `uname -m`.strip
+      end
+
+      def enabled?
+        @configuration['enabled'].nil? || @configuration['enabled']
       end
 
     end

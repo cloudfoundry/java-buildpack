@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -12,16 +13,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
----
-platform: linux
 
-image_resource:
-  type: docker-image
-  source:
-    repository: cfje/java-buildpack
+$stdout.sync = true
+$stderr.sync = true
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
-inputs:
-- name: java-buildpack
+require 'java_buildpack/buildpack'
 
-run:
-  path: java-buildpack/ci/versions-pivotal-network.sh
+app_dir = ARGV[0]
+
+JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Finalize failed with exception %s', &:compile)

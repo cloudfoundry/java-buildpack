@@ -99,6 +99,10 @@ module JavaBuildpack
         buildpack_root = root + '.java-buildpack'
         sandbox_root   = buildpack_root + component_id
 
+        @logger.debug { "Droplet root: #{root}" }
+        @logger.debug { "Buildpack root: #{buildpack_root}" }
+        @logger.debug { "Sandbox root: #{sandbox_root}" }
+
         @sandbox            = JavaBuildpack::Util::FilteringPathname.new(sandbox_root,
                                                                          ->(path) { in?(path, sandbox_root) }, true)
         @root               = JavaBuildpack::Util::FilteringPathname.new(

@@ -68,8 +68,8 @@ describe JavaBuildpack::Container::Ratpack do
   it 'returns command',
      app_fixture: 'container_ratpack_staged' do
 
-    expect(component.release).to eq("test-var-2 test-var-1 #{java_home.as_env_var} JAVA_OPTS=\"test-opt-2 " \
-                                    'test-opt-1" exec $PWD/bin/application')
+    expect(component.release).to eq("test-var-2 test-var-1 JAVA_OPTS=$JAVA_OPTS #{java_home.as_env_var} exec " \
+                                    '$PWD/bin/application')
   end
 
 end

@@ -23,6 +23,9 @@ image_resource:
 inputs:
 - name: java-buildpack
 
+caches:
+- path: gems
+
 run:
   path: java-buildpack/ci/unit-test.sh
 
