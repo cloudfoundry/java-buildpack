@@ -63,7 +63,7 @@ module JavaBuildpack
       end
 
       def path
-        @droplet.sandbox +'lib'
+        @droplet.sandbox + ('lib')
       end
 
     end
