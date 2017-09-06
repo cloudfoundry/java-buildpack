@@ -30,7 +30,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_jar('1.0', @configuration('uri'), @configuration('jar_name', path)
+        download_jar('1.0', @configuration('uri'), @configuration('jar_name'), path)
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
