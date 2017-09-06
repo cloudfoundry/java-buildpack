@@ -26,18 +26,19 @@ module JavaBuildpack
       def initialize(context, &version_validator)
         super(context, &version_validator)
         @component_name = 'Hotswap Agent'
+        @uri = @configuration('uri')
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_jar('1.0', @configuration('uri'), @configuration('jar_name'), path)
+        download_jar(jar_name, path)
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet
           .java_opts
-          .add_agentpath(path + @configuration('jar_name')
+          .add_agentpath(path + '/' + jar_name)
       end
 
       protected
@@ -47,6 +48,10 @@ module JavaBuildpack
         enabled? #&& environment_variables['HOT_SWAP_AGENT'] == 'true'
       end
 
+
+      def jar_name
+        @configuration('jar_name')
+      end
       private
 
       def enabled?
@@ -54,7 +59,7 @@ module JavaBuildpack
       end
 
       def path
-        @droplet.sandbox +'lib/'
+        @droplet.sandbox +'lib'
       end
 
     end
