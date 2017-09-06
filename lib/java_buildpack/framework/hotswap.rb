@@ -30,7 +30,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_jar('', @configuration('uri'), @configuration('jar_name', path)
+        download_jar('1.0', @configuration('uri'), @configuration('jar_name', path)
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -38,7 +38,7 @@ module JavaBuildpack
         @droplet
           .java_opts
           .add_agentpath(path + @configuration('jar_name')
-     end
+      end
 
       protected
 
