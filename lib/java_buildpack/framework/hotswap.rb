@@ -30,14 +30,14 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_zip
+        download_jar('', @configuration('uri'), @configuration('jar_name', path)
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet
           .java_opts
-          .add_agentpath(@droplet.sandbox + ('lib/hotswap-agent.jar'))
+          .add_agentpath(path + @configuration('jar_name')
      end
 
       protected
@@ -51,6 +51,10 @@ module JavaBuildpack
 
       def enabled?
         @configuration['enabled'].nil? || @configuration['enabled']
+      end
+
+      def path
+        @droplet.sandbox +'lib/'
       end
 
     end
