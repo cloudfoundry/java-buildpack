@@ -44,7 +44,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        enabled? && environment_variables['HOT_SWAP_AGENT'] == 'true'
+        enabled? #&& environment_variables['HOT_SWAP_AGENT'] == 'true'
       end
 
       private
