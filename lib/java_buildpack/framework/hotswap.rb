@@ -21,7 +21,7 @@ module JavaBuildpack
   module Framework
 
     # Support hotswap agent (http://hotswapagent.org/)
-    class HotswapAgent < JavaBuildpack::Component::VersionedDependencyComponent
+    class HotswapAgent < JavaBuildpack::Component::BaseComponent
 
       def initialize(context, &version_validator)
         super(context, &version_validator)
@@ -31,7 +31,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_jar(jar_name, path)
+        download_jar(@version, @uri, jar_name, path)
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
