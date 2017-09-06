@@ -68,3 +68,5 @@ frameworks:
   - "JavaBuildpack::Framework::TakipiAgent"
   - "JavaBuildpack::Framework::SecurityProviders"
   - "JavaBuildpack::Framework::JavaOpts"
+  - "JavaBuildpack::Framework::HotswapAgent"
+  

@@ -84,6 +84,7 @@ module Package
       'takipi_agent'                        => 'Takipi Agent',
       'tomcat'                              => 'Tomcat',
       'your_kit_profiler'                   => 'YourKit Profiler'
+      'hotswap'                             => 'Hotswap Agent',
     }.freeze
 
     PLATFORM_PATTERN = /\{platform\}/
