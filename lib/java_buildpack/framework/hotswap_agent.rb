@@ -42,7 +42,7 @@ module JavaBuildpack
       def release
         @droplet
           .java_opts
-          .add_agentpath(path + ('/' + jar_name))
+          .add_agentpath(path +  jar_name)
       end
 
       protected
@@ -63,7 +63,7 @@ module JavaBuildpack
       end
 
       def path
-        @droplet.sandbox + ('lib')
+        @droplet.sandbox + ('lib/')
       end
 
     end
