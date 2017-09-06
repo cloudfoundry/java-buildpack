@@ -34,6 +34,10 @@ module JavaBuildpack
         download_jar('1.0', @uri, jar_name, path)
       end
 
+      def detect
+        'true'
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet
