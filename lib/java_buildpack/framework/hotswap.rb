@@ -26,7 +26,7 @@ module JavaBuildpack
       def initialize(context, &version_validator)
         super(context, &version_validator)
         @component_name = 'Hotswap Agent'
-        @uri = @configuration('uri')
+        @uri = @configuration['uri']
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -48,10 +48,10 @@ module JavaBuildpack
         enabled? #&& environment_variables['HOT_SWAP_AGENT'] == 'true'
       end
 
-
       def jar_name
-        @configuration('jar_name')
+        @configuration['jar_name']
       end
+
       private
 
       def enabled?
