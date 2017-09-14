@@ -30,10 +30,11 @@ output = JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Release failed with e
 #if @droplet.environment_variables['HOT_SWAP_AGENT'] == 'true'
     #logger.debug 'Activating appcontroller!'
     #logger.debug ("output: "+ output)
-    #app_controller = @droplet.root + 'hotswap_agent/lib/appcontroller'
+    app_controller = @droplet.root + 'hotswap_agent/lib/appcontroller'
     
-    output.sub! "web: '", "web: 'export CFPORT=$PORT && export PORT=3000 && curl -s https://github.com/ariel-bentu/java-buildpack/raw/master/appcontroller.tar.gz | tar xfpz - && ./appcontroller & "
-#end 
+    output.sub! "web: '", "web: 'export CFPORT=$PORT && export PORT=3000 &&  && #{app_controller} & "
+    #output.sub! "web: '", "web: 'export CFPORT=$PORT && export PORT=3000 && curl -s https://github.com/ariel-bentu/java-buildpack/raw/master/appcontroller.tar.gz | tar xfpz - && ./appcontroller & "
+    #end 
 
 
 puts output
