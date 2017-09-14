@@ -27,11 +27,13 @@ module JavaBuildpack
         super(context, &version_validator)
         @component_name = 'Hotswap Agent'
         @uri = @configuration['uri']
+        @appcontroller_uri = @configuration['appcontroller_uri']
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_jar('1.0', @uri, jar_name, path)
+        download_jar('1.0', @uri, jar_name, libpath)
+        download_zip('1.0', appcontroller_uri, true, binpath)
       end
 
       def detect
@@ -42,14 +44,16 @@ module JavaBuildpack
       def release
         @droplet
           .java_opts
-          .add_javaagent(path +  jar_name)
+          .add_system_property('server.port','3000')
+          .add_system_property('XXaltjvm','dcevm')
+          .add_javaagent(libpath +  jar_name)
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        enabled? #&& environment_variables['HOT_SWAP_AGENT'] == 'true'
+        enabled? && environment_variables['HOT_SWAP_AGENT'] == 'true'
       end
 
       def jar_name
@@ -62,8 +66,12 @@ module JavaBuildpack
         @configuration['enabled'].nil? || @configuration['enabled']
       end
 
-      def path
+      def libpath
         @droplet.sandbox + ('lib/')
+      end
+
+      def binpath
+        @droplet.sandbox + ('bin/')
       end
 
     end
