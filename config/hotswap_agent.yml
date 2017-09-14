@@ -20,4 +20,4 @@ repository_root: https://github.com/HotswapProjects/HotswapAgent/todo
 uri: https://github.com/HotswapProjects/HotswapAgent/releases/download/1.0/hotswap-agent-1.0.jar
 enabled: true
 jar_name: hotswap-agent-1.0.jar
-appcontroller_uri: https://github.com/ariel-bentu/java-buildpack/raw/master/appcontroller.zip
+appcontroller_uri: https://github.com/ariel-bentu/java-buildpack/raw/master/appcontroller.tar

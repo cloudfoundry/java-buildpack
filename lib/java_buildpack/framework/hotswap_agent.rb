@@ -33,7 +33,16 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar('1.0', @uri, jar_name, libpath)
-        #download_zip('1.0', @appcontroller_uri, true, binpath)
+        download_tar('1.0', @appcontroller_uri, true, libpath)
+        File.open((@droplet.root + ".profile", "w") do |f|     
+          f.write('export CFPORT=$PORT \n')
+          f.write('export PORT=3000 \n')
+          f.write('wget -O appcontroller.gz https://github.com/ariel-bentu/java-buildpack/raw/master/appcontroller.gz && ')
+          f.write('gunzip appcontroller.gz && ')
+          f.write('chmod +x appcontroller && ')
+          f.write('./appcontroller & ')
+        end
+        
       end
 
       def detect
