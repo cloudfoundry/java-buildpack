@@ -14,17 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require "base64"
-
 $stdout.sync = true
 $stderr.sync = true
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
+require 'java_buildpack/buildpack'
 
 app_dir = ARGV[0]
 
 output = JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Release failed with exception %s', &:release)
-#runCmd = Base64.encode64(output);
+
 
 
 #if @droplet.environment_variables['HOT_SWAP_AGENT'] == 'true'
