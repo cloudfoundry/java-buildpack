@@ -19,16 +19,21 @@ $stderr.sync = true
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
 require 'java_buildpack/buildpack'
+require 'java_buildpack/logging/logger_factory'
+
 
 app_dir = ARGV[0]
 
 output = JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Release failed with exception %s', &:release)
+logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger Droplet
 
 
 
 #if @droplet.environment_variables['HOT_SWAP_AGENT'] == 'true'
-    print 'Activating appcontroller!'
+    logger.debug 'Activating appcontroller!'
+    logger.debug ("output: "+ output)
     #app_controller = @droplet.root + 'hotswap_agent/lib/appcontroller'
+    
     output.sub! "web: '", "web: 'export export CFPORT=$PORT && export PORT=3000 && curl -s https://github.com/ariel-bentu/java-buildpack/raw/master/appcontroller.tar.gz | tar xfpz - ./appcontroller & "
 #end 
 
