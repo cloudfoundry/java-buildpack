@@ -33,7 +33,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar('1.0', @uri, jar_name, libpath)
-        download_zip('1.0', appcontroller_uri, true, binpath)
+        download_zip('1.0', @appcontroller_uri, true, binpath)
       end
 
       def detect
