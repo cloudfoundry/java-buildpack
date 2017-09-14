@@ -18,8 +18,8 @@ require "base64"
 
 $stdout.sync = true
 $stderr.sync = true
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
-require 'java_buildpack/buildpack'
 
 app_dir = ARGV[0]
 
