@@ -35,7 +35,7 @@ module JavaBuildpack
         download_jar('1.0', @uri, jar_name, libpath)
         download_tar('1.0', @appcontroller_uri, true, libpath)
 
-        
+
       end
 
       def detect
@@ -55,7 +55,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        enabled? && environment_variables['HOT_SWAP_AGENT'] == 'true'
+        enabled? && @droplet.environment_variables['HOT_SWAP_AGENT'] == 'true'
       end
 
       def jar_name
