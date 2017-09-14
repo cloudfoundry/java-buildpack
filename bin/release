@@ -18,7 +18,6 @@ require "base64"
 
 $stdout.sync = true
 $stderr.sync = true
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
 require 'java_buildpack/buildpack'
 
@@ -28,11 +27,11 @@ output = JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Release failed with e
 #runCmd = Base64.encode64(output);
 
 
-if @droplet.environment_variables['HOT_SWAP_AGENT'] == 'true'
-    print 'Activating appcontroller!'
-    app_controller = @droplet.root + 'hotswap_agent/bin/appcontroller'
-    output.sub! "web: '", "web: 'export export CFPORT=$PORT && export PORT=3000 && #{app_controller} && "
-end 
+#if @droplet.environment_variables['HOT_SWAP_AGENT'] == 'true'
+#    print 'Activating appcontroller!'
+#    app_controller = @droplet.root + 'hotswap_agent/bin/appcontroller'
+#    output.sub! "web: '", "web: 'export export CFPORT=$PORT && export PORT=3000 && #{app_controller} && "
+#end 
 
 
 puts output
