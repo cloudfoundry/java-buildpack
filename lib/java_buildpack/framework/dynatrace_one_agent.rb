@@ -30,7 +30,7 @@ module JavaBuildpack
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
         super(context)
-        @version, @uri = agent_download_url if supports? && supports_apitoken?
+        @version, @uri = agent_download_url if supports?
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -46,48 +46,43 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = @application.services.find_service(FILTER)['credentials']
+        credentials = service['credentials']
 
-        @droplet.java_opts.add_agentpath_with_props(agent_path,
-                                                    SERVER      => server(credentials),
-                                                    TENANT      => tenant(credentials),
-                                                    TENANTTOKEN => tenanttoken(credentials))
+        @droplet.java_opts.add_agentpath(agent_path)
 
         environment           = @application.environment
         environment_variables = @droplet.environment_variables
 
-        unless environment.key?(RUXIT_APPLICATION_ID)
-          environment_variables.add_environment_variable(RUXIT_APPLICATION_ID, application_id)
+        unless environment.key?(DT_APPLICATION_ID)
+          environment_variables.add_environment_variable(DT_APPLICATION_ID, application_id)
         end
 
-        environment_variables.add_environment_variable(RUXIT_HOST_ID, host_id) unless environment.key?(RUXIT_HOST_ID)
+        environment_variables.add_environment_variable(DT_HOST_ID, host_id) unless environment.key?(DT_HOST_ID)
+        environment_variables.add_environment_variable(DT_TENANT, credentials[ENVIRONMENTID])
+        environment_variables.add_environment_variable(DT_TENANTTOKEN, tenanttoken)
+        environment_variables.add_environment_variable(DT_CONNECTION_POINT, endpoints)
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, [ENVIRONMENTID, TENANT], [APITOKEN, TENANTTOKEN]
-      end
-
-      def supports_apitoken?
-        credentials = @application.services.find_service(FILTER)['credentials']
-        credentials[APITOKEN] ? true : false
+        !service.nil?
       end
 
       private
 
-      FILTER = /ruxit|dynatrace/
+      FILTER = /dynatrace/
 
-      RUXIT_APPLICATION_ID = 'RUXIT_APPLICATIONID'.freeze
+      DT_APPLICATION_ID = 'DT_APPLICATIONID'.freeze
 
-      RUXIT_HOST_ID = 'RUXIT_HOST_ID'.freeze
+      DT_HOST_ID = 'DT_HOST_ID'.freeze
 
-      SERVER = 'server'.freeze
+      DT_TENANT = 'DT_TENANT'.freeze
 
-      TENANT = 'tenant'.freeze
+      DT_TENANTTOKEN = 'DT_TENANTTOKEN'.freeze
 
-      TENANTTOKEN = 'tenanttoken'.freeze
+      DT_CONNECTION_POINT = 'DT_CONNECTION_POINT'.freeze
 
       APITOKEN = 'apitoken'.freeze
 
@@ -95,34 +90,40 @@ module JavaBuildpack
 
       ENVIRONMENTID = 'environmentid'.freeze
 
-      ENDPOINT = 'endpoint'.freeze
+      private_constant :FILTER, :DT_APPLICATION_ID, :DT_HOST_ID
+      private_constant :DT_TENANT, :DT_TENANTTOKEN, :DT_CONNECTION_POINT
+      private_constant :ENVIRONMENTID, :APITOKEN
 
-      private_constant :FILTER, :RUXIT_APPLICATION_ID, :RUXIT_HOST_ID, :SERVER, :TENANT, :TENANTTOKEN, :APITOKEN
-      private_constant :ENVIRONMENTID, :ENDPOINT, :APIURL
+      def service
+        candidates = @application.services.select do |candidate|
+          (
+            candidate['name'] =~ FILTER ||
+            candidate['label'] =~ FILTER ||
+            candidate['tags'].any? { |tag| tag =~ FILTER }
+          ) &&
+          candidate['credentials'][ENVIRONMENTID] && candidate['credentials'][APITOKEN]
+        end
 
-      def agent_dir
-        @droplet.sandbox + 'agent'
+        candidates.one? ? candidates.first : nil
       end
 
       def agent_path
-        libpath = agent_dir + 'lib64/liboneagentloader.so'
-        libpath = agent_dir + 'lib64/libruxitagentloader.so' unless File.file?(libpath)
-        libpath
+        technologies = JSON.parse(File.read(@droplet.sandbox + 'manifest.json'))['technologies']
+        java_binaries = technologies['java']['linux-x86-64']
+        loader = java_binaries.find { |bin| bin['binarytype'] == 'loader' }
+        @droplet.sandbox + loader['path']
       end
 
       def agent_download_url
-        credentials = @application.services.find_service(FILTER)['credentials']
+        credentials = service['credentials']
         download_uri = "#{api_base_url}/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64&"
         download_uri += "Api-Token=#{credentials[APITOKEN]}"
         ['latest', download_uri]
       end
 
       def api_base_url
-        credentials = @application.services.find_service(FILTER)['credentials']
-        return credentials[APIURL] unless credentials[APIURL].nil?
-        base_url = credentials[ENDPOINT] || credentials[SERVER] || "https://#{tenant(credentials)}.live.dynatrace.com"
-        base_url = base_url.gsub('/communication', '').concat('/api').gsub(':8443', '').gsub(':443', '')
-        base_url
+        credentials = service['credentials']
+        credentials[APIURL] || "https://#{credentials[ENVIRONMENTID]}.live.dynatrace.com/api"
       end
 
       def application_id
@@ -143,26 +144,12 @@ module JavaBuildpack
         "#{@application.details['application_name']}_${CF_INSTANCE_INDEX}"
       end
 
-      def server(credentials)
-        given_endp = credentials[ENDPOINT] || credentials[SERVER] || "https://#{tenant(credentials)}.live.dynatrace.com"
-        supports_apitoken? ? server_from_api : given_endp
-      end
-
-      def server_from_api
-        endpoints = JSON.parse(File.read(@droplet.sandbox + 'manifest.json'))['communicationEndpoints']
-        endpoints.join('\;')
-      end
-
-      def tenant(credentials)
-        credentials[ENVIRONMENTID] || credentials[TENANT]
-      end
-
-      def tenanttoken(credentials)
-        supports_apitoken? ? tenanttoken_from_api : credentials[TENANTTOKEN]
-      end
-
-      def tenanttoken_from_api
+      def tenanttoken
         JSON.parse(File.read(@droplet.sandbox + 'manifest.json'))['tenantToken']
+      end
+
+      def endpoints
+        '"' + JSON.parse(File.read(@droplet.sandbox + 'manifest.json'))['communicationEndpoints'].join(';') + '"'
       end
 
       def unpack_agent(root)
