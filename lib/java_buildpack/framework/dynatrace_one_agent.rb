@@ -58,7 +58,7 @@ module JavaBuildpack
         end
 
         environment_variables.add_environment_variable(DT_HOST_ID, host_id) unless environment.key?(DT_HOST_ID)
-        environment_variables.add_environment_variable(DT_TENANT, tenant(credentials))
+        environment_variables.add_environment_variable(DT_TENANT, credentials[ENVIRONMENTID])
         environment_variables.add_environment_variable(DT_TENANTTOKEN, tenanttoken)
         environment_variables.add_environment_variable(DT_CONNECTION_POINT, endpoints)
       end
@@ -96,7 +96,12 @@ module JavaBuildpack
 
       def service
         candidates = @application.services.select do |candidate|
-          candidate['name'] =~ FILTER && candidate['credentials'][ENVIRONMENTID] && candidate['credentials'][APITOKEN]
+          (
+            candidate['name'] =~ FILTER ||
+            candidate['label'] =~ FILTER ||
+            candidate['tags'].any? { |tag| tag =~ FILTER }
+          ) &&
+          candidate['credentials'][ENVIRONMENTID] && candidate['credentials'][APITOKEN]
         end
 
         candidates.one? ? candidates.first : nil
@@ -137,10 +142,6 @@ module JavaBuildpack
 
       def host_id
         "#{@application.details['application_name']}_${CF_INSTANCE_INDEX}"
-      end
-
-      def tenant(credentials)
-        credentials[ENVIRONMENTID] || credentials[TENANT]
       end
 
       def tenanttoken
