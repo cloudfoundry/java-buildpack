@@ -56,7 +56,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        enabled? && @droplet.environment_variables['HOT_SWAP_AGENT'] == 'true'
+        enabled? #&& @droplet.environment_variables['HOT_SWAP_AGENT'] == 'true'
       end
 
       def jar_name
