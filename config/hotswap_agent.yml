@@ -21,4 +21,5 @@ uri: https://github.com/HotswapProjects/HotswapAgent/releases/download/1.0/hotsw
 enabled: true
 jar_name: hotswap-agent-1.0.jar
 appcontroller_uri: https://github.com/ariel-bentu/java-buildpack/raw/master/appcontroller.tar.gz
-jdblibs_uri: https://github.com/ariel-bentu/java-buildpack/raw/master/jdb.tar.xz
+jdblibs_uri: https://github.com/ariel-bentu/java-buildpack/raw/master/sc_jdb.tar.gz
+
