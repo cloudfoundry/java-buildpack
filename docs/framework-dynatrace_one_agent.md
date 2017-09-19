@@ -7,7 +7,7 @@ The Dynatrace SaaS/Managed OneAgent Framework causes an application to be automa
   <tr>
     <td><strong>Detection Criterion</strong></td><td>Existence of a single bound Dynatrace SaaS/Managed service.
       <ul>
-        <li>Existence of a Dynatrace SaaS/Managed service is defined as the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>dynatrace</code> as a substring.</li>
+        <li>Existence of a Dynatrace SaaS/Managed service is defined as the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>dynatrace</code> as a substring with at least `environmentid` and `apitoken` set as credentials.</li>
       </ul>
     </td>
   </tr>
@@ -25,10 +25,9 @@ The credential payload of the service may contain the following entries:
 
 | Name | Description
 | ---- | -----------
-| `environmentid` | Your Dynatrace environment ID is the unique identifier of your Dynatrace environment. You can find it in the deploy Dynatrace section within your environment. The `environmentid` replaces deprecated ~~`tenant`~~ option.
-| `apitoken` | The token for integrating your Dynatrace environment with Cloud Foundry. You can find it in the deploy Dynatrace section within your environment. The `apitoken` replaces deprecated ~~`tenanttoken`~~ option.
+| `apitoken` | The token for integrating your Dynatrace environment with Cloud Foundry. You can find it in the deploy Dynatrace section within your environment.
 | `apiurl` | (Optional) The base URL of the Dynatrace API. If you are using Dynatrace Managed you will need to set this property to `https://<your-managed-server-url>/e/<environmentId>/api`. If you are using Dynatrace SaaS you don't need to set this property.
-| `endpoint`  | (Deprecated) The Dynatrace connection endpoint the agent connects to. Please use `apiurl` in combination with `apitoken` for Dynatrace Managed.
+| `environmentid` | Your Dynatrace environment ID is the unique identifier of your Dynatrace environment. You can find it in the deploy Dynatrace section within your environment.
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
