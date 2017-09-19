@@ -46,35 +46,37 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = service['credentials']
-
-        @droplet.java_opts.add_agentpath(agent_path)
-
-        environment           = @application.environment
+        credentials           = @application.services.find_service(FILTER)['credentials']
         environment_variables = @droplet.environment_variables
+        manifest              = agent_manifest
 
-        unless environment.key?(DT_APPLICATION_ID)
-          environment_variables.add_environment_variable(DT_APPLICATION_ID, application_id)
-        end
+        @droplet.java_opts.add_agentpath(agent_path(manifest))
 
-        environment_variables.add_environment_variable(DT_HOST_ID, host_id) unless environment.key?(DT_HOST_ID)
-        environment_variables.add_environment_variable(DT_TENANT, credentials[ENVIRONMENTID])
-        environment_variables.add_environment_variable(DT_TENANTTOKEN, tenanttoken)
-        environment_variables.add_environment_variable(DT_CONNECTION_POINT, endpoints)
+        environment_variables
+          .add_environment_variable(DT_TENANT, credentials[ENVIRONMENTID])
+          .add_environment_variable(DT_TENANTTOKEN, tenanttoken(manifest))
+          .add_environment_variable(DT_CONNECTION_POINT, endpoints(manifest))
+
+        environment_variables.add_environment_variable(DT_APPLICATION_ID, application_id) unless application_id?
+        environment_variables.add_environment_variable(DT_HOST_ID, host_id) unless host_id?
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        !service.nil?
+        @application.services.one_service? FILTER, APITOKEN, ENVIRONMENTID
       end
 
       private
 
-      FILTER = /dynatrace/
+      APIURL = 'apiurl'.freeze
+
+      APITOKEN = 'apitoken'.freeze
 
       DT_APPLICATION_ID = 'DT_APPLICATIONID'.freeze
+
+      DT_CONNECTION_POINT = 'DT_CONNECTION_POINT'.freeze
 
       DT_HOST_ID = 'DT_HOST_ID'.freeze
 
@@ -82,52 +84,45 @@ module JavaBuildpack
 
       DT_TENANTTOKEN = 'DT_TENANTTOKEN'.freeze
 
-      DT_CONNECTION_POINT = 'DT_CONNECTION_POINT'.freeze
-
-      APITOKEN = 'apitoken'.freeze
-
-      APIURL = 'apiurl'.freeze
-
       ENVIRONMENTID = 'environmentid'.freeze
 
-      private_constant :FILTER, :DT_APPLICATION_ID, :DT_HOST_ID
-      private_constant :DT_TENANT, :DT_TENANTTOKEN, :DT_CONNECTION_POINT
-      private_constant :ENVIRONMENTID, :APITOKEN
+      FILTER = /dynatrace/
 
-      def service
-        candidates = @application.services.select do |candidate|
-          (
-            candidate['name'] =~ FILTER ||
-            candidate['label'] =~ FILTER ||
-            candidate['tags'].any? { |tag| tag =~ FILTER }
-          ) &&
-          candidate['credentials'][ENVIRONMENTID] && candidate['credentials'][APITOKEN]
-        end
-
-        candidates.one? ? candidates.first : nil
-      end
-
-      def agent_path
-        technologies = JSON.parse(File.read(@droplet.sandbox + 'manifest.json'))['technologies']
-        java_binaries = technologies['java']['linux-x86-64']
-        loader = java_binaries.find { |bin| bin['binarytype'] == 'loader' }
-        @droplet.sandbox + loader['path']
-      end
+      private_constant :APIURL, :APITOKEN, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_HOST_ID, :DT_TENANT,
+                       :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER
 
       def agent_download_url
-        credentials = service['credentials']
-        download_uri = "#{api_base_url}/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64&"
-        download_uri += "Api-Token=#{credentials[APITOKEN]}"
+        credentials  = @application.services.find_service(FILTER)['credentials']
+        download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
+                       "&bitness=64&Api-Token=#{credentials[APITOKEN]}"
         ['latest', download_uri]
       end
 
-      def api_base_url
-        credentials = service['credentials']
+      def agent_manifest
+        JSON.parse(File.read(@droplet.sandbox + 'manifest.json'))
+      end
+
+      def agent_path(manifest)
+        technologies  = manifest['technologies']
+        java_binaries = technologies['java']['linux-x86-64']
+        loader        = java_binaries.find { |bin| bin['binarytype'] == 'loader' }
+        @droplet.sandbox + loader['path']
+      end
+
+      def api_base_url(credentials)
         credentials[APIURL] || "https://#{credentials[ENVIRONMENTID]}.live.dynatrace.com/api"
       end
 
       def application_id
         @application.details['application_name']
+      end
+
+      def application_id?
+        @application.environment.key?(DT_APPLICATION_ID)
+      end
+
+      def endpoints(manifest)
+        "\"#{manifest['communicationEndpoints'].join(';')}\""
       end
 
       def expand(file)
@@ -144,12 +139,12 @@ module JavaBuildpack
         "#{@application.details['application_name']}_${CF_INSTANCE_INDEX}"
       end
 
-      def tenanttoken
-        JSON.parse(File.read(@droplet.sandbox + 'manifest.json'))['tenantToken']
+      def host_id?
+        @application.environment.key?(DT_HOST_ID)
       end
 
-      def endpoints
-        '"' + JSON.parse(File.read(@droplet.sandbox + 'manifest.json'))['communicationEndpoints'].join(';') + '"'
+      def tenanttoken(manifest)
+        manifest['tenantToken']
       end
 
       def unpack_agent(root)
