@@ -28,14 +28,15 @@ module JavaBuildpack
         @component_name = 'Hotswap Agent'
         @uri = @configuration['uri']
         @appcontroller_uri = @configuration['appcontroller_uri']
+        @jdblibs_uri = @configuration['jdblibs_uri']
+        
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar('1.0', @uri, jar_name, libpath)
         download_tar('1.0', @appcontroller_uri, true, libpath)
-
-
+        download_tar('1.0', @jdblibs_uri, true, libpath)
       end
 
       def detect
