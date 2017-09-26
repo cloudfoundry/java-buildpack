@@ -28,7 +28,7 @@ output = JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Release failed with e
 
 
 #if @droplet.environment_variables['HOT_SWAP_AGENT'] == 'true'
-    logger.debug 'Activating appcontroller!'
+    #logger.debug 'Activating appcontroller!'
     #logger.debug ("output: "+ output)
     app_controller_exe = "/home/vcap/app/.java-buildpack/hotswap_agent/lib/appcontroller"
     jdb_exe            = "/home/vcap/app/.java-buildpack/hotswap_agent/lib/sc_jdb"
