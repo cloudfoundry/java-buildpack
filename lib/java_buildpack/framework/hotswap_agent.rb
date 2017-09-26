@@ -35,7 +35,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar('1.0', @uri, jar_name, libpath)
-        download_tar('1.0', @appcontroller_uri, true, libpath, 'App Controller')
+        #download_tar('1.0', @appcontroller_uri, true, libpath, 'App Controller')
         download_tar('1.0', @jdblibs_uri, true, libpath, 'JDB')
       end
 
