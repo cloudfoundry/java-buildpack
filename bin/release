@@ -45,7 +45,7 @@ output = JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Release failed with e
 
 
     inx = output.index('web:')
-    webStr = output[inx+6..output.length-2]
+    webStr = output[inx+6..output.length-3]
     runCmd = Base64.encode64("PORT=3000 " + webStr)
 
     output =  output[0..inx-1] + "web: 'DEV_UTILS=\"#{strDevUtils}\" #{app_controller_exe} -startCmd #{runCmd} '"
