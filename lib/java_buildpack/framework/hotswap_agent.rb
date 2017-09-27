@@ -56,7 +56,7 @@ module JavaBuildpack
         port = ENV['PORT']
         userDevUtils = ENV['DEV_UTILS']
         appSettings = ""
-        if devUtils != "" 
+        if userDevUtils != "" 
           appSettings = JSON.parse(userDevUtils)['APP_SETTINGS']
         end
         
