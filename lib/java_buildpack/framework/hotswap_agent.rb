@@ -61,7 +61,7 @@ module JavaBuildpack
           :start => "", :app_url => "http://localhost:3000" 
         }
 
-        strDevUtils = devUtils.to_json.sub! "\"",  "\\\"" 
+        strDevUtils = devUtils.to_json.gsub! "\"",  "\\\"" 
         @droplet.environment_variables.add_environment_variable 'DEV_UTILS',  "\"" + strDevUtils + "\""
       end
 
