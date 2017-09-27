@@ -58,7 +58,7 @@ module JavaBuildpack
         devUtils = 
         {
           :server_port => "#{port}",  :jdb_path => "#{jdb_exe}", :jdb_debug_path => "jdb", 
-          :start => "", :app_url => "http://localhost:3000" 
+          :start => "read x", :app_url => "http://localhost:3000" 
         }
 
         strDevUtils = devUtils.to_json.gsub! "\"",  "\\\"" 
