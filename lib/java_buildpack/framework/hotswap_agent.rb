@@ -53,7 +53,7 @@ module JavaBuildpack
           .add_javaagent(libpath +  jar_name)
 
         jdb_exe  = "/home/vcap/app/.java-buildpack/hotswap_agent/lib/sc_jdb"
-        port = @droplet.environment_variables['PORT'].first
+        port = "8080" #@droplet.environment_variables['PORT'].first
         
         devUtils = 
         {
