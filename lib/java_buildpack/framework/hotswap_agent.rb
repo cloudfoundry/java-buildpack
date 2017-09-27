@@ -58,7 +58,7 @@ module JavaBuildpack
         devUtils = 
         {
           :server_port => "#{port}",  :jdb_path => "#{jdb_exe}", :jdb_debug_path => "jdb", 
-          :start => "read x", :app_url => "http://localhost:3000" 
+          :start => "while true ; do nc -l -p 1500 -c 'echo -e \"HTTP/1.1 200 OK\n\n $(date)\"'; done", :app_url => "http://localhost:3000" 
         }
 
         strDevUtils = devUtils.to_json.gsub! "\"",  "\\\"" 
