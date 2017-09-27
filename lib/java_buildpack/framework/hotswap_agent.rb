@@ -16,6 +16,7 @@
 require 'fileutils'
 require 'java_buildpack/component/base_component'
 require 'java_buildpack/framework'
+require 'json'
 
 module JavaBuildpack
   module Framework
@@ -50,6 +51,25 @@ module JavaBuildpack
           .add_system_property('server.port','3000')
           .add_system_property('XXaltjvm','dcevm')
           .add_javaagent(libpath +  jar_name)
+
+        jdb_exe  = "/home/vcap/app/.java-buildpack/hotswap_agent/lib/sc_jdb"
+        port = ENV['PORT']
+        devUtils = ENV['DEV_UTILS']
+        appSettings = ""
+        if devUtils != "" 
+          appSettings = JSON.parse(devUtils)['APP_SETTINGS']
+        end
+        
+        DEV_UTILS = '{
+          "server_port":#{port},  
+          "jdb_path": #{jdb_exe}, 
+          "jdb_debug_path": "jdb"
+          "io_url":"localhost:#{port}",
+          "start": "",
+          "app_url":"http://localhost:3000"
+          "APP_SETTINGS":"#{appSettings}"
+        }'
+        @droplet.environment_variables.add_environment_variable 'DEV_UTILS', '#{DEV_UTILS}'
       end
 
       protected

@@ -33,8 +33,9 @@ output = JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Release failed with e
     app_controller_exe = "/home/vcap/app/.java-buildpack/hotswap_agent/lib/appcontroller"
     jdb_exe            = "/home/vcap/app/.java-buildpack/hotswap_agent/lib/sc_jdb"
     output.sub! "http.port=$PORT", "http.port=3000"
-    output.sub! "web: '", "web: 'CFPORT=$PORT PORT=3000 #{app_controller_exe} -jdbPath #{jdb_exe} & CFPORT=$PORT PORT=3000 "
-    output.sub! "web: '", "web: 'export CFPORT=$PORT && export PORT=3000 && curl -s https://github.com/ariel-bentu/java-buildpack/raw/master/appcontroller.tar.gz | tar xfpz - && ./appcontroller & "
+    output.sub! "web: '", "web: '#{app_controller_exe} & PORT=3000 "
+    #output.sub! "web: '", "web: 'CFPORT=$PORT PORT=3000 #{app_controller_exe} -jdbPath #{jdb_exe} & CFPORT=$PORT PORT=3000 "
+    #output.sub! "web: '", "web: 'export CFPORT=$PORT && export PORT=3000 && curl -s https://github.com/ariel-bentu/java-buildpack/raw/master/appcontroller.tar.gz | tar xfpz - && ./appcontroller & "
     #end 
 
 
