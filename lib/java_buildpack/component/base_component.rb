@@ -127,7 +127,7 @@ module JavaBuildpack
       def download_tar(version, uri, strip_top_level = true, target_directory = @droplet.sandbox,
                        name = @component_name)
         download(version, uri, name) do |file|
-          with_timing "Expanding #{name} to #{target_directory.relative_path_from(@droplet.root)}" do
+          with_timing "Expanding #{name} - #{file.path}to #{target_directory.relative_path_from(@droplet.root)}" do
             FileUtils.mkdir_p target_directory
             shell "tar x#{compression_flag(file)}f #{file.path} -C #{target_directory} " \
                   "#{'--strip 1' if strip_top_level} 2>&1"

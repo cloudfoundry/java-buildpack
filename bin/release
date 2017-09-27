@@ -23,5 +23,38 @@ require 'java_buildpack/buildpack'
 app_dir = ARGV[0]
 
 output = JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Release failed with exception %s', &:release)
+#logger = JavaBuildpack::Buildpack.logger
+
+
+
+#if @droplet.environment_variables['HOT_SWAP_AGENT'] == 'true'
+    #logger.debug 'Activating appcontroller!'
+    #logger.debug ("output: "+ output)
+    app_controller_exe = "/home/vcap/app/.java-buildpack/hotswap_agent/lib/appcontroller"
+    jdb_exe            = "/home/vcap/app/.java-buildpack/hotswap_agent/lib/sc_jdb"
+
+    port = "8080" #@droplet.environment_variables['PORT'].first
+    
+    devUtils = 
+    {
+      :server_port => ":8080",  :jdb_path => "#{jdb_exe}", :jdb_debug_path => "jdb", 
+      :start => "sleep 5000", :app_url => "http://localhost:3000" 
+    }
+    strDevUtils = devUtils.to_json.gsub! "\"",  "\\\"" 
+    output.sub! "http.port=$PORT", "http.port=3000"
+
+
+    inx = output.index('web:')
+    webStr = output[inx+6..output.length-3]
+    webStr = webStr.delete("\r\n")
+    webStr = webStr.delete("\n")
+    webStr = webStr.delete("\r")
+    runCmd = Base64.encode64("PORT=3000 " + webStr).delete("\n")
+
+    output =  output[0..inx-1] + "web: 'DEV_UTILS=\"#{strDevUtils}\" #{app_controller_exe} -startCmd #{runCmd} '"
+    #output.sub! "web: '", "web: 'CFPORT=$PORT PORT=3000 #{app_controller_exe} -jdbPath #{jdb_exe} & CFPORT=$PORT PORT=3000 "
+    #output.sub! "web: '", "web: 'export CFPORT=$PORT && export PORT=3000 && curl -s https://github.com/ariel-bentu/java-buildpack/raw/master/appcontroller.tar.gz | tar xfpz - && ./appcontroller & "
+    #end 
+
 
 puts output
