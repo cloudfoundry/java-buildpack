@@ -54,10 +54,10 @@ module JavaBuildpack
 
         jdb_exe  = "/home/vcap/app/.java-buildpack/hotswap_agent/lib/sc_jdb"
         port = ENV['PORT']
-        devUtils = ENV['DEV_UTILS']
+        userDevUtils = ENV['DEV_UTILS']
         appSettings = ""
         if devUtils != "" 
-          appSettings = JSON.parse(devUtils)['APP_SETTINGS']
+          appSettings = JSON.parse(userDevUtils)['APP_SETTINGS']
         end
         
         DEV_UTILS = '{"server_port":"#{port}",  "jdb_path": "#{jdb_exe}", "jdb_debug_path": "jdb", "start": "", "app_url":"http://localhost:3000", "APP_SETTINGS":"#{appSettings}" }'
