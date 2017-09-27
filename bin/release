@@ -38,7 +38,7 @@ output = JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Release failed with e
     devUtils = 
     {
       :server_port => "#{port}",  :jdb_path => "#{jdb_exe}", :jdb_debug_path => "jdb", 
-      :start => "read", :app_url => "http://localhost:3000" 
+      :start => "sleep", :app_url => "http://localhost:3000" 
     }
     strDevUtils = devUtils.to_json.gsub! "\"",  "\\\"" 
     output.sub! "http.port=$PORT", "http.port=3000"
