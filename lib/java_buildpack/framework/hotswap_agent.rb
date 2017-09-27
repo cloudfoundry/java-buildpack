@@ -52,17 +52,6 @@ module JavaBuildpack
           .add_system_property('XXaltjvm','dcevm')
           .add_javaagent(libpath +  jar_name)
 
-        jdb_exe  = "/home/vcap/app/.java-buildpack/hotswap_agent/lib/sc_jdb"
-        port = "8080" #@droplet.environment_variables['PORT'].first
-        
-        devUtils = 
-        {
-          :server_port => "#{port}",  :jdb_path => "#{jdb_exe}", :jdb_debug_path => "jdb", 
-          :start => "echo 'hello'", :app_url => "http://localhost:3000" 
-        }
-
-        strDevUtils = devUtils.to_json.gsub! "\"",  "\\\"" 
-        @droplet.environment_variables.add_environment_variable 'DEV_UTILS',  "\"" + strDevUtils + "\""
       end
 
       protected
