@@ -60,7 +60,9 @@ module JavaBuildpack
           :server_port => "#{port}",  :jdb_path => "#{jdb_exe}", :jdb_debug_path => "jdb", 
           :start => "", :app_url => "http://localhost:3000" 
         }
-        @droplet.environment_variables.add_environment_variable 'DEV_UTILS',  "\"" + (devUtils.to_json}.sub! "\"",  "\\\"") + "\""
+
+        strDevUtils = devUtils.to_json.sub! "\"",  "\\\"" 
+        @droplet.environment_variables.add_environment_variable 'DEV_UTILS',  "\"" + strDevUtils + "\""
       end
 
       protected
