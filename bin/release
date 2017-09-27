@@ -46,7 +46,7 @@ output = JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Release failed with e
 
     inx = output.index('web:')
     webStr = output[inx+6..output.length-3]
-    runCmd = Base64.encode64("PORT=3000 " + webStr)
+    runCmd = Base64.encode64("PORT=3000 " + webStr.strip)
 
     output =  output[0..inx-1] + "web: 'DEV_UTILS=\"#{strDevUtils}\" #{app_controller_exe} -startCmd #{runCmd} '"
     #output.sub! "web: '", "web: 'CFPORT=$PORT PORT=3000 #{app_controller_exe} -jdbPath #{jdb_exe} & CFPORT=$PORT PORT=3000 "
