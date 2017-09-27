@@ -60,15 +60,15 @@ module JavaBuildpack
           appSettings = JSON.parse(devUtils)['APP_SETTINGS']
         end
         
-        DEV_UTILS = '{
-          "server_port":#{port},  
-          "jdb_path": #{jdb_exe}, 
-          "jdb_debug_path": "jdb"
-          "io_url":"localhost:#{port}",
-          "start": "",
-          "app_url":"http://localhost:3000"
-          "APP_SETTINGS":"#{appSettings}"
-        }'
+        DEV_UTILS = '{'\
+          '"server_port":#{port},  '\
+          '"jdb_path": #{jdb_exe}, '\
+          '"jdb_debug_path": "jdb",'\
+          '"io_url":"localhost:#{port}",'\
+          '"start": "",'\
+          '"app_url":"http://localhost:3000",'\
+          '"APP_SETTINGS":"#{appSettings}"'\
+          '}'
         @droplet.environment_variables.add_environment_variable 'DEV_UTILS', '#{DEV_UTILS}'
       end
 
