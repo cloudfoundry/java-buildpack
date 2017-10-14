@@ -21,21 +21,20 @@ require 'java_buildpack/util/tokenized_version'
 describe JavaBuildpack::Framework::DynatraceOneAgent do
   include_context 'component_helper'
 
-  it 'does not detect without dynatrace|ruxit-n/a service' do
+  it 'does not detect without dynatrace-n/a service' do
     expect(component.detect).to be_nil
   end
 
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/ruxit|dynatrace/, %w[environmentid tenant],
-                                                     %w[apitoken tenanttoken]).and_return(true)
-      allow(services).to receive(:find_service).and_return('credentials' => { 'apitoken' => 'test-apitoken',
-                                                                              'tenant'   => 'test-tenant',
-                                                                              'server'   => 'test-server' })
-      # allow(File).to receive(:file?).and_return(true)
+      allow(services).to receive(:one_service?).with(/dynatrace/, 'apitoken', 'environmentid').and_return(true)
+      allow(services).to receive(:find_service).and_return('credentials' => { 'environmentid' => 'test-environmentid',
+                                                                              'apiurl'        => 'test-apiurl',
+                                                                              'apitoken'      => 'test-apitoken' })
+
       allow(application_cache).to receive(:get)
-        .with('test-server/api/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64&' \
+        .with('test-apiurl/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64&' \
         'Api-Token=test-apitoken')
         .and_yield(Pathname.new('spec/fixtures/stub-dynatrace-one-agent.zip').open, false)
     end
@@ -53,66 +52,42 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
       expect(sandbox + 'manifest.json').to exist
     end
 
-    it 'does update JAVA_OPTS with environmentid and apitoken',
+    it 'updates JAVA_OPTS with agent loader',
        app_fixture: 'framework_dynatrace_one_agent' do
-      allow(services).to receive(:find_service).and_return('credentials' => { 'environmentid' => 'test-tenant',
-                                                                              'apitoken'      => 'test-apitoken' })
+
       component.release
 
       expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
-      'liboneagentloader.so=server=https://endpoint1/communication\\;https://endpoint2/communication,' \
-      'tenant=test-tenant,tenanttoken=token-from-file')
-    end
-
-    it 'updates JAVA_OPTS with custom server and deprecated tenanttoken',
-       app_fixture: 'framework_dynatrace_one_agent' do
-      allow(services).to receive(:find_service).and_return('credentials' => { 'server'      => 'test-server',
-                                                                              'tenant'      => 'test-tenant',
-                                                                              'tenanttoken' => 'test-token' })
-      component.release
-
-      expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
-      'liboneagentloader.so=server=test-server,tenant=test-tenant,' \
-      'tenanttoken=test-token')
-    end
-
-    it 'updates JAVA_OPTS with custom server and apitoken',
-       app_fixture: 'framework_dynatrace_one_agent' do
-      allow(services).to receive(:find_service).and_return('credentials' => { 'server'        => 'test-server',
-                                                                              'environmentid' => 'test-tenant',
-                                                                              'apitoken'      => 'test-apitoken' })
-      component.release
-
-      expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
-      'liboneagentloader.so=server=https://endpoint1/communication\\;https://endpoint2/communication,' \
-      'tenant=test-tenant,tenanttoken=token-from-file')
+        'liboneagentloader.so')
     end
 
     it 'updates environment variables',
        app_fixture: 'framework_dynatrace_one_agent' do
-      allow(services).to receive(:find_service).and_return('credentials' => { 'environmentid'   => 'test-tenant',
-                                                                              'apitoken'        => 'test-apitoken' })
+
       component.release
 
-      expect(environment_variables).to include('RUXIT_APPLICATIONID=test-application-name')
-      expect(environment_variables).to include('RUXIT_HOST_ID=test-application-name_${CF_INSTANCE_INDEX}')
+      expect(environment_variables).to include('DT_APPLICATIONID=test-application-name')
+      expect(environment_variables).to include('DT_HOST_ID=test-application-name_${CF_INSTANCE_INDEX}')
+      expect(environment_variables).to include('DT_TENANT=test-environmentid')
+      expect(environment_variables).to include('DT_TENANTTOKEN=token-from-file')
+      expect(environment_variables).to include('DT_CONNECTION_POINT=' \
+        '"https://endpoint1/communication;https://endpoint2/communication"')
     end
 
     context do
 
       let(:environment) do
-        { 'RUXIT_APPLICATIONID' => 'test-application-id',
-          'RUXIT_HOST_ID'       => 'test-host-id' }
+        { 'DT_APPLICATIONID' => 'test-application-id',
+          'DT_HOST_ID'       => 'test-host-id' }
       end
 
       it 'does not update environment variables if they exist',
          app_fixture: 'framework_dynatrace_one_agent' do
-        allow(services).to receive(:find_service).and_return('credentials' => { 'environmentid'   => 'test-tenant',
-                                                                                'apitoken'        => 'test-apitoken' })
+
         component.release
 
-        expect(environment_variables).not_to include(/RUXIT_APPLICATIONID/)
-        expect(environment_variables).not_to include(/RUXIT_HOST_ID/)
+        expect(environment_variables).not_to include(/DT_APPLICATIONID/)
+        expect(environment_variables).not_to include(/DT_HOST_ID/)
       end
 
     end

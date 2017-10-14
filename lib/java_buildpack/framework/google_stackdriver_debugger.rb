@@ -39,8 +39,8 @@ module JavaBuildpack
           .add_agentpath_with_props(@droplet.sandbox + 'cdbg_java_agent.so', '--logtostderr' => 1)
           .add_system_property('com.google.cdbg.auth.serviceaccount.enable', true)
           .add_system_property('com.google.cdbg.auth.serviceaccount.jsonfile', json_file)
-          .add_system_property('com.google.cdbg.module', @application.details['application_name'])
-          .add_system_property('com.google.cdbg.version', @application.details['application_version'])
+          .add_system_property('com.google.cdbg.module', application_name)
+          .add_system_property('com.google.cdbg.version', application_version)
       end
 
       protected
@@ -57,6 +57,14 @@ module JavaBuildpack
       private_constant :FILTER, :PRIVATE_KEY_DATA
 
       private
+
+      def application_name
+        @configuration['application_name'] || @application.details['application_name']
+      end
+
+      def application_version
+        @configuration['application_version'] || @application.details['application_version']
+      end
 
       def json_file
         @droplet.sandbox + 'svc.json'

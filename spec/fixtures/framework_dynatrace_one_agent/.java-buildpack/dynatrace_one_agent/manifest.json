@@ -1,4 +1,14 @@
 {
+  "technologies" : {
+    "java" : {
+      "linux-x86-64" : [
+          {
+            "path": "agent/lib64/liboneagentloader.so",
+            "binarytype" : "loader"
+          }
+      ]
+    }
+  },
   "version" : "1.105.147.20160930-153457",
   "tenantUUID" : "tenant",
   "tenantToken" : "token-from-file",
