@@ -1,4 +1,4 @@
-# Cloud Foundry Java Buildpack
+Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,8 +38,7 @@ module JavaBuildpack
         apply_user_configuration(credentials, configuration)
         write_java_opts(java_opts, configuration)
 
-        # java_opts.add_javaagent(@droplet.sandbox + jar_name)
-        java_opts.add_javaagent(@droplet.sandbox + 'newrelic-agent-3.42.0.jar')
+        java_opts.add_javaagent(@droplet.sandbox + jar_name)
                  .add_system_property('newrelic.home', @droplet.sandbox)
         java_opts.add_system_property('newrelic.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
       end
