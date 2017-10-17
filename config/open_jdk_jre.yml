@@ -17,13 +17,13 @@
 # If Java 7 is required, permgen will be used instead of metaspace. Please see the documentation for more detail.
 ---
 jre:
-  version: 1.8.0_+
+  version: 1.8.0_152
   repository_root: "{default.repository.root}/openjdk/{platform}/{architecture}"
 jvmkill_agent:
-  version: 1.+
+  version: 1.10.0_RELEASE
   repository_root: "{default.repository.root}/jvmkill/{platform}/{architecture}"
 memory_calculator:
-  version: 3.+
+  version: 3.9.0_RELEASE
   repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
   class_count: 
   stack_threads: 300
