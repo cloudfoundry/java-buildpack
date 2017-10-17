@@ -92,7 +92,7 @@ module JavaBuildpack
                        :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER
 
       def agent_download_url
-        credentials  = @application.services.find_service(FILTER)['credentials']
+        credentials  = @application.services.find_service(FILTER, APITOKEN, ENVIRONMENTID)['credentials']
         download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
                        "&bitness=64&Api-Token=#{credentials[APITOKEN]}"
         ['latest', download_uri]

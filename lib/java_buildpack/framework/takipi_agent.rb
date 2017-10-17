@@ -45,7 +45,7 @@ module JavaBuildpack
                 .add_environment_variable('TAKIPI_HOME', @droplet.sandbox)
                 .add_environment_variable('TAKIPI_MACHINE_NAME', node_name)
 
-        config_env_vars @application.services.find_service(FILTER)['credentials']
+        config_env_vars @application.services.find_service(FILTER, [SECRET_KEY, COLLECTOR_HOST])['credentials']
       end
 
       protected

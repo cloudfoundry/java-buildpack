@@ -139,7 +139,7 @@ module JavaBuildpack
       end
 
       def find_insight_agent
-        service     = @application.services.find_service FILTER
+        service     = @application.services.find_service FILTER, 'agent_download_url', 'service_instance_id'
         credentials = service['credentials']
         version     = credentials['version'] || '1.0.0'
         uri         = credentials['agent_download_url']

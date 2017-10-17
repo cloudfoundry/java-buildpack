@@ -61,7 +61,7 @@ module JavaBuildpack
       end
 
       def container_dir
-        @application.services.find_service(FILTER)['volume_mounts'].first['container_dir']
+        @application.services.find_volume_service(FILTER)['volume_mounts'].first['container_dir']
       end
 
       def heap_dump_path

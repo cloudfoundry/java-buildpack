@@ -33,7 +33,7 @@ module JavaBuildpack
         @droplet.copy_resources
         @droplet.security_providers << 'com.safenetinc.luna.provider.LunaProvider'
 
-        credentials = @application.services.find_service(FILTER)['credentials']
+        credentials = @application.services.find_service(FILTER, 'client', 'servers', 'groups')['credentials']
         write_client credentials['client']
         write_servers credentials['servers']
         write_configuration credentials['servers'], credentials['groups']

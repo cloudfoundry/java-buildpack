@@ -33,7 +33,8 @@ module JavaBuildpack
         download_jar
         @droplet.copy_resources
 
-        write_configuration @application.services.find_service(CONTRAST_FILTER)['credentials']
+        write_configuration @application.services.find_service(FILTER, API_KEY, SERVICE_KEY, TEAMSERVER_URL,
+                                                               USERNAME)['credentials']
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -54,14 +55,14 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service?(CONTRAST_FILTER, API_KEY, SERVICE_KEY, TEAMSERVER_URL, USERNAME)
+        @application.services.one_service? FILTER, API_KEY, SERVICE_KEY, TEAMSERVER_URL, USERNAME
       end
 
       private
 
       API_KEY = 'api_key'.freeze
 
-      CONTRAST_FILTER = 'contrast-security'.freeze
+      FILTER = 'contrast-security'.freeze
 
       INFLECTION_VERSION = JavaBuildpack::Util::TokenizedVersion.new('3.4.3').freeze
 
@@ -73,7 +74,7 @@ module JavaBuildpack
 
       USERNAME = 'username'.freeze
 
-      private_constant :API_KEY, :CONTRAST_FILTER, :INFLECTION_VERSION, :PLUGIN_PACKAGE, :SERVICE_KEY, :TEAMSERVER_URL,
+      private_constant :API_KEY, :FILTER, :INFLECTION_VERSION, :PLUGIN_PACKAGE, :SERVICE_KEY, :TEAMSERVER_URL,
                        :USERNAME
 
       def add_contrast(doc, credentials)
