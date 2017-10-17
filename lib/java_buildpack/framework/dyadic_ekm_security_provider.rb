@@ -33,7 +33,8 @@ module JavaBuildpack
         @droplet.copy_resources
         @droplet.security_providers << 'com.dyadicsec.provider.DYCryptoProvider'
 
-        credentials = @application.services.find_service(FILTER)['credentials']
+        credentials = @application.services.find_service(FILTER, 'ca', 'key', 'recv_timeout', 'retries', 'send_timeout',
+                                                         'servers')['credentials']
         write_key credentials['key']
         write_cert credentials['ca']
         write_conf credentials['servers'], credentials['send_timeout'], credentials['recv_timeout'],

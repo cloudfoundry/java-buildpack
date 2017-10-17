@@ -71,7 +71,7 @@ module JavaBuildpack
       FILTER = 'heap-dump'.freeze
 
       def find_heap_dump_volume_service
-        @application.services.find_service FILTER
+        @application.services.find_volume_service FILTER
       end
 
       def default_heap_dump_folder

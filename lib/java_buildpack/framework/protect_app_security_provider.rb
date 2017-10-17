@@ -34,7 +34,7 @@ module JavaBuildpack
         @droplet.copy_resources
         @droplet.security_providers << 'com.ingrian.security.nae.IngrianProvider'
 
-        credentials = @application.services.find_service(FILTER)['credentials']
+        credentials = @application.services.find_service(FILTER, 'client', 'trusted_certificates')['credentials']
 
         pkcs12 = merge_client_credentials credentials['client']
         add_client_credentials pkcs12

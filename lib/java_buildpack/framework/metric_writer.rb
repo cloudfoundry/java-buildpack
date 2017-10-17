@@ -30,7 +30,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = @application.services.find_service(FILTER)['credentials']
+        credentials = @application.services.find_service(FILTER, ACCESS_KEY, ENDPOINT)['credentials']
 
         @droplet.additional_libraries << (@droplet.sandbox + jar_name)
         @droplet.java_opts

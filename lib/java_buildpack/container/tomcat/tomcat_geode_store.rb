@@ -37,7 +37,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         return unless supports?
-        credentials = @application.services.find_service(FILTER)['credentials']
+        credentials = @application.services.find_service(FILTER, KEY_LOCATORS, KEY_USERS)['credentials']
         user = credentials[KEY_USERS].find { |u| u['username'] == 'cluster_operator' }
 
         @droplet.java_opts.add_system_property 'gemfire.security-username', 'cluster_operator'
@@ -108,7 +108,7 @@ module JavaBuildpack
       end
 
       def add_locators(pool)
-        service = @application.services.find_service FILTER
+        service = @application.services.find_service FILTER, KEY_LOCATORS, KEY_USERS
         service['credentials']['locators'].each do |locator|
           match_info = LOCATOR_REGEXP.match(locator)
           pool.add_element 'locator',

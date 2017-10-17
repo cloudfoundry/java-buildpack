@@ -70,7 +70,8 @@ module JavaBuildpack
       end
 
       def add_store(manager)
-        credentials = @application.services.find_service(FILTER)['credentials']
+        credentials = @application.services.find_service(FILTER, [KEY_HOST_NAME, KEY_HOST], KEY_PORT,
+                                                         KEY_PASSWORD)['credentials']
 
         manager.add_element 'Store',
                             'className'          => REDIS_STORE_CLASS_NAME,
