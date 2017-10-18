@@ -46,7 +46,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials           = @application.services.find_service(FILTER)['credentials']
+        credentials           = @application.services.find_service(FILTER, APITOKEN, ENVIRONMENTID)['credentials']
         environment_variables = @droplet.environment_variables
         manifest              = agent_manifest
 
