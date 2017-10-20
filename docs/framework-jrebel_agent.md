@@ -5,7 +5,7 @@ The JRebel Agent Framework causes an application to be automatically configured 
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td>Existence of a <tt>rebel-remote.xml</tt> file inside the application archive. This file is present in every application that is configured to use <a href="http://manuals.zeroturnaround.com/jrebel/remoting/index.html" target="_blank">JRebel Cloud/Remote</a>.</td>
+    <td>Existence of a <tt>rebel-remote.xml</tt> file inside the application archive. This file is present in every application that is configured to use <a href="http://manuals.zeroturnaround.com/jrebel/remoteserver/index.html" target="_blank">JRebel Cloud/Remote</a>.</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
@@ -29,9 +29,9 @@ The framework can be configured by modifying the [`config/jrebel_agent.yml`][] f
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/jrebel_agent.yml`]: ../config/jrebel_agent.yml
-[JRebel Cloud/Remote]: http://manuals.zeroturnaround.com/jrebel/remoting/index.html
+[JRebel Cloud/Remote]: http://manuals.zeroturnaround.com/jrebel/remoteserver/index.html
 [JRebel]: http://zeroturnaround.com/software/jrebel/
-[pivotal]: http://manuals.zeroturnaround.com/jrebel/remoting/pivotal.html
+[pivotal]: http://manuals.zeroturnaround.com/jrebel/remoteserver/pivotal.html
 [repositories]: extending-repositories.md
 [this listing]: http://dl.zeroturnaround.com/jrebel/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
