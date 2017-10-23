@@ -19,12 +19,20 @@ require 'java_buildpack/component'
 module JavaBuildpack
   module Component
 
-    # An abstraction around the security providers provided to a droplet by components.
+    # An abstraction around the networking configuration provided to a droplet by components.
     #
     # A new instance of this type should be created once for the application.
-    class SecurityProviders < Array
+    class Networking
 
-      # Write the contents of the collection to a destination file
+      # @!attribute [rw] networkaddress_cache_ttl
+      # @return [Integer] the number of seconds to cache the successful lookup
+      attr_accessor :networkaddress_cache_ttl
+
+      # @!attribute [rw] networkaddress_cache_negative_ttl
+      # @return [Integer] the number of seconds to cache the failure for un-successful lookups
+      attr_accessor :networkaddress_cache_negative_ttl
+
+      # Write the networking configuration to a destination file
       #
       # @param [Pathname] destination the destination to write to
       # @return [Void]
@@ -32,7 +40,11 @@ module JavaBuildpack
         FileUtils.mkdir_p destination.parent
 
         destination.open(File::CREAT | File::APPEND | File::WRONLY) do |f|
-          each_with_index { |security_provider, index| f.write "security.provider.#{index + 1}=#{security_provider}\n" }
+          f.write "networkaddress.cache.ttl=#{@networkaddress_cache_ttl}\n" if @networkaddress_cache_ttl
+
+          if @networkaddress_cache_negative_ttl
+            f.write "networkaddress.cache.negative.ttl=#{networkaddress_cache_negative_ttl}\n"
+          end
         end
       end
 

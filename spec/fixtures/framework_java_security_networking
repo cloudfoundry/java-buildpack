@@ -1,0 +1,4 @@
+networkaddress.cache.ttl=-1
+networkaddress.cache.negative.ttl=-2
+security.provider.1=test-security-provider-1
+security.provider.2=test-security-provider-2

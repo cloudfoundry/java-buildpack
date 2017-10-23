@@ -16,28 +16,40 @@
 require 'spec_helper'
 require 'component_helper'
 require 'fileutils'
-require 'java_buildpack/framework/security_providers'
+require 'java_buildpack/framework/java_security'
 
-describe JavaBuildpack::Framework::SecurityProviders do
+describe JavaBuildpack::Framework::JavaSecurity do
   include_context 'component_helper'
 
   it 'adds extension directories to system properties' do
     component.release
 
-    expect(java_opts).to include('-Djava.ext.dirs=$PWD/.java-buildpack/security_providers/test-extension-directory-1:' \
-                                         '$PWD/.java-buildpack/security_providers/test-extension-directory-2')
+    expect(java_opts).to include('-Djava.ext.dirs=$PWD/.java-buildpack/java_security/test-extension-directory-1:' \
+                                         '$PWD/.java-buildpack/java_security/test-extension-directory-2')
   end
 
-  it 'writes new security properties' do
+  it 'writes security provider security properties' do
     component.compile
 
     expect(sandbox + 'java.security').to exist
+    expect(File.read(sandbox + 'java.security'))
+      .to eq File.read('spec/fixtures/framework_java_security_security_providers')
+  end
+
+  it 'writes networking security properties' do
+    networking.networkaddress_cache_ttl = -1
+    networking.networkaddress_cache_negative_ttl = -2
+
+    component.compile
+
+    expect(sandbox + 'java.security').to exist
+    expect(File.read(sandbox + 'java.security')).to eq File.read('spec/fixtures/framework_java_security_networking')
   end
 
   it 'adds security properties to system properties' do
     component.release
 
-    expect(java_opts).to include('-Djava.security.properties=$PWD/.java-buildpack/security_providers/' \
+    expect(java_opts).to include('-Djava.security.properties=$PWD/.java-buildpack/java_security/' \
                                  'java.security')
   end
 
