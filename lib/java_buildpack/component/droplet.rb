@@ -56,6 +56,10 @@ module JavaBuildpack
       # @return [JavaOpts] the shared +JavaOpts+ instance for all components
       attr_reader :java_opts
 
+      # @!attribute [r] networking
+      # @return [Networking] the shared +Networking+ instance for all components
+      attr_reader :networking
+
       # @!attribute [r] root
       # @return [JavaBuildpack::Util::FilteringPathname] the root of the droplet's fileystem filtered so that it
       #                                                  excludes files in the sandboxes of other components
@@ -83,10 +87,11 @@ module JavaBuildpack
       #                                                       be an instance of +MutableJavaHome+.  Otherwise it should
       #                                                       be an instance of +ImmutableJavaHome+.
       # @param [JavaOpts] java_opts                           the shared +JavaOpts+ instance for all components
+      # @param [Networking] networking                        the shared +Networking+ instance for all components
       # @param [Pathname] root                                the root of the droplet
       # @param [SecurityProviders] security_providers         the shared +SecurityProviders+ instance for all components
       def initialize(additional_libraries, component_id, env_vars, extension_directories, java_home, java_opts, root,
-                     security_providers)
+                     networking, security_providers)
 
         @additional_libraries  = additional_libraries
         @component_id          = component_id
@@ -110,6 +115,7 @@ module JavaBuildpack
           ->(path) { !in?(path, buildpack_root) || in?(path, @sandbox) },
           true
         )
+        @networking         = networking
         @security_providers = security_providers
       end
 

@@ -65,6 +65,7 @@
       <w>myhost</w>
       <w>mypass</w>
       <w>myuser</w>
+      <w>networkaddress</w>
       <w>newrelic</w>
       <w>newrelicagent</w>
       <w>overweaving</w>
