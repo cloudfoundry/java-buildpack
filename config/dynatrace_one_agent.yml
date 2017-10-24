@@ -15,5 +15,5 @@
 
 # Configuration for the Dynatrace SaaS/Managed framework
 ---
-version: 1.+
+version: 1.129.145
 repository_root: https://download.ruxit.com/agent/paas/cloudfoundry/java
