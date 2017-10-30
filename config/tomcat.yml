@@ -41,4 +41,4 @@ redis_store:
   connection_pool_size: 2
 geode_store:
   version: 0.+
-  repository_root: "{default.repository.root}/geode-store"
+  repository_root: "https://repo.spring.io/ext-release-local/geode-store"
