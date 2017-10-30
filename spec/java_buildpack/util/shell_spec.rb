@@ -16,6 +16,7 @@
 require 'spec_helper'
 require 'console_helper'
 require 'java_buildpack/util/shell'
+require 'timeout'
 
 describe JavaBuildpack::Util::Shell do
   include described_class
@@ -27,6 +28,10 @@ describe JavaBuildpack::Util::Shell do
 
   it 'raises an error if command returns a non-zero exit code' do
     expect { shell 'false' }.to raise_error
+  end
+
+  it 'handles a large amount of output' do
+    Timeout.timeout(2) { shell "cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 1000000 | head -n 1" }
   end
 
 end
