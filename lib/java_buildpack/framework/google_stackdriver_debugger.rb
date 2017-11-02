@@ -27,7 +27,7 @@ module JavaBuildpack
       def compile
         download_tar false
 
-        credentials = @application.services.find_service(FILTER)['credentials']
+        credentials = @application.services.find_service(FILTER, PRIVATE_KEY_DATA)['credentials']
         write_json_file credentials[PRIVATE_KEY_DATA]
       end
 

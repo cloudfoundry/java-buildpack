@@ -23,6 +23,7 @@ require 'java_buildpack/component/extension_directories'
 require 'java_buildpack/component/immutable_java_home'
 require 'java_buildpack/component/java_opts'
 require 'java_buildpack/component/mutable_java_home'
+require 'java_buildpack/component/networking'
 require 'java_buildpack/component/security_providers'
 require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/util/cache/application_cache'
@@ -131,6 +132,7 @@ module JavaBuildpack
         'env_vars'              => Component::EnvironmentVariables.new(app_dir),
         'extension_directories' => Component::ExtensionDirectories.new(app_dir),
         'java_opts'             => @java_opts,
+        'networking'            => Component::Networking.new,
         'security_providers'    => Component::SecurityProviders.new
       }
 
@@ -181,7 +183,7 @@ module JavaBuildpack
           droplet:       Component::Droplet.new(component_info['additional_libraries'], component_id,
                                                 component_info['env_vars'], component_info['extension_directories'],
                                                 java_home, component_info['java_opts'], component_info['app_dir'],
-                                                component_info['security_providers'])
+                                                component_info['networking'], component_info['security_providers'])
         }
         component.constantize.new(context)
       end

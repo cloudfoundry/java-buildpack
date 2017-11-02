@@ -66,5 +66,5 @@ frameworks:
   - "JavaBuildpack::Framework::SpringInsight"
   - "JavaBuildpack::Framework::YourKitProfiler"
   - "JavaBuildpack::Framework::TakipiAgent"
-  - "JavaBuildpack::Framework::SecurityProviders"
+  - "JavaBuildpack::Framework::JavaSecurity"
   - "JavaBuildpack::Framework::JavaOpts"

@@ -22,6 +22,7 @@ require 'java_buildpack/component/environment_variables'
 require 'java_buildpack/component/extension_directories'
 require 'java_buildpack/component/immutable_java_home'
 require 'java_buildpack/component/java_opts'
+require 'java_buildpack/component/networking'
 require 'java_buildpack/component/security_providers'
 require 'java_buildpack/util/snake_case'
 require 'pathname'
@@ -38,7 +39,8 @@ shared_context 'droplet_helper' do
 
   let(:droplet) do
     JavaBuildpack::Component::Droplet.new(additional_libraries, component_id, environment_variables,
-                                          extension_directories, java_home, java_opts, app_dir, security_providers)
+                                          extension_directories, java_home, java_opts, app_dir, networking,
+                                          security_providers)
   end
 
   let(:extension_directories) { JavaBuildpack::Component::ExtensionDirectories.new app_dir }
@@ -61,6 +63,8 @@ shared_context 'droplet_helper' do
     java_opts.concat %w[test-opt-2 test-opt-1]
     java_opts
   end
+
+  let(:networking) { JavaBuildpack::Component::Networking.new }
 
   let(:security_providers) { JavaBuildpack::Component::SecurityProviders.new }
 

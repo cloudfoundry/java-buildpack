@@ -44,7 +44,7 @@ describe JavaBuildpack::Jre::JvmkillAgent do
 
   it 'adds heap dump parameter to JAVA_OPTS when volume service available' do
     allow(services).to receive(:one_volume_service?).with(/heap-dump/).and_return(true)
-    allow(services).to receive(:find_service).and_return('volume_mounts' =>
+    allow(services).to receive(:find_volume_service).and_return('volume_mounts' =>
                                                            [{ 'container_dir' => 'test-container-dir' }])
 
     component.release

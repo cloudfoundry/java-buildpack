@@ -49,6 +49,7 @@ module JavaBuildpack
         enabled? && (
             jrebel_configured?(@application.root) ||
             jrebel_configured?(@application.root + 'WEB-INF/classes') ||
+            jrebel_configured?(@application.root + 'BOOT-INF/classes') ||
             jars_with_jrebel_configured?(@application.root))
       end
 

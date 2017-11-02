@@ -31,9 +31,9 @@ Metrics/CyclomaticComplexity:
 Metrics/LineLength:
   Max: 120
 Metrics/MethodLength:
-  Max: 20
+  Max: 25
 Metrics/ParameterLists:
-  Max: 8
+  Max: 10
 Metrics/PerceivedComplexity:
   Max: 10
 RSpec/ExampleLength:

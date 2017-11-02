@@ -21,15 +21,16 @@ module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for contributing custom Security Providers to an application.
-    class SecurityProviders < JavaBuildpack::Component::BaseComponent
+    class JavaSecurity < JavaBuildpack::Component::BaseComponent
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
-        SecurityProviders.to_s.dash_case
+        JavaSecurity.to_s.dash_case
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
+        @droplet.networking.write_to java_security
         @droplet.security_providers.write_to java_security
       end
 
