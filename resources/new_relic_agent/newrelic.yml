@@ -32,7 +32,7 @@ common: &default_settings
   # To enable high security, set this property to true. When in high
   # security mode, the agent will use SSL and obfuscated SQL. Additionally,
   # request parameters and message parameters will not be sent to New Relic.
-  high_security: false
+  high_security: true
 
   # Set to true to enable support for auto app naming.
   # The name of each web app is detected automatically
