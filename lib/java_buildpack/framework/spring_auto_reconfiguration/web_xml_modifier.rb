@@ -23,9 +23,9 @@ module JavaBuildpack
     # A class that encapsulates the modification of a +web.xml+ Servlet configuration file for the Auto-reconfiguration
     # framework.  The modifications of +web.xml+ consist of augmenting +contextInitializerClasses+.  The function starts
     # by enumerating the current +contextInitializerClasses+.  If none exist, a default configuration is created with no
-    # value as the default. The +org.cloudfoundry.reconfiguration.spring.CloudProfileApplicationContextInitializer+,
-    # +org.cloudfoundry.reconfiguration.spring.CloudPropertySourceApplicationContextInitializer+, and
-    # +org.cloudfoundry.reconfiguration.spring.CloudAutoReconfigurationApplicationContextInitializer+ classes are then
+    # value as the default. The +org.cloudfoundry.reconfiguration.CloudProfileApplicationContextInitializer+,
+    # +org.cloudfoundry.reconfiguration.CloudPropertySourceApplicationContextInitializer+, and
+    # +org.cloudfoundry.reconfiguration.CloudServiceReconfigurationApplicationContextInitializer+ classes are then
     # added to the collection of classes.
     class WebXmlModifier
 
@@ -66,9 +66,9 @@ module JavaBuildpack
       private
 
       CONTEXT_INITIALIZER_ADDITIONAL = %w[
-        org.cloudfoundry.reconfiguration.spring.CloudProfileApplicationContextInitializer
-        org.cloudfoundry.reconfiguration.spring.CloudPropertySourceApplicationContextInitializer
-        org.cloudfoundry.reconfiguration.spring.CloudAutoReconfigurationApplicationContextInitializer
+        org.cloudfoundry.reconfiguration.CloudProfileApplicationContextInitializer
+        org.cloudfoundry.reconfiguration.CloudPropertySourceApplicationContextInitializer
+        org.cloudfoundry.reconfiguration.CloudServiceReconfigurationApplicationContextInitializer
       ].freeze
 
       CONTEXT_INITIALIZER_CLASSES = 'contextInitializerClasses'.freeze

@@ -21,7 +21,7 @@
     <context-param>
         <param-name>contextInitializerClasses</param-name>
         <param-value>
-            org.cloudfoundry.reconfiguration.spring.CloudProfileApplicationContextInitializer,org.cloudfoundry.reconfiguration.spring.CloudPropertySourceApplicationContextInitializer,org.cloudfoundry.reconfiguration.spring.CloudAutoReconfigurationApplicationContextInitializer
+            org.cloudfoundry.reconfiguration.CloudProfileApplicationContextInitializer,org.cloudfoundry.reconfiguration.CloudPropertySourceApplicationContextInitializer,org.cloudfoundry.reconfiguration.CloudServiceReconfigurationApplicationContextInitializer
         </param-value>
     </context-param>
 </web-app>
