@@ -74,8 +74,6 @@ module Package
       'memory_calculator'                   => 'Memory Calculator',
       'metric_writer'                       => 'Metric Writer',
       'new_relic_agent'                     => 'New Relic Agent',
-      'play_framework_auto_reconfiguration' => 'Play Framework Auto-reconfiguration',
-      'play_framework_jpa_plugin'           => 'Play Framework JPA Plugin',
       'postgresql_jdbc'                     => 'PostgreSQL JDBC Driver',
       'protect_app_security_provider'       => 'Gemalto ProtectApp Security Provider',
       'redis_store'                         => 'Redis Session Store',
