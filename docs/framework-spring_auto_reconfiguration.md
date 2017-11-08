@@ -13,7 +13,7 @@ The Spring Auto-reconfiguration Framework causes an application to be automatica
 </table>
 Tags are printed to standard output by the buildpack detect script
 
-If a `/WEB-INF/web.xml` file exists, the framework will modify it in addition to making the auto-reconfiguration JAR available on the classpath. This modification consists of adding `org.cloudfoundry.reconfiguration.CloudProfileApplicationContextInitializer`, `org.cloudfoundry.reconfiguration.CloudPropertySourceApplicationContextInitializer`, and `org.cloudfoundry.reconfiguration.CloudServiceReconfigurationApplicationContextInitializer` to the collection of `contextInitializerClasses`. The Spring Auto-reconfiguration Framework also adds the `cloud` profile to any existing Spring profiles such as those defined in the [`SPRING_PROFILES_ACTIVE`][] environment variable.
+The Spring Auto-reconfiguration Framework adds the `cloud` profile to any existing Spring profiles such as those defined in the [`SPRING_PROFILES_ACTIVE`][] environment variable.
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
