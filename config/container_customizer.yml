@@ -15,5 +15,5 @@
 
 # Configuration for the Container Customizer framework
 ---
-version: 1.+
+version: 2.+
 repository_root: "{default.repository.root}/container-customizer"
