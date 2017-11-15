@@ -31,14 +31,24 @@ module JavaBuildpack
       def initialize(context)
         super(context)
         @version, @uri = agent_download_url if supports?
+        @logger        = JavaBuildpack::Logging::LoggerFactory.instance.get_logger DynatraceOneAgent
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
-          true, 'The Dynatrace One Agent download location is always accessible'
-        ) do
-          download(@version, @uri) { |file| expand file }
+        begin
+          JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+            true, 'The Dynatrace One Agent download location is always accessible'
+          ) do
+            download(@version, @uri) { |file| expand file }
+          end
+        rescue StandardError => e
+          raise unless skip_errors?
+
+          @logger.error { "Dynatrace OneAgent download failed: #{e}" }
+          @logger.warn { "Agent injection disabled because of #{SKIP_ERRORS} credential is set to true!" }
+          FileUtils.mkdir_p(File.dirname(error_file))
+          File.write(error_file, e.to_s)
         end
 
         @droplet.copy_resources
@@ -46,19 +56,16 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials           = @application.services.find_service(FILTER, APITOKEN, ENVIRONMENTID)['credentials']
-        environment_variables = @droplet.environment_variables
-        manifest              = agent_manifest
+        if File.exist?(error_file)
+          @logger.warn { "Dynatrace OneAgent injection disabled due to download error: #{File.read(error_file)}" }
+          return
+        end
+
+        manifest = agent_manifest
 
         @droplet.java_opts.add_agentpath(agent_path(manifest))
 
-        environment_variables
-          .add_environment_variable(DT_TENANT, credentials[ENVIRONMENTID])
-          .add_environment_variable(DT_TENANTTOKEN, tenanttoken(manifest))
-          .add_environment_variable(DT_CONNECTION_POINT, endpoints(manifest))
-
-        environment_variables.add_environment_variable(DT_APPLICATION_ID, application_id) unless application_id?
-        environment_variables.add_environment_variable(DT_HOST_ID, host_id) unless host_id?
+        dynatrace_environment_variables(manifest)
       end
 
       protected
@@ -88,13 +95,15 @@ module JavaBuildpack
 
       FILTER = /dynatrace/
 
+      SKIP_ERRORS = 'skiperrors'.freeze
+
       private_constant :APIURL, :APITOKEN, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_HOST_ID, :DT_TENANT,
-                       :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER
+                       :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :SKIP_ERRORS
 
       def agent_download_url
-        credentials  = @application.services.find_service(FILTER, APITOKEN, ENVIRONMENTID)['credentials']
-        download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
-                       "&bitness=64&Api-Token=#{credentials[APITOKEN]}"
+        creds = credentials
+        download_uri = "#{api_base_url(creds)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
+                       "&bitness=64&Api-Token=#{creds[APITOKEN]}"
         ['latest', download_uri]
       end
 
@@ -121,8 +130,28 @@ module JavaBuildpack
         @application.environment.key?(DT_APPLICATION_ID)
       end
 
+      def credentials
+        @application.services.find_service(FILTER, APITOKEN, ENVIRONMENTID)['credentials']
+      end
+
+      def dynatrace_environment_variables(manifest)
+        environment_variables = @droplet.environment_variables
+
+        environment_variables
+          .add_environment_variable(DT_TENANT, credentials[ENVIRONMENTID])
+          .add_environment_variable(DT_TENANTTOKEN, tenanttoken(manifest))
+          .add_environment_variable(DT_CONNECTION_POINT, endpoints(manifest))
+
+        environment_variables.add_environment_variable(DT_APPLICATION_ID, application_id) unless application_id?
+        environment_variables.add_environment_variable(DT_HOST_ID, host_id) unless host_id?
+      end
+
       def endpoints(manifest)
         "\"#{manifest['communicationEndpoints'].join(';')}\""
+      end
+
+      def error_file
+        @droplet.sandbox + 'dynatrace_download_error'
       end
 
       def expand(file)
@@ -141,6 +170,10 @@ module JavaBuildpack
 
       def host_id?
         @application.environment.key?(DT_HOST_ID)
+      end
+
+      def skip_errors?
+        'true'.casecmp(credentials[SKIP_ERRORS] || 'false').zero?
       end
 
       def tenanttoken(manifest)
