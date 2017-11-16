@@ -1,0 +1,106 @@
+---
+
+resources:
+- name: java-buildpack
+  type: git
+  source:
+    uri: {{java-buildpack-git-uri}}
+    private_key: {{github-private-key}}
+
+- name: java-buildpack-latest
+  type: docker-image
+  source:
+    repository: splatform/java-buildpack
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: cf-ci-bot@suse.de
+  
+- name: ubuntu-trusty
+  type: docker-image
+  source:
+    repository: ubuntu
+    tag: latest
+  
+    
+groups:
+- name: docker
+  jobs:
+  - docker-image
+- name: java-buildpack
+  jobs:
+  - java-unit-2.2
+  - java-unit-2.3
+  - java-unit-2.4
+  - java-package-online
+  - java-package-offline
+
+jobs:
+- name: docker-image
+  plan:
+  - aggregate:
+    - resource: java-buildpack
+      get: docker-image
+      trigger: true
+    - get: ubuntu-trusty
+      trigger: true
+  - do:
+    - put: java-buildpack-latest
+      params:
+        build: docker-image/ci/docker-image
+- name: java-unit-2.2
+  plan:
+  - aggregate:
+    - get: java-buildpack
+      trigger: true
+  - do:
+    - task: unit-test
+      file: java-buildpack/ci/unit-test.yml
+      params:
+        RBENV_VERSION: 2.2.7
+- name: java-unit-2.3
+  plan:
+  - aggregate:
+    - get: java-buildpack
+      trigger: true
+  - do:
+    - task: unit-test
+      file: java-buildpack/ci/unit-test.yml
+      params:
+        RBENV_VERSION: 2.3.4
+- name: java-unit-2.4
+  plan:
+  - aggregate:
+    - get: java-buildpack
+      trigger: true
+  - do:
+    - task: unit-test
+      file: java-buildpack/ci/unit-test.yml
+      params:
+        RBENV_VERSION: 2.4.1
+- name: java-package-online
+  plan:
+  - aggregate:
+    - get: java-buildpack
+      trigger: true
+      passed:
+      - java-unit-2.2
+      - java-unit-2.3
+      - java-unit-2.4
+  - do:
+    - task: package-test
+      file: java-buildpack/ci/package-test.yml
+- name: java-package-offline
+  plan:
+  - aggregate:
+    - get: java-buildpack
+      trigger: true
+      passed:
+      - java-unit-2.2
+      - java-unit-2.3
+      - java-unit-2.4
+  - do:
+    - task: package-test
+      file: java-buildpack/ci/package-test.yml
+      params:
+        OFFLINE: true
+        PINNED: true
