@@ -63,4 +63,24 @@ describe JavaBuildpack::Jre::OpenJDKLikeSecurityProviders do
     expect(extension_directories).to include(java_home.root + 'jre/lib/ext')
   end
 
+  context do
+
+    let(:java_home_delegate) do
+      delegate         = JavaBuildpack::Component::MutableJavaHome.new
+      delegate.root    = app_dir + '.test-java-home'
+      delegate.version = JavaBuildpack::Util::TokenizedVersion.new('9.0.0')
+
+      delegate
+    end
+
+    it 'does not add extension directory for Java 9' do
+      extension_directories.clear
+
+      component.release
+
+      expect(extension_directories).to be_empty
+    end
+
+  end
+
 end

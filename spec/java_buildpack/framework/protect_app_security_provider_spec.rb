@@ -111,5 +111,42 @@ describe JavaBuildpack::Framework::ProtectAppSecurityProvider do
       expect(java_opts).not_to include(start_with('-Dcom.ingrian.security.nae.trusted_certificates'))
     end
 
+    context do
+
+      let(:java_home_delegate) do
+        delegate         = JavaBuildpack::Component::MutableJavaHome.new
+        delegate.root    = app_dir + '.test-java-home'
+        delegate.version = JavaBuildpack::Util::TokenizedVersion.new('9.0.0')
+
+        delegate
+      end
+
+      it 'adds JAR to classpath during compile in Java 9',
+         cache_fixture: 'stub-protect-app-security-provider.zip' do
+
+        allow(component).to receive(:shell).with(start_with('unzip -qq')).and_call_original
+        allow(component).to receive(:shell).with(start_with('openssl pkcs12'))
+        allow(component).to receive(:shell).with(start_with("#{java_home.root}/bin/keytool -importkeystore"))
+        allow(component).to receive(:shell).with(start_with("#{java_home.root}/bin/keytool -importcert"))
+
+        component.compile
+
+        expect(additional_libraries).to include(droplet.sandbox + "ext/IngrianNAE-#{version}.000.jar")
+      end
+
+      it 'adds JAR to classpath during release in Java 9' do
+        component.release
+
+        expect(additional_libraries).to include(droplet.sandbox + "ext/IngrianNAE-#{version}.000.jar")
+      end
+
+      it 'adds does not add extension directory in Java 9' do
+        component.release
+
+        expect(extension_directories).not_to include(droplet.sandbox + 'ext')
+      end
+
+    end
+
   end
 end
