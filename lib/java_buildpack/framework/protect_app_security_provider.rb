@@ -33,6 +33,7 @@ module JavaBuildpack
 
         @droplet.copy_resources
         @droplet.security_providers << 'com.ingrian.security.nae.IngrianProvider'
+        @droplet.additional_libraries << protect_app_jar if @droplet.java_home.java_9_or_later?
 
         credentials = @application.services.find_service(FILTER, 'client', 'trusted_certificates')['credentials']
 
@@ -44,7 +45,11 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.extension_directories << @droplet.sandbox + 'ext'
+        if @droplet.java_home.java_9_or_later?
+          @droplet.additional_libraries << protect_app_jar
+        else
+          @droplet.extension_directories << ext_dir
+        end
 
         credentials = @application.services.find_service(FILTER)['credentials']
         java_opts   = @droplet.java_opts
@@ -55,9 +60,7 @@ module JavaBuildpack
           .add_system_property('com.ingrian.security.nae.Key_Store_Location', keystore)
           .add_system_property('com.ingrian.security.nae.Key_Store_Password', password)
 
-        credentials
-          .reject { |key, _| key =~ /^client$/ || key =~ /^trusted_certificates$/ }
-          .each { |key, value| java_opts.add_system_property("com.ingrian.security.nae.#{key}", value) }
+        add_additional_properties(credentials, java_opts)
       end
 
       protected
@@ -73,6 +76,12 @@ module JavaBuildpack
 
       private_constant :FILTER
 
+      def add_additional_properties(credentials, java_opts)
+        credentials
+          .reject { |key, _| key =~ /^client$/ || key =~ /^trusted_certificates$/ }
+          .each { |key, value| java_opts.add_system_property("com.ingrian.security.nae.#{key}", value) }
+      end
+
       def add_client_credentials(pkcs12)
         shell "#{keytool} -importkeystore -noprompt -destkeystore #{keystore} -deststorepass #{password} " \
               "-srckeystore #{pkcs12.path} -srcstorepass #{password} -srcstoretype pkcs12" \
@@ -86,6 +95,10 @@ module JavaBuildpack
           shell "#{keytool} -importcert -noprompt -keystore #{keystore} -storepass #{password} " \
                 "-file #{pem.path} -alias #{File.basename(pem)}"
         end
+      end
+
+      def ext_dir
+        @droplet.sandbox + 'ext'
       end
 
       def keystore
@@ -111,6 +124,10 @@ module JavaBuildpack
 
       def password
         'nae-keystore-password'
+      end
+
+      def protect_app_jar
+        ext_dir + "IngrianNAE-#{@version}.000.jar"
       end
 
       def write_certificate(certificate)

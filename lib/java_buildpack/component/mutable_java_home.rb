@@ -39,9 +39,17 @@ module JavaBuildpack
         @version >= VERSION_8
       end
 
+      # Whether or not the version of Java is 9 or later
+      # @return [Boolean] +true+ if and only if the version is 9.0.0 or later
+      def java_9_or_later?
+        @version >= VERSION_9
+      end
+
       VERSION_8 = JavaBuildpack::Util::TokenizedVersion.new('1.8.0').freeze
 
-      private_constant :VERSION_8
+      VERSION_9 = JavaBuildpack::Util::TokenizedVersion.new('9.0.0').freeze
+
+      private_constant :VERSION_8, :VERSION_9
 
     end
 

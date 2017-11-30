@@ -24,6 +24,7 @@ describe JavaBuildpack::Component::ImmutableJavaHome do
     instance_double(JavaBuildpack::Component::MutableJavaHome,
                     root:             Pathname.new('test-java-home'),
                     java_8_or_later?: true,
+                    java_9_or_later?: true,
                     version:          JavaBuildpack::Util::TokenizedVersion.new('1.2.3_u04'))
   end
 
@@ -43,6 +44,10 @@ describe JavaBuildpack::Component::ImmutableJavaHome do
 
   it 'returns the delegate Java 8 or later' do
     expect(immutable_java_home.java_8_or_later?).to be
+  end
+
+  it 'returns the delegate Java 9 or later' do
+    expect(immutable_java_home.java_9_or_later?).to be
   end
 
 end
