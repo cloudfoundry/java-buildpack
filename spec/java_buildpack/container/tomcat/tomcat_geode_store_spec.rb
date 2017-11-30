@@ -41,8 +41,11 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
           'locators' => ['some-locator[some-port]', 'some-other-locator[some-other-port]'],
           'users' =>
               [
-                { 'password' => 'fake-password',
-                  'username' => 'cluster_operator' }
+                {
+                  'password' => 'some-password',
+                  'username' => 'some-username',
+                  'roles' => ['cluster_operator']
+                }
               ]
         }
       )
@@ -102,9 +105,40 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
       expect(java_opts).to include(
         '-Dgemfire.security-client-auth-init=io.pivotal.cloudcache.ClientAuthInitialize.create'
       )
-      expect(java_opts).to include('-Dgemfire.security-username=cluster_operator')
-      expect(java_opts).to include('-Dgemfire.security-password=fake-password')
+      expect(java_opts).to include('-Dgemfire.security-username=some-username')
+      expect(java_opts).to include('-Dgemfire.security-password=some-password')
+    end
+  end
+
+  context 'when there is session replication service and service credentials do not include roles' do
+    before do
+      allow(services).to receive(:one_service?).with(/session-replication/, 'locators', 'users')
+                                               .and_return(true)
+      allow(services).to receive(:find_service).and_return(
+        'credentials' => {
+          'locators' => ['some-locator[some-port]', 'some-other-locator[some-other-port]'],
+          'users' =>
+              [
+                {
+                  'password' => 'some-password',
+                  'username' => 'cluster_operator'
+                }
+              ]
+        }
+      )
     end
 
+    it 'assumes usernames represent roles and passes security properties to the release',
+       app_fixture:   'container_tomcat_geode_store',
+       cache_fixture: 'stub-geode-store.tar' do
+
+      component.release
+
+      expect(java_opts).to include(
+        '-Dgemfire.security-client-auth-init=io.pivotal.cloudcache.ClientAuthInitialize.create'
+      )
+      expect(java_opts).to include('-Dgemfire.security-username=cluster_operator')
+      expect(java_opts).to include('-Dgemfire.security-password=some-password')
+    end
   end
 end
