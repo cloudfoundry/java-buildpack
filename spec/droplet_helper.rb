@@ -22,9 +22,11 @@ require 'java_buildpack/component/environment_variables'
 require 'java_buildpack/component/extension_directories'
 require 'java_buildpack/component/immutable_java_home'
 require 'java_buildpack/component/java_opts'
+require 'java_buildpack/component/mutable_java_home'
 require 'java_buildpack/component/networking'
 require 'java_buildpack/component/security_providers'
 require 'java_buildpack/util/snake_case'
+require 'java_buildpack/util/tokenized_version'
 require 'pathname'
 
 shared_context 'droplet_helper' do
@@ -48,8 +50,15 @@ shared_context 'droplet_helper' do
   let(:sandbox) { droplet.sandbox }
 
   let(:java_home) do
-    delegate = instance_double('MutableJavaHome', root: app_dir + '.test-java-home', version: %w[1 7 55 u60])
-    JavaBuildpack::Component::ImmutableJavaHome.new delegate, app_dir
+    JavaBuildpack::Component::ImmutableJavaHome.new java_home_delegate, app_dir
+  end
+
+  let(:java_home_delegate) do
+    delegate         = JavaBuildpack::Component::MutableJavaHome.new
+    delegate.root    = app_dir + '.test-java-home'
+    delegate.version = JavaBuildpack::Util::TokenizedVersion.new('1.7.0_55')
+
+    delegate
   end
 
   let(:environment_variables) do

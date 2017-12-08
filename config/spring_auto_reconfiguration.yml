@@ -17,6 +17,6 @@
 # Note that the repository is shared with the Play Auto Reconfiguration framework and should be kept in step to
 # avoid conflicts.
 ---
-version: 1.+
+version: 2.+
 repository_root: "{default.repository.root}/auto-reconfiguration"
 enabled: true

@@ -16,7 +16,6 @@
 require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/framework/spring_auto_reconfiguration'
-require 'java_buildpack/framework/spring_auto_reconfiguration/web_xml_modifier'
 
 describe JavaBuildpack::Framework::SpringAutoReconfiguration do
   include_context 'component_helper'
@@ -65,28 +64,6 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
     component.release
 
     expect(additional_libraries).to include(sandbox + "spring_auto_reconfiguration-#{version}.jar")
-  end
-
-  context do
-
-    let(:web_xml_modifier) { instance_double('WebXmlModifier') }
-
-    before do
-      allow(JavaBuildpack::Framework::WebXmlModifier).to receive(:new).and_return(web_xml_modifier)
-      allow(web_xml_modifier).to receive(:augment_root_context)
-      allow(web_xml_modifier).to receive(:augment_servlet_contexts)
-      allow(web_xml_modifier).to receive(:to_s).and_return('Test Content')
-    end
-
-    it 'updates web.xml if it exists',
-       app_fixture:   'framework_auto_reconfiguration_servlet_2',
-       cache_fixture: 'stub-auto-reconfiguration.jar' do
-
-      component.compile
-
-      expect((app_dir + 'WEB-INF/web.xml').read).to eq('Test Content')
-    end
-
   end
 
 end

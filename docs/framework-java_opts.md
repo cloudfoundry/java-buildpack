@@ -67,44 +67,32 @@ from_environment: false
 java_opts: -Xloggc:$PWD/beacon_gc.log -verbose:gc
 ```
 
-## Memory Settings
-
-The following `JAVA_OPTS` are restricted and will cause the application to fail deployment.
-
-* `-Xms`
-* `-Xmx`
-* `-Xss`
-* `-XX:MaxMetaspaceSize`
-* `-XX:MaxPermSize`
-* `-XX:MetaspaceSize`
-* `-XX:PermSize`
-
-### Allowed Memory Settings
-
-Setting any of the allowed memory settings may require a change to the [Memory Weightings]. Where a value is shown it is the default value for that setting.
+## Allowed Memory Settings
 
 | Argument| Description
 | ------- | -----------
-| `-Xmn <SIZE>` | Maximum size of young generation, known as the eden region. **This could effect the total heap size [Memory Weightings].**
+| `-Xms` | Minimum or initial size of heap.
+| `-Xss` | Size of each thread's stack. **This could effect the total heap size. [JRE Memory]**
+| `-XX:MaxMetaspaceSize` | The maximum size Metaspace can grow to. **This could effect the total heap size. [JRE Memory]**
+| `-XX:MaxPermSize` | The maximum size Permgen can grow to.  Only applies to Java 7. **This could effect the total heap size. [JRE Memory]**
+| `-Xmn <SIZE>` | Maximum size of young generation, known as the eden region.
 | `-XX:+UseGCOverheadLimit` | Use a policy that limits the proportion of the VM's time that is spent in GC before an `java.lang.OutOfMemoryError` error is thrown.
 | `-XX:+UseLargePages` | Use large page memory. For details, see [Java Support for Large Memory Pages].
 | `-XX:-HeapDumpOnOutOfMemoryError` | Dump heap to file when `java.lang.OutOfMemoryError` is thrown.
 | `-XX:HeapDumpPath=<PATH>` | Path to directory or filename for heap dump.
 | `-XX:LargePageSizeInBytes=<SIZE>` | Sets the large page size used for the Java heap.
-| `-XX:MaxDirectMemorySize=<SIZE>` | Upper limit on the maximum amount of allocatable direct buffer memory. **This could effect the [Memory Weightings].**
+| `-XX:MaxDirectMemorySize=<SIZE>` | Upper limit on the maximum amount of allocatable direct buffer memory. **This could effect the total heap size. [JRE Memory]**
 | `-XX:MaxHeapFreeRatio=<RATIO>` | Maximum percentage of heap free after GC to avoid shrinking.
-| `-XX:MaxNewSize=<SIZE>` | Maximum size of new generation. Since `1.4`, `MaxNewSize` is computed as a function of `NewRatio`. **This could effect the total heap size [Memory Weightings].**
+| `-XX:MaxNewSize=<SIZE>` | Maximum size of new generation. Since `1.4`, `MaxNewSize` is computed as a function of `NewRatio`.
 | `-XX:MinHeapFreeRatio=<RATIO>` | Minimum percentage of heap free after GC to avoid expansion.
 | `-XX:NewRatio=<RATIO>` | Ratio of old/new generation sizes. 2 is equal to approximately 66%.
-| `-XX:NewSize=<SIZE>` | Default size of new generation. **This could effect the total heap size [Memory Weightings].**
+| `-XX:NewSize=<SIZE>` | Default size of new generation.
 | `-XX:OnError="<CMD ARGS>;<CMD ARGS>"` | Run user-defined commands on fatal error.
-| `-XX:OnOutOfMemoryError="<CMD ARGS>;<CMD ARGS>"` | Run user-defined commands when an `java.lang.OutOfMemoryError` is first thrown.
-| `-XX:ReservedCodeCacheSize=<SIZE>` | _Java 8 Only_ Maximum code cache size. Also know as `-Xmaxjitcodesize`. **This could effect the [Memory Weightings].**
+| `-XX:ReservedCodeCacheSize=<SIZE>` | _Java 8 Only_ Maximum code cache size. Also know as `-Xmaxjitcodesize`. **This could effect the total heap size. [JRE Memory]**
 | `-XX:SurvivorRatio=<RATIO>` | Ratio of eden/survivor space. Solaris only.
 | `-XX:TargetSurvivorRatio=<RATIO>` | Desired ratio of survivor space used after scavenge.
-| `-XX:ThreadStackSize=<SIZE>` | Thread stack size. (0 means use default stack size).
 
 [`config/java_opts.yml`]: ../config/java_opts.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [Java Support for Large Memory Pages]: http://www.oracle.com/technetwork/java/javase/tech/largememory-jsp-137182.html
-[Memory Weightings]: jre-open_jdk_jre.md#memory-weightings
+[JRE Memory]: jre-open_jdk_jre.md#memory
