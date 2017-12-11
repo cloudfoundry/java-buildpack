@@ -39,7 +39,11 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   let(:uri_secure) { 'https://foo-uri/' }
 
-  let(:download_cache) { described_class.new(mutable_cache_root, immutable_cache_root) }
+  let(:download_cache) do
+    download_cache           = described_class.new(mutable_cache_root, immutable_cache_root)
+    download_cache.retry_max = 0
+    download_cache
+  end
 
   before do
     described_class.const_set :CA_FILE, ca_certs_directory
