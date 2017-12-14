@@ -17,6 +17,7 @@ require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 require 'java_buildpack/util/cache/internet_availability'
+require 'java_buildpack/util/to_b'
 require 'json'
 
 module JavaBuildpack
@@ -36,27 +37,25 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        begin
-          JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
-            true, 'The Dynatrace One Agent download location is always accessible'
-          ) do
-            download(@version, @uri) { |file| expand file }
-          end
-        rescue StandardError => e
-          raise unless skip_errors?
-
-          @logger.error { "Dynatrace OneAgent download failed: #{e}" }
-          @logger.warn { "Agent injection disabled because of #{SKIP_ERRORS} credential is set to true!" }
-          FileUtils.mkdir_p(File.dirname(error_file))
-          File.write(error_file, e.to_s)
+        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+          true, 'The Dynatrace One Agent download location is always accessible'
+        ) do
+          download(@version, @uri) { |file| expand file }
         end
 
         @droplet.copy_resources
+      rescue StandardError => e
+        raise unless skip_errors?
+
+        @logger.error { "Dynatrace OneAgent download failed: #{e}" }
+        @logger.warn { "Agent injection disabled because of #{SKIP_ERRORS} credential is set to true!" }
+        FileUtils.mkdir_p(error_file.parent)
+        File.write(error_file, e.to_s)
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        if File.exist?(error_file)
+        if error_file.exist?
           @logger.warn { "Dynatrace OneAgent injection disabled due to download error: #{File.read(error_file)}" }
           return
         end
@@ -101,9 +100,8 @@ module JavaBuildpack
                        :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :SKIP_ERRORS
 
       def agent_download_url
-        creds = credentials
-        download_uri = "#{api_base_url(creds)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
-                       "&bitness=64&Api-Token=#{creds[APITOKEN]}"
+        download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
+                       "&bitness=64&Api-Token=#{credentials[APITOKEN]}"
         ['latest', download_uri]
       end
 
@@ -173,7 +171,7 @@ module JavaBuildpack
       end
 
       def skip_errors?
-        'true'.casecmp(credentials[SKIP_ERRORS] || 'false').zero?
+        credentials[SKIP_ERRORS].to_b
       end
 
       def tenanttoken(manifest)
