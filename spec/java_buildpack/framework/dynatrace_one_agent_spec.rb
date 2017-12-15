@@ -92,6 +92,54 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
 
     end
 
+    context do
+
+      before do
+        allow(services).to receive(:one_service?).with(/dynatrace/, 'apitoken', 'environmentid').and_return(true)
+        allow(services).to receive(:find_service).and_return('credentials' => { 'environmentid' => 'test-environmentid',
+                                                                                'apiurl'        => 'test-apiurl',
+                                                                                'apitoken'      => 'test-apitoken' })
+        allow(application_cache).to receive(:get)
+          .with('test-apiurl/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64' \
+            '&Api-Token=test-apitoken')
+          .and_raise(RuntimeError.new('service interrupt'))
+      end
+
+      it 'fails on download error on default' do
+        expect { component.compile }.to raise_error(RuntimeError)
+      end
+
+    end
+
+    context do
+
+      before do
+        allow(services).to receive(:one_service?).with(/dynatrace/, 'apitoken', 'environmentid').and_return(true)
+        allow(services).to receive(:find_service).and_return('credentials' => { 'environmentid' => 'test-environmentid',
+                                                                                'apiurl'        => 'test-apiurl',
+                                                                                'apitoken'      => 'test-apitoken',
+                                                                                'skiperrors'    => 'true' })
+        allow(application_cache).to receive(:get)
+          .with('test-apiurl/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64' \
+            '&Api-Token=test-apitoken')
+          .and_raise(RuntimeError.new('service interrupt'))
+      end
+
+      it 'skips errors during compile and writes error file' do
+        component.compile
+        expect(sandbox + 'dynatrace_download_error').to exist
+      end
+
+      it 'does not do anything during release' do
+        component.compile
+        component.release
+
+        expect(java_opts).not_to include('-agentpath:$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
+          'liboneagentloader.so')
+      end
+
+    end
+
   end
 
 end
