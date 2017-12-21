@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/debug'
 
 describe JavaBuildpack::Framework::Debug do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect if not enabled' do
     expect(component.detect).to be_nil

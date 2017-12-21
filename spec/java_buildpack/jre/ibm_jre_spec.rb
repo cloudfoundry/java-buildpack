@@ -21,7 +21,7 @@ require 'java_buildpack/jre/ibm_jre_initializer'
 require 'java_buildpack/jre/ibm_jre'
 
 describe JavaBuildpack::Jre::IbmJRE do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:component) { StubIbmJRE.new context }
 

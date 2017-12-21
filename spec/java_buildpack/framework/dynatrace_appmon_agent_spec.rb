@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/dynatrace_appmon_agent'
 
 describe JavaBuildpack::Framework::DynatraceAppmonAgent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:configuration) do
     { 'default_agent_name' => nil }

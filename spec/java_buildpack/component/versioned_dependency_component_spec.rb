@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/component/versioned_dependency_component'
 
 describe JavaBuildpack::Component::VersionedDependencyComponent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:component) { StubVersionedDependencyComponent.new context }
 

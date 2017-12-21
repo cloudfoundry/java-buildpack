@@ -20,8 +20,8 @@ require 'java_buildpack/util/configuration_utils'
 require 'java_buildpack/util/cache/internet_availability'
 
 describe JavaBuildpack::Util::Cache::InternetAvailability do
-  include_context 'internet_availability_helper'
-  include_context 'logging_helper'
+  include_context 'with internet availability help'
+  include_context 'with logging help'
 
   it 'uses internet by default' do
     expect(described_class.instance.available?).to be

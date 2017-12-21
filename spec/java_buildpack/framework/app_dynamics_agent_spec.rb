@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/app_dynamics_agent'
 
 describe JavaBuildpack::Framework::AppDynamicsAgent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:configuration) do
     { 'default_tier_name'        => nil,

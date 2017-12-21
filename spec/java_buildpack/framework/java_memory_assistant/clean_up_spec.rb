@@ -19,8 +19,8 @@ require 'component_helper'
 require 'java_buildpack/framework/java_memory_assistant/clean_up'
 
 describe JavaBuildpack::Framework::JavaMemoryAssistantCleanUp do
-  include_context 'application_helper'
-  include_context 'component_helper'
+  include_context 'with application help'
+  include_context 'with component help'
 
   let(:version) { '1.2.3' }
 

@@ -17,7 +17,7 @@ require 'spec_helper'
 require 'integration_helper'
 
 describe 'detect script', :integration do # rubocop:disable RSpec/DescribeClass
-  include_context 'integration_helper'
+  include_context 'with integration help'
 
   it 'returns zero if success',
      app_fixture: 'integration_valid' do

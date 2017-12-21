@@ -20,8 +20,8 @@ require 'internet_availability_helper'
 require 'java_buildpack/framework/spring_insight'
 
 describe JavaBuildpack::Framework::SpringInsight do
-  include_context 'component_helper'
-  include_context 'internet_availability_helper'
+  include_context 'with component help'
+  include_context 'with internet availability help'
 
   it 'does not detect without spring-insight-n/a service' do
     expect(component.detect).to be_nil

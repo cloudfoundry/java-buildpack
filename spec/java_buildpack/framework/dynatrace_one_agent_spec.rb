@@ -19,7 +19,7 @@ require 'java_buildpack/framework/dynatrace_one_agent'
 require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Framework::DynatraceOneAgent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect without dynatrace-n/a service' do
     expect(component.detect).to be_nil

@@ -1,5 +1,3 @@
-# Encoding: utf-8
-
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2016 the original author or authors.
 #
@@ -21,7 +19,7 @@ require 'java_buildpack/framework/contrast_security_agent'
 require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Framework::ContrastSecurityAgent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect without contrastsecurity service' do
     expect(component.detect).to be_nil

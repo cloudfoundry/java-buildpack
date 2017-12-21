@@ -19,7 +19,7 @@ require 'fileutils'
 require 'java_buildpack/container/tomcat/tomcat_insight_support'
 
 describe JavaBuildpack::Container::TomcatInsightSupport do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:component_id) { 'tomcat' }
 

@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/jrebel_agent'
 
 describe JavaBuildpack::Framework::JrebelAgent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect when rebel-remote.xml is not present' do
     expect(component.detect).to be_nil

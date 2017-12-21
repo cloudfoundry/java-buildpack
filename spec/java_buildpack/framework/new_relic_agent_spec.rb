@@ -19,7 +19,7 @@ require 'java_buildpack/framework/new_relic_agent'
 require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Framework::NewRelicAgent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect without newrelic-n/a service' do
     expect(component.detect).to be_nil

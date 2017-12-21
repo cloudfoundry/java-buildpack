@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/introscope_agent'
 
 describe JavaBuildpack::Framework::IntroscopeAgent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:configuration) do
     { 'default_agent_name' => "$(expr \"$VCAP_APPLICATION\" : '.*application_name[\": ]*\\([A-Za-z0-9_-]*\\).*')" }

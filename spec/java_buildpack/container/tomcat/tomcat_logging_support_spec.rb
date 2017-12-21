@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/container/tomcat/tomcat_logging_support'
 
 describe JavaBuildpack::Container::TomcatLoggingSupport do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:component_id) { 'tomcat' }
 

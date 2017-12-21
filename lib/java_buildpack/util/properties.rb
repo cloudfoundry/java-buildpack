@@ -26,7 +26,7 @@ module JavaBuildpack
       # @param [Pathname, nil] file_name the file to use for initialization. If no file is passed in, the instance is
       #                                  empty.
       def initialize(file_name)
-        return self if file_name.nil?
+        return if file_name.nil?
 
         contents = file_name.open(&:read)
         contents.gsub!(/[\r\n\f]+ /, '')

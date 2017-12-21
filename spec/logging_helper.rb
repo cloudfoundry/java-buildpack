@@ -20,9 +20,9 @@ require 'fileutils'
 require 'java_buildpack/logging/logger_factory'
 require 'yaml'
 
-shared_context 'logging_helper' do
-  include_context 'console_helper'
-  include_context 'application_helper'
+shared_context 'with logging help' do
+  include_context 'with console help'
+  include_context 'with application help'
 
   previous_log_config    = ENV['JBP_CONFIG_LOGGING']
   previous_log_level     = ENV['JBP_LOG_LEVEL']

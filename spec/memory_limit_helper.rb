@@ -15,7 +15,7 @@
 
 require 'spec_helper'
 
-shared_context 'memory_limit_helper' do
+shared_context 'with memory limit help' do
 
   previous_memory_limit = ENV['MEMORY_LIMIT']
 

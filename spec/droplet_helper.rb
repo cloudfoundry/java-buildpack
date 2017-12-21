@@ -29,9 +29,9 @@ require 'java_buildpack/util/snake_case'
 require 'java_buildpack/util/tokenized_version'
 require 'pathname'
 
-shared_context 'droplet_helper' do
-  include_context 'application_helper'
-  include_context 'logging_helper'
+shared_context 'with droplet help' do
+  include_context 'with application help'
+  include_context 'with logging help'
 
   let(:additional_libraries) { JavaBuildpack::Component::AdditionalLibraries.new app_dir }
 

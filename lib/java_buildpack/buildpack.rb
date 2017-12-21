@@ -260,7 +260,7 @@ module JavaBuildpack
         application = Component::Application.new(app_dir)
 
         yield new(app_dir, application) if block_given?
-      rescue => e
+      rescue StandardError => e
         handle_error(e, message)
       end
 

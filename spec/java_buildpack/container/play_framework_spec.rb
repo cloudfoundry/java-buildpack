@@ -19,7 +19,7 @@ require 'java_buildpack/container/play_framework'
 require 'java_buildpack/util/play/factory'
 
 describe JavaBuildpack::Container::PlayFramework do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:delegate) { instance_double('delegate') }
 

@@ -22,7 +22,7 @@ require 'spec_helper'
 require 'yaml'
 
 describe JavaBuildpack::Util::ConfigurationUtils do
-  include_context 'logging_helper'
+  include_context 'with logging help'
 
   let(:test_data) do
     { 'foo'      => { 'one' => '1', 'two' => 2 },

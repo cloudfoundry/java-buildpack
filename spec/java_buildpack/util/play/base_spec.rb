@@ -19,7 +19,7 @@ require 'fileutils'
 require 'java_buildpack/util/play/base'
 
 describe JavaBuildpack::Util::Play::Base do
-  include_context 'droplet_helper'
+  include_context 'with droplet help'
 
   let(:play) { described_class.new(droplet) }
 

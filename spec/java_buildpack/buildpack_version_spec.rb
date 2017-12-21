@@ -20,9 +20,9 @@ require 'java_buildpack/buildpack_version'
 require 'pathname'
 
 describe JavaBuildpack::BuildpackVersion do
-  include_context 'application_helper'
-  include_context 'console_helper'
-  include_context 'logging_helper'
+  include_context 'with application help'
+  include_context 'with console help'
+  include_context 'with logging help'
 
   let(:buildpack_version) { described_class.new }
 

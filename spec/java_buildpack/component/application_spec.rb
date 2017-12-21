@@ -19,7 +19,7 @@ require 'fileutils'
 require 'java_buildpack/component/application'
 
 describe JavaBuildpack::Component::Application do
-  include_context 'application_helper'
+  include_context 'with application help'
 
   it 'returns a parsed version of VCAP_APPLICATION as details' do
     expect(application.details).to eq(vcap_application)

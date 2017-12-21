@@ -20,9 +20,9 @@ require 'logging_helper'
 require 'java_buildpack/util/cache/application_cache'
 
 describe JavaBuildpack::Util::Cache::ApplicationCache do
-  include_context 'application_helper'
-  include_context 'internet_availability_helper'
-  include_context 'logging_helper'
+  include_context 'with application help'
+  include_context 'with internet availability help'
+  include_context 'with logging help'
 
   previous_arg_value = ARGV[1]
 
@@ -50,7 +50,7 @@ describe JavaBuildpack::Util::Cache::ApplicationCache do
   it 'uses ARGV[1] directory' do
     ARGV[1] = app_dir
 
-    described_class.new.get('http://foo-uri/') {}
+    described_class.new.get('http://foo-uri/'){}
 
     expect(Pathname.glob(app_dir + '*.cached').size).to eq(1)
   end

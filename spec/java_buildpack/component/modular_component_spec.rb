@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/component/modular_component'
 
 describe JavaBuildpack::Component::ModularComponent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:component) { StubModularComponent.new context }
 

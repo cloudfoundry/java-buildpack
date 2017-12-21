@@ -19,7 +19,7 @@ require 'fileutils'
 require 'java_buildpack/jre/open_jdk_like_security_providers'
 
 describe JavaBuildpack::Jre::OpenJDKLikeSecurityProviders do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not add extension directories with no JRE default' do
     component.release

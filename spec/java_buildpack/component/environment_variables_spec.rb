@@ -18,7 +18,7 @@ require 'droplet_helper'
 require 'java_buildpack/component/environment_variables'
 
 describe JavaBuildpack::Component::EnvironmentVariables do
-  include_context 'droplet_helper'
+  include_context 'with droplet help'
 
   let(:variables) { described_class.new droplet.root }
 

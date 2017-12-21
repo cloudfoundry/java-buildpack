@@ -19,10 +19,10 @@ require 'console_helper'
 require 'logging_helper'
 require 'open3'
 
-shared_context 'integration_helper' do
-  include_context 'application_helper'
-  include_context 'console_helper'
-  include_context 'logging_helper'
+shared_context 'with integration help' do
+  include_context 'with application help'
+  include_context 'with console help'
+  include_context 'with logging help'
 
   let(:buildpack_dir) { Pathname.new Dir.mktmpdir }
 

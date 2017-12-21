@@ -25,12 +25,12 @@ require 'java_buildpack/util/space_case'
 require 'java_buildpack/util/tokenized_version'
 require 'pathname'
 
-shared_context 'component_helper' do
-  include_context 'application_helper'
-  include_context 'console_helper'
-  include_context 'droplet_helper'
-  include_context 'internet_availability_helper'
-  include_context 'logging_helper'
+shared_context 'with component help' do
+  include_context 'with application help'
+  include_context 'with console help'
+  include_context 'with droplet help'
+  include_context 'with internet availability help'
+  include_context 'with logging help'
 
   let(:application_cache) { instance_double('ApplicationCache') }
 

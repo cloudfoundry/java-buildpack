@@ -99,13 +99,13 @@ module JavaBuildpack
       def write_conf(servers, send_timeout, recv_timeout, retries)
         FileUtils.mkdir_p conf_file.parent
         conf_file.open(File::CREAT | File::WRONLY) do |f|
-          f.write <<EOS
+          f.write <<CONFIG
 servers         = #{servers}
 send_timeout    = #{send_timeout}
 recv_timeout    = #{recv_timeout}
 retries         = #{retries}
 ha_mode_standby = 1
-EOS
+CONFIG
         end
       end
 

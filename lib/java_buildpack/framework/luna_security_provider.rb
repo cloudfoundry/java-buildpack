@@ -139,31 +139,31 @@ module JavaBuildpack
         chrystoki.open(File::APPEND | File::WRONLY) do |f|
           write_prologue f
           servers.each_with_index { |server, index| write_server f, index, server }
-          f.write <<EOS
+          f.write <<TOKEN
 }
 
 VirtualToken = {
-EOS
+TOKEN
           groups.each_with_index { |group, index| write_group f, index, group }
           write_epilogue f, groups
         end
       end
 
       def write_epilogue(f, groups)
-        f.write <<EOS
+        f.write <<HA
 }
 
 HAConfiguration = {
   AutoReconnectInterval = 60;
   HAOnly = 1;
   reconnAtt = -1;
-EOS
+HA
         write_ha_logging(f) if ha_logging?
-        f.write <<EOS
+        f.write <<HA
 }
 
 HASynchronize = {
-EOS
+HA
         groups.each { |group| f.write "  #{group['label']} = 1;\n" }
         f.write "}\n"
       end
@@ -178,23 +178,23 @@ EOS
       end
 
       def write_lib(f)
-        f.write <<EOS
+        f.write <<CONFIG
 
 Chrystoki2 = {
-EOS
+CONFIG
 
         if logging?
           write_logging(f)
         else
-          f.write <<EOS
+          f.write <<LIB
   LibUNIX64 = #{relative(lib_cryptoki)};
 }
-EOS
+LIB
         end
       end
 
       def write_logging(f)
-        f.write <<EOS
+        f.write <<LOGGING
   LibUNIX64 = #{relative(lib_cklog)};
 }
 
@@ -205,20 +205,20 @@ CkLog2 = {
   LogToStreams = 1;
   NewFormat    = 1;
 }
-EOS
+LOGGING
       end
 
       def write_ha_logging(f)
-        f.write <<EOS
+        f.write <<HA
   haLogStatus = enabled;
   haLogToStdout = enabled;
-EOS
+HA
       end
 
       def write_prologue(f)
         write_lib(f)
 
-        f.write <<EOS
+        f.write <<CLIENT
 
 LunaSA Client = {
   NetClient = 1;
@@ -228,7 +228,7 @@ LunaSA Client = {
   HtlDir            = #{relative(@droplet.sandbox + 'htl')};
   ServerCAFile      = #{relative(server_certificates)};
 
-EOS
+CLIENT
       end
 
       def write_server(f, index, server)

@@ -7,7 +7,7 @@ AllCops:
   - 'rakelib/**/*'
   Exclude:
   - 'build/**/*'
-  - Gemfile            # TODO: Remove when upgrading to any version after 0.48.1
+  - Gemfile
 Layout/EmptyLinesAroundBlockBody:
   Exclude:
   - 'spec/**/*.rb'
@@ -49,6 +49,8 @@ RSpec/MultipleExpectations:
 RSpec/NestedGroups:
   Max: 4
 Style/Documentation:
+  Enabled: false
+Style/FormatStringToken:
   Enabled: false
 Style/MethodMissing:
   Enabled: false

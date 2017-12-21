@@ -17,8 +17,8 @@ require 'spec_helper'
 require 'logging_helper'
 require 'java_buildpack/util/cache/internet_availability'
 
-shared_context 'internet_availability_helper' do
-  include_context 'logging_helper'
+shared_context 'with internet availability help' do
+  include_context 'with logging help'
 
   # Re-initialize internet availability
   before do |example|

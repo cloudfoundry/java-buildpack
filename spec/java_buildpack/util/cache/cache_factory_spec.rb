@@ -22,9 +22,9 @@ require 'java_buildpack/util/cache/cache_factory'
 require 'java_buildpack/util/cache/download_cache'
 
 describe JavaBuildpack::Util::Cache::CacheFactory do
-  include_context 'application_helper'
-  include_context 'internet_availability_helper'
-  include_context 'logging_helper'
+  include_context 'with application help'
+  include_context 'with internet availability help'
+  include_context 'with logging help'
 
   previous_arg_value = ARGV[1]
 

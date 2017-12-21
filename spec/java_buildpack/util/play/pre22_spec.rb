@@ -19,8 +19,8 @@ require 'droplet_helper'
 require 'java_buildpack/util/play/pre22'
 
 describe JavaBuildpack::Util::Play::Pre22 do
-  include_context 'application_helper'
-  include_context 'droplet_helper'
+  include_context 'with application help'
+  include_context 'with droplet help'
 
   let(:play_app) { described_class.new(droplet) }
 

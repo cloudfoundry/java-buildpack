@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/util/play/post22_staged'
 
 describe JavaBuildpack::Util::Play::Post22Staged do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   context do
 

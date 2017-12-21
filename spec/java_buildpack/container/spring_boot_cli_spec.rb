@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/container/spring_boot_cli'
 
 describe JavaBuildpack::Container::SpringBootCLI do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect a non-Groovy project',
      app_fixture: 'container_main' do

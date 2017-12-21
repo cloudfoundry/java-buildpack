@@ -18,7 +18,7 @@ require 'droplet_helper'
 require 'java_buildpack/component/security_providers'
 
 describe JavaBuildpack::Component::SecurityProviders do
-  include_context 'droplet_helper'
+  include_context 'with droplet help'
 
   context do
 

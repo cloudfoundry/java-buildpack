@@ -18,8 +18,8 @@ require 'integration_helper'
 require 'memory_limit_helper'
 
 describe 'compile script', :integration do # rubocop:disable RSpec/DescribeClass
-  include_context 'integration_helper'
-  include_context 'memory_limit_helper'
+  include_context 'with integration help'
+  include_context 'with memory limit help'
 
   it 'returns zero if success',
      app_fixture: 'integration_valid',

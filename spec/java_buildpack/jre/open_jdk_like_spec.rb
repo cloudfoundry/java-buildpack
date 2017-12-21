@@ -23,7 +23,7 @@ require 'java_buildpack/jre/open_jdk_like_memory_calculator'
 require 'java_buildpack/jre/open_jdk_like_security_providers'
 
 describe JavaBuildpack::Jre::OpenJDKLike do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:component) { StubOpenJDKLike.new context }
 

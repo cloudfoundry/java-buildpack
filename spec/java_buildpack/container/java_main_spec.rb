@@ -20,14 +20,14 @@ require 'java_buildpack/util/qualify_path'
 
 describe JavaBuildpack::Container::JavaMain do
   include JavaBuildpack::Util
-  include_context 'component_helper'
+  include_context 'with component help'
 
-  shared_context 'explicit_main_class' do
+  shared_context 'with explicit main class' do
     let(:configuration) { { 'java_main_class' => 'test-java-main-class' } }
   end
 
   context do
-    include_context 'explicit_main_class'
+    include_context 'with explicit main class'
 
     it 'detects with main class configuration' do
 
@@ -72,7 +72,7 @@ describe JavaBuildpack::Container::JavaMain do
   end
 
   context do
-    include_context 'explicit_main_class'
+    include_context 'with explicit main class'
 
     it 'returns command' do
 

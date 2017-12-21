@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/jre/jvmkill_agent'
 
 describe JavaBuildpack::Jre::JvmkillAgent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'copies executable to bin directory',
      cache_fixture: 'stub-jvmkill-agent' do

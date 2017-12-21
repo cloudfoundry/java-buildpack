@@ -74,7 +74,7 @@ module JavaBuildpack
 
         def safe_read(file)
           yield
-        rescue => e
+        rescue StandardError => e
           raise "Unable to read file #{file.path}: #{e.message}"
         end
 

@@ -22,7 +22,7 @@ require 'java_buildpack/framework/java_memory_assistant/clean_up'
 require 'java_buildpack/framework/java_memory_assistant/heap_dump_folder'
 
 describe JavaBuildpack::Framework::JavaMemoryAssistant do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:component) { StubJavaMemoryAssistant.new context }
 

@@ -62,7 +62,7 @@ module JavaBuildpack
 
     def open(default, candidate, &block)
       candidate.open('r', external_encoding: 'UTF-8', &block)
-    rescue => e
+    rescue StandardError => e
       @logger.warn e.message
       default
     end

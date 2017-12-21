@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/java_opts'
 
 describe JavaBuildpack::Framework::JavaOpts do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   context do
     let(:configuration) { { 'java_opts' => '-Xmx1024M' } }

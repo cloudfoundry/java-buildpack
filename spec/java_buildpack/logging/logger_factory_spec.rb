@@ -20,8 +20,8 @@ require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/util/configuration_utils'
 
 describe JavaBuildpack::Logging::LoggerFactory do
-  include_context 'console_helper'
-  include_context 'logging_helper'
+  include_context 'with console help'
+  include_context 'with logging help'
 
   let(:logger) { described_class.instance.get_logger String }
 

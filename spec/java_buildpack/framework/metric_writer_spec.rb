@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/metric_writer'
 
 describe JavaBuildpack::Framework::MetricWriter do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect without metric-forwarder service' do
     expect(component.detect).to be_nil

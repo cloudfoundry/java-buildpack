@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/container_security_provider'
 
 describe JavaBuildpack::Framework::ContainerSecurityProvider do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'always detects' do
     expect(component.detect).to eq("container-security-provider=#{version}")

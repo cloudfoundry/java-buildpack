@@ -21,9 +21,9 @@ require 'java_buildpack/component/environment_variables'
 require 'java_buildpack/framework/java_memory_assistant/agent'
 
 describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
-  include_context 'application_helper'
-  include_context 'component_helper'
-  include_context 'logging_helper'
+  include_context 'with application help'
+  include_context 'with component help'
+  include_context 'with logging help'
 
   let(:vcap_application) do
     {

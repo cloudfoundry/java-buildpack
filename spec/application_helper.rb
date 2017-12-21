@@ -18,7 +18,7 @@ require 'java_buildpack/component/application'
 require 'java_buildpack/component/services'
 require 'json'
 
-shared_context 'application_helper' do
+shared_context 'with application help' do
 
   let(:app_dir) { Pathname.new Dir.mktmpdir }
 

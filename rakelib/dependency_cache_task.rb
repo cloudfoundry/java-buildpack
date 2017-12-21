@@ -100,7 +100,7 @@ module Package
     def cache_task(uri)
       task uri do |t|
         @monitor.synchronize { rake_output_message "Caching #{t.name}" }
-        cache.get(t.name) {}
+        cache.get(t.name){}
       end
 
       uri
@@ -192,7 +192,7 @@ module Package
       elsif config.key?(sub_component)
         config[sub_component]['version'] = version
       else
-        config.values.each { |v| update_configuration(v, version, sub_component) if v.is_a? Hash }
+        config.each_value { |v| update_configuration(v, version, sub_component) if v.is_a? Hash }
       end
     end
 

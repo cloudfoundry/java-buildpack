@@ -18,7 +18,7 @@ require 'application_helper'
 require 'java_buildpack/util/sanitizer'
 
 describe 'sanitize_uri' do # rubocop:disable RSpec/DescribeClass
-  include_context 'application_helper'
+  include_context 'with application help'
 
   it 'sanitizes uri with credentials in' do
     expect('https://myuser:mypass@myhost/path/to/file'.sanitize_uri).to eq('https://myhost/path/to/file')

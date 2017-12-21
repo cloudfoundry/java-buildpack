@@ -23,9 +23,9 @@ require 'java_buildpack/util/cache/download_cache'
 require 'net/http'
 
 describe JavaBuildpack::Util::Cache::DownloadCache do
-  include_context 'application_helper'
-  include_context 'internet_availability_helper'
-  include_context 'logging_helper'
+  include_context 'with application help'
+  include_context 'with internet availability help'
+  include_context 'with logging help'
 
   let(:ca_certs_directory) { instance_double('Pathname', exist?: false, to_s: 'test-path') }
 
@@ -199,7 +199,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
       allow(Net::HTTP).to receive(:Proxy).and_call_original
       allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
 
-      download_cache.get(uri) {}
+      download_cache.get(uri){}
     end
 
   end
@@ -216,7 +216,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
       allow(Net::HTTP).to receive(:Proxy).and_call_original
       allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
 
-      download_cache.get(uri) {}
+      download_cache.get(uri){}
     end
 
   end
@@ -233,7 +233,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
       allow(Net::HTTP).to receive(:Proxy).and_call_original
       allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
 
-      download_cache.get(uri_secure) {}
+      download_cache.get(uri_secure){}
     end
 
   end
@@ -250,7 +250,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
       allow(Net::HTTP).to receive(:Proxy).and_call_original
       allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
 
-      download_cache.get(uri_secure) {}
+      download_cache.get(uri_secure){}
     end
 
   end
@@ -266,7 +266,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
       allow(Net::HTTP).to receive(:Proxy).and_call_original
       expect(Net::HTTP).not_to have_received(:Proxy).with('proxy', 9000, nil, nil)
 
-      download_cache.get(uri_secure) {}
+      download_cache.get(uri_secure){}
     end
 
   end
@@ -282,7 +282,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
       allow(Net::HTTP).to receive(:Proxy).and_call_original
       expect(Net::HTTP).not_to have_received(:Proxy).with('proxy', 9000, nil, nil)
 
-      download_cache.get(uri_secure) {}
+      download_cache.get(uri_secure){}
     end
 
   end
@@ -294,7 +294,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     allow(Net::HTTP).to receive(:Proxy).and_call_original
     allow(Net::HTTP).to receive(:start).with('foo-uri', 80, {}).and_call_original
 
-    download_cache.get(uri) {}
+    download_cache.get(uri){}
   end
 
   it 'does not use ca_file if the URL is not secure and directory does exist' do
@@ -305,7 +305,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     allow(Net::HTTP).to receive(:Proxy).and_call_original
     allow(Net::HTTP).to receive(:start).with('foo-uri', 80, {}).and_call_original
 
-    download_cache.get(uri) {}
+    download_cache.get(uri){}
   end
 
   it 'does not use ca_file if the URL is secure and directory does not exist' do
@@ -315,7 +315,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     allow(Net::HTTP).to receive(:Proxy).and_call_original
     allow(Net::HTTP).to receive(:start).with('foo-uri', 443, use_ssl: true).and_call_original
 
-    download_cache.get(uri_secure) {}
+    download_cache.get(uri_secure){}
   end
 
   it 'uses ca_file if the URL is secure and directory does exist' do
@@ -326,7 +326,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     allow(Net::HTTP).to receive(:Proxy).and_call_original
     allow(Net::HTTP).to receive(:start).with('foo-uri', 443, use_ssl: true, ca_file: 'test-path').and_call_original
 
-    download_cache.get(uri_secure) {}
+    download_cache.get(uri_secure){}
   end
 
   it 'deletes the cached file if it exists' do

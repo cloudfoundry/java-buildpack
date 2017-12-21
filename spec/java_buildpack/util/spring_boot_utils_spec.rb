@@ -18,7 +18,7 @@ require 'droplet_helper'
 require 'java_buildpack/util/spring_boot_utils'
 
 describe JavaBuildpack::Util::SpringBootUtils do
-  include_context 'droplet_helper'
+  include_context 'with droplet help'
 
   let(:utils) { described_class.new }
 

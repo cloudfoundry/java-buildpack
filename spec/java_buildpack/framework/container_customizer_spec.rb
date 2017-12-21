@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/container_customizer'
 
 describe JavaBuildpack::Framework::ContainerCustomizer do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect without Spring Boot WAR' do
     expect(component.detect).to be_nil

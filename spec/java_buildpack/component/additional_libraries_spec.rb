@@ -18,7 +18,7 @@ require 'droplet_helper'
 require 'java_buildpack/component/additional_libraries'
 
 describe JavaBuildpack::Component::AdditionalLibraries do
-  include_context 'droplet_helper'
+  include_context 'with droplet help'
 
   context do
 

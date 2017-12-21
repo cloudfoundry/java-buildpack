@@ -20,7 +20,7 @@ require 'timeout'
 
 describe JavaBuildpack::Util::Shell do
   include described_class
-  include_context 'console_helper'
+  include_context 'with console help'
 
   it 'returns if command returns a zero exit code' do
     shell 'true'

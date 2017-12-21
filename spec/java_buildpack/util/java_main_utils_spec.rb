@@ -20,8 +20,8 @@ require 'java_buildpack/buildpack'
 require 'java_buildpack/util/java_main_utils'
 
 describe JavaBuildpack::Util::JavaMainUtils do
-  include_context 'application_helper'
-  include_context 'logging_helper'
+  include_context 'with application help'
+  include_context 'with logging help'
 
   let(:test_class_name) { 'test-java-main-class' }
 

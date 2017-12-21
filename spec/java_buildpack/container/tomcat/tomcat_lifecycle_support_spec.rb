@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/container/tomcat/tomcat_lifecycle_support'
 
 describe JavaBuildpack::Container::TomcatLifecycleSupport do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:component_id) { 'tomcat' }
 

@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/container/ratpack'
 
 describe JavaBuildpack::Container::Ratpack do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'detects a dist Ratpack application',
      app_fixture: 'container_ratpack_dist' do

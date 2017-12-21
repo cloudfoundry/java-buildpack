@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/client_certificate_mapper'
 
 describe JavaBuildpack::Framework::ClientCertificateMapper do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'always detects' do
     expect(component.detect).to eq("client-certificate-mapper=#{version}")

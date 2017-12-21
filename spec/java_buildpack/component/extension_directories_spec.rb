@@ -18,7 +18,7 @@ require 'droplet_helper'
 require 'java_buildpack/component/extension_directories'
 
 describe JavaBuildpack::Component::ExtensionDirectories do
-  include_context 'droplet_helper'
+  include_context 'with droplet help'
 
   context do
 

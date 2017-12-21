@@ -132,9 +132,9 @@ module JavaBuildpack
 
       def severity(configuration)
         severity = ENV['JBP_LOG_LEVEL']
-        severity = ruby_mode unless severity
-        severity = configuration['default_log_level'] unless severity
-        severity = 'INFO' unless severity
+        severity ||= ruby_mode
+        severity ||= configuration['default_log_level']
+        severity ||= 'INFO'
 
         "::Logger::Severity::#{severity.upcase}".constantize
       end

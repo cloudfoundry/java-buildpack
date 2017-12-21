@@ -20,7 +20,7 @@ require 'java_buildpack/jre/open_jdk_like_jre'
 require 'resolv'
 
 describe JavaBuildpack::Jre::OpenJDKLikeJre do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
 

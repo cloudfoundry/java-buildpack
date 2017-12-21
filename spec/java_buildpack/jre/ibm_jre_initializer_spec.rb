@@ -19,7 +19,7 @@ require 'java_buildpack/component/mutable_java_home'
 require 'java_buildpack/jre/ibm_jre_initializer'
 
 describe JavaBuildpack::Jre::IbmJreInitializer do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
 

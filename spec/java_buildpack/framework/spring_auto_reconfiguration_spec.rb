@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/spring_auto_reconfiguration'
 
 describe JavaBuildpack::Framework::SpringAutoReconfiguration do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:configuration) { { 'enabled' => true } }
 

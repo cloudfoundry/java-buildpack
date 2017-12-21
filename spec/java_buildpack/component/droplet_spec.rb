@@ -21,8 +21,8 @@ require 'java_buildpack/component/droplet'
 require 'pathname'
 
 describe JavaBuildpack::Component::Droplet do
-  include_context 'application_helper'
-  include_context 'droplet_helper'
+  include_context 'with application help'
+  include_context 'with droplet help'
 
   it 'returns additional_libraries' do
     expect(droplet.additional_libraries).to equal(additional_libraries)

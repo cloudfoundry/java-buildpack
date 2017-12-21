@@ -17,7 +17,7 @@ require 'spec_helper'
 require 'tee'
 require 'java_buildpack/util/colorize'
 
-shared_context 'console_helper' do
+shared_context 'with console help' do
 
   STDOUT.sync
   STDERR.sync

@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/container/dist_zip_like'
 
 describe JavaBuildpack::Container::DistZipLike do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'raises error if id method is unimplemented' do
     expect { component.send(:id) }.to raise_error "Method 'id' must be defined"

@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/component/base_component'
 
 describe JavaBuildpack::Component::BaseComponent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:component) { StubBaseComponent.new context }
 

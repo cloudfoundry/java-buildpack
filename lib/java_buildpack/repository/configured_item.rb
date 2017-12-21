@@ -45,7 +45,7 @@ module JavaBuildpack
 
           index = index(repository_root)
           index.find_item version
-        rescue => e
+        rescue StandardError => e
           raise RuntimeError, "#{component_name} error: #{e.message}", e.backtrace
         end
 

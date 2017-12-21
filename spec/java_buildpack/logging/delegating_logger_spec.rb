@@ -19,7 +19,7 @@ require 'logger'
 
 describe JavaBuildpack::Logging::DelegatingLogger do
 
-  let(:block) { ->() { 'test-message' } }
+  let(:block) { -> { 'test-message' } }
   let(:delegate1) { instance_double('delegate1') }
   let(:delegate2) { instance_double('delegate2') }
   let(:delegating_logger) { described_class.new('test-klass', [delegate1, delegate2]) }

@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/google_stackdriver_debugger'
 
 describe JavaBuildpack::Framework::GoogleStackdriverDebugger do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect without google-stackdriver-debugger-n/a service' do
     expect(component.detect).to be_nil

@@ -19,7 +19,7 @@ require 'java_buildpack/util/filtering_pathname'
 require 'java_buildpack/util/play/post22'
 
 describe JavaBuildpack::Util::Play::Post22 do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:play_app) { described_class.new(droplet) }
 

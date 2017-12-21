@@ -19,8 +19,8 @@ require 'droplet_helper'
 require 'java_buildpack/util/play/factory'
 
 describe JavaBuildpack::Util::Play::Factory do
-  include_context 'console_helper'
-  include_context 'droplet_helper'
+  include_context 'with console help'
+  include_context 'with droplet help'
 
   let(:trigger) { described_class.create(droplet) }
 

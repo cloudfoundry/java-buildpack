@@ -19,7 +19,7 @@ require 'fileutils'
 require 'java_buildpack/framework/java_security'
 
 describe JavaBuildpack::Framework::JavaSecurity do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'adds extension directories to system properties' do
     component.release

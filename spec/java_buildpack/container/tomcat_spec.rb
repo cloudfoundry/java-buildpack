@@ -26,7 +26,7 @@ require 'java_buildpack/container/tomcat/tomcat_logging_support'
 require 'java_buildpack/container/tomcat/tomcat_redis_store'
 
 describe JavaBuildpack::Container::Tomcat do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:component) { StubTomcat.new context }
 

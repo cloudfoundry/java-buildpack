@@ -19,7 +19,7 @@ require 'component_helper'
 require 'java_buildpack/framework/multi_buildpack'
 
 describe JavaBuildpack::Framework::MultiBuildpack do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   before do
     allow(Pathname).to receive(:glob).with('/tmp/*/deps').and_return([Pathname.new(app_dir)])

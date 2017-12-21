@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/container/dist_zip'
 
 describe JavaBuildpack::Container::DistZip do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'detects a distZip application',
      app_fixture: 'container_dist_zip' do

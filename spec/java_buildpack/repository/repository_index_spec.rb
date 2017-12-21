@@ -24,8 +24,8 @@ require 'java_buildpack/util/cache/download_cache'
 require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Repository::RepositoryIndex do
-  include_context 'application_helper'
-  include_context 'logging_helper'
+  include_context 'with application help'
+  include_context 'with logging help'
 
   let(:application_cache) { instance_double('ApplicationCache') }
 

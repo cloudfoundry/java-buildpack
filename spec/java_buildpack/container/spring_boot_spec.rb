@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/container/spring_boot'
 
 describe JavaBuildpack::Container::SpringBoot do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'detects a dist Spring Boot application',
      app_fixture: 'container_spring_boot_dist' do

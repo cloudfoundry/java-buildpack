@@ -20,7 +20,7 @@ require 'set'
 require 'spec_helper'
 
 describe JavaBuildpack::Util::FilteringPathname do
-  include_context 'application_helper'
+  include_context 'with application help'
 
   let(:filter_none) { ->(_) { true } }
   let(:filter_all) { ->(_) { false } }

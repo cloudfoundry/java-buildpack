@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/util/play/pre22_dist'
 
 describe JavaBuildpack::Util::Play::Pre22Dist do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   context do
 

@@ -18,7 +18,7 @@ require 'component_helper'
 require 'java_buildpack/framework/dyadic_ekm_security_provider'
 
 describe JavaBuildpack::Framework::DyadicEkmSecurityProvider do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect without dyadic-n/a service' do
     expect(component.detect).to be_nil

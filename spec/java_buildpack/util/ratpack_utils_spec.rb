@@ -18,7 +18,7 @@ require 'application_helper'
 require 'java_buildpack/util/ratpack_utils'
 
 describe JavaBuildpack::Util::RatpackUtils do
-  include_context 'application_helper'
+  include_context 'with application help'
 
   let(:utils) { described_class.new }
 

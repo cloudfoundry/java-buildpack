@@ -20,7 +20,7 @@ require 'fileutils'
 require 'java_buildpack/util/cache/cached_file'
 
 describe JavaBuildpack::Util::Cache::CachedFile do
-  include_context 'application_helper'
+  include_context 'with application help'
 
   let(:cache_root) { app_dir + 'cache/root' }
 

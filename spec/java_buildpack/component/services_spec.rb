@@ -18,13 +18,13 @@ require 'logging_helper'
 require 'java_buildpack/component/services'
 
 describe JavaBuildpack::Component::Services do
-  include_context 'logging_helper'
+  include_context 'with logging help'
 
   let(:services) { described_class.new('test' => service_payload) }
 
-  context('find_service') do
+  context('when find_service') do
 
-    context('single service') do
+    context('with single service') do
 
       let(:service_payload) do
         [{ 'name'        => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
@@ -53,7 +53,7 @@ describe JavaBuildpack::Component::Services do
 
     end
 
-    context('two services') do
+    context('with two services') do
 
       let(:service_payload) do
         [{ 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan' },
@@ -85,9 +85,9 @@ describe JavaBuildpack::Component::Services do
 
   end
 
-  context('find_volume_service') do
+  context('with find_volume_service') do
 
-    context('single service') do
+    context('with single service') do
 
       let(:service_payload) do
         [{ 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
@@ -119,7 +119,7 @@ describe JavaBuildpack::Component::Services do
 
     end
 
-    context('two services') do
+    context('with two services') do
 
       let(:service_payload) do
         [{ 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
@@ -156,9 +156,9 @@ describe JavaBuildpack::Component::Services do
 
   end
 
-  context('one_service') do
+  context('with one_service') do
 
-    context('single service') do
+    context('with single service') do
 
       let(:service_payload) do
         [{ 'name'        => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
@@ -212,7 +212,7 @@ describe JavaBuildpack::Component::Services do
 
     end
 
-    context('two services') do
+    context('with two services') do
 
       let(:service_payload) do
         [{ 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan' },
@@ -269,9 +269,9 @@ describe JavaBuildpack::Component::Services do
 
   end
 
-  context('one_volume_service') do
+  context('with one_volume_service') do
 
-    context('no volume mounts') do
+    context('with no volume mounts') do
       let(:service_payload) do
         [{ 'name'        => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
            'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' } }]
@@ -294,7 +294,7 @@ describe JavaBuildpack::Component::Services do
 
     end
 
-    context('empty volume mounts') do
+    context('with empty volume mounts') do
       let(:service_payload) do
         [{ 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
            'credentials'   => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
@@ -318,7 +318,7 @@ describe JavaBuildpack::Component::Services do
 
     end
 
-    context('one volume mount') do
+    context('with one volume mount') do
       let(:service_payload) do
         [{ 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
            'credentials'   => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
@@ -344,7 +344,7 @@ describe JavaBuildpack::Component::Services do
 
     end
 
-    context('two volume mounts') do
+    context('with two volume mounts') do
       let(:service_payload) do
         [{ 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
            'credentials'   => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
