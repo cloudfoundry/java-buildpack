@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -51,9 +53,9 @@ module JavaBuildpack
 
         private
 
-        KEY_REPOSITORY_ROOT = 'repository_root'.freeze
+        KEY_REPOSITORY_ROOT = 'repository_root'
 
-        KEY_VERSION = 'version'.freeze
+        KEY_VERSION = 'version'
 
         private_constant :KEY_REPOSITORY_ROOT, :KEY_VERSION
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -43,7 +45,7 @@ module JavaBuildpack
 
       private
 
-      KEY_ENABLED = 'access_logging'.freeze
+      KEY_ENABLED = 'access_logging'
 
       def jar_name
         "tomcat_access_logging_support-#{@version}.jar"

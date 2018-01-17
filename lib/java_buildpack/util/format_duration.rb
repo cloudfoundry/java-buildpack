@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -31,12 +33,12 @@ class Numeric
     minutes = (remainder / MINUTE).to_int
     remainder -= MINUTE * minutes
 
-    return "#{hours}h #{minutes}m" if hours > 0
+    return "#{hours}h #{minutes}m" if hours.positive?
 
     seconds = (remainder / SECOND).to_int
     remainder -= SECOND * seconds
 
-    return "#{minutes}m #{seconds}s" if minutes > 0
+    return "#{minutes}m #{seconds}s" if minutes.positive?
 
     tenths = (remainder / TENTH).to_int
     "#{seconds}.#{tenths}s"

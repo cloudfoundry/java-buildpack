@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -50,7 +52,7 @@ describe JavaBuildpack::Util::Cache::ApplicationCache do
   it 'uses ARGV[1] directory' do
     ARGV[1] = app_dir
 
-    described_class.new.get('http://foo-uri/'){}
+    described_class.new.get('http://foo-uri/') {}
 
     expect(Pathname.glob(app_dir + '*.cached').size).to eq(1)
   end

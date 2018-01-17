@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -58,19 +60,19 @@ module JavaBuildpack
 
       private
 
-      API_KEY = 'api_key'.freeze
+      API_KEY = 'api_key'
 
-      FILTER = 'contrast-security'.freeze
+      FILTER = 'contrast-security'
 
       INFLECTION_VERSION = JavaBuildpack::Util::TokenizedVersion.new('3.4.3').freeze
 
-      PLUGIN_PACKAGE = 'com.aspectsecurity.contrast.runtime.agent.plugins'.freeze
+      PLUGIN_PACKAGE = 'com.aspectsecurity.contrast.runtime.agent.plugins'
 
-      SERVICE_KEY = 'service_key'.freeze
+      SERVICE_KEY = 'service_key'
 
-      TEAMSERVER_URL = 'teamserver_url'.freeze
+      TEAMSERVER_URL = 'teamserver_url'
 
-      USERNAME = 'username'.freeze
+      USERNAME = 'username'
 
       private_constant :API_KEY, :FILTER, :INFLECTION_VERSION, :PLUGIN_PACKAGE, :SERVICE_KEY, :TEAMSERVER_URL,
                        :USERNAME

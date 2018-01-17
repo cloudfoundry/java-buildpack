@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -23,7 +25,7 @@ module JavaBuildpack
       include Comparable
 
       # The wildcard component.
-      WILDCARD = '+'.freeze
+      WILDCARD = '+'
 
       # Create a tokenized version based on the input string.
       #

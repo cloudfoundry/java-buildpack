@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2017 the original author or authors.
 #
@@ -108,7 +110,7 @@ module JavaBuildpack
         memory_limit = ENV['MEMORY_LIMIT']
         return nil unless memory_limit
         memory_limit_size = memory_size_bytes(memory_limit)
-        raise "Invalid negative $MEMORY_LIMIT #{memory_limit}" if memory_limit_size < 0
+        raise "Invalid negative $MEMORY_LIMIT #{memory_limit}" if memory_limit_size.negative?
         memory_limit_size
       end
 

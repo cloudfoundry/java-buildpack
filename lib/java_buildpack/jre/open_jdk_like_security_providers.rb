@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -42,11 +44,11 @@ module JavaBuildpack
 
       private
 
-      JAVA_9_SECURITY = 'conf/security/java.security'.freeze
+      JAVA_9_SECURITY = 'conf/security/java.security'
 
-      JRE_SECURITY = 'lib/security/java.security'.freeze
+      JRE_SECURITY = 'lib/security/java.security'
 
-      SERVER_JRE_SECURITY = 'jre/lib/security/java.security'.freeze
+      SERVER_JRE_SECURITY = 'jre/lib/security/java.security'
 
       private_constant :JAVA_9_SECURITY, :JRE_SECURITY, :SERVER_JRE_SECURITY
 

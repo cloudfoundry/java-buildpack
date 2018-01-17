@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 #
 # Copyright 2013-2017 the original author or authors.
@@ -57,11 +59,11 @@ module JavaBuildpack
 
       private
 
-      COLLECTOR_HOST = 'collector_host'.freeze
+      COLLECTOR_HOST = 'collector_host'
 
       FILTER = /takipi/
 
-      SECRET_KEY = 'secret_key'.freeze
+      SECRET_KEY = 'secret_key'
 
       private_constant :COLLECTOR_HOST, :FILTER, :SECRET_KEY
 

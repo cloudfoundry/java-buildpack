@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -52,7 +54,7 @@ module JavaBuildpack
 
       FILTER = /google-stackdriver-debugger/
 
-      PRIVATE_KEY_DATA = 'PrivateKeyData'.freeze
+      PRIVATE_KEY_DATA = 'PrivateKeyData'
 
       private_constant :FILTER, :PRIVATE_KEY_DATA
 

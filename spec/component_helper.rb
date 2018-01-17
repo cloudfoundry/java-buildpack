@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -63,7 +65,7 @@ shared_context 'with component help' do
     tokenized_version = JavaBuildpack::Util::TokenizedVersion.new(version)
 
     allow(JavaBuildpack::Repository::ConfiguredItem).to receive(:find_item) do |&block|
-      block.call(tokenized_version) if block
+      block&.call(tokenized_version)
     end.and_return([tokenized_version, uri])
   end
 

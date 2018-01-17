@@ -15,8 +15,6 @@ Layout/EmptyLinesAroundClassBody:
   Enabled: false
 Layout/EmptyLinesAroundModuleBody:
   Enabled: false
-Layout/IndentHeredoc:  # TODO: Remove when dropping 2.2.x support
-  Enabled: false
 Layout/MultilineOperationIndentation:
   Enabled: false
 Metrics/AbcSize:

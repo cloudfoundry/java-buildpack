@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -68,7 +70,7 @@ module JavaBuildpack
 
         private
 
-        GROOVY_FILE_PATTERN = '**/*.groovy'.freeze
+        GROOVY_FILE_PATTERN = '**/*.groovy'
 
         private_constant :GROOVY_FILE_PATTERN
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -46,9 +48,9 @@ module JavaBuildpack
 
       private
 
-      CONFIGURATION_PROPERTY = 'java_opts'.freeze
+      CONFIGURATION_PROPERTY = 'java_opts'
 
-      ENVIRONMENT_PROPERTY = 'from_environment'.freeze
+      ENVIRONMENT_PROPERTY = 'from_environment'
 
       private_constant :CONFIGURATION_PROPERTY, :ENVIRONMENT_PROPERTY
 

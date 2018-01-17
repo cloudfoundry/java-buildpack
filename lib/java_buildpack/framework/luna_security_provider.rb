@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -139,31 +141,31 @@ module JavaBuildpack
         chrystoki.open(File::APPEND | File::WRONLY) do |f|
           write_prologue f
           servers.each_with_index { |server, index| write_server f, index, server }
-          f.write <<TOKEN
-}
+          f.write <<~TOKEN
+            }
 
-VirtualToken = {
-TOKEN
+            VirtualToken = {
+          TOKEN
           groups.each_with_index { |group, index| write_group f, index, group }
           write_epilogue f, groups
         end
       end
 
       def write_epilogue(f, groups)
-        f.write <<HA
-}
+        f.write <<~HA
+          }
 
-HAConfiguration = {
-  AutoReconnectInterval = 60;
-  HAOnly = 1;
-  reconnAtt = -1;
-HA
+          HAConfiguration = {
+            AutoReconnectInterval = 60;
+            HAOnly = 1;
+            reconnAtt = -1;
+        HA
         write_ha_logging(f) if ha_logging?
-        f.write <<HA
-}
+        f.write <<~HA
+          }
 
-HASynchronize = {
-HA
+          HASynchronize = {
+        HA
         groups.each { |group| f.write "  #{group['label']} = 1;\n" }
         f.write "}\n"
       end
@@ -178,57 +180,57 @@ HA
       end
 
       def write_lib(f)
-        f.write <<CONFIG
+        f.write <<~CONFIG
 
-Chrystoki2 = {
-CONFIG
+          Chrystoki2 = {
+        CONFIG
 
         if logging?
           write_logging(f)
         else
-          f.write <<LIB
-  LibUNIX64 = #{relative(lib_cryptoki)};
-}
-LIB
+          f.write <<~LIB
+              LibUNIX64 = #{relative(lib_cryptoki)};
+            }
+          LIB
         end
       end
 
       def write_logging(f)
-        f.write <<LOGGING
-  LibUNIX64 = #{relative(lib_cklog)};
-}
+        f.write <<~LOGGING
+            LibUNIX64 = #{relative(lib_cklog)};
+          }
 
-CkLog2 = {
-  Enabled      = 1;
-  LibUNIX64    = #{relative(lib_cryptoki)};
-  LoggingMask  = ALL_FUNC;
-  LogToStreams = 1;
-  NewFormat    = 1;
-}
-LOGGING
+          CkLog2 = {
+            Enabled      = 1;
+            LibUNIX64    = #{relative(lib_cryptoki)};
+            LoggingMask  = ALL_FUNC;
+            LogToStreams = 1;
+            NewFormat    = 1;
+          }
+        LOGGING
       end
 
       def write_ha_logging(f)
-        f.write <<HA
-  haLogStatus = enabled;
-  haLogToStdout = enabled;
-HA
+        f.write <<~HA
+          haLogStatus = enabled;
+          haLogToStdout = enabled;
+        HA
       end
 
       def write_prologue(f)
         write_lib(f)
 
-        f.write <<CLIENT
+        f.write <<~CLIENT
 
-LunaSA Client = {
-  NetClient = 1;
+          LunaSA Client = {
+            NetClient = 1;
 
-  ClientCertFile    = #{relative(client_certificate)};
-  ClientPrivKeyFile = #{relative(client_private_key)};
-  HtlDir            = #{relative(@droplet.sandbox + 'htl')};
-  ServerCAFile      = #{relative(server_certificates)};
+            ClientCertFile    = #{relative(client_certificate)};
+            ClientPrivKeyFile = #{relative(client_private_key)};
+            HtlDir            = #{relative(@droplet.sandbox + 'htl')};
+            ServerCAFile      = #{relative(server_certificates)};
 
-CLIENT
+        CLIENT
       end
 
       def write_server(f, index, server)

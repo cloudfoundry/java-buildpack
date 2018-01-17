@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -68,7 +70,7 @@ module JavaBuildpack
       private
 
       # Matcher for service names or tags associated with the Java Memory Assistant
-      FILTER = 'heap-dump'.freeze
+      FILTER = 'heap-dump'
 
       def find_heap_dump_volume_service
         @application.services.find_volume_service FILTER

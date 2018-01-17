@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2016 the original author or authors.
 #
@@ -51,7 +53,7 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
 
       tokenized_version = JavaBuildpack::Util::TokenizedVersion.new('3.4.2_756')
       allow(JavaBuildpack::Repository::ConfiguredItem).to receive(:find_item) do |&block|
-        block.call(tokenized_version) if block
+        block&.call(tokenized_version)
       end.and_return([tokenized_version, uri])
 
       component.release
@@ -61,7 +63,7 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
     it 'uses java-agent for versions >= 3.4.3' do
       tokenized_version = JavaBuildpack::Util::TokenizedVersion.new('3.4.3_000')
       allow(JavaBuildpack::Repository::ConfiguredItem).to receive(:find_item) do |&block|
-        block.call(tokenized_version) if block
+        block&.call(tokenized_version)
       end.and_return([tokenized_version, uri])
 
       component.release

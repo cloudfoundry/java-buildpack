@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -44,12 +46,11 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Container::DistZipLike#supports?)
       def supports?
-        start_script(root) &&
-          start_script(root).exist? &&
+        start_script(root)&.exist? &&
           jars? &&
           !@ratpack_utils.is?(@application) &&
-            !@spring_boot_utils.is?(@application) &&
-              !JavaBuildpack::Util::Play::Factory.create(@droplet)
+          !@spring_boot_utils.is?(@application) &&
+          !JavaBuildpack::Util::Play::Factory.create(@droplet)
       end
 
       private

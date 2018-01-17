@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -54,9 +56,9 @@ module JavaBuildpack
 
       FILTER = /newrelic/
 
-      LICENSE_KEY = 'licenseKey'.freeze
+      LICENSE_KEY = 'licenseKey'
 
-      LICENSE_KEY_USER = 'license_key'.freeze
+      LICENSE_KEY_USER = 'license_key'
 
       private_constant :FILTER, :LICENSE_KEY, :LICENSE_KEY_USER
 

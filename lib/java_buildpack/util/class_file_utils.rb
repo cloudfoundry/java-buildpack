@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -34,7 +36,7 @@ module JavaBuildpack
           (application.root + CLASS_FILE_PATTERN).glob.reject(&:directory?).sort
         end
 
-        CLASS_FILE_PATTERN = '**/*.class'.freeze
+        CLASS_FILE_PATTERN = '**/*.class'
 
         private_constant :CLASS_FILE_PATTERN
 

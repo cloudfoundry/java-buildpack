@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -64,9 +66,9 @@ module JavaBuildpack
 
       private
 
-      ARGUMENTS_PROPERTY = 'arguments'.freeze
+      ARGUMENTS_PROPERTY = 'arguments'
 
-      CLASS_PATH_PROPERTY = 'Class-Path'.freeze
+      CLASS_PATH_PROPERTY = 'Class-Path'
 
       private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
 

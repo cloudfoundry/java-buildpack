@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -56,7 +58,7 @@ module JavaBuildpack
 
       private
 
-      INDEX_PATH = '/index.yml'.freeze
+      INDEX_PATH = '/index.yml'
 
       private_constant :INDEX_PATH
 

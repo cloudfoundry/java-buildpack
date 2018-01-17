@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2017 the original author or authors.
 #
@@ -100,7 +102,7 @@ module Package
     def cache_task(uri)
       task uri do |t|
         @monitor.synchronize { rake_output_message "Caching #{t.name}" }
-        cache.get(t.name){}
+        cache.get(t.name) {}
       end
 
       uri
