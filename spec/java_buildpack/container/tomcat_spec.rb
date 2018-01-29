@@ -23,6 +23,7 @@ require 'java_buildpack/container/tomcat/tomcat_access_logging_support'
 require 'java_buildpack/container/tomcat/tomcat_geode_store'
 require 'java_buildpack/container/tomcat/tomcat_insight_support'
 require 'java_buildpack/container/tomcat/tomcat_instance'
+require 'java_buildpack/container/tomcat/tomcat_internal_proxies'
 require 'java_buildpack/container/tomcat/tomcat_lifecycle_support'
 require 'java_buildpack/container/tomcat/tomcat_logging_support'
 require 'java_buildpack/container/tomcat/tomcat_redis_store'
@@ -39,6 +40,7 @@ describe JavaBuildpack::Container::Tomcat do
       'lifecycle_support'      => lifecycle_support_configuration,
       'logging_support'        => logging_support_configuration,
       'redis_store'            => redis_store_configuration,
+      'internal_proxies'       => internal_proxies_configuration,
       'tomcat'                 => tomcat_configuration }
   end
 
@@ -55,6 +57,8 @@ describe JavaBuildpack::Container::Tomcat do
   let(:tomcat_configuration) { { 'external_configuration_enabled' => false } }
 
   let(:tomcat_external_configuration) { instance_double('tomcat_external_configuration') }
+
+  let(:internal_proxies_configuration) { instance_double('internal_proxies_configuration') }
 
   it 'detects WEB-INF',
      app_fixture: 'container_tomcat' do
@@ -88,6 +92,8 @@ describe JavaBuildpack::Container::Tomcat do
       .to receive(:new).with(sub_configuration_context(logging_support_configuration))
     allow(JavaBuildpack::Container::TomcatRedisStore)
       .to receive(:new).with(sub_configuration_context(redis_store_configuration))
+    allow(JavaBuildpack::Container::TomcatInternalProxies)
+      .to receive(:new).with(sub_configuration_context(internal_proxies_configuration))
 
     component.sub_components context
   end

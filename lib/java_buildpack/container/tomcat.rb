@@ -22,6 +22,7 @@ require 'java_buildpack/container/tomcat/tomcat_external_configuration'
 require 'java_buildpack/container/tomcat/tomcat_geode_store'
 require 'java_buildpack/container/tomcat/tomcat_insight_support'
 require 'java_buildpack/container/tomcat/tomcat_instance'
+require 'java_buildpack/container/tomcat/tomcat_internal_proxies'
 require 'java_buildpack/container/tomcat/tomcat_lifecycle_support'
 require 'java_buildpack/container/tomcat/tomcat_logging_support'
 require 'java_buildpack/container/tomcat/tomcat_redis_store'
@@ -58,6 +59,7 @@ module JavaBuildpack
           TomcatLifecycleSupport.new(sub_configuration_context(context, 'lifecycle_support')),
           TomcatLoggingSupport.new(sub_configuration_context(context, 'logging_support')),
           TomcatRedisStore.new(sub_configuration_context(context, 'redis_store')),
+          TomcatInternalProxies.new(sub_configuration_context(context, 'internal_proxies')),
           TomcatInsightSupport.new(context)
         ]
 

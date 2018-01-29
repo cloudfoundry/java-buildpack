@@ -18,11 +18,11 @@
 tomcat:
   version: 8.5.+
   repository_root: "{default.repository.root}/tomcat"
-  context_path: 
+  context_path:
   external_configuration_enabled: false
 external_configuration:
   version: 1.+
-  repository_root: 
+  repository_root:
 lifecycle_support:
   version: 3.+
   repository_root: "{default.repository.root}/tomcat-lifecycle-support"
@@ -42,3 +42,7 @@ redis_store:
 geode_store:
   version: 0.+
   repository_root: https://repo.spring.io/ext-release-local/geode-store
+internal_proxies:
+  version: 0.+
+  repository_root:
+  regex:
