@@ -59,7 +59,9 @@ module JavaBuildpack
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
-      def release; end
+      def release
+        @droplet.environment_variables.add_environment_variable 'MALLOC_ARENA_MAX', 2
+      end
 
       protected
 
