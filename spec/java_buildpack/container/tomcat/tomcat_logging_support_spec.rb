@@ -33,13 +33,20 @@ describe JavaBuildpack::Container::TomcatLoggingSupport do
 
     component.compile
 
-    expect(sandbox + "endorsed/tomcat_logging_support-#{version}.jar").to exist
+    expect(sandbox + "bin/tomcat_logging_support-#{version}.jar").to exist
   end
 
-  it 'sets java.endorsed.dirs during release' do
-    component.release
+  it 'creates setenv.sh',
+     cache_fixture: 'stub-logging-support.jar' do
 
-    expect(java_opts).to include('-Djava.endorsed.dirs=$PWD/.java-buildpack/tomcat/endorsed')
+    component.compile
+
+    expect(sandbox + 'bin/setenv.sh').to exist
+    expect((sandbox + 'bin/setenv.sh').read).to eq <<~SH
+      #!/bin/sh
+
+      CLASSPATH=$CLASSPATH:#{(sandbox + "bin/tomcat_logging_support-#{version}.jar").relative_path_from(app_dir)}
+    SH
   end
 
 end
