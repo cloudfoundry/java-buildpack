@@ -99,4 +99,10 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
     component.compile
   end
 
+  it 'adds MALLOC_ARENA_MAX to environment' do
+    component.release
+
+    expect(environment_variables).to include('MALLOC_ARENA_MAX=2')
+  end
+
 end
