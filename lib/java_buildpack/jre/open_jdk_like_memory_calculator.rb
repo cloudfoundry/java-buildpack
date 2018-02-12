@@ -76,7 +76,8 @@ module JavaBuildpack
         (root + '**/*.class').glob.count +
           (root + '**/*.groovy').glob.count +
           (root + '**/*.jar').glob(File::FNM_DOTMATCH).reject(&:directory?)
-                             .inject(0) { |a, e| a + archive_class_count(e) }
+                             .inject(0) { |a, e| a + archive_class_count(e) } +
+          (@droplet.java_home.java_9_or_later? ? 42_215 : 0)
       end
 
       def archive_class_count(archive)
