@@ -44,7 +44,13 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        true
+        enabled?
+      end
+
+      private
+
+      def enabled?
+        @configuration['enabled']
       end
 
     end
