@@ -22,51 +22,70 @@ require 'java_buildpack/framework/container_security_provider'
 describe JavaBuildpack::Framework::ContainerSecurityProvider do
   include_context 'with component help'
 
-  it 'always detects' do
-    expect(component.detect).to eq("container-security-provider=#{version}")
+  let(:java_home) do
+    java_home         = JavaBuildpack::Component::MutableJavaHome.new
+    java_home.version = version_8
+    return java_home
   end
 
-  it 'adds extension directory' do
-    component.release
+  let(:version_8) { JavaBuildpack::Util::TokenizedVersion.new('1.8.0_162') }
 
-    expect(extension_directories).to include(droplet.sandbox)
+  let(:version_9) { JavaBuildpack::Util::TokenizedVersion.new('9.0.4_11') }
+
+  it 'does not detect if not enabled' do
+    expect(component.detect).to be_nil
   end
 
-  it 'adds security provider',
-     cache_fixture: 'stub-container-security-provider.jar' do
+  context 'when enabled' do
 
-    component.compile
-    expect(security_providers[1]).to eq('org.cloudfoundry.security.CloudFoundryContainerProvider')
-  end
+    let(:configuration) { { 'enabled' => true } }
 
-  context do
-
-    let(:java_home_delegate) do
-      delegate         = JavaBuildpack::Component::MutableJavaHome.new
-      delegate.root    = app_dir + '.test-java-home'
-      delegate.version = JavaBuildpack::Util::TokenizedVersion.new('9.0.0')
-
-      delegate
+    it 'detects if enabled' do
+      expect(component.detect).to eq("container-security-provider=#{version}")
     end
 
-    it 'adds JAR to classpath during compile in Java 9',
+    it 'adds extension directory' do
+      component.release
+
+      expect(extension_directories).to include(droplet.sandbox)
+    end
+
+    it 'adds security provider',
        cache_fixture: 'stub-container-security-provider.jar' do
 
       component.compile
 
-      expect(additional_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
+      expect(security_providers[1]).to eq('org.cloudfoundry.security.CloudFoundryContainerProvider')
     end
 
-    it 'adds JAR to classpath during release in Java 9' do
-      component.release
+    context 'when java 9' do
 
-      expect(additional_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
-    end
+      it 'adds JAR to classpath during compile in Java 9',
+         cache_fixture: 'stub-container-security-provider.jar' do
 
-    it 'adds does not add extension directory in Java 9' do
-      component.release
+        java_home.version = version_9
 
-      expect(extension_directories).not_to include(droplet.sandbox)
+        component.compile
+
+        expect(additional_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
+      end
+
+      it 'adds JAR to classpath during release in Java 9' do
+        java_home.version = version_9
+
+        component.release
+
+        expect(additional_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
+      end
+
+      it 'adds does not add extension directory in Java 9' do
+        java_home.version = version_9
+
+        component.release
+
+        expect(extension_directories).not_to include(droplet.sandbox)
+      end
+
     end
 
   end
