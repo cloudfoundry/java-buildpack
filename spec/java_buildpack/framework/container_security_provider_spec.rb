@@ -22,70 +22,102 @@ require 'java_buildpack/framework/container_security_provider'
 describe JavaBuildpack::Framework::ContainerSecurityProvider do
   include_context 'with component help'
 
-  let(:java_home) do
-    java_home         = JavaBuildpack::Component::MutableJavaHome.new
-    java_home.version = version_8
-    return java_home
+  it 'always detects' do
+    expect(component.detect).to eq("container-security-provider=#{version}")
   end
 
-  let(:version_8) { JavaBuildpack::Util::TokenizedVersion.new('1.8.0_162') }
+  it 'adds extension directory' do
+    component.release
 
-  let(:version_9) { JavaBuildpack::Util::TokenizedVersion.new('9.0.4_11') }
-
-  it 'does not detect if not enabled' do
-    expect(component.detect).to be_nil
+    expect(extension_directories).to include(droplet.sandbox)
   end
 
-  context 'when enabled' do
+  it 'adds security provider',
+     cache_fixture: 'stub-container-security-provider.jar' do
 
-    let(:configuration) { { 'enabled' => true } }
+    component.compile
+    expect(security_providers[1]).to eq('org.cloudfoundry.security.CloudFoundryContainerProvider')
+  end
 
-    it 'detects if enabled' do
-      expect(component.detect).to eq("container-security-provider=#{version}")
+  context do
+
+    let(:java_home_delegate) do
+      delegate         = JavaBuildpack::Component::MutableJavaHome.new
+      delegate.root    = app_dir + '.test-java-home'
+      delegate.version = JavaBuildpack::Util::TokenizedVersion.new('9.0.0')
+
+      delegate
     end
 
-    it 'adds extension directory' do
-      component.release
-
-      expect(extension_directories).to include(droplet.sandbox)
-    end
-
-    it 'adds security provider',
+    it 'adds JAR to classpath during compile in Java 9',
        cache_fixture: 'stub-container-security-provider.jar' do
 
       component.compile
 
-      expect(security_providers[1]).to eq('org.cloudfoundry.security.CloudFoundryContainerProvider')
+      expect(additional_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
     end
 
-    context 'when java 9' do
+    it 'adds JAR to classpath during release in Java 9' do
+      component.release
 
-      it 'adds JAR to classpath during compile in Java 9',
-         cache_fixture: 'stub-container-security-provider.jar' do
+      expect(additional_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
+    end
 
-        java_home.version = version_9
+    it 'does not add extension directory in Java 9' do
+      component.release
 
-        component.compile
+      expect(extension_directories).not_to include(droplet.sandbox)
+    end
 
-        expect(additional_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
-      end
+  end
 
-      it 'adds JAR to classpath during release in Java 9' do
-        java_home.version = version_9
+  it 'does not manager system properties' do
+    component.release
 
-        component.release
+    expect(java_opts).not_to include('-Dorg.cloudfoundry.security.keymanager.enabled=false')
+    expect(java_opts).not_to include('-Dorg.cloudfoundry.security.trustmanager.enabled=false')
+  end
 
-        expect(additional_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
-      end
+  context 'when KeyManager disabled' do
+    let(:configuration) { { 'key_manager_enabled' => false } }
 
-      it 'adds does not add extension directory in Java 9' do
-        java_home.version = version_9
+    it 'adds system property' do
+      component.release
 
-        component.release
+      expect(java_opts).to include('-Dorg.cloudfoundry.security.keymanager.enabled=false')
+    end
 
-        expect(extension_directories).not_to include(droplet.sandbox)
-      end
+  end
 
+  context 'when TrustManager disabled' do
+    let(:configuration) { { 'trust_manager_enabled' => false } }
+
+    it 'adds system property' do
+      component.release
+
+      expect(java_opts).to include('-Dorg.cloudfoundry.security.trustmanager.enabled=false')
+    end
+
+  end
+
+  context 'when KeyManager enabled' do
+    let(:configuration) { { 'key_manager_enabled' => true } }
+
+    it 'adds system property' do
+      component.release
+
+      expect(java_opts).to include('-Dorg.cloudfoundry.security.keymanager.enabled=true')
+    end
+
+  end
+
+  context 'when TrustManager enabled' do
+    let(:configuration) { { 'trust_manager_enabled' => true } }
+
+    it 'adds system property' do
+      component.release
+
+      expect(java_opts).to include('-Dorg.cloudfoundry.security.trustmanager.enabled=true')
     end
 
   end
