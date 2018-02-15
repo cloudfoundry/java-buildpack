@@ -17,4 +17,3 @@
 ---
 version: 1.+
 repository_root: "{default.repository.root}/container-security-provider"
-enabled: true
