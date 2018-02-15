@@ -63,10 +63,61 @@ describe JavaBuildpack::Framework::ContainerSecurityProvider do
       expect(additional_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
     end
 
-    it 'adds does not add extension directory in Java 9' do
+    it 'does not add extension directory in Java 9' do
       component.release
 
       expect(extension_directories).not_to include(droplet.sandbox)
+    end
+
+  end
+
+  it 'does not manager system properties' do
+    component.release
+
+    expect(java_opts).not_to include('-Dorg.cloudfoundry.security.keymanager.enabled=false')
+    expect(java_opts).not_to include('-Dorg.cloudfoundry.security.trustmanager.enabled=false')
+  end
+
+  context 'when KeyManager disabled' do
+    let(:configuration) { { 'key_manager_enabled' => false } }
+
+    it 'adds system property' do
+      component.release
+
+      expect(java_opts).to include('-Dorg.cloudfoundry.security.keymanager.enabled=false')
+    end
+
+  end
+
+  context 'when TrustManager disabled' do
+    let(:configuration) { { 'trust_manager_enabled' => false } }
+
+    it 'adds system property' do
+      component.release
+
+      expect(java_opts).to include('-Dorg.cloudfoundry.security.trustmanager.enabled=false')
+    end
+
+  end
+
+  context 'when KeyManager enabled' do
+    let(:configuration) { { 'key_manager_enabled' => true } }
+
+    it 'adds system property' do
+      component.release
+
+      expect(java_opts).to include('-Dorg.cloudfoundry.security.keymanager.enabled=true')
+    end
+
+  end
+
+  context 'when TrustManager enabled' do
+    let(:configuration) { { 'trust_manager_enabled' => true } }
+
+    it 'adds system property' do
+      component.release
+
+      expect(java_opts).to include('-Dorg.cloudfoundry.security.trustmanager.enabled=true')
     end
 
   end

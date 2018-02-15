@@ -38,6 +38,13 @@ module JavaBuildpack
         else
           @droplet.extension_directories << @droplet.sandbox
         end
+
+        unless key_manager_enabled.nil?
+          @droplet.java_opts.add_system_property 'org.cloudfoundry.security.keymanager.enabled', key_manager_enabled
+        end
+
+        return if trust_manager_enabled.nil?
+        @droplet.java_opts.add_system_property 'org.cloudfoundry.security.trustmanager.enabled', trust_manager_enabled
       end
 
       protected
@@ -45,6 +52,16 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         true
+      end
+
+      private
+
+      def key_manager_enabled
+        @configuration['key_manager_enabled']
+      end
+
+      def trust_manager_enabled
+        @configuration['trust_manager_enabled']
       end
 
     end
