@@ -30,6 +30,12 @@ describe JavaBuildpack::Component::JavaOpts do
     expect(opts).to include('-javaagent:$PWD/.java-buildpack/java_opts/test-java-agent')
   end
 
+  it 'adds a qualified javaagent with properties to the collection' do
+    opts.add_javaagent_with_props(droplet.sandbox + 'test-java-agent', 'key1' => 'value1', 'key2' => 'value2')
+
+    expect(opts).to include('-javaagent:$PWD/.java-buildpack/java_opts/test-java-agent=key1=value1,key2=value2')
+  end
+
   it 'adds a qualified agentpath to the collection' do
     opts.add_agentpath droplet.sandbox + 'test-agentpath'
 
