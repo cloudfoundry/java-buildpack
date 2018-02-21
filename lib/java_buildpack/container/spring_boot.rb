@@ -16,6 +16,7 @@
 # limitations under the License.
 
 require 'java_buildpack/container'
+require 'java_buildpack/util/shell'
 require 'java_buildpack/container/dist_zip_like'
 require 'java_buildpack/util/dash_case'
 require 'java_buildpack/util/spring_boot_utils'
@@ -32,6 +33,20 @@ module JavaBuildpack
       def initialize(context)
         super(context)
         @spring_boot_utils = JavaBuildpack::Util::SpringBootUtils.new
+      end
+
+      # (see JavaBuildpack::Component::BaseComponent#compile)
+      def compile
+        super
+        @logger.debug { "Dry Run:\n#{start_script(root)}" }
+        shell [
+          @droplet.environment_variables.as_env_vars,
+          @droplet.java_home.as_env_var,
+          @droplet.java_opts.as_env_var,
+          'exec',
+          qualify_path(start_script(root), @droplet.root),
+          '--thin.dryrun'
+        ].flatten.compact.join(' ')        
       end
 
       # (see JavaBuildpack::Container::DistZipLike#release)
