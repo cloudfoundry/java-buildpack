@@ -25,14 +25,15 @@ containers:
   - "JavaBuildpack::Container::SpringBootCLI"
   - "JavaBuildpack::Container::Tomcat"
 
-# In order to use Oracle JREs instead of OpenJDK, you must comment out the OpenJDK line and uncomment the Oracle line.
-# In order to use Zulu JREs instead of OpenJDK, you must comment out the OpenJDK line and uncomment the Zulu line.
+# List of available JREs. In order to use a different one either comment out the OpenJDK line and uncomment the desired one or use environment variables to change this configuration.
+# Example: cf set-env JBP_CONFIG_COMPONENTS '{jres: ["JavaBuildpack::Jre::OpenJdkJRE"]}'
 # Please see the documentation for more detail.
 jres:
 # - "JavaBuildpack::Jre::IbmJRE"
   - "JavaBuildpack::Jre::OpenJdkJRE"
 # - "JavaBuildpack::Jre::OracleJRE"
 # - "JavaBuildpack::Jre::ZuluJRE"
+# - "JavaBuildpack::Jre::SapMachineJRE"
 
 # Frameworks are processed in order.
 # The MultiBuildpack framework is first in order to allow any framework to override contributions from earlier buildpacks
