@@ -21,4 +21,3 @@ version: 3.+
 default_application_name: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']);
   puts \"#{a['space_name']}:#{a['application_name']}\"")
 repository_root: https://raw.githubusercontent.com/apache/incubator-skywalking/releases/download/v3.2.6/skywalking-agent.tar.gz
-enabled: false

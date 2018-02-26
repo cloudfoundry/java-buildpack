@@ -35,7 +35,6 @@ The framework can be configured by modifying the [`config/sky_walking_agent.yml`
 | `default_application_name` | This is omitted by default but can be added to specify the application name in the SkyWalking dashboard. This can be overridden by an `application-name` entry in the credentials payload. If neither are supplied the default is the `application_name` as specified by Cloud Foundry.
 | `repository_root` | The URL of the SkyWalking repository index ([details][repositories]).
 | `version` | The version of SkyWalking to use. Candidate versions can be found in [this listing][].
-| `enabled` | Whether to enable the SkyWalking Agent. By default the agent is turned off.
 
 ### Additional Resources
 The framework can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/sky_walking_agent` directory in the buildpack fork.
