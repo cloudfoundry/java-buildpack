@@ -105,6 +105,7 @@ The buildpack supports extension through the use of Git repository forking. The 
   * [IBM® SDK, Java™ Technology Edition](docs/jre-ibm_jre.md) ([Configuration](docs/jre-ibm_jre.md#configuration))
   * [OpenJDK](docs/jre-open_jdk_jre.md) ([Configuration](docs/jre-open_jdk_jre.md#configuration))
   * [Oracle](docs/jre-oracle_jre.md) ([Configuration](docs/jre-oracle_jre.md#configuration))
+  * [SapMachine](docs/jre-sap_machine_jre.md) ([Configuration](docs/jre-sap_machine_jre.md#configuration))
 * [Extending](docs/extending.md)
   * [Application](docs/extending-application.md)
   * [Droplet](docs/extending-droplet.md)
