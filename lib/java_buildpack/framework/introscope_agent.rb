@@ -44,8 +44,7 @@ module JavaBuildpack
           .add_system_property('com.wily.introscope.agent.agentName', agent_name(credentials))
           .add_system_property('introscope.agent.defaultProcessName', default_process_name)
 
-        java_opts.add_system_property('agentManager.credential', credential(credentials)) unless
-        credential(credentials).nil?
+        java_opts.add_system_property('agentManager.credential', credential(credentials)) if credential(credentials)
         add_url(credentials, java_opts)
       end
 
