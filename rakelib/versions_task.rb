@@ -64,6 +64,7 @@ module Package
       'dynatrace_one_agent'                 => 'Dynatrace OneAgent',
       'geode_store'                         => 'Geode Tomcat Session Store',
       'google_stackdriver_debugger'         => 'Google Stackdriver Debugger',
+      'google_stackdriver_profiler'         => 'Google Stackdriver Profiler',
       'groovy'                              => 'Groovy',
       'introscope_agent'                    => 'CA Introscope APM Framework',
       'jacoco_agent'                        => 'JaCoCo Agent',
