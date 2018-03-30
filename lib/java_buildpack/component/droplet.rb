@@ -139,7 +139,7 @@ module JavaBuildpack
 
       private
 
-      RESOURCES_DIRECTORY = Pathname.new(File.expand_path('../../../../resources', __FILE__)).freeze
+      RESOURCES_DIRECTORY = Pathname.new(File.expand_path('../../../resources', __dir__)).freeze
 
       private_constant :RESOURCES_DIRECTORY
 

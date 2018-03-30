@@ -34,7 +34,7 @@ task :check_api_doc do
   abort "\nFailed due to undocumented public API:\n\n#{output}" if output !~ /100.00% documented/
 end
 
-$LOAD_PATH.unshift File.expand_path('..', __FILE__)
+$LOAD_PATH.unshift File.expand_path(__dir__)
 require 'rakelib/dependency_cache_task'
 require 'rakelib/stage_buildpack_task'
 require 'rakelib/package_task'

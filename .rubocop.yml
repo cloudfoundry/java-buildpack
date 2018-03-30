@@ -34,6 +34,8 @@ Metrics/ParameterLists:
   Max: 10
 Metrics/PerceivedComplexity:
   Max: 10
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
 RSpec/ExampleLength:
   Max: 20
 RSpec/AnyInstance:
@@ -46,6 +48,8 @@ RSpec/MultipleExpectations:
   Enabled: false
 RSpec/NestedGroups:
   Max: 4
+Security/Open:
+  Enabled: false # False positive at the moment
 Style/Documentation:
   Enabled: false
 Style/FormatStringToken:
