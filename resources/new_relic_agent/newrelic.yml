@@ -208,7 +208,7 @@ common: &default_settings
     # Events are collected up to the configured amount. Afterwards, events are sampled to
     # maintain an even distribution across the harvest cycle.
     # Default is 2000.  Setting to 0 will disable.
-    max_samples_stored: 2000
+    max_samples_stored: 10000
 
   # Cross Application Tracing adds request and response headers to
   # external calls using supported HTTP libraries to provide better
