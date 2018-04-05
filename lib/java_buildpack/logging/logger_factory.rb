@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -132,9 +134,9 @@ module JavaBuildpack
 
       def severity(configuration)
         severity = ENV['JBP_LOG_LEVEL']
-        severity = ruby_mode unless severity
-        severity = configuration['default_log_level'] unless severity
-        severity = 'INFO' unless severity
+        severity ||= ruby_mode
+        severity ||= configuration['default_log_level']
+        severity ||= 'INFO'
 
         "::Logger::Severity::#{severity.upcase}".constantize
       end

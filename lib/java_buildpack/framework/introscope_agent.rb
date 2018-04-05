@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,6 +44,7 @@ module JavaBuildpack
           .add_system_property('com.wily.introscope.agent.agentName', agent_name(credentials))
           .add_system_property('introscope.agent.defaultProcessName', default_process_name)
 
+        java_opts.add_system_property('agentManager.credential', credential(credentials)) if credential(credentials)
         add_url(credentials, java_opts)
       end
 
@@ -90,7 +93,7 @@ module JavaBuildpack
       end
 
       def agent_name(credentials)
-        credentials['agent-name'] || @configuration['default_agent_name']
+        credentials['agent_name'] || @configuration['default_agent_name']
       end
 
       def agent_profile
@@ -116,6 +119,10 @@ module JavaBuildpack
 
       def url(credentials)
         credentials['url']
+      end
+
+      def credential(credentials)
+        credentials['credential']
       end
     end
   end

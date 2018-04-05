@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -57,7 +59,9 @@ module JavaBuildpack
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
-      def release; end
+      def release
+        @droplet.environment_variables.add_environment_variable 'MALLOC_ARENA_MAX', 2
+      end
 
       protected
 
@@ -72,7 +76,8 @@ module JavaBuildpack
         (root + '**/*.class').glob.count +
           (root + '**/*.groovy').glob.count +
           (root + '**/*.jar').glob(File::FNM_DOTMATCH).reject(&:directory?)
-                             .inject(0) { |a, e| a + archive_class_count(e) }
+                             .inject(0) { |a, e| a + archive_class_count(e) } +
+          (@droplet.java_home.java_9_or_later? ? 42_215 : 0)
       end
 
       def archive_class_count(archive)

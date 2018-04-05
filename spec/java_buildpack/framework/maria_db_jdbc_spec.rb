@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +20,7 @@ require 'component_helper'
 require 'java_buildpack/framework/maria_db_jdbc'
 
 describe JavaBuildpack::Framework::MariaDbJDBC do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect without a service containing a mysql tag' do
     expect(component.detect).to be_nil

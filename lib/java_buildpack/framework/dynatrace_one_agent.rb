@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,25 +78,25 @@ module JavaBuildpack
 
       private
 
-      APIURL = 'apiurl'.freeze
+      APIURL = 'apiurl'
 
-      APITOKEN = 'apitoken'.freeze
+      APITOKEN = 'apitoken'
 
-      DT_APPLICATION_ID = 'DT_APPLICATIONID'.freeze
+      DT_APPLICATION_ID = 'DT_APPLICATIONID'
 
-      DT_CONNECTION_POINT = 'DT_CONNECTION_POINT'.freeze
+      DT_CONNECTION_POINT = 'DT_CONNECTION_POINT'
 
-      DT_HOST_ID = 'DT_HOST_ID'.freeze
+      DT_HOST_ID = 'DT_HOST_ID'
 
-      DT_TENANT = 'DT_TENANT'.freeze
+      DT_TENANT = 'DT_TENANT'
 
-      DT_TENANTTOKEN = 'DT_TENANTTOKEN'.freeze
+      DT_TENANTTOKEN = 'DT_TENANTTOKEN'
 
-      ENVIRONMENTID = 'environmentid'.freeze
+      ENVIRONMENTID = 'environmentid'
 
       FILTER = /dynatrace/
 
-      SKIP_ERRORS = 'skiperrors'.freeze
+      SKIP_ERRORS = 'skiperrors'
 
       private_constant :APIURL, :APITOKEN, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_HOST_ID, :DT_TENANT,
                        :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :SKIP_ERRORS

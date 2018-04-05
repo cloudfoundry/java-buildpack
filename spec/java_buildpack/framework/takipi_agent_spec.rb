@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +20,7 @@ require 'component_helper'
 require 'java_buildpack/framework/takipi_agent'
 
 describe JavaBuildpack::Framework::TakipiAgent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:configuration) { { 'node_name_prefix' => nil } }
 
@@ -65,7 +67,7 @@ describe JavaBuildpack::Framework::TakipiAgent do
         expect(environment_variables).to include('TAKIPI_MASTER_HOST=test-host')
       end
 
-      context 'secret key' do
+      context 'with secret key' do
         let(:credentials) { super().merge 'secret_key' => 'test-key' }
 
         it 'secret key set' do
@@ -75,7 +77,7 @@ describe JavaBuildpack::Framework::TakipiAgent do
         end
       end
 
-      context 'configuration overrides' do
+      context 'with configuration overrides' do
 
         let(:configuration) { { 'node_name_prefix' => 'test-name', 'application_name' => 'test-name' } }
 

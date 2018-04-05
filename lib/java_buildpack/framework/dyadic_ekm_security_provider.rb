@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -99,13 +101,13 @@ module JavaBuildpack
       def write_conf(servers, send_timeout, recv_timeout, retries)
         FileUtils.mkdir_p conf_file.parent
         conf_file.open(File::CREAT | File::WRONLY) do |f|
-          f.write <<EOS
-servers         = #{servers}
-send_timeout    = #{send_timeout}
-recv_timeout    = #{recv_timeout}
-retries         = #{retries}
-ha_mode_standby = 1
-EOS
+          f.write <<~CONFIG
+            servers         = #{servers}
+            send_timeout    = #{send_timeout}
+            recv_timeout    = #{recv_timeout}
+            retries         = #{retries}
+            ha_mode_standby = 1
+CONFIG
         end
       end
 

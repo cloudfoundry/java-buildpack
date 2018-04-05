@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,8 +23,8 @@ require 'java_buildpack/component/droplet'
 require 'pathname'
 
 describe JavaBuildpack::Component::Droplet do
-  include_context 'application_helper'
-  include_context 'droplet_helper'
+  include_context 'with application help'
+  include_context 'with droplet help'
 
   it 'returns additional_libraries' do
     expect(droplet.additional_libraries).to equal(additional_libraries)

@@ -1,5 +1,5 @@
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,14 +25,15 @@ containers:
   - "JavaBuildpack::Container::SpringBootCLI"
   - "JavaBuildpack::Container::Tomcat"
 
-# In order to use Oracle JREs instead of OpenJDK, you must comment out the OpenJDK line and uncomment the Oracle line.
-# In order to use Zulu JREs instead of OpenJDK, you must comment out the OpenJDK line and uncomment the Zulu line.
+# List of available JREs. In order to use a different one either comment out the OpenJDK line and uncomment the desired one or use environment variables to change this configuration.
+# Example: cf set-env JBP_CONFIG_COMPONENTS '{jres: ["JavaBuildpack::Jre::OpenJdkJRE"]}'
 # Please see the documentation for more detail.
 jres:
 # - "JavaBuildpack::Jre::IbmJRE"
   - "JavaBuildpack::Jre::OpenJdkJRE"
 # - "JavaBuildpack::Jre::OracleJRE"
 # - "JavaBuildpack::Jre::ZuluJRE"
+# - "JavaBuildpack::Jre::SapMachineJRE"
 
 # Frameworks are processed in order.
 # The MultiBuildpack framework is first in order to allow any framework to override contributions from earlier buildpacks
@@ -51,6 +52,7 @@ frameworks:
   - "JavaBuildpack::Framework::DynatraceOneAgent"
   - "JavaBuildpack::Framework::GoogleStackdriverDebugger"
   - "JavaBuildpack::Framework::IntroscopeAgent"
+  - "JavaBuildpack::Framework::JacocoAgent"
   - "JavaBuildpack::Framework::JavaMemoryAssistant"
   - "JavaBuildpack::Framework::Jmx"
   - "JavaBuildpack::Framework::JrebelAgent"
@@ -62,6 +64,7 @@ frameworks:
   - "JavaBuildpack::Framework::ProtectAppSecurityProvider"
   - "JavaBuildpack::Framework::SpringAutoReconfiguration"
   - "JavaBuildpack::Framework::SpringInsight"
+  - "JavaBuildpack::Framework::SkyWalkingAgent"
   - "JavaBuildpack::Framework::YourKitProfiler"
   - "JavaBuildpack::Framework::TakipiAgent"
   - "JavaBuildpack::Framework::JavaSecurity"

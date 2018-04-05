@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -78,7 +80,7 @@ module JavaBuildpack
 
         CONFIG_DIRECTORY = Pathname.new(File.expand_path('../../../config', File.dirname(__FILE__))).freeze
 
-        ENVIRONMENT_VARIABLE_PATTERN = 'JBP_CONFIG_'.freeze
+        ENVIRONMENT_VARIABLE_PATTERN = 'JBP_CONFIG_'
 
         private_constant :CONFIG_DIRECTORY, :ENVIRONMENT_VARIABLE_PATTERN
 

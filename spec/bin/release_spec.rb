@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +19,7 @@ require 'spec_helper'
 require 'integration_helper'
 
 describe 'release script', :integration do # rubocop:disable RSpec/DescribeClass
-  include_context 'integration_helper'
+  include_context 'with integration help'
 
   it 'returns zero if success',
      app_fixture: 'integration_valid' do

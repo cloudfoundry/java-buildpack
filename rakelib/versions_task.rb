@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 
 require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/repository/version_resolver'
@@ -60,10 +62,11 @@ module Package
       'dyadic_ekm_security_provider'        => 'Dyadic EKM Security Provider',
       'dynatrace_appmon_agent'              => 'Dynatrace Appmon Agent',
       'dynatrace_one_agent'                 => 'Dynatrace OneAgent',
-      'geode_store'                         => 'Apache Geode Tomcat Session Store',
+      'geode_store'                         => 'Geode Tomcat Session Store',
       'google_stackdriver_debugger'         => 'Google Stackdriver Debugger',
       'groovy'                              => 'Groovy',
       'introscope_agent'                    => 'CA Introscope APM Framework',
+      'jacoco_agent'                        => 'JaCoCo Agent',
       'jre'                                 => 'OpenJDK JRE',
       'jrebel_agent'                        => 'JRebel Agent',
       'jvmkill_agent'                       => 'jvmkill Agent',
@@ -77,6 +80,7 @@ module Package
       'postgresql_jdbc'                     => 'PostgreSQL JDBC Driver',
       'protect_app_security_provider'       => 'Gemalto ProtectApp Security Provider',
       'redis_store'                         => 'Redis Session Store',
+      'sky_walking_agent'                   => 'SkyWalking',
       'spring_auto_reconfiguration'         => 'Spring Auto-reconfiguration',
       'spring_boot_cli'                     => 'Spring Boot CLI',
       'takipi_agent'                        => 'Takipi Agent',

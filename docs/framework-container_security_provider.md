@@ -22,6 +22,8 @@ The framework can be configured by modifying the [`config/container_security_pro
 | ---- | -----------
 | `repository_root` | The URL of the Container Customizer repository index ([details][repositories]).
 | `version` | The version of Container Customizer to use. Candidate versions can be found in [this listing][].
+| `key_manager_enabled` | Whether the container `KeyManager` is enabled.  Defaults to `true`.
+| `trust_manager_enabled` | Whether the container `TrustManager` is enabled.  Defaults to `true`.
 
 ## Security Provider
 The [security provider][] added by this framework contributes two types, a `TrustManagerFactory` and a `KeyManagerFactory`.  The `TrustManagerFactory` adds an additional new `TrustManager` after the configured system `TrustManager` which reads the contents of `/etc/ssl/certs/ca-certificates.crt` which is where [BOSH trusted certificates][] are placed.  The `KeyManagerFactory` adds an additional `KeyManager` after the configured system `KeyManager` which reads the contents of the files specified by `$CF_INSTANCE_CERT` and `$CF_INSTANCE_KEY` which are set by Diego to give each container a unique cryptographic identity.  These `TrustManager`s and `KeyManager`s are used transparently by any networking library that reads standard system SSL configuration and can be used to enable system-wide trust and [mutual TLS authentication][].

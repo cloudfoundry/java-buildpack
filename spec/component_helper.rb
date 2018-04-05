@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,12 +27,12 @@ require 'java_buildpack/util/space_case'
 require 'java_buildpack/util/tokenized_version'
 require 'pathname'
 
-shared_context 'component_helper' do
-  include_context 'application_helper'
-  include_context 'console_helper'
-  include_context 'droplet_helper'
-  include_context 'internet_availability_helper'
-  include_context 'logging_helper'
+shared_context 'with component help' do
+  include_context 'with application help'
+  include_context 'with console help'
+  include_context 'with droplet help'
+  include_context 'with internet availability help'
+  include_context 'with logging help'
 
   let(:application_cache) { instance_double('ApplicationCache') }
 
@@ -63,7 +65,7 @@ shared_context 'component_helper' do
     tokenized_version = JavaBuildpack::Util::TokenizedVersion.new(version)
 
     allow(JavaBuildpack::Repository::ConfiguredItem).to receive(:find_item) do |&block|
-      block.call(tokenized_version) if block
+      block&.call(tokenized_version)
     end.and_return([tokenized_version, uri])
   end
 

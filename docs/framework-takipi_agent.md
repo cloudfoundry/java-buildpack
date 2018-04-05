@@ -41,6 +41,10 @@ Currently, you can get the Takipi agent logs using `cf files` command:
 cf files app_name app/.java-buildpack/takipi_agent/log/
 ```
 
+## Troubleshooting
+
+If your container is running out of memory and exited with status 137, then you should setup and use a remote collector as explained in the `User-Provided Service` above section.
+
 [`config/takipi_agent.yml`]: ../config/takipi_agent.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [repositories]: extending-repositories.md

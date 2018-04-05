@@ -1,5 +1,5 @@
 # Spring Boot Container
-The Spring Boot Container allows [Spring Boot][s] applications, packaged `distZip`-style to be run.  **Note**  All styles of Sping Boot can be run (e.g. self-executable JAR, WAR file, `distZip`-style).  This is just explicit support for the `distZip` style.
+The Spring Boot Container allows [Spring Boot][s] applications, packaged `distZip`-style to be run.  **Note**  All styles of Spring Boot can be run (e.g. self-executable JAR, WAR file, `distZip`-style).  This is just explicit support for the `distZip` style.
 
 <table>
   <tr>

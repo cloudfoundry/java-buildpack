@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,16 +45,16 @@ module JavaBuildpack
       # @return [String] the lib directory of Spring Boot used by the application
       def lib(droplet)
         candidate = manifest_lib_dir(droplet)
-        return candidate if candidate && candidate.exist?
+        return candidate if candidate&.exist?
 
         candidate = boot_inf_lib_dir(droplet)
-        return candidate if candidate && candidate.exist?
+        return candidate if candidate&.exist?
 
         candidate = web_inf_lib_dir(droplet)
-        return candidate if candidate && candidate.exist?
+        return candidate if candidate&.exist?
 
         candidate = lib_dir(droplet)
-        return candidate if candidate && candidate.exist?
+        return candidate if candidate&.exist?
 
         raise 'No lib directory found'
       end
@@ -68,9 +70,9 @@ module JavaBuildpack
 
       private
 
-      SPRING_BOOT_LIB = 'Spring-Boot-Lib'.freeze
+      SPRING_BOOT_LIB = 'Spring-Boot-Lib'
 
-      SPRING_BOOT_VERSION = 'Spring-Boot-Version'.freeze
+      SPRING_BOOT_VERSION = 'Spring-Boot-Version'
 
       private_constant :SPRING_BOOT_LIB, :SPRING_BOOT_VERSION
 
