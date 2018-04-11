@@ -15,7 +15,7 @@
 
 # Container security provider configuration
 ---
-version: 1.+
+version: 1.13.0_RELEASE
 repository_root: "{default.repository.root}/container-security-provider"
 key_manager_enabled: 
 trust_manager_enabled: 
