@@ -39,9 +39,9 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        @droplet.java_opts.add_system_property('contrast.override.appname', application_name) unless app_name_defined?
         @droplet.java_opts
                 .add_system_property('contrast.dir', '$TMPDIR')
-                .add_system_property('contrast.override.appname', application_name)
                 .add_preformatted_options("-javaagent:#{qualify_path(@droplet.sandbox + jar_name, @droplet.root)}=" \
                                           "#{qualify_path(contrast_config, @droplet.root)}")
       end
@@ -107,6 +107,10 @@ module JavaBuildpack
 
       def application_name
         @application.details['application_name'] || 'ROOT'
+      end
+
+      def app_name_defined?
+        @droplet.java_opts.as_env_var.include?('contrast.override.appname')
       end
 
       def contrast_config
