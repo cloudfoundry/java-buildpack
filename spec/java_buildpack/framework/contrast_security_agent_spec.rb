@@ -86,6 +86,13 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
       expect(sandbox + 'contrast.config').to exist
     end
 
+    it 'doesn\'t override app name if there is an existing appname' do
+      java_opts.add_system_property('contrast.override.appname', 'NAME_ALREADY_OVERRIDDEN')
+      component.release
+      expect(java_opts).to include('-Dcontrast.override.appname=NAME_ALREADY_OVERRIDDEN')
+      expect(java_opts).to_not include('-Dcontrast.override.appname=test-application-name')
+    end
+
   end
 
 end
