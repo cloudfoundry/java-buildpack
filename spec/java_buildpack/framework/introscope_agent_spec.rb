@@ -40,7 +40,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     let(:credentials) { {} }
 
     before do
-      allow(services).to receive(:one_service?).with(/introscope/, 'url').and_return(true)
+      allow(services).to receive(:one_service?).with(/introscope/, %w[agent_manager_url url]).and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => credentials)
     end
 
@@ -90,9 +90,56 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     end
 
     context do
+
+      let(:credentials) { { 'agent_manager_url' => 'test-host-name:5001' } }
+
+      it 'parses the agent_manager_url and sets host port and default socket factory' do
+        component.release
+
+        expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
+        expect(java_opts).to include('-Dcom.wily.introscope.agentProfile=$PWD/.java-buildpack/introscope_agent/core' \
+                                     '/config/IntroscopeAgent.profile')
+        expect(java_opts).to include('-Dintroscope.agent.defaultProcessName=test-application-name')
+        expect(java_opts).to include('-Dintroscope.agent.hostName=test-application-uri-0')
+
+        expect(java_opts).to include('-DagentManager.url.1=test-host-name:5001')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.host.DEFAULT=test-host-name')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.port.DEFAULT=5001')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.socketfactory.DEFAULT=' \
+                                       'com.wily.isengard.postofficehub.link.net.DefaultSocketFactory')
+
+        expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
+                                     '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+      end
+    end
+
+    context do
       let(:credentials) { { 'url' => 'ssl://test-host-name:5443' } }
 
       it 'parses the url and sets host, port, and ssl socket factory' do
+        component.release
+
+        expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
+        expect(java_opts).to include('-Dcom.wily.introscope.agentProfile=$PWD/.java-buildpack/introscope_agent/core' \
+                                     '/config/IntroscopeAgent.profile')
+        expect(java_opts).to include('-Dintroscope.agent.defaultProcessName=test-application-name')
+        expect(java_opts).to include('-Dintroscope.agent.hostName=test-application-uri-0')
+
+        expect(java_opts).to include('-DagentManager.url.1=ssl://test-host-name:5443')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.host.DEFAULT=test-host-name')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.port.DEFAULT=5443')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.socketfactory.DEFAULT=' \
+                                     'com.wily.isengard.postofficehub.link.net.SSLSocketFactory')
+
+        expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
+                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+      end
+    end
+
+    context do
+      let(:credentials) { { 'agent_manager_url' => 'ssl://test-host-name:5443' } }
+
+      it 'parses the agent_manager_url and sets host, port, and ssl socket factory' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
@@ -136,6 +183,29 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     end
 
     context do
+      let(:credentials) { { 'agent_manager_url' => 'http://test-host-name:8081' } }
+
+      it 'parses the agent_manager_url and sets host, port, and http socket factory' do
+        component.release
+
+        expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
+        expect(java_opts).to include('-Dcom.wily.introscope.agentProfile=$PWD/.java-buildpack/introscope_agent/core' \
+                                     '/config/IntroscopeAgent.profile')
+        expect(java_opts).to include('-Dintroscope.agent.defaultProcessName=test-application-name')
+        expect(java_opts).to include('-Dintroscope.agent.hostName=test-application-uri-0')
+
+        expect(java_opts).to include('-DagentManager.url.1=http://test-host-name:8081')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.host.DEFAULT=test-host-name')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.port.DEFAULT=8081')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.socketfactory.DEFAULT=' \
+                                     'com.wily.isengard.postofficehub.link.net.HttpTunnelingSocketFactory')
+
+        expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
+                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+      end
+    end
+
+    context do
       let(:credentials) { { 'url' => 'https://test-host-name:8444' } }
 
       it 'parses the url and sets host, port, and https socket factory' do
@@ -159,9 +229,32 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     end
 
     context do
+      let(:credentials) { { 'agent_manager_url' => 'https://test-host-name:8444' } }
+
+      it 'parses the agent_manager_url and sets host, port, and https socket factory' do
+        component.release
+
+        expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
+        expect(java_opts).to include('-Dcom.wily.introscope.agentProfile=$PWD/.java-buildpack/introscope_agent/core' \
+                                     '/config/IntroscopeAgent.profile')
+        expect(java_opts).to include('-Dintroscope.agent.defaultProcessName=test-application-name')
+        expect(java_opts).to include('-Dintroscope.agent.hostName=test-application-uri-0')
+
+        expect(java_opts).to include('-DagentManager.url.1=https://test-host-name:8444')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.host.DEFAULT=test-host-name')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.port.DEFAULT=8444')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.socketfactory.DEFAULT=' \
+                                     'com.wily.isengard.postofficehub.link.net.HttpsTunnelingSocketFactory')
+
+        expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
+                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+      end
+    end
+
+    context do
       let(:credentials) { { 'url' => 'https://test-host-name:8444', 'credential' => 'test-credential-cccf-88-ae' } }
 
-      it 'sets the url and also the agent manager credential' do
+      it 'sets the url and also the credential' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
@@ -179,7 +272,33 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
                                       '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
         expect(java_opts).to include('-DagentManager.credential=test-credential-cccf-88-ae')
+      end
+    end
 
+    context do
+      let(:credentials) do
+        { 'agent_manager_url'        => 'https://test-host-name:8444',
+          'agent_manager_credential' => 'test-credential-cccf-88-ae' }
+      end
+
+      it 'sets the agent_manager_url and also the agent_manager_credential' do
+        component.release
+
+        expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
+        expect(java_opts).to include('-Dcom.wily.introscope.agentProfile=$PWD/.java-buildpack/introscope_agent/core' \
+                                     '/config/IntroscopeAgent.profile')
+        expect(java_opts).to include('-Dintroscope.agent.defaultProcessName=test-application-name')
+        expect(java_opts).to include('-Dintroscope.agent.hostName=test-application-uri-0')
+
+        expect(java_opts).to include('-DagentManager.url.1=https://test-host-name:8444')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.host.DEFAULT=test-host-name')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.port.DEFAULT=8444')
+        expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.socketfactory.DEFAULT=' \
+                                     'com.wily.isengard.postofficehub.link.net.HttpsTunnelingSocketFactory')
+
+        expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
+                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+        expect(java_opts).to include('-DagentManager.credential=test-credential-cccf-88-ae')
       end
     end
 
