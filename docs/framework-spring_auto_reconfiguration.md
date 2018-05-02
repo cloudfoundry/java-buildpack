@@ -13,7 +13,7 @@ The Spring Auto-reconfiguration Framework causes an application to be automatica
 </table>
 Tags are printed to standard output by the buildpack detect script
 
-The Spring Auto-reconfiguration Framework adds the `cloud` profile to any existing Spring profiles such as those defined in the [`SPRING_PROFILES_ACTIVE`][] environment variable.
+The Spring Auto-reconfiguration Framework adds the `cloud` profile to any existing Spring profiles such as those defined in the [`SPRING_PROFILES_ACTIVE`][] environment variable.  It also uses the [Spring Cloud Cloud Foundry Connector][] to replace any bean of a candidate type with one mapped to a bound service instance.  Please see the [Auto-Reconfiguration][] project for more details.
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
@@ -26,9 +26,11 @@ The framework can be configured by modifying the [`config/spring_auto_reconfigur
 | `repository_root` | The URL of the Auto-reconfiguration repository index ([details][repositories]).
 | `version` | The version of Auto-reconfiguration to use. Candidate versions can be found in [this listing][].
 
+[Auto-Reconfiguration]: https://github.com/cloudfoundry/java-buildpack-auto-reconfiguration
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/spring_auto_reconfiguration.yml`]: ../config/spring_auto_reconfiguration.yml
 [repositories]: extending-repositories.md
+[Spring Cloud Cloud Foundry Connector]: https://cloud.spring.io/spring-cloud-connectors/spring-cloud-cloud-foundry-connector.html
 [this listing]: http://download.pivotal.io.s3.amazonaws.com/auto-reconfiguration/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
 [`SPRING_PROFILES_ACTIVE`]: http://docs.spring.io/spring/docs/4.0.0.RELEASE/javadoc-api/org/springframework/core/env/AbstractEnvironment.html#ACTIVE_PROFILES_PROPERTY_NAME
