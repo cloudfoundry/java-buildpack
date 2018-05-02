@@ -159,7 +159,13 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
     end
 
     context do
-      let(:configuration) { { 'logging_enabled' => true, 'ha_logging_enabled' => true } }
+      let(:configuration) do
+        {
+          'logging_enabled' => true,
+          'ha_logging_enabled' => true,
+          'tcp_keep_alive_enabled' => false
+        }
+      end
 
       it 'writes configuration',
          cache_fixture: 'stub-luna-security-provider.tar' do
@@ -169,6 +175,26 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
         expect(sandbox + 'Chrystoki.conf').to exist
         check_file_contents(sandbox + 'Chrystoki.conf',
                             'spec/fixtures/framework_luna_security_provider_logging/Chrystoki.conf')
+      end
+    end
+
+    context do
+      let(:configuration) do
+        {
+          'logging_enabled' => true,
+          'ha_logging_enabled' => true,
+          'tcp_keep_alive_enabled' => true
+        }
+      end
+
+      it 'writes configuration with client tcp keep alive',
+         cache_fixture: 'stub-luna-security-provider.tar' do
+
+        component.compile
+
+        expect(sandbox + 'Chrystoki.conf').to exist
+        check_file_contents(sandbox + 'Chrystoki.conf',
+                            'spec/fixtures/framework_luna_security_provider_tcp_keep_alive/Chrystoki.conf')
       end
     end
 
