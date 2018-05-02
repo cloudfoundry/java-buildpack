@@ -113,6 +113,10 @@ module JavaBuildpack
         @configuration['ha_logging_enabled']
       end
 
+      def tcp_keep_alive
+        @configuration['tcp_keep_alive_enabled'] ? 1 : 0
+      end
+
       def padded_index(index)
         index.to_s.rjust(2, '0')
       end
@@ -157,8 +161,8 @@ module JavaBuildpack
 
           HAConfiguration = {
             AutoReconnectInterval = 60;
-            HAOnly = 1;
-            reconnAtt = -1;
+            HAOnly                = 1;
+            reconnAtt             = -1;
         HA
         write_ha_logging(f) if ha_logging?
         f.write <<~HA
@@ -212,8 +216,8 @@ module JavaBuildpack
 
       def write_ha_logging(f)
         f.write <<~HA
-          haLogStatus = enabled;
-          haLogToStdout = enabled;
+          haLogStatus           = enabled;
+          haLogToStdout         = enabled;
         HA
       end
 
@@ -223,7 +227,8 @@ module JavaBuildpack
         f.write <<~CLIENT
 
           LunaSA Client = {
-            NetClient = 1;
+            TCPKeepAlive = #{tcp_keep_alive};
+            NetClient    = 1;
 
             ClientCertFile    = #{relative(client_certificate)};
             ClientPrivKeyFile = #{relative(client_private_key)};
