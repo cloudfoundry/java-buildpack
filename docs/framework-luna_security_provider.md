@@ -93,6 +93,7 @@ The framework can be configured by modifying the [`config/luna_security_provider
 | ---- | -----------
 | `ha_logging_enabled` | Whether to enable HA logging for the Luna Security Provider.  Defaults to `true`.
 | `logging_enabled` | Whether to enable the logging wrapper for the Luna Security Provider.  Defaults to `false`.
+| `tcp_keep_alive_enabled` | Whether to enable the client TCP keep alive setting for the Luna Security Provider.  Defaults to `false`.
 | `repository_root` | The URL of the Luna Security Provider repository index ([details][repositories]).
 | `version` | Version of the Luna Security Provider to use.
 

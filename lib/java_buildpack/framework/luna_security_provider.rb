@@ -113,6 +113,10 @@ module JavaBuildpack
         @configuration['ha_logging_enabled']
       end
 
+      def tcp_keep_alive
+        @configuration['tcp_keep_alive_enabled'] ? 1 : 0
+      end
+
       def padded_index(index)
         index.to_s.rjust(2, '0')
       end
@@ -223,6 +227,7 @@ module JavaBuildpack
         f.write <<~CLIENT
 
           LunaSA Client = {
+            TCPKeepAlive = #{tcp_keep_alive};
             NetClient = 1;
 
             ClientCertFile    = #{relative(client_certificate)};
