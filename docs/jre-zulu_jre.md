@@ -98,6 +98,19 @@ The user can change the container's total memory available to influence the JRE 
 Unless the user specifies the heap size Java option (`-Xmx`), increasing or decreasing the total memory
 available results in the heap size setting increasing or decreasing by a corresponding amount.
 
+#### Loaded Classes
+
+The amount of memory that is allocated to metaspace and compressed class space (or, on Java 7, the permanent generation) is calculated from an estimate of the number of classes that will be loaded. The default behaviour is to estimate the number of loaded classes as a fraction of the number of class files in the application.
+If a specific number of loaded classes should be used for calculations, then it should be specified as in the following example:
+
+```yaml
+class_count: 500
+```
+
+#### Headroom
+
+A percentage of the total memory allocated to the container to be left as headroom and excluded from the memory calculation.
+
 #### Stack Threads
 
 The amount of memory that should be allocated to stacks is given as an amount of memory per
@@ -107,15 +120,6 @@ the following example:
 
 ```yaml
 stack_threads: 500
-```
-
-#### Loaded Classes
-
-The amount of memory that is allocated to metaspace and compressed class space (or, on Java 7, the permanent generation) is calculated from an estimate of the number of classes that will be loaded. The default behaviour is to estimate the number of loaded classes as a fraction of the number of class files in the application.
-If a specific number of loaded classes should be used for calculations, then it should be specified as in the following example:
-
-```yaml
-class_count: 500
 ```
 
 #### Java Options

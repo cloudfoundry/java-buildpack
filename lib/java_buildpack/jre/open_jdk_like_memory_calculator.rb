@@ -89,6 +89,10 @@ module JavaBuildpack
         configuration['class_count'] || (0.35 * actual_class_count(root)).ceil
       end
 
+      def headroom(configuration)
+        configuration['headroom']
+      end
+
       def memory_calculator
         @droplet.sandbox + "bin/java-buildpack-memory-calculator-#{@version}"
       end
@@ -101,9 +105,13 @@ module JavaBuildpack
       def memory_calculation_string(relative_path)
         memory_calculation_string = [qualify_path(memory_calculator, relative_path)]
         memory_calculation_string << '-totMemory=$MEMORY_LIMIT'
-        memory_calculation_string << "-stackThreads=#{stack_threads @configuration}"
+
+        headroom = headroom(@configuration)
+        memory_calculation_string << "-headRoom=#{headroom}" if headroom
+
         memory_calculation_string << "-loadedClasses=#{class_count @configuration}"
         memory_calculation_string << "-poolType=#{pool_type}"
+        memory_calculation_string << "-stackThreads=#{stack_threads @configuration}"
         memory_calculation_string << '-vmOptions="$JAVA_OPTS"'
 
         memory_calculation_string.join(' ')
