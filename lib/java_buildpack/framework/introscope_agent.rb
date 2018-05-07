@@ -52,7 +52,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, 'agent_manager_url'
+        @application.services.one_service? FILTER
       end
 
       private
@@ -118,11 +118,11 @@ module JavaBuildpack
       end
 
       def agent_manager_url(credentials)
-        credentials['agent_manager_url']
+        credentials['agent_manager_url'] || credentials['url']
       end
 
       def agent_manager_credential(credentials)
-        credentials['agent_manager_credential']
+        credentials['agent_manager_credential'] || credentials['credential']
       end
     end
   end
