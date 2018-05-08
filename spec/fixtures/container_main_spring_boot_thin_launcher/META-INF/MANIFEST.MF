@@ -1,0 +1,4 @@
+Spring-Boot-Lib: manifest-lib-value/
+Spring-Boot-Version: 1.2.5.RELEASE
+Main-Class: org.springframework.boot.loader.wrapper.ThinJarWrapper
+
