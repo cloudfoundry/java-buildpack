@@ -34,7 +34,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = @application.services.find_service(FILTER)['credentials']
+        credentials = @application.services.find_service(FILTER, ['agent_manager_url', 'url'])['credentials']
         java_opts   = @droplet.java_opts
 
         java_opts
@@ -52,7 +52,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER
+        @application.services.one_service? FILTER, ['agent_manager_url', 'url']
       end
 
       private

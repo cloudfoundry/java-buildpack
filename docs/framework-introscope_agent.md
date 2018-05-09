@@ -24,8 +24,8 @@ The credential payload of the service may contain the following entries:
 | Name | Description
 | ---- | -----------
 | `agent_name` | (Optional) The name that should be given to this instance of the Introscope agent.
-| `agent_manager_credential`| (Optional) The credential that is used to connect to the Enterprise Manager server.
-| `agent_manager_url` | The url of the Enterprise Manager server.
+| `credential`| (Optional) <b> Deprecated </b> Please use the <b> "agent_manager_credential" </b> property instead. The credential that is used to connect to the Enterprise Manager server. 
+| `url` | <b> Deprecated </b> Please use the <b> "agent_manager_url" </b> property instead. The url of the Enterprise Manager server. 
 
 To provide more complex values such as the `agent_name`, using the interactive mode when creating a user-provided service will manage the character escaping automatically. For example, the default `agent_name` could be set with a value of `agent-$(expr "$VCAP_APPLICATION" : '.*application_name[": ]*\([[:word:]]*\).*')` to calculate a value from the Cloud Foundry application name.
 
