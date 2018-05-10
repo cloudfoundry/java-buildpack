@@ -169,9 +169,9 @@ module JavaBuildpack
       #
       # @param [String] caption the caption to print when timing starts
       # @return [Void]
-      def with_timing(caption)
+      def with_timing(caption, include_arrow = false)
         start_time = Time.now
-        print "       #{caption} "
+        print "#{include_arrow ? '----->'.red.bold : '      '} #{caption} "
 
         yield
 

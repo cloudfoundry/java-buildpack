@@ -48,6 +48,12 @@ describe JavaBuildpack::Util::SpringBootUtils do
     expect(utils.is?(application)).not_to be
   end
 
+  it 'determines if an application is a thin application',
+     app_fixture: 'container_main_spring_boot_thin_launcher' do
+
+    expect(utils.thin?(application)).to be
+  end
+
   it 'determines the version of a dist Spring Boot application',
      app_fixture: 'container_spring_boot_dist' do
 
@@ -94,6 +100,15 @@ describe JavaBuildpack::Util::SpringBootUtils do
 
   it 'fails if there are no lib directories' do
     expect { utils.lib(droplet) }.to raise_error
+  end
+
+  it 'caches thin dependencies' do
+    allow(utils).to receive(:shell)
+
+    utils.cache_thin_dependencies java_home.root, 'test-application-root', 'test-thin-root'
+
+    expect(utils).to have_received(:shell).with("#{java_home.root + 'bin/java'} -Dthin.dryrun " \
+      '-Dthin.root=test-thin-root -cp test-application-root org.springframework.boot.loader.wrapper.ThinJarWrapper')
   end
 
 end
