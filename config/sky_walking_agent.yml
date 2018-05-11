@@ -17,7 +17,7 @@
 # Note that the repository is shared with the Play Auto Reconfiguration framework and should be kept in step to
 # avoid conflicts.
 ---
-version: 3.+
+version: 3.2.6
 default_application_name: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']);
   puts \"#{a['space_name']}:#{a['application_name']}\"")
 repository_root: https://java-buildpack.cloudfoundry.org/sky-walking

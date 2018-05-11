@@ -15,5 +15,5 @@
 
 # Configuration for the ContrastSecurity framework
 ---
-version: 3.+
+version: 3.5.1_251
 repository_root: https://artifacts.contrastsecurity.com/agents/java
