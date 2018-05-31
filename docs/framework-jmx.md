@@ -18,10 +18,11 @@ For general information on configuring the buildpack, including how to specify c
 
 The framework can be configured by creating or modifying the [`config/jmx.yml`][] file in the buildpack fork.
 
-| Name | Description
-| ---- | -----------
-| `enabled` | Whether to enable JMX
-| `port` | The port that the debug agent will listen on.  Defaults to `5000`.
+
+| Name      | Description                                                        |
+|-----------|--------------------------------------------------------------------|
+| `enabled` | Whether to enable JMX                                              |
+| `port`    | The port that the debug agent will listen on.  Defaults to `5000`. |
 
 ## Creating SSH Tunnel
 After starting an application with JMX enabled, an SSH tunnel must be created to the container.  To create that SSH container, execute the following command:
@@ -30,7 +31,7 @@ After starting an application with JMX enabled, an SSH tunnel must be created to
 $ cf ssh -N -T -L <LOCAL_PORT>:localhost:<REMOTE_PORT> <APPLICATION_NAME>
 ```
 
-The `REMOTE_PORT` should match the `port` configuration for the application (`5000` by default).  The `LOCAL_PORT` must matche the `REMOTE_PORT`.
+The `REMOTE_PORT` should match the `port` configuration for the application (`5000` by default).  The `LOCAL_PORT` must match the `REMOTE_PORT`.
 
 Once the SSH tunnel has been created, your JConsole should connect to `localhost:<LOCAL_PORT>` for JMX access.
 
