@@ -21,5 +21,5 @@ datacenter:
 default_application_name: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']);
   puts \"#{a['space_name']}:#{a['application_name']}\"")
 default_node_name: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']);
-  puts \"${dc}:#{a['application_name']}:#{a['instance_index']}\"")
+  puts \"${application_uris[0]}:#{a['application_name']}:#{a['instance_index']}\"")
 default_tier_name: 
