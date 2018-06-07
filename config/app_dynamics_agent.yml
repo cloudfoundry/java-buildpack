@@ -17,7 +17,6 @@
 ---
 version: 4.+
 repository_root: https://packages.appdynamics.com/java
-datacenter: 
 default_application_name: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']);
   puts \"#{a['space_name']}:#{a['application_name']}\"")
 default_node_name: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']); b = JSON.parse(ENV['VCAP_SERVICES']);
