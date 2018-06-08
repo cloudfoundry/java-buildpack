@@ -25,7 +25,7 @@ default_application_name: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_A
 a: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']); 
   puts \"#{a['application_name']}:#{a['instance_index']}\"")
 
- b: $(ruby -e "require 'json' ; b = JSON.parse(ENV['VCAP_SERVICES']);
+b: $(ruby -e "require 'json' ; b = JSON.parse(ENV['VCAP_SERVICES']);
   puts \"#{a[DC']}\"")
 
 default_node_name: $a:$b
