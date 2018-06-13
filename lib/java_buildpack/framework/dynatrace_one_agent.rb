@@ -86,8 +86,6 @@ module JavaBuildpack
 
       DT_CONNECTION_POINT = 'DT_CONNECTION_POINT'
 
-      DT_HOST_ID = 'DT_HOST_ID'
-
       DT_TENANT = 'DT_TENANT'
 
       DT_TENANTTOKEN = 'DT_TENANTTOKEN'
@@ -98,7 +96,7 @@ module JavaBuildpack
 
       SKIP_ERRORS = 'skiperrors'
 
-      private_constant :APIURL, :APITOKEN, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_HOST_ID, :DT_TENANT,
+      private_constant :APIURL, :APITOKEN, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_TENANT,
                        :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :SKIP_ERRORS
 
       def agent_download_url
@@ -143,7 +141,6 @@ module JavaBuildpack
           .add_environment_variable(DT_CONNECTION_POINT, endpoints(manifest))
 
         environment_variables.add_environment_variable(DT_APPLICATION_ID, application_id) unless application_id?
-        environment_variables.add_environment_variable(DT_HOST_ID, host_id) unless host_id?
       end
 
       def endpoints(manifest)
@@ -162,14 +159,6 @@ module JavaBuildpack
             unpack_agent root_path
           end
         end
-      end
-
-      def host_id
-        "#{@application.details['application_name']}_${CF_INSTANCE_INDEX}"
-      end
-
-      def host_id?
-        @application.environment.key?(DT_HOST_ID)
       end
 
       def skip_errors?
