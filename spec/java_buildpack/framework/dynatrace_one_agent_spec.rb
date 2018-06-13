@@ -69,7 +69,6 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
       component.release
 
       expect(environment_variables).to include('DT_APPLICATIONID=test-application-name')
-      expect(environment_variables).to include('DT_HOST_ID=test-application-name_${CF_INSTANCE_INDEX}')
       expect(environment_variables).to include('DT_TENANT=test-environmentid')
       expect(environment_variables).to include('DT_TENANTTOKEN=token-from-file')
       expect(environment_variables).to include('DT_CONNECTION_POINT=' \
@@ -79,8 +78,7 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
     context do
 
       let(:environment) do
-        { 'DT_APPLICATIONID' => 'test-application-id',
-          'DT_HOST_ID'       => 'test-host-id' }
+        { 'DT_APPLICATIONID' => 'test-application-id' }
       end
 
       it 'does not update environment variables if they exist',
@@ -89,7 +87,6 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
         component.release
 
         expect(environment_variables).not_to include(/DT_APPLICATIONID/)
-        expect(environment_variables).not_to include(/DT_HOST_ID/)
       end
 
     end
