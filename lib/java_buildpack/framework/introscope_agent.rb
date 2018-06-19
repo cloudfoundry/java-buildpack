@@ -104,7 +104,7 @@ module JavaBuildpack
       end
 
       def default_process_name(credentials)
-        credentials['agent_defaultProcessName'] || @application.details['application_name']
+        credentials['agent_default_process_name'] || @application.details['application_name']
       end
 
       def protocol_mapping(protocol)
