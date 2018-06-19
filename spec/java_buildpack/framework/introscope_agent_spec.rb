@@ -306,7 +306,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
       let(:credentials) do
         { 'agent_manager_url'        => 'https://test-host-name:8444',
           'agent_manager_credential' => 'test-credential-cccf-88-ae',
-          'agent_defaultProcessName' => 'TestProcess'}
+          'agent_defaultProcessName' => 'TestProcess' }
       end
 
       it 'sets the agent_manager_url, agent_manager_credential, and agent_process_name' do
