@@ -80,6 +80,7 @@ module Package
       'postgresql_jdbc'                     => 'PostgreSQL JDBC Driver',
       'protect_app_security_provider'       => 'Gemalto ProtectApp Security Provider',
       'redis_store'                         => 'Redis Session Store',
+      'riverbed-appinternals-agent'         => 'Riverbed Appinernals Agent',
       'sky_walking_agent'                   => 'SkyWalking',
       'spring_auto_reconfiguration'         => 'Spring Auto-reconfiguration',
       'spring_boot_cli'                     => 'Spring Boot CLI',
