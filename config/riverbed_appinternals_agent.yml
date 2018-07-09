@@ -17,5 +17,4 @@
 ---
 version: 10.+
 repository_root: https://pcf-instrumentation-download.steelcentral.net/
-rvbd_moniker: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']);
-          puts \"#{a['application_name']}\"")
+rvbd_moniker: $(jq -r -n "$VCAP_APPLICATION | .application_name")
