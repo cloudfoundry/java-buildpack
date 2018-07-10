@@ -62,6 +62,7 @@ frameworks:
   - "JavaBuildpack::Framework::NewRelicAgent"
   - "JavaBuildpack::Framework::PostgresqlJDBC"
   - "JavaBuildpack::Framework::ProtectAppSecurityProvider"
+  - "JavaBuildpack::Framework::RiverbedAppinternalsAgent"
   - "JavaBuildpack::Framework::SpringAutoReconfiguration"
   - "JavaBuildpack::Framework::SpringInsight"
   - "JavaBuildpack::Framework::SkyWalkingAgent"
