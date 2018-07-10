@@ -4,6 +4,7 @@
       <w>addons</w>
       <w>agentpath</w>
       <w>appdynamics</w>
+      <w>appinternals</w>
       <w>applicationid</w>
       <w>argv</w>
       <w>aspectsecurity</w>
@@ -50,6 +51,7 @@
       <w>libcrpytoki</w>
       <w>libcryptoki</w>
       <w>libjvm</w>
+      <w>librpilj</w>
       <w>libruxitagentloader</w>
       <w>libyjpagent</w>
       <w>ljust</w>
@@ -88,6 +90,7 @@
       <w>rubo</w>
       <w>rubocop</w>
       <w>ruxit</w>
+      <w>rvbd</w>
       <w>safenet</w>
       <w>scriptdir</w>
       <w>sessionname</w>

@@ -23,116 +23,66 @@ module JavaBuildpack
 
     # Encapsulates the functionality for running the Riverbed Appinternals Agent support.
     class RiverbedAppinternalsAgent < JavaBuildpack::Component::VersionedDependencyComponent
-      # jbp constants
-      FILTER = /(?i)appinternals/
-
-      # credentials key
-      RVBD_DSA_PORT = 'rvbd_dsa_port'
-      RVBD_AGENT_PORT = 'rvbd_agent_port'
-
-      # javaagent args
-      RVBD_MONIKER = 'rvbd_moniker'
-
-      # env
-      AIX_INSTRUMENT_ALL = 'AIX_INSTRUMENT_ALL'
-      RVBD_AGENT_FILES = 'RVBD_AGENT_FILES'
-      DSA_PORT = 'DSA_PORT'
-      RVBD_JBP_VERSION = 'RVBD_JBP_VERSION'
-
-      # constants
-      DSA_PORT_DEFAULT        = 2111
-      RVBD_AGENT_PORT_DEFAULT = 7073
-
-      private_constant :FILTER, :RVBD_AGENT_PORT,
-                       :DSA_PORT,
-                       :RVBD_MONIKER,
-                       :AIX_INSTRUMENT_ALL,
-                       :RVBD_AGENT_FILES,
-                       :DSA_PORT_DEFAULT,
-                       :RVBD_AGENT_PORT_DEFAULT,
-                       :RVBD_DSA_PORT,
-                       :RVBD_JBP_VERSION
-
-      attr_reader :version
-
-      def initialize(context)
-        super(context)
-        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger RiverbedAppinternalsAgent
-      end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_zip(false, @droplet.sandbox, @component_name)
-        `echo "#{@version} is downloaded....\n" >> /#{@droplet.sandbox}/staging.log`
         @droplet.copy_resources
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         credentials = @application.services.find_service(FILTER)['credentials']
-        setup_env credentials
-        setup_javaopts credentials
+
+        @droplet.environment_variables
+                .add_environment_variable('AIX_INSTRUMENT_ALL', 1)
+                .add_environment_variable('DSA_PORT', dsa_port(credentials))
+                .add_environment_variable('RVBD_AGENT_FILES', 1)
+                .add_environment_variable('RVBD_AGENT_PORT', agent_port(credentials))
+                .add_environment_variable('RVBD_JBP_VERSION', @version)
+
+        @droplet.java_opts.add_agentpath(agent_path)
+
+        return unless rvbd_moniker(credentials)
+        @droplet.java_opts.add_system_property('riverbed.moniker', rvbd_moniker(credentials))
       end
 
+      protected
+
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service?(FILTER) && os.casecmp('Linux').zero?
+        @application.services.one_service?(FILTER)
       end
 
       private
 
-      def setup_javaopts(credentials)
-        @droplet.java_opts.add_agentpath(agent_path)
-        rvbd_moniker = get_val_in_cred(RVBD_MONIKER, credentials[RVBD_MONIKER], nil, true) \
-          || @configuration[RVBD_MONIKER]
-        @droplet.java_opts.add_system_property('riverbed.moniker', rvbd_moniker) unless rvbd_moniker.nil?
+      FILTER = /appinternals/
+
+      private_constant :FILTER
+
+      def agent_path
+        @droplet.sandbox + 'agent/lib' + lib_name
       end
 
-      def get_val_in_cred(property, cred_val, default, logging)
-        @logger.debug { "picks up credential #{property}:#{cred_val}" } if cred_val && logging
-        cred_val ? cred_val : default
-      end
-
-      def setup_env(credentials)
-        @droplet.environment_variables
-                .add_environment_variable(DSA_PORT.upcase, get_val_in_cred(RVBD_DSA_PORT, \
-                                                                           credentials[RVBD_DSA_PORT], \
-                                                                           DSA_PORT_DEFAULT, true))
-                .add_environment_variable(RVBD_AGENT_PORT.upcase, get_val_in_cred(RVBD_AGENT_PORT.upcase, \
-                                                                                  credentials[RVBD_AGENT_PORT], \
-                                                                                  RVBD_AGENT_PORT_DEFAULT, true))
-                .add_environment_variable(AIX_INSTRUMENT_ALL, 1)
-                .add_environment_variable(RVBD_AGENT_FILES, 1)
-                .add_environment_variable(RVBD_JBP_VERSION, version)
+      def agent_port(credentials)
+        credentials['rvbd_agent_port'] || 7073
       end
 
       def architecture
         `uname -m`.strip
       end
 
-      def os
-        `uname`.strip
+      def dsa_port(credentials)
+        credentials['rvbd_dsa_port'] || 2111
       end
 
-      def agent_path
-        lib_dir + lib_ripl_name
+      def lib_name
+        %w[x86_64 i686].include?(architecture) ? 'librpilj64.so' : 'librpilj.so'
       end
 
-      def agent_dir
-        @droplet.sandbox + 'agent'
+      def rvbd_moniker(credentials)
+        credentials['rvbd_moniker'] || @configuration['rvbd_moniker']
       end
-
-      def lib_dir
-        agent_dir + 'lib'
-      end
-
-      def classes_dir
-        agent_dir + 'classes'
-      end
-
-      def lib_ripl_name
-        architecture == 'x86_64' || architecture == 'i686' ? 'librpilj64.so' : 'librpilj.so'
-      end
-
     end
   end
 end

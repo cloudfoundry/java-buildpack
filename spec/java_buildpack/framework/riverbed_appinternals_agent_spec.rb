@@ -22,85 +22,53 @@ require 'java_buildpack/framework/riverbed_appinternals_agent'
 describe JavaBuildpack::Framework::RiverbedAppinternalsAgent do
   include_context 'with component help'
 
-  context do
-    it 'does not support riverbed-appinternals-agent service' do
-      expect(component.supports?).to be false
-    end
-
-    it 'cannot detect riverbed-appinternals-agent service' do
-      expect(component.detect).to eq(nil)
-    end
-  end
-
-  context do
-
-    let(:vcap_services) do
-
-      { 'test-service-n/a' => [{ 'name'        => 'appinternals_test_service', 'label' => 'test-service-n/a',\
-                                 'tags'        => ['test-service-tag'], 'plan' => 'test-plan',\
-                                 'credentials' => { 'uri' => 'test-uri' } }] }
-    end
-
-    it 'supports riverbed-appinternals-agent service' do
-      expect(component.supports?).to be true
-    end
-
-    it 'detects with riverbed-appinternals-agent service' do
-      expect(component.detect).to eq("riverbed-appinternals-agent=#{version}")
-    end
-    context do
-      it 'unzip riverbed appinternals agent zip file',
-         cache_fixture: 'stub-riverbed-appinternals-agent.zip' do
-
-        component.compile
-
-        expect(sandbox + 'agent/lib/libAwProfile64.so').to exist
-        expect(sandbox + 'agent/lib/libAwProfile.so').to exist
-        expect(sandbox + 'agent/lib/librpilj.so').to exist
-        expect(sandbox + 'agent/lib/librpilj64.so').to exist
-        expect(sandbox + 'agent/lib/awcore/JIDAcore.jar').to exist
-        expect(sandbox + 'agent/lib/awcore/JidaSecurity.policy').to exist
-        expect(sandbox + 'agent/lib/awapp/JIDAapp.jar').to exist
-        expect(sandbox + 'agent/lib/awapp/JIDAutil.jar').to exist
-        expect(sandbox + 'agent/classes').to exist
-      end
-    end
+  it 'does detect riverbed-appinternals-agent service' do
+    expect(component.detect).to be_nil
   end
 
   context do
 
     before do
-      allow(component).to receive(:architecture).and_return('x86_64')
-    end
-    context do
-      before do
-        allow(services).to receive(:find_service).and_return('credentials' => {})
-        allow(component).to receive(:version).and_return('10.15.1_BL234')
-      end
-      it 'sets default values to java opts' do
-        component.release
-        expect(environment_variables).to include('DSA_PORT=2111')
-        expect(environment_variables).to include('RVBD_AGENT_PORT=7073')
-        expect(environment_variables).to include('AIX_INSTRUMENT_ALL=1')
-        expect(environment_variables).to include('RVBD_AGENT_FILES=1')
-        expect(environment_variables).to include('RVBD_JBP_VERSION=10.15.1_BL234')
-        expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/' \
-                                      'riverbed_appinternals_agent/agent/lib/librpilj64.so')
-      end
+      allow(services).to receive(:one_service?).with(/appinternals/).and_return(true)
     end
 
-    context do
-      before do
-        allow(services).to receive(:find_service).and_return('credentials' => { 'rvbd_dsa_port' => '10000', \
-                                                                                'rvbd_agent_port' => '20000', \
-                                                                                'rvbd_moniker' => 'special_name' })
-      end
-      it 'sets customized values to java opts' do
-        component.release
-        expect(environment_variables).to include('DSA_PORT=10000')
-        expect(environment_variables).to include('RVBD_AGENT_PORT=20000')
-        expect(java_opts).to include('-Driverbed.moniker=special_name')
-      end
+    it 'detects with riverbed-appinternals-agent service' do
+      expect(component.detect).to eq("riverbed-appinternals-agent=#{version}")
+    end
+
+    it 'unzips riverbed appinternals agent zip file',
+       cache_fixture: 'stub-riverbed-appinternals-agent.zip' do
+
+      component.compile
+
+      expect(sandbox + 'agent/lib/librpilj64.so').to exist
+    end
+
+    it 'updates JAVA_OPTS' do
+      allow(services).to receive(:find_service).and_return('credentials' => {})
+
+      component.release
+
+      expect(environment_variables).to include('AIX_INSTRUMENT_ALL=1')
+      expect(environment_variables).to include('DSA_PORT=2111')
+      expect(environment_variables).to include('RVBD_AGENT_FILES=1')
+      expect(environment_variables).to include('RVBD_AGENT_PORT=7073')
+      expect(environment_variables).to include('RVBD_JBP_VERSION=0.0.0')
+
+      expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/riverbed_appinternals_agent/agent/lib/' \
+                                   'librpilj64.so')
+    end
+
+    it 'updates JAVA_OPTS with credentials' do
+      allow(services).to receive(:find_service).and_return('credentials' => { 'rvbd_dsa_port' => '10000', \
+                                                                              'rvbd_agent_port' => '20000', \
+                                                                              'rvbd_moniker' => 'special_name' })
+
+      component.release
+
+      expect(environment_variables).to include('DSA_PORT=10000')
+      expect(environment_variables).to include('RVBD_AGENT_PORT=20000')
+      expect(java_opts).to include('-Driverbed.moniker=special_name')
     end
   end
 end

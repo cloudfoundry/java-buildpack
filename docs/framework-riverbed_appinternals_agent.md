@@ -3,7 +3,7 @@ The Riverbed Appinternals Agent Framework causes an application to be bound with
 
 <table>
   <tr>
-    <td><strong>Detection Criterion</strong></td><td>Existence of a single bound Riverbed Appinternals agent service. The existence of an agent service is defined by the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service name, label or tag with <code>appinternals</code> as a substring (the substring is case insensitive).
+    <td><strong>Detection Criterion</strong></td><td>Existence of a single bound Riverbed Appinternals agent service. The existence of an agent service is defined by the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service name, label or tag with <code>appinternals</code> as a substring.
     </td>
   </tr>
   <tr>
