@@ -51,6 +51,7 @@ frameworks:
   - "JavaBuildpack::Framework::DynatraceAppmonAgent"
   - "JavaBuildpack::Framework::DynatraceOneAgent"
   - "JavaBuildpack::Framework::GoogleStackdriverDebugger"
+  - "JavaBuildpack::Framework::GoogleStackdriverProfiler"
   - "JavaBuildpack::Framework::IntroscopeAgent"
   - "JavaBuildpack::Framework::JacocoAgent"
   - "JavaBuildpack::Framework::JavaMemoryAssistant"
