@@ -202,7 +202,9 @@ module Package
         end
       end
 
-      dependency_versions.sort_by { |dependency| dependency['id'] }
+      dependency_versions
+        .uniq { |dependency| dependency['id']}
+        .sort_by { |dependency| dependency['id'] }
     end
 
     def index_configuration(configuration)
