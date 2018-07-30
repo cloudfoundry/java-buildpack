@@ -1,4 +1,4 @@
-# Google Stackdriver Profielr Framework
+# Google Stackdriver Profiler Framework
 The Google Stackdriver Profiler Framework causes an application to be automatically configured to work with a bound [Google Stackdriver Profiler Service][].
 
 <table>
