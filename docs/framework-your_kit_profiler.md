@@ -1,5 +1,5 @@
 # YourKit Profiler Framework
-The YourKit Profiler Framework contributes YourKit Profielr configuration to the application at runtime.  **Note:** This framework is only useful in Diego-based containers with SSH access enabled.
+The YourKit Profiler Framework contributes YourKit Profiler configuration to the application at runtime.
 
 <table>
   <tr>
