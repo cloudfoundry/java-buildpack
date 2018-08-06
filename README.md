@@ -88,6 +88,7 @@ The buildpack supports extension through the use of Git repository forking. The 
   * [JaCoCo Agent](docs/framework-jacoco_agent.md) ([Configuration](docs/framework-jacoco_agent.md#configuration))
   * [Java Memory Assistant](docs/framework-java_memory_assistant.md) ([Configuration](docs/framework-java_memory_assistant.md#configuration))
   * [Java Options](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))
+  * [JProfiler Profiler](docs/framework-jprofiler_profiler.md) ([Configuration](docs/framework-jprofiler_profiler.md#configuration))
   * [JRebel Agent](docs/framework-jrebel_agent.md) ([Configuration](docs/framework-jrebel_agent.md#configuration))
   * [JMX](docs/framework-jmx.md) ([Configuration](docs/framework-jmx.md#configuration))
   * [Luna Security Provider](docs/framework-luna_security_provider.md) ([Configuration](docs/framework-luna_security_provider.md#configuration))
