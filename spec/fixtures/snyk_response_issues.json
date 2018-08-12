@@ -1,0 +1,233 @@
+{
+  "ok": false,
+  "issues": {
+    "vulnerabilities": [
+      {
+        "id": "SNYK-JAVA-AXIS-30071",
+        "url": "https://snyk.io/vuln/SNYK-JAVA-AXIS-30071",
+        "title": "Improper Validation of Certificate with Host Mismatch",
+        "type": "vuln",
+        "description": "## Overview\n[`axis:axis`](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22axis%22) is an implementation of the SOAP (\"Simple Object Access Protocol\") submission to W3C.\n\nAffected versions of this package are vulnerable to Man-in-the-Middle (MitM) attacks because it does not verify the requesting server's hostname agains existing domain names in the SSL Certificate. \n\n## Details\nThe `getCN` function in Apache Axis 1.4 and earlier does not properly verify that the server hostname matches a domain name in the subject's `Common Name (CN)` or `subjectAltName` field of the X.509 certificate, which allows man-in-the-middle attackers to spoof SSL servers via a certificate with a subject that specifies a common name in a field that is not the CN field.  \n\n**NOTE:** this issue exists because of an incomplete fix for [CVE-2012-5784](https://snyk.io/vuln/SNYK-JAVA-AXIS-30189).\n\n## References\n- [NVD](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-3596)\n- [Axis Issue](https://issues.apache.org/jira/browse/AXIS-2905)\n- [Redhat Bugzilla](https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2014-3596)\n",
+        "from": [
+          "axis:axis@1.4"
+        ],
+        "package": "axis:axis",
+        "version": "1.4",
+        "severity": "medium",
+        "language": "java",
+        "packageManager": "maven",
+        "semver": {
+          "vulnerable": [
+            "(,1.4]"
+          ]
+        },
+        "publicationTime": "2014-08-18T16:51:53Z",
+        "disclosureTime": "2014-08-18T16:51:53Z",
+        "isUpgradable": false,
+        "isPatchable": false,
+        "identifiers": {
+          "CVE": [
+            "CVE-2014-3596"
+          ],
+          "CWE": [
+            "CWE-297"
+          ]
+        },
+        "credit": [
+          "David Jorm",
+          "Arun Neelicattu"
+        ],
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
+        "cvssScore": 5.4,
+        "patches": [],
+        "upgradePath": []
+      },
+      {
+        "id": "SNYK-JAVA-AXIS-30189",
+        "url": "https://snyk.io/vuln/SNYK-JAVA-AXIS-30189",
+        "title": "Man-in-the-Middle (MitM)",
+        "type": "vuln",
+        "description": "## Overview\n[`axis:axis`](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22axis%22) is an implementation of the SOAP (\"Simple Object Access Protocol\") submission to W3C.\n\nAffected versions of this package are vulnerable to Man-in-the-Middle (MitM) attacks because it does not verify the requesting server's hostname agains existing domain names in the SSL Certificate.\n\n## Details\nApache Axis 1.4 and earlier does not properly verify that the server hostname matches a domain name in the subject's `Common Name (CN)` or `subjectAltName` field of the X.509 certificate, which allows man-in-the-middle attackers to spoof SSL servers via an arbitrary valid certificate.\n\n## References\n- [NVD](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2012-5784)\n- [Texas University](http://www.cs.utexas.edu/~shmat/shmat_ccs12.pdf)\n- [Jira Issue](https://issues.apache.org/jira/browse/AXIS-2883)\n",
+        "from": [
+          "axis:axis@1.4"
+        ],
+        "package": "axis:axis",
+        "version": "1.4",
+        "severity": "medium",
+        "language": "java",
+        "packageManager": "maven",
+        "semver": {
+          "vulnerable": [
+            "(,1.4]"
+          ]
+        },
+        "publicationTime": "2017-03-13T08:00:21.585000Z",
+        "disclosureTime": "2014-06-17T03:59:52Z",
+        "isUpgradable": false,
+        "isPatchable": false,
+        "identifiers": {
+          "CVE": [
+            "CVE-2012-5784"
+          ],
+          "CWE": [
+            "CWE-20"
+          ]
+        },
+        "credit": [
+          "Alberto Fernández"
+        ],
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
+        "cvssScore": 5.4,
+        "patches": [],
+        "upgradePath": []
+      },
+      {
+        "id": "SNYK-JAVA-ORGAPACHEZOOKEEPER-31035",
+        "url": "https://snyk.io/vuln/SNYK-JAVA-ORGAPACHEZOOKEEPER-31035",
+        "title": "Insufficiently Protected Credentials",
+        "type": "vuln",
+        "description": "## Overview\n[`org.apache.zookeeper:zookeeper`](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22zookeeper%22) is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.\n\nAffected versions of this package are vulnerable to Insufficiently Protected Credentials. The logs cleartext admin passwords, which allows local users to obtain sensitive information by reading the log.\n\n## Remediation\nUpgrade `org.apache.zookeeper:zookeeper` to version 3.4.7, 3.5.1 or higher.\n\n## References\n- [NVD](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0085)\n- [Jira Issue](https://issues.apache.org/jira/browse/ZOOKEEPER-1917)\n- [Redhat Bugzilla](https://bugzilla.redhat.com/show_bug.cgi?id=1067265)\n",
+        "from": [
+          "org.apache.zookeeper:zookeeper@3.5"
+        ],
+        "package": "org.apache.zookeeper:zookeeper",
+        "version": "3.5",
+        "severity": "medium",
+        "language": "java",
+        "packageManager": "maven",
+        "semver": {
+          "vulnerable": [
+            "[3.3.0,3.4.7), [3.5,3.5.1)"
+          ]
+        },
+        "publicationTime": "2016-10-05T08:19:32.697000Z",
+        "disclosureTime": "2016-10-05T08:19:32.697000Z",
+        "isUpgradable": false,
+        "isPatchable": false,
+        "identifiers": {
+          "CVE": [
+            "CVE-2014-0085"
+          ],
+          "CWE": [
+            "CWE-522"
+          ]
+        },
+        "credit": [
+          "Unknown"
+        ],
+        "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+        "cvssScore": 4,
+        "patches": [],
+        "upgradePath": []
+      },
+      {
+        "id": "SNYK-JAVA-ORGAPACHEZOOKEEPER-31428",
+        "url": "https://snyk.io/vuln/SNYK-JAVA-ORGAPACHEZOOKEEPER-31428",
+        "title": "Denial of Service (DoS)",
+        "type": "vuln",
+        "description": "## Overview\r\n\r\n[org.apache.zookeeper:zookeeper](http://zookeeper.apache.org/) is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.\r\n\r\n\r\nAffected versions of this package are vulnerable to Denial of Service (DoS).\r\nFour letter zookeeper commands (such as `wchp`/`wchc` ) are not properly handled, which leads to the server unable to serve legitimate client requests.\r\n\r\n## Details\r\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\r\n\r\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\r\n\r\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\r\n\r\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\r\n\r\nTwo common types of DoS vulnerabilities:\r\n\r\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\r\n\r\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](npm:ws:20171108)\r\n\r\n## Remediation\r\n\r\nUpgrade `org.apache.zookeeper:zookeeper` to version 3.4.10, 3.5.3 or higher.\r\n\r\n\r\n## References\r\n\r\n- [GitHub Commit](https://github.com/apache/zookeeper/pull/179/commits/b4c421d5f42d8af376b1d422e73cc210133d367f)\r\n\r\n- [NVD](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2017-5637)\r\n\r\n- [Jira Issue](https://issues.apache.org/jira/browse/ZOOKEEPER-2693)\r\n",
+        "from": [
+          "org.apache.zookeeper:zookeeper@3.5"
+        ],
+        "package": "org.apache.zookeeper:zookeeper",
+        "version": "3.5",
+        "severity": "medium",
+        "language": "java",
+        "packageManager": "maven",
+        "semver": {
+          "vulnerable": [
+            "[,3.4.10)",
+            "[3.5,3.5.3)"
+          ]
+        },
+        "publicationTime": "2017-05-21T07:52:38Z",
+        "disclosureTime": "2017-02-15T06:56:48Z",
+        "isUpgradable": false,
+        "isPatchable": false,
+        "identifiers": {
+          "CVE": [
+            "CVE-2017-5637"
+          ],
+          "CWE": [
+            "CWE-400"
+          ]
+        },
+        "credit": [
+          "Unknown"
+        ],
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "cvssScore": 7.5,
+        "patches": [],
+        "upgradePath": []
+      },
+      {
+        "id": "SNYK-JAVA-ORGAPACHEZOOKEEPER-32301",
+        "url": "https://snyk.io/vuln/SNYK-JAVA-ORGAPACHEZOOKEEPER-32301",
+        "title": "Authentication Bypass",
+        "type": "vuln",
+        "description": "## Overview\n[org.apache.zookeeper:zookeeper](http://zookeeper.apache.org/) is an effort to develop and maintain an open-source server which enables highly reliable distributed coordination.\n\nAffected versions of this package are vulnerable to Authentication Bypass. No authentication/authorization is enforced when a server attempts to join a quorum, as a result an arbitrary end point could join the cluster and begin propagating counterfeit changes to the leader.\n\n## Remediation\nUpgrade `org.apache.zookeeper:zookeeper` to versions 3.4.10, 3.5.4-beta or higher.\n\n## References\n- [Apache Mail Archives](https://lists.apache.org/thread.html/c75147028c1c79bdebd4f8fa5db2b77da85de2b05ecc0d54d708b393@%3Cdev.zookeeper.apache.org%3E)\n",
+        "from": [
+          "org.apache.zookeeper:zookeeper@3.5"
+        ],
+        "package": "org.apache.zookeeper:zookeeper",
+        "version": "3.5",
+        "severity": "medium",
+        "language": "java",
+        "packageManager": "maven",
+        "semver": {
+          "vulnerable": [
+            "[,3.4.10), [3.5.0-alpha, 3.5.4-beta)"
+          ]
+        },
+        "publicationTime": "2018-05-22T13:32:24.317000Z",
+        "disclosureTime": "2018-05-21T18:49:04.301000Z",
+        "isUpgradable": false,
+        "isPatchable": false,
+        "identifiers": {
+          "CVE": [
+            "CVE-2018-8012"
+          ],
+          "CWE": [
+            "CWE-592"
+          ]
+        },
+        "credit": [
+          "Foldi Tamas",
+          "Eugene Koontz"
+        ],
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+        "cvssScore": 7.5,
+        "patches": [],
+        "upgradePath": []
+      }
+    ],
+    "licenses": [
+      {
+        "id": "snyk:lic:maven:org.aspectj:aspectjweaver:EPL-1.0",
+        "url": "https://snyk.io/vuln/snyk:lic:maven:org.aspectj:aspectjweaver:EPL-1.0",
+        "title": "EPL-1.0 license",
+        "type": "license",
+        "from": [
+          "org.aspectj:aspectjweaver@1.8.2"
+        ],
+        "package": "org.aspectj:aspectjweaver",
+        "version": "1.8.2",
+        "severity": "medium",
+        "language": "java",
+        "packageManager": "maven",
+        "semver": {
+          "vulnerable": [
+            "[0,)"
+          ]
+        }
+      }
+    ]
+  },
+  "dependencyCount": 8,
+  "org": {
+    "name": "mySnykOrganisation",
+    "id": "39d9401c-01d0-43ca-b209-e510f65a91ec"
+  },
+  "licensesPolicy": null,
+  "packageManager": "maven"
+}

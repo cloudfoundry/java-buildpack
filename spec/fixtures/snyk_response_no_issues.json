@@ -1,0 +1,14 @@
+{
+    "ok": true,
+    "issues": {
+        "vulnerabilities": [],
+        "licenses": []
+    },
+    "dependencyCount": 0,
+    "org": {
+        "name": "mySnykOrganisation",
+        "id": "39d9401c-01d0-43ca-b209-e510f65a91ec"
+    },
+    "licensesPolicy": null,
+    "packageManager": "maven"
+}
