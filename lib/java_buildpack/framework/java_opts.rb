@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,9 +48,9 @@ module JavaBuildpack
 
       private
 
-      CONFIGURATION_PROPERTY = 'java_opts'.freeze
+      CONFIGURATION_PROPERTY = 'java_opts'
 
-      ENVIRONMENT_PROPERTY = 'from_environment'.freeze
+      ENVIRONMENT_PROPERTY = 'from_environment'
 
       private_constant :CONFIGURATION_PROPERTY, :ENVIRONMENT_PROPERTY
 

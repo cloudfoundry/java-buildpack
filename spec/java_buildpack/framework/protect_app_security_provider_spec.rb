@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2016 the original author or authors.
 #
@@ -18,7 +20,7 @@ require 'component_helper'
 require 'java_buildpack/framework/protect_app_security_provider'
 
 describe JavaBuildpack::Framework::ProtectAppSecurityProvider do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect without protectapp-n/a service' do
     expect(component.detect).to be_nil

@@ -1,4 +1,4 @@
-# Encoding: utf-8
+# frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2016 the original author or authors.
@@ -21,7 +21,7 @@ require 'java_buildpack/framework/contrast_security_agent'
 require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Framework::ContrastSecurityAgent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect without contrastsecurity service' do
     expect(component.detect).to be_nil
@@ -53,7 +53,7 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
 
       tokenized_version = JavaBuildpack::Util::TokenizedVersion.new('3.4.2_756')
       allow(JavaBuildpack::Repository::ConfiguredItem).to receive(:find_item) do |&block|
-        block.call(tokenized_version) if block
+        block&.call(tokenized_version)
       end.and_return([tokenized_version, uri])
 
       component.release
@@ -63,7 +63,7 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
     it 'uses java-agent for versions >= 3.4.3' do
       tokenized_version = JavaBuildpack::Util::TokenizedVersion.new('3.4.3_000')
       allow(JavaBuildpack::Repository::ConfiguredItem).to receive(:find_item) do |&block|
-        block.call(tokenized_version) if block
+        block&.call(tokenized_version)
       end.and_return([tokenized_version, uri])
 
       component.release
@@ -84,6 +84,15 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
 
       component.compile
       expect(sandbox + 'contrast.config').to exist
+    end
+
+    it 'does not override app name if there is an existing appname' do
+      java_opts.add_system_property('contrast.override.appname', 'NAME_ALREADY_OVERRIDDEN')
+
+      component.release
+
+      expect(java_opts).to include('-Dcontrast.override.appname=NAME_ALREADY_OVERRIDDEN')
+      expect(java_opts).not_to include('-Dcontrast.override.appname=test-application-name')
     end
 
   end

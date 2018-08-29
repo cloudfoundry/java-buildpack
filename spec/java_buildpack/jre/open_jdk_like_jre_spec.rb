@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +22,7 @@ require 'java_buildpack/jre/open_jdk_like_jre'
 require 'resolv'
 
 describe JavaBuildpack::Jre::OpenJDKLikeJre do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
 

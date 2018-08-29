@@ -7,15 +7,13 @@ AllCops:
   - 'rakelib/**/*'
   Exclude:
   - 'build/**/*'
-  - Gemfile            # TODO: Remove when upgrading to any version after 0.48.1
+  - Gemfile
 Layout/EmptyLinesAroundBlockBody:
   Exclude:
   - 'spec/**/*.rb'
 Layout/EmptyLinesAroundClassBody:
   Enabled: false
 Layout/EmptyLinesAroundModuleBody:
-  Enabled: false
-Layout/IndentHeredoc:  # TODO: Remove when dropping 2.2.x support
   Enabled: false
 Layout/MultilineOperationIndentation:
   Enabled: false
@@ -36,6 +34,8 @@ Metrics/ParameterLists:
   Max: 10
 Metrics/PerceivedComplexity:
   Max: 10
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
 RSpec/ExampleLength:
   Max: 20
 RSpec/AnyInstance:
@@ -48,7 +48,11 @@ RSpec/MultipleExpectations:
   Enabled: false
 RSpec/NestedGroups:
   Max: 4
+Security/Open:
+  Enabled: false # False positive at the moment
 Style/Documentation:
+  Enabled: false
+Style/FormatStringToken:
   Enabled: false
 Style/MethodMissing:
   Enabled: false

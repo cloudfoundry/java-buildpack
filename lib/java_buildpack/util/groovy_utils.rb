@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -68,13 +70,13 @@ module JavaBuildpack
 
         private
 
-        GROOVY_FILE_PATTERN = '**/*.groovy'.freeze
+        GROOVY_FILE_PATTERN = '**/*.groovy'
 
         private_constant :GROOVY_FILE_PATTERN
 
         def safe_read(file)
           yield
-        rescue => e
+        rescue StandardError => e
           raise "Unable to read file #{file.path}: #{e.message}"
         end
 

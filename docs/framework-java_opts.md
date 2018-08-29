@@ -24,8 +24,6 @@ The framework can be configured by creating or modifying the [`config/java_opts.
 | `from_environment` | Whether to append the value of the `JAVA_OPTS` environment variable to the collection of Java options
 | `java_opts` | The Java options to use when running the application. All values are used without modification when invoking the JVM. The options are specified as a single YAML scalar in plain style or enclosed in single or double quotes.
 
-Any `JAVA_OPTS` from either the config file or environment variables that configure memory options will cause deployment to fail as they're not allowed. Memory options are configured by the buildpack and may not be modified.
-
 Any `JAVA_OPTS` from either the config file or environment variables will be specified in the start command after any Java Opts added by other frameworks.
 
 ## Escaping strings

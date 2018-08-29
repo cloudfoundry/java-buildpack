@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,14 +22,14 @@ require 'java_buildpack/util/qualify_path'
 
 describe JavaBuildpack::Container::JavaMain do
   include JavaBuildpack::Util
-  include_context 'component_helper'
+  include_context 'with component help'
 
-  shared_context 'explicit_main_class' do
+  shared_context 'with explicit main class' do
     let(:configuration) { { 'java_main_class' => 'test-java-main-class' } }
   end
 
   context do
-    include_context 'explicit_main_class'
+    include_context 'with explicit main class'
 
     it 'detects with main class configuration' do
 
@@ -71,8 +73,17 @@ describe JavaBuildpack::Container::JavaMain do
     expect(test_jar2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(lib))
   end
 
+  it 'caches Spring Boot Thin Launcher dependencies',
+     app_fixture: 'container_main_spring_boot_thin_launcher' do
+
+    expect_any_instance_of(JavaBuildpack::Util::SpringBootUtils).to receive(:cache_thin_dependencies)
+      .with(java_home.root, application.root, sandbox + 'repository')
+
+    component.compile
+  end
+
   context do
-    include_context 'explicit_main_class'
+    include_context 'with explicit main class'
 
     it 'returns command' do
 
@@ -127,6 +138,15 @@ describe JavaBuildpack::Container::JavaMain do
     expect(component.release).to eq('test-var-2 test-var-1 SERVER_PORT=$PORT ' \
                                       "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
                                       '-cp $PWD/. org.springframework.boot.loader.PropertiesLauncher')
+  end
+
+  it 'releases Spring Boot thin applications by specifying thin.root',
+     app_fixture: 'container_main_spring_boot_thin_launcher' do
+
+    component.release
+
+    expect(java_opts).to include('-Dthin.offline=true')
+    expect(java_opts).to include('-Dthin.root=$PWD/.java-buildpack/java_main/repository')
   end
 
 end

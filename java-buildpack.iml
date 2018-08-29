@@ -265,36 +265,36 @@
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/doc" />
     </content>
-    <orderEntry type="jdk" jdkName="rbenv: 2.2.8" jdkType="RUBY_SDK" />
+    <orderEntry type="jdk" jdkName="rbenv: 2.3.7" jdkType="RUBY_SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="addressable (v2.5.1, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="ast (v2.3.0, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="bundler (v1.15.4, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="crack (v0.4.3, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.3, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="hashdiff (v0.3.4, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="parallel (v1.11.2, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="parser (v2.4.0.0, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="powerpack (v0.1.1, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="public_suffix (v2.0.5, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rainbow (v2.2.2, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rake (v12.0.0, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="redcarpet (v3.4.0, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec (v3.6.0, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.6.0, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v3.6.0, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v3.6.0, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.6.0, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubocop (v0.49.1, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubocop-rspec (v1.15.1, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="ruby-progressbar (v1.8.1, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubyzip (v1.2.1, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="safe_yaml (v1.0.4, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="tee (v1.0.0, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="terminal-table (v1.8.0, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="unicode-display_width (v1.2.1, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="webmock (v3.0.1, rbenv: 2.2.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="yard (v0.9.9, rbenv: 2.2.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="addressable (v2.5.2, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ast (v2.4.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="bundler (v1.16.1, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="crack (v0.4.3, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.3, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="hashdiff (v0.3.7, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="parallel (v1.12.1, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="parser (v2.5.0.5, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="powerpack (v0.1.1, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="public_suffix (v3.0.2, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rainbow (v3.0.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rake (v12.3.1, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="redcarpet (v3.4.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec (v3.7.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.7.1, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v3.7.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v3.7.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.7.1, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubocop (v0.54.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubocop-rspec (v1.24.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ruby-progressbar (v1.9.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubyzip (v1.2.1, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="safe_yaml (v1.0.4, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="tee (v1.0.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="terminal-table (v1.8.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="unicode-display_width (v1.3.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="webmock (v3.3.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="yard (v0.9.12, rbenv: 2.3.7) [gem]" level="application" />
   </component>
   <component name="RModuleSettingsStorage">
     <LOAD_PATH number="4" string0="$MODULE_DIR$/lib" string1="$MODULE_DIR$/spec" string2="$MODULE_DIR$/bin" string3="$MODULE_DIR$/spec/bin" />

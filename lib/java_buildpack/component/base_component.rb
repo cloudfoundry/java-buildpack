@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -167,9 +169,9 @@ module JavaBuildpack
       #
       # @param [String] caption the caption to print when timing starts
       # @return [Void]
-      def with_timing(caption)
+      def with_timing(caption, include_arrow = false)
         start_time = Time.now
-        print "       #{caption} "
+        print "#{include_arrow ? '----->'.red.bold : '      '} #{caption} "
 
         yield
 

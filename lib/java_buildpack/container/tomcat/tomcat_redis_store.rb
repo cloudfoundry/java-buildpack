@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,19 +49,19 @@ module JavaBuildpack
 
       FILTER = /session-replication/
 
-      FLUSH_VALVE_CLASS_NAME = 'com.gopivotal.manager.SessionFlushValve'.freeze
+      FLUSH_VALVE_CLASS_NAME = 'com.gopivotal.manager.SessionFlushValve'
 
-      KEY_HOST_NAME = 'hostname'.freeze
+      KEY_HOST_NAME = 'hostname'
 
-      KEY_HOST = 'host'.freeze
+      KEY_HOST = 'host'
 
-      KEY_PASSWORD = 'password'.freeze
+      KEY_PASSWORD = 'password'
 
-      KEY_PORT = 'port'.freeze
+      KEY_PORT = 'port'
 
-      PERSISTENT_MANAGER_CLASS_NAME = 'org.apache.catalina.session.PersistentManager'.freeze
+      PERSISTENT_MANAGER_CLASS_NAME = 'org.apache.catalina.session.PersistentManager'
 
-      REDIS_STORE_CLASS_NAME = 'com.gopivotal.manager.redis.RedisStore'.freeze
+      REDIS_STORE_CLASS_NAME = 'com.gopivotal.manager.redis.RedisStore'
 
       private_constant :FILTER, :FLUSH_VALVE_CLASS_NAME, :KEY_HOST_NAME, :KEY_PASSWORD, :KEY_PORT,
                        :PERSISTENT_MANAGER_CLASS_NAME, :REDIS_STORE_CLASS_NAME

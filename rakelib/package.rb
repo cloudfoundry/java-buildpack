@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,14 +29,14 @@ module Package
 
   ARCHITECTURES = %w[x86_64].freeze
 
-  BUILD_DIR = 'build'.freeze
+  BUILD_DIR = 'build'
 
   BUILDPACK_VERSION = JavaBuildpack::BuildpackVersion.new(false).freeze
 
-  PLATFORMS = %w[trusty].freeze
+  PLATFORMS = %w[bionic trusty].freeze
 
-  STAGING_DIR = "#{BUILD_DIR}/staging".freeze
+  STAGING_DIR = "#{BUILD_DIR}/staging"
 
-  PACKAGE_NAME = "#{BUILD_DIR}/java-buildpack#{offline}-#{version}.zip".freeze
+  PACKAGE_NAME = "#{BUILD_DIR}/java-buildpack#{offline}-#{version}.zip"
 
 end

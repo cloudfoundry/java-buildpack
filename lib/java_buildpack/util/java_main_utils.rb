@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,9 +50,9 @@ module JavaBuildpack
           JavaBuildpack::Util::Properties.new(manifest_file)
         end
 
-        MAIN_CLASS_PROPERTY = 'java_main_class'.freeze
+        MAIN_CLASS_PROPERTY = 'java_main_class'
 
-        MANIFEST_PROPERTY = 'Main-Class'.freeze
+        MANIFEST_PROPERTY = 'Main-Class'
 
         private_constant :MAIN_CLASS_PROPERTY, :MANIFEST_PROPERTY
 

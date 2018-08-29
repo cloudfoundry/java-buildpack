@@ -1,5 +1,5 @@
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
 
 # JMX configuration
 ---
-version: 2017.+
+version: 2018.+
 repository_root: https://download.run.pivotal.io/your-kit/{platform}/{architecture}
 enabled: false
 port: 10001
-default_session_name: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']);
-  puts \"#{a['application_name']}:#{a['instance_index']}\"")
+default_session_name: $(jq -r -n "$VCAP_APPLICATION | .application_name + \":$CF_INSTANCE_INDEX\"")

@@ -23,11 +23,14 @@ The credential payload of the service may contain the following entries:
 
 | Name | Description
 | ---- | -----------
-| `agent-name` | (Optional) The name that should be given to this instance of the Introscope agent
-| `url` | The url of the Introscope Enterprise Manager server
+|`agent_default_process_name`| (Optional) The name that is specified for the agent process. If not specified, default value is the application name.
+| `agent_manager_credential` | (Optional) The credential that is used to connect to the Enterprise Manager server
+| `agent_manager_url` | The url of the Enterprise Manager server
+| `agent_name` | (Optional) The name that should be given to this instance of the Introscope agent
+| `credential`| (Deprecated) The credential that is used to connect to the Enterprise Manager server
+| `url` | (Deprecated) The url of the Enterprise Manager server
 
-
-To provide more complex values such as the `agent-name`, using the interactive mode when creating a user-provided service will manage the character escaping automatically. For example, the default `agent-name` could be set with a value of `agent-$(expr "$VCAP_APPLICATION" : '.*application_name[": ]*\([[:word:]]*\).*')` to calculate a value from the Cloud Foundry application name.
+To provide more complex values such as the `agent_name`, using the interactive mode when creating a user-provided service will manage the character escaping automatically. For example, the default `agent_name` could be set with a value of `agent-$(expr "$VCAP_APPLICATION" : '.*application_name[": ]*\([[:word:]]*\).*')` to calculate a value from the Cloud Foundry application name.
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].

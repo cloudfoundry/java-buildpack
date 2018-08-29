@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,8 +22,8 @@ require 'java_buildpack/buildpack'
 require 'java_buildpack/component/base_component'
 
 describe JavaBuildpack::Buildpack do
-  include_context 'application_helper'
-  include_context 'logging_helper'
+  include_context 'with application help'
+  include_context 'with logging help'
 
   let(:stub_container1) { instance_double('StubContainer1', detect: nil, component_name: 'StubContainer1') }
 

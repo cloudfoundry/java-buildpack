@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +21,7 @@ require 'logger'
 
 describe JavaBuildpack::Logging::DelegatingLogger do
 
-  let(:block) { ->() { 'test-message' } }
+  let(:block) { -> { 'test-message' } }
   let(:delegate1) { instance_double('delegate1') }
   let(:delegate2) { instance_double('delegate2') }
   let(:delegating_logger) { described_class.new('test-klass', [delegate1, delegate2]) }

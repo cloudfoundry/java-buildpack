@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +20,7 @@ require 'component_helper'
 require 'java_buildpack/framework/luna_security_provider'
 
 describe JavaBuildpack::Framework::LunaSecurityProvider do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect without luna-n/a service' do
     expect(component.detect).to be_nil
@@ -157,7 +159,13 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
     end
 
     context do
-      let(:configuration) { { 'logging_enabled' => true, 'ha_logging_enabled' => true } }
+      let(:configuration) do
+        {
+          'logging_enabled' => true,
+          'ha_logging_enabled' => true,
+          'tcp_keep_alive_enabled' => false
+        }
+      end
 
       it 'writes configuration',
          cache_fixture: 'stub-luna-security-provider.tar' do
@@ -167,6 +175,26 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
         expect(sandbox + 'Chrystoki.conf').to exist
         check_file_contents(sandbox + 'Chrystoki.conf',
                             'spec/fixtures/framework_luna_security_provider_logging/Chrystoki.conf')
+      end
+    end
+
+    context do
+      let(:configuration) do
+        {
+          'logging_enabled' => true,
+          'ha_logging_enabled' => true,
+          'tcp_keep_alive_enabled' => true
+        }
+      end
+
+      it 'writes configuration with client tcp keep alive',
+         cache_fixture: 'stub-luna-security-provider.tar' do
+
+        component.compile
+
+        expect(sandbox + 'Chrystoki.conf').to exist
+        check_file_contents(sandbox + 'Chrystoki.conf',
+                            'spec/fixtures/framework_luna_security_provider_tcp_keep_alive/Chrystoki.conf')
       end
     end
 

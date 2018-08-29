@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +21,7 @@ require 'java_buildpack/framework/dynatrace_one_agent'
 require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Framework::DynatraceOneAgent do
-  include_context 'component_helper'
+  include_context 'with component help'
 
   it 'does not detect without dynatrace-n/a service' do
     expect(component.detect).to be_nil
@@ -67,7 +69,6 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
       component.release
 
       expect(environment_variables).to include('DT_APPLICATIONID=test-application-name')
-      expect(environment_variables).to include('DT_HOST_ID=test-application-name_${CF_INSTANCE_INDEX}')
       expect(environment_variables).to include('DT_TENANT=test-environmentid')
       expect(environment_variables).to include('DT_TENANTTOKEN=token-from-file')
       expect(environment_variables).to include('DT_CONNECTION_POINT=' \
@@ -77,8 +78,7 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
     context do
 
       let(:environment) do
-        { 'DT_APPLICATIONID' => 'test-application-id',
-          'DT_HOST_ID'       => 'test-host-id' }
+        { 'DT_APPLICATIONID' => 'test-application-id' }
       end
 
       it 'does not update environment variables if they exist',
@@ -87,7 +87,6 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
         component.release
 
         expect(environment_variables).not_to include(/DT_APPLICATIONID/)
-        expect(environment_variables).not_to include(/DT_HOST_ID/)
       end
 
     end

@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 
 require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/repository/version_resolver'
@@ -192,7 +194,7 @@ module Package
       elsif config.key?(sub_component)
         config[sub_component]['version'] = version
       else
-        config.values.each { |v| update_configuration(v, version, sub_component) if v.is_a? Hash }
+        config.each_value { |v| update_configuration(v, version, sub_component) if v.is_a? Hash }
       end
     end
 

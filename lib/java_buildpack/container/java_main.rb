@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2017 the original author or authors.
+# Copyright 2013-2018 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,6 +47,13 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         return unless @spring_boot_utils.is?(@application)
+
+        if @spring_boot_utils.thin?(@application)
+          with_timing 'Caching Spring Boot Thin Launcher Dependencies', true do
+            @spring_boot_utils.cache_thin_dependencies @droplet.java_home.root, @application.root, thin_root
+          end
+        end
+
         @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
       end
 
@@ -54,6 +63,12 @@ module JavaBuildpack
 
         if @spring_boot_utils.is?(@application)
           @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT'
+
+          if @spring_boot_utils.thin?(@application)
+            @droplet.java_opts
+                    .add_system_property('thin.offline', true)
+                    .add_system_property('thin.root', thin_root)
+          end
         else
           @droplet.additional_libraries.insert 0, @application.root
         end
@@ -64,9 +79,9 @@ module JavaBuildpack
 
       private
 
-      ARGUMENTS_PROPERTY = 'arguments'.freeze
+      ARGUMENTS_PROPERTY = 'arguments'
 
-      CLASS_PATH_PROPERTY = 'Class-Path'.freeze
+      CLASS_PATH_PROPERTY = 'Class-Path'
 
       private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
 
@@ -94,6 +109,10 @@ module JavaBuildpack
       def manifest_class_path
         values = JavaBuildpack::Util::JavaMainUtils.manifest(@application)[CLASS_PATH_PROPERTY]
         values.nil? ? [] : values.split(' ').map { |value| @droplet.root + value }
+      end
+
+      def thin_root
+        @droplet.sandbox + 'repository'
       end
 
     end
