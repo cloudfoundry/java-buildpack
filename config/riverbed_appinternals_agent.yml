@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for the CA Wily framework
+# Configuration for the riverbed appinternals agent framework
 ---
 version: 10.+
-repository_root: https://ca.bintray.com/apm-agents
-default_agent_name: $(jq -r -n "$VCAP_APPLICATION | .application_name")
+repository_root: https://pcf-instrumentation-download.steelcentral.net/
+rvbd_moniker: $(jq -r -n "$VCAP_APPLICATION | .application_name")

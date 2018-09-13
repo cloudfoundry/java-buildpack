@@ -18,6 +18,5 @@
 # avoid conflicts.
 ---
 version: 3.+
-default_application_name: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']);
-  puts \"#{a['space_name']}:#{a['application_name']}\"")
 repository_root: https://java-buildpack.cloudfoundry.org/sky-walking
+default_application_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name")

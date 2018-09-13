@@ -42,7 +42,7 @@ module JavaBuildpack
           .add_system_property('com.wily.introscope.agentProfile', agent_profile)
           .add_system_property('introscope.agent.hostName', agent_host_name)
           .add_system_property('com.wily.introscope.agent.agentName', agent_name(credentials))
-          .add_system_property('introscope.agent.defaultProcessName', default_process_name)
+          .add_system_property('introscope.agent.defaultProcessName', default_process_name(credentials))
 
         if agent_manager_credential(credentials)
           java_opts.add_system_property('agentManager.credential', agent_manager_credential(credentials))
@@ -103,8 +103,8 @@ module JavaBuildpack
         @droplet.sandbox + 'core/config/IntroscopeAgent.profile'
       end
 
-      def default_process_name
-        @application.details['application_name']
+      def default_process_name(credentials)
+        credentials['agent_default_process_name'] || @application.details['application_name']
       end
 
       def protocol_mapping(protocol)

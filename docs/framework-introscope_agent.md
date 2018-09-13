@@ -23,6 +23,7 @@ The credential payload of the service may contain the following entries:
 
 | Name | Description
 | ---- | -----------
+|`agent_default_process_name`| (Optional) The name that is specified for the agent process. If not specified, default value is the application name.
 | `agent_manager_credential` | (Optional) The credential that is used to connect to the Enterprise Manager server
 | `agent_manager_url` | The url of the Enterprise Manager server
 | `agent_name` | (Optional) The name that should be given to this instance of the Introscope agent

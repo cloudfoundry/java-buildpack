@@ -4,6 +4,7 @@
       <w>addons</w>
       <w>agentpath</w>
       <w>appdynamics</w>
+      <w>appinternals</w>
       <w>applicationid</w>
       <w>argv</w>
       <w>aspectsecurity</w>
@@ -17,6 +18,7 @@
       <w>constantized</w>
       <w>constantizes</w>
       <w>cpio</w>
+      <w>cprof</w>
       <w>creat</w>
       <w>cryptoki</w>
       <w>dhttp</w>
@@ -49,10 +51,13 @@
       <w>libcklog</w>
       <w>libcrpytoki</w>
       <w>libcryptoki</w>
+      <w>libjprofilerti</w>
       <w>libjvm</w>
+      <w>librpilj</w>
       <w>libruxitagentloader</w>
       <w>libyjpagent</w>
       <w>ljust</w>
+      <w>logtostderr</w>
       <w>lunaclient</w>
       <w>lunajsp</w>
       <w>mainclass</w>
@@ -88,12 +93,14 @@
       <w>rubo</w>
       <w>rubocop</w>
       <w>ruxit</w>
+      <w>rvbd</w>
       <w>safenet</w>
       <w>scriptdir</w>
       <w>sessionname</w>
       <w>shellwords</w>
       <w>simplecov</w>
       <w>socketfactory</w>
+      <w>stackdriver</w>
       <w>stderr</w>
       <w>strftime</w>
       <w>stringifies</w>
