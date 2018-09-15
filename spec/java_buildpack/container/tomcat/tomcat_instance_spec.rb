@@ -165,4 +165,19 @@ describe JavaBuildpack::Container::TomcatInstance do
     expect(test_jar2.readlink).to eq((additional_libs_directory + 'test-jar-2.jar').relative_path_from(web_inf_lib))
   end
 
+  context do
+    let(:configuration) { { 'maxHttpHeaderSize_enabled' => true , 'maxHttpHeaderSize' => '24576' } }
+
+    it 'Modify tomcat maxHttpHeaderSize',
+       app_fixture:   'container_tomcat_with_index',
+       cache_fixture: 'stub-tomcat.tar.gz' do
+
+      FileUtils.touch(app_dir + '.test-file')
+
+      component.compile
+      expect((sandbox + 'conf/server.xml').read)
+        .to match(/maxHttpHeaderSize='24576'/)
+    end
+  end
+
 end

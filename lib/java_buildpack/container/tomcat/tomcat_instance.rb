@@ -54,8 +54,10 @@ module JavaBuildpack
       end
 
       TOMCAT_8 = JavaBuildpack::Util::TokenizedVersion.new('8.0.0').freeze
+      MAX_HTTP_HEADER_SIZE = 'maxHttpHeaderSize'
+      MAX_HTTP_HEADER_SIZE_ENABLED = 'maxHttpHeaderSize_enabled'
 
-      private_constant :TOMCAT_8
+      private_constant :TOMCAT_8, :MAX_HTTP_HEADER_SIZE, :MAX_HTTP_HEADER_SIZE_ENABLED
 
       # Checks whether Tomcat instance is Tomcat 7 compatible
       def tomcat_7_compatible
@@ -75,6 +77,14 @@ module JavaBuildpack
 
         server.insert_before '//Service', listener
 
+        write_xml server_xml, document
+      end
+
+       # http-max-header-size for tomcat
+      def configure_http_header http_header_size
+        document = read_xml server_xml
+        connector = REXML::XPath.match(document, '/Server/Service/Connector').first
+        connector.add_attribute 'maxHttpHeaderSize', http_header_size
         write_xml server_xml, document
       end
 
@@ -99,6 +109,10 @@ module JavaBuildpack
           @droplet.copy_resources
           configure_linking
           configure_jasper
+          if @configuration[MAX_HTTP_HEADER_SIZE_ENABLED]
+            configure_http_header @configuration[MAX_HTTP_HEADER_SIZE]
+          end
+
         end
       end
 

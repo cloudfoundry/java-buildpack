@@ -20,6 +20,8 @@ tomcat:
   repository_root: "{default.repository.root}/tomcat"
   context_path: 
   external_configuration_enabled: false
+  maxHttpHeaderSize_enabled: false
+  maxHttpHeaderSize: 24576
 external_configuration:
   version: 1.+
   repository_root: 
