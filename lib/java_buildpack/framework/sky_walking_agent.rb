@@ -62,6 +62,7 @@ module JavaBuildpack
       def servers(java_opts, credentials)
         servers = credentials['servers']
         raise "'servers' credential must be set" unless servers
+
         java_opts.add_system_property 'skywalking.collector.servers', servers
       end
 

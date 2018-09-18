@@ -27,31 +27,31 @@ describe JavaBuildpack::Util::SpringBootUtils do
   it 'detects a dist Spring Boot application',
      app_fixture: 'container_spring_boot_dist' do
 
-    expect(utils.is?(application)).to be
+    expect(utils).to be_is(application)
   end
 
   it 'detects a staged Spring Boot application',
      app_fixture: 'container_spring_boot_staged' do
 
-    expect(utils.is?(application)).to be
+    expect(utils).to be_is(application)
   end
 
   it 'detects a JAR Spring Boot application',
      app_fixture: 'container_main_spring_boot_jar_launcher' do
 
-    expect(utils.is?(application)).to be
+    expect(utils).to be_is(application)
   end
 
   it 'does not detect a non-Spring Boot application',
      app_fixture: 'container_main' do
 
-    expect(utils.is?(application)).not_to be
+    expect(utils).not_to be_is(application)
   end
 
   it 'determines if an application is a thin application',
      app_fixture: 'container_main_spring_boot_thin_launcher' do
 
-    expect(utils.thin?(application)).to be
+    expect(utils).to be_thin(application)
   end
 
   it 'determines the version of a dist Spring Boot application',

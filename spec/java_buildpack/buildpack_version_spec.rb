@@ -128,7 +128,7 @@ describe JavaBuildpack::BuildpackVersion do
     it 'picks up offline from the environment' do
       allow_any_instance_of(described_class).to receive(:system).with('which git > /dev/null').and_return(false)
 
-      expect(buildpack_version.offline).to be
+      expect(buildpack_version.offline).to be_truthy
     end
 
   end

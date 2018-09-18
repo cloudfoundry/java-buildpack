@@ -168,6 +168,7 @@ module JavaBuildpack
       end
 
       raise "Application can be run by more than one #{type}: #{names detected}" if unique && detected.size > 1
+
       [detected, tags]
     end
 

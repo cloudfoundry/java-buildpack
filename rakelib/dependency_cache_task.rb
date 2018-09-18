@@ -182,7 +182,7 @@ module Package
     def pin_version(old_configuration, version)
       component_id     = old_configuration['component_id']
       sub_component_id = old_configuration['sub_component_id']
-      rake_output_message "Pinning #{sub_component_id ? sub_component_id : component_id} version to #{version}"
+      rake_output_message "Pinning #{sub_component_id || component_id} version to #{version}"
       configuration_to_update = JavaBuildpack::Util::ConfigurationUtils.load(component_id, false, true)
       update_configuration(configuration_to_update, version, sub_component_id)
       JavaBuildpack::Util::ConfigurationUtils.write(component_id, configuration_to_update)

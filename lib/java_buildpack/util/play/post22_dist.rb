@@ -26,8 +26,6 @@ module JavaBuildpack
 
         alias root find_single_directory
 
-        protected :root
-
       end
 
     end

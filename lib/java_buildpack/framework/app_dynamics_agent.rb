@@ -79,6 +79,7 @@ module JavaBuildpack
       def host_name(java_opts, credentials)
         host_name = credentials['host-name']
         raise "'host-name' credential must be set" unless host_name
+
         java_opts.add_system_property 'appdynamics.controller.hostName', host_name
       end
 

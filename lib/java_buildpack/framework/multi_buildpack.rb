@@ -270,6 +270,7 @@ module JavaBuildpack
 
       def contributions_message(contributions)
         return if contributions.compact.empty?
+
         " contributed to: #{contributions.flatten.compact.sort.join(', ')}"
       end
 

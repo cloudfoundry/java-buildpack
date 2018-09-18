@@ -45,6 +45,7 @@ module JavaBuildpack
             ].select(&:supports?)
 
             raise "Play Framework application version cannot be determined: #{candidates}" if candidates.size > 1
+
             candidates.empty? ? nil : candidates.first
           end
 

@@ -39,7 +39,7 @@ describe JavaBuildpack::Jre::IbmJRE do
   let(:jvmkill_agent_configuration) { {} }
 
   it 'supports anyway' do
-    expect(component.supports?).to be
+    expect(component).to be_supports
   end
 
   it 'creates IbmJreInitializer instance' do

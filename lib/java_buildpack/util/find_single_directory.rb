@@ -20,6 +20,8 @@ require 'java_buildpack/util'
 module JavaBuildpack
   module Util
 
+    module_function
+
     # Find the single directory in the root of the droplet
     #
     # @return [Pathname, nil] the single directory in the root of the droplet, otherwise +nil+
@@ -27,8 +29,6 @@ module JavaBuildpack
       roots = (@droplet.root + '*').glob.select(&:directory?)
       roots.size == 1 ? roots.first : nil
     end
-
-    module_function :find_single_directory
 
   end
 end

@@ -44,6 +44,7 @@ module JavaBuildpack
         @droplet.java_opts.add_agentpath(agent_path)
 
         return unless rvbd_moniker(credentials)
+
         @droplet.java_opts.add_system_property('riverbed.moniker', rvbd_moniker(credentials))
       end
 

@@ -172,6 +172,7 @@ module JavaBuildpack
       def uber_agent_zip(location)
         candidates = Pathname.glob(location + 'springsource-insight-uber-agent-*.zip')
         raise 'There was not exactly one Uber Agent zip' if candidates.size != 1
+
         candidates[0]
       end
 
@@ -186,6 +187,7 @@ module JavaBuildpack
       def transport_plugin(root)
         return root + 'transport/http/insight-agent-http-*.jar' if http_transport?
         return root + 'transport/rabbitmq/insight-agent-rabbitmq-*.jar' if rabbit_transport?
+
         (root + 'transport/activemq/insight-agent-activemq-*.jar') if active_transport?
       end
 

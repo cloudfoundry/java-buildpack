@@ -27,19 +27,19 @@ describe JavaBuildpack::Util::RatpackUtils do
   it 'detects a dist Ratpack application',
      app_fixture: 'container_ratpack_dist' do
 
-    expect(utils.is?(application)).to be
+    expect(utils).to be_is(application)
   end
 
   it 'detects a staged Ratpack application',
      app_fixture: 'container_ratpack_staged' do
 
-    expect(utils.is?(application)).to be
+    expect(utils).to be_is(application)
   end
 
   it 'does not detect a non-Ratpack application',
      app_fixture: 'container_main' do
 
-    expect(utils.is?(application)).not_to be
+    expect(utils).not_to be_is(application)
   end
 
   it 'determines the version a dist Ratpack application',

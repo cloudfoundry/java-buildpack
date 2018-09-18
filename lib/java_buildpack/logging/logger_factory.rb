@@ -66,6 +66,7 @@ module JavaBuildpack
       def get_logger(klass)
         @monitor.synchronize do
           raise "Attempted to get Logger for #{short_class(klass)} before initialization" unless @initialized
+
           DelegatingLogger.new wrapped_short_class(klass), @delegates
         end
       end
@@ -77,6 +78,7 @@ module JavaBuildpack
       def log_file
         @monitor.synchronize do
           raise 'Attempted to get log file before initialization' unless @initialized
+
           @log_file
         end
       end

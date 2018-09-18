@@ -20,6 +20,8 @@ require 'java_buildpack/util'
 module JavaBuildpack
   module Util
 
+    module_function
+
     # Find a start script relative to a root directory.  A start script is defined as existing in the +bin/+ directory
     # and being either the only file, or the only file with a counterpart named +<filename>.bat+
     #
@@ -36,8 +38,6 @@ module JavaBuildpack
         candidates.find { |candidate| Pathname.new("#{candidate}.bat").exist? }
       end
     end
-
-    module_function :start_script
 
   end
 end

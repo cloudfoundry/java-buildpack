@@ -77,6 +77,7 @@ module JavaBuildpack
           end
 
           raise "Unable to find cached file for #{uri.sanitize_uri}" unless cached_file
+
           cached_file.cached(File::RDONLY | File::BINARY, downloaded, &block)
         end
 
@@ -175,6 +176,7 @@ module JavaBuildpack
 
         def ca_file(http_options)
           return unless CA_FILE.exist?
+
           http_options[:ca_file] = CA_FILE.to_s
           @logger.debug { "Adding additional CA certificates from #{CA_FILE}" }
         end

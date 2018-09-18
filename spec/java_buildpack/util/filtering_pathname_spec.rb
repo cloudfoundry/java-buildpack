@@ -120,8 +120,8 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'compares to pathnames using ==' do
-    expect((filtering_target + 'good') == (app_dir + 'good')).to be
-    expect((filtering_target + 'bad') == (app_dir + 'bad')).to be
+    expect((filtering_target + 'good') == (app_dir + 'good')).to be_truthy
+    expect((filtering_target + 'bad') == (app_dir + 'bad')).to be_truthy
   end
 
   # rubocop:disable Lint/UselessComparison, Style/CaseEquality
@@ -134,18 +134,18 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'compares to filtering pathnames using ==' do
-    expect((filtering_target + 'good') == (filtering_target + 'good')).to be
-    expect((filtering_target + 'bad') == (filtering_target + 'bad')).to be
+    expect((filtering_target + 'good') == (filtering_target + 'good')).to be_truthy
+    expect((filtering_target + 'bad') == (filtering_target + 'bad')).to be_truthy
   end
 
   it 'compares to pathnames using ===' do
-    expect((filtering_target + 'good') === (app_dir + 'good')).to be
-    expect((filtering_target + 'bad') === (app_dir + 'bad')).to be
+    expect((filtering_target + 'good') === (app_dir + 'good')).to be_truthy
+    expect((filtering_target + 'bad') === (app_dir + 'bad')).to be_truthy
   end
 
   it 'compares to filtering pathnames using ===' do
-    expect((filtering_target + 'good') === (filtering_target + 'good')).to be
-    expect((filtering_target + 'bad') === (filtering_target + 'bad')).to be
+    expect((filtering_target + 'good') === (filtering_target + 'good')).to be_truthy
+    expect((filtering_target + 'bad') === (filtering_target + 'bad')).to be_truthy
   end
   # rubocop:enable Lint/UselessComparison, Style/CaseEquality
 

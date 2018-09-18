@@ -143,9 +143,9 @@ module JavaBuildpack
         end
       end
 
-      attr_reader :pathname
+      protected
 
-      protected :pathname
+      attr_reader :pathname
 
       private
 
@@ -224,6 +224,7 @@ module JavaBuildpack
 
       def filter(pathname)
         raise 'Non-absolute pathname' unless pathname.absolute?
+
         @filter.call(pathname.cleanpath)
       end
 

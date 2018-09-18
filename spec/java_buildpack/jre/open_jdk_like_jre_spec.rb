@@ -58,8 +58,8 @@ describe JavaBuildpack::Jre::OpenJDKLikeJre do
     component.detect
     component.compile
 
-    expect(networking.networkaddress_cache_ttl).not_to be
-    expect(networking.networkaddress_cache_negative_ttl).not_to be
+    expect(networking.networkaddress_cache_ttl).not_to be_truthy
+    expect(networking.networkaddress_cache_negative_ttl).not_to be_truthy
   end
 
   it 'disables dns caching if BOSH DNS',

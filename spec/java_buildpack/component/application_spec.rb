@@ -70,7 +70,7 @@ describe JavaBuildpack::Component::Application do
   end
 
   it 'returns a parsed version of VCAP_SERVICES as services' do
-    expect(application.services.find_service(/test-service/)).to be
+    expect(application.services.find_service(/test-service/)).to be_truthy
   end
 
 end

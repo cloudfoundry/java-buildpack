@@ -52,6 +52,7 @@ module JavaBuildpack
       def find_item(version)
         found_version = VersionResolver.resolve(version, @index.keys)
         raise "No version resolvable for '#{version}' in #{@index.keys.join(', ')}" if found_version.nil?
+
         uri = @index[found_version.to_s]
         [found_version, uri]
       end

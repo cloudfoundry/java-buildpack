@@ -28,7 +28,7 @@ describe JavaBuildpack::Logging::LoggerFactory do
   let(:logger) { described_class.instance.get_logger String }
 
   it 'maintains backwards compatibility' do
-    expect(described_class.get_logger(String)).to be
+    expect(described_class.get_logger(String)).to be_truthy
   end
 
   it 'logs all levels to file',

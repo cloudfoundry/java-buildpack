@@ -48,7 +48,7 @@ describe JavaBuildpack::Jre::OpenJDKLike do
   let(:memory_calculator_configuration) { { 'stack_threads' => '200' } }
 
   it 'always supports' do
-    expect(component.supports?).to be
+    expect(component).to be_supports
   end
 
   it 'creates submodules' do

@@ -26,7 +26,7 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
   include_context 'with logging help'
 
   it 'uses internet by default' do
-    expect(described_class.instance.available?).to be
+    expect(described_class.instance).to be_available
   end
 
   context do
@@ -38,7 +38,7 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
     end
 
     it 'does not use internet if remote downloads are disabled' do
-      expect(described_class.instance.available?).not_to be
+      expect(described_class.instance).not_to be_available
     end
   end
 
@@ -47,7 +47,7 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
 
     described_class.instance.available false
 
-    expect(described_class.instance.available?).not_to be
+    expect(described_class.instance).not_to be_available
     expect(log_contents).not_to match(/Internet availability set to false/)
   end
 
@@ -56,26 +56,26 @@ describe JavaBuildpack::Util::Cache::InternetAvailability do
 
     described_class.instance.available false, 'test message'
 
-    expect(described_class.instance.available?).not_to be
+    expect(described_class.instance).not_to be_available
     expect(log_contents).to match(/Internet availability set to false: test message/)
   end
 
   it 'temporarily sets internet unavailable' do
-    expect(described_class.instance.available?).to be
+    expect(described_class.instance).to be_available
 
-    described_class.instance.available(false) { expect(described_class.instance.available?).not_to be }
+    described_class.instance.available(false) { expect(described_class.instance).not_to be_available }
 
-    expect(described_class.instance.available?).to be
+    expect(described_class.instance).to be_available
   end
 
   it 'temporarily sets internet available',
      :disable_internet do
 
-    expect(described_class.instance.available?).not_to be
+    expect(described_class.instance).not_to be_available
 
-    described_class.instance.available(true) { expect(described_class.instance.available?).to be }
+    described_class.instance.available(true) { expect(described_class.instance).to be_available }
 
-    expect(described_class.instance.available?).not_to be
+    expect(described_class.instance).not_to be_available
   end
 
 end

@@ -2,12 +2,12 @@
 require: rubocop-rspec
 
 AllCops:
-  Include:
-  - '**/Rakefile'
-  - 'rakelib/**/*'
+  # Include:
+  # - '**/Rakefile'
+  # - 'rakelib/**/*'
   Exclude:
   - 'build/**/*'
-  - Gemfile
+  # - Gemfile
 Layout/EmptyLinesAroundBlockBody:
   Exclude:
   - 'spec/**/*.rb'
@@ -36,13 +36,15 @@ Metrics/PerceivedComplexity:
   Max: 10
 Naming/UncommunicativeMethodParamName:
   Enabled: false
-RSpec/ExampleLength:
-  Max: 20
 RSpec/AnyInstance:
   Enabled: false
+RSpec/ExampleLength:
+  Max: 20
 RSpec/ExpectOutput:
   Enabled: false
 RSpec/FilePath:
+  Enabled: false
+RSpec/MissingExampleGroupArgument:
   Enabled: false
 RSpec/MultipleExpectations:
   Enabled: false
@@ -54,5 +56,5 @@ Style/Documentation:
   Enabled: false
 Style/FormatStringToken:
   Enabled: false
-Style/MethodMissing:
+Style/MethodMissingSuper:
   Enabled: false

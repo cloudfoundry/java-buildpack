@@ -52,6 +52,7 @@ module JavaBuildpack
           logger = Logging::LoggerFactory.instance.get_logger ApplicationCache
 
           raise 'Application cache directory is undefined' unless self.class.available?
+
           logger.debug { "Application Cache Directory: #{self.class.application_cache_directory}" }
 
           super(Pathname.new(self.class.application_cache_directory), CACHED_RESOURCES_DIRECTORY)
