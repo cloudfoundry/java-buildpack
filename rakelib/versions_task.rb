@@ -70,6 +70,7 @@ module Package
       'jacoco_agent'                  => 'JaCoCo Agent',
       'jprofiler_profiler'            => 'JProfiler Profiler',
       'jre'                           => 'OpenJDK JRE',
+      'jre-11'                        => 'OpenJDK JRE 11',
       'jrebel_agent'                  => 'JRebel Agent',
       'jvmkill_agent'                 => 'jvmkill Agent',
       'lifecycle_support'             => 'Tomcat Lifecycle Support',
@@ -153,6 +154,15 @@ module Package
       if repository_configuration?(configuration)
         configuration['component_id']     = component_id
         configuration['sub_component_id'] = sub_component_id if sub_component_id
+
+        if component_id == 'open_jdk_jre' && sub_component_id == 'jre'
+          c1 = configuration.clone
+          c1['sub_component_id'] = 'jre-11'
+          c1['version'] = '11.+'
+
+          configurations << c1
+        end
+
         configurations << configuration
       else
         configuration.each { |k, v| configurations << configurations(component_id, v, k) if v.is_a? Hash }
