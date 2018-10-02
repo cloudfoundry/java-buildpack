@@ -17,6 +17,6 @@
 # Note that the repository is shared with the Play Auto Reconfiguration framework and should be kept in step to
 # avoid conflicts.
 ---
-version: 3.+
+version: 3.2.6
 repository_root: https://java-buildpack.cloudfoundry.org/sky-walking
 default_application_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name")
