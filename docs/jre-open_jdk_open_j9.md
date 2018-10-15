@@ -1,4 +1,4 @@
-# OpenJDK JRE
+# OpenJDK JRE with Eclipse OpenJ9
 The OpenJDK JRE with [Eclipse OpenJ9][] provides a Java runtimes from the [OpenJDK][] project that utilizes the Eclipse OpenJ9 JVM.  Versions of Java from the `1.8` and `1.11` lines are available.  Unless otherwise configured, the version of Java that will be used is specified in [`config/open_jdk_open_j9.yml`][].  For more information about [Eclipse OpenJ9][], see the Eclipse Foundation page.
 
 <table>
@@ -39,7 +39,7 @@ To use OpenJDK JRE with [Eclipse OpenJ9][] instead of OpenJDK without forking ja
 The JRE can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/open_jdk_open_j9` directory in the buildpack fork.
 
 #### Custom CA Certificates
-To add custom SSL certificates, add your `cacerts` file to `resources/open_jdk_open_j9/jre/jre/lib/security/cacerts`.  This file will be overlayed onto the OpenJDK distribution.
+To add custom SSL certificates, add your `cacerts` file to `resources/open_jdk_open_j9/jre/lib/security/cacerts`.  This file will be overlayed onto the OpenJDK distribution.
 
 ### `jvmkill`
 The `jvmkill` agent runs when an application has experience a resource exhaustion event.  When this event occurs, the agent will print out a histogram of the first 100 largest types by total number of bytes.
