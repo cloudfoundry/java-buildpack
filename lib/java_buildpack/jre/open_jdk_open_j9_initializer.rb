@@ -38,7 +38,7 @@ module JavaBuildpack
         @configuration  = context[:configuration]
         @droplet        = context[:droplet]
 
-        @droplet.java_home.root = @droplet.sandbox + 'jre/'
+        @droplet.java_home.root = @droplet.sandbox
       end
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
@@ -52,12 +52,19 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_tar
-        @droplet.copy_resources
 
         # stripping top level from tar doesn't seem to be enough
         # need to strip one more level
         orig_dir = Dir.entries(@droplet.sandbox).select { |f| f.start_with? 'jdk' }.first
-        File.rename(File.join(@droplet.sandbox, orig_dir), @droplet.java_home.root) unless orig_dir.nil?
+        if orig_dir.nil?
+            @logger.warn { "Expected 'jdk' subfolder to exist, but it doesn't. No move will occur." }
+        else
+            orig_dir_full_path = File.join(@droplet.sandbox, orig_dir)
+            FileUtils.mv(Dir.glob(orig_dir_full_path + "/*"), @droplet.java_home.root)
+        end
+
+        # overlay resources after we move stuff around
+        @droplet.copy_resources
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
