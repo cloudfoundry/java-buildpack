@@ -16,7 +16,7 @@
 # Configuration for the Tomcat container
 ---
 tomcat:
-  version: 8.5.+
+  version: 8.5.34
   repository_root: "{default.repository.root}/tomcat"
   context_path: 
   external_configuration_enabled: false
@@ -24,21 +24,21 @@ external_configuration:
   version: 1.+
   repository_root: 
 lifecycle_support:
-  version: 3.+
+  version: 3.2.0_RELEASE
   repository_root: "{default.repository.root}/tomcat-lifecycle-support"
 logging_support:
-  version: 3.+
+  version: 3.2.0_RELEASE
   repository_root: "{default.repository.root}/tomcat-logging-support"
 access_logging_support:
-  version: 3.+
+  version: 3.2.0_RELEASE
   repository_root: "{default.repository.root}/tomcat-access-logging-support"
   access_logging: disabled
 redis_store:
-  version: 1.+
+  version: 1.3.6_RELEASE
   repository_root: "{default.repository.root}/redis-store"
   database: 0
   timeout: 2000
   connection_pool_size: 2
 geode_store:
-  version: 0.+
+  version: 0.0.2
   repository_root: https://repo.spring.io/ext-release-local/geode-store
