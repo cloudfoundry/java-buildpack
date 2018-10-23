@@ -39,6 +39,12 @@ If the key or value contains an environment variable that you want to bind at ru
 $ cf set-env my-application JBP_CONFIG_JAVA_MAIN '{ arguments: "-server.port=\$PORT -foo=bar" }'
 ```
 
+An example of configuration is to specify a `javaagent` that is packaged within an application.
+
+```bash
+$ cf set-env my-application JAVA_OPTS '-javaagent:app/META-INF/myagent.jar -Dmyagent.config_file=app/META-INF/my_agent.conf'
+```
+
 Environment variable can also be specified in the applications `manifest` file. For example, to specify an environment variable in an applications manifest file that disables Auto-reconfiguration.
 
 ```bash
