@@ -96,7 +96,8 @@ describe JavaBuildpack::Container::SpringBootCLI do
 
     expect(component.release).to eq("#{env_vars_str} #{java_home.as_env_var} " \
                                     'exec $PWD/.java-buildpack/spring_boot_cli/bin/spring run ' \
-                                    '-cp $PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
+                                    '-cp $PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar:' \
+                                    '$PWD/.root_libs/test-jar-3.jar:$PWD/.root_libs/test-jar-4.jar ' \
                                     'directory/pogo_4.groovy invalid.groovy pogo_1.groovy pogo_2.groovy pogo_3.groovy')
   end
 

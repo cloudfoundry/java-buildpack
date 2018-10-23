@@ -17,31 +17,26 @@
 
 require 'spec_helper'
 require 'component_helper'
-require 'java_buildpack/container/tomcat/tomcat_logging_support'
+require 'java_buildpack/container/tomcat/tomcat_setenv'
 
-describe JavaBuildpack::Container::TomcatLoggingSupport do
+describe JavaBuildpack::Container::TomcatSetenv do
   include_context 'with component help'
 
   let(:component_id) { 'tomcat' }
 
   it 'always detects' do
-    expect(component.detect).to eq("tomcat-logging-support=#{version}")
+    expect(component.detect).to eq('tomcat-setenv')
   end
 
-  it 'copies resources',
-     cache_fixture: 'stub-logging-support.jar' do
-
+  it 'creates setenv.sh' do
     component.compile
 
-    expect(sandbox + "bin/tomcat_logging_support-#{version}.jar").to exist
-  end
+    expect(sandbox + 'bin/setenv.sh').to exist
+    expect((sandbox + 'bin/setenv.sh').read).to eq <<~SH
+      #!/bin/sh
 
-  it 'downloads JAR',
-     cache_fixture: 'stub-logging-support.jar' do
-
-    component.compile
-
-    expect(droplet.root_libraries).to include(sandbox + "bin/tomcat_logging_support-#{version}.jar")
+      CLASSPATH=$CLASSPATH:$PWD/.root_libs/test-jar-3.jar:$PWD/.root_libs/test-jar-4.jar
+    SH
   end
 
 end

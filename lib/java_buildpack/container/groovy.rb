@@ -59,7 +59,7 @@ module JavaBuildpack
           @droplet.java_home.as_env_var,
           'exec',
           qualify_path(@droplet.sandbox + 'bin/groovy', @droplet.root),
-          @droplet.additional_libraries.as_classpath,
+          classpath,
           relative_main_groovy,
           relative_other_groovy
         ].flatten.compact.join(' ')
@@ -77,6 +77,10 @@ module JavaBuildpack
 
       def add_libs
         (@droplet.root + '**/*.jar').glob.each { |jar| @droplet.additional_libraries << jar }
+      end
+
+      def classpath
+        ([@droplet.additional_libraries.as_classpath] + @droplet.root_libraries.qualified_paths).join(':')
       end
 
       def main_groovy

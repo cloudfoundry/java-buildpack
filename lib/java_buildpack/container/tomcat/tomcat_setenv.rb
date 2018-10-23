@@ -21,12 +21,23 @@ module JavaBuildpack
   module Container
 
     # Encapsulates the detect, compile, and release functionality for Tomcat logging support.
-    class TomcatLoggingSupport < JavaBuildpack::Component::VersionedDependencyComponent
+    class TomcatSetenv < JavaBuildpack::Component::BaseComponent
+
+      # (see JavaBuildpack::Component::BaseComponent#detect)
+      def detect
+        self.class.to_s.dash_case
+      end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_jar(jar_name, bin)
-        @droplet.root_libraries << (bin + jar_name)
+        FileUtils.mkdir_p bin
+        setenv.open('w') do |f|
+          f.write <<~SH
+            #!/bin/sh
+
+            CLASSPATH=$CLASSPATH:#{@droplet.root_libraries.qualified_paths.join(':')}
+          SH
+        end
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -45,8 +56,8 @@ module JavaBuildpack
         @droplet.sandbox + 'bin'
       end
 
-      def jar_name
-        "tomcat_logging_support-#{@version}.jar"
+      def setenv
+        bin + 'setenv.sh'
       end
 
     end

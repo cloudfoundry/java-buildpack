@@ -22,26 +22,24 @@ require 'java_buildpack/util/qualify_path'
 module JavaBuildpack
   module Component
 
-    # An abstraction around the additional libraries provided to a droplet by components.
+    # An abstraction around the root libraries provided to a droplet by components.
     #
     # A new instance of this type should be created once for the application.
-    class AdditionalLibraries < Array
+    class RootLibraries < Array
       include JavaBuildpack::Util
 
-      # Creates an instance of the +AdditionalLibraries+ abstraction.
+      # Creates an instance of the +RootLibraries+ abstraction.
       #
       # @param [Pathname] droplet_root the root directory of the droplet
       def initialize(droplet_root)
         @droplet_root = droplet_root
       end
 
-      # Returns the contents of the collection as a classpath formatted as +-cp <value1>:<value2>+
+      # Returns the collection as a collection of paths qualified to the +droplet_root+.
       #
-      # @return [String] the contents of the collection as a classpath
-      def as_classpath
-        qualified_paths = sort.map { |path| qualify_path path }
-
-        "-cp #{qualified_paths.join ':'}" unless empty?
+      # @return [Array<String>] the contents of the collection as paths qualified to +droplet_root+
+      def qualified_paths
+        sort.map { |path| qualify_path path }
       end
 
       # Symlink the contents of the collection to a destination directory.
