@@ -34,7 +34,7 @@ module JavaBuildpack
 
         @droplet.copy_resources
         @droplet.security_providers << 'com.dyadicsec.provider.DYCryptoProvider'
-        @droplet.additional_libraries << dyadic_jar if @droplet.java_home.java_9_or_later?
+        @droplet.root_libraries << dyadic_jar if @droplet.java_home.java_9_or_later?
 
         credentials = @application.services.find_service(FILTER, 'ca', 'key', 'recv_timeout', 'retries', 'send_timeout',
                                                          'servers')['credentials']
@@ -47,7 +47,7 @@ module JavaBuildpack
                 .add_environment_variable 'LD_LIBRARY_PATH', @droplet.sandbox + 'usr/lib'
 
         if @droplet.java_home.java_9_or_later?
-          @droplet.additional_libraries << dyadic_jar
+          @droplet.root_libraries << dyadic_jar
         else
           @droplet.extension_directories << ext_dir
         end

@@ -34,7 +34,7 @@ module JavaBuildpack
 
         @droplet.copy_resources
         @droplet.security_providers << 'com.safenetinc.luna.provider.LunaProvider'
-        @droplet.additional_libraries << luna_provider_jar if @droplet.java_home.java_9_or_later?
+        @droplet.root_libraries << luna_provider_jar if @droplet.java_home.java_9_or_later?
 
         credentials = @application.services.find_service(FILTER, 'client', 'servers', 'groups')['credentials']
         write_client credentials['client']
@@ -47,7 +47,7 @@ module JavaBuildpack
         @droplet.environment_variables.add_environment_variable 'ChrystokiConfigurationPath', @droplet.sandbox
 
         if @droplet.java_home.java_9_or_later?
-          @droplet.additional_libraries << luna_provider_jar
+          @droplet.root_libraries << luna_provider_jar
         else
           @droplet.extension_directories << ext_dir
         end

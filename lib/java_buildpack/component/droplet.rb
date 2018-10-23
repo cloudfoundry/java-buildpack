@@ -67,6 +67,10 @@ module JavaBuildpack
       #                                                  excludes files in the sandboxes of other components
       attr_reader :root
 
+      # @!attribute [r] root_libraries
+      # @return [RootLibraries] the shared +RootLibraries+ instance for all components
+      attr_reader :root_libraries
+
       # @!attribute [r] sandbox
       # @return [Pathname] the root of the component's sandbox
       attr_reader :sandbox
@@ -91,9 +95,10 @@ module JavaBuildpack
       # @param [JavaOpts] java_opts                           the shared +JavaOpts+ instance for all components
       # @param [Networking] networking                        the shared +Networking+ instance for all components
       # @param [Pathname] root                                the root of the droplet
+      # @param [RootLibraries] root_libraries                 the shared +RootLibraries+ instance for all components
       # @param [SecurityProviders] security_providers         the shared +SecurityProviders+ instance for all components
-      def initialize(additional_libraries, component_id, env_vars, extension_directories, java_home, java_opts, root,
-                     networking, security_providers)
+      def initialize(additional_libraries, component_id, env_vars, extension_directories, java_home, java_opts,
+                     networking, root, root_libraries, security_providers)
 
         @additional_libraries  = additional_libraries
         @component_id          = component_id
@@ -117,6 +122,7 @@ module JavaBuildpack
           ->(path) { !in?(path, buildpack_root) || in?(path, @sandbox) },
           true
         )
+        @root_libraries     = root_libraries
         @networking         = networking
         @security_providers = security_providers
       end

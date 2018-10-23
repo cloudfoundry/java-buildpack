@@ -54,13 +54,13 @@ describe JavaBuildpack::Framework::ContainerSecurityProvider do
 
       component.compile
 
-      expect(additional_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
+      expect(root_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
     end
 
     it 'adds JAR to classpath during release in Java 9' do
       component.release
 
-      expect(additional_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
+      expect(root_libraries).to include(droplet.sandbox + "container_security_provider-#{version}.jar")
     end
 
     it 'does not add extension directory in Java 9' do

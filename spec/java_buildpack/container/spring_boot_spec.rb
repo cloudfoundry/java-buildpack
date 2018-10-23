@@ -64,7 +64,8 @@ describe JavaBuildpack::Container::SpringBoot do
     component.compile
 
     expect((app_dir + 'bin/application').read)
-      .to match 'CLASSPATH=\$APP_HOME/.additional_libs/test-jar-1.jar:\$APP_HOME/.additional_libs/test-jar-2.jar:'
+      .to match 'CLASSPATH=\$APP_HOME/.additional_libs/test-jar-1.jar:\$APP_HOME/.additional_libs/test-jar-2.jar:' \
+                '\$APP_HOME/.root_libs/test-jar-3.jar:\$APP_HOME/.root_libs/test-jar-4.jar:'
   end
 
   it 'returns command',

@@ -88,6 +88,7 @@ describe JavaBuildpack::Container::Tomcat do
       .to receive(:new).with(sub_configuration_context(logging_support_configuration))
     allow(JavaBuildpack::Container::TomcatRedisStore)
       .to receive(:new).with(sub_configuration_context(redis_store_configuration))
+    allow(JavaBuildpack::Container::TomcatSetenv).to receive(:new).with(context)
 
     component.sub_components context
   end

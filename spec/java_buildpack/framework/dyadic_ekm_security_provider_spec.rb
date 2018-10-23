@@ -117,13 +117,13 @@ describe JavaBuildpack::Framework::DyadicEkmSecurityProvider do
 
         component.compile
 
-        expect(additional_libraries).to include(droplet.sandbox + 'usr/lib/dsm/dsm-advapi-1.0.jar')
+        expect(root_libraries).to include(droplet.sandbox + 'usr/lib/dsm/dsm-advapi-1.0.jar')
       end
 
       it 'adds JAR to classpath during release in Java 9' do
         component.release
 
-        expect(additional_libraries).to include(droplet.sandbox + 'usr/lib/dsm/dsm-advapi-1.0.jar')
+        expect(root_libraries).to include(droplet.sandbox + 'usr/lib/dsm/dsm-advapi-1.0.jar')
       end
 
       it 'adds does not add extension directory in Java 9' do

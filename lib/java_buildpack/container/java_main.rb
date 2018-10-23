@@ -73,7 +73,6 @@ module JavaBuildpack
           @droplet.additional_libraries.insert 0, @application.root
         end
 
-        classpath = @spring_boot_utils.is?(@application) ? '-cp $PWD/.' : @droplet.additional_libraries.as_classpath
         release_text(classpath)
       end
 
@@ -100,6 +99,11 @@ module JavaBuildpack
 
       def arguments
         @configuration[ARGUMENTS_PROPERTY]
+      end
+
+      def classpath
+        cp = @spring_boot_utils.is?(@application) ? '-cp $PWD/.' : @droplet.additional_libraries.as_classpath
+        ([cp] + @droplet.root_libraries.qualified_paths).join(':')
       end
 
       def main_class

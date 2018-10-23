@@ -141,13 +141,13 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
 
         component.compile
 
-        expect(additional_libraries).to include(droplet.sandbox + 'jsp/LunaProvider.jar')
+        expect(root_libraries).to include(droplet.sandbox + 'jsp/LunaProvider.jar')
       end
 
       it 'adds JAR to classpath during release in Java 9' do
         component.release
 
-        expect(additional_libraries).to include(droplet.sandbox + 'jsp/LunaProvider.jar')
+        expect(root_libraries).to include(droplet.sandbox + 'jsp/LunaProvider.jar')
       end
 
       it 'adds does not add extension directory in Java 9' do
@@ -161,8 +161,8 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
     context do
       let(:configuration) do
         {
-          'logging_enabled' => true,
-          'ha_logging_enabled' => true,
+          'logging_enabled'        => true,
+          'ha_logging_enabled'     => true,
           'tcp_keep_alive_enabled' => false
         }
       end
@@ -181,8 +181,8 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
     context do
       let(:configuration) do
         {
-          'logging_enabled' => true,
-          'ha_logging_enabled' => true,
+          'logging_enabled'        => true,
+          'ha_logging_enabled'     => true,
           'tcp_keep_alive_enabled' => true
         }
       end
