@@ -27,7 +27,11 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_tar
+        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+          true, 'The Tomcat External Configuration download location is always accessible'
+        ) do
+          download_tar
+        end
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
