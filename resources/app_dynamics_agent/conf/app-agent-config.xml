@@ -1,0 +1,296 @@
+<app-agent-configuration>
+    <configuration-properties>
+        <property name="agent-overwrite" value="false"/>
+        <!-- enables/disables the agent. TransactionEntryPoints will not be monitored. No new bt and metrics will be registered;
+        metrics, snpshots will not be reported; The background threads will not be stopped and once this is turned back on
+        monitoring is active immediately. Does not need a restart -->
+        <!-- property name="disable-agent" value="true"/ -->
+        <!-- defines the interval in seconds for the agent to poll for new configuration from the controller. needs a restart -->
+        <!-- property name="config-poll-interval" value="60"/ -->
+        <!-- uncomment this to enable timing stats for agent and controller rest communication. does not need a restart -->
+        <!-- property name="rest-stats-tracking-enabled" value="true" /-->
+        <!-- set requency for printing rest stats, default value is 60. does not need a restart -->
+        <!-- property name="rest-stats-tracking-frequency-in-seconds" value="60" / -->
+    </configuration-properties>
+    <sensitive-data-filters>
+        <!--
+             This section specifies how the agent scrubs any sensitive information from the data it
+             discovered, whether that data comes from a system property, environment variable, jmx mbeans, or
+             anything else.
+
+             Each sensitive-data-filter element must have three attributes:
+
+                 - applies-to: A comma-separated list of where this filter applies.  Right now, there
+                               are three possible values here: "system-properties", "environment-variables",
+                               and "jmx-mbeans".
+                 - match-type: One of EQUALS, CONTAINS, STARTSWITH, ENDSWITH
+                 - match-pattern: The pattern to match against
+
+             Here are two examples:
+
+             <sensitive-data-filter applies-to="system-properties"
+                                    match-type="EQUALS"
+                                    match-pattern="super.secret.password"/>
+             <sensitive-data-filter applies-to="environment-variables,system-properties,jmx-mbeans"
+                                    match-type="STARTSWITH"
+                                    match-pattern="DB_"/>
+        -->
+
+        <sensitive-data-filter applies-to="environment-variables,system-properties"
+                               match-type="CONTAINS"
+                               match-pattern="password"/>
+
+        <sensitive-data-filter applies-to="environment-variables,system-properties"
+                               match-type="CONTAINS"
+                               match-pattern="key"/>
+        
+        <sensitive-data-filter applies-to="environment-variables,system-properties"
+                               match-type="CONTAINS"
+                               match-pattern="secret"/>
+
+    </sensitive-data-filters>
+    <agent-services>
+        <agent-service name="BCIEngine" enabled="true">
+            <optional-service-dependencies>Agent16Service</optional-service-dependencies>
+            <configuration-properties>
+                <!-- uncomment this and to enable timing stats for interceptors. does not need a restart -->
+                <!-- property name="interceptor-stats-tracking-enabled" value="true"/ -->
+                <!-- uncomment this to log where a specified interceptor is being called from periodically. does not need a restart -->
+                <!-- property name="interceptor-call-tracing" value="com.foo.AInterceptor/60,com.foo.BInterceptor/60"/-->
+                <!-- uncomment this to 'not register class file transformer for retransformation' in java 1.6. Needs a restart -->
+                <!-- property name="register-for-retransform" value="true" / -->
+            </configuration-properties>
+            <configuration>
+                <!--  the following packages are not processed by the BCI engine by default
+                1.java.* 2.sun.*  3.com.sun.* [except com.sun.jersey.*] 4.javax.* To add more packages to be excluded add a new custom-exclude tag.-->
+                <bci-processing-excludes>
+                    <override-system-exclude filter-type="equals" filter-value="foo"/>
+                    <custom-exclude filter-type="CONTAINS" filter-value="$JaxbAccessor"/>
+                    <custom-exclude filter-type="CONTAINS" filter-value="$$FastClassByCGLIB"/>
+                    <custom-exclude filter-type="STARTSWITH" filter-value="$Proxy"/>
+                    <custom-exclude filter-type="STARTSWITH" filter-value="org/mozilla/javascript/gen/"/>
+                </bci-processing-excludes>
+            </configuration>
+        </agent-service>
+        <agent-service name="SnapshotService" enabled="true">
+            <service-dependencies>BCIEngine</service-dependencies>
+            <configuration-properties>
+                <!-- uncomment this property to disable/enable the startup sampling for snapshots which will mean snapshots will be collected for all BTs for
+                the first 15 minutes of an application server start.-->
+                <!-- property name="enable-startup-snapshot-policy" value="true"/ -->
+                <!-- uncomment this and save the file to collect snapshots for all business transactions executed in this node. does not need a restart -->
+                <!-- property name="on-demand-snapshots" value="true"/ -->
+                <!-- uncomment this to use a samling rate for call graphs only for this node. The global configuration will be ignored if this is used. does not need a restart -->
+                <!-- property name="callgraph-granularity-in-ms" value="10"/ -->
+                <!-- uncomment this to show these packages in the call graph in addition to the ones configured in the UI. does not need a restart -->
+                <!-- property name="show-packages" value="com.foo.*,com.foo.bar.*"/ -->
+                <!-- uncomment this to show these packages in the call graph in addition to the ones configured in the UI. does not need a restart  -->
+                <!-- property name="dont-show-packages" value=value="com.foo.*,com.foo.bar.*"/ -->
+                <!-- uncomment this and add a comma separated list of 'classname/method name' that report a looped execution so that their executions are shown in the call graph.
+                                                                    this property needs a restart  -->
+                <!-- property name="loop-reporting-methods" value="com.foo.Bar1/loop,com.foo.Bar2/loop1"/ -->
+
+                <!-- uncomment to enable adaptive call sampling. Sampling frequency based on Average Response time for the business transaction in last 1 minute.
+                The following distribution is used. 10ms frequency for <= 10 seconds response time; 50 ms for 10 to 60 secs; 100 ms for 60 to 600 secs; 200ms for > 600 seconds -->
+                <!--property name="adaptive-callgraph-granularity" value="true" /-->
+            </configuration-properties>
+        </agent-service>
+        <agent-service name="TransactionMonitoringService" enabled="true">
+            <service-dependencies>BCIEngine,SnapshotService</service-dependencies>
+            <configuration-properties>
+                <!--uncomment this to disable transaction correlation -->
+                <!--property name="enable-transaction-correlation" value="false"/-->
+                <!-- enables us to have multiple config files. -->
+                <property name="config-file-path" value="transactions.xml"/>
+                <!--uncomment and edit this tag to disable exit call monitoring for a specific type. This would mean that average data for that specific call type will not
+                 be collected.i.e.Calls Per Min/Avg Response Time etc for exit calls. However on a snapshot you would continue to get the same information as before.
+                 Do this if you make a large number of exit calls per transaction to reduce instrumentation overhead and not affecting the richness of the diagnostic information.-->
+                <!-- property name="disable-exit-call-metrics-for" value="JDBC,HTTP,WEB_SERVICE,JMS,RMI"/ -->
+                <!-- uncomment and edit this tag to disable exit call correlation for various exit call types-->
+                <!-- property name="disable-exit-call-correlation-for" value="HTTP,JMS,RMI"/ -->
+                <!-- uncomment this property and edit it[default is 50] to increase/decrease the number of business transactions discovered once an agent is started.
+                this is done to prevent business transaction metric explosion as an unsuitable discovery scheme can potentially produce thousands of transactions. -->
+                <!-- property name="max-business-transactions" value="50"/ -->
+                <!-- edit the jdbc properties here to add support for unsupported JDBC driver classes. , requires a server re-start-->
+                <!-- property name="jdbc-statements" value=""/ -->
+                <!-- property name="jdbc-connections" value=""/ -->
+                <!-- property name="jdbc-prepared-statements" value=""/ -->
+                <!-- property name="jdbc-callable-statements" value=""/ -->
+                <!-- edit the tags below to add class names if servlet classes are not instrumented, and to enable transaction identification using servlet
+                filters-->
+                <!-- property name="servlet-classes" value=""/ -->
+                <!-- property name="enable-servlet-filter" value="true"/ -->
+                <!-- uncomment the following to enable transaction correlation for jms .receive() call, default value is false -->
+                <!-- property name="enable-jms-receive-correlation" value="true"/ -->
+
+                <!-- timeout value in seconds for global transactions initiated by appdynamics api. The endTransaction api
+                will be invoked after the specified timeout period. Default value is 15 seconds -->
+                <!--property name="api-transaction-timeout-in-seconds" value="15" /-->
+
+                <!-- timeout value in seconds for threads participating in a global transaction added by appdynamics api.
+                The removeCurrentThread api will be invoked after the specified timeout period. Default value is 10 seconds -->
+                <!--property name="api-thread-activity-timeout-in-seconds" value="10" /-->
+                <!-- Disable/enable automatic HTTP error code reporting for error codes between 400 - 505, default TRUE. -->
+                <!--property name="enable-default-http-error-code-reporter" value="true" /-->
+                <!-- enable / disable bt level cpu time monitoring -->
+                <!--property name="enable-bt-cpu-time-monitoring" value="false"/-->
+                <!-- specify the threshold for end to end message processing latency for distributed asynchronous systems , does not need a restart -->
+                <!-- property name="end-to-end-message-latency-threshold-millis" value=""/-->
+                <!-- add classname/method e.g. foo/bar where foo is class name and bar is methd name to mark the method demarcating the end
+                of an async distributed transaction , does not need a restart -->
+                <!-- property name="async-transaction-demarcator" value=""/-->
+                
+                <!-- 
+                Add comma-separated list of async environment names.  These will be used to enable async transaction detection
+                for supported environments.  Current supported async environments: mule,camel,jbossesb,tibco,scala
+                 -->
+                 <!--  property name="enable-async-correlation-for" value="mule,camel,jbossesb,tibco,scala"/ -->
+            </configuration-properties>
+            <configuration>
+                <!--
+                match-class
+                    type: inherits-from-class, implements-interface, matches-class, has-class-annotation
+                    name:
+                        filter-type: STARTSWITH, EQUALS, ENDSWITH, CONTAINS
+                name-config
+                    type:
+                        0:none,             1:param,        2:instance,     3:classname,
+                        4:simple classname  5:thread id     6:thread name
+                    operation:
+                        param:      <paramIndex>.getter-chain   eg. 0.getName().toString()
+                        instance:   getter-chain                eg. getName().toString()
+                -->
+                <fork-config>
+                    <!-- exclude java and org -->
+                    <excludes filter-type="STARTSWITH" filter-value="java/,javax/,com.sun/,sun/,org/,com/mysql"/>
+                    <!-- exclude weblogic and websphere -->
+                    <excludes filter-type="STARTSWITH" filter-value="com.bea/,com.weblogic/,weblogic/,com.ibm/,net/sf/,com/mchange"/>
+
+                    <excludes filter-type="CONTAINS" filter-value="closure"/>
+                    <excludes filter-type="CONTAINS" filter-value="Closure"/>
+
+                    <excludes filter-type="STARTSWITH" filter-value="com.singularity"/>
+
+                    <include filter-type="EQUALS" filter-value="com.tibco.pe.core.JobPager$PageOperation"/>
+                    <excludes filter-type="EQUALS" filter-value="com.tibco.pe.core.JobDispatcher$JobCourier"/>
+                    <include filter-type="EQUALS" filter-value="com.tibco.plugin.share.http.client.JakartaHttpTransportDriver$RequestExecutor"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.googlecode/"/>
+
+                    <exclude filter-type="STARTSWITH" filter-value="groovy.lang"/>
+                    <exclude filter-type="STARTSWITH" filter-value="groovy.util"/>
+
+
+
+                    <!--
+                    <excludes filter-type="STARTSWITH|CONTAINS|ENDSWITH|EQUALS" filter-value="comma seperated list of excludes"/>
+                    <exclude filter-type="STARTSWITH|CONTAINS|ENDSWITH|EQUALS" filter-value="name of exclude"/>
+                    <include filter-type="STARTSWITH|CONTAINS|ENDSWITH|EQUALS" filter-value="name you want to include - overriding the exclude"/>
+                    -->
+
+                    <job>
+                        <match-class type="inherits-from-class"><name filter-type="EQUALS" filter-value="java.lang.Thread"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="run"/></match-method>
+                        <name-config operation="" type="4"/>
+                    </job>
+                    <job>
+                        <match-class type="implements-interface"><name filter-type="EQUALS" filter-value="java.lang.Runnable"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="run"/></match-method>
+                        <name-config operation="" type="4"/>
+                    </job>
+                    <job>
+                        <match-class type="implements-interface"><name filter-type="EQUALS" filter-value="java.util.concurrent.Callable"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="call"/></match-method>
+                        <name-config operation="" type="4"/>
+                    </job>
+                </fork-config>
+            </configuration>
+        </agent-service>
+        <agent-service name="JMXService" enabled="true">
+            <configuration-properties>
+                <property name="jmx-gc-minorCollectionBean" value=""/>
+                <property name="jmx-gc-majorCollectionBean" value=""/>
+                <property name="jmx-server-metrics-update-interval-in-seconds" value="60"/>
+            </configuration-properties>
+            <configuration>
+
+                <!--
+
+                Use the below configuration sample to create rules to exclude MBean attributes from MBean Browser.
+                <exclude object-name=<MBean name pattern> attributes=< * |comma separated list of attribute names> >
+
+                The example below will exclude all attributes of MBeans that match "Catalina:*".
+
+                <jmx-metric-browser-excludes>
+                    <exclude object-name="Catalina:*" attributes="*"/>
+                </jmx-metric-browser-excludes>
+
+                -->
+
+                <!--
+                  Add names of mbeans and attributes that are to be treated as continuosly increasing counters
+                -->
+                <jmx-forever-increasing-counters>
+                    <mbean object-name="Catalina:type=GlobalRequestProcessor,*" attributes="requestCount"/>
+                </jmx-forever-increasing-counters>
+
+            </configuration>
+        </agent-service>
+        <agent-service name="ObjectMonitoringService" enabled="true">
+            <service-dependencies>BCIEngine</service-dependencies>
+            <configuration-properties>
+                <!-- Enable / Disable custom memory structure monitoring-->
+                <property name="enable-object-size-monitoring" value="false"/>
+                <!-- Enable / Disable object instance tracking feature -->
+                <property name="enable-instance-monitoring" value="false"/>
+                <!-- Enable / Disable automatic leak detection feature -->
+                <property name="enable-collection-monitoring" value="false" />
+                <!-- minimum period a collection needs to survive before it's sized for tracking -->
+                <property name="minimum-age-for-evaluation-in-minutes" value="30"/>
+                <!-- minimum period a collection needs to survive before it's sized for tracking -->
+                <property name="collection-capture-period-in-minutes" value="30"/>
+                <!-- minimum deep-size for captured collections to qualify as candidate for tracking -->
+                <property name="minimum-size-for-evaluation-in-mb" value="5"/>
+                <!-- removes collection capture instrumentation immediately -->
+                <property name="disable-collection-capture" value="false" />
+            </configuration-properties>
+            <!--
+            <configuration>
+                <collection-tracking>
+                    <map-class-names filter-type="inlist" filter-value="java.util.IdentityHashMap"/>
+                    <collection-class-names filter-type="inlist" filter-value="java.util.TreeSet"/>
+                </collection-tracking>
+            </configuration>
+            -->
+        </agent-service>
+        <agent-service name="AgentDiagnosticsService" enabled="true">
+            <service-dependencies>BCIEngine</service-dependencies>
+            <configuration-properties>
+                <!-- set this to true to enable thread dump on the app server VM. does not need a restart  -->
+                <property name="enable-thread-dump" value="false"/>
+                <!-- Set the thread dump interval in seconds, default value is 300 -->
+                <property name="thread-dump-interval" value="300"/>
+                <!-- Dump all threads in the system, default value is true. If set to false will dump only appdynamics threads-->
+                <property name="dump-all-threads" value="true"/>
+                <!-- Thread dump logger output, can be set to 'log4j' or 'file' logger. If file, the output is written to thread-dump.log,
+                default is log4j, log4j file name can be changed through log4j.xml change -->
+                <property name="thread-dump-logger" value="log4j"/>
+                <!-- Enables shutdown hook for JVM, default is false, uncomment to enable it. The shutdown log file is written
+                to logs/jvm-shutdown.log file with Current JVM memory status and dump for all threads.
+                Note : For details on when JVM shutdown hook is invoked please refer javadocs of java.lang.Runtime.addShutdownHook(..) -->
+                <property name="enable-shutdown-hook" value="false"/>
+            </configuration-properties>
+        </agent-service>
+        <agent-service name="Agent16Service" enabled="true" minimum-java-version="1.6">
+            <configuration-properties>
+            </configuration-properties>
+        </agent-service>
+        <!-- Make sure this is the last service all the time in the config file -->
+        <agent-service name="AgentProxyService" enabled="false">
+            <service-dependencies>TransactionMonitoringService</service-dependencies>
+            <configuration-properties>
+                <property name="first-port" value="5555"/>
+            </configuration-properties>
+        </agent-service>
+        <!-- PLEASE ADD SERVICES BEFORE AgentProxyService -->
+    </agent-services>
+</app-agent-configuration>
