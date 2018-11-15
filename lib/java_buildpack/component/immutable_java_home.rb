@@ -57,6 +57,13 @@ module JavaBuildpack
         @delegate.java_9_or_later?
       end
 
+      # Whether or not the version of Java is 10 or later
+      #
+      # @return [Boolean] +true+ iff the version is 10.0.0 or later
+      def java_10_or_later?
+        @delegate.java_10_or_later?
+      end
+
       # @return [Pathname] the root of the droplet's +JAVA_HOME+
       def root
         @delegate.root
