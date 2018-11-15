@@ -19,6 +19,7 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/component/mutable_java_home'
 require 'java_buildpack/jre/open_jdk_like_jre'
+require 'java_buildpack/util/tokenized_version'
 require 'resolv'
 
 describe JavaBuildpack::Jre::OpenJDKLikeJre do
@@ -72,6 +73,24 @@ describe JavaBuildpack::Jre::OpenJDKLikeJre do
 
     expect(networking.networkaddress_cache_ttl).to eq 0
     expect(networking.networkaddress_cache_negative_ttl).to eq 0
+  end
+
+  it 'sets active processor count before Java 10',
+     cache_fixture: 'stub-java.tar.gz' do
+
+    java_home.version = JavaBuildpack::Util::TokenizedVersion.new('1.8.0_162')
+
+    component.release
+
+    expect(java_opts).to include('-XX:ActiveProcessorCount=$(nproc)')
+  end
+
+  it 'does not set active processor count from Java 10 and later',
+     cache_fixture: 'stub-java.tar.gz' do
+
+    java_home.version = JavaBuildpack::Util::TokenizedVersion.new('10.0.1_10')
+
+    expect(java_opts).not_to include('-XX:ActiveProcessorCount=$(nproc)')
   end
 
 end
