@@ -36,6 +36,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.java_opts.add_agentpath_with_props(agent_path, name: agent_name, server: server)
+        @droplet.java_opts.add_preformatted_options('-Xshare:off')
       end
 
       protected

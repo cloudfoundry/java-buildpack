@@ -50,10 +50,11 @@ describe JavaBuildpack::Framework::DynatraceAppmonAgent do
       expect(sandbox + 'agent/lib64/libdtagent.so').to exist
     end
 
-    it 'updates JAVA_OPTS' do
+    it 'updates JAVA_OPTS and share set to off' do
       component.release
       expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dynatrace_appmon_agent/agent/lib64/'\
         'libdtagent.so=name=test-application-name_Monitoring,server=test-host-name')
+      expect(java_opts).to include('-Xshare:off')
     end
 
     context do
