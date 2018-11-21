@@ -65,6 +65,7 @@ module JavaBuildpack
         manifest = agent_manifest
 
         @droplet.java_opts.add_agentpath(agent_path(manifest))
+        @droplet.java_opts.add_preformatted_options('-Xshare:off')
 
         dynatrace_environment_variables(manifest)
       end
