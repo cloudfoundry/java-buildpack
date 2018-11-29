@@ -68,6 +68,7 @@ module JavaBuildpack
           Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
             FileUtils.cp_r"#{appd_extension_directory}/.", target_directory,  :noop => true, :verbose => true
           end
+        end
       end
 
 
