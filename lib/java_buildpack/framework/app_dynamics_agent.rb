@@ -29,6 +29,8 @@ module JavaBuildpack
       def compile
         download_zip(false, @droplet.sandbox, 'AppDynamics Agent')
         @droplet.copy_resources
+        copy_advanced_configuration
+
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -59,6 +61,20 @@ module JavaBuildpack
       FILTER = /app[-]?dynamics/
 
       private_constant :FILTER
+
+      def copy_advanced_configuration
+        appd_extension_directory = @droplet.root + '.appdynamics'
+        target_directory = Dir.glob(@droplet.sandbox + 'ver*')
+
+        if appd_extension_directory.exist?
+          FileUtils.cp_r("#{appd_extension_directory}/.", target_directory)
+          @logger.debug { "Copied #{appd_extension_directory} " }
+        else
+          @logger.debug { "Did not find #{appd_extension_directory}" }
+        end
+      end
+
+
 
       def application_name(java_opts, credentials)
         name = credentials['application-name'] || @configuration['default_application_name'] ||
