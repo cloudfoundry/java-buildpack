@@ -68,10 +68,6 @@ module JavaBuildpack
           Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
             FileUtils.cp_r"#{appd_extension_directory}/.", target_directory,  :noop => true, :verbose => true
           end
-          @logger.debug { "Copied #{appd_extension_directory} " }
-        else
-          @logger.debug { "Did not find #{appd_extension_directory}" }
-        end
       end
 
 
