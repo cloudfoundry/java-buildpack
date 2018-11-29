@@ -64,10 +64,10 @@ module JavaBuildpack
 
       def copy_advanced_configuration
         appd_extension_directory = @droplet.root + '.appdynamics'
-        target_directory = Dir.glob(@droplet.sandbox + 'ver*')
-
         if appd_extension_directory.exist?
-          FileUtils.cp_r("#{appd_extension_directory}/.", target_directory)
+          Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
+            FileUtils.cp_r"#{appd_extension_directory}/.", target_directory,  :noop => true, :verbose => true
+          end
           @logger.debug { "Copied #{appd_extension_directory} " }
         else
           @logger.debug { "Did not find #{appd_extension_directory}" }
