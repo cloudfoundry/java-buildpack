@@ -29,8 +29,6 @@ module JavaBuildpack
       def compile
         download_zip(false, @droplet.sandbox, 'AppDynamics Agent')
         @droplet.copy_resources
-        copy_advanced_configuration
-
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -47,6 +45,7 @@ module JavaBuildpack
         host_name java_opts, credentials
         port java_opts, credentials
         ssl_enabled java_opts, credentials
+        copy_advanced_configuration
       end
 
       protected
