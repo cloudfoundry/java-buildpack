@@ -65,7 +65,7 @@ module JavaBuildpack
         appd_extension_directory = @droplet.root + '.appdynamics'
         if appd_extension_directory.exist?
           Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
-            FileUtils.cp_r"#{appd_extension_directory}", target_directory + '/' + 'conf/',  :noop => true, :verbose => true
+            FileUtils.cp_r"#{appd_extension_directory}/", target_directory, :verbose => true
           end
         end
       end
