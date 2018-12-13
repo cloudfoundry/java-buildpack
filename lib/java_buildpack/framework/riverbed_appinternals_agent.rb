@@ -24,6 +24,16 @@ module JavaBuildpack
     # Encapsulates the functionality for running the Riverbed Appinternals Agent support.
     class RiverbedAppinternalsAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        super(context)
+        # use version specified in tag otherwise use default
+        @version = (version if supports?) || @version
+        @uri = download_url(@version)
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_zip(false, @droplet.sandbox, @component_name)
@@ -59,6 +69,8 @@ module JavaBuildpack
 
       FILTER = /appinternals/
 
+      DOWNLOAD_BASE_URL = 'https://pcf-instrumentation-download.steelcentral.net/'
+
       private_constant :FILTER
 
       def agent_path
@@ -84,6 +96,24 @@ module JavaBuildpack
       def rvbd_moniker(credentials)
         credentials['rvbd_moniker'] || @configuration['rvbd_moniker']
       end
+
+      def version
+        service = @application.services.find_service(FILTER)
+        if !service || !service['credentials'] || !service['credentials']['SB_version']
+          nil
+        else
+          JavaBuildpack::Util::TokenizedVersion.new(service['credentials']['SB_version'])
+        end
+      end
+
+      def download_url(version)
+        if version.nil?
+          nil
+        else
+          DOWNLOAD_BASE_URL + 'riverbed-appinternals-agent-' + version.to_s + '.zip'
+        end
+      end
+
     end
   end
 end
