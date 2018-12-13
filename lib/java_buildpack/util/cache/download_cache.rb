@@ -66,14 +66,11 @@ module JavaBuildpack
         #                           already in the cache
         # @return [Void]
         def get(uri, &block)
-          cached_file             = nil
-          downloaded              = nil
-
-          cached_file, downloaded = from_mutable_cache uri if InternetAvailability.instance.available?
+          cached_file = from_immutable_caches(uri)
+          downloaded  = false
 
           unless cached_file
-            cached_file = from_immutable_caches(uri)
-            downloaded  = false
+            cached_file, downloaded = from_mutable_cache uri if InternetAvailability.instance.available?
           end
 
           raise "Unable to find cached file for #{uri.sanitize_uri}" unless cached_file
