@@ -104,6 +104,10 @@ class_count: 500
 
 A percentage of the total memory allocated to the container to be left as headroom and excluded from the memory calculation.
 
+```yaml
+headroom: 10
+```
+
 #### Stack Threads
 
 The amount of memory that should be allocated to stacks is given as an amount of memory per
