@@ -20,7 +20,6 @@ require 'pathname'
 require 'java_buildpack/component/base_component'
 require 'java_buildpack/framework'
 require 'java_buildpack/logging/logger_factory'
-require 'java_buildpack/util/qualify_path'
 require 'yaml'
 
 module JavaBuildpack
@@ -123,9 +122,14 @@ module JavaBuildpack
         return unless bin_directory.exist?
 
         @droplet.environment_variables
-                .add_environment_variable('PATH', "$PATH:#{qualify_path(bin_directory, @droplet.root)}")
+                .add_environment_variable('PATH', "$PATH:#{qualify_dep(bin_directory)}")
 
         '$PATH'
+      end
+
+      def qualify_dep(dep_dir)
+        ret = dep_dir.to_s.gsub(%r{.+(/deps/[0-9]+/\w+)$}, '\1')
+        "$PWD/..#{ret}"
       end
 
       def add_bootclasspath_ps(java_opts)
@@ -199,7 +203,7 @@ module JavaBuildpack
 
         @droplet.environment_variables
                 .add_environment_variable('LD_LIBRARY_PATH',
-                                          "$LD_LIBRARY_PATH:#{qualify_path(lib_directory, @droplet.root)}")
+                                          "$LD_LIBRARY_PATH:#{qualify_dep(lib_directory)}")
 
         '$LD_LIBRARY_PATH'
       end
@@ -275,11 +279,10 @@ module JavaBuildpack
       end
 
       def dep_directories
-        deps = Pathname.glob('/tmp/*/deps').first
+        deps = Pathname.glob('/tmp/*/deps').map(&:children).flatten
         return [] unless deps
 
         deps
-          .children
           .select { |dep_directory| config_file(dep_directory).exist? }
           .sort_by(&:basename)
       end

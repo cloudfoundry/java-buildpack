@@ -1,0 +1,41 @@
+---
+name: test-buildpack-2-2
+config:
+  additional_libraries:
+  - /multi-test-additional-library-1
+  - /multi-test-additional-library-2
+  environment_variables:
+    multi-test-key-1: multi-test-value-1
+    multi-test-key-2: multi-test-value-2
+  extension_directories:
+  - /multi-test-extension-directory-1
+  - /multi-test-extension-directory-2
+  java_opts:
+    agentpaths:
+    - /multi-test-agent-1
+    - /multi-test-agent-2
+    agentpaths_with_props:
+      /multi-test-agent-1:
+        test-key-1: test-value-1
+        test-key-2: test-value-2
+      /multi-test-agent-2:
+        test-key-1: test-value-1
+        test-key-2: test-value-2
+    bootclasspath_ps:
+    - /multi-test-bootclasspath-p-1
+    - /multi-test-bootclasspath-p-2
+    javaagents:
+    - /multi-test-java-agent-1
+    - /multi-test-java-agent-2
+    preformatted_options:
+    - multi-test-preformatted-option-1
+    - multi-test-preformatted-option-2
+    options:
+      multi-test-key-1: multi-test-value-1
+      multi-test-key-2: multi-test-value-2
+    system_properties:
+      multi-test-key-1: multi-test-value-1
+      multi-test-key-2: multi-test-value-2
+  security_providers:
+  - multi-test-security-provider-1
+  - multi-test-security-provider-2
