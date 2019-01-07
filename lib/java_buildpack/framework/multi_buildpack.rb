@@ -128,7 +128,7 @@ module JavaBuildpack
       end
 
       def qualify_dep(dep_dir)
-        ret = dep_dir.to_s.gsub(/.+(\/deps\/[0-9]+\/\w+)$/, '\1')
+        ret = dep_dir.to_s.gsub(%r{.+(/deps/[0-9]+/\w+)$}, '\1')
         "$PWD/..#{ret}"
       end
 
@@ -279,13 +279,12 @@ module JavaBuildpack
       end
 
       def dep_directories
-        deps = Pathname.glob('/tmp/*/deps').map{|d| d.children}.flatten
+        deps = Pathname.glob('/tmp/*/deps').map(&:children).flatten
         return [] unless deps
 
         deps
           .select { |dep_directory| config_file(dep_directory).exist? }
           .sort_by(&:basename)
-
       end
 
       def log_configuration(config)

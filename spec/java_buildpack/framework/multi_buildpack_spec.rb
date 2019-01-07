@@ -23,18 +23,18 @@ require 'java_buildpack/framework/multi_buildpack'
 describe JavaBuildpack::Framework::MultiBuildpack do
   include_context 'with component help'
 
-  let(:dep_dirs) {
-    tdirpath = Dir.mktmpdir
-    ret = Array.new
-    [1,2,3].each do |n|
+  let(:dep_dirs) do
+    Dir.mktmpdir
+    ret = []
+    [1, 2, 3].each do |_|
       ret.push dep_dir
     end
     ret
-  }
+  end
 
-  def dep_dir()
-    ddirpath = Dir.mktmpdir+'/deps'
-    Dir.mkdir(ddirpath, 0755)
+  def dep_dir
+    ddirpath = Dir.mktmpdir + '/deps'
+    Dir.mkdir(ddirpath, 0o0755)
     Pathname.new ddirpath
   end
 
@@ -42,15 +42,12 @@ describe JavaBuildpack::Framework::MultiBuildpack do
     app_fixture = example.metadata[:app_fixture]
     if app_fixture
       (0..2).each do |i|
-        if dep_dirs[i]
-          FileUtils.cp_r "spec/fixtures/#{app_fixture.chomp}/#{i}/.", dep_dirs[i]
-        end
+        FileUtils.cp_r "spec/fixtures/#{app_fixture.chomp}/#{i}/.", dep_dirs[i] if dep_dirs[i]
       end
     end
 
     allow(Pathname).to receive(:glob).with('/tmp/*/deps').and_return(dep_dirs)
   end
-
 
   it 'does not detect without deps' do
     expect(component.detect).to be_nil
@@ -60,9 +57,9 @@ describe JavaBuildpack::Framework::MultiBuildpack do
      app_fixture: 'framework_multi_buildpack_deps' do
 
     expect(component.detect).to include('test-buildpack-0-0',
-                                                                'test-buildpack-0-2', 'test-buildpack-1-0',
-                                                                'test-buildpack-1-2', 'test-buildpack-2-0',
-                                                                'test-buildpack-2-2')
+                                        'test-buildpack-0-2', 'test-buildpack-1-0',
+                                        'test-buildpack-1-2', 'test-buildpack-2-0',
+                                        'test-buildpack-2-2')
   end
 
   it 'adds bin/ directory to $PATH during compile if it exists',
