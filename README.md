@@ -36,7 +36,7 @@ $ cf set-env my-application JBP_CONFIG_REPOSITORY '{ default_repository_root: "h
 If the key or value contains an environment variable that you want to bind at runtime you need to escape it from your shell. For example, to add command line arguments containing an environment variable to a [Java Main](docs/container-java_main.md) application.
 
 ```bash
-$ cf set-env my-application JBP_CONFIG_JAVA_MAIN '{ arguments: "-server.port=\$PORT -foo=bar" }'
+$ cf set-env my-application JBP_CONFIG_JAVA_MAIN '{ arguments: "--server.port=9090 --foo=bar" }'
 ```
 
 An example of configuration is to specify a `javaagent` that is packaged within an application.
