@@ -94,8 +94,8 @@ module JavaBuildpack
       command = commands.flatten.compact.join(' && ')
 
       payload = {
-        'addons'                => [],
-        'config_vars'           => {},
+        'addons' => [],
+        'config_vars' => {},
         'default_process_types' => { 'web' => command, 'task' => command }
       }.to_yaml
 
@@ -115,7 +115,7 @@ module JavaBuildpack
     private_constant :BUILDPACK_MESSAGE, :LOAD_ROOT
 
     def initialize(app_dir, application)
-      @logger            = Logging::LoggerFactory.instance.get_logger Buildpack
+      @logger = Logging::LoggerFactory.instance.get_logger Buildpack
       @buildpack_version = BuildpackVersion.new
 
       log_arguments
@@ -125,19 +125,19 @@ module JavaBuildpack
 
       @java_opts = Component::JavaOpts.new(app_dir)
 
-      mutable_java_home   = Component::MutableJavaHome.new
+      mutable_java_home = Component::MutableJavaHome.new
       immutable_java_home = Component::ImmutableJavaHome.new mutable_java_home, app_dir
 
       component_info = {
-        'additional_libraries'  => Component::AdditionalLibraries.new(app_dir),
-        'app_dir'               => app_dir,
-        'application'           => application,
-        'env_vars'              => Component::EnvironmentVariables.new(app_dir),
+        'additional_libraries' => Component::AdditionalLibraries.new(app_dir),
+        'app_dir' => app_dir,
+        'application' => application,
+        'env_vars' => Component::EnvironmentVariables.new(app_dir),
         'extension_directories' => Component::ExtensionDirectories.new(app_dir),
-        'java_opts'             => @java_opts,
-        'networking'            => Component::Networking.new,
-        'root_libraries'        => Component::RootLibraries.new(app_dir),
-        'security_providers'    => Component::SecurityProviders.new
+        'java_opts' => @java_opts,
+        'networking' => Component::Networking.new,
+        'root_libraries' => Component::RootLibraries.new(app_dir),
+        'security_providers' => Component::SecurityProviders.new
       }
 
       instantiate_components(mutable_java_home, immutable_java_home, component_info)
@@ -146,7 +146,7 @@ module JavaBuildpack
     def instantiate_components(mutable_java_home, immutable_java_home, component_info)
       components = JavaBuildpack::Util::ConfigurationUtils.load 'components'
 
-      @jres       = instantiate(components['jres'], mutable_java_home, component_info)
+      @jres = instantiate(components['jres'], mutable_java_home, component_info)
       @frameworks = instantiate(components['frameworks'], immutable_java_home, component_info)
       @containers = instantiate(components['containers'], immutable_java_home, component_info)
     end
@@ -158,7 +158,7 @@ module JavaBuildpack
 
     def detection(type, components, unique)
       detected = []
-      tags     = []
+      tags = []
 
       components.each do |component|
         result = component.detect
@@ -183,13 +183,13 @@ module JavaBuildpack
         component_id = component.split('::').last.snake_case
 
         context = {
-          application:   component_info['application'],
+          application: component_info['application'],
           configuration: Util::ConfigurationUtils.load(component_id),
-          droplet:       Component::Droplet.new(component_info['additional_libraries'], component_id,
-                                                component_info['env_vars'], component_info['extension_directories'],
-                                                java_home, component_info['java_opts'], component_info['networking'],
-                                                component_info['app_dir'], component_info['root_libraries'],
-                                                component_info['security_providers'])
+          droplet: Component::Droplet.new(component_info['additional_libraries'], component_id,
+                                          component_info['env_vars'], component_info['extension_directories'],
+                                          java_home, component_info['java_opts'], component_info['networking'],
+                                          component_info['app_dir'], component_info['root_libraries'],
+                                          component_info['security_providers'])
         }
         component.constantize.new(context)
       end

@@ -92,7 +92,7 @@ module JavaBuildpack
 
       ENVIRONMENTID = 'environmentid'
 
-      FILTER = /dynatrace/
+      FILTER = /dynatrace/.freeze
 
       SKIP_ERRORS = 'skiperrors'
 

@@ -74,7 +74,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /protectapp/
+      FILTER = /protectapp/.freeze
 
       private_constant :FILTER
 

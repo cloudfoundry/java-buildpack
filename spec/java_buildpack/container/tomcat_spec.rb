@@ -35,11 +35,11 @@ describe JavaBuildpack::Container::Tomcat do
   let(:configuration) do
     { 'access_logging_support' => access_logging_support_configuration,
       'external_configuration' => tomcat_external_configuration,
-      'geode_store'            => geode_store_configuration,
-      'lifecycle_support'      => lifecycle_support_configuration,
-      'logging_support'        => logging_support_configuration,
-      'redis_store'            => redis_store_configuration,
-      'tomcat'                 => tomcat_configuration }
+      'geode_store' => geode_store_configuration,
+      'lifecycle_support' => lifecycle_support_configuration,
+      'logging_support' => logging_support_configuration,
+      'redis_store' => redis_store_configuration,
+      'tomcat' => tomcat_configuration }
   end
 
   let(:access_logging_support_configuration) { instance_double('logging-support-configuration') }
@@ -119,7 +119,7 @@ class StubTomcat < JavaBuildpack::Container::Tomcat
 end
 
 def sub_configuration_context(configuration)
-  c                 = context.clone
+  c = context.clone
   c[:configuration] = configuration
   c
 end

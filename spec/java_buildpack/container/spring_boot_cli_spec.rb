@@ -83,7 +83,7 @@ describe JavaBuildpack::Container::SpringBootCLI do
   end
 
   it 'extracts Spring Boot CLI from a ZIP',
-     app_fixture:   'container_spring_boot_cli_valid_app',
+     app_fixture: 'container_spring_boot_cli_valid_app',
      cache_fixture: 'stub-spring-boot-cli.tar.gz' do
 
     component.compile

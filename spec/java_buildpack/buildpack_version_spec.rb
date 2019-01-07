@@ -35,8 +35,8 @@ describe JavaBuildpack::BuildpackVersion do
   end
 
   it 'creates offline version string from config/version.yml',
-     log_level:     'DEBUG',
-     configuration: { 'hash'   => 'test-hash', 'offline' => true,
+     log_level: 'DEBUG',
+     configuration: { 'hash' => 'test-hash', 'offline' => true,
                       'remote' => 'test-remote', 'version' => 'test-version' } do
 
     expect(buildpack_version.to_s).to match(/test-version (offline) | test-remote#test-hash/)
@@ -45,8 +45,8 @@ describe JavaBuildpack::BuildpackVersion do
   end
 
   it 'creates online version string from config/version.yml',
-     log_level:     'DEBUG',
-     configuration: { 'hash'   => 'test-hash', 'offline' => false,
+     log_level: 'DEBUG',
+     configuration: { 'hash' => 'test-hash', 'offline' => false,
                       'remote' => 'test-remote', 'version' => 'test-version' } do
 
     expect(buildpack_version.to_s).to match(/test-version | test-remote#test-hash/)
@@ -85,7 +85,7 @@ describe JavaBuildpack::BuildpackVersion do
   end
 
   it 'creates a has from the values',
-     configuration: { 'hash'   => 'test-hash', 'offline' => true,
+     configuration: { 'hash' => 'test-hash', 'offline' => true,
                       'remote' => 'test-remote', 'version' => 'test-version' } do |example|
 
     allow_any_instance_of(described_class).to receive(:system).with('which git > /dev/null').and_return(false)

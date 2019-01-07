@@ -81,7 +81,7 @@ describe JavaBuildpack::Container::Groovy do
   end
 
   it 'extracts Groovy from a ZIP',
-     app_fixture:   'container_groovy_main_method',
+     app_fixture: 'container_groovy_main_method',
      cache_fixture: 'stub-groovy.zip' do
 
     component.compile

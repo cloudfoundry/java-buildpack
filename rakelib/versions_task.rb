@@ -46,54 +46,54 @@ module Package
 
     private
 
-    ARCHITECTURE_PATTERN = /\{architecture\}/
+    ARCHITECTURE_PATTERN = /\{architecture\}/.freeze
 
-    DEFAULT_REPOSITORY_ROOT_PATTERN = /\{default.repository.root\}/
+    DEFAULT_REPOSITORY_ROOT_PATTERN = /\{default.repository.root\}/.freeze
 
     NAME_MAPPINGS = {
-      'access_logging_support'           => 'Tomcat Access Logging Support',
-      'agent'                            => 'Java Memory Assistant Agent',
-      'app_dynamics_agent'               => 'AppDynamics Agent',
+      'access_logging_support' => 'Tomcat Access Logging Support',
+      'agent' => 'Java Memory Assistant Agent',
+      'app_dynamics_agent' => 'AppDynamics Agent',
       'azure_application_insights_agent' => 'Azure Application Insights Agent',
-      'clean_up'                         => 'Java Memory Assistant Clean Up',
-      'client_certificate_mapper'        => 'Client Certificate Mapper',
-      'container_customizer'             => 'Spring Boot Container Customizer',
-      'container_security_provider'      => 'Container Security Provider',
-      'contrast_security_agent'          => 'Contrast Security Agent',
-      'dyadic_ekm_security_provider'     => 'Dyadic EKM Security Provider',
-      'dynatrace_appmon_agent'           => 'Dynatrace Appmon Agent',
-      'dynatrace_one_agent'              => 'Dynatrace OneAgent',
-      'geode_store'                      => 'Geode Tomcat Session Store',
-      'google_stackdriver_debugger'      => 'Google Stackdriver Debugger',
-      'google_stackdriver_profiler'      => 'Google Stackdriver Profiler',
-      'groovy'                           => 'Groovy',
-      'introscope_agent'                 => 'CA Introscope APM Framework',
-      'jacoco_agent'                     => 'JaCoCo Agent',
-      'jprofiler_profiler'               => 'JProfiler Profiler',
-      'jre'                              => 'OpenJDK JRE',
-      'jre-11'                           => 'OpenJDK JRE 11',
-      'jrebel_agent'                     => 'JRebel Agent',
-      'jvmkill_agent'                    => 'jvmkill Agent',
-      'lifecycle_support'                => 'Tomcat Lifecycle Support',
-      'logging_support'                  => 'Tomcat Logging Support',
-      'luna_security_provider'           => 'Gemalto Luna Security Provider',
-      'maria_db_jdbc'                    => 'MariaDB JDBC Driver',
-      'memory_calculator'                => 'Memory Calculator',
-      'metric_writer'                    => 'Metric Writer',
-      'new_relic_agent'                  => 'New Relic Agent',
-      'postgresql_jdbc'                  => 'PostgreSQL JDBC Driver',
-      'protect_app_security_provider'    => 'Gemalto ProtectApp Security Provider',
-      'redis_store'                      => 'Redis Session Store',
-      'riverbed_appinternals_agent'      => 'Riverbed Appinternals Agent',
-      'sky_walking_agent'                => 'SkyWalking',
-      'spring_auto_reconfiguration'      => 'Spring Auto-reconfiguration',
-      'spring_boot_cli'                  => 'Spring Boot CLI',
-      'takipi_agent'                     => 'Takipi Agent',
-      'tomcat'                           => 'Tomcat',
-      'your_kit_profiler'                => 'YourKit Profiler'
+      'clean_up' => 'Java Memory Assistant Clean Up',
+      'client_certificate_mapper' => 'Client Certificate Mapper',
+      'container_customizer' => 'Spring Boot Container Customizer',
+      'container_security_provider' => 'Container Security Provider',
+      'contrast_security_agent' => 'Contrast Security Agent',
+      'dyadic_ekm_security_provider' => 'Dyadic EKM Security Provider',
+      'dynatrace_appmon_agent' => 'Dynatrace Appmon Agent',
+      'dynatrace_one_agent' => 'Dynatrace OneAgent',
+      'geode_store' => 'Geode Tomcat Session Store',
+      'google_stackdriver_debugger' => 'Google Stackdriver Debugger',
+      'google_stackdriver_profiler' => 'Google Stackdriver Profiler',
+      'groovy' => 'Groovy',
+      'introscope_agent' => 'CA Introscope APM Framework',
+      'jacoco_agent' => 'JaCoCo Agent',
+      'jprofiler_profiler' => 'JProfiler Profiler',
+      'jre' => 'OpenJDK JRE',
+      'jre-11' => 'OpenJDK JRE 11',
+      'jrebel_agent' => 'JRebel Agent',
+      'jvmkill_agent' => 'jvmkill Agent',
+      'lifecycle_support' => 'Tomcat Lifecycle Support',
+      'logging_support' => 'Tomcat Logging Support',
+      'luna_security_provider' => 'Gemalto Luna Security Provider',
+      'maria_db_jdbc' => 'MariaDB JDBC Driver',
+      'memory_calculator' => 'Memory Calculator',
+      'metric_writer' => 'Metric Writer',
+      'new_relic_agent' => 'New Relic Agent',
+      'postgresql_jdbc' => 'PostgreSQL JDBC Driver',
+      'protect_app_security_provider' => 'Gemalto ProtectApp Security Provider',
+      'redis_store' => 'Redis Session Store',
+      'riverbed_appinternals_agent' => 'Riverbed Appinternals Agent',
+      'sky_walking_agent' => 'SkyWalking',
+      'spring_auto_reconfiguration' => 'Spring Auto-reconfiguration',
+      'spring_boot_cli' => 'Spring Boot CLI',
+      'takipi_agent' => 'Takipi Agent',
+      'tomcat' => 'Tomcat',
+      'your_kit_profiler' => 'YourKit Profiler'
     }.freeze
 
-    PLATFORM_PATTERN = /\{platform\}/
+    PLATFORM_PATTERN = /\{platform\}/.freeze
 
     private_constant :ARCHITECTURE_PATTERN, :DEFAULT_REPOSITORY_ROOT_PATTERN, :NAME_MAPPINGS,
                      :PLATFORM_PATTERN
@@ -101,10 +101,10 @@ module Package
     def augment(raw, key, pattern, candidates, &block)
       if raw.respond_to? :at
         raw.map(&block)
-      elsif raw[:uri] =~ pattern
+      elsif raw[:uri].match? pattern
         candidates.map do |candidate|
-          dup       = raw.clone
-          dup[key]  = candidate
+          dup = raw.clone
+          dup[key] = candidate
           dup[:uri] = raw[:uri].gsub pattern, candidate
 
           dup
@@ -153,7 +153,7 @@ module Package
       configurations = []
 
       if repository_configuration?(configuration)
-        configuration['component_id']     = component_id
+        configuration['component_id'] = component_id
         configuration['sub_component_id'] = sub_component_id if sub_component_id
 
         if component_id == 'open_jdk_jre' && sub_component_id == 'jre'
@@ -178,7 +178,7 @@ module Package
 
     def get_from_cache(cache, configuration, index_configuration)
       cache.get(index_configuration[:uri]) do |f|
-        index         = YAML.safe_load f
+        index = YAML.safe_load f
         found_version = version(configuration, index)
 
         if found_version.nil?
@@ -193,7 +193,7 @@ module Package
     def dependency_versions
       dependency_versions = []
 
-      cache          = JavaBuildpack::Util::Cache::DownloadCache.new
+      cache = JavaBuildpack::Util::Cache::DownloadCache.new
       configurations = component_ids.map { |component_id| component_configuration(component_id) }.flatten
 
       configurations.each do |configuration|
@@ -206,9 +206,9 @@ module Package
           raise "Unable to resolve name for '#{id}'" unless name
 
           dependency_versions << {
-            'id'      => id,
-            'name'    => name,
-            'uri'     => uri,
+            'id' => id,
+            'name' => name,
+            'uri' => uri,
             'version' => version
           }
         end
@@ -280,7 +280,7 @@ module Package
 
     def versions
       {
-        'buildpack'    => Package.version,
+        'buildpack' => Package.version,
         'dependencies' => dependency_versions
       }
     end

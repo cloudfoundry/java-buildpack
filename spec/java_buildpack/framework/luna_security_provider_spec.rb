@@ -39,19 +39,19 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
           },
           'servers' => [
             {
-              'name'        => 'test-server-1',
+              'name' => 'test-server-1',
               'certificate' => "-----BEGIN CERTIFICATE-----\ntest-server-1-cert\n-----END CERTIFICATE-----"
             }, {
-              'name'        => 'test-server-2',
+              'name' => 'test-server-2',
               'certificate' => "-----BEGIN CERTIFICATE-----\ntest-server-2-cert\n-----END CERTIFICATE-----"
             }
           ],
           'groups' => [
             {
-              'label'   => 'test-group-1',
+              'label' => 'test-group-1',
               'members' => %w[test-group-1-member-1 test-group-1-member-2]
             }, {
-              'label'   => 'test-group-2',
+              'label' => 'test-group-2',
               'members' => %w[test-group-2-member-1 test-group-2-member-2]
             }
           ]
@@ -129,8 +129,8 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
     context do
 
       let(:java_home_delegate) do
-        delegate         = JavaBuildpack::Component::MutableJavaHome.new
-        delegate.root    = app_dir + '.test-java-home'
+        delegate = JavaBuildpack::Component::MutableJavaHome.new
+        delegate.root = app_dir + '.test-java-home'
         delegate.version = JavaBuildpack::Util::TokenizedVersion.new('9.0.0')
 
         delegate
@@ -161,8 +161,8 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
     context do
       let(:configuration) do
         {
-          'logging_enabled'        => true,
-          'ha_logging_enabled'     => true,
+          'logging_enabled' => true,
+          'ha_logging_enabled' => true,
           'tcp_keep_alive_enabled' => false
         }
       end
@@ -181,8 +181,8 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
     context do
       let(:configuration) do
         {
-          'logging_enabled'        => true,
-          'ha_logging_enabled'     => true,
+          'logging_enabled' => true,
+          'ha_logging_enabled' => true,
           'tcp_keep_alive_enabled' => true
         }
       end

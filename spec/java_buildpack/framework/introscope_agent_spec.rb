@@ -277,7 +277,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
 
     context do
       let(:credentials) do
-        { 'agent_manager_url'        => 'https://test-host-name:8444',
+        { 'agent_manager_url' => 'https://test-host-name:8444',
           'agent_manager_credential' => 'test-credential-cccf-88-ae' }
       end
 
@@ -304,7 +304,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
 
     context do
       let(:credentials) do
-        { 'agent_manager_url'        => 'https://test-host-name:8444',
+        { 'agent_manager_url' => 'https://test-host-name:8444',
           'agent_manager_credential' => 'test-credential-cccf-88-ae',
           'agent_default_process_name' => 'TestProcess' }
       end

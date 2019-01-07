@@ -51,7 +51,7 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
   end
 
   it 'downloads additional libraries',
-     app_fixture:   'framework_auto_reconfiguration_servlet_3',
+     app_fixture: 'framework_auto_reconfiguration_servlet_3',
      cache_fixture: 'stub-auto-reconfiguration.jar' do
 
     component.compile
@@ -60,7 +60,7 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
   end
 
   it 'adds to additional libraries',
-     app_fixture:   'framework_auto_reconfiguration_servlet_3',
+     app_fixture: 'framework_auto_reconfiguration_servlet_3',
      cache_fixture: 'stub-auto-reconfiguration.jar' do
 
     component.release

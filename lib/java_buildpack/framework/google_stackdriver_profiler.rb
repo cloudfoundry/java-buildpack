@@ -39,9 +39,9 @@ module JavaBuildpack
 
         java_opts
           .add_agentpath_with_props(@droplet.sandbox + 'profiler_java_agent.so',
-                                    '--logtostderr'          => 1,
-                                    '-cprof_project_id'      => project_id,
-                                    '-cprof_service'         => application_name,
+                                    '--logtostderr' => 1,
+                                    '-cprof_project_id' => project_id,
+                                    '-cprof_service' => application_name,
                                     '-cprof_service_version' => application_version)
 
         @droplet.environment_variables.add_environment_variable 'GOOGLE_APPLICATION_CREDENTIALS', json_file
@@ -54,7 +54,7 @@ module JavaBuildpack
         @application.services.one_service? FILTER, PRIVATE_KEY_DATA
       end
 
-      FILTER = /google-stackdriver-profiler/
+      FILTER = /google-stackdriver-profiler/.freeze
 
       PRIVATE_KEY_DATA = 'PrivateKeyData'
 

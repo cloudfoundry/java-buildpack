@@ -49,7 +49,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /dynatrace/
+      FILTER = /dynatrace/.freeze
 
       private_constant :FILTER
 

@@ -47,7 +47,7 @@ module JavaBuildpack
         @application.services.one_service? FILTER, INSTRUMENTATION_KEY
       end
 
-      FILTER = /azure-application-insights/
+      FILTER = /azure-application-insights/.freeze
 
       INSTRUMENTATION_KEY = 'instrumentation_key'
 

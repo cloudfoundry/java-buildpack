@@ -34,7 +34,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         credentials = @application.services.find_service(FILTER, 'servers')['credentials']
-        java_opts   = @droplet.java_opts
+        java_opts = @droplet.java_opts
         java_opts.add_javaagent(@droplet.sandbox + 'skywalking-agent.jar')
 
         application_name java_opts, credentials
@@ -55,7 +55,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /sky[-]?walking/
+      FILTER = /sky[-]?walking/.freeze
 
       private_constant :FILTER
 

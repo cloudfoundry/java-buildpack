@@ -54,7 +54,7 @@ module JavaBuildpack
 
       ENDPOINT = 'endpoint'
 
-      FILTER = /metrics-forwarder/
+      FILTER = /metrics-forwarder/.freeze
 
       private_constant :ACCESS_KEY, :ENDPOINT, :FILTER
 

@@ -35,12 +35,12 @@ describe JavaBuildpack::Framework::DyadicEkmSecurityProvider do
 
       allow(services).to receive(:find_service).and_return(
         'credentials' => {
-          'ca'           => "-----BEGIN CERTIFICATE-----\ntest-client-cert\n-----END CERTIFICATE-----",
-          'key'          => "-----BEGIN RSA PRIVATE KEY-----\ntest-client-private-key\n-----END RSA PRIVATE KEY-----",
+          'ca' => "-----BEGIN CERTIFICATE-----\ntest-client-cert\n-----END CERTIFICATE-----",
+          'key' => "-----BEGIN RSA PRIVATE KEY-----\ntest-client-private-key\n-----END RSA PRIVATE KEY-----",
           'recv_timeout' => 1,
-          'retries'      => 2,
+          'retries' => 2,
           'send_timeout' => 3,
-          'servers'      => 'server-1,server-2'
+          'servers' => 'server-1,server-2'
         }
       )
     end
@@ -105,8 +105,8 @@ describe JavaBuildpack::Framework::DyadicEkmSecurityProvider do
     context do
 
       let(:java_home_delegate) do
-        delegate         = JavaBuildpack::Component::MutableJavaHome.new
-        delegate.root    = app_dir + '.test-java-home'
+        delegate = JavaBuildpack::Component::MutableJavaHome.new
+        delegate.root = app_dir + '.test-java-home'
         delegate.version = JavaBuildpack::Util::TokenizedVersion.new('9.0.0')
 
         delegate

@@ -88,7 +88,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantHeapDumpFolder do
                                                         [
                                                           {
                                                             'container_dir' => '/my_volume',
-                                                            'mode'          => 'rw'
+                                                            'mode' => 'rw'
                                                           }
                                                         ])
     end
@@ -118,13 +118,13 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantHeapDumpFolder do
                                                         [
                                                           {
                                                             'container_dir' => '/my_volume',
-                                                            'mode'          => 'r'
+                                                            'mode' => 'r'
                                                           }
                                                         ])
     end
 
     it 'fails if volume does not have write mode active', :enable_log_file, log_level: 'DEBUG' do
-      expect { component.release } .to raise_error 'Volume mounted under \'/my_volume\' not in write mode'
+      expect { component.release }.to raise_error 'Volume mounted under \'/my_volume\' not in write mode'
       expect(log_contents).not_to match(/Heap dumps will be stored under/)
     end
 

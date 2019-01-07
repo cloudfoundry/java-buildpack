@@ -98,7 +98,7 @@ module JavaBuildpack
       end
 
       def memory_calculator_tar
-        platform = `uname -s` =~ /Darwin/ ? 'darwin' : 'linux'
+        platform = `uname -s`.match?(/Darwin/) ? 'darwin' : 'linux'
         @droplet.sandbox + "bin/java-buildpack-memory-calculator-#{platform}"
       end
 

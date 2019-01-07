@@ -52,7 +52,7 @@ module JavaBuildpack
         @application.services.one_service? FILTER, PRIVATE_KEY_DATA
       end
 
-      FILTER = /google-stackdriver-debugger/
+      FILTER = /google-stackdriver-debugger/.freeze
 
       PRIVATE_KEY_DATA = 'PrivateKeyData'
 

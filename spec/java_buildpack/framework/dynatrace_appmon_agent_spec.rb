@@ -74,7 +74,7 @@ describe JavaBuildpack::Framework::DynatraceAppmonAgent do
       allow(services).to receive(:one_service?).with(/dynatrace/, 'server').and_return(true)
       allow(services).to receive(:one_service?).with(/dynatrace/, 'tenant').and_return(false)
       allow(services).to receive(:one_service?).with(/dynatrace/, 'tenanttoken').and_return(false)
-      allow(services).to receive(:find_service).and_return('credentials' => { 'server'  => 'test-host-name',
+      allow(services).to receive(:find_service).and_return('credentials' => { 'server' => 'test-host-name',
                                                                               'profile' => 'test-profile' })
     end
 

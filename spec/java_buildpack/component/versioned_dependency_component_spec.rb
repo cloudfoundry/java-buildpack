@@ -25,9 +25,9 @@ describe JavaBuildpack::Component::VersionedDependencyComponent do
   let(:component) { StubVersionedDependencyComponent.new context }
 
   it 'fails if methods are unimplemented' do
-    expect { component.compile }.to raise_error
-    expect { component.release }.to raise_error
-    expect { component.supports? }.to raise_error
+    expect { component.compile }.to raise_error RuntimeError
+    expect { component.release }.to raise_error RuntimeError
+    expect { component.supports? }.to raise_error RuntimeError
   end
 
   context do

@@ -99,7 +99,7 @@ describe JavaBuildpack::Util::SpringBootUtils do
   end
 
   it 'fails if there are no lib directories' do
-    expect { utils.lib(droplet) }.to raise_error
+    expect { utils.lib(droplet) }.to raise_error RuntimeError
   end
 
   it 'caches thin dependencies' do

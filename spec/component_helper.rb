@@ -40,10 +40,10 @@ shared_context 'with component help' do
   let(:configuration) { {} }
 
   let(:context) do
-    { application:    application,
+    { application: application,
       component_name: described_class.to_s.split('::').last.space_case,
-      configuration:  configuration,
-      droplet:        droplet }
+      configuration: configuration,
+      droplet: droplet }
   end
 
   let(:uri) { 'test-uri' }

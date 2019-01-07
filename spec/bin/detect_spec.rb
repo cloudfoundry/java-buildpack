@@ -38,7 +38,7 @@ describe 'detect script', :integration do # rubocop:disable RSpec/DescribeClass
   end
 
   it 'truncates long detect strings',
-     app_fixture:       'integration_valid',
+     app_fixture: 'integration_valid',
      buildpack_fixture: 'integration_long_detect_tag' do
 
     run("bin/detect #{app_dir}") do |status|

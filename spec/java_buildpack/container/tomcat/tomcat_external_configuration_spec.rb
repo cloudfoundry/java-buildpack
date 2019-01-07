@@ -30,7 +30,7 @@ describe JavaBuildpack::Container::TomcatExternalConfiguration do
   end
 
   it 'does guarantee that internet access is available when downloading',
-     app_fixture:   'container_tomcat',
+     app_fixture: 'container_tomcat',
      cache_fixture: 'stub-tomcat-external-configuration.tar.gz' do
 
     expect_any_instance_of(JavaBuildpack::Util::Cache::InternetAvailability)
@@ -40,7 +40,7 @@ describe JavaBuildpack::Container::TomcatExternalConfiguration do
   end
 
   it 'extracts Tomcat external configuration files from a GZipped TAR',
-     app_fixture:   'container_tomcat',
+     app_fixture: 'container_tomcat',
      cache_fixture: 'stub-tomcat-external-configuration.tar.gz' do
 
     component.compile

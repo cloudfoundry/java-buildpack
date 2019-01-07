@@ -45,9 +45,9 @@ describe JavaBuildpack::Framework::JavaMemoryAssistant do
   context do
 
     let(:configuration) do
-      { 'enabled'   => true,
-        'agent'     => agent_configuration,
-        'clean_up'  => clean_up_configuration }
+      { 'enabled' => true,
+        'agent' => agent_configuration,
+        'clean_up' => clean_up_configuration }
     end
 
     let(:agent_configuration) { instance_double('agent_configuration') }

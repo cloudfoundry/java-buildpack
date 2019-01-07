@@ -48,18 +48,18 @@ module Package
 
     private
 
-    ARCHITECTURE_PATTERN = /\{architecture\}/
+    ARCHITECTURE_PATTERN = /\{architecture\}/.freeze
 
-    DEFAULT_REPOSITORY_ROOT_PATTERN = /\{default.repository.root\}/
+    DEFAULT_REPOSITORY_ROOT_PATTERN = /\{default.repository.root\}/.freeze
 
-    PLATFORM_PATTERN = /\{platform\}/
+    PLATFORM_PATTERN = /\{platform\}/.freeze
 
     private_constant :ARCHITECTURE_PATTERN, :DEFAULT_REPOSITORY_ROOT_PATTERN, :PLATFORM_PATTERN
 
     def augment(raw, key, pattern, candidates, &block)
       if raw.respond_to? :at
         raw.map(&block)
-      elsif raw[:uri] =~ pattern
+      elsif raw[:uri].match? pattern
         candidates.map do |candidate|
           dup       = raw.clone
           dup[key]  = candidate

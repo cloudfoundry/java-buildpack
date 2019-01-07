@@ -55,10 +55,10 @@ describe JavaBuildpack::Framework::JacocoAgent do
     end
 
     it 'updates JAVA_OPTS with additional options' do
-      allow(services).to receive(:find_service).and_return('credentials' => { 'address'  => 'test-address',
+      allow(services).to receive(:find_service).and_return('credentials' => { 'address' => 'test-address',
                                                                               'excludes' => 'test-excludes',
                                                                               'includes' => 'test-includes',
-                                                                              'port'     => 6300 })
+                                                                              'port' => 6300 })
 
       component.release
 

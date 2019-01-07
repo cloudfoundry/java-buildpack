@@ -36,7 +36,7 @@ describe JavaBuildpack::Util::Cache::ApplicationCache do
       .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     stub_request(:head, 'http://foo-uri/')
-      .with(headers: { 'Accept'     => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag',
+      .with(headers: { 'Accept' => '*/*', 'If-Modified-Since' => 'foo-last-modified', 'If-None-Match' => 'foo-etag',
                        'User-Agent' => 'Ruby' })
       .to_return(status: 304, body: '', headers: {})
   end
@@ -46,7 +46,7 @@ describe JavaBuildpack::Util::Cache::ApplicationCache do
   end
 
   it 'raises an error if ARGV[1] is not defined' do
-    expect { described_class.new }.to raise_error
+    expect { described_class.new }.to raise_error RuntimeError
   end
 
   it 'uses ARGV[1] directory' do

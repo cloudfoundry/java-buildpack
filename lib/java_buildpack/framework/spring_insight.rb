@@ -74,7 +74,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /p-insight/
+      FILTER = /p-insight/.freeze
 
       private_constant :FILTER
 

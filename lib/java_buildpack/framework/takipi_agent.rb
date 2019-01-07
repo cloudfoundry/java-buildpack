@@ -60,7 +60,7 @@ module JavaBuildpack
 
       COLLECTOR_HOST = 'collector_host'
 
-      FILTER = /takipi/
+      FILTER = /takipi/.freeze
 
       SECRET_KEY = 'secret_key'
 

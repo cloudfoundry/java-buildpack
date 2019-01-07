@@ -62,7 +62,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /dyadic/
+      FILTER = /dyadic/.freeze
 
       private_constant :FILTER
 

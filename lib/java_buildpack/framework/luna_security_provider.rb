@@ -62,7 +62,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /luna/
+      FILTER = /luna/.freeze
 
       private_constant :FILTER
 

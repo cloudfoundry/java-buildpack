@@ -57,7 +57,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /appinternals/
+      FILTER = /appinternals/.freeze
 
       private_constant :FILTER
 

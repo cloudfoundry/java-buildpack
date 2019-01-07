@@ -41,9 +41,9 @@ describe JavaBuildpack::Component::BaseComponent do
   end
 
   it 'fails if methods are unimplemented' do
-    expect { component.detect }.to raise_error
-    expect { component.compile }.to raise_error
-    expect { component.release }.to raise_error
+    expect { component.detect }.to raise_error RuntimeError
+    expect { component.compile }.to raise_error RuntimeError
+    expect { component.release }.to raise_error RuntimeError
   end
 
   it 'downloads file and yield it',

@@ -25,7 +25,7 @@ describe JavaBuildpack::Component::ModularComponent do
   let(:component) { StubModularComponent.new context }
 
   it 'fails if supports? is unimplemented' do
-    expect { component.supports? }.to raise_error
+    expect { component.supports? }.to raise_error RuntimeError
   end
 
   context do
@@ -39,8 +39,8 @@ describe JavaBuildpack::Component::ModularComponent do
     end
 
     it 'fails if methods are unimplemented' do
-      expect { component.command }.to raise_error
-      expect { component.sub_components(context) }.to raise_error
+      expect { component.command }.to raise_error RuntimeError
+      expect { component.sub_components(context) }.to raise_error RuntimeError
     end
   end
 
