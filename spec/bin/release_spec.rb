@@ -21,7 +21,7 @@ require 'integration_helper'
 describe 'release script', :integration do # rubocop:disable RSpec/DescribeClass
   include_context 'with integration help'
 
-  it 'returns zero if success', :show_output, :debug,
+  it 'returns zero if success', :show_output,
      app_fixture: 'integration_valid' do
 
     run("bin/release #{app_dir}") { |status| expect(status).to be_success }
