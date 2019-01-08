@@ -39,8 +39,8 @@ describe JavaBuildpack::Component::ModularComponent do
     end
 
     it 'fails if methods are unimplemented' do
-      expect { component.command }.to raise_error NoMethodError
-      expect { component.sub_components(context) }.to raise_error NoMethodError
+      expect { component.command }.to raise_error RuntimeError
+      expect { component.sub_components(context) }.to raise_error RuntimeError
     end
   end
 
@@ -80,6 +80,16 @@ end
 
 class StubModularComponent < JavaBuildpack::Component::ModularComponent
 
-  public :command, :sub_components, :supports?
+  def command
+    super
+  end
+
+  def sub_components(_context)
+    super _context
+  end
+
+  def supports?
+    super
+  end
 
 end
