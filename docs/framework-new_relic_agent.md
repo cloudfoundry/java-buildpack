@@ -44,17 +44,18 @@ The framework can be configured by modifying the [`config/new_relic_agent.yml`][
 Custom New Relic instrumentation in the form of [Extension XML Files][] (or JARs) may be provided via a custom repository.
 
 Example in a manifest.yml
-```
+
+```yaml
 env:
-  JBP_CONFIG_NEW_RELIC_AGENT: "{ extensions: { repository_root: \"http://repository...\" } }"
+  JBP_CONFIG_NEW_RELIC_AGENT: '{ extensions: { repository_root: "http://repository..." } }'
 ```
 
 The artifacts that the repository provides must be in TAR format and must include the extension files in a directory, with a structure like:
 
 ```
 extensions
-|__my-extension.xml
-|__my-other-extension.jar
+|- my-extension.xml
+|- my-other-extension.jar
 |...
 ```
 

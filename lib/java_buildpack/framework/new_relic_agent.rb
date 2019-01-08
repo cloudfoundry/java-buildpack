@@ -28,7 +28,7 @@ module JavaBuildpack
         super(context, &version_validator)
 
         extensions_context = context.clone
-        extensions_context[:configuration] = context[:configuration]['extensions']
+        extensions_context[:configuration] = context[:configuration]['extensions'] || {}
         @extensions = NewRelicAgentExtensions.new(extensions_context)
       end
 
@@ -107,7 +107,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        !(@configuration&.dig('repository_root')&.strip || '').empty?
+        !(@configuration['repository_root'] || '').empty?
       end
     end
 
