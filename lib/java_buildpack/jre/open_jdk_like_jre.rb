@@ -62,17 +62,20 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet
-          .java_opts
-          .add_option('-XX:ActiveProcessorCount', '$(nproc)')
-          .add_system_property('java.io.tmpdir', '$TMPDIR')
+        @droplet.java_opts.add_system_property('java.io.tmpdir', '$TMPDIR')
+
+        return if @droplet.java_home.version < JAVA_8_191
+
+        @droplet.java_opts.add_option('-XX:ActiveProcessorCount', '$(nproc)')
       end
 
       private
 
+      JAVA_8_191 = JavaBuildpack::Util::TokenizedVersion.new('1.8.0_191').freeze
+
       LINK_LOCAL = IPAddr.new('169.254.0.0/16').freeze
 
-      private_constant :LINK_LOCAL
+      private_constant :JAVA_8_191, :LINK_LOCAL
 
       def disable_dns_caching
         puts '       JVM DNS caching disabled in lieu of BOSH DNS caching'

@@ -75,12 +75,43 @@ describe JavaBuildpack::Jre::OpenJDKLikeJre do
     expect(networking.networkaddress_cache_negative_ttl).to eq 0
   end
 
-  it 'sets active processor count',
+  it 'does not set active processor count before Java 1.8.0_191',
      cache_fixture: 'stub-java.tar.gz' do
 
+    component.detect
     component.release
 
-    expect(java_opts).to include('-XX:ActiveProcessorCount=$(nproc)')
+    expect(java_opts).not_to include('-XX:ActiveProcessorCount=$(nproc)')
+  end
+
+  context 'with Java 1.8.0_191' do
+
+    let(:version) { '1.8.0_191' }
+
+    it 'sets active processor count at Java 1.8.0_191',
+       cache_fixture: 'stub-java.tar.gz' do
+
+      component.detect
+      component.release
+
+      expect(java_opts).to include('-XX:ActiveProcessorCount=$(nproc)')
+    end
+
+  end
+
+  context 'with Java 11.0.0' do
+
+    let(:version) { '11.0.0' }
+
+    it 'sets active processor count after Java 1.8.0_191',
+       cache_fixture: 'stub-java.tar.gz' do
+
+      component.detect
+      component.release
+
+      expect(java_opts).to include('-XX:ActiveProcessorCount=$(nproc)')
+    end
+
   end
 
 end
