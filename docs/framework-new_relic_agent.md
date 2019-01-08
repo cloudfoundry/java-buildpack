@@ -36,6 +36,28 @@ The framework can be configured by modifying the [`config/new_relic_agent.yml`][
 | ---- | -----------
 | `repository_root` | The URL of the New Relic repository index ([details][repositories]).
 | `version` | The version of New Relic to use. Candidate versions can be found in [this listing][].
+| `extensions.repository_root` | The URL of the Extensions repository index ([details][repositories]).
+| `extensions.version` | The version of the Extensions to use. Candidate versions can be found in the the repository that you have created to house the Extensions.
+
+### Extensions
+
+Custom New Relic instrumentation in the form of [Extension XML Files][] (or JARs) may be provided via a custom repository.
+
+Example in a manifest.yml
+
+```yaml
+env:
+  JBP_CONFIG_NEW_RELIC_AGENT: '{ extensions: { repository_root: "http://repository..." } }'
+```
+
+The artifacts that the repository provides must be in TAR format and must include the extension files in a directory, with a structure like:
+
+```
+extensions
+|- my-extension.xml
+|- my-other-extension.jar
+|...
+```
 
 ### Additional Resources
 The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/new_relic_agent` directory in the buildpack fork.  For example, to override the default `new_relic.yml` add your custom file to `resources/new_relic_agent/newrelic.yml`.
@@ -46,3 +68,4 @@ The framework can also be configured by overlaying a set of resources on the def
 [repositories]: extending-repositories.md
 [this listing]: https://download.run.pivotal.io/new-relic/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
+[Extension XML Files]: https://docs.newrelic.com/docs/agents/java-agent/custom-instrumentation/java-instrumentation-xml

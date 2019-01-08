@@ -24,9 +24,18 @@ module JavaBuildpack
     # Encapsulates the functionality for enabling zero-touch New Relic support.
     class NewRelicAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
+      def initialize(context, &version_validator)
+        super(context, &version_validator)
+
+        extensions_context = context.clone
+        extensions_context[:configuration] = context[:configuration]['extensions'] || {}
+        @extensions = NewRelicAgentExtensions.new(extensions_context)
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar
+        @extensions.compile if @extensions.supports?
         @droplet.copy_resources
       end
 
@@ -80,6 +89,26 @@ module JavaBuildpack
         end
       end
 
+    end
+
+    # Used by the main NewRelicAgent class to download the extensions tarball(if configured)
+    class NewRelicAgentExtensions < JavaBuildpack::Component::VersionedDependencyComponent
+      # (see JavaBuildpack::Component::BaseComponent#compile)
+      def compile
+        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+          true, "The #{@component_name} download location is always accessible"
+        ) do
+          download_tar(true, @droplet.sandbox + 'extensions')
+        end
+      end
+
+      # (see JavaBuildpack::Component::BaseComponent#release)
+      def release; end
+
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
+      def supports?
+        !(@configuration['repository_root'] || '').empty?
+      end
     end
 
   end

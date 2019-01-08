@@ -17,6 +17,7 @@
 
 require 'spec_helper'
 require 'component_helper'
+require 'internet_availability_helper'
 require 'java_buildpack/framework/new_relic_agent'
 require 'java_buildpack/util/tokenized_version'
 
@@ -53,6 +54,14 @@ describe JavaBuildpack::Framework::NewRelicAgent do
       expect(sandbox + 'newrelic.yml').to exist
     end
 
+    it 'ignores unspecified extensions',
+       cache_fixture: 'stub-new-relic-agent.jar' do
+
+      component.compile
+
+      expect(sandbox + 'extensions').not_to exist
+    end
+
     it 'updates JAVA_OPTS' do
       allow(services).to receive(:find_service).and_return('credentials' => { 'licenseKey' => 'test-license-key' })
       allow(java_home).to receive(:java_8_or_later?).and_return(JavaBuildpack::Util::TokenizedVersion.new('1.7.0_u10'))
@@ -87,6 +96,41 @@ describe JavaBuildpack::Framework::NewRelicAgent do
       component.release
 
       expect(java_opts).to include('-Dnewrelic.enable.java.8=true')
+    end
+
+  end
+
+  describe JavaBuildpack::Framework::NewRelicAgentExtensions do
+    include_context 'with component help'
+
+    it 'does not support if repository_root not specified' do
+      expect(component).not_to be_supports
+    end
+
+    context 'when enabled' do
+      let(:configuration) { { 'repository_root' => 'test-repository-root' } }
+
+      it 'supports if repository_root specified' do
+        expect(component).to be_supports
+      end
+
+      it 'downloads extensions TAR',
+         cache_fixture: 'stub-new-relic-extensions.tar.gz' do
+
+        component.compile
+
+        expect(sandbox + 'extensions/extension-example.xml').to exist
+      end
+
+      it 'does guarantee that internet access is available when downloading',
+         cache_fixture: 'stub-new-relic-extensions.tar.gz' do
+
+        expect_any_instance_of(JavaBuildpack::Util::Cache::InternetAvailability)
+          .to receive(:available).with(true, 'The New Relic Agent Extensions download location is always accessible')
+
+        component.compile
+      end
+
     end
 
   end

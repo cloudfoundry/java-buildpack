@@ -65,19 +65,20 @@ Add files to the `resources/tomcat` directory in the buildpack fork.  For exampl
 Supply a repository with an external Tomcat configuration.
 
 Example in a manifest.yml
-```
+
+```yaml
 env:
-  JBP_CONFIG_TOMCAT: "{ tomcat: { external_configuration_enabled: true }, external_configuration: { repository_root: \"http://repository...\" } }"
+  JBP_CONFIG_TOMCAT: '{ tomcat: { external_configuration_enabled: true }, external_configuration: { repository_root: "http://repository..." } }'
 ```
 
 The artifacts that the repository provides must be in TAR format and must follow the Tomcat archive structure:
 
 ```
 tomcat
-|__conf
-   |__context.xml
-   |__server.xml
-   |__web.xml
+|- conf
+   |- context.xml
+   |- server.xml
+   |- web.xml
    |...
 ```
 
