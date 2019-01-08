@@ -2,6 +2,8 @@
 # Java applications with deep visibility and low overhead.  For more details and additional
 # configuration options visit https://docs.newrelic.com/docs/java/java-agent-configuration.
 #
+# <%= generated_for_user %>
+#
 # This section is for settings common to all environments.
 # Do not add anything above this next line.
 common: &default_settings
@@ -11,7 +13,7 @@ common: &default_settings
   # account. For example, if your license key is 12345 use this:
   # license_key: '12345'
   # The key binds your Agent's data to your account in the New Relic service.
-  license_key: 'YOUR_LICENSE_KEY'
+  license_key: '<%= license_key %>'
 
   # Agent Enabled
   # Use this setting to disable the agent instead of removing it from the startup command.
@@ -25,8 +27,8 @@ common: &default_settings
   # (useful for rollup reporting), separate the application names with ";".
   # For example, to report data to "My Application" and "My Application 2" use this:
   # app_name: My Application;My Application 2
-  # This setting is required. You can specify up to 3 different application names.
-  # The first application name is the primary app name.
+  # This setting is required. Up to 3 different application names can be specified.
+  # The first application name must be unique.
   app_name: My Application
 
   # To enable high security, set this property to true. When in high
@@ -81,24 +83,17 @@ common: &default_settings
   # Default is the logs directory in the newrelic.jar parent directory.
   #log_file_path:
 
-  # The agent communicates with New Relic via https by
-  # default.  If you want to communicate with newrelic via http,
-  # then turn off SSL by setting this value to false.
-  # This work is done asynchronously to the threads that process your
-  # application code, so response times will not be directly affected
-  # by this change.
-  # Default is true.
-  ssl: true
-
   # Proxy settings for connecting to the New Relic server:
   # If a proxy is used, the host setting is required.  Other settings
   # are optional.  Default port is 8080.  The username and password
   # settings will be used to authenticate to Basic Auth challenges
-  # from a proxy server.
+  # from a proxy server. Proxy scheme will allow the agent to
+  # connect through proxies using the HTTPS scheme.
   #proxy_host: hostname
   #proxy_port: 8080
   #proxy_user: username
   #proxy_password: password
+  #proxy_scheme: https
 
   # Limits the number of lines to capture for each stack trace.
   # Default is 30
@@ -128,7 +123,7 @@ common: &default_settings
   transaction_tracer:
 
     # Transaction tracer is enabled by default. Set this to false to turn it off.
-    # This feature is not available to free accounts and is automatically disabled.
+    # This feature is not available to Lite accounts and is automatically disabled.
     # Default is true.
     enabled: true
 
@@ -210,6 +205,13 @@ common: &default_settings
     # Default is 2000.  Setting to 0 will disable.
     max_samples_stored: 2000
 
+  # Distributed tracing lets you see the path that a request takes through your distributed system.
+  # Enabling distributed tracing changes the behavior of some New Relic features, so carefully consult the transition
+  # guide before you enable this feature: https://docs.newrelic.com/docs/transition-guide-distributed-tracing
+  # Default is false.
+  distributed_tracing:
+    enabled: false
+
   # Cross Application Tracing adds request and response headers to
   # external calls using supported HTTP libraries to provide better
   # performance data when calling applications monitored by other New Relic Agents.
@@ -221,7 +223,7 @@ common: &default_settings
 
   # Thread profiler measures wall clock time, CPU time, and method call counts
   # in your application's threads as they run.
-  # This feature is not available to free accounts and is automatically disabled.
+  # This feature is not available to Lite accounts and is automatically disabled.
   thread_profiler:
 
     # Set to false to disable the thread profiler.
