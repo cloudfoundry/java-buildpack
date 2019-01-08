@@ -126,14 +126,13 @@ headroom: 10
 
 #### Stack Threads
 
-The amount of memory that should be allocated to stacks is given as an amount of memory per
-thread with the Java option `-Xss`. If an explicit number of
-threads should be used for the calculation of stack memory, then it should be specified as in
-the following example:
+The amount of memory that should be allocated to stacks is given as an amount of memory per thread with the Java option `-Xss`. If an explicit number of threads should be used for the calculation of stack memory, then it should be specified as in the following example:
 
 ```yaml
 stack_threads: 500
 ```
+
+Note that the default value of 250 threads is optimized for a default Tomcat configuration.  If you are using another container, especially something non-blocking like Netty, it's more appropriate to use a significantly smaller value.  Typically 25 threads would cover the needs of both the server (Netty) and the threads started by the JVM itself.
 
 #### Java Options
 
