@@ -30,6 +30,9 @@ RUN eval "$(rbenv init -)" \
  && echo 'bundler' >> $(rbenv root)/default-gems
 
 RUN eval "$(rbenv init -)" \
+ && rbenv install 2.3.8
+
+RUN eval "$(rbenv init -)" \
  && rbenv install 2.4.5
 
 RUN eval "$(rbenv init -)" \
