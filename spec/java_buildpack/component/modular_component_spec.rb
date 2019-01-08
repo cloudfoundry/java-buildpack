@@ -84,8 +84,8 @@ class StubModularComponent < JavaBuildpack::Component::ModularComponent
     super
   end
 
-  def sub_components(_context)
-    super _context
+  def sub_components(context)
+    super context
   end
 
   def supports?
