@@ -54,7 +54,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /heap-dump/
+      FILTER = /heap-dump/.freeze
 
       private_constant :FILTER
 

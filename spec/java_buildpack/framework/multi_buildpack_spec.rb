@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,8 +23,30 @@ require 'java_buildpack/framework/multi_buildpack'
 describe JavaBuildpack::Framework::MultiBuildpack do
   include_context 'with component help'
 
-  before do
-    allow(Pathname).to receive(:glob).with('/tmp/*/deps').and_return([Pathname.new(app_dir)])
+  let(:dep_dirs) do
+    Dir.mktmpdir
+    ret = []
+    [1, 2, 3].each do |_|
+      ret.push dep_dir
+    end
+    ret
+  end
+
+  def dep_dir
+    ddirpath = Dir.mktmpdir + '/deps'
+    Dir.mkdir(ddirpath, 0o0755)
+    Pathname.new ddirpath
+  end
+
+  before do |example|
+    app_fixture = example.metadata[:app_fixture]
+    if app_fixture
+      (0..2).each do |i|
+        FileUtils.cp_r "spec/fixtures/#{app_fixture.chomp}/#{i}/.", dep_dirs[i] if dep_dirs[i]
+      end
+    end
+
+    allow(Pathname).to receive(:glob).with('/tmp/*/deps').and_return(dep_dirs)
   end
 
   it 'does not detect without deps' do
@@ -34,7 +56,10 @@ describe JavaBuildpack::Framework::MultiBuildpack do
   it 'detects when deps with config.yml exist',
      app_fixture: 'framework_multi_buildpack_deps' do
 
-    expect(component.detect).to eq('multi-buildpack=test-buildpack-0,test-buildpack-2')
+    expect(component.detect).to include('test-buildpack-0-0',
+                                        'test-buildpack-0-2', 'test-buildpack-1-0',
+                                        'test-buildpack-1-2', 'test-buildpack-2-0',
+                                        'test-buildpack-2-2')
   end
 
   it 'adds bin/ directory to $PATH during compile if it exists',
@@ -42,7 +67,7 @@ describe JavaBuildpack::Framework::MultiBuildpack do
 
     component.compile
 
-    expect(environment_variables).to include('PATH=$PATH:$PWD/0/bin')
+    expect(environment_variables).to include('PATH=$PATH:$PWD/../deps/0/bin')
   end
 
   it 'adds bin/ directory to $PATH during release if it exists',
@@ -50,7 +75,7 @@ describe JavaBuildpack::Framework::MultiBuildpack do
 
     component.release
 
-    expect(environment_variables).to include('PATH=$PATH:$PWD/0/bin')
+    expect(environment_variables).to include('PATH=$PATH:$PWD/../deps/0/bin')
   end
 
   it 'adds lib/ directory to $LD_LIBRARY_PATH during compile if it exists',
@@ -58,7 +83,7 @@ describe JavaBuildpack::Framework::MultiBuildpack do
 
     component.compile
 
-    expect(environment_variables).to include('LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/0/lib')
+    expect(environment_variables).to include('LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/../deps/0/lib')
   end
 
   it 'adds lib/ directory to $LD_LIBRARY_PATH during release if it exists',
@@ -66,7 +91,7 @@ describe JavaBuildpack::Framework::MultiBuildpack do
 
     component.release
 
-    expect(environment_variables).to include('LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/0/lib')
+    expect(environment_variables).to include('LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/../deps/0/lib')
   end
 
   it 'adds additional_libraries during compile',

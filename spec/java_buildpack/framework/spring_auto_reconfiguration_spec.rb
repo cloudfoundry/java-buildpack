@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
   end
 
   it 'downloads additional libraries',
-     app_fixture:   'framework_auto_reconfiguration_servlet_3',
+     app_fixture: 'framework_auto_reconfiguration_servlet_3',
      cache_fixture: 'stub-auto-reconfiguration.jar' do
 
     component.compile
@@ -60,7 +60,7 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
   end
 
   it 'adds to additional libraries',
-     app_fixture:   'framework_auto_reconfiguration_servlet_3',
+     app_fixture: 'framework_auto_reconfiguration_servlet_3',
      cache_fixture: 'stub-auto-reconfiguration.jar' do
 
     component.release

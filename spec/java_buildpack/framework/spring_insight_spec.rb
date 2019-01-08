@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,12 +35,12 @@ describe JavaBuildpack::Framework::SpringInsight do
       allow(services).to receive(:one_service?)
         .with(/p-insight/, 'agent_download_url', 'service_instance_id').and_return(true)
       allow(services).to receive(:find_service).and_return(
-        'label'       => 'p-insight',
+        'label' => 'p-insight',
         'credentials' => {
-          'version'             => '2.0.0',
-          'agent_download_url'  => 'test-uri/services/config/agent-download',
-          'agent_password'      => 'foo',
-          'agent_username'      => 'bar',
+          'version' => '2.0.0',
+          'agent_download_url' => 'test-uri/services/config/agent-download',
+          'agent_password' => 'foo',
+          'agent_username' => 'bar',
           'service_instance_id' => '12345'
         }
       )
@@ -88,14 +88,14 @@ describe JavaBuildpack::Framework::SpringInsight do
       allow(services).to receive(:one_service?)
         .with(/p-insight/, 'agent_download_url', 'service_instance_id').and_return(true)
       allow(services).to receive(:find_service).and_return(
-        'label'       => 'p-insight',
+        'label' => 'p-insight',
         'credentials' => {
-          'version'             => '2.0.0',
-          'agent_download_url'  => 'test-uri/services/config/agent-download',
-          'agent_password'      => 'foo',
-          'agent_username'      => 'bar',
+          'version' => '2.0.0',
+          'agent_download_url' => 'test-uri/services/config/agent-download',
+          'agent_password' => 'foo',
+          'agent_username' => 'bar',
           'service_instance_id' => '12345',
-          'agent_transport'     => 'activemq'
+          'agent_transport' => 'activemq'
         }
       )
       allow(application_cache).to receive(:get)

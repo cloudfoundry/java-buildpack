@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
   let(:component_id) { 'tomcat' }
 
   let(:configuration) do
-    { 'database'             => 'test-database',
-      'timeout'              => 'test-timeout',
+    { 'database' => 'test-database',
+      'timeout' => 'test-timeout',
       'connection_pool_size' => 'test-connection-pool-size' }
   end
 
@@ -42,13 +42,13 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
         'credentials' => {
           'locators' => ['some-locator[some-port]', 'some-other-locator[some-other-port]'],
           'users' =>
-              [
-                {
-                  'password' => 'some-password',
-                  'username' => 'some-username',
-                  'roles' => ['cluster_operator']
-                }
-              ]
+            [
+              {
+                'password' => 'some-password',
+                'username' => 'some-username',
+                'roles' => ['cluster_operator']
+              }
+            ]
         }
       )
 
@@ -59,7 +59,7 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
     end
 
     it 'copies resources',
-       app_fixture:   'container_tomcat_geode_store',
+       app_fixture: 'container_tomcat_geode_store',
        cache_fixture: 'stub-geode-store.tar' do
 
       component.compile
@@ -69,7 +69,7 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
     end
 
     it 'mutates context.xml',
-       app_fixture:   'container_tomcat_geode_store',
+       app_fixture: 'container_tomcat_geode_store',
        cache_fixture: 'stub-geode-store.tar' do
 
       component.compile
@@ -79,7 +79,7 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
     end
 
     it 'mutates server.xml',
-       app_fixture:   'container_tomcat_geode_store',
+       app_fixture: 'container_tomcat_geode_store',
        cache_fixture: 'stub-geode-store.tar' do
 
       component.compile
@@ -89,7 +89,7 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
     end
 
     it 'adds a cache-client.xml',
-       app_fixture:   'container_tomcat_geode_store',
+       app_fixture: 'container_tomcat_geode_store',
        cache_fixture: 'stub-geode-store.tar' do
 
       component.compile
@@ -99,7 +99,7 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
     end
 
     it 'passes security properties to the release',
-       app_fixture:   'container_tomcat_geode_store',
+       app_fixture: 'container_tomcat_geode_store',
        cache_fixture: 'stub-geode-store.tar' do
 
       component.release
@@ -120,18 +120,18 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
         'credentials' => {
           'locators' => ['some-locator[some-port]', 'some-other-locator[some-other-port]'],
           'users' =>
-              [
-                {
-                  'password' => 'some-password',
-                  'username' => 'cluster_operator'
-                }
-              ]
+            [
+              {
+                'password' => 'some-password',
+                'username' => 'cluster_operator'
+              }
+            ]
         }
       )
     end
 
     it 'assumes usernames represent roles and passes security properties to the release',
-       app_fixture:   'container_tomcat_geode_store',
+       app_fixture: 'container_tomcat_geode_store',
        cache_fixture: 'stub-geode-store.tar' do
 
       component.release

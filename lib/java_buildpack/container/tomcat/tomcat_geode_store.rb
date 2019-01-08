@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /session-replication/
+      FILTER = /session-replication/.freeze
       KEY_LOCATORS = 'locators'
       KEY_USERS = 'users'
 
@@ -157,7 +157,7 @@ module JavaBuildpack
         puts '       Adding Geode-based Session Replication'
 
         document = read_xml context_xml
-        context  = REXML::XPath.match(document, '/Context').first
+        context = REXML::XPath.match(document, '/Context').first
 
         add_manager context
 
@@ -167,7 +167,7 @@ module JavaBuildpack
       def mutate_server
         document = read_xml server_xml
 
-        server   = REXML::XPath.match(document, '/Server').first
+        server = REXML::XPath.match(document, '/Server').first
 
         add_listener server
 

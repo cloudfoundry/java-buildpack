@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,10 +40,10 @@ shared_context 'with component help' do
   let(:configuration) { {} }
 
   let(:context) do
-    { application:    application,
+    { application: application,
       component_name: described_class.to_s.split('::').last.space_case,
-      configuration:  configuration,
-      droplet:        droplet }
+      configuration: configuration,
+      droplet: droplet }
   end
 
   let(:uri) { 'test-uri' }

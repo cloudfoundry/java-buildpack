@@ -31,16 +31,16 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials            = @application.services.find_service(FILTER, ADDRESS)['credentials']
-        properties             = {
-          'address'   => credentials[ADDRESS],
-          'output'    => 'tcpclient',
+        credentials = @application.services.find_service(FILTER, ADDRESS)['credentials']
+        properties = {
+          'address' => credentials[ADDRESS],
+          'output' => 'tcpclient',
           'sessionid' => '$CF_INSTANCE_GUID'
         }
 
         properties['excludes'] = credentials['excludes'] if credentials.key? 'excludes'
         properties['includes'] = credentials['includes'] if credentials.key? 'includes'
-        properties['port']     = credentials['port'] if credentials.key? 'port'
+        properties['port'] = credentials['port'] if credentials.key? 'port'
 
         @droplet.java_opts.add_javaagent_with_props(@droplet.sandbox + 'jacocoagent.jar', properties)
       end
@@ -54,7 +54,7 @@ module JavaBuildpack
 
       ADDRESS = 'address'
 
-      FILTER = /jacoco/
+      FILTER = /jacoco/.freeze
 
       private_constant :ADDRESS, :FILTER
 

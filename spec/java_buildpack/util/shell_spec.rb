@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ describe JavaBuildpack::Util::Shell do
   end
 
   it 'raises an error if command returns a non-zero exit code' do
-    expect { shell 'false' }.to raise_error
+    expect { shell 'false' }.to raise_error RuntimeError
   end
 
   it 'handles a large amount of output' do

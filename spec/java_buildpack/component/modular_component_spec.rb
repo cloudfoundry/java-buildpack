@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ describe JavaBuildpack::Component::ModularComponent do
   let(:component) { StubModularComponent.new context }
 
   it 'fails if supports? is unimplemented' do
-    expect { component.supports? }.to raise_error
+    expect { component.supports? }.to raise_error RuntimeError
   end
 
   context do
@@ -39,8 +39,8 @@ describe JavaBuildpack::Component::ModularComponent do
     end
 
     it 'fails if methods are unimplemented' do
-      expect { component.command }.to raise_error
-      expect { component.sub_components(context) }.to raise_error
+      expect { component.command }.to raise_error RuntimeError
+      expect { component.sub_components(context) }.to raise_error RuntimeError
     end
   end
 
@@ -80,6 +80,16 @@ end
 
 class StubModularComponent < JavaBuildpack::Component::ModularComponent
 
-  public :command, :sub_components, :supports?
+  def command
+    super
+  end
+
+  def sub_components(context)
+    super context
+  end
+
+  def supports?
+    super
+  end
 
 end

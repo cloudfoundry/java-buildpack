@@ -1,5 +1,5 @@
 ---
-name: test-buildpack-2
+name: test-buildpack-0-2
 config:
   additional_libraries:
   - /multi-test-additional-library-1

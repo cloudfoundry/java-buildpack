@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -277,7 +277,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
 
     context do
       let(:credentials) do
-        { 'agent_manager_url'        => 'https://test-host-name:8444',
+        { 'agent_manager_url' => 'https://test-host-name:8444',
           'agent_manager_credential' => 'test-credential-cccf-88-ae' }
       end
 
@@ -304,7 +304,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
 
     context do
       let(:credentials) do
-        { 'agent_manager_url'        => 'https://test-host-name:8444',
+        { 'agent_manager_url' => 'https://test-host-name:8444',
           'agent_manager_credential' => 'test-credential-cccf-88-ae',
           'agent_default_process_name' => 'TestProcess' }
       end
