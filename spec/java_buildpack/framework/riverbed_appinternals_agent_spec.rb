@@ -31,7 +31,9 @@ describe JavaBuildpack::Framework::RiverbedAppinternalsAgent do
     before do
       allow(services).to receive(:one_service?).with(/appinternals/).and_return(true)
 
-      allow(application_cache).to receive(:get).with('https://pcf-instrumentation-download.steelcentral.net'\
+      allow(services).to receive(:find_service).and_return('credentials' => { 'baseurl' => 'urlfoo/' })
+
+      allow(application_cache).to receive(:get).with('urlfoo'\
                                                      '/riverbed-appinternals-agent-0.0.0.zip')
                                                .and_yield(Pathname.new('spec/fixtures/'\
                                                'stub-riverbed-appinternals-agent.zip').open, false)

@@ -42,8 +42,6 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = @application.services.find_service(FILTER)['credentials']
-
         @droplet.environment_variables
                 .add_environment_variable('AIX_INSTRUMENT_ALL', 1)
                 .add_environment_variable('DSA_PORT', dsa_port(credentials))
@@ -67,14 +65,22 @@ module JavaBuildpack
 
       private
 
-      FILTER = /appinternals/
+      BASEURL = 'baseurl'
 
-      DOWNLOAD_BASE_URL = 'https://pcf-instrumentation-download.steelcentral.net/'
+      FILTER = /appinternals/
 
       private_constant :FILTER
 
       def agent_path
         @droplet.sandbox + 'agent/lib' + lib_name
+      end
+
+      def credentials
+        service['credentials'] unless service.nil?
+      end
+
+      def service
+        @application.services.find_service(FILTER)
       end
 
       def agent_port(credentials)
@@ -110,8 +116,12 @@ module JavaBuildpack
         if version.nil?
           nil
         else
-          DOWNLOAD_BASE_URL + 'riverbed-appinternals-agent-' + version.to_s + '.zip'
+          api_base_url(credentials) + 'riverbed-appinternals-agent-' + version.to_s + '.zip'
         end
+      end
+
+      def api_base_url(credentials)
+        (credentials[BASEURL] unless credentials.nil?) || 'https://pcf-instrumentation-download.steelcentral.net/'
       end
 
     end
