@@ -1,5 +1,5 @@
 # Azul Zulu JRE
-Azul Zulu JRE provides Java runtimes developed by Azul team.  Versions of Java from the `1.6`, `1.7`, and `1.8` levels are available.  Unless otherwise configured, the version of Java that will be used is specified in [`config/zulu_jre.yml`][].
+Azul Zulu JRE provides Java runtimes developed by Azul team.  Unless otherwise configured, the version of Java that will be used is specified in [`config/zulu_jre.yml`][].
 
 <table>
   <tr>
