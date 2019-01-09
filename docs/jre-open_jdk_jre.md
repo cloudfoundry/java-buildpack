@@ -1,5 +1,5 @@
 # OpenJDK JRE
-The OpenJDK JRE provides Java runtimes from the [OpenJDK][] project.  Versions of Java from the `1.6`, `1.7`, `1.8`, and `11` lines are available.  Unless otherwise configured, the version of Java that will be used is specified in [`config/open_jdk_jre.yml`][].
+The OpenJDK JRE provides Java runtimes from the [OpenJDK][] project.  Unless otherwise configured, the version of Java that will be used is specified in [`config/open_jdk_jre.yml`][].
 
 <table>
   <tr>
