@@ -38,6 +38,8 @@ module JavaBuildpack
       #
       # @return [String] the contents of the collection as a colon-delimited collection of paths
       def as_paths
+        each { |a| puts "#{a.class}: #{a}" }
+
         qualified_paths = sort.map { |path| qualify_path path }
         qualified_paths.join ':' unless empty?
       end

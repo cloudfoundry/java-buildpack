@@ -48,7 +48,7 @@ shared_context 'with integration help' do
   end
 
   def run(command)
-    Open3.popen3({ 'JBP_LOG_LEVEL' => 'DEBUG' }, command, chdir: buildpack_dir) do |_stdin, stdout, stderr, wait_thr|
+    Open3.popen3(command, chdir: buildpack_dir) do |_stdin, stdout, stderr, wait_thr|
       capture_output stdout, stderr
       yield wait_thr.value if block_given?
     end
