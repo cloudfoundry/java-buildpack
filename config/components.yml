@@ -51,6 +51,7 @@ frameworks:
   - "JavaBuildpack::Framework::DyadicEkmSecurityProvider"
   - "JavaBuildpack::Framework::DynatraceAppmonAgent"
   - "JavaBuildpack::Framework::DynatraceOneAgent"
+  - "JavaBuildpack::Framework::ElasticApmAgent"
   - "JavaBuildpack::Framework::GoogleStackdriverDebugger"
   - "JavaBuildpack::Framework::GoogleStackdriverProfiler"
   - "JavaBuildpack::Framework::IntroscopeAgent"
