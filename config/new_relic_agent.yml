@@ -15,7 +15,7 @@
 
 # Configuration for the New Relic framework
 ---
-version: 4.+
+version: 4.9.0
 repository_root: https://download.run.pivotal.io/new-relic
 extensions:
   version: 1.+
