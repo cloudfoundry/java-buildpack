@@ -25,6 +25,15 @@ module JavaBuildpack
     class TomcatExternalConfiguration < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Container
 
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#initialize)
+      def initialize(context, &version_validator)
+        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+          true, 'The Tomcat External Configuration download location is always accessible'
+        ) do
+          super(context)
+        end
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
