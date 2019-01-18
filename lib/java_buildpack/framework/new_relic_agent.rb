@@ -93,10 +93,20 @@ module JavaBuildpack
 
     # Used by the main NewRelicAgent class to download the extensions tarball(if configured)
     class NewRelicAgentExtensions < JavaBuildpack::Component::VersionedDependencyComponent
+
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#initialize)
+      def initialize(context, &version_validator)
+        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+          true, 'The New Relic Extensions download location is always accessible'
+        ) do
+          super(context, &version_validator)
+        end
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
-          true, "The #{@component_name} download location is always accessible"
+          true, 'The New Relic Extensions download location is always accessible'
         ) do
           download_tar(true, @droplet.sandbox + 'extensions')
         end

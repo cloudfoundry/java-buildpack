@@ -30,17 +30,15 @@ module JavaBuildpack
         JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
           true, 'The Tomcat External Configuration download location is always accessible'
         ) do
-          super(context)
+          super(context, &version_validator)
         end
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
-          true, 'The Tomcat External Configuration download location is always accessible'
-        ) do
-          download_tar
-        end
+          true, 'The Tomcat External Configuration download location is always accessible', &method(:download_tar)
+        )
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)

@@ -35,6 +35,7 @@ describe JavaBuildpack::Container::TomcatExternalConfiguration do
 
     expect_any_instance_of(JavaBuildpack::Util::Cache::InternetAvailability)
       .to receive(:available).with(true, 'The Tomcat External Configuration download location is always accessible')
+                             .twice
 
     component.compile
   end
