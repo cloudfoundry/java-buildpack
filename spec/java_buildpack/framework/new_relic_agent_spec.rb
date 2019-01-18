@@ -126,7 +126,7 @@ describe JavaBuildpack::Framework::NewRelicAgent do
          cache_fixture: 'stub-new-relic-extensions.tar.gz' do
 
         expect_any_instance_of(JavaBuildpack::Util::Cache::InternetAvailability)
-          .to receive(:available).with(true, 'The New Relic Agent Extensions download location is always accessible')
+          .to receive(:available).with(true, 'The New Relic Extensions download location is always accessible').twice
 
         component.compile
       end
