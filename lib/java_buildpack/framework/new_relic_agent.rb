@@ -29,13 +29,16 @@ module JavaBuildpack
 
         extensions_context = context.clone
         extensions_context[:configuration] = context[:configuration]['extensions'] || {}
+
+        return unless supports_extensions?(extensions_context[:configuration])
+
         @extensions = NewRelicAgentExtensions.new(extensions_context)
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar
-        @extensions.compile if @extensions.supports?
+        @extensions&.compile
         @droplet.copy_resources
       end
 
@@ -81,6 +84,10 @@ module JavaBuildpack
         credentials.each do |key, value|
           configuration[key] = value
         end
+      end
+
+      def supports_extensions?(configuration)
+        !(configuration['repository_root'] || '').empty?
       end
 
       def write_java_opts(java_opts, configuration)
