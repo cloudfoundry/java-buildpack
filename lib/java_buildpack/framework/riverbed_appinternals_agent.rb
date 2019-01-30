@@ -29,9 +29,7 @@ module JavaBuildpack
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
         super(context)
-        # use version specified in tag otherwise use default
-        @version = (version if supports?) || @version
-        @uri = download_url(@version)
+        @uri = download_url(credentials, @uri)
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -65,7 +63,7 @@ module JavaBuildpack
 
       private
 
-      BASEURL = 'baseurl'
+      PROFILERURL = 'profilerUrlLinux'
 
       FILTER = /appinternals/.freeze
 
@@ -103,25 +101,8 @@ module JavaBuildpack
         credentials['rvbd_moniker'] || @configuration['rvbd_moniker']
       end
 
-      def version
-        service = @application.services.find_service(FILTER)
-        if !service || !service['credentials'] || !service['credentials']['SB_version']
-          nil
-        else
-          JavaBuildpack::Util::TokenizedVersion.new(service['credentials']['SB_version'])
-        end
-      end
-
-      def download_url(version)
-        if version.nil?
-          nil
-        else
-          api_base_url(credentials) + 'riverbed-appinternals-agent-' + version.to_s + '.zip'
-        end
-      end
-
-      def api_base_url(credentials)
-        (credentials[BASEURL] unless credentials.nil?) || 'https://pcf-instrumentation-download.steelcentral.net/'
+      def download_url(credentials, default_url)
+        (credentials[PROFILERURL] unless credentials.nil?) || default_url
       end
 
     end

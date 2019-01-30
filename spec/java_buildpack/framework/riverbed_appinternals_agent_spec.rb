@@ -31,10 +31,10 @@ describe JavaBuildpack::Framework::RiverbedAppinternalsAgent do
     before do
       allow(services).to receive(:one_service?).with(/appinternals/).and_return(true)
 
-      allow(services).to receive(:find_service).and_return('credentials' => { 'baseurl' => 'urlfoo/' })
+      allow(services).to receive(:find_service).and_return('credentials' => { 'profilerUrlLinux' =>
+                                                                                'http://testfoobar/profiler.zip' })
 
-      allow(application_cache).to receive(:get).with('urlfoo'\
-                                                     '/riverbed-appinternals-agent-0.0.0.zip')
+      allow(application_cache).to receive(:get).with('http://testfoobar/profiler.zip')
                                                .and_yield(Pathname.new('spec/fixtures/'\
                                                'stub-riverbed-appinternals-agent.zip').open, false)
     end
