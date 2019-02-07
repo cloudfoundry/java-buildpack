@@ -28,13 +28,13 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_zip(false, @droplet.sandbox, 'AppDynamics Agent')
-
-        # acessor for resources dir through @droplet?
+        
+        # acessor for resources dir through @droplet? 
         resources_dir = Pathname.new(File.expand_path('../../../resources', __dir__)).freeze
         default_conf_dir = resources_dir + @droplet.component_id + 'defaults'
-
+        
         copy_appd_default_configuration(default_conf_dir)
-
+        
         @droplet.copy_resources
       end
 
@@ -116,10 +116,10 @@ module JavaBuildpack
       # @param [Pathname] default_conf_dir the 'defaults' directory present in app_dynamics_agent resources.
       # @return [Void]
       def copy_appd_default_configuration(default_conf_dir)
-        return unless default_conf_dir.exist?
-
-        Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
-          FileUtils.cp_r "#{default_conf_dir}/.", target_directory
+        if default_conf_dir.exist?
+          Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
+            FileUtils.cp_r"#{default_conf_dir}/.", target_directory
+          end  
         end
       end
 
