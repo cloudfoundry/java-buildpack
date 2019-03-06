@@ -22,7 +22,7 @@ module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for enabling zero-touch New Relic support.
-    class ElasticAPMAgent < JavaBuildpack::Component::VersionedDependencyComponent
+    class ElasticApmAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
