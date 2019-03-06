@@ -21,17 +21,19 @@ require 'java_buildpack/framework'
 module JavaBuildpack
   module Framework
 
-    # Encapsulates the functionality for enabling zero-touch New Relic support.
+    # Encapsulates the functionality for enabling zero-touch Elastic APM support.
     class ElasticApmAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
+        print "compile - ElasticApmAgent < JavaBuildpack::Component::VersionedDependencyComponent "
         download_jar
         @droplet.copy_resources
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        print "release - ElasticApmAgent < JavaBuildpack::Component::VersionedDependencyComponent "
         credentials   = @application.services.find_service(FILTER, [LICENSE_KEY, LICENSE_KEY_USER])['credentials']
         java_opts     = @droplet.java_opts
         configuration = {}
@@ -54,7 +56,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /elkapm/
+      FILTER = /elasticapm/
 
       BASE_KEY = 'elastic.apm.'
 
