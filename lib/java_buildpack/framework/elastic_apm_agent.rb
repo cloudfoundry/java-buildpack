@@ -15,17 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
-require 'java_buildpack/util/qualify_path'
 
 module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for enabling zero-touch Elastic APM support.
     class ElasticApmAgent < JavaBuildpack::Component::VersionedDependencyComponent
-      include JavaBuildpack::Util
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
