@@ -87,6 +87,7 @@ The buildpack supports extension through the use of Git repository forking. The 
   * [Debug](docs/framework-debug.md) ([Configuration](docs/framework-debug.md#configuration))
   * [Dyadic EKM Security Provider](docs/framework-dyadic_ekm_security_provider.md) ([Configuration](docs/framework-dyadic_ekm_security_provider.md#configuration))
   * [Dynatrace Appmon Agent](docs/framework-dynatrace_appmon_agent.md) ([Configuration](docs/framework-dynatrace_appmon_agent.md#configuration))
+  * [Elastic APM Agent](docs/framework-elastic_apm_agent.md) ([Configuration](docs/framework-elastic_apm_agent.md#configuration))
   * [Dynatrace SaaS/Managed OneAgent](docs/framework-dynatrace_one_agent.md) ([Configuration](docs/framework-dynatrace_one_agent.md#configuration))
   * [Google Stackdriver Debugger](docs/framework-google_stackdriver_debugger.md) ([Configuration](docs/framework-google_stackdriver_debugger.md#configuration))
   * [Google Stackdriver Profiler](docs/framework-google_stackdriver_profiler.md) ([Configuration](docs/framework-google_stackdriver_profiler.md#configuration))
