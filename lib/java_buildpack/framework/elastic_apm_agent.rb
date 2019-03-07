@@ -52,7 +52,7 @@ module JavaBuildpack
         jar_name      = @jar_name
         configuration = {}
 
-        apply_configuration(credentials, configuration)
+        # apply_configuration(credentials, configuration)
         apply_user_configuration(credentials, configuration)
         write_java_opts(java_opts, configuration)
 
@@ -86,21 +86,23 @@ module JavaBuildpack
 
       private_constant :FILTER, :SERVER_URL, :APPLICATION_PACKAGES, :BASE_KEY
 
-      def apply_configuration(credentials, configuration)
-        print "apply_configuration configuration"
-        configuration['log_file_name']  = 'STDOUT'
-        configuration[SERVER_URL] = credentials[SERVER_URL]
-        configuration[APPLICATION_PACKAGES] = credentials[APPLICATION_PACKAGES]
-        configuration['elastic.apm.service_name'] = @application.details['application_name']
-      end
+      # def apply_configuration(credentials, configuration)
+      #   print "apply_configuration configuration"
+      #   configuration['log_file_name']  = 'STDOUT'
+      #   configuration[SERVER_URL] = credentials[SERVER_URL]
+      #   configuration[APPLICATION_PACKAGES] = credentials[APPLICATION_PACKAGES]
+      #   configuration['elastic.apm.service_name'] = @application.details['application_name']
+      # end
 
       def apply_user_configuration(credentials, configuration)
+        print "ElasticApmAgent - apply_user_configuration configuration"
         credentials.each do |key, value|
           configuration[key] = value
         end
       end
 
       def write_java_opts(java_opts, configuration)
+        print "ElasticApmAgent - write_java_opts "
         configuration.each do |key, value|
           java_opts.add_system_property("elastic.apm.#{key}", value)
         end
