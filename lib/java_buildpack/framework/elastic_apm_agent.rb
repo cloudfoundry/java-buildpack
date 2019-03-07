@@ -22,7 +22,19 @@ module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for enabling zero-touch Elastic APM support.
-    class ElasticApmAgent < JavaBuildpack::Component::VersionedDependencyComponent
+    class ElasticApmAgent < JavaBuildpack::Component::BaseComponent
+
+
+      # Creates an instance.  In addition to the functionality inherited from +BaseComponent+, +@version+ and +@uri+
+      # instance variables are exposed.
+      #
+      # @param [Hash] context a collection of utilities used by components
+      def initialize(context)
+        super(context)
+        print "-initialize ElasticApmAgent configuration= #{@configuration['repository_download']}"
+        @version, @uri = elastic_agent_download_url if supports?
+        @logger        = JavaBuildpack::Logging::LoggerFactory.instance.get_logger DynatraceOneAgent
+      end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
@@ -68,6 +80,7 @@ module JavaBuildpack
       private_constant :FILTER, :SERVER_URL, :APPLICATION_PACKAGES, :BASE_KEY
 
       def apply_configuration(credentials, configuration)
+        print "apply_configuration configuration"
         configuration['log_file_name']  = 'STDOUT'
         configuration[SERVER_URL] = credentials[SERVER_URL]
         configuration[APPLICATION_PACKAGES] = credentials[APPLICATION_PACKAGES]
@@ -84,6 +97,20 @@ module JavaBuildpack
         configuration.each do |key, value|
           java_opts.add_system_property("elastic.apm.#{key}", value)
         end
+      end
+
+
+      # download(@version, @uri) { |file| expand file }
+      # configuration
+      # version: 1.4.0
+      # repository_root: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/
+      # repository_download: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.4.0/elastic-apm-agent-1.4.0.jar
+      def elastic_agent_download_url
+
+        print "- ElasticApmAgent elastic_agent_download_url #{@configuration['repository_root']} #{@configuration['version']} "
+        # repository_download: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.4.0/elastic-apm-agent-1.4.0.jar
+        download_uri = "#{@configuration['repository_root']}/#{@configuration['version']}/elastic-apm-agent-#{@configuration['version']}.jar}"
+        [@configuration['version'], download_uri]
       end
 
     end
