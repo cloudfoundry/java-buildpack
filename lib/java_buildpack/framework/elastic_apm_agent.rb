@@ -54,7 +54,7 @@ module JavaBuildpack
 
         #apply_configuration(credentials, configuration)
         #apply_user_configuration(credentials, configuration)
-        #write_java_opts(java_opts, configuration)
+        write_java_opts(java_opts, configuration)
 
         # java_opts.add_javaagent(@droplet.sandbox + jar_name)
         #          .add_system_property('elkapmagent.home', @droplet.sandbox)
