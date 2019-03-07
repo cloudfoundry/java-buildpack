@@ -22,7 +22,7 @@ module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for enabling zero-touch Elastic APM support.
-    class ElasticApmAgent < JavaBuildpack::Component::VersionedDependencyComponent
+    class ElasticApmAgent < JavaBuildpack::Component::BaseComponent
 
 
       # Creates an instance.  In addition to the functionality inherited from +BaseComponent+, +@version+ and +@uri+
@@ -57,6 +57,11 @@ module JavaBuildpack
         java_opts.add_javaagent(@droplet.sandbox + jar_name)
                  .add_system_property('elkapmagent.home', @droplet.sandbox)
         java_opts.add_system_property('elastic.apm.application_packages.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
+      end
+
+      # (see JavaBuildpack::Component::BaseComponent#detect)
+      def detect
+        @version ? id(@version) : nil
       end
 
       protected
