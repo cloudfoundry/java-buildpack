@@ -117,7 +117,7 @@ module JavaBuildpack
         config_default="#{@configuration['repository_download']}"
         print "- ElasticApmAgent elastic_agent_download_url #{config_root} ver=#{config_version} "
         # repository_download: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.4.0/elastic-apm-agent-1.4.0.jar
-        download_uri = "#{config_root}#{config_version}/elastic-apm-agent-#{config_version}.jar}"
+        download_uri = "#{config_root}#{config_version}/elastic-apm-agent-#{config_version}.jar"
         # @TODO if download_uri!valid then download_uri=config_default
         [config_version, download_uri]
       end
