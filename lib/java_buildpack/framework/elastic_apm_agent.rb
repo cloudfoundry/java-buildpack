@@ -39,7 +39,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         print "compile - ElasticApmAgent download uri=#{@uri} version=#{@version}"
-        download(@version, @uri) { |file| expand file }
+        download_jar
         @droplet.copy_resources
       end
 
