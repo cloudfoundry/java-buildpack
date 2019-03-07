@@ -22,7 +22,7 @@ module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for enabling zero-touch Elastic APM support.
-    class ElasticApmAgent < JavaBuildpack::Component::BaseComponent
+    class ElasticApmAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
 
       # Creates an instance.  In addition to the functionality inherited from +BaseComponent+, +@version+ and +@uri+
@@ -65,12 +65,6 @@ module JavaBuildpack
       def supports?
         print "supports? - ElasticApmAgent "
         @application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
-      end
-
-      # (see JavaBuildpack::Component::BaseComponent#detect)
-      def detect
-        print "detect - ElasticApmAgent "
-        @version ? id(@version) : nil
       end
 
       private
