@@ -122,7 +122,10 @@ module JavaBuildpack
         [config_version, download_uri]
       end
 
-    end
+      def id(version)
+        "#{self.class.to_s.dash_case}=#{version}"
+      end
 
+    end
   end
 end
