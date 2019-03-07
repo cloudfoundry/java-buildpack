@@ -49,6 +49,7 @@ module JavaBuildpack
         print "release - ElasticApmAgent < JavaBuildpack::Component::VersionedDependencyComponent "
         credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES])['credentials']
         java_opts     = @droplet.java_opts
+        jar_name      = @jar_name
         configuration = {}
 
         apply_configuration(credentials, configuration)
