@@ -31,9 +31,9 @@ module JavaBuildpack
       # @param [Hash] context a collection of utilities used by components
       def initialize(context)
         super(context)
-        print "-initialize ElasticApmAgent configuration= #{@configuration['repository_download']}"
+        print "-initialize ElasticApmAgent configuration= #{@configuration['repository_download']} <-static default "
         @version, @uri = elastic_agent_download_url if supports?
-        @logger        = JavaBuildpack::Logging::LoggerFactory.instance.get_logger DynatraceOneAgent
+        @logger        = JavaBuildpack::Logging::LoggerFactory.instance.get_logger ElasticApmAgent
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -107,10 +107,14 @@ module JavaBuildpack
       # repository_download: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.4.0/elastic-apm-agent-1.4.0.jar
       def elastic_agent_download_url
 
-        print "- ElasticApmAgent elastic_agent_download_url #{@configuration['repository_root']} #{@configuration['version']} "
+        config_version="#{@configuration['version']}"
+        config_root="#{@configuration['repository_root']}"
+        config_default="#{@configuration['repository_download']}"
+        print "- ElasticApmAgent elastic_agent_download_url #{config_root} ver=#{config_version} "
         # repository_download: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.4.0/elastic-apm-agent-1.4.0.jar
-        download_uri = "#{@configuration['repository_root']}/#{@configuration['version']}/elastic-apm-agent-#{@configuration['version']}.jar}"
-        [@configuration['version'], download_uri]
+        download_uri = "#{config_root}/#{config_version}/elastic-apm-agent-#{config_version}.jar}"
+        # @TODO if download_uri!valid then download_uri=config_default
+        [config_version, download_uri]
       end
 
     end
