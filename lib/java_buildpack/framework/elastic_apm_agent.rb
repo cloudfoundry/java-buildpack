@@ -39,7 +39,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         print "compile - ElasticApmAgent download uri=#{@uri} version=#{@version}"
-        download_jar(@version, @uri, "elastic-apm-agent.jar" )
+        download_jar(@version, @uri, jar_name )
         @droplet.copy_resources
       end
 
@@ -81,6 +81,8 @@ module JavaBuildpack
       SERVER_URL = 'server_urls'
 
       APPLICATION_PACKAGES = 'application_packages'
+
+      jar_name = 'elastic-apm-agent.jar'
 
       private_constant :FILTER, :SERVER_URL, :APPLICATION_PACKAGES, :BASE_KEY
 
