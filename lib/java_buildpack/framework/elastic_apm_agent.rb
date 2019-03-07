@@ -33,7 +33,7 @@ module JavaBuildpack
         super(context)
         print "-initialize ElasticApmAgent configuration= #{@configuration['repository_download']} <-static default "
         @version, @uri = elastic_agent_download_url if supports?
-        # @logger        = JavaBuildpack::Logging::LoggerFactory.instance.get_logger ElasticApmAgent
+        @logger        = JavaBuildpack::Logging::LoggerFactory.instance.get_logger ElasticApmAgent
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -65,6 +65,12 @@ module JavaBuildpack
       def supports?
         print "supports? - ElasticApmAgent "
         @application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
+      end
+
+      # (see JavaBuildpack::Component::BaseComponent#detect)
+      def detect
+        print "detect - ElasticApmAgent "
+        @version ? id(@version) : nil
       end
 
       private
