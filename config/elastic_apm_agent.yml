@@ -15,6 +15,6 @@
 
 # Configuration for the Elastic Apm Agent framework
 ---
-version: 1.4.0
-repository_root: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/
+#version: 1.4.0
+#repository_root: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/
 repository_download: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.4.0/elastic-apm-agent-1.4.0.jar
