@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for the New Relic framework
+# Configuration for the Elastic Apm Agent framework
 ---
-version: 1.1.0
+version: 1.4.0
 repository_root: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/
-repository_download: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.1.0/elastic-apm-agent-1.1.0.jar
+repository_download: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.4.0/elastic-apm-agent-1.4.0.jar

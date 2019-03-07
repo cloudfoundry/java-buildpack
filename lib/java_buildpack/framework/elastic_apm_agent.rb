@@ -27,7 +27,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         print "compile - ElasticApmAgent < JavaBuildpack::Component::VersionedDependencyComponent "
-        download_jar
+        download(@version, @uri)
         @droplet.copy_resources
       end
 
