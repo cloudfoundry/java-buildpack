@@ -92,9 +92,9 @@
                                match-type="CONTAINS"
                                match-pattern="key"/>
         
-        <sensitive-data-filter applies-to="environment-variables,system-properties"
+        <sensitive-data-filter applies-to="environment-variables"
                                     match-type="STARTSWITH"
-                                    match-pattern="VCAP_"/>
+                                    match-pattern="*"/>
 
     </sensitive-data-filters>
 
