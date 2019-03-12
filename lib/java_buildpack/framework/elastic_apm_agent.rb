@@ -41,7 +41,8 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         puts "compile - ElasticApmAgent download uri=#{@uri} version=#{@version}"
-        download_jar(@version, @uri, @jar_name )
+        # download_jar(@version, @uri, @jar_name )
+        download(@version, @uri)
         puts "compile - ElasticApmAgent  end  "
         # @droplet.copy_resources
         puts "compile - ElasticApmAgent  end  "
@@ -76,7 +77,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        puts "supports? - ElasticApmAgent "
+        puts "supports? - ElasticApmAgent called by initialize"
         @application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
       end
 
