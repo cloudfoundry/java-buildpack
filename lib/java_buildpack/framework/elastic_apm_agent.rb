@@ -54,8 +54,8 @@ module JavaBuildpack
         jar_name      = @jar_name
         configuration = {}
 
-        #apply_configuration(credentials, configuration)
-        #apply_user_configuration(credentials, configuration)
+        apply_configuration(credentials, configuration)
+        apply_user_configuration(credentials, configuration)
         write_java_opts(java_opts, configuration)
 
         # java_opts.add_javaagent(@droplet.sandbox + jar_name)
