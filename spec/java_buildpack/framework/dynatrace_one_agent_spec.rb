@@ -54,13 +54,14 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
       expect(sandbox + 'manifest.json').to exist
     end
 
-    it 'updates JAVA_OPTS with agent loader',
+    it 'updates JAVA_OPTS with agent loader and share set to off',
        app_fixture: 'framework_dynatrace_one_agent' do
 
       component.release
 
       expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
         'liboneagentloader.so')
+      expect(java_opts).to include('-Xshare:off')
     end
 
     it 'updates environment variables',
