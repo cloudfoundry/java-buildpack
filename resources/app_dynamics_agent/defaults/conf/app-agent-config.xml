@@ -91,10 +91,10 @@
         <sensitive-data-filter applies-to="environment-variables,system-properties"
                                match-type="CONTAINS"
                                match-pattern="key"/>
-        
-        <sensitive-data-filter applies-to="environment-variables"
-                                    match-type="STARTSWITH"
-                                    match-pattern="*"/>
+
+        <sensitive-data-filter applies-to="environment-variables,system-properties"
+                               match-type="STARTSWITH"
+                               match-pattern="VCAP_"/>
 
     </sensitive-data-filters>
 
@@ -179,6 +179,7 @@
                     <exclude-override filter-type="EQUALS" filter-value="spray.client.pipelining$$anonfun$sendReceive$1"/>
                     <!-- overriding for supporting akka-http microservice-->
                     <exclude-override filter-type="EQUALS" filter-value="akka.http.scaladsl.server.Route$$anonfun$asyncHandler$1"/>
+                    <exclude-override filter-type="EQUALS" filter-value="akka.http.scaladsl.server.Route$$anonfun$asyncHandler$1$$anonfun$apply$1"/>
                     <exclude-override filter-type="EQUALS" filter-value="akka.http.scaladsl.server.Route$$anonfun$asyncHandler$1$$anonfun$apply$2"/>
                     <exclude-override filter-type="EQUALS" filter-value="akka.http.scaladsl.server.StandardRoute$$anon$1"/>
                     <exclude-override filter-type="STARTSWITH"
@@ -279,16 +280,16 @@
                 <!-- add classname/method e.g. foo/bar where foo is class name and bar is methd name to mark the method demarcating the end
                 of an async distributed transaction , does not need a restart -->
                 <!-- property name="async-transaction-demarcator" value=""/-->
-                
-                <!-- 
+
+                <!--
                 Add comma-separated list of async environment names.  These will be used to enable async transaction detection
                 for supported environments.  Current supported async environments: mule,camel,jbossesb,tibcobw,scala
                  -->
                  <!--  property name="enable-async-correlation-for" value="mule,camel,jbossesb,tibcobw,scala"/ -->
-                 
+
                 <!--
                 Cassandra CQL / Datastax driver: uncomment to name Cassandra backends with IP/port instead of naming
-                with cluster name.  In any case the IP/port info goes into snapshot details. 
+                with cluster name.  In any case the IP/port info goes into snapshot details.
                  -->
                  <!--  property name="enable-cassandra-backend-ip-naming" value="true" -->
 
@@ -316,7 +317,7 @@
                             instance:   getter-chain                eg. getName().toString()
 
                     action
-                        type: announcement, execution, suppression
+                        type: announcement, execution, suppression, cancellation, shutdown
                         token:
                             announcement:
                                 this         - invoked object
@@ -324,6 +325,11 @@
                             execution:
                                 this         - invoked object
                                 <paramIndex> - argument (first argument is 0)
+                            cancellation:
+                                this         - invoked object
+                                <paramIndex> - argument (first argument is 0)
+                            shutdown:
+                                return       - returned object
                     -->
                     <!-- Announcement jobs -->
                     <job>
@@ -344,6 +350,22 @@
                         <action type="announcement" token="this"/>
                         <name-config operation="" type="4"/>
                     </job>
+                    <!-- Cancellation and Shutdown jobs -->
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.FutureTask"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="cancel"/></match-method>
+                        <action type="cancellation" token="this"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.ThreadPoolExecutor"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="reject"/></match-method>
+                        <action type="cancellation" token="0"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.ThreadPoolExecutor"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="shutdownNow"/></match-method>
+                        <action type="shutdown" token="return"/>
+                    </job>
                     <!-- Execution jobs -->
                     <job>
                         <match-class type="implements-interface"><name filter-type="EQUALS" filter-value="java.lang.Runnable"/></match-class>
@@ -362,43 +384,48 @@
                         <match-method><name filter-type="EQUALS" filter-value="run"/></match-method>
                         <action type="execution" token="this"/>
                         <name-config operation="" type="4"/>
-                    </job> 
+                    </job>
                     <!-- Suppression jobs -->
                     <job>
                         <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.Timer"/></match-class>
                         <match-method><name filter-type="EQUALS" filter-value="&lt;init&gt;"/></match-method>
                         <action type="suppression"/>
-                    </job> 
+                    </job>
                     <job>
                         <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.ThreadPoolExecutor"/></match-class>
                         <match-method><name filter-type="EQUALS" filter-value="addWorker"/></match-method>
                         <action type="suppression"/>
-                    </job> 
+                    </job>
                     <job>
                         <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.ForkJoinPool"/></match-class>
                         <match-method><name filter-type="EQUALS" filter-value="createWorker"/></match-method>
                         <action type="suppression"/>
-                    </job> 
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="scala.concurrent.forkjoin.ForkJoinPool"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="tryAddWorker"/></match-method>
+                        <action type="suppression"/>
+                    </job>
                     <job>
                         <match-class type="matches-class"><name filter-type="EQUALS" filter-value="akka.actor.ActorSystemImpl"/></match-class>
                         <match-method><name filter-type="EQUALS" filter-value="tryAddWorker"/></match-method>
                         <action type="suppression"/>
-                    </job> 
+                    </job>
                     <job>
                         <match-class type="matches-class"><name filter-type="EQUALS" filter-value="io.netty.util.concurrent.SingleThreadEventExecutor"/></match-class>
                         <match-method><name filter-type="EQUALS" filter-value="startThread"/></match-method>
                         <action type="suppression"/>
-                    </job> 
+                    </job>
                     <job>
                         <match-class type="matches-class"><name filter-type="EQUALS" filter-value="org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase"/></match-class>
                         <match-method><name filter-type="EQUALS" filter-value="start"/></match-method>
                         <action type="suppression"/>
-                    </job> 
+                    </job>
                     <job>
                         <match-class type="matches-class"><name filter-type="EQUALS" filter-value="org.apache.http.impl.nio.reactor.AbstractMultiworkerIOReactor"/></match-class>
                         <match-method><name filter-type="EQUALS" filter-value="execute"/></match-method>
                         <action type="suppression"/>
-                    </job> 
+                    </job>
                     <job>
                         <match-class type="matches-class"><name filter-type="EQUALS" filter-value="org.jboss.netty.util.internal.DeadLockProofWorker"/></match-class>
                         <match-method><name filter-type="EQUALS" filter-value="start"/></match-method>
@@ -408,12 +435,12 @@
                         <match-class type="matches-class"><name filter-type="EQUALS" filter-value="com.ning.http.client.providers.netty.NettyAsyncHttpProvider"/></match-class>
                         <match-method><name filter-type="EQUALS" filter-value="newNettyTimer"/></match-method>
                         <action type="suppression"/>
-                    </job> 
+                    </job>
                     <job>
                         <match-class type="matches-class"><name filter-type="EQUALS" filter-value="io.netty.util.concurrent.SingleThreadEventExecutor"/></match-class>
                         <match-method><name filter-type="EQUALS" filter-value="doStartThread"/></match-method>
                         <action type="suppression"/>
-                    </job> 
+                    </job>
                 </async-config>
                 <fork-config>
                   <!-- This is the configuration for the "constructor" strategy -->
@@ -675,7 +702,7 @@
         </agent-service>
         <agent-service name="LogParserService" enabled="true">
         </agent-service>
-        <agent-service name="ResourceMonitoringService" enabled="true">
+        <agent-service name="ResourceMonitoringService" enabled="false">
             <service-dependencies>BCIEngine</service-dependencies>
         </agent-service>
 
@@ -698,5 +725,5 @@
     <service-configuration-properties agent-service="SnapshotService">
         <property name="enable-startup-snapshot-policy" value="true"/>
     </service-configuration-properties>
-    -->  
+    -->
 </app-agent-configuration>
