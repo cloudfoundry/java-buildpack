@@ -31,10 +31,11 @@ module JavaBuildpack
       # @param [Hash] context a collection of utilities used by components
       def initialize(context)
         super(context)
-        print "-initialize ElasticApmAgent configuration= #{@configuration['repository_download']} <-static default "
+        puts "-initialize ElasticApmAgent configuration= #{@configuration['repository_download']} <-static default "
         @version, @uri = elastic_agent_download_url if supports?
         @logger        = JavaBuildpack::Logging::LoggerFactory.instance.get_logger ElasticApmAgent
         @jar_name = 'elastic-apm-agent.jar'
+        puts "-initialize ElasticApmAgent AFTER="
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -43,12 +44,14 @@ module JavaBuildpack
         download_jar(@version, @uri, @jar_name )
         @droplet.copy_resources
         puts "compile - ElasticApmAgent  end  "
-        Dir.foreach("./") {|x| puts "compile - ElasticApmAgent Got #{x}" }
+        Dir.glob("*/*gent.jar") do |my_text_file|
+          puts "compile - ElasticApmAgent working on: #{my_text_file}..."
+        end
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        print "release - ElasticApmAgent  "
+        puts "release - ElasticApmAgent  "
         credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES])['credentials']
         java_opts     = @droplet.java_opts
         jar_name      = @jar_name
@@ -78,7 +81,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        print "supports? - ElasticApmAgent "
+        puts "supports? - ElasticApmAgent "
         @application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
       end
 
