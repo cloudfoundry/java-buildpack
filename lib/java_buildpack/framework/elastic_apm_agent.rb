@@ -34,21 +34,22 @@ module JavaBuildpack
         puts "-initialize ElasticApmAgent configuration= #{@configuration['repository_download']} <-static default "
         @version, @uri = elastic_agent_download_url if supports?
         # @logger        = JavaBuildpack::Logging::LoggerFactory.instance.get_logger ElasticApmAgent
-        # @jar_name = 'elastic-apm-agent.jar'
+        @jar_name = 'elastic-apm-agent.jar'
 
         puts "-initialize ElasticApmAgent AFTER @uri= #{@uri}"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        print "compile - ElasticApmAgent download uri=#{@uri} version=#{@version}"
-        # download_jar(@version, @uri, @jar_name )
+        puts "compile - ElasticApmAgent download_uri=#{@uri} version=#{@version}"
+        download_jar(@version, @uri, @jar_name )
         #download(@version, @uri)
         #download(@version, @uri)
-        download_elastic(@version, @uri)
-        puts "compile - ElasticApmAgent  droplet.copy_resources @component_name= #{@component_name}"
+        #download_elastic(@version, @uri)
+        print "compile - ElasticApmAgent  droplet.copy_resources @component_name= #{@component_name}"
         @droplet.copy_resources
-        print "compile - ElasticApmAgent  end  "
+        Dir.foreach("./") {|x| puts "ElasticApmAgent Got #{x}" }
+        puts "compile - ElasticApmAgent  end  "
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
