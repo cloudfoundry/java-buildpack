@@ -72,17 +72,19 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
-        puts "detect - ElasticApmAgent  "
+        puts "detect - ElasticApmAgent IDVERSION=#{id(@version)} "
         @version ? id(@version) : nil
-        puts "detect - ElasticApmAgent version= #{@version} "
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
+        support_val=false
         puts "supports? exists - ElasticApmAgent called by initialize"
-        @application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
+        support_val=@application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
+        puts "supports? exists - ElasticApmAgent END OF METHOD"
+        support_val
       end
 
       private
@@ -133,6 +135,7 @@ module JavaBuildpack
         # repository_download: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.4.0/elastic-apm-agent-1.4.0.jar
         download_uri = "#{config_root}#{config_version}/elastic-apm-agent-#{config_version}.jar"
         # @TODO if download_uri!valid then download_uri=config_default
+
         [config_version, download_uri]
       end
 
