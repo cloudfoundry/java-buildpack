@@ -42,11 +42,12 @@ module JavaBuildpack
         print "compile - ElasticApmAgent download uri=#{@uri} version=#{@version}"
         download_jar(@version, @uri, @jar_name )
         @droplet.copy_resources
+        print "compile - ElasticApmAgent  end  \n"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        print "release - ElasticApmAgent < JavaBuildpack::Component::VersionedDependencyComponent "
+        print "release - ElasticApmAgent  "
         credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES])['credentials']
         java_opts     = @droplet.java_opts
         jar_name      = @jar_name
@@ -59,6 +60,10 @@ module JavaBuildpack
         # java_opts.add_javaagent(@droplet.sandbox + jar_name)
         #          .add_system_property('elkapmagent.home', @droplet.sandbox)
         # java_opts.add_system_property('elastic.apm.application_packages.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
+        print "end of release - ElasticApmAgent "
+        Dir.foreach("./") {|x| print "Got #{x}" }
+        Dir.foreach(".java-buildpack/") {|x| print ".java-buildpack/ Got #{x}" }
+        Dir.foreach(".java-buildpack/elastic_apm_agent/") {|x| print ".java-buildpack/ Got #{x}" }
       end
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
