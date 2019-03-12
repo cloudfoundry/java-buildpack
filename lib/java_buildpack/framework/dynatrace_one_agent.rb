@@ -148,7 +148,7 @@ module JavaBuildpack
 
         environment_variables.add_environment_variable(DT_APPLICATION_ID, application_id) unless application_id?
         environment_variables.add_environment_variable(DT_LOCATION, credentials[LOCATION]) if location?
-        environment_variables.add_environment_variable(DT_LOGSTREAM, "stdout") unless logstream?
+        environment_variables.add_environment_variable(DT_LOGSTREAM, 'stdout') unless logstream?
       end
 
       def endpoints(manifest)
