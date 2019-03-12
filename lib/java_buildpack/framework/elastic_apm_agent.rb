@@ -17,6 +17,7 @@
 
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
+require 'find'
 
 module JavaBuildpack
   module Framework
@@ -44,8 +45,8 @@ module JavaBuildpack
         download_jar(@version, @uri, @jar_name )
         @droplet.copy_resources
         puts "compile - ElasticApmAgent  end  "
-        Dir.glob("*/*gent.jar") do |my_text_file|
-          puts "compile - ElasticApmAgent working on: #{my_text_file}..."
+        Find.find(ENV["HOME"]) do |path|
+          puts "compile - ElasticApmAgent  #{path}"
         end
       end
 
