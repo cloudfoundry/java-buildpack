@@ -17,7 +17,6 @@
 
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
-require 'find'
 
 module JavaBuildpack
   module Framework
@@ -45,9 +44,6 @@ module JavaBuildpack
         download_jar(@version, @uri, @jar_name )
         @droplet.copy_resources
         puts "compile - ElasticApmAgent  end  "
-        Find.find(ENV["HOME"]) do |path|
-          puts "compile - ElasticApmAgent  #{path}"
-        end
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -66,9 +62,6 @@ module JavaBuildpack
         #          .add_system_property('elkapmagent.home', @droplet.sandbox)
         # java_opts.add_system_property('elastic.apm.application_packages.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
         print "end of release - ElasticApmAgent "
-        Dir.foreach("./") {|x| puts "Got #{x}" }
-        # Dir.foreach(".java-buildpack/") {|x| puts ".java-buildpack/ Got #{x}" }
-        # Dir.foreach(".java-buildpack/elastic_apm_agent/") {|x| puts ".java-buildpack/ Got #{x}" }
       end
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
