@@ -62,8 +62,8 @@ module JavaBuildpack
         # java_opts.add_system_property('elastic.apm.application_packages.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
         print "end of release - ElasticApmAgent "
         Dir.foreach("./") {|x| puts "Got #{x}" }
-        Dir.foreach(".java-buildpack/") {|x| puts ".java-buildpack/ Got #{x}" }
-        Dir.foreach(".java-buildpack/elastic_apm_agent/") {|x| puts ".java-buildpack/ Got #{x}" }
+        # Dir.foreach(".java-buildpack/") {|x| puts ".java-buildpack/ Got #{x}" }
+        # Dir.foreach(".java-buildpack/elastic_apm_agent/") {|x| puts ".java-buildpack/ Got #{x}" }
       end
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
