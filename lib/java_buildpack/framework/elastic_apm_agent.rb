@@ -41,32 +41,32 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        puts "compile - ElasticApmAgent download uri=#{@uri} version=#{@version}"
+        print "compile - ElasticApmAgent download uri=#{@uri} version=#{@version}"
         # download_jar(@version, @uri, @jar_name )
         #download(@version, @uri)
         #download(@version, @uri)
         download_elastic(@version, @uri)
         puts "compile - ElasticApmAgent  droplet.copy_resources @component_name= #{@component_name}"
         @droplet.copy_resources
-        puts "compile - ElasticApmAgent  end  "
+        print "compile - ElasticApmAgent  end  "
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        puts "release - ElasticApmAgent  "
-        # credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES])['credentials']
-        # puts "release - ElasticApmAgent  credentials = #{credentials}"
-        # java_opts     = @droplet.java_opts
-        # jar_name      = @jar_name
-        # configuration = {}
-        #
-        # apply_configuration(credentials, configuration)
-        # apply_user_configuration(credentials, configuration)
-        # write_java_opts(java_opts, configuration)
+        print "release - ElasticApmAgent  "
+        credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES])['credentials']
+        puts "release - ElasticApmAgent  credentials = #{credentials}"
+        java_opts     = @droplet.java_opts
+        jar_name      = @jar_name
+        configuration = {}
 
-        # java_opts.add_javaagent(@droplet.sandbox + jar_name)
-        #          .add_system_property('elkapmagent.home', @droplet.sandbox)
-        # java_opts.add_system_property('elastic.apm.application_packages.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
+        apply_configuration(credentials, configuration)
+        apply_user_configuration(credentials, configuration)
+        write_java_opts(java_opts, configuration)
+
+        java_opts.add_javaagent(@droplet.sandbox + jar_name)
+                 .add_system_property('elkapmagent.home', @droplet.sandbox)
+        java_opts.add_system_property('elastic.apm.application_packages.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
         print "end of release - ElasticApmAgent "
       end
 
@@ -81,7 +81,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        puts "supports? - ElasticApmAgent called by initialize"
+        puts "supports? exists - ElasticApmAgent called by initialize"
         @application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
       end
 
@@ -97,13 +97,13 @@ module JavaBuildpack
 
       private_constant :FILTER, :SERVER_URL, :APPLICATION_PACKAGES, :BASE_KEY
 
-      # def apply_configuration(credentials, configuration)
-      #   print "apply_configuration configuration"
-      #   configuration['log_file_name']  = 'STDOUT'
-      #   configuration[SERVER_URL] = credentials[SERVER_URL]
-      #   configuration[APPLICATION_PACKAGES] = credentials[APPLICATION_PACKAGES]
-      #   configuration['elastic.apm.service_name'] = @application.details['application_name']
-      # end
+      def apply_configuration(credentials, configuration)
+        print "apply_configuration configuration"
+        configuration['log_file_name']  = 'STDOUT'
+        configuration[SERVER_URL] = credentials[SERVER_URL]
+        configuration[APPLICATION_PACKAGES] = credentials[APPLICATION_PACKAGES]
+        configuration['elastic.apm.service_name'] = @application.details['application_name']
+      end
 
       def apply_user_configuration(credentials, configuration)
         print "ElasticApmAgent - apply_user_configuration configuration"
@@ -125,7 +125,7 @@ module JavaBuildpack
       # repository_root: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/
       # repository_download: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.4.0/elastic-apm-agent-1.4.0.jar
       def elastic_agent_download_url
-        print "ElasticApmAgent - elastic_agent_download_url "
+        puts "ElasticApmAgent - elastic_agent_download_url "
         config_version="#{@configuration['version']}"
         config_root="#{@configuration['repository_root']}"
         config_default="#{@configuration['repository_download']}"
