@@ -42,7 +42,8 @@ module JavaBuildpack
       def compile
         puts "compile - ElasticApmAgent download uri=#{@uri} version=#{@version}"
         download_jar(@version, @uri, @jar_name )
-        @droplet.copy_resources
+        puts "compile - ElasticApmAgent  end  "
+        # @droplet.copy_resources
         puts "compile - ElasticApmAgent  end  "
       end
 
