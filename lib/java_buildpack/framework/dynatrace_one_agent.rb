@@ -90,14 +90,20 @@ module JavaBuildpack
 
       DT_TENANTTOKEN = 'DT_TENANTTOKEN'
 
+      DT_LOGSTREAM = 'DT_LOGSTREAM'
+
+      DT_LOCATION = 'DT_LOCATION'
+
       ENVIRONMENTID = 'environmentid'
 
       FILTER = /dynatrace/.freeze
 
+      LOCATION = 'location'
+
       SKIP_ERRORS = 'skiperrors'
 
-      private_constant :APIURL, :APITOKEN, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_TENANT,
-                       :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :SKIP_ERRORS
+      private_constant :APIURL, :APITOKEN, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_LOCATION, :DT_LOGSTREAM,
+                       :DT_TENANT, :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :LOCATION, :SKIP_ERRORS
 
       def agent_download_url
         download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
@@ -141,6 +147,8 @@ module JavaBuildpack
           .add_environment_variable(DT_CONNECTION_POINT, endpoints(manifest))
 
         environment_variables.add_environment_variable(DT_APPLICATION_ID, application_id) unless application_id?
+        environment_variables.add_environment_variable(DT_LOCATION, credentials[LOCATION]) if location?
+        environment_variables.add_environment_variable(DT_LOGSTREAM, 'stdout') unless logstream?
       end
 
       def endpoints(manifest)
@@ -159,6 +167,14 @@ module JavaBuildpack
             unpack_agent root_path
           end
         end
+      end
+
+      def location?
+        credentials.key?(LOCATION)
+      end
+
+      def logstream?
+        @application.environment.key?(DT_LOGSTREAM)
       end
 
       def skip_errors?
