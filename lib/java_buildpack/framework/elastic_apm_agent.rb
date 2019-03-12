@@ -39,10 +39,11 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        print "compile - ElasticApmAgent download uri=#{@uri} version=#{@version}"
+        puts "compile - ElasticApmAgent download uri=#{@uri} version=#{@version}"
         download_jar(@version, @uri, @jar_name )
         @droplet.copy_resources
-        print "compile - ElasticApmAgent  end  \n"
+        puts "compile - ElasticApmAgent  end  "
+        Dir.foreach("./") {|x| puts "compile - ElasticApmAgent Got #{x}" }
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -68,7 +69,9 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
+        puts "detect - ElasticApmAgent  "
         @version ? id(@version) : nil
+        puts "detect - ElasticApmAgent version= #{@version} "
       end
 
       protected
