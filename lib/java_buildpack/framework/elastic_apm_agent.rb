@@ -17,7 +17,7 @@
 
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
-require 'dir'
+require 'Dir'
 
 module JavaBuildpack
   module Framework
