@@ -52,14 +52,15 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         puts "release - ElasticApmAgent  "
-        credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES])['credentials']
-        java_opts     = @droplet.java_opts
-        jar_name      = @jar_name
-        configuration = {}
-
-        apply_configuration(credentials, configuration)
-        apply_user_configuration(credentials, configuration)
-        write_java_opts(java_opts, configuration)
+        # credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES])['credentials']
+        # puts "release - ElasticApmAgent  credentials = #{credentials}"
+        # java_opts     = @droplet.java_opts
+        # jar_name      = @jar_name
+        # configuration = {}
+        #
+        # apply_configuration(credentials, configuration)
+        # apply_user_configuration(credentials, configuration)
+        # write_java_opts(java_opts, configuration)
 
         # java_opts.add_javaagent(@droplet.sandbox + jar_name)
         #          .add_system_property('elkapmagent.home', @droplet.sandbox)
