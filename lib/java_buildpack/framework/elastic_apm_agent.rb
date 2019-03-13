@@ -34,6 +34,16 @@ module JavaBuildpack
         puts "compile - ElasticApmAgent  end  "
       end
 
+      # Modifies the application's runtime configuration. The component is expected to transform members of the
+      # +context+ # (e.g. +@java_home+, +@java_opts+, etc.) in whatever way is necessary to support the function of the
+      # component.
+      #
+      # Container components are also expected to create the command required to run the application.  These components
+      # are expected to read the +context+ values and take them into account when creating the command.
+      #
+      # @return [void, String] components other than containers and JREs are not expected to return any value.
+      #                        Container and JRE components are expected to return a command required to run the
+      #                        application.
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         print "release - ElasticApmAgent  "
@@ -45,10 +55,11 @@ module JavaBuildpack
         apply_configuration(credentials, configuration)
         apply_user_configuration(credentials, configuration)
 
-        # puts "release - ElasticApmAgent  jar_name =  #{jar_name} "
-        # java_opts.add_javaagent(@droplet.sandbox + jar_name)
-        #          .add_system_property('elkapmagent.home', @droplet.sandbox)
+        unless jar_name.empty? then jar_name else 'elastic-apm-agent-1.4.0.jar' end
 
+        puts "release - ElasticApmAgent  jar_name =  #{jar_name} "
+        java_opts.add_javaagent(@droplet.sandbox + jar_name)
+        #          .add_system_property('elkapmagent.home', @droplet.sandbox)
         java_opts.add_system_property('elastic.apm.application_packages.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
       end
 
