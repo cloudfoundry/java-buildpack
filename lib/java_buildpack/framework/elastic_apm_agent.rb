@@ -59,7 +59,6 @@ module JavaBuildpack
         credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES])['credentials']
         puts "release - ElasticApmAgent  credentials = #{credentials}"
         java_opts     = @droplet.java_opts
-        jar_name      = @jar_name
         configuration = {}
 
         apply_configuration(credentials, configuration)
