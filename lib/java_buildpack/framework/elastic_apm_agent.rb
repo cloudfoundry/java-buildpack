@@ -46,15 +46,12 @@ module JavaBuildpack
       #                        application.
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        print "release - ElasticApmAgent  "
         credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES])['credentials']
         java_opts     = @droplet.java_opts
         configuration = {}
 
-        puts "release - ElasticApmAgent  credentials = #{credentials} java_opts=#{java_opts} "
-
         apply_configuration(credentials, configuration)
-        # apply_user_configuration(credentials, configuration)
+        apply_user_configuration(credentials, configuration)
 
         unless jar_name.empty? then jar_name else 'elastic-apm-agent-1.4.0.jar' end
 
@@ -69,9 +66,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         support_val=false
-        puts "supports? exists - ElasticApmAgent called by initialize"
         support_val=@application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
-        puts "supports? exists - ElasticApmAgent END OF METHOD #{support_val}"
         support_val
       end
 
@@ -88,16 +83,13 @@ module JavaBuildpack
       private_constant :FILTER, :SERVER_URL, :APPLICATION_PACKAGES, :BASE_KEY
 
       def apply_configuration(credentials, configuration)
-        print "apply_configuration - ElasticApmAgent configuration"
         configuration['log_file_name']  = 'STDOUT'
         configuration[SERVER_URL] = credentials[SERVER_URL]
         configuration[APPLICATION_PACKAGES] = credentials[APPLICATION_PACKAGES]
         configuration['elastic.apm.service_name'] = @application.details['application_name']
-        print "apply_configuration - ElasticApmAgent configuration END"
       end
 
       def apply_user_configuration(credentials, configuration)
-        print "ElasticApmAgent - apply_user_configuration configuration"
         credentials.each do |key, value|
           configuration[key] = value
         end
