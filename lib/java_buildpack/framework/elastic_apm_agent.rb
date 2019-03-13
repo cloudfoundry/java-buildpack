@@ -48,6 +48,7 @@ module JavaBuildpack
 
         apply_configuration(credentials, configuration)
         apply_user_configuration(credentials, configuration)
+        write_java_opts(java_opts, configuration)
 
         unless jar_name.empty? then jar_name else 'elastic-apm-agent-1.4.0.jar' end
 
