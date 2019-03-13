@@ -64,9 +64,9 @@ module JavaBuildpack
         apply_configuration(credentials, configuration)
         apply_user_configuration(credentials, configuration)
         write_java_opts(java_opts, configuration)
-
-        java_opts.add_javaagent(@droplet.sandbox + jar_name)
-                 .add_system_property('elkapmagent.home', @droplet.sandbox)
+        puts "release - ElasticApmAgent  jar_name = not here"
+        # java_opts.add_javaagent(@droplet.sandbox + jar_name)
+        #          .add_system_property('elkapmagent.home', @droplet.sandbox)
         java_opts.add_system_property('elastic.apm.application_packages.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
         print "end of release - ElasticApmAgent "
       end
