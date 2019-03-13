@@ -26,12 +26,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        puts "compile - ElasticApmAgent download_uri=#{@uri} version=#{@version}"
         download_jar
-        print "compile - ElasticApmAgent  droplet.copy_resources @component_name= #{@component_name}"
         @droplet.copy_resources
-        Dir.foreach("./app") {|x| puts "ElasticApmAgent Got #{x}" }
-        puts "compile - ElasticApmAgent  end  "
       end
 
       # Modifies the application's runtime configuration. The component is expected to transform members of the
@@ -95,49 +91,8 @@ module JavaBuildpack
       end
 
       def write_java_opts(java_opts, configuration)
-        print "ElasticApmAgent - write_java_opts "
         configuration.each do |key, value|
           java_opts.add_system_property("elastic.apm.#{key}", value)
-        end
-      end
-
-      # download(@version, @uri) { |file| expand file }
-      # configuration
-      # version: 1.4.0
-      # repository_root: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/
-      # repository_download: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.4.0/elastic-apm-agent-1.4.0.jar
-      def elastic_agent_download_url
-        puts "ElasticApmAgent - elastic_agent_download_url "
-        config_version="#{@configuration['version']}"
-        config_root="#{@configuration['repository_root']}"
-        config_default="#{@configuration['repository_download']}"
-        puts "- ElasticApmAgent elastic_agent_download_url #{config_root} ver=#{config_version} "
-        # repository_download: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.4.0/elastic-apm-agent-1.4.0.jar
-        download_uri = "#{config_root}#{config_version}/elastic-apm-agent-#{config_version}.jar"
-        # @TODO if download_uri!valid then download_uri=config_default
-
-        [config_version, download_uri]
-      end
-
-      # Downloads an item with the given name and version from the given URI, then yields the resultant file to the
-      # given # block.
-      #
-      # @param [JavaBuildpack::Util::TokenizedVersion] version
-      # @param [String] uri
-      # @param [String] name an optional name for the download.  Defaults to +@component_name+.
-      # @return [Void]
-      def download_elastic(version, uri, name = @component_name)
-        download_start_time = Time.now
-        print "#{'----->'.red.bold} ElasticApmAgent Downloading #{name.blue.bold} #{version.to_s.blue} from #{uri.sanitize_uri} "
-
-        JavaBuildpack::Util::Cache::CacheFactory.create.get(uri) do |file, downloaded|
-          if downloaded
-            puts "(#{(Time.now - download_start_time).duration})".green.italic
-          else
-            puts '(found in cache)'.green.italic
-          end
-
-          yield file
         end
       end
 
