@@ -48,11 +48,12 @@ module JavaBuildpack
       def release
         print "release - ElasticApmAgent  "
         credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES])['credentials']
-        puts "release - ElasticApmAgent  credentials = #{credentials}"
         java_opts     = @droplet.java_opts
         configuration = {}
 
-        # apply_configuration(credentials, configuration)
+        puts "release - ElasticApmAgent  credentials = #{credentials} java_opts=#{java_opts} "
+
+        apply_configuration(credentials, configuration)
         # apply_user_configuration(credentials, configuration)
 
         unless jar_name.empty? then jar_name else 'elastic-apm-agent-1.4.0.jar' end
