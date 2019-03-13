@@ -55,7 +55,6 @@ module JavaBuildpack
 
         unless jar_name.empty? then jar_name else 'elastic-apm-agent-1.4.0.jar' end
 
-        puts "release - ElasticApmAgent  jar_name =  #{jar_name} "
         java_opts.add_javaagent(@droplet.sandbox + jar_name)
                   .add_system_property('elkapmagent.home', @droplet.sandbox)
         java_opts.add_system_property('elastic.apm.application_packages.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
