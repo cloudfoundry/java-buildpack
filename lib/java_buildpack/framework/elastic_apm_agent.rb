@@ -24,29 +24,10 @@ module JavaBuildpack
     # Encapsulates the functionality for enabling zero-touch Elastic APM support.
     class ElasticApmAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
-
-      # Creates an instance.  In addition to the functionality inherited from +BaseComponent+, +@version+ and +@uri+
-      # instance variables are exposed.
-      #
-      # @param [Hash] context a collection of utilities used by components
-      # def initialize(context)
-      #   super(context)
-      #   puts "-initialize ElasticApmAgent configuration= #{@configuration['repository_download']} <-static default "
-      #   @version, @uri = elastic_agent_download_url if supports?
-      #   # @logger        = JavaBuildpack::Logging::LoggerFactory.instance.get_logger ElasticApmAgent
-      #   @jar_name = 'elastic-apm-agent.jar'
-      #
-      #   puts "-initialize ElasticApmAgent AFTER @uri= #{@uri}"
-      # end
-
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         puts "compile - ElasticApmAgent download_uri=#{@uri} version=#{@version}"
         download_jar
-        #download_jar(@version, @uri, @jar_name )
-        #download(@version, @uri)
-        #download(@version, @uri)
-        #download_elastic(@version, @uri)
         print "compile - ElasticApmAgent  droplet.copy_resources @component_name= #{@component_name}"
         @droplet.copy_resources
         Dir.foreach("./app") {|x| puts "ElasticApmAgent Got #{x}" }
@@ -63,20 +44,13 @@ module JavaBuildpack
 
         apply_configuration(credentials, configuration)
         apply_user_configuration(credentials, configuration)
-        write_java_opts(java_opts, configuration)
 
-        # puts "release - ElasticApmAgent  jar_name =  #{jar_name} "
-        # java_opts.add_javaagent(@droplet.sandbox + jar_name)
-        #          .add_system_property('elkapmagent.home', @droplet.sandbox)
-        #
+        puts "release - ElasticApmAgent  jar_name =  #{jar_name} "
+        java_opts.add_javaagent(@droplet.sandbox + jar_name)
+                 .add_system_property('elkapmagent.home', @droplet.sandbox)
+
         java_opts.add_system_property('elastic.apm.application_packages.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
       end
-
-      # (see JavaBuildpack::Component::BaseComponent#detect)
-      # def detect
-      #   puts "detect - ElasticApmAgent IDVERSION=#{id(@version)} "
-      #   @version ? id(@version) : nil
-      # end
 
       protected
 
@@ -85,7 +59,7 @@ module JavaBuildpack
         support_val=false
         puts "supports? exists - ElasticApmAgent called by initialize"
         support_val=@application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
-        puts "supports? exists - ElasticApmAgent END OF METHOD"
+        puts "supports? exists - ElasticApmAgent END OF METHOD #{support_val}"
         support_val
       end
 
@@ -102,11 +76,12 @@ module JavaBuildpack
       private_constant :FILTER, :SERVER_URL, :APPLICATION_PACKAGES, :BASE_KEY
 
       def apply_configuration(credentials, configuration)
-        print "apply_configuration configuration"
+        print "apply_configuration - ElasticApmAgent configuration"
         configuration['log_file_name']  = 'STDOUT'
         configuration[SERVER_URL] = credentials[SERVER_URL]
         configuration[APPLICATION_PACKAGES] = credentials[APPLICATION_PACKAGES]
         configuration['elastic.apm.service_name'] = @application.details['application_name']
+        print "apply_configuration - ElasticApmAgent configuration END"
       end
 
       def apply_user_configuration(credentials, configuration)
@@ -161,10 +136,6 @@ module JavaBuildpack
 
           yield file
         end
-      end
-
-      def id(version)
-        "#{self.class.to_s.dash_case}=#{version}"
       end
 
     end
