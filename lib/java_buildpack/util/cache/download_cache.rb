@@ -66,10 +66,13 @@ module JavaBuildpack
         #                           already in the cache
         # @return [Void]
         def get(uri, &block)
+          print "DownloadCache - ElasticApmAgent "
           cached_file             = nil
           downloaded              = nil
 
           cached_file, downloaded = from_mutable_cache uri if InternetAvailability.instance.available?
+
+          puts "DownloadCache - ElasticApmAgent cached_file."
 
           unless cached_file
             cached_file = from_immutable_caches(uri)
@@ -77,6 +80,7 @@ module JavaBuildpack
           end
 
           raise "Unable to find cached file for #{uri.sanitize_uri}" unless cached_file
+          puts "DownloadCache - ElasticApmAgent ENDED."
 
           cached_file.cached(File::RDONLY | File::BINARY, downloaded, &block)
         end
@@ -264,6 +268,7 @@ module JavaBuildpack
         end
 
         def from_mutable_cache(uri)
+          print "cached_file - ElasticApmAgent #{uri} "
           cached_file = CachedFile.new @mutable_cache_root, uri, true
           cached      = update URI(uri), cached_file
           [cached_file, cached]
