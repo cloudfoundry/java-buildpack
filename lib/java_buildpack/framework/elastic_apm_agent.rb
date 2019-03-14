@@ -60,7 +60,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
+        @application.services.one_service? FILTER, [SERVER_URL, SERVER_TIMEOUT, ELASTIC_APM_SECRET_TOKEN]
       end
 
       private
@@ -73,16 +73,16 @@ module JavaBuildpack
 
       ELASTIC_APM_SECRET_TOKEN = "secret_token"
 
-      APPLICATION_PACKAGES = 'application_packages'
+      SERVER_TIMEOUT = 'server_timeout'
 
       SERVICE_NAME = 'service_name'
 
-      private_constant :FILTER, :SERVER_URL, :APPLICATION_PACKAGES, :BASE_KEY, :ELASTIC_APM_SECRET_TOKEN
+      private_constant :FILTER, :SERVER_URL, :SERVER_TIMEOUT, :BASE_KEY, :ELASTIC_APM_SECRET_TOKEN
 
       def apply_configuration(credentials, configuration)
         configuration['log_file_name']  = 'STDOUT'
         configuration[SERVER_URL] = credentials[SERVER_URL]
-        configuration[APPLICATION_PACKAGES] = credentials[APPLICATION_PACKAGES]
+        configuration[SERVER_TIMEOUT] = credentials[SERVER_TIMEOUT]
         configuration[ELASTIC_APM_SECRET_TOKEN] = credentials[ELASTIC_APM_SECRET_TOKEN]
         configuration[SERVICE_NAME] = @application.details['application_name']
       end
