@@ -53,17 +53,14 @@ module JavaBuildpack
         unless jar_name.empty? then jar_name else 'elastic-apm-agent-1.4.0.jar' end
 
         java_opts.add_javaagent(@droplet.sandbox + jar_name)
-                  .add_system_property('elkapmagent.home', @droplet.sandbox)
-        java_opts.add_system_property('elastic.apm.application_packages.enable.java.8', 'true') if @droplet.java_home.java_8_or_later?
+                  .add_system_property('elastic.apm.home', @droplet.sandbox)
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        support_val=false
         support_val=@application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
-        support_val
       end
 
       private
@@ -78,6 +75,8 @@ module JavaBuildpack
 
       APPLICATION_PACKAGES = 'application_packages'
 
+      SERVICE_NAME = 'service_name'
+
       private_constant :FILTER, :SERVER_URL, :APPLICATION_PACKAGES, :BASE_KEY, :ELASTIC_APM_SECRET_TOKEN
 
       def apply_configuration(credentials, configuration)
@@ -85,7 +84,7 @@ module JavaBuildpack
         configuration[SERVER_URL] = credentials[SERVER_URL]
         configuration[APPLICATION_PACKAGES] = credentials[APPLICATION_PACKAGES]
         configuration[ELASTIC_APM_SECRET_TOKEN] = credentials[ELASTIC_APM_SECRET_TOKEN]
-        configuration['elastic.apm.service_name'] = @application.details['application_name']
+        configuration[SERVICE_NAME] = @application.details['application_name']
       end
 
       def apply_user_configuration(credentials, configuration)
