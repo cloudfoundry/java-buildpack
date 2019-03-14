@@ -42,7 +42,7 @@ module JavaBuildpack
       #                        application.
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES, ELASTIC_APM_SECRET_TOKEN])['credentials']
+        credentials   = @application.services.find_service(FILTER, [SERVER_URL, SECRET_TOKEN, SERVER_TIMEOUT])['credentials']
         java_opts     = @droplet.java_opts
         configuration = {}
 
@@ -60,7 +60,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, [SERVER_URL, SERVER_TIMEOUT, ELASTIC_APM_SECRET_TOKEN]
+        @application.services.one_service? FILTER, [SERVER_URL, SERVER_TIMEOUT, SECRET_TOKEN]
       end
 
       private
@@ -71,20 +71,20 @@ module JavaBuildpack
 
       SERVER_URL = 'server_urls'
 
-      ELASTIC_APM_SECRET_TOKEN = "secret_token"
+      SECRET_TOKEN = "secret_token"
 
       SERVER_TIMEOUT = 'server_timeout'
 
       SERVICE_NAME = 'service_name'
 
-      private_constant :FILTER, :SERVER_URL, :SERVER_TIMEOUT, :BASE_KEY, :ELASTIC_APM_SECRET_TOKEN
+      private_constant :FILTER, :SERVER_URL, :SERVER_TIMEOUT, :BASE_KEY, :SECRET_TOKEN
 
       def apply_configuration(credentials, configuration)
-        configuration['log_file_name']  = 'STDOUT'
-        configuration[SERVER_URL] = credentials[SERVER_URL]
-        configuration[SERVER_TIMEOUT] = credentials[SERVER_TIMEOUT]
-        configuration[ELASTIC_APM_SECRET_TOKEN] = credentials[ELASTIC_APM_SECRET_TOKEN]
-        configuration[SERVICE_NAME] = @application.details['application_name']
+        configuration['log_file_name'] = 'STDOUT'
+        configuration[SERVER_URL]      = credentials[SERVER_URL]
+        configuration[SERVER_TIMEOUT]  = credentials[SERVER_TIMEOUT]
+        configuration[SECRET_TOKEN]    = credentials[SECRET_TOKEN]
+        configuration[SERVICE_NAME]    = @application.details['application_name']
       end
 
       def apply_user_configuration(credentials, configuration)
