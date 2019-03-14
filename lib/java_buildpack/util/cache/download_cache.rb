@@ -66,13 +66,10 @@ module JavaBuildpack
         #                           already in the cache
         # @return [Void]
         def get(uri, &block)
-          print "DownloadCache - ElasticApmAgent "
           cached_file             = nil
           downloaded              = nil
 
           cached_file, downloaded = from_mutable_cache uri if InternetAvailability.instance.available?
-
-          puts "DownloadCache - ElasticApmAgent cached_file."
 
           unless cached_file
             cached_file = from_immutable_caches(uri)
