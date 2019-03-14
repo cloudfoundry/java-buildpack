@@ -50,8 +50,6 @@ module JavaBuildpack
         apply_user_configuration(credentials, configuration)
         write_java_opts(java_opts, configuration)
 
-        unless jar_name.empty? then jar_name else 'elastic-apm-agent-1.4.0.jar' end
-
         java_opts.add_javaagent(@droplet.sandbox + jar_name)
                   .add_system_property('elastic.apm.home', @droplet.sandbox)
       end
