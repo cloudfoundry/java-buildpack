@@ -42,7 +42,7 @@ module JavaBuildpack
       #                        application.
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES])['credentials']
+        credentials   = @application.services.find_service(FILTER, [SERVER_URL, APPLICATION_PACKAGES, ELASTIC_APM_SECRET_TOKEN])['credentials']
         java_opts     = @droplet.java_opts
         configuration = {}
 
@@ -60,7 +60,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        support_val=@application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
+        @application.services.one_service? FILTER, [SERVER_URL, APPLICATION_PACKAGES]
       end
 
       private
