@@ -74,14 +74,17 @@ module JavaBuildpack
 
       SERVER_URL = 'server_urls'
 
+      ELASTIC_APM_SECRET_TOKEN = "secret_token"
+
       APPLICATION_PACKAGES = 'application_packages'
 
-      private_constant :FILTER, :SERVER_URL, :APPLICATION_PACKAGES, :BASE_KEY
+      private_constant :FILTER, :SERVER_URL, :APPLICATION_PACKAGES, :BASE_KEY, :ELASTIC_APM_SECRET_TOKEN
 
       def apply_configuration(credentials, configuration)
         configuration['log_file_name']  = 'STDOUT'
         configuration[SERVER_URL] = credentials[SERVER_URL]
         configuration[APPLICATION_PACKAGES] = credentials[APPLICATION_PACKAGES]
+        configuration[ELASTIC_APM_SECRET_TOKEN] = credentials[ELASTIC_APM_SECRET_TOKEN]
         configuration['elastic.apm.service_name'] = @application.details['application_name']
       end
 

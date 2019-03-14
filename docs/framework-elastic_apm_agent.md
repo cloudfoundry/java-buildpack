@@ -19,13 +19,23 @@ For more information regarding setup and configuration, please refer to the [Ela
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
+### Create a "elasticapm" Service 
+
+`cf update-user-provided-service elasticapm  -p 'server_urls,application_packages,application_packages'`
+Enter your systems specific values into the service VCAP. 
+
+Bind your application to this service:  `cf bind-service ApplicationName elasticapm `
+
+When the application pushes/restages, this service will be detected and automatically bind the variables, jar file into the java apps startup. 
+
+### Static configuration of supported versions 
+
 The framework can be configured by modifying the [`config/elastic_apm_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
 
 | Name | Description
 | ---- | -----------
 | `repository_root` | The URL of the Elastic APM repository index ([details][repositories]).
 | `version` | The version of Elastic APM to use. Candidate versions can be found in [this listing][].
-| `enabled` | Whether to activate Elastic APM (upon the presence of `rebel-remote.xml`) or not.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/elastic_apm_agent.yml`]: ../config/elastic_apm_agent.yml
