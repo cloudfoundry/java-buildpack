@@ -40,6 +40,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.java_opts.add_system_property('contrast.override.appname', application_name) unless appname_exist?
+        @droplet.java_opts.add_system_property('contrast.server', server_name) unless server_exist?
 
         @droplet.java_opts
                 .add_system_property('contrast.dir', '$TMPDIR')
@@ -116,6 +117,15 @@ module JavaBuildpack
 
       def contrast_config
         @droplet.sandbox + 'contrast.config'
+      end
+
+      def server_exist?
+        @droplet.java_opts.any? { |java_opt| java_opt =~ /contrast.server/ }
+      end
+
+      def server_name
+        @configuration['default_server_name'] ||
+          "#{@application.details['space_name']}:#{@application.details['application_name']}:$CF_INSTANCE_INDEX"
       end
 
       def short_version
