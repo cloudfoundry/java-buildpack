@@ -27,6 +27,7 @@ The framework can be configured by modifying the [`config/contrast_security_agen
 | Name | Description
 | ---- | -----------
 | `repository_root` | The URL of the Contrast Security repository index ([details][repositories]).
+| `default_server_name` | The default server name for this application in the Contrast dashboard. The default value is an expression that will be evaluated based on the `space_name`, `application_name`, and `instance_index` of the application. |
 | `version` | The version of Contrast Security to use. Candidate versions can be found in [this listing][].
 
 [Contrast Security]: https://www.contrastsecurity.com
