@@ -42,6 +42,7 @@ module JavaBuildpack
         @droplet.java_opts.add_system_property('contrast.override.appname', application_name) unless appname_exist?
 
         @droplet.java_opts
+                .add_system_property('contrast.server', @configuration['default_server_name'])
                 .add_system_property('contrast.dir', '$TMPDIR')
                 .add_preformatted_options("-javaagent:#{qualify_path(@droplet.sandbox + jar_name, @droplet.root)}=" \
                                           "#{qualify_path(contrast_config, @droplet.root)}")
