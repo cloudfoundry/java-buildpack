@@ -42,7 +42,7 @@ module JavaBuildpack
       #                        application.
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials   = @application.services.find_service(FILTER, [SERVER_URL, SECRET_TOKEN, SERVER_TIMEOUT])['credentials']
+        credentials   = @application.services.find_service(FILTER, [SERVER_URL, SECRET_TOKEN])['credentials']
         java_opts     = @droplet.java_opts
         configuration = {}
 
@@ -58,12 +58,12 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, [SERVER_URL, SERVER_TIMEOUT, SECRET_TOKEN]
+        @application.services.one_service? FILTER, [SERVER_URL, SECRET_TOKEN]
       end
 
       private
 
-      FILTER = /elasticapm/
+      FILTER = /elastic[-]?apm/
 
       BASE_KEY = 'elastic.apm.'
 
@@ -71,16 +71,13 @@ module JavaBuildpack
 
       SECRET_TOKEN = "secret_token"
 
-      SERVER_TIMEOUT = 'server_timeout'
-
       SERVICE_NAME = 'service_name'
 
-      private_constant :FILTER, :SERVER_URL, :SERVER_TIMEOUT, :BASE_KEY, :SECRET_TOKEN
+      private_constant :FILTER, :SERVER_URL, :BASE_KEY, :SECRET_TOKEN
 
       def apply_configuration(credentials, configuration)
         configuration['log_file_name'] = 'STDOUT'
         configuration[SERVER_URL]      = credentials[SERVER_URL]
-        configuration[SERVER_TIMEOUT]  = credentials[SERVER_TIMEOUT]
         configuration[SECRET_TOKEN]    = credentials[SECRET_TOKEN]
         configuration[SERVICE_NAME]    = @application.details['application_name']
       end
