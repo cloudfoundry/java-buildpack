@@ -23,17 +23,17 @@ require 'java_buildpack/util/tokenized_version'
 describe JavaBuildpack::Framework::ElasticApmAgent do
   include_context 'with component help'
 
-  it 'does not detect without elasticapm-n/a service' do
+  it 'does not detect without elastic-apm-n/a service' do
     expect(component.detect).to be_nil
   end
 
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/elasticapm/, %w[secret_token secret_token]).and_return(true)
+      allow(services).to receive(:one_service?).with(/elastic[-]?apm/, %w[secret_token secret_token]).and_return(true)
     end
 
-    it 'detects with elastic-n/a service' do
+    it 'detects with elastic-apm-n/a service' do
       expect(component.detect).to eq("elastic-apm-agent=#{version}")
     end
 
