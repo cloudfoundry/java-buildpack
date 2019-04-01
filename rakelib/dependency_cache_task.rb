@@ -130,6 +130,13 @@ module Package
           configurations << c1
         end
 
+        if component_id == 'open_jdk_jre' && sub_component_id == 'jre'
+          c1 = configuration.clone
+          c1['version'] = '12.+'
+
+          configurations << c1
+        end
+
         configurations << configuration
       else
         configuration.each { |k, v| configurations << configurations(component_id, v, k) if v.is_a? Hash }
