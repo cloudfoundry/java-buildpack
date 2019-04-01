@@ -73,6 +73,7 @@ module Package
       'jprofiler_profiler' => 'JProfiler Profiler',
       'jre' => 'OpenJDK JRE',
       'jre-11' => 'OpenJDK JRE 11',
+      'jre-12' => 'OpenJDK JRE 12',
       'jrebel_agent' => 'JRebel Agent',
       'jvmkill_agent' => 'jvmkill Agent',
       'lifecycle_support' => 'Tomcat Lifecycle Support',
@@ -165,6 +166,13 @@ module Package
           configurations << c1
         end
 
+        if component_id == 'open_jdk_jre' && sub_component_id == 'jre'
+          c1 = configuration.clone
+          c1['sub_component_id'] = 'jre-12'
+          c1['version'] = '12.+'
+
+          configurations << c1
+        end
         configurations << configuration
       else
         configuration.each { |k, v| configurations << configurations(component_id, v, k) if v.is_a? Hash }
