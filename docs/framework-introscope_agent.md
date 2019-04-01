@@ -19,16 +19,16 @@ Tags are printed to standard output by the buildpack detect script
 ## User-Provided Service (Optional)
 Users may optionally provide their own Introscope service. A user-provided Introscope service must have a name or tag with `introscope` in it so that the Introscope Agent Framework will automatically configure the application to work with the service.
 
-The credential payload of the service may contain the following entries:
+The credential payload of the service may contain any valid CA APM Java agent property.
+Please refer to CA APM docs for a list of valid agent properties.
+
+The table below displays the property required when creating a service.
+Omitting the property below will cause the service to not be detected.
+
 
 | Name | Description
 | ---- | -----------
-|`agent_default_process_name`| (Optional) The name that is specified for the agent process. If not specified, default value is the application name.
-| `agent_manager_credential` | (Optional) The credential that is used to connect to the Enterprise Manager server
-| `agent_manager_url` | The url of the Enterprise Manager server
-| `agent_name` | (Optional) The name that should be given to this instance of the Introscope agent
-| `credential`| (Deprecated) The credential that is used to connect to the Enterprise Manager server
-| `url` | (Deprecated) The url of the Enterprise Manager server
+| `agentManager_url_1` | The url of the Enterprise Manager server
 
 To provide more complex values such as the `agent_name`, using the interactive mode when creating a user-provided service will manage the character escaping automatically. For example, the default `agent_name` could be set with a value of `agent-$(expr "$VCAP_APPLICATION" : '.*application_name[": ]*\([[:word:]]*\).*')` to calculate a value from the Cloud Foundry application name.
 

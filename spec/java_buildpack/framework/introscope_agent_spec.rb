@@ -40,7 +40,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     let(:credentials) { {} }
 
     before do
-      allow(services).to receive(:one_service?).with(/introscope/, %w[agent_manager_url url]).and_return(true)
+      allow(services).to receive(:one_service?).with(/introscope/, 'agentManager_url_1').and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => credentials)
     end
 
@@ -56,9 +56,12 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     end
 
     context do
-      let(:credentials) { { 'agent_name' => 'another-test-agent-name', 'url' => 'default-host:5001' } }
+      let(:credentials) do
+        { 'com_wily_introscope_agent_agentName' => 'another-test-agent-name',
+          'agentManager_url_1' => 'default-host:5001' }
+      end
 
-      it 'adds agent_name from credentials to JAVA_OPTS if specified' do
+      it 'adds com.wily.introscope.agent.agentName from credentials to JAVA_OPTS if specified' do
         component.release
 
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=another-test-agent-name')
@@ -67,7 +70,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
 
     context do
 
-      let(:credentials) { { 'url' => 'test-host-name:5001' } }
+      let(:credentials) { { 'agentManager_url_1' => 'test-host-name:5001' } }
 
       it 'parses the url and sets host port and default socket factory' do
         component.release
@@ -91,9 +94,9 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
 
     context do
 
-      let(:credentials) { { 'agent_manager_url' => 'test-host-name:5001' } }
+      let(:credentials) { { 'agentManager_url_1' => 'test-host-name:5001' } }
 
-      it 'parses the agent_manager_url and sets host port and default socket factory' do
+      it 'parses the agentManager_url_1 and sets host port and default socket factory' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
@@ -114,9 +117,9 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     end
 
     context do
-      let(:credentials) { { 'url' => 'ssl://test-host-name:5443' } }
+      let(:credentials) { { 'agentManager_url_1' => 'ssl://test-host-name:5443' } }
 
-      it 'parses the url and sets host, port, and ssl socket factory' do
+      it 'parses the agentManager_url_1 and sets host, port, and ssl socket factory' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
@@ -137,9 +140,9 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     end
 
     context do
-      let(:credentials) { { 'agent_manager_url' => 'ssl://test-host-name:5443' } }
+      let(:credentials) { { 'agentManager_url_1' => 'ssl://test-host-name:5443' } }
 
-      it 'parses the agent_manager_url and sets host, port, and ssl socket factory' do
+      it 'parses the agentManager_url_1 and sets host, port, and ssl socket factory' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
@@ -160,9 +163,9 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     end
 
     context do
-      let(:credentials) { { 'url' => 'http://test-host-name:8081' } }
+      let(:credentials) { { 'agentManager_url_1' => 'http://test-host-name:8081' } }
 
-      it 'parses the url and sets host, port, and http socket factory' do
+      it 'parses the agentManager_url_1 and sets host, port, and http socket factory' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
@@ -183,9 +186,9 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     end
 
     context do
-      let(:credentials) { { 'agent_manager_url' => 'http://test-host-name:8081' } }
+      let(:credentials) { { 'agentManager_url_1' => 'http://test-host-name:8081' } }
 
-      it 'parses the agent_manager_url and sets host, port, and http socket factory' do
+      it 'parses the agentManager_url_1 and sets host, port, and http socket factory' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
@@ -206,9 +209,9 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     end
 
     context do
-      let(:credentials) { { 'url' => 'https://test-host-name:8444' } }
+      let(:credentials) { { 'agentManager_url_1' => 'https://test-host-name:8444' } }
 
-      it 'parses the url and sets host, port, and https socket factory' do
+      it 'parses the agentManager_url_1 and sets host, port, and https socket factory' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
@@ -229,9 +232,9 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     end
 
     context do
-      let(:credentials) { { 'agent_manager_url' => 'https://test-host-name:8444' } }
+      let(:credentials) { { 'agentManager_url_1' => 'https://test-host-name:8444' } }
 
-      it 'parses the agent_manager_url and sets host, port, and https socket factory' do
+      it 'parses the aagentManager_url_1 and sets host, port, and https socket factory' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
@@ -252,9 +255,12 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
     end
 
     context do
-      let(:credentials) { { 'url' => 'https://test-host-name:8444', 'credential' => 'test-credential-cccf-88-ae' } }
+      let(:credentials) do
+        { 'agentManager_url_1' => 'https://test-host-name:8444',
+          'agentManager_credential' => 'test-credential-cccf-88-ae' }
+      end
 
-      it 'sets the url and also the credential' do
+      it 'sets the agentManager_url_1 and also the agentManager_credential' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
@@ -277,11 +283,11 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
 
     context do
       let(:credentials) do
-        { 'agent_manager_url' => 'https://test-host-name:8444',
-          'agent_manager_credential' => 'test-credential-cccf-88-ae' }
+        { 'agentManager_url_1' => 'https://test-host-name:8444',
+          'agentManager_credential' => 'test-credential-cccf-88-ae' }
       end
 
-      it 'sets the agent_manager_url and also the agent_manager_credential' do
+      it 'sets the agentManager_url_1 and also the agentManager_credential' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
@@ -304,12 +310,12 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
 
     context do
       let(:credentials) do
-        { 'agent_manager_url' => 'https://test-host-name:8444',
-          'agent_manager_credential' => 'test-credential-cccf-88-ae',
-          'agent_default_process_name' => 'TestProcess' }
+        { 'agentManager_url_1' => 'https://test-host-name:8444',
+          'agentManager_credential' => 'test-credential-cccf-88-ae',
+          'introscope_agent_defaultProcessName' => 'TestProcess' }
       end
 
-      it 'sets the agent_manager_url, agent_manager_credential, and agent_process_name' do
+      it 'sets the agentManager_url_1, agentManager_credential, and introscope_agent_defaultProcessName' do
         component.release
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/introscope_agent/Agent.jar')
