@@ -27,7 +27,6 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar
-        @droplet.copy_resources
       end
 
       # Modifies the application's runtime configuration. The component is expected to transform members of the
@@ -42,7 +41,7 @@ module JavaBuildpack
       #                        application.
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials   = @application.services.find_service(FILTER, [SERVER_URL, SECRET_TOKEN])['credentials']
+        credentials   = @application.services.find_service(FILTER, [SERVER_URLS, SECRET_TOKEN])['credentials']
         java_opts     = @droplet.java_opts
         configuration = {}
 
@@ -51,33 +50,33 @@ module JavaBuildpack
         write_java_opts(java_opts, configuration)
 
         java_opts.add_javaagent(@droplet.sandbox + jar_name)
-                  .add_system_property('elastic.apm.home', @droplet.sandbox)
+                 .add_system_property('elastic.apm.home', @droplet.sandbox)
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, [SERVER_URL, SECRET_TOKEN]
+        @application.services.one_service? FILTER, [SERVER_URLS, SECRET_TOKEN]
       end
 
       private
 
-      FILTER = /elastic[-]?apm/
+      FILTER = /elastic-apm/.freeze
 
       BASE_KEY = 'elastic.apm.'
 
-      SERVER_URL = 'server_urls'
+      SERVER_URLS = 'server_urls'
 
-      SECRET_TOKEN = "secret_token"
+      SECRET_TOKEN = 'secret_token'
 
       SERVICE_NAME = 'service_name'
 
-      private_constant :FILTER, :SERVER_URL, :BASE_KEY, :SECRET_TOKEN
+      private_constant :FILTER, :SERVER_URLS, :BASE_KEY, :SECRET_TOKEN
 
       def apply_configuration(credentials, configuration)
         configuration['log_file_name'] = 'STDOUT'
-        configuration[SERVER_URL]      = credentials[SERVER_URL]
+        configuration[SERVER_URLS]     = credentials[SERVER_URLS]
         configuration[SECRET_TOKEN]    = credentials[SECRET_TOKEN]
         configuration[SERVICE_NAME]    = @application.details['application_name']
       end
