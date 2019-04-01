@@ -5,7 +5,7 @@ The Elastic APM Agent Framework causes an application to be automatically config
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td>Existence of a single bound Elastic APM service. The existence of an Elastic APM service defined by the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service name, label or tag with <code>elasticapm</code> or <code>elastic-apm</code> as a substring.
+    <td>Existence of a single bound Elastic APM service. The existence of an Elastic APM service defined by the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service name, label or tag with <code>elastic-apm</code> as a substring.
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
@@ -13,8 +13,6 @@ The Elastic APM Agent Framework causes an application to be automatically config
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
-
-For more information regarding setup and configuration, please refer to the [Elastic APM with Pivotal Cloud Foundry tutorial][pivotal].
 
 ## User-Provided Service
 When binding Elastic APM using a user-provided service, it must have name or tag with `elasticapm` or `elastic-apm` in it. The credential payload can contain the following entries.
@@ -27,7 +25,7 @@ When binding Elastic APM using a user-provided service, it must have name or tag
 
 
 ### Creating an Elastic APM USer Provided Service
-Users must provide their own Elastic APM service. A user-provided Elastic APM service must have a name or tag with `elastic-apm` or `elasticapm` in it so that the Elastic APM Agent Framework will automatically configure the application to work with the service.
+Users must provide their own Elastic APM service. A user-provided Elastic APM service must have a name or tag with `elastic-apm` in it so that the Elastic APM Agent Framework will automatically configure the application to work with the service.
 
 Example of a minimal configuration:
 
