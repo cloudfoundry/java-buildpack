@@ -63,6 +63,7 @@ module Package
       'dyadic_ekm_security_provider' => 'Dyadic EKM Security Provider',
       'dynatrace_appmon_agent' => 'Dynatrace Appmon Agent',
       'dynatrace_one_agent' => 'Dynatrace OneAgent',
+      'elastic_apm_agent' => 'Elastic APM Agent',
       'geode_store' => 'Geode Tomcat Session Store',
       'google_stackdriver_debugger' => 'Google Stackdriver Debugger',
       'google_stackdriver_profiler' => 'Google Stackdriver Profiler',
