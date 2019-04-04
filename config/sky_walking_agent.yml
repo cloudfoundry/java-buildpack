@@ -17,4 +17,4 @@
 ---
 version: 3.+
 repository_root: https://java-buildpack.cloudfoundry.org/sky-walking
-default_application_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name")
+default_application_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name | @sh")
