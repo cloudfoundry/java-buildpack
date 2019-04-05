@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-set -e -u
+set -euo pipefail
 
 RELEASE=$1
 
