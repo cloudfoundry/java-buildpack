@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     git \
     libssl-dev \
     libreadline-dev \
+    lsb-release \
     locales \
     python \
     zip \
