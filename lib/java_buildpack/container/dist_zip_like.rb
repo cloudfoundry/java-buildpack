@@ -103,9 +103,9 @@ module JavaBuildpack
       def augment_classpath_content
         content = start_script(root).read
 
-        if content =~ PATTERN_CLASSPATH
+        if content.match? PATTERN_CLASSPATH
           augment_classpath content
-        elsif content =~ PATTERN_APP_CLASSPATH
+        elsif content.match? PATTERN_APP_CLASSPATH
           augment_app_classpath content
         end
       end
