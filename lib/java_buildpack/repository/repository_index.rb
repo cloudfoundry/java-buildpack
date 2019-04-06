@@ -87,7 +87,7 @@ module JavaBuildpack
         if redhat_release.exist?
           tokens = redhat_release.read.match(/(\w+) (?:Linux )?release (\d+)/)
           "#{tokens[1].downcase}#{tokens[2]}"
-        elsif `uname -s`.match?(/Darwin/)
+        elsif `uname -s` =~ /Darwin/
           'mountainlion'
         elsif !`which lsb_release 2> /dev/null`.empty?
           `lsb_release -cs`.strip

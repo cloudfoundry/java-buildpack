@@ -59,7 +59,7 @@ module Package
     def augment(raw, key, pattern, candidates, &block)
       if raw.respond_to? :at
         raw.map(&block)
-      elsif raw[:uri].match? pattern
+      elsif raw[:uri] =~ pattern
         candidates.map do |candidate|
           dup       = raw.clone
           dup[key]  = candidate
