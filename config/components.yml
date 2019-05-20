@@ -67,6 +67,7 @@ frameworks:
   - "JavaBuildpack::Framework::PostgresqlJDBC"
   - "JavaBuildpack::Framework::ProtectAppSecurityProvider"
   - "JavaBuildpack::Framework::RiverbedAppinternalsAgent"
+  - "JavaBuildpack::Framework::SeekerSecurityProvider"
   - "JavaBuildpack::Framework::SpringAutoReconfiguration"
   - "JavaBuildpack::Framework::SpringInsight"
   - "JavaBuildpack::Framework::SkyWalkingAgent"
