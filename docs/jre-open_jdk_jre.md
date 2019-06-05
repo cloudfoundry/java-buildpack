@@ -25,7 +25,7 @@ The JRE can be configured by modifying the [`config/open_jdk_jre.yml`][] file in
 | Name | Description
 | ---- | -----------
 | `jre.repository_root` | The URL of the OpenJDK repository index ([details][repositories]).
-| `jre.version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [mountainlion][] and [trusty][]. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
+| `jre.version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [mountainlion][], [trusty][] and [bionic][]. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
 | `jvmkill.repository_root` | The URL of the `jvmkill` repository index ([details][repositories]).
 | `jvmkill.version` | The version of `jvmkill` to use.  Candidate versions can be found in the listings for [mountainlion][jvmkill-mountainlion] and [trusty][jvmkill-trusty].
 | `memory_calculator` | Memory calculator defaults, described below under "Memory".
@@ -163,3 +163,4 @@ JVM Memory Configuration: -XX:MaxDirectMemorySize=10M -XX:MaxMetaspaceSize=99199
 [trusty]: http://download.pivotal.io.s3.amazonaws.com/openjdk/trusty/x86_64/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
 [Volume Service]: https://docs.cloudfoundry.org/devguide/services/using-vol-services.html
+[bionic]: http://download.pivotal.io.s3.amazonaws.com/openjdk/bionic/x86_64/index.yml
