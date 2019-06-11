@@ -17,3 +17,4 @@
 ---
 version: 1.+
 repository_root: https://raw.githubusercontent.com/elastic/apm-agent-java/master/cloudfoundry
+service_name: elastic-apm-default
