@@ -111,6 +111,11 @@ module JavaBuildpack
         java_opts.add_system_property('appdynamics.agent.tierName', name.to_s)
       end
 
+      def unique_host_name(java_opts, credentials)
+        name = credentials['unique-host-name'] || @configuration['default_unique_host_name'] ||  @application.details['application_name']
+        java_opts.add_system_property('appdynamics.agent.uniqueHostId', name.to_s)
+      end
+      
       # Copy default configuration present in resources folder of app_dynamics_agent ver* directories present in sandbox
       #
       # @param [Pathname] default_conf_dir the 'defaults' directory present in app_dynamics_agent resources.
