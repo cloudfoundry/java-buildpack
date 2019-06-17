@@ -52,6 +52,7 @@ module JavaBuildpack
         host_name java_opts, credentials
         port java_opts, credentials
         ssl_enabled java_opts, credentials
+        unique_host_name java_opts
       end
 
       protected
@@ -111,8 +112,8 @@ module JavaBuildpack
         java_opts.add_system_property('appdynamics.agent.tierName', name.to_s)
       end
 
-      def unique_host_name(java_opts, credentials)
-        name = credentials['unique-host-name'] || @configuration['default_unique_host_name'] ||  @application.details['application_name']
+      def unique_host_name(java_opts)
+        name = @configuration['default_unique_host_name'] ||  @application.details['application_name']
         java_opts.add_system_property('appdynamics.agent.uniqueHostId', name.to_s)
       end
       
