@@ -75,7 +75,7 @@ module JavaBuildpack
       end
 
       def account_access_key(java_opts, credentials)
-        account_access_key = credentials['account-access-secret']['secret'] || credentials['account-access-key']
+        account_access_key = credentials['account-access-key']|| credentials['account-access-secret']['secret'] 
         java_opts.add_system_property 'appdynamics.agent.accountAccessKey', account_access_key if account_access_key
       end
 
