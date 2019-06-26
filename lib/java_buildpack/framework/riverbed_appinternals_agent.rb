@@ -35,7 +35,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
-          true, 'The Riverbed AppInternals download location is always accessible'
+          true, 'Downloading from Riverbed AppInternals Service Broker'
         ) do
           download_zip(false, @droplet.sandbox, @component_name)
         end
