@@ -52,7 +52,6 @@ module JavaBuildpack
         host_name java_opts, credentials
         port java_opts, credentials
         ssl_enabled java_opts, credentials
-        unique_host_name java_opts
       end
 
       protected
@@ -75,7 +74,7 @@ module JavaBuildpack
       end
 
       def account_access_key(java_opts, credentials)
-        account_access_key = credentials['account-access-key'] || credentials['account-access-secret']['secret'] 
+        account_access_key = credentials['account-access-key']
         java_opts.add_system_property 'appdynamics.agent.accountAccessKey', account_access_key if account_access_key
       end
 
@@ -112,11 +111,6 @@ module JavaBuildpack
         java_opts.add_system_property('appdynamics.agent.tierName', name.to_s)
       end
 
-      def unique_host_name(java_opts)
-        name = @configuration['default_unique_host_name'] ||  @application.details['application_name']
-        java_opts.add_system_property('appdynamics.agent.uniqueHostId', name.to_s)
-      end
-      
       # Copy default configuration present in resources folder of app_dynamics_agent ver* directories present in sandbox
       #
       # @param [Pathname] default_conf_dir the 'defaults' directory present in app_dynamics_agent resources.
