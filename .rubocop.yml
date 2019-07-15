@@ -36,8 +36,6 @@ Metrics/PerceivedComplexity:
   Max: 10
 Naming/UncommunicativeMethodParamName:
   Enabled: false
-Performance/RegexpMatch:
-  Enabled: false
 RSpec/AnyInstance:
   Enabled: false
 RSpec/ExampleLength:

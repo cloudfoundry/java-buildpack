@@ -46,13 +46,13 @@ class Numeric
 
   MILLISECOND = 0.001
 
-  TENTH = (100 * MILLISECOND).freeze
+  TENTH = 100 * MILLISECOND
 
-  SECOND = (10 * TENTH).freeze
+  SECOND = 10 * TENTH
 
-  MINUTE = (60 * SECOND).freeze
+  MINUTE = 60 * SECOND
 
-  HOUR = (60 * MINUTE).freeze
+  HOUR = 60 * MINUTE
 
   private_constant :MILLISECOND, :TENTH, :SECOND, :MINUTE, :HOUR
 
