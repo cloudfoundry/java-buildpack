@@ -15,6 +15,6 @@
 
 # Configuration for the JRebel framework
 ---
-version: +
+version: 2019.1.4
 repository_root: https://dl.zeroturnaround.com/jrebel
 enabled: true

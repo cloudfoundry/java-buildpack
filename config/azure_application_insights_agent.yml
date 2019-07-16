@@ -15,5 +15,5 @@
 
 # Configuration for the Azure Application Insights framework.
 ---
-version: 2.+
+version: 2.4.0
 repository_root: https://java-buildpack.cloudfoundry.org/azure-application-insights

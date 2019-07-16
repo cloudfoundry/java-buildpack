@@ -15,6 +15,6 @@
 
 # Configuration for the riverbed appinternals agent framework
 ---
-version: 10.+
+version: 10.17.1_BL510
 repository_root: https://pcf-instrumentation-download.steelcentral.net/
 rvbd_moniker: $(jq -r -n "$VCAP_APPLICATION | .application_name")
