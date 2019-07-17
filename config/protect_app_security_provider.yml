@@ -16,4 +16,4 @@
 # Configuration for the ProtectApp Security Provider framework
 ---
 version: 8.4.+
-repository_root: http://files.cf-hsm.io/protectapp-installer
+repository_root: https://files.cf-hsm.io/protectapp-installer
