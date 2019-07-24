@@ -33,9 +33,9 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
       allow(services).to receive(:one_service?).with(/contrast-security/, 'api_key', 'service_key', 'teamserver_url',
                                                      'username').and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => { 'teamserver_url' => 'a_url',
-                                                                              'username'       => 'contrast_user',
-                                                                              'api_key'        => 'api_test',
-                                                                              'service_key'    => 'service_test' })
+                                                                              'username' => 'contrast_user',
+                                                                              'api_key' => 'api_test',
+                                                                              'service_key' => 'service_test' })
     end
 
     it 'detects with contrastsecurity service' do
@@ -77,6 +77,7 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
         '=$PWD/.java-buildpack/contrast_security_agent/contrast.config')
       expect(java_opts).to include('-Dcontrast.dir=$TMPDIR')
       expect(java_opts).to include('-Dcontrast.override.appname=test-application-name')
+      expect(java_opts).to include('-Dcontrast.server=test-space-name:test-application-name:$CF_INSTANCE_INDEX')
     end
 
     it 'created contrast.config',
@@ -93,6 +94,15 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
 
       expect(java_opts).to include('-Dcontrast.override.appname=NAME_ALREADY_OVERRIDDEN')
       expect(java_opts).not_to include('-Dcontrast.override.appname=test-application-name')
+    end
+
+    it 'does not override server if there is an existing server' do
+      java_opts.add_system_property('contrast.server', 'NAME_ALREADY_OVERRIDDEN')
+
+      component.release
+
+      expect(java_opts).to include('-Dcontrast.server=NAME_ALREADY_OVERRIDDEN')
+      expect(java_opts).not_to include('-Dcontrast.server=test-space-name:test-application-name:$CF_INSTANCE_INDEX')
     end
 
   end

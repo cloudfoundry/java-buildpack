@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,11 +35,11 @@ describe JavaBuildpack::Container::Tomcat do
   let(:configuration) do
     { 'access_logging_support' => access_logging_support_configuration,
       'external_configuration' => tomcat_external_configuration,
-      'geode_store'            => geode_store_configuration,
-      'lifecycle_support'      => lifecycle_support_configuration,
-      'logging_support'        => logging_support_configuration,
-      'redis_store'            => redis_store_configuration,
-      'tomcat'                 => tomcat_configuration }
+      'geode_store' => geode_store_configuration,
+      'lifecycle_support' => lifecycle_support_configuration,
+      'logging_support' => logging_support_configuration,
+      'redis_store' => redis_store_configuration,
+      'tomcat' => tomcat_configuration }
   end
 
   let(:access_logging_support_configuration) { instance_double('logging-support-configuration') }
@@ -119,7 +119,7 @@ class StubTomcat < JavaBuildpack::Container::Tomcat
 end
 
 def sub_configuration_context(configuration)
-  c                 = context.clone
+  c = context.clone
   c[:configuration] = configuration
   c
 end

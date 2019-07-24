@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ describe JavaBuildpack::Container::TomcatInstance do
   end
 
   it 'extracts Tomcat from a GZipped TAR',
-     app_fixture:   'container_tomcat',
+     app_fixture: 'container_tomcat',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
     component.compile
@@ -50,7 +50,7 @@ describe JavaBuildpack::Container::TomcatInstance do
   end
 
   it 'configures for Tomcat 7',
-     app_fixture:   'container_tomcat',
+     app_fixture: 'container_tomcat',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
     component.compile
@@ -63,7 +63,7 @@ describe JavaBuildpack::Container::TomcatInstance do
     let(:version) { '8.0.12' }
 
     it 'configures for Tomcat 8',
-       app_fixture:   'container_tomcat',
+       app_fixture: 'container_tomcat',
        cache_fixture: 'stub-tomcat.tar.gz' do
 
       component.compile
@@ -74,7 +74,7 @@ describe JavaBuildpack::Container::TomcatInstance do
   end
 
   it 'links only the application files and directories to the ROOT webapp',
-     app_fixture:   'container_tomcat_with_index',
+     app_fixture: 'container_tomcat_with_index',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
     FileUtils.touch(app_dir + '.test-file')
@@ -100,7 +100,7 @@ describe JavaBuildpack::Container::TomcatInstance do
     let(:configuration) { { 'context_path' => '/first-segment/second-segment' } }
 
     it 'links only the application files and directories to the first-segment#second-segment webapp',
-       app_fixture:   'container_tomcat_with_index',
+       app_fixture: 'container_tomcat_with_index',
        cache_fixture: 'stub-tomcat.tar.gz' do
 
       FileUtils.touch(app_dir + '.test-file')
@@ -124,20 +124,20 @@ describe JavaBuildpack::Container::TomcatInstance do
   end
 
   it 'links the Tomcat datasource JAR to the ROOT webapp when that JAR is present',
-     app_fixture:   'container_tomcat',
+     app_fixture: 'container_tomcat',
      cache_fixture: 'stub-tomcat7.tar.gz' do
 
     component.compile
 
     web_inf_lib = app_dir + 'WEB-INF/lib'
-    app_jar     = web_inf_lib + 'tomcat-jdbc.jar'
+    app_jar = web_inf_lib + 'tomcat-jdbc.jar'
     expect(app_jar).to exist
     expect(app_jar).to be_symlink
     expect(app_jar.readlink).to eq((sandbox + 'lib/tomcat-jdbc.jar').relative_path_from(web_inf_lib))
   end
 
   it 'does not link the Tomcat datasource JAR to the ROOT webapp when that JAR is absent',
-     app_fixture:   'container_tomcat',
+     app_fixture: 'container_tomcat',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
     component.compile
@@ -147,7 +147,7 @@ describe JavaBuildpack::Container::TomcatInstance do
   end
 
   it 'links additional libraries to the ROOT webapp',
-     app_fixture:   'container_tomcat',
+     app_fixture: 'container_tomcat',
      cache_fixture: 'stub-tomcat.tar.gz' do
 
     component.compile

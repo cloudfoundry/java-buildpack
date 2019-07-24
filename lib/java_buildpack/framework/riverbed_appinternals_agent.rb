@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,16 +24,28 @@ module JavaBuildpack
     # Encapsulates the functionality for running the Riverbed Appinternals Agent support.
     class RiverbedAppinternalsAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
+      # Creates an instance
+      #
+      # @param [Hash] context a collection of utilities used the component
+      def initialize(context)
+        super(context)
+        @uri = download_url(credentials, @uri)
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_zip(false, @droplet.sandbox, @component_name)
+        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+          true, 'Downloading from Riverbed AppInternals Service Broker'
+        ) do
+          download_zip(false, @droplet.sandbox, @component_name)
+        end
         @droplet.copy_resources
+      rescue StandardError => e
+        raise "Riverbed AppInternals download failed: #{e}"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = @application.services.find_service(FILTER)['credentials']
-
         @droplet.environment_variables
                 .add_environment_variable('AIX_INSTRUMENT_ALL', 1)
                 .add_environment_variable('DSA_PORT', dsa_port(credentials))
@@ -57,12 +69,22 @@ module JavaBuildpack
 
       private
 
-      FILTER = /appinternals/
+      PROFILERURL = 'profilerUrlLinux'
+
+      FILTER = /appinternals/.freeze
 
       private_constant :FILTER
 
       def agent_path
         @droplet.sandbox + 'agent/lib' + lib_name
+      end
+
+      def credentials
+        service['credentials'] unless service.nil?
+      end
+
+      def service
+        @application.services.find_service(FILTER)
       end
 
       def agent_port(credentials)
@@ -84,6 +106,11 @@ module JavaBuildpack
       def rvbd_moniker(credentials)
         credentials['rvbd_moniker'] || @configuration['rvbd_moniker']
       end
+
+      def download_url(credentials, default_url)
+        (credentials[PROFILERURL] unless credentials.nil?) || default_url
+      end
+
     end
   end
 end

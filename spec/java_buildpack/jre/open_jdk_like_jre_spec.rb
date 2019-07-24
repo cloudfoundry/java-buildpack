@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ require 'spec_helper'
 require 'component_helper'
 require 'java_buildpack/component/mutable_java_home'
 require 'java_buildpack/jre/open_jdk_like_jre'
+require 'java_buildpack/util/tokenized_version'
 require 'resolv'
 
 describe JavaBuildpack::Jre::OpenJDKLikeJre do
@@ -72,6 +73,45 @@ describe JavaBuildpack::Jre::OpenJDKLikeJre do
 
     expect(networking.networkaddress_cache_ttl).to eq 0
     expect(networking.networkaddress_cache_negative_ttl).to eq 0
+  end
+
+  it 'does not set active processor count before Java 1.8.0_191',
+     cache_fixture: 'stub-java.tar.gz' do
+
+    component.detect
+    component.release
+
+    expect(java_opts).not_to include('-XX:ActiveProcessorCount=$(nproc)')
+  end
+
+  context 'with Java 1.8.0_191' do
+
+    let(:version) { '1.8.0_191' }
+
+    it 'sets active processor count at Java 1.8.0_191',
+       cache_fixture: 'stub-java.tar.gz' do
+
+      component.detect
+      component.release
+
+      expect(java_opts).to include('-XX:ActiveProcessorCount=$(nproc)')
+    end
+
+  end
+
+  context 'with Java 11.0.0' do
+
+    let(:version) { '11.0.0' }
+
+    it 'sets active processor count after Java 1.8.0_191',
+       cache_fixture: 'stub-java.tar.gz' do
+
+      component.detect
+      component.release
+
+      expect(java_opts).to include('-XX:ActiveProcessorCount=$(nproc)')
+    end
+
   end
 
 end

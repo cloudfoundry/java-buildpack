@@ -1,5 +1,5 @@
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 # Pre Java 1.8, permgen was used instead of metaspace.  Please see the documentation for more detail.
 
 # You must specify a the repository root of an Oracle JRE repository. Please see the documentation for more detail.
-# e.g.  repository_root: "http://example.com/oracle-jre/{platform}/{architecture}"
+# e.g.  repository_root: "https://example.com/oracle-jre/{platform}/{architecture}"
 ---
 jre:
   version: 1.8.0_+

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /session-replication/
+      FILTER = /session-replication/.freeze
 
       FLUSH_VALVE_CLASS_NAME = 'com.gopivotal.manager.SessionFlushValve'
 
@@ -76,12 +76,12 @@ module JavaBuildpack
                                                          KEY_PASSWORD)['credentials']
 
         manager.add_element 'Store',
-                            'className'          => REDIS_STORE_CLASS_NAME,
-                            'host'               => credentials[KEY_HOST_NAME] || credentials[KEY_HOST],
-                            'port'               => credentials[KEY_PORT],
-                            'database'           => @configuration['database'],
-                            'password'           => credentials[KEY_PASSWORD],
-                            'timeout'            => @configuration['timeout'],
+                            'className' => REDIS_STORE_CLASS_NAME,
+                            'host' => credentials[KEY_HOST_NAME] || credentials[KEY_HOST],
+                            'port' => credentials[KEY_PORT],
+                            'database' => @configuration['database'],
+                            'password' => credentials[KEY_PASSWORD],
+                            'timeout' => @configuration['timeout'],
                             'connectionPoolSize' => @configuration['connection_pool_size']
       end
 
@@ -90,7 +90,7 @@ module JavaBuildpack
       end
 
       def formatter
-        formatter         = REXML::Formatters::Pretty.new(4)
+        formatter = REXML::Formatters::Pretty.new(4)
         formatter.compact = true
         formatter
       end
@@ -103,7 +103,7 @@ module JavaBuildpack
         puts '       Adding Redis-based Session Replication'
 
         document = read_xml context_xml
-        context  = REXML::XPath.match(document, '/Context').first
+        context = REXML::XPath.match(document, '/Context').first
 
         add_valve context
         add_manager context

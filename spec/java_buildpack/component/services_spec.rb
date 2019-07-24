@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ describe JavaBuildpack::Component::Services do
     context('with single service') do
 
       let(:service_payload) do
-        [{ 'name'        => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+        [{ 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
            'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' } }]
       end
 
@@ -59,7 +59,7 @@ describe JavaBuildpack::Component::Services do
 
       let(:service_payload) do
         [{ 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan' },
-         { 'name'        => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+         { 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
            'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' } }]
       end
 
@@ -92,11 +92,11 @@ describe JavaBuildpack::Component::Services do
     context('with single service') do
 
       let(:service_payload) do
-        [{ 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
-           'credentials'   => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
+        [{ 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+           'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
            'volume_mounts' => [{ 'container_dir' => '/var/vcap/data/9ae0b817-1446-4915-9990-74c1bb26f147',
-                                 'device_type'   => 'shared',
-                                 'mode'          => 'rw' }] }]
+                                 'device_type' => 'shared',
+                                 'mode' => 'rw' }] }]
       end
 
       it 'returns nil from find_service? if there is no service that matches' do
@@ -124,14 +124,14 @@ describe JavaBuildpack::Component::Services do
     context('with two services') do
 
       let(:service_payload) do
-        [{ 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
-           'credentials'   => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
+        [{ 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+           'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
            'volume_mounts' => [] },
-         { 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
-           'credentials'   => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
+         { 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+           'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
            'volume_mounts' => [{ 'container_dir' => '/var/vcap/data/9ae0b817-1446-4915-9990-74c1bb26f147',
-                                 'device_type'   => 'shared',
-                                 'mode'          => 'rw' }] }]
+                                 'device_type' => 'shared',
+                                 'mode' => 'rw' }] }]
       end
 
       it 'returns nil from find_service? if there is no service that matches' do
@@ -163,7 +163,7 @@ describe JavaBuildpack::Component::Services do
     context('with single service') do
 
       let(:service_payload) do
-        [{ 'name'        => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+        [{ 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
            'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' } }]
       end
 
@@ -218,7 +218,7 @@ describe JavaBuildpack::Component::Services do
 
       let(:service_payload) do
         [{ 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan' },
-         { 'name'        => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+         { 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
            'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' } }]
       end
 
@@ -275,7 +275,7 @@ describe JavaBuildpack::Component::Services do
 
     context('with no volume mounts') do
       let(:service_payload) do
-        [{ 'name'        => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+        [{ 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
            'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' } }]
       end
 
@@ -298,8 +298,8 @@ describe JavaBuildpack::Component::Services do
 
     context('with empty volume mounts') do
       let(:service_payload) do
-        [{ 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
-           'credentials'   => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
+        [{ 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+           'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
            'volume_mounts' => [] }]
       end
 
@@ -322,11 +322,11 @@ describe JavaBuildpack::Component::Services do
 
     context('with one volume mount') do
       let(:service_payload) do
-        [{ 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
-           'credentials'   => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
+        [{ 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+           'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
            'volume_mounts' => [{ 'container_dir' => '/var/vcap/data/9ae0b817-1446-4915-9990-74c1bb26f147',
-                                 'device_type'   => 'shared',
-                                 'mode'          => 'rw' }] }]
+                                 'device_type' => 'shared',
+                                 'mode' => 'rw' }] }]
       end
 
       it 'returns true from one_volume_service? if there is a matching name and empty volume_mounts' do
@@ -348,14 +348,14 @@ describe JavaBuildpack::Component::Services do
 
     context('with two volume mounts') do
       let(:service_payload) do
-        [{ 'name'          => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
-           'credentials'   => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
+        [{ 'name' => 'test-name', 'label' => 'test-label', 'tags' => ['test-tag'], 'plan' => 'test-plan',
+           'credentials' => { 'uri' => 'test-uri', 'h1' => 'foo', 'h2' => 'foo' },
            'volume_mounts' => [{ 'container_dir' => '/var/vcap/data/9ae0b817-1446-4915-9990-74c1bb26f147',
-                                 'device_type'   => 'shared',
-                                 'mode'          => 'rw' },
+                                 'device_type' => 'shared',
+                                 'mode' => 'rw' },
                                { 'container_dir' => '/var/vcap/data/9ae0b817-1446-4915-9990-74c1bb26f147',
-                                 'device_type'   => 'shared',
-                                 'mode'          => 'rw' }] }]
+                                 'device_type' => 'shared',
+                                 'mode' => 'rw' }] }]
       end
 
       it 'returns true from one_volume_service? if there is a matching name and empty volume_mounts' do

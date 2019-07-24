@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ describe JavaBuildpack::Buildpack do
       .to receive(:load).with('components').and_return(
         'containers' => %w[Test::StubContainer1 Test::StubContainer2],
         'frameworks' => %w[Test::StubFramework1 Test::StubFramework2],
-        'jres'       => %w[Test::StubJre1 Test::StubJre2]
+        'jres' => %w[Test::StubJre1 Test::StubJre2]
       )
 
     allow(Test::StubContainer1).to receive(:new).and_return(stub_container1)
@@ -92,7 +92,7 @@ describe JavaBuildpack::Buildpack do
                           .and_return(
                             'containers' => [],
                             'frameworks' => ['JavaBuildpack::Framework::JavaOpts'],
-                            'jres'       => []
+                            'jres' => []
                           )
     end
 
@@ -129,9 +129,9 @@ describe JavaBuildpack::Buildpack do
     expect(stub_jre2).not_to have_received(:release)
 
     expect(buildpack.release)
-      .to eq({ 'addons'                => [],
-               'config_vars'           => {},
-               'default_process_types' => { 'web'  => 'JAVA_OPTS="" && test-command',
+      .to eq({ 'addons' => [],
+               'config_vars' => {},
+               'default_process_types' => { 'web' => 'JAVA_OPTS="" && test-command',
                                             'task' => 'JAVA_OPTS="" && test-command' } }.to_yaml)
   end
 

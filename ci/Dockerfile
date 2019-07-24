@@ -1,11 +1,13 @@
-FROM ubuntu:trusty
+FROM ubuntu:bionic
 
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     git \
-    libssl-dev \
+    libssl1.0-dev \
     libreadline-dev \
+    lsb-release \
+    locales \
     python \
     zip \
     zlib1g-dev \
@@ -30,10 +32,13 @@ RUN eval "$(rbenv init -)" \
  && echo 'bundler' >> $(rbenv root)/default-gems
 
 RUN eval "$(rbenv init -)" \
- && rbenv install 2.3.7
+ && rbenv install 2.3.8
 
 RUN eval "$(rbenv init -)" \
- && rbenv install 2.4.4
+ && rbenv install 2.4.6
 
 RUN eval "$(rbenv init -)" \
- && rbenv install 2.5.1
+ && rbenv install 2.5.5
+
+RUN eval "$(rbenv init -)" \
+ && rbenv install 2.6.2

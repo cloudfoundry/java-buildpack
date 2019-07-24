@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,9 +36,9 @@ describe JavaBuildpack::Jre::OpenJDKLike do
   let(:version_8) { VERSION_8 = JavaBuildpack::Util::TokenizedVersion.new('1.8.0_+') }
 
   let(:configuration) do
-    { 'jre'               => jre_configuration,
+    { 'jre' => jre_configuration,
       'memory_calculator' => memory_calculator_configuration,
-      'jvmkill_agent'     => jvmkill_agent_configuration }
+      'jvmkill_agent' => jvmkill_agent_configuration }
   end
 
   let(:jre_configuration) { instance_double('jre_configuration') }
@@ -99,7 +99,7 @@ class StubOpenJDKLike < JavaBuildpack::Jre::OpenJDKLike
 end
 
 def sub_configuration_context(configuration)
-  c                 = context.clone
+  c = context.clone
   c[:configuration] = configuration
   c
 end

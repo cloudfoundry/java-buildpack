@@ -1,5 +1,5 @@
 # OpenJDK JRE
-The OpenJDK JRE provides Java runtimes from the [OpenJDK][] project.  Versions of Java from the `1.6`, `1.7`, and `1.8` lines are available.  Unless otherwise configured, the version of Java that will be used is specified in [`config/open_jdk_jre.yml`][].
+The OpenJDK JRE provides Java runtimes from the [OpenJDK][] project.  Unless otherwise configured, the version of Java that will be used is specified in [`config/open_jdk_jre.yml`][].
 
 <table>
   <tr>
@@ -25,7 +25,7 @@ The JRE can be configured by modifying the [`config/open_jdk_jre.yml`][] file in
 | Name | Description
 | ---- | -----------
 | `jre.repository_root` | The URL of the OpenJDK repository index ([details][repositories]).
-| `jre.version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [mountainlion][] and [trusty][]. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
+| `jre.version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [mountainlion][], [trusty][] and [bionic][]. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
 | `jvmkill.repository_root` | The URL of the `jvmkill` repository index ([details][repositories]).
 | `jvmkill.version` | The version of `jvmkill` to use.  Candidate versions can be found in the listings for [mountainlion][jvmkill-mountainlion] and [trusty][jvmkill-trusty].
 | `memory_calculator` | Memory calculator defaults, described below under "Memory".
@@ -104,16 +104,19 @@ class_count: 500
 
 A percentage of the total memory allocated to the container to be left as headroom and excluded from the memory calculation.
 
+```yaml
+headroom: 10
+```
+
 #### Stack Threads
 
-The amount of memory that should be allocated to stacks is given as an amount of memory per
-thread with the Java option `-Xss`. If an explicit number of
-threads should be used for the calculation of stack memory, then it should be specified as in
-the following example:
+The amount of memory that should be allocated to stacks is given as an amount of memory per thread with the Java option `-Xss`. If an explicit number of threads should be used for the calculation of stack memory, then it should be specified as in the following example:
 
 ```yaml
 stack_threads: 500
 ```
+
+Note that the default value of 250 threads is optimized for a default Tomcat configuration.  If you are using another container, especially something non-blocking like Netty, it's more appropriate to use a significantly smaller value.  Typically 25 threads would cover the needs of both the server (Netty) and the threads started by the JVM itself.
 
 #### Java Options
 
@@ -160,3 +163,4 @@ JVM Memory Configuration: -XX:MaxDirectMemorySize=10M -XX:MaxMetaspaceSize=99199
 [trusty]: http://download.pivotal.io.s3.amazonaws.com/openjdk/trusty/x86_64/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
 [Volume Service]: https://docs.cloudfoundry.org/devguide/services/using-vol-services.html
+[bionic]: http://download.pivotal.io.s3.amazonaws.com/openjdk/bionic/x86_64/index.yml

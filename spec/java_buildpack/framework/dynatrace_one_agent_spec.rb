@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
     before do
       allow(services).to receive(:one_service?).with(/dynatrace/, 'apitoken', 'environmentid').and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => { 'environmentid' => 'test-environmentid',
-                                                                              'apiurl'        => 'test-apiurl',
-                                                                              'apitoken'      => 'test-apitoken' })
+                                                                              'apiurl' => 'test-apiurl',
+                                                                              'apitoken' => 'test-apitoken' })
 
       allow(application_cache).to receive(:get)
         .with('test-apiurl/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64&' \
@@ -54,13 +54,14 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
       expect(sandbox + 'manifest.json').to exist
     end
 
-    it 'updates JAVA_OPTS with agent loader',
+    it 'updates JAVA_OPTS with agent loader and share set to off',
        app_fixture: 'framework_dynatrace_one_agent' do
 
       component.release
 
       expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
         'liboneagentloader.so')
+      expect(java_opts).to include('-Xshare:off')
     end
 
     it 'updates environment variables',
@@ -96,8 +97,8 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
       before do
         allow(services).to receive(:one_service?).with(/dynatrace/, 'apitoken', 'environmentid').and_return(true)
         allow(services).to receive(:find_service).and_return('credentials' => { 'environmentid' => 'test-environmentid',
-                                                                                'apiurl'        => 'test-apiurl',
-                                                                                'apitoken'      => 'test-apitoken' })
+                                                                                'apiurl' => 'test-apiurl',
+                                                                                'apitoken' => 'test-apitoken' })
         allow(application_cache).to receive(:get)
           .with('test-apiurl/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64' \
             '&Api-Token=test-apitoken')
@@ -115,9 +116,9 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
       before do
         allow(services).to receive(:one_service?).with(/dynatrace/, 'apitoken', 'environmentid').and_return(true)
         allow(services).to receive(:find_service).and_return('credentials' => { 'environmentid' => 'test-environmentid',
-                                                                                'apiurl'        => 'test-apiurl',
-                                                                                'apitoken'      => 'test-apitoken',
-                                                                                'skiperrors'    => 'true' })
+                                                                                'apiurl' => 'test-apiurl',
+                                                                                'apitoken' => 'test-apitoken',
+                                                                                'skiperrors' => 'true' })
         allow(application_cache).to receive(:get)
           .with('test-apiurl/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64' \
             '&Api-Token=test-apitoken')

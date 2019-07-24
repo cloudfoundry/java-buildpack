@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ describe JavaBuildpack::Component::ImmutableJavaHome do
 
   let(:delegate) do
     instance_double(JavaBuildpack::Component::MutableJavaHome,
-                    root:             Pathname.new('test-java-home'),
+                    root: Pathname.new('test-java-home'),
                     java_8_or_later?: true,
                     java_9_or_later?: true,
-                    version:          JavaBuildpack::Util::TokenizedVersion.new('1.2.3_u04'))
+                    version: JavaBuildpack::Util::TokenizedVersion.new('1.2.3_u04'))
   end
 
   let(:immutable_java_home) { described_class.new delegate, Pathname.new('.') }

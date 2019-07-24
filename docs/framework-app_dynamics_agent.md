@@ -42,7 +42,7 @@ The framework can be configured by modifying the [`config/app_dynamics_agent.yml
 | `version` | The version of AppDynamics to use. Candidate versions can be found in [this listing][].
 
 ### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/app_dynamics_agent` directory in the buildpack fork. For example, to override the default `app-agent-config.xml` add your custom file to `resources/app_dynamics_agent/conf/app-agent-config.xml`.
+The framework can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/app_dynamics_agent` directory in the buildpack fork. For example, to override the default `app-agent-config.xml` add your custom file to `resources/app_dynamics_agent/<version>/conf/app-agent-config.xml`.
 
 [`config/app_dynamics_agent.yml`]: ../config/app_dynamics_agent.yml
 [AppDynamics Java Agent Configuration Properties]: https://docs.appdynamics.com/display/PRO42/Java+Agent+Configuration+Properties

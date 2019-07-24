@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,13 +28,20 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_zip(false, @droplet.sandbox, 'AppDynamics Agent')
+
+        # acessor for resources dir through @droplet?
+        resources_dir = Pathname.new(File.expand_path('../../../resources', __dir__)).freeze
+        default_conf_dir = resources_dir + @droplet.component_id + 'defaults'
+
+        copy_appd_default_configuration(default_conf_dir)
+
         @droplet.copy_resources
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         credentials = @application.services.find_service(FILTER, 'host-name')['credentials']
-        java_opts   = @droplet.java_opts
+        java_opts = @droplet.java_opts
         java_opts.add_javaagent(@droplet.sandbox + 'javaagent.jar')
 
         application_name java_opts, credentials
@@ -45,6 +52,7 @@ module JavaBuildpack
         host_name java_opts, credentials
         port java_opts, credentials
         ssl_enabled java_opts, credentials
+        unique_host_name java_opts
       end
 
       protected
@@ -56,7 +64,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /app[-]?dynamics/
+      FILTER = /app[-]?dynamics/.freeze
 
       private_constant :FILTER
 
@@ -67,7 +75,7 @@ module JavaBuildpack
       end
 
       def account_access_key(java_opts, credentials)
-        account_access_key = credentials['account-access-key']
+        account_access_key = credentials['account-access-key'] || credentials.dig('account-access-secret', 'secret')
         java_opts.add_system_property 'appdynamics.agent.accountAccessKey', account_access_key if account_access_key
       end
 
@@ -102,6 +110,23 @@ module JavaBuildpack
         name = credentials['tier-name'] || @configuration['default_tier_name'] ||
           @application.details['application_name']
         java_opts.add_system_property('appdynamics.agent.tierName', name.to_s)
+      end
+
+      def unique_host_name(java_opts)
+        name = @configuration['default_unique_host_name'] || @application.details['application_name']
+        java_opts.add_system_property('appdynamics.agent.uniqueHostId', name.to_s)
+      end
+
+      # Copy default configuration present in resources folder of app_dynamics_agent ver* directories present in sandbox
+      #
+      # @param [Pathname] default_conf_dir the 'defaults' directory present in app_dynamics_agent resources.
+      # @return [Void]
+      def copy_appd_default_configuration(default_conf_dir)
+        return unless default_conf_dir.exist?
+
+        Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
+          FileUtils.cp_r "#{default_conf_dir}/.", target_directory
+        end
       end
 
     end

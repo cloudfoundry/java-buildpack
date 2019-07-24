@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
   end
 
   it 'does not throw an error when a directory ends in .jar',
-     app_fixture:   'jre_memory_calculator_jar_directory',
+     app_fixture: 'jre_memory_calculator_jar_directory',
      cache_fixture: 'stub-memory-calculator.tar.gz' do
 
     expect_any_instance_of(described_class).not_to receive(:`).with(start_with("unzip -l #{app_dir + 'directory.jar'}"))

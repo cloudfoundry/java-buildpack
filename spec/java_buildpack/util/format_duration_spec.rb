@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,13 +47,13 @@ describe 'duration' do # rubocop:disable RSpec/DescribeClass
 
   MILLISECOND = 0.001
 
-  TENTH = (100 * MILLISECOND).freeze
+  TENTH = 100 * MILLISECOND
 
-  SECOND = (10 * TENTH).freeze
+  SECOND = 10 * TENTH
 
-  MINUTE = (60 * SECOND).freeze
+  MINUTE = 60 * SECOND
 
-  HOUR = (60 * MINUTE).freeze
+  HOUR = 60 * MINUTE
 
   def expect_time_string(expected, time)
     expect(time.duration).to eq(expected)

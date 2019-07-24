@@ -47,3 +47,8 @@ The framework can be configured by modifying the [`config/riverbed_appinternals_
 [repositories]: extending-repositories.md
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
 [`config/riverbed_appinternals_agent.yml`]: ../config/riverbed_appinternals_agent.yml
+
+
+**NOTE**
+
+If the Riverbed Service Broker's version is greater than or equal to 10.20, the buildpack will instead download Riverbed AppInternals agent from Riverbed Service Broker and will fall back to using `repository_root` in [`config/riverbed_appinternals_agent.yml`][] only if Service Broker failed to serve the Agent artifact.

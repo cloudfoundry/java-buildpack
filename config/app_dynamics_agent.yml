@@ -1,5 +1,5 @@
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 ---
 version: 4.+
 repository_root: https://packages.appdynamics.com/java
-default_application_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name")
+default_application_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name | @sh")
 default_node_name: $(jq -r -n "$VCAP_APPLICATION | .application_name + \":$CF_INSTANCE_INDEX\"")
 default_tier_name: 
+default_unique_host_name: $(jq -r -n "$VCAP_APPLICATION | .application_id + \":$CF_INSTANCE_INDEX\"")

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2018 the original author or authors.
+# Copyright 2013-2019 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ require 'pathname'
 require 'java_buildpack/component/base_component'
 require 'java_buildpack/framework'
 require 'java_buildpack/logging/logger_factory'
-require 'java_buildpack/util/qualify_path'
+require 'java_buildpack/util/filtering_pathname'
 require 'yaml'
 
 module JavaBuildpack
@@ -49,7 +49,7 @@ module JavaBuildpack
 
         dep_directories.each do |dep_directory|
           config = config(config_file(dep_directory))
-          name   = name(config)
+          name = name(config)
 
           log_configuration config
           log_dep_contents dep_directory
@@ -90,7 +90,7 @@ module JavaBuildpack
         return unless additional_libraries
 
         additional_libraries.each do |additional_library|
-          @droplet.additional_libraries << Pathname.new(additional_library)
+          @droplet.additional_libraries << filtering_pathname(additional_library)
         end
 
         'Additional Libraries'
@@ -101,7 +101,7 @@ module JavaBuildpack
         return unless agentpaths
 
         agentpaths.each do |agentpath|
-          @droplet.java_opts.add_agentpath Pathname.new(agentpath)
+          @droplet.java_opts.add_agentpath filtering_pathname(agentpath)
         end
 
         'Agents'
@@ -112,7 +112,7 @@ module JavaBuildpack
         return unless agentpaths
 
         agentpaths.each do |agentpath, props|
-          @droplet.java_opts.add_agentpath_with_props Pathname.new(agentpath), props
+          @droplet.java_opts.add_agentpath_with_props filtering_pathname(agentpath), props
         end
 
         'Agent with Properties'
@@ -123,9 +123,18 @@ module JavaBuildpack
         return unless bin_directory.exist?
 
         @droplet.environment_variables
-                .add_environment_variable('PATH', "$PATH:#{qualify_path(bin_directory, @droplet.root)}")
+                .add_environment_variable('PATH', "$PATH:#{qualify_dep(bin_directory)}")
 
         '$PATH'
+      end
+
+      def filtering_pathname(path)
+        JavaBuildpack::Util::FilteringPathname.new(Pathname.new(path), ->(_) { true }, false)
+      end
+
+      def qualify_dep(dep_dir)
+        ret = dep_dir.to_s.gsub(%r{.+(/deps/[0-9]+/\w+)$}, '\1')
+        "$PWD/..#{ret}"
       end
 
       def add_bootclasspath_ps(java_opts)
@@ -133,7 +142,7 @@ module JavaBuildpack
         return unless bootclasspath_ps
 
         bootclasspath_ps.each do |bootclasspath_p|
-          @droplet.java_opts.add_bootclasspath_p Pathname.new(bootclasspath_p)
+          @droplet.java_opts.add_bootclasspath_p filtering_pathname(bootclasspath_p)
         end
 
         'Boot Classpaths'
@@ -147,7 +156,7 @@ module JavaBuildpack
           path = Pathname.new(value)
 
           if path.exist?
-            @droplet.environment_variables.add_environment_variable key, path
+            @droplet.environment_variables.add_environment_variable key, filtering_pathname(value)
           else
             @droplet.environment_variables.add_environment_variable key, value
           end
@@ -161,7 +170,7 @@ module JavaBuildpack
         return unless extension_directories
 
         extension_directories.each do |extension_directory|
-          @droplet.extension_directories << Pathname.new(extension_directory)
+          @droplet.extension_directories << filtering_pathname(extension_directory)
         end
 
         'Extension Directories'
@@ -172,7 +181,7 @@ module JavaBuildpack
         return unless javaagents
 
         javaagents.each do |javaagent|
-          @droplet.java_opts.add_javaagent Pathname.new(javaagent)
+          @droplet.java_opts.add_javaagent filtering_pathname(javaagent)
         end
 
         'Java Agents'
@@ -198,8 +207,7 @@ module JavaBuildpack
         return unless lib_directory.exist?
 
         @droplet.environment_variables
-                .add_environment_variable('LD_LIBRARY_PATH',
-                                          "$LD_LIBRARY_PATH:#{qualify_path(lib_directory, @droplet.root)}")
+                .add_environment_variable('LD_LIBRARY_PATH', "$LD_LIBRARY_PATH:#{qualify_dep(lib_directory)}")
 
         '$LD_LIBRARY_PATH'
       end
@@ -212,7 +220,7 @@ module JavaBuildpack
           path = Pathname.new(value)
 
           if path.exist?
-            @droplet.java_opts.add_option key, path
+            @droplet.java_opts.add_option key, filtering_pathname(value)
           else
             @droplet.java_opts.add_option key, value
           end
@@ -251,7 +259,7 @@ module JavaBuildpack
           path = Pathname.new(value)
 
           if path.exist?
-            @droplet.java_opts.add_system_property key, path
+            @droplet.java_opts.add_system_property key, filtering_pathname(value)
           else
             @droplet.java_opts.add_system_property key, value
           end
@@ -275,11 +283,10 @@ module JavaBuildpack
       end
 
       def dep_directories
-        deps = Pathname.glob('/tmp/*/deps').first
+        deps = Pathname.glob('/tmp/*/deps').map(&:children).flatten
         return [] unless deps
 
         deps
-          .children
           .select { |dep_directory| config_file(dep_directory).exist? }
           .sort_by(&:basename)
       end
