@@ -102,7 +102,7 @@ module JavaBuildpack
       AGENT_JARS_PATH = 'inline/agents/java/*'
 
       # Relative path of the agent zip
-      AGENT_PATH = '/rest/ui/installers/agents/binaries/JAVA'
+      AGENT_PATH = '/rest/api/latest/installers/agents/binaries/JAVA'
 
       # Version details of Seekers server REST API path
       SEEKER_VERSION_API = '/rest/api/version'
