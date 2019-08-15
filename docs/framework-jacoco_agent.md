@@ -23,10 +23,11 @@ The credential payload of the service may contain the following entries:
 
 | Name | Description
 | ---- | -----------
-| `address` | The host for the agent to connect to
+| `address` | The host for the agent to connect to or listen on
 | `excludes` | (Optional) A list of class names that should be excluded from execution analysis. The list entries are separated by a colon (:) and may use wildcard characters (* and ?).
 | `includes` | (Optional) A list of class names that should be included in execution analysis. The list entries are separated by a colon (:) and may use wildcard characters (* and ?).
-| `port` | (Optional) The port for the agent to connect to
+| `port` | (Optional) The port for the agent to connect to or listen on
+| `output` | (Optional) The mode for the agent. Possible values are either tcpclient (default) or tcpserver. 
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
