@@ -16,7 +16,6 @@
 # limitations under the License.
 
 require 'java_buildpack/component/versioned_dependency_component'
-require 'java_buildpack/logging/logger_factory'
 require 'java_buildpack/framework'
 
 module JavaBuildpack
@@ -25,14 +24,6 @@ module JavaBuildpack
     # Encapsulates the detect, compile, and release functionality for enabling cloud auto-reconfiguration in Spring
     # applications.
     class SpringAutoReconfiguration < JavaBuildpack::Component::VersionedDependencyComponent
-
-      # Creates an instance
-      #
-      # @param [Hash] context a collection of utilities used the component
-      def initialize(context)
-        super(context)
-        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger SpringAutoReconfiguration
-      end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
