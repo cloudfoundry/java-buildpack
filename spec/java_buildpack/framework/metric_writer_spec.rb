@@ -22,60 +22,44 @@ require 'java_buildpack/framework/metric_writer'
 describe JavaBuildpack::Framework::MetricWriter do
   include_context 'with component help'
 
-  it 'does not detect without metric-forwarder service' do
+  let(:configuration) { { 'enabled' => true } }
+
+  it 'detects with Micrometer JAR',
+     app_fixture: 'framework_metric_writer' do
+
+    expect(component.detect).to eq("metric-writer=#{version}")
+  end
+
+  it 'does not detect without Micrometer JAR' do
     expect(component.detect).to be_nil
   end
 
   context do
+    let(:configuration) { { 'enabled' => false } }
 
-    before do
-      allow(services).to receive(:one_service?).with(/metrics-forwarder/, 'access_key', 'endpoint').and_return(true)
+    it 'does not detect if disabled',
+       app_fixture: 'framework_metric_writer' do
+
+      expect(component.detect).to be_nil
     end
+  end
 
-    it 'detects with metric-forwarder service' do
-      expect(component.detect).to eq("metric-writer=#{version}")
-    end
+  it 'downloads additional libraries',
+     app_fixture: 'framework_metric_writer',
+     cache_fixture: 'stub-metric-writer.jar' do
 
-    it 'downloads Metric Writer JAR',
-       cache_fixture: 'stub-metric-writer.jar' do
+    component.compile
 
-      component.compile
+    expect(sandbox + "metric_writer-#{version}.jar").to exist
+  end
 
-      expect(sandbox + "metric_writer-#{version}.jar").to exist
-    end
+  it 'adds to additional libraries',
+     app_fixture: 'framework_metric_writer',
+     cache_fixture: 'stub-metric-writer.jar' do
 
-    it 'adds the metric writer to the additional libraries in compile when needed',
-       cache_fixture: 'stub-metric-writer.jar' do
+    component.release
 
-      component.compile
-
-      expect(additional_libraries).to include(sandbox + "metric_writer-#{version}.jar")
-    end
-
-    it 'adds the metric writer to the additional libraries in release when needed',
-       cache_fixture: 'stub-metric-writer.jar' do
-
-      allow(services).to receive(:find_service).and_return('credentials' => { 'access_key' => 'test-access-key',
-                                                                              'endpoint' => 'https://test-endpoint' })
-
-      component.release
-
-      expect(additional_libraries).to include(sandbox + "metric_writer-#{version}.jar")
-    end
-
-    it 'updates JAVA_OPTS' do
-      allow(services).to receive(:find_service).and_return('credentials' => { 'access_key' => 'test-access-key',
-                                                                              'endpoint' => 'https://test-endpoint' })
-
-      component.release
-
-      expect(java_opts).to include('-Dcloudfoundry.metrics.accessToken=test-access-key')
-      expect(java_opts).to include('-Dcloudfoundry.metrics.applicationId=test-application-id')
-      expect(java_opts).to include('-Dcloudfoundry.metrics.endpoint=https://test-endpoint')
-      expect(java_opts).to include('-Dcloudfoundry.metrics.instanceId=$CF_INSTANCE_GUID')
-      expect(java_opts).to include('-Dcloudfoundry.metrics.instanceIndex=$CF_INSTANCE_INDEX')
-    end
-
+    expect(additional_libraries).to include(sandbox + "metric_writer-#{version}.jar")
   end
 
 end
