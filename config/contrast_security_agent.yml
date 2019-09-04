@@ -15,6 +15,7 @@
 
 # Configuration for the ContrastSecurity framework
 ---
-version: 3.+
-default_server_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name | @sh"):$CF_INSTANCE_INDEX
+version: 3.6.8_10823
+default_server_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name
+  | @sh"):$CF_INSTANCE_INDEX
 repository_root: https://artifacts.contrastsecurity.com/agents/java
