@@ -18,4 +18,4 @@
 version: 4.+
 repository_root: https://get.takipi.com/cloudfoundry
 node_name_prefix: node
-application_name:
+application_name: 
