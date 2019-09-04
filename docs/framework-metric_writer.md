@@ -8,7 +8,7 @@ The Metric Writer Framework causes an application to be automatically configured
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
-    <td><tt>spring-auto-reconfiguration=&lt;version&gt;</tt></td>
+    <td><tt>metric-writer-reconfiguration=&lt;version&gt;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
@@ -33,7 +33,7 @@ The framework can be configured by modifying the [`config/metric_writer.yml`][] 
 
 | Name | Description
 | ---- | -----------
-| `enabled` | Whether to attempt auto-reconfiguration
+| `enabled` | Whether to attempt metric augmentation
 | `repository_root` | The URL of the Metric Writer repository index ([details][repositories]).
 | `version` | The version of Metric Writer to use. Candidate versions can be found in [this listing][].
 
