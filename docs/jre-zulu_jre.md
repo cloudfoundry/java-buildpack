@@ -34,7 +34,7 @@ To use Zulu JRE instead of OpenJDK without forking java-buildpack, set environme
 | `jre.repository_root` | The URL of the Zulu repository index ([details][repositories]).
 | `jre.version` | The version of Java runtime to use. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
 | `jvmkill.repository_root` | The URL of the `jvmkill` repository index ([details][repositories]).
-| `jvmkill.version` | The version of `jvmkill` to use.  Candidate versions can be found in the listings for [mountainlion][jvmkill-mountainlion] and [trusty][jvmkill-trusty].
+| `jvmkill.version` | The version of `jvmkill` to use.  Candidate versions can be found in the listings for [bionic][jvmkill-bionic].
 | `memory_calculator` | Memory calculator defaults, described below under "Memory".
 
 ### Additional Resources
@@ -163,8 +163,7 @@ JVM Memory Configuration: -XX:MaxDirectMemorySize=10M -XX:MaxMetaspaceSize=99199
 [Azul Zulu]: https://www.azul.com/products/zulu/
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [Java Buildpack Memory Calculator]: https://github.com/cloudfoundry/java-buildpack-memory-calculator
-[jvmkill-mountainlion]: http://download.pivotal.io.s3.amazonaws.com/jvmkill/mountainlion/x86_64/index.yml
-[jvmkill-trusty]: http://download.pivotal.io.s3.amazonaws.com/jvmkill/trusty/x86_64/index.yml
+[jvmkill-bionic]: https://java-buildpack.cloudfoundry.org/jvmkill/bionic/x86_64/index.yml
 [Memory Calculator's README]: https://github.com/cloudfoundry/java-buildpack-memory-calculator
 [repositories]: extending-repositories.md
 [version syntax]: extending-repositories.md#version-syntax-and-ordering

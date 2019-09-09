@@ -33,7 +33,7 @@ module Package
 
   BUILDPACK_VERSION = JavaBuildpack::BuildpackVersion.new(false).freeze
 
-  PLATFORMS = %w[bionic trusty].freeze
+  PLATFORMS = %w[bionic].freeze
 
   STAGING_DIR = "#{BUILD_DIR}/staging"
 

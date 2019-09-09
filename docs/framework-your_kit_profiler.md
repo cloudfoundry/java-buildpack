@@ -24,7 +24,7 @@ The framework can be configured by creating or modifying the [`config/your_kit_p
 | `enabled` | Whether to enable the YourKit Profiler
 | `port` | The port that the YourKit Profiler will listen on.  Defaults to `10001`.
 | `repository_root` | The URL of the YourKit Profiler repository index ([details][repositories]).
-| `version` | The version of the YourKit Profiler to use. Candidate versions can be found in the listings for [mountainlion][], [precise][], and [trusty][].
+| `version` | The version of the YourKit Profiler to use. Candidate versions can be found in the listings for [bionic][].
 
 ## Creating SSH Tunnel
 After starting an application with the YourKit Profiler enabled, an SSH tunnel must be created to the container.  To create that SSH container, execute the following command:
@@ -40,9 +40,7 @@ Once the SSH tunnel has been created, your YourKit Profiler should connect to `l
 ![YourKit Configuration](framework-your_kit_profiler.png)
 
 [`config/your_kit_profiler.yml`]: ../config/your_kit_profiler.yml
+[bionic]: https://download.run.pivotal.io/your-kit/bioni/x86_64/index.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[mountainlion]: http://download.pivotal.io.s3.amazonaws.com/your-kit/mountainlion/x86_64/index.yml
-[precise]: http://download.pivotal.io.s3.amazonaws.com/your-kit/precise/x86_64/index.yml
 [repositories]: extending-repositories.md
-[trusty]: http://download.pivotal.io.s3.amazonaws.com/your-kit/trusty/x86_64/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
