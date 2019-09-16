@@ -18,11 +18,13 @@ The credential payload can contain the following entries.
 
 | Name | Description
 | ---- | -----------
-| `secret_key` | (Optional) The agent installation key
-| `collector_host` | (Optional) The remote collector hostname or IP 
-| `collector_port` | (Optional) the remote collector port
+| `collector_host` | The remote collector hostname or IP 
+| `collector_port` | the remote collector port (TCP)
+| `secret_key` | (DEPRECATED) The agent installation key for running collector alongside agent
 
-Setting `secret_key` will run a local collector alongside the agent. Setting `collector_host` will use a remote collector. More information can be found in [OverOps Remote Collector][]
+Setting `collector_host` and `collector_port` will connect to a remote collector. More information can be found in [OverOps Remote Collector][]
+ 
+(DEPRECATED)Setting `secret_key` will run a local collector alongside the agent. 
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
@@ -32,7 +34,7 @@ The framework can be configured by modifying the [`config/takipi_agent.yml`][] f
 | Name | Description
 | ---- | -----------
 | `node_name_prefix` | Node name prefix, will be concatenated with `-` and instance index
-| `application_name` | Override the Cloudfoundry default application name
+| `application_name` | Override the CloudFoundry default application name
 
 ## Logs
 
@@ -49,5 +51,5 @@ If your container is running out of memory and exited with status 137, then you 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [repositories]: extending-repositories.md
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
-[OverOps Remote Collector]: https://support.overops.com/hc/en-us/articles/227109628-Remote-Daemon-Process-
+[OverOps Remote Collector]: https://doc.overops.com/docs/install-collector
 [OverOps Service]: https://www.overops.com
