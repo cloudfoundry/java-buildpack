@@ -64,7 +64,7 @@ describe JavaBuildpack::Framework::TakipiAgent do
       it 'updates user environment variables' do
         component.release
 
-        expect(environment_variables).to include('TAKIPI_MASTER_HOST=test-host')
+        expect(environment_variables).to include('TAKIPI_COLLECTOR_HOST=test-host')
       end
 
       context 'with secret key' do
