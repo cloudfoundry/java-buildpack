@@ -15,7 +15,7 @@
 
 # Configuration for the Luna Security Provider framework
 ---
-version: 7.+
+version: 7.4.0
 repository_root: https://files.cf-hsm.io/luna-installer
 ha_logging_enabled: true
 logging_enabled: false
