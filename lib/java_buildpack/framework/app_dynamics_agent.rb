@@ -34,7 +34,7 @@ module JavaBuildpack
         resources_dir = Pathname.new(File.expand_path('../../../resources', __dir__)).freeze
         default_conf_dir = resources_dir + @droplet.component_id + 'defaults'
         copy_appd_default_configuration(default_conf_dir)
-        override_default_configuration()
+        override_default_config_if_applicable()
         @droplet.copy_resources
       end
 
@@ -151,7 +151,7 @@ module JavaBuildpack
 
       # Check for configuration files on a remote server. If found, copy to conf dir under each ver* dir
       # @return [Void]
-      def override_default_configuration()
+      def override_default_config_if_applicable()
         return unless @application.environment['APPD_CONF_HTTP_URL']
 
         conf_files_map = {
