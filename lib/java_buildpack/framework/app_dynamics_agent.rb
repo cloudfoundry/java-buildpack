@@ -133,7 +133,7 @@ module JavaBuildpack
       # @param [Path] path Path to the resource on the server
       # @paran [ConfigType] conf_type Type of Configuration file
       # @paran [ConfigName] conf_file Name of the configuration file
-      # @return [Boolean]
+      # @return [Boolean] returns true if files exists on path specified by APPD_CONF_HTTP_URL, false otherwise
       def check_if_resource_exists(path, conf_type, conf_file)
           resource_uri = URI(path)
           # check if resource exists on remote server
