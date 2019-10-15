@@ -18,6 +18,7 @@
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
+require 'net/http'
 
 module JavaBuildpack
   module Framework
@@ -32,9 +33,8 @@ module JavaBuildpack
         # acessor for resources dir through @droplet?
         resources_dir = Pathname.new(File.expand_path('../../../resources', __dir__)).freeze
         default_conf_dir = resources_dir + @droplet.component_id + 'defaults'
-
         copy_appd_default_configuration(default_conf_dir)
-
+        override_default_configuration()
         @droplet.copy_resources
       end
 
@@ -117,9 +117,9 @@ module JavaBuildpack
         java_opts.add_system_property('appdynamics.agent.uniqueHostId', name.to_s)
       end
 
-      # Copy default configuration present in resources folder of app_dynamics_agent ver* directories present in sandbox
+      # Copy default configuration present in resources folder of  ver* directories present in sandbox
       #
-      # @param [Pathname] default_conf_dir the 'defaults' directory present in app_dynamics_agent resources.
+      # @param [Pathname] default_conf_dir the 'defaults' directory present in  resources.
       # @return [Void]
       def copy_appd_default_configuration(default_conf_dir)
         return unless default_conf_dir.exist?
@@ -129,7 +129,61 @@ module JavaBuildpack
         end
       end
 
-    end
+      # Check if configuration file exists on the server before downloading
+      # @param [Path] path Path to the resource on the server
+      # @paran [ConfigType] conf_type Type of Configuration file
+      # @paran [ConfigName] conf_file Name of the configuration file
+      # @return [Boolean]
+      def check_if_resource_exists(path, conf_type, conf_file)
+          resource_uri = URI(path)
+          # check if resource exists on remote server
+          response = Net::HTTP.start(resource_uri.host, resource_uri.port) do |http|
+            http.request_head(resource_uri)
+          end
 
+          if response.code == '404'
+            puts conf_type + ' ' + conf_file + ' not found on ' + @application.environment['APPD_CONF_HTTP_URL']
+            return false
+          end
+        return true
+
+      end
+
+      # Check for configuration files on a remote server. If found, copy to conf dir under each ver* dir
+      # @return [Void]
+      def override_default_configuration()
+        return unless @application.environment['APPD_CONF_HTTP_URL']
+
+        conf_files_map = {
+            "Logging Config" => [
+              'logging/log4j2.xml',
+              'logging/log4j.xml'
+              ],
+            "Agent Config" => [
+              'app-agent-config.xml',
+              'controller-info.xml',
+              'service-endpoint.xml',
+              'transactions.xml'
+              ]
+          }
+
+        conf_files_map.each do |conf_type, conf_files|
+          conf_files.each do |conf_file|
+            path = @application.environment['APPD_CONF_HTTP_URL'] + conf_file
+
+            if not check_if_resource_exists(path, conf_type, conf_file)
+              next
+            end
+            download(false, path)  do |file|
+              Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
+                FileUtils.cp_r file, target_directory + '/conf/' + conf_file
+              end
+            end
+
+          end
+        end
+      end
+
+    end
   end
 end
