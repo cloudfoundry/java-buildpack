@@ -117,9 +117,9 @@ module JavaBuildpack
         java_opts.add_system_property('appdynamics.agent.uniqueHostId', name.to_s)
       end
 
-      # Copy default configuration present in resources folder of  ver* directories present in sandbox
+      # Copy default configuration present in resources folder of app_dynamics_agent ver* directories present in sandbox
       #
-      # @param [Pathname] default_conf_dir the 'defaults' directory present in  resources.
+      # @param [Pathname] default_conf_dir the 'defaults' directory present in app_dynamics_agent resources.
       # @return [Void]
       def copy_appd_default_configuration(default_conf_dir)
         return unless default_conf_dir.exist?
