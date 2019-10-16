@@ -162,12 +162,12 @@ module JavaBuildpack
       def override_default_config_if_applicable()
         return unless @application.environment['APPD_CONF_HTTP_URL']
         config_files = [
-          'logging/log4j2.xml',
-          'logging/log4j.xml',
-          'app-agent-config.xml',
-          'controller-info.xml',
-          'service-endpoint.xml',
-          'transactions.xml'
+          '/logging/log4j2.xml',
+          '/logging/log4j.xml',
+          '/app-agent-config.xml',
+          '/controller-info.xml',
+          '/service-endpoint.xml',
+          '/transactions.xml'
         ]
 
         conf_files.each do |conf_file|
