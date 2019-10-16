@@ -161,7 +161,7 @@ module JavaBuildpack
       # @return [Void]
       def override_default_config_if_applicable()
         return unless @application.environment['APPD_CONF_HTTP_URL']
-        config_files = [
+        conf_files = [
           '/logging/log4j2.xml',
           '/logging/log4j.xml',
           '/app-agent-config.xml',
