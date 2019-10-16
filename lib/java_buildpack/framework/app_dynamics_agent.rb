@@ -129,10 +129,10 @@ module JavaBuildpack
         end
       end
 
-      # Check if configuration file exists on the server before downloading
+      # Check if configuration file exists on the server before download
       # @param [Path] path Path to the resource on the server
-      # @paran [ConfigType] conf_type Type of Configuration file
-      # @paran [ConfigName] conf_file Name of the configuration file
+      # @param [ConfigType] conf_type Type of Configuration file
+      # @param [ConfigName] conf_file Name of the configuration file
       # @return [Boolean] returns true if files exists on path specified by APPD_CONF_HTTP_URL, false otherwise
       def check_if_resource_exists(path, conf_type, conf_file)
           resource_uri = URI(path)
