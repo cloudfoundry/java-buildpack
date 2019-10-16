@@ -179,7 +179,7 @@ module JavaBuildpack
           if not check_if_resource_exists(uri, conf_file)
             next
           end
-          download(false, uri.host + uri.path)  do |file|
+          download(false, uri.scheme + uri.host + uri.path)  do |file|
             Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
               FileUtils.cp_r file, target_directory + '/conf/' + conf_file
             end
