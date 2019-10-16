@@ -133,8 +133,7 @@ module JavaBuildpack
       # @param [Path] path Path to the resource on the server
       # @param [ConfigName] conf_file Name of the configuration file
       # @return [Boolean] returns true if files exists on path specified by APPD_CONF_HTTP_URL, false otherwise
-      def check_if_resource_exists(path, conf_file)
-        resource_uri = URI(path)
+      def check_if_resource_exists(resource_uri, conf_file)
         # check if resource exists on remote server
         begin
           response = Net::HTTP.start(resource_uri.host, resource_uri.port) do |http|
@@ -172,15 +171,15 @@ module JavaBuildpack
         ]
 
         conf_files.each do |conf_file|
-          path = @application.environment['APPD_CONF_HTTP_URL'] + conf_file
+          uri = URI.join(@application.environment['APPD_CONF_HTTP_URL'], conf_file)
 
           # `download` uses retries with exponential backoff which is expensive and unnecessary
           # for situations like 404 File not Found. Also, `download` does not have an api exposed
           # to disable retries, which makes this check necessary to prevent long install times.
-          if not check_if_resource_exists(path, conf_file)
+          if not check_if_resource_exists(uri, conf_file)
             next
           end
-          download(false, path)  do |file|
+          download(false, uri.host + uri.path)  do |file|
             Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
               FileUtils.cp_r file, target_directory + '/conf/' + conf_file
             end
