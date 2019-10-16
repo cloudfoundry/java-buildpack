@@ -176,9 +176,8 @@ module JavaBuildpack
           # `download` uses retries with exponential backoff which is expensive and unnecessary
           # for situations like 404 File not Found. Also, `download` does not have an api exposed
           # to disable retries, which makes this check necessary to prevent long install times.
-          if not check_if_resource_exists(uri, conf_file)
-            next
-          end
+          next unless check_if_resource_exists(uri, conf_file)
+          
           download(false, uri.scheme + '://' + uri.host + uri.path)  do |file|
             Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
               FileUtils.cp_r file, target_directory + '/conf/' + conf_file
