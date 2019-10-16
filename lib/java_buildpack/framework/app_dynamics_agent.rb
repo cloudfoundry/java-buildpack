@@ -152,7 +152,7 @@ module JavaBuildpack
             puts "redirected to #{location}"
             return check_if_resource_exists(location, conf_file)
           else
-            puts "Could not retrieve #{conf_file}. Status code: #{response.code}"
+            puts "Could not retrieve #{conf_file}.  Code: #{response.code} Message: #{response.message}"
             return false
         end
       end
