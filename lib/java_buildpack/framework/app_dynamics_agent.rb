@@ -137,8 +137,13 @@ module JavaBuildpack
       def check_if_resource_exists(path, conf_type, conf_file)
           resource_uri = URI(path)
           # check if resource exists on remote server
-          response = Net::HTTP.start(resource_uri.host, resource_uri.port) do |http|
-            http.request_head(resource_uri)
+          begin
+            response = Net::HTTP.start(resource_uri.host, resource_uri.port) do |http|
+              http.request_head(resource_uri)
+            end
+          rescue Exception => e
+            puts e.inspect
+            return false
           end
 
           if response.code == '404'
@@ -146,7 +151,6 @@ module JavaBuildpack
             return false
           end
         return true
-
       end
 
       # Check for configuration files on a remote server. If found, copy to conf dir under each ver* dir
