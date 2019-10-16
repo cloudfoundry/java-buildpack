@@ -173,11 +173,12 @@ module JavaBuildpack
         conf_files.each do |conf_file|
           uri = URI.join(@application.environment['APPD_CONF_HTTP_URL'], conf_file)
 
-          # `download` uses retries with exponential backoff which is expensive and unnecessary
-          # for situations like 404 File not Found. Also, `download` does not have an api exposed
-          # to disable retries, which makes this check necessary to prevent long install times.
+          # `download()` uses retries with exponential backoff which is expensive
+          # for situations like 404 File not Found. Also, `download()` doesn't expose 
+          # an api to disable retries, which makes this check necessary to prevent 
+          # long install times.
           next unless check_if_resource_exists(uri, conf_file)
-          
+
           download(false, uri.scheme + '://' + uri.host + uri.path)  do |file|
             Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
               FileUtils.cp_r file, target_directory + '/conf/' + conf_file
