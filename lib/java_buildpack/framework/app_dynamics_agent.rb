@@ -131,63 +131,63 @@ module JavaBuildpack
 
       # Check if configuration file exists on the server before download
       # @param [Path] path Path to the resource on the server
-      # @param [ConfigType] conf_type Type of Configuration file
       # @param [ConfigName] conf_file Name of the configuration file
       # @return [Boolean] returns true if files exists on path specified by APPD_CONF_HTTP_URL, false otherwise
-      def check_if_resource_exists(path, conf_type, conf_file)
-          resource_uri = URI(path)
-          # check if resource exists on remote server
-          begin
-            response = Net::HTTP.start(resource_uri.host, resource_uri.port) do |http|
-              http.request_head(resource_uri)
-            end
-          rescue Exception => e
-            puts e.inspect
-            return false
+      def check_if_resource_exists(path, conf_file)
+        resource_uri = URI(path)
+        # check if resource exists on remote server
+        begin
+          response = Net::HTTP.start(resource_uri.host, resource_uri.port) do |http|
+            http.request_head(resource_uri)
           end
+        rescue Exception => e
+          puts e.inspect
+          return false
+        end
 
-          if response.code == '404'
-            puts conf_type + ' ' + conf_file + ' not found on ' + @application.environment['APPD_CONF_HTTP_URL']
+        case response
+          when Net::HTTPSuccess then
+            return true
+          when Net::HTTPRedirection then
+            location = response['location']
+            puts "redirected to #{location}"
+            return check_if_resource_exists(location, conf_file)
+          else
+            puts "Could not retrieve #{conf_file}. Status code: #{response.code}"
             return false
-          end
-        return true
+        end
       end
 
       # Check for configuration files on a remote server. If found, copy to conf dir under each ver* dir
       # @return [Void]
       def override_default_config_if_applicable()
         return unless @application.environment['APPD_CONF_HTTP_URL']
+        config_files = [
+          'logging/log4j2.xml',
+          'logging/log4j.xml',
+          'app-agent-config.xml',
+          'controller-info.xml',
+          'service-endpoint.xml',
+          'transactions.xml'
+        ]
 
-        conf_files_map = {
-            "Logging Config" => [
-              'logging/log4j2.xml',
-              'logging/log4j.xml'
-              ],
-            "Agent Config" => [
-              'app-agent-config.xml',
-              'controller-info.xml',
-              'service-endpoint.xml',
-              'transactions.xml'
-              ]
-          }
+        conf_files.each do |conf_file|
+          path = @application.environment['APPD_CONF_HTTP_URL'] + conf_file
 
-        conf_files_map.each do |conf_type, conf_files|
-          conf_files.each do |conf_file|
-            path = @application.environment['APPD_CONF_HTTP_URL'] + conf_file
-
-            if not check_if_resource_exists(path, conf_type, conf_file)
-              next
-            end
-            download(false, path)  do |file|
-              Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
-                FileUtils.cp_r file, target_directory + '/conf/' + conf_file
-              end
-            end
-
+          # `download` uses retries with exponential backoff which is expensive and unnecessary
+          # for situations like 404 File not Found. Also, `download` does not have an api exposed
+          # to disable retries, which makes this check necessary to prevent long install times.
+          if not check_if_resource_exists(path, conf_file)
+            next
           end
+          download(false, path)  do |file|
+            Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
+              FileUtils.cp_r file, target_directory + '/conf/' + conf_file
+            end
+          end
+
         end
       end
-
     end
   end
 end
