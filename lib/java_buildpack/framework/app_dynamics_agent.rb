@@ -18,6 +18,7 @@
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
+require 'net/http'
 
 module JavaBuildpack
   module Framework
@@ -32,9 +33,8 @@ module JavaBuildpack
         # acessor for resources dir through @droplet?
         resources_dir = Pathname.new(File.expand_path('../../../resources', __dir__)).freeze
         default_conf_dir = resources_dir + @droplet.component_id + 'defaults'
-
         copy_appd_default_configuration(default_conf_dir)
-
+        override_default_config_if_applicable()
         @droplet.copy_resources
       end
 
@@ -75,7 +75,7 @@ module JavaBuildpack
       end
 
       def account_access_key(java_opts, credentials)
-        account_access_key = credentials['account-access-key'] || credentials['account-access-secret']['secret'] 
+        account_access_key = credentials['account-access-key'] || credentials.dig('account-access-secret', 'secret')
         java_opts.add_system_property 'appdynamics.agent.accountAccessKey', account_access_key if account_access_key
       end
 
@@ -113,10 +113,10 @@ module JavaBuildpack
       end
 
       def unique_host_name(java_opts)
-        name = @configuration['default_unique_host_name'] ||  @application.details['application_name']
+        name = @configuration['default_unique_host_name'] || @application.details['application_name']
         java_opts.add_system_property('appdynamics.agent.uniqueHostId', name.to_s)
       end
-      
+
       # Copy default configuration present in resources folder of app_dynamics_agent ver* directories present in sandbox
       #
       # @param [Pathname] default_conf_dir the 'defaults' directory present in app_dynamics_agent resources.
@@ -129,7 +129,64 @@ module JavaBuildpack
         end
       end
 
-    end
+      # Check if configuration file exists on the server before download
+      # @param [ResourceURI] uri URI of the remote configuration server
+      # @param [ConfigFileName] conf_file Name of the configuration file
+      # @return [Boolean] returns true if files exists on path specified by APPD_CONF_HTTP_URL, false otherwise
+      def check_if_resource_exists(resource_uri, conf_file)
+        # check if resource exists on remote server
+        begin
+          response = Net::HTTP.start(resource_uri.host, resource_uri.port) do |http|
+            http.request_head(resource_uri)
+          end
+        rescue Exception => e
+          puts e.inspect
+          return false
+        end
 
+        case response
+          when Net::HTTPSuccess then
+            return true
+          when Net::HTTPRedirection then
+            location = response['location']
+            puts "redirected to #{location}"
+            return check_if_resource_exists(location, conf_file)
+          else
+            puts "Could not retrieve #{conf_file}.  Code: #{response.code} Message: #{response.message}"
+            return false
+        end
+      end
+
+      # Check for configuration files on a remote server. If found, copy to conf dir under each ver* dir
+      # @return [Void]
+      def override_default_config_if_applicable()
+        return unless @application.environment['APPD_CONF_HTTP_URL']
+        conf_files = [
+          'logging/log4j2.xml',
+          'logging/log4j.xml',
+          'app-agent-config.xml',
+          'controller-info.xml',
+          'service-endpoint.xml',
+          'transactions.xml'
+        ]
+
+        conf_files.each do |conf_file|
+          uri = URI(@application.environment['APPD_CONF_HTTP_URL'].chomp('/') + '/' + conf_file)
+
+          # `download()` uses retries with exponential backoff which is expensive
+          # for situations like 404 File not Found. Also, `download()` doesn't expose 
+          # an api to disable retries, which makes this check necessary to prevent 
+          # long install times.
+          next unless check_if_resource_exists(uri, conf_file)
+
+          download(false, "#{uri}")  do |file|
+            Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
+              FileUtils.cp_r file, target_directory + '/conf/' + conf_file
+            end
+          end
+
+        end
+      end
+    end
   end
 end
