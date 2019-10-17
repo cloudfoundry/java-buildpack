@@ -72,7 +72,7 @@ module Package
       'jprofiler_profiler' => 'JProfiler Profiler',
       'jre' => 'OpenJDK JRE',
       'jre-11' => 'OpenJDK JRE 11',
-      'jre-12' => 'OpenJDK JRE 12',
+      'jre-13' => 'OpenJDK JRE 13',
       'jrebel_agent' => 'JRebel Agent',
       'jvmkill_agent' => 'jvmkill Agent',
       'lifecycle_support' => 'Tomcat Lifecycle Support',
@@ -167,8 +167,8 @@ module Package
 
         if component_id == 'open_jdk_jre' && sub_component_id == 'jre'
           c1 = configuration.clone
-          c1['sub_component_id'] = 'jre-12'
-          c1['version'] = '12.+'
+          c1['sub_component_id'] = 'jre-13'
+          c1['version'] = '13.+'
 
           configurations << c1
         end
