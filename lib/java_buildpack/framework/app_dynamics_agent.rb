@@ -179,7 +179,7 @@ module JavaBuildpack
           # long install times.
           next unless check_if_resource_exists(uri, conf_file)
 
-          download(false, uri.scheme + '://' + uri.host + uri.path)  do |file|
+          download(false, "#{uri}")  do |file|
             Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
               FileUtils.cp_r file, target_directory + '/conf/' + conf_file
             end
