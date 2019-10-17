@@ -171,7 +171,7 @@ module JavaBuildpack
         ]
 
         conf_files.each do |conf_file|
-          uri = URI.join(@application.environment['APPD_CONF_HTTP_URL'], conf_file)
+          uri = URI(@application.environment['APPD_CONF_HTTP_URL'].chomp('/') + '/' + conf_file)
 
           # `download()` uses retries with exponential backoff which is expensive
           # for situations like 404 File not Found. Also, `download()` doesn't expose 
