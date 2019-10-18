@@ -32,32 +32,15 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = @application.services.find_service(FILTER, ACCESS_KEY, ENDPOINT)['credentials']
-
         @droplet.additional_libraries << (@droplet.sandbox + jar_name)
-        @droplet.java_opts
-                .add_system_property('cloudfoundry.metrics.accessToken', credentials[ACCESS_KEY])
-                .add_system_property('cloudfoundry.metrics.applicationId', @application.details['application_id'])
-                .add_system_property('cloudfoundry.metrics.endpoint', credentials[ENDPOINT])
-                .add_system_property('cloudfoundry.metrics.instanceId', '$CF_INSTANCE_GUID')
-                .add_system_property('cloudfoundry.metrics.instanceIndex', '$CF_INSTANCE_INDEX')
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, ACCESS_KEY, ENDPOINT
+        @configuration['enabled'] && (@droplet.root + '**/*micrometer-core*.jar').glob.any?
       end
-
-      ACCESS_KEY = 'access_key'
-
-      ENDPOINT = 'endpoint'
-
-      FILTER = /metrics-forwarder/.freeze
-
-      private_constant :ACCESS_KEY, :ENDPOINT, :FILTER
-
     end
 
   end

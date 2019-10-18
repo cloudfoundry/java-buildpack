@@ -132,7 +132,7 @@ module Package
 
         if component_id == 'open_jdk_jre' && sub_component_id == 'jre'
           c1 = configuration.clone
-          c1['version'] = '12.+'
+          c1['version'] = '13.+'
 
           configurations << c1
         end

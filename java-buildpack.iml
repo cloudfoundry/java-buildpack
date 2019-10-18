@@ -267,35 +267,34 @@
     </content>
     <orderEntry type="jdk" jdkName="rbenv: 2.3.8" jdkType="RUBY_SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="addressable (v2.5.2, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="addressable (v2.7.0, rbenv: 2.3.8) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ast (v2.4.0, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="bundler (v2.0.1, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="bundler (v2.0.2, rbenv: 2.3.8) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="crack (v0.4.3, rbenv: 2.3.8) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.3, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="hashdiff (v0.3.8, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="jaro_winkler (v1.5.2, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="parallel (v1.12.1, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="parser (v2.5.3.0, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="powerpack (v0.1.2, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="public_suffix (v3.0.3, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="hashdiff (v1.0.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="jaro_winkler (v1.5.3, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="parallel (v1.18.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="parser (v2.6.5.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="public_suffix (v4.0.1, rbenv: 2.3.8) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rainbow (v3.0.0, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rake (v12.3.2, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="redcarpet (v3.4.0, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec (v3.8.0, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.8.0, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v3.8.2, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v3.8.0, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.8.0, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubocop (v0.62.0, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubocop-rspec (v1.31.0, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="ruby-progressbar (v1.10.0, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubyzip (v1.2.2, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="safe_yaml (v1.0.4, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rake (v13.0.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="redcarpet (v3.5.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec (v3.9.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.9.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v3.9.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v3.9.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.9.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubocop (v0.75.1, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubocop-rspec (v1.36.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ruby-progressbar (v1.10.1, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubyzip (v1.3.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="safe_yaml (v1.0.5, rbenv: 2.3.8) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="tee (v1.0.0, rbenv: 2.3.8) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="terminal-table (v1.8.0, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="unicode-display_width (v1.4.1, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="webmock (v3.5.1, rbenv: 2.3.8) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="yard (v0.9.16, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="unicode-display_width (v1.6.0, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="webmock (v3.7.6, rbenv: 2.3.8) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="yard (v0.9.20, rbenv: 2.3.8) [gem]" level="application" />
   </component>
   <component name="RModuleSettingsStorage">
     <LOAD_PATH number="4" string0="$MODULE_DIR$/lib" string1="$MODULE_DIR$/spec" string2="$MODULE_DIR$/bin" string3="$MODULE_DIR$/spec/bin" />

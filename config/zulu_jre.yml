@@ -17,7 +17,7 @@
 # Pre Java 1.8, permgen was used instead of metaspace.  Please see the documentation for more detail.
 
 # You must specify a the repository root of an Zulu JRE repository. Please see the documentation for more detail.
-# e.g.  repository_root: "http://example.com/zulu-jre/{platform}/{architecture}"
+# e.g.  repository_root: "https://example.com/zulu-jre/{platform}/{architecture}"
 ---
 jre:
   version: 1.8.0_+

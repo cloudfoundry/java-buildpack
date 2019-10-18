@@ -41,6 +41,7 @@ module JavaBuildpack
         properties['excludes'] = credentials['excludes'] if credentials.key? 'excludes'
         properties['includes'] = credentials['includes'] if credentials.key? 'includes'
         properties['port'] = credentials['port'] if credentials.key? 'port'
+        properties['output'] = credentials['output'] if credentials.key? 'output'
 
         @droplet.java_opts.add_javaagent_with_props(@droplet.sandbox + 'jacocoagent.jar', properties)
       end

@@ -20,40 +20,34 @@ require 'java_buildpack/util/format_duration'
 
 describe 'duration' do # rubocop:disable RSpec/DescribeClass
 
+  let(:millisecond) { 0.001 }
+  let(:tenth) { 100 * millisecond }
+  let(:second) { 10 * tenth }
+  let(:minute) { 60 * second }
+  let(:hour) { 60 * minute }
+
   it 'displays seconds' do
-    expect_time_string '0.0s', MILLISECOND
-    expect_time_string '0.1s', TENTH
-    expect_time_string '1.0s', SECOND
-    expect_time_string '1.1s', SECOND + TENTH
-    expect_time_string '1.1s', SECOND + TENTH + MILLISECOND
+    expect_time_string '0.0s', millisecond
+    expect_time_string '0.1s', tenth
+    expect_time_string '1.0s', second
+    expect_time_string '1.1s', second + tenth
+    expect_time_string '1.1s', second + tenth + millisecond
   end
 
   it 'displays minutes' do
-    expect_time_string '1m 0s', MINUTE
-    expect_time_string '1m 1s', MINUTE + SECOND
-    expect_time_string '1m 1s', MINUTE + SECOND + TENTH
-    expect_time_string '1m 1s', MINUTE + SECOND + TENTH + MILLISECOND
+    expect_time_string '1m 0s', minute
+    expect_time_string '1m 1s', minute + second
+    expect_time_string '1m 1s', minute + second + tenth
+    expect_time_string '1m 1s', minute + second + tenth + millisecond
   end
 
   it 'displays hours' do
-    expect_time_string '1h 0m', HOUR
-    expect_time_string '1h 1m', HOUR + MINUTE
-    expect_time_string '1h 1m', HOUR + MINUTE + SECOND
-    expect_time_string '1h 1m', HOUR + MINUTE + SECOND + TENTH
-    expect_time_string '1h 1m', HOUR + MINUTE + SECOND + TENTH + MILLISECOND
+    expect_time_string '1h 0m', hour
+    expect_time_string '1h 1m', hour + minute
+    expect_time_string '1h 1m', hour + minute + second
+    expect_time_string '1h 1m', hour + minute + second + tenth
+    expect_time_string '1h 1m', hour + minute + second + tenth + millisecond
   end
-
-  private
-
-  MILLISECOND = 0.001
-
-  TENTH = (100 * MILLISECOND).freeze
-
-  SECOND = (10 * TENTH).freeze
-
-  MINUTE = (60 * SECOND).freeze
-
-  HOUR = (60 * MINUTE).freeze
 
   def expect_time_string(expected, time)
     expect(time.duration).to eq(expected)

@@ -48,7 +48,6 @@ frameworks:
   - "JavaBuildpack::Framework::ContainerSecurityProvider"
   - "JavaBuildpack::Framework::ContrastSecurityAgent"
   - "JavaBuildpack::Framework::Debug"
-  - "JavaBuildpack::Framework::DyadicEkmSecurityProvider"
   - "JavaBuildpack::Framework::DynatraceAppmonAgent"
   - "JavaBuildpack::Framework::DynatraceOneAgent"
   - "JavaBuildpack::Framework::ElasticApmAgent"

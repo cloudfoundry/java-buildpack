@@ -34,8 +34,14 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_zip(false, @droplet.sandbox, @component_name)
+        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+          true, 'Downloading from Riverbed AppInternals Service Broker'
+        ) do
+          download_zip(false, @droplet.sandbox, @component_name)
+        end
         @droplet.copy_resources
+      rescue StandardError => e
+        raise "Riverbed AppInternals download failed: #{e}"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
