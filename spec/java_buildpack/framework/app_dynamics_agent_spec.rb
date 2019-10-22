@@ -141,8 +141,25 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
           expect(java_opts).to include('-Dappdynamics.agent.accountAccessKey=test-account-access-key')
         end
       end
+
+      context do
+
+        let(:environment) { { 'APPD_CONF_HTTP_URL' => 'http://foo.com' } }
+        let(:conf_files) { described_class.instance_variable_get(:@conf_files) }
+
+        it 'sets APPD_CONF_HTTP_URL env var to download config files from',
+           cache_fixture: 'stub-app-dynamics-agent.zip' do
+          conf_files.each do |file|
+            uri = "http://foo.com/java/#{file}"
+            allow(application_cache).to receive(:get)
+              .with(uri)
+            stub_request(:head, uri)
+              .with(headers: { 'Accept' => '*/*', 'Host' => 'foo.com', 'User-Agent' => 'Ruby' })
+              .to_return(status: 200, body: '', headers: {})
+          end
+          component.compile
+        end
+      end
     end
-
   end
-
 end
