@@ -15,6 +15,6 @@
 
 # Metric Writer configuration
 ---
-version: 3.+
+version: 3.4.0_RELEASE
 repository_root: "{default.repository.root}/metric-writer"
 enabled: false

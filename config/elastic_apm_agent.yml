@@ -15,5 +15,5 @@
 
 # Configuration for the Elastic Apm Agent framework
 ---
-version: 1.+
+version: 1.11.0
 repository_root: https://raw.githubusercontent.com/elastic/apm-agent-java/master/cloudfoundry
