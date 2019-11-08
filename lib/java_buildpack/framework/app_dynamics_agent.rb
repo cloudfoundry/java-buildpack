@@ -25,23 +25,28 @@ module JavaBuildpack
     # Encapsulates the functionality for enabling zero-touch AppDynamics support.
     class AppDynamicsAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
+      def initialize(context)
+        super(context)
+        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger AppDynamicsAgent
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_zip(false, @droplet.sandbox, 'AppDynamics Agent')
 
         # acessor for resources dir through @droplet?
-        resources_dir = Pathname.new(File.expand_path('../../../resources', __dir__)).freeze
+        resources_dir    = Pathname.new(File.expand_path('../../../resources', __dir__)).freeze
         default_conf_dir = resources_dir + @droplet.component_id + 'defaults'
 
         copy_appd_default_configuration(default_conf_dir)
-
+        override_default_config_if_applicable
         @droplet.copy_resources
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         credentials = @application.services.find_service(FILTER, 'host-name')['credentials']
-        java_opts = @droplet.java_opts
+        java_opts   = @droplet.java_opts
         java_opts.add_javaagent(@droplet.sandbox + 'javaagent.jar')
 
         application_name java_opts, credentials
@@ -64,9 +69,12 @@ module JavaBuildpack
 
       private
 
+      CONFIG_FILES = %w[logging/log4j2.xml logging/log4j.xml app-agent-config.xml controller-info.xml
+                        service-endpoint.xml transactions.xml].freeze
+
       FILTER = /app[-]?dynamics/.freeze
 
-      private_constant :FILTER
+      private_constant :CONFIG_FILES, :FILTER
 
       def application_name(java_opts, credentials)
         name = credentials['application-name'] || @configuration['default_application_name'] ||
@@ -129,7 +137,57 @@ module JavaBuildpack
         end
       end
 
-    end
+      # Check if configuration file exists on the server before download
+      # @param [ResourceURI] uri URI of the remote configuration server
+      # @param [ConfigFileName] conf_file Name of the configuration file
+      # @return [Boolean] returns true if files exists on path specified by APPD_CONF_HTTP_URL, false otherwise
+      def check_if_resource_exists(resource_uri, conf_file)
+        # check if resource exists on remote server
+        begin
+          response = Net::HTTP.start(resource_uri.host, resource_uri.port) do |http|
+            http.request_head(resource_uri)
+          end
+        rescue StandardError => e
+          @logger.error { "Request failure: #{e.message}" }
+          return false
+        end
 
+        case response
+        when Net::HTTPSuccess
+          return true
+        when Net::HTTPRedirection
+          location = response['location']
+          @logger.info { "redirected to #{location}" }
+          return check_if_resource_exists(location, conf_file)
+        else
+          @logger.info { "Could not retrieve #{resource_uri}.  Code: #{response.code} Message: #{response.message}" }
+          return false
+        end
+      end
+
+      # Check for configuration files on a remote server. If found, copy to conf dir under each ver* dir
+      # @return [Void]
+      def override_default_config_if_applicable
+        return unless @application.environment['APPD_CONF_HTTP_URL']
+
+        agent_root = @application.environment['APPD_CONF_HTTP_URL'].chomp('/') + '/java/'
+        @logger.info { "Downloading override configuration files from #{agent_root}" }
+        CONFIG_FILES.each do |conf_file|
+          uri = URI(agent_root + conf_file)
+
+          # `download()` uses retries with exponential backoff which is expensive
+          # for situations like 404 File not Found. Also, `download()` doesn't expose
+          # an api to disable retries, which makes this check necessary to prevent
+          # long install times.
+          next unless check_if_resource_exists(uri, conf_file)
+
+          download(false, uri.to_s) do |file|
+            Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
+              FileUtils.cp_r file, target_directory + '/conf/' + conf_file
+            end
+          end
+        end
+      end
+    end
   end
 end
