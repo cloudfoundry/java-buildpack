@@ -24,14 +24,6 @@ module JavaBuildpack
 
     # Encapsulates the functionality for enabling zero-touch AppDynamics support.
     class AppDynamicsAgent < JavaBuildpack::Component::VersionedDependencyComponent
-      @conf_files = [
-        'logging/log4j2.xml',
-        'logging/log4j.xml',
-        'app-agent-config.xml',
-        'controller-info.xml',
-        'service-endpoint.xml',
-        'transactions.xml'
-      ]
 
       def initialize(context)
         super(context)
@@ -43,7 +35,7 @@ module JavaBuildpack
         download_zip(false, @droplet.sandbox, 'AppDynamics Agent')
 
         # acessor for resources dir through @droplet?
-        resources_dir = Pathname.new(File.expand_path('../../../resources', __dir__)).freeze
+        resources_dir    = Pathname.new(File.expand_path('../../../resources', __dir__)).freeze
         default_conf_dir = resources_dir + @droplet.component_id + 'defaults'
 
         copy_appd_default_configuration(default_conf_dir)
@@ -54,7 +46,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         credentials = @application.services.find_service(FILTER, 'host-name')['credentials']
-        java_opts = @droplet.java_opts
+        java_opts   = @droplet.java_opts
         java_opts.add_javaagent(@droplet.sandbox + 'javaagent.jar')
 
         application_name java_opts, credentials
@@ -77,9 +69,12 @@ module JavaBuildpack
 
       private
 
+      CONFIG_FILES = %w[logging/log4j2.xml logging/log4j.xml app-agent-config.xml controller-info.xml
+                        service-endpoint.xml transactions.xml].freeze
+
       FILTER = /app[-]?dynamics/.freeze
 
-      private_constant :FILTER
+      private_constant :CONFIG_FILES, :FILTER
 
       def application_name(java_opts, credentials)
         name = credentials['application-name'] || @configuration['default_application_name'] ||
@@ -177,7 +172,7 @@ module JavaBuildpack
 
         agent_root = @application.environment['APPD_CONF_HTTP_URL'].chomp('/') + '/java/'
         @logger.info { "Downloading override configuration files from #{agent_root}" }
-        JavaBuildpack::Framework::AppDynamicsAgent.instance_variable_get(:@conf_files).each do |conf_file|
+        CONFIG_FILES.each do |conf_file|
           uri = URI(agent_root + conf_file)
 
           # `download()` uses retries with exponential backoff which is expensive
