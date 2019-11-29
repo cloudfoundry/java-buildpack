@@ -16,13 +16,10 @@
 # Configuration for the Tomcat container
 ---
 tomcat:
-  version: 9.+
-  repository_root: "{default.repository.root}/tomcat"
-  context_path: 
-  external_configuration_enabled: false
+  external_configuration_enabled: yes
 external_configuration:
-  version: 1.+
-  repository_root: 
+  version: 8.5.49
+  repository_root: https://asmtom.apps.pp01i.edc1.cf.ford.com
 lifecycle_support:
   version: 3.+
   repository_root: "{default.repository.root}/tomcat-lifecycle-support"
