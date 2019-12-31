@@ -64,7 +64,6 @@ module JavaBuildpack
     # @return [Hash] a representation of the buildpack version
     def to_hash
       h            = {}
-
       h['hash']    = @hash if @hash
       h['offline'] = @offline if @offline
       h['remote']  = @remote if @remote

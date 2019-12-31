@@ -31,9 +31,9 @@ describe JavaBuildpack::Jre::OpenJDKLike do
 
   let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
 
-  let(:version_7) { VERSION_7 = JavaBuildpack::Util::TokenizedVersion.new('1.7.0_+') }
+  let(:version_7) { JavaBuildpack::Util::TokenizedVersion.new('1.7.0_+') }
 
-  let(:version_8) { VERSION_8 = JavaBuildpack::Util::TokenizedVersion.new('1.8.0_+') }
+  let(:version_8) { JavaBuildpack::Util::TokenizedVersion.new('1.8.0_+') }
 
   let(:configuration) do
     { 'jre' => jre_configuration,
@@ -99,7 +99,7 @@ class StubOpenJDKLike < JavaBuildpack::Jre::OpenJDKLike
 end
 
 def sub_configuration_context(configuration)
-  c = context.clone
+  c                 = context.clone
   c[:configuration] = configuration
   c
 end
