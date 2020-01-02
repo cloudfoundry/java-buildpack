@@ -15,6 +15,6 @@
 
 # Configuration for the Dynatrace framework
 ---
-version: 7.1.0_+
+version: 7.1.0_1803
 repository_root: https://files.dynatrace.com/downloads/appmon/cloudfoundry/buildpack/java
 default_agent_name: 
