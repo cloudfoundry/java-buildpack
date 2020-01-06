@@ -32,7 +32,11 @@ module JavaBuildpack
       #
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
-        super(context)
+        @application    = context[:application]
+        @component_name = self.class.to_s.space_case
+        @configuration  = context[:configuration]
+        @droplet        = context[:droplet]
+
         @version, @uri = agent_download_url if supports?
         @logger        = JavaBuildpack::Logging::LoggerFactory.instance.get_logger DynatraceOneAgent
       end
