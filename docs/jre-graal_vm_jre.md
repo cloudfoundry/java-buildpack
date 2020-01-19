@@ -31,12 +31,13 @@ For general information on configuring the buildpack, including how to specify c
 
 The JRE can be configured by modifying the [`config/graal_vm_jre.yml`][] file in the buildpack fork.  The JRE uses the [`Repository` utility support][repositories] and so it supports the [version syntax][]  defined there.
 
-To use GraalVM JRE instead of OpenJDK without forking java-buildpack, set environment variable:
+To use GraalVM JRE instead of OpenJDK without forking java-buildpack, set environment variable and restage:
 
-`cf set-env <app_name> JBP_CONFIG_COMPONENTS '{ jres: [ "JavaBuildpack::Jre::GraalVmJRE" ] }'`
-`cf set-env <app_name> JBP_CONFIG_GRAAL_VM_JRE '{ jre: { repository_root: "<INTERNAL_REPOSITORY_URI>" } }'`
-
-`cf restage <app_name>`
+```bash
+cf set-env <app_name> JBP_CONFIG_COMPONENTS '{ jres: [ "JavaBuildpack::Jre::GraalVmJRE" ] }'
+cf set-env <app_name> JBP_CONFIG_GRAAL_VM_JRE '{ jre: { repository_root: "<INTERNAL_REPOSITORY_URI>" } }'
+cf restage <app_name>
+```
 
 | Name | Description
 | ---- | -----------
