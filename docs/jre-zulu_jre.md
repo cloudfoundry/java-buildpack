@@ -25,9 +25,10 @@ The JRE can be configured by modifying the [`config/zulu_jre.yml`][] file in the
 
 To use Zulu JRE instead of OpenJDK without forking java-buildpack, set environment variable:
 
-`cf set-env <app_name> JBP_CONFIG_COMPONENTS '{jres: ["JavaBuildpack::Jre::ZuluJRE"]}'`
-
-`cf restage <app_name>`
+```bash
+cf set-env <app_name> JBP_CONFIG_COMPONENTS '{jres: ["JavaBuildpack::Jre::ZuluJRE"]}'
+cf restage <app_name>
+```
 
 | Name | Description
 | ---- | -----------
