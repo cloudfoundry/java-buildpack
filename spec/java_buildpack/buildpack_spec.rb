@@ -39,6 +39,12 @@ describe JavaBuildpack::Buildpack do
 
   let(:stub_jre2) { instance_double('StubJre2', detect: nil, compile: nil, release: nil, component_name: 'StubJre2') }
 
+  let(:stub_coprocess1) { instance_double('StubCoprocess1', detect: nil, component_name: 'StubCoprocess1') }
+
+  let(:stub_coprocess2) do
+    instance_double('StubCoprocess2', detect: nil, compile: nil, release: nil, component_name: 'StubCoprocess2')
+  end
+
   let(:buildpack) do
     buildpack = nil
     described_class.with_buildpack(app_dir, 'Error %s') { |b| buildpack = b }
@@ -51,7 +57,8 @@ describe JavaBuildpack::Buildpack do
       .to receive(:load).with('components').and_return(
         'containers' => %w[Test::StubContainer1 Test::StubContainer2],
         'frameworks' => %w[Test::StubFramework1 Test::StubFramework2],
-        'jres' => %w[Test::StubJre1 Test::StubJre2]
+        'jres' => %w[Test::StubJre1 Test::StubJre2],
+        'coprocess' => %w[Test::StubCoprocess1 Test::StubCoprocess2]
       )
 
     allow(Test::StubContainer1).to receive(:new).and_return(stub_container1)
@@ -62,6 +69,9 @@ describe JavaBuildpack::Buildpack do
 
     allow(Test::StubJre1).to receive(:new).and_return(stub_jre1)
     allow(Test::StubJre2).to receive(:new).and_return(stub_jre2)
+
+    allow(Test::StubCoprocess1).to receive(:new).and_return(stub_coprocess1)
+    allow(Test::StubCoprocess2).to receive(:new).and_return(stub_coprocess2)
   end
 
   it 'raises an error if more than one container can run an application' do
@@ -76,6 +86,7 @@ describe JavaBuildpack::Buildpack do
     allow(stub_container1).to receive(:detect).and_return('stub-container-1')
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
     allow(stub_jre2).to receive(:detect).and_return('stub-jre-2')
+    allow(stub_coprocess1).to receive(:detect).and_return('stub-coprocess-1')
 
     expect { buildpack.detect }.to raise_error(/Application can be run by more than one JRE/)
   end
@@ -92,7 +103,8 @@ describe JavaBuildpack::Buildpack do
                           .and_return(
                             'containers' => [],
                             'frameworks' => ['JavaBuildpack::Framework::JavaOpts'],
-                            'jres' => []
+                            'jres' => [],
+                            'coprocess' => []
                           )
     end
 
@@ -105,6 +117,7 @@ describe JavaBuildpack::Buildpack do
     allow(stub_container1).to receive(:detect).and_return('stub-container-1')
     allow(stub_framework1).to receive(:detect).and_return('stub-framework-1')
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
+    allow(stub_coprocess1).to receive(:detect).and_return('stub-coprocess-1')
 
     allow(stub_container1).to receive(:compile)
     expect(stub_container2).not_to have_received(:compile)
@@ -112,6 +125,8 @@ describe JavaBuildpack::Buildpack do
     expect(stub_framework2).not_to have_received(:compile)
     allow(stub_jre1).to receive(:compile)
     expect(stub_jre2).not_to have_received(:compile)
+    allow(stub_coprocess1).to receive(:compile)
+    expect(stub_coprocess2).not_to have_received(:compile)
 
     buildpack.compile
   end
@@ -120,6 +135,7 @@ describe JavaBuildpack::Buildpack do
     allow(stub_container1).to receive(:detect).and_return('stub-container-1')
     allow(stub_framework1).to receive(:detect).and_return('stub-framework-1')
     allow(stub_jre1).to receive(:detect).and_return('stub-jre-1')
+    allow(stub_coprocess1).to receive(:detect).and_return('stub-coprocess-1')
 
     allow(stub_container1).to receive(:release).and_return('test-command')
     expect(stub_container2).not_to have_received(:release)
@@ -127,12 +143,14 @@ describe JavaBuildpack::Buildpack do
     expect(stub_framework2).not_to have_received(:release)
     allow(stub_jre1).to receive(:release)
     expect(stub_jre2).not_to have_received(:release)
+    allow(stub_coprocess1).to receive(:release).and_return('test-process')
+    expect(stub_coprocess2).not_to have_received(:release)
 
     expect(buildpack.release)
       .to eq({ 'addons' => [],
                'config_vars' => {},
-               'default_process_types' => { 'web' => 'JAVA_OPTS="" && test-command',
-                                            'task' => 'JAVA_OPTS="" && test-command' } }.to_yaml)
+               'default_process_types' => { 'web' => 'JAVA_OPTS="" && test-process && test-command',
+                                            'task' => 'JAVA_OPTS="" && test-process && test-command' } }.to_yaml)
   end
 
   it 'loads configuration file matching JRE class name' do
@@ -142,6 +160,8 @@ describe JavaBuildpack::Buildpack do
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_framework2')
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_container1')
     allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_container2')
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_coprocess1')
+    allow(JavaBuildpack::Util::ConfigurationUtils).to receive(:load).with('stub_coprocess2')
 
     buildpack.detect
   end
@@ -179,6 +199,14 @@ module Test
   end
 
   class StubFramework2 < JavaBuildpack::Component::BaseComponent
+    attr_reader :component_name
+  end
+
+  class StubCoprocess1 < JavaBuildpack::Component::BaseComponent
+    attr_reader :component_name
+  end
+
+  class StubCoprocess2 < JavaBuildpack::Component::BaseComponent
     attr_reader :component_name
   end
 end

@@ -50,6 +50,7 @@ module JavaBuildpack
     def detect
       tags = tag_detection('container', @containers, true)
       tags.concat tag_detection('JRE', @jres, true) unless tags.empty?
+      tags.concat tag_detection('coprocess', @coprocess, false) unless tags.empty?
       tags.concat tag_detection('framework', @frameworks, false) unless tags.empty?
       tags << "java-buildpack=#{@buildpack_version.to_s false}" unless tags.empty?
       tags = tags.flatten.compact.sort
@@ -69,6 +70,7 @@ module JavaBuildpack
 
       component_detection('JRE', @jres, true).first.compile
       component_detection('framework', @frameworks, false).each(&:compile)
+      component_detection('coprocess', @coprocess, false).each(&:compile)
 
       container.compile
 
@@ -84,6 +86,7 @@ module JavaBuildpack
       no_container unless container
 
       commands = []
+      commands << component_detection('coprocess', @coprocess, false).map(&:release)
       commands << component_detection('JRE', @jres, true).first.release
 
       component_detection('framework', @frameworks, false).map(&:release)
@@ -149,6 +152,7 @@ module JavaBuildpack
       @jres = instantiate(components['jres'], mutable_java_home, component_info)
       @frameworks = instantiate(components['frameworks'], immutable_java_home, component_info)
       @containers = instantiate(components['containers'], immutable_java_home, component_info)
+      @coprocess = instantiate(components['coprocess'], immutable_java_home, component_info)
     end
 
     def component_detection(type, components, unique)

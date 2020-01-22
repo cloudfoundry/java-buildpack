@@ -74,3 +74,5 @@ frameworks:
   - "JavaBuildpack::Framework::TakipiAgent"
   - "JavaBuildpack::Framework::JavaSecurity"
   - "JavaBuildpack::Framework::JavaOpts"
+coprocess:
+  - "JavaBuildpack::Coprocess::JaegerAgent"

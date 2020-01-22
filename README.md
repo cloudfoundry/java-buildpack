@@ -117,6 +117,8 @@ The buildpack supports extension through the use of Git repository forking. The 
   * [OpenJDK](docs/jre-open_jdk_jre.md) ([Configuration](docs/jre-open_jdk_jre.md#configuration))
   * [Oracle](docs/jre-oracle_jre.md) ([Configuration](docs/jre-oracle_jre.md#configuration))
   * [SapMachine](docs/jre-sap_machine_jre.md) ([Configuration](docs/jre-sap_machine_jre.md#configuration))
+* Coprocesses
+  * [Jaeger](docs/coprocess-jaeger_agent.md) ([Configuration](docs/coprocess-jaeger_agent.md#configuration))  
 * [Extending](docs/extending.md)
   * [Application](docs/extending-application.md)
   * [Droplet](docs/extending-droplet.md)

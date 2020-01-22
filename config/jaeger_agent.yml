@@ -13,17 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for components to use in the buildpack
+# Configuration for the Jaeger agent
 ---
-containers:
-  - "JavaBuildpack::Container::LongDetectTags"
-
-# In order to use Oracle JREs instead of OpenJDK, you must comment out the OpenJDK line and uncomment the Oracle line.
-# Please see the documentation for more detail.
-jres:
-  - "JavaBuildpack::Jre::OpenJdkJRE"
-# - "JavaBuildpack::Jre::OracleJRE"
-
-frameworks: []
-
-coprocess: []
+version: 1.16.0
+repository_root: https://github.com/jaegertracing/jaeger/releases/download/

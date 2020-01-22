@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2019 the original author or authors.
 #
@@ -13,17 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for components to use in the buildpack
----
-containers:
-  - "JavaBuildpack::Container::LongDetectTags"
+require 'java_buildpack'
 
-# In order to use Oracle JREs instead of OpenJDK, you must comment out the OpenJDK line and uncomment the Oracle line.
-# Please see the documentation for more detail.
-jres:
-  - "JavaBuildpack::Jre::OpenJdkJRE"
-# - "JavaBuildpack::Jre::OracleJRE"
+module JavaBuildpack
 
-frameworks: []
-
-coprocess: []
+  # A module encapsulating all of the coprocess components for the Java buildpack
+  module Coprocess
+  end
+end
