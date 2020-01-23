@@ -151,7 +151,8 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
            cache_fixture: 'stub-app-dynamics-agent.zip' do
 
           config_files = %w[logging/log4j2.xml logging/log4j.xml app-agent-config.xml controller-info.xml
-                            service-endpoint.xml transactions.xml]
+                            service-endpoint.xml transactions.xml custom-interceptors.xml
+                            custom-activity-correlation.xml]
 
           config_files.each do |file|
             uri = "http://foo.com/java/#{file}"
