@@ -70,7 +70,8 @@ module JavaBuildpack
       private
 
       CONFIG_FILES = %w[logging/log4j2.xml logging/log4j.xml app-agent-config.xml controller-info.xml
-                        service-endpoint.xml transactions.xml].freeze
+                        service-endpoint.xml transactions.xml custom-interceptors.xml
+                        custom-activity-correlation.xml].freeze
 
       FILTER = /app[-]?dynamics/.freeze
 
