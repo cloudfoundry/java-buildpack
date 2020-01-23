@@ -48,6 +48,30 @@ The framework can be configured by modifying the [`config/introscope_agent.yml`]
 ### Additional Resources
 The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/ca_wily_agent` directory in the buildpack fork.  For example, to override the default profile add your custom profile to `resources/introscope_agent/`.
 
+##### Example for 10.x
+```
+resources/
+    |-introscope_agent/
+          |-core/
+              |-config/
+                   |-IntroscopeAgent.profile                 # place custom Introscope Profile under the config folder
+                   |-hotdeploy/                              # place custom pbd files under the hotdeploy folder
+                         |-example.pbd
+```
+
+##### Example for 11.1.x
+```
+resources/
+    |-introscope_agent/
+            |-releases/
+                 |-11.1/
+                     |-core/
+                         |-config/
+                              |-IntroscopeAgent.profile     # place custom Introscope Profile under the config folder
+                              |-hotdeploy/                  # place custom pbd files under the hotdeploy folder
+                                     |-example.pbd
+```
+
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/intoscope_agent.yml`]: ../config/intoscope_agent.yml
 [Introscope service]: http://www.ca.com/us/opscenter/ca-application-performance-management.aspx
