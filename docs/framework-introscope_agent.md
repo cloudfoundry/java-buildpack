@@ -46,7 +46,7 @@ The framework can be configured by modifying the [`config/introscope_agent.yml`]
 | `version` | The version of Introscope Agent to use.
 
 ### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/ca_wily_agent` directory in the buildpack fork.  For example, to override the default profile add your custom profile to `resources/introscope_agent/`.
+The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/introscope_agent` directory in the buildpack fork. 
 
 ##### Example for 10.x
 ```
