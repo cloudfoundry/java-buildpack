@@ -29,6 +29,7 @@ containers:
 # Example: cf set-env JBP_CONFIG_COMPONENTS '{jres: ["JavaBuildpack::Jre::OpenJdkJRE"]}'
 # Please see the documentation for more detail.
 jres:
+# - "JavaBuildpack::Jre::GraalVmJRE"
 # - "JavaBuildpack::Jre::IbmJRE"
   - "JavaBuildpack::Jre::OpenJdkJRE"
 # - "JavaBuildpack::Jre::OracleJRE"
