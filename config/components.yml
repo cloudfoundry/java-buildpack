@@ -29,12 +29,12 @@ containers:
 # Example: cf set-env JBP_CONFIG_COMPONENTS '{jres: ["JavaBuildpack::Jre::OpenJdkJRE"]}'
 # Please see the documentation for more detail.
 jres:
+# - "JavaBuildpack::Jre::GraalVmJRE"
 # - "JavaBuildpack::Jre::IbmJRE"
   - "JavaBuildpack::Jre::OpenJdkJRE"
 # - "JavaBuildpack::Jre::OracleJRE"
 # - "JavaBuildpack::Jre::ZuluJRE"
 # - "JavaBuildpack::Jre::SapMachineJRE"
-# - "JavaBuildpack::Jre::GraalVmJRE"
 
 # Frameworks are processed in order.
 # The MultiBuildpack framework is first in order to allow any framework to override contributions from earlier buildpacks
