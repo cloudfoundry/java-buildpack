@@ -30,5 +30,5 @@ if components.empty?
   abort
 else
   str = components.join(' ')
-  puts str.length > 255 ? str.slice(0..251) + '...' : str
+  puts str
 end
