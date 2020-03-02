@@ -31,8 +31,8 @@ describe JavaBuildpack::Framework::RiverbedAppinternalsAgent do
     before do
       allow(services).to receive(:one_service?).with(/appinternals/).and_return(true)
 
-      allow(services).to receive(:find_service).and_return('credentials' => { 'profilerUrlLinux' =>
-                                                                                'http://testfoobar/profiler.zip' })
+###      allow(services).to receive(:find_service).and_return('credentials' => { 'profilerUrlLinux' =>
+###                                                                                'http://testfoobar/profiler.zip' })
 
       allow(application_cache).to receive(:get).with('http://testfoobar/profiler.zip')
                                                .and_yield(Pathname.new('spec/fixtures/'\
