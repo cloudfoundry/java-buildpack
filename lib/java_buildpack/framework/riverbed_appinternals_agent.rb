@@ -29,19 +29,19 @@ module JavaBuildpack
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
         super(context)
-        @uri = download_url(credentials, @uri)
+###        @uri = download_url(credentials, @uri)
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
-          true, 'Downloading from Riverbed AppInternals Service Broker'
-        ) do
+###        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+###          true, 'Downloading from Riverbed AppInternals Service Broker'
+###        ) do
           download_zip(false, @droplet.sandbox, @component_name)
-        end
+###        end
         @droplet.copy_resources
-      rescue StandardError => e
-        raise "Riverbed AppInternals download failed: #{e}"
+###      rescue StandardError => e
+###        raise "Riverbed AppInternals download failed: #{e}"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -107,9 +107,9 @@ module JavaBuildpack
         credentials['rvbd_moniker'] || @configuration['rvbd_moniker']
       end
 
-      def download_url(credentials, default_url)
-        (credentials[PROFILERURL] unless credentials.nil?) || default_url
-      end
+###      def download_url(credentials, default_url)
+###        (credentials[PROFILERURL] unless credentials.nil?) || default_url
+###      end
 
     end
   end
