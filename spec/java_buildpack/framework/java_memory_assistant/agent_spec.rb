@@ -52,6 +52,8 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
     it 'updates JAVA_OPTS with default values' do
       component.release
 
+      expect(java_opts).not_to include('--add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED')
+
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/java_memory_assistant_agent/' \
         'java-memory-assistant-1.2.3.jar')
       expect(java_opts).to include('-Djma.enabled=true')
@@ -61,6 +63,43 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
 
       expect(java_opts).to include('-Djma.thresholds.heap=90')
       expect(java_opts).to include('-Djma.thresholds.old_gen=90')
+
+    end
+
+    context do
+
+      let(:java_home_delegate) do
+        delegate         = JavaBuildpack::Component::MutableJavaHome.new
+        delegate.root    = app_dir + '.test-java-home'
+        delegate.version = JavaBuildpack::Util::TokenizedVersion.new('1.8.0_55')
+    
+        delegate
+      end
+
+      it 'it does not add the --add-opens on Java 8' do
+        component.release
+  
+        expect(java_opts).not_to include('--add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED')
+      end
+
+    end
+
+    context do
+
+      let(:java_home_delegate) do
+        delegate         = JavaBuildpack::Component::MutableJavaHome.new
+        delegate.root    = app_dir + '.test-java-home'
+        delegate.version = JavaBuildpack::Util::TokenizedVersion.new('9.0.1')
+    
+        delegate
+      end
+
+      it 'adds the --add-opens on Java 11' do
+        component.release
+  
+        expect(java_opts).to include('--add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED')
+      end
+  
     end
 
   end
@@ -200,7 +239,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
     end
 
     it 'falls back on JBP log_level when no log_level specified via configuration',
-       :enable_log_file, log_level: 'WARN' do
+        :enable_log_file, log_level: 'WARN' do
       component.release
 
       expect(java_opts).to include('-Djma.log_level=WARNING')
