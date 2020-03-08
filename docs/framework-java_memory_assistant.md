@@ -46,6 +46,13 @@ The timestamp pattern `%ts:yyyyMMdd'T'mmssSSSZ%` is equivalent to the `%FT%T%z` 
 | Eden                   | `eden`             |
 | Survivor               | `survivor`         |
 | Old Generation         | `old_gen`          |
+| Tenured Gen            | `tenured_gen`      |
+| CodeHeap 'non-nmethods' | `code_heap.non_nmethods` |
+| CodeHeap 'profiled nmethods' | `code_heap.profiled_nmethods` |
+| CodeHeap 'non-profiled nmethods' | `code_heap.non_profiled_nmethods` |
+
+Different builds and versions of Java Virtual Machines offer different memory areas.
+The list of supported Java Virtual Machines and the respective memory areas can be found in the [Java Memory Assistant documentation](https://github.com/SAP/java-memory-assistant#supported-jvms).
 
 The default values can be found in the [`config/java_memory_assistant.yml`][] file.
 

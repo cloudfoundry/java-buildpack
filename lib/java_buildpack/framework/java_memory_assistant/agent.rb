@@ -42,6 +42,14 @@ module JavaBuildpack
                 .add_system_property('jma.heap_dump_name', %("#{name_pattern}"))
                 .add_system_property 'jma.log_level', normalized_log_level
 
+        if @droplet.java_home.java_9_or_later?
+          # Enable access to com.sun.management.HotSpotDiagnosticMXBean to circumvent
+          # Java modules limitations in Java 9+
+          # See https://github.com/SAP/java-memory-assistant#running-the-java-memory-assistant-on-java-11
+          @droplet.java_opts
+                .add_preformatted_options('--add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED')
+        end
+
         add_system_prop_if_config_present 'check_interval', 'jma.check_interval'
         add_system_prop_if_config_present 'max_frequency', 'jma.max_frequency'
 
