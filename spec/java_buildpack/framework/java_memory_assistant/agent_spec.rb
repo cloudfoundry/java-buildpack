@@ -59,10 +59,10 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
       expect(java_opts).to include('-Djma.enabled=true')
 
       expect(java_opts).to include('-Djma.check_interval=5s')
-      expect(java_opts).to include('-Djma.max_frequency=1/1m')
+      expect(java_opts).to include('\'-Djma.max_frequency=1/1m\'')
 
-      expect(java_opts).to include('-Djma.thresholds.heap=90')
-      expect(java_opts).to include('-Djma.thresholds.old_gen=90')
+      expect(java_opts).to include('\'-Djma.thresholds.heap=90\'')
+      expect(java_opts).to include('\'-Djma.thresholds.old_gen=90\'')
 
     end
 
@@ -132,15 +132,15 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
         'java-memory-assistant-0.1.0.jar')
       expect(java_opts).to include('-Djma.enabled=true')
       expect(java_opts).to include('-Djma.check_interval=10m')
-      expect(java_opts).to include('-Djma.max_frequency=4/10h')
+      expect(java_opts).to include('\'-Djma.max_frequency=4/10h\'')
       expect(java_opts).to include('-Djma.log_level=DEBUG')
-      expect(java_opts).to include('-Djma.thresholds.heap=60')
-      expect(java_opts).to include('-Djma.thresholds.code_cache=30')
-      expect(java_opts).to include('-Djma.thresholds.metaspace=5')
-      expect(java_opts).to include('-Djma.thresholds.perm_gen=45.5')
-      expect(java_opts).to include('-Djma.thresholds.eden=90')
-      expect(java_opts).to include('-Djma.thresholds.survivor=95.5')
-      expect(java_opts).to include('-Djma.thresholds.old_gen=30')
+      expect(java_opts).to include('\'-Djma.thresholds.heap=60\'')
+      expect(java_opts).to include('\'-Djma.thresholds.code_cache=30\'')
+      expect(java_opts).to include('\'-Djma.thresholds.metaspace=5\'')
+      expect(java_opts).to include('\'-Djma.thresholds.perm_gen=45.5\'')
+      expect(java_opts).to include('\'-Djma.thresholds.eden=90\'')
+      expect(java_opts).to include('\'-Djma.thresholds.survivor=95.5\'')
+      expect(java_opts).to include('\'-Djma.thresholds.old_gen=30\'')
     end
 
   end
@@ -157,6 +157,30 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
 
       expect(java_opts).to include('-Djma.log_level=DEBUG')
     end
+
+  end
+
+  context do
+    let(:configuration) do
+      {
+        'thresholds' => {
+          'heap' => '>600MB',
+          'eden' => '< 30MB'
+        }
+      }
+    end
+
+    let(:version) { '0.1.0' }
+
+    it 'escapses redirection characters' do
+      component.release
+
+      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/java_memory_assistant_agent/' \
+        'java-memory-assistant-0.1.0.jar')
+
+        expect(java_opts).to include('\'-Djma.thresholds.heap=>600MB\'')
+        expect(java_opts).to include('\'-Djma.thresholds.eden=< 30MB\'')
+      end
 
   end
 
