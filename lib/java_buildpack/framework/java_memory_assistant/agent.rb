@@ -51,12 +51,15 @@ module JavaBuildpack
         end
 
         add_system_prop_if_config_present 'check_interval', 'jma.check_interval'
-        add_system_prop_if_config_present 'max_frequency', 'jma.max_frequency'
+
+        if @configuration.key?('max_frequency')
+          @droplet.java_opts.add_preformatted_options "'-Djma.max_frequency=#{@configuration['max_frequency']}'"
+        end
 
         return unless @configuration.key?('thresholds')
 
         @configuration['thresholds'].each do |key, value|
-          @droplet.java_opts.add_system_property "jma.thresholds.#{key}", value.to_s
+          @droplet.java_opts.add_preformatted_options "'-Djma.thresholds.#{key}=#{value.to_s}'"
         end
       end
 
