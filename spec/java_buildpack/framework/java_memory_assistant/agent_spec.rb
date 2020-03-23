@@ -52,15 +52,54 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
     it 'updates JAVA_OPTS with default values' do
       component.release
 
+      expect(java_opts).not_to include('--add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED')
+
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/java_memory_assistant_agent/' \
         'java-memory-assistant-1.2.3.jar')
       expect(java_opts).to include('-Djma.enabled=true')
 
       expect(java_opts).to include('-Djma.check_interval=5s')
-      expect(java_opts).to include('-Djma.max_frequency=1/1m')
+      expect(java_opts).to include('\'-Djma.max_frequency=1/1m\'')
 
-      expect(java_opts).to include('-Djma.thresholds.heap=90')
-      expect(java_opts).to include('-Djma.thresholds.old_gen=90')
+      expect(java_opts).to include('\'-Djma.thresholds.heap=90\'')
+      expect(java_opts).to include('\'-Djma.thresholds.old_gen=90\'')
+
+    end
+
+    context do
+
+      let(:java_home_delegate) do
+        delegate         = JavaBuildpack::Component::MutableJavaHome.new
+        delegate.root    = app_dir + '.test-java-home'
+        delegate.version = JavaBuildpack::Util::TokenizedVersion.new('1.8.0_55')
+
+        delegate
+      end
+
+      it 'does not add the --add-opens on Java 8' do
+        component.release
+
+        expect(java_opts).not_to include('--add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED')
+      end
+
+    end
+
+    context do
+
+      let(:java_home_delegate) do
+        delegate         = JavaBuildpack::Component::MutableJavaHome.new
+        delegate.root    = app_dir + '.test-java-home'
+        delegate.version = JavaBuildpack::Util::TokenizedVersion.new('9.0.1')
+
+        delegate
+      end
+
+      it 'adds the --add-opens on Java 11' do
+        component.release
+
+        expect(java_opts).to include('--add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED')
+      end
+
     end
 
   end
@@ -93,15 +132,15 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
         'java-memory-assistant-0.1.0.jar')
       expect(java_opts).to include('-Djma.enabled=true')
       expect(java_opts).to include('-Djma.check_interval=10m')
-      expect(java_opts).to include('-Djma.max_frequency=4/10h')
+      expect(java_opts).to include('\'-Djma.max_frequency=4/10h\'')
       expect(java_opts).to include('-Djma.log_level=DEBUG')
-      expect(java_opts).to include('-Djma.thresholds.heap=60')
-      expect(java_opts).to include('-Djma.thresholds.code_cache=30')
-      expect(java_opts).to include('-Djma.thresholds.metaspace=5')
-      expect(java_opts).to include('-Djma.thresholds.perm_gen=45.5')
-      expect(java_opts).to include('-Djma.thresholds.eden=90')
-      expect(java_opts).to include('-Djma.thresholds.survivor=95.5')
-      expect(java_opts).to include('-Djma.thresholds.old_gen=30')
+      expect(java_opts).to include('\'-Djma.thresholds.heap=60\'')
+      expect(java_opts).to include('\'-Djma.thresholds.code_cache=30\'')
+      expect(java_opts).to include('\'-Djma.thresholds.metaspace=5\'')
+      expect(java_opts).to include('\'-Djma.thresholds.perm_gen=45.5\'')
+      expect(java_opts).to include('\'-Djma.thresholds.eden=90\'')
+      expect(java_opts).to include('\'-Djma.thresholds.survivor=95.5\'')
+      expect(java_opts).to include('\'-Djma.thresholds.old_gen=30\'')
     end
 
   end
@@ -117,6 +156,30 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
       component.release
 
       expect(java_opts).to include('-Djma.log_level=DEBUG')
+    end
+
+  end
+
+  context do
+    let(:configuration) do
+      {
+        'thresholds' => {
+          'heap' => '>600MB',
+          'eden' => '< 30MB'
+        }
+      }
+    end
+
+    let(:version) { '0.1.0' }
+
+    it 'escapses redirection characters' do
+      component.release
+
+      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/java_memory_assistant_agent/' \
+        'java-memory-assistant-0.1.0.jar')
+
+      expect(java_opts).to include('\'-Djma.thresholds.heap=>600MB\'')
+      expect(java_opts).to include('\'-Djma.thresholds.eden=< 30MB\'')
     end
 
   end

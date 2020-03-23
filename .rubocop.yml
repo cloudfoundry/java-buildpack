@@ -18,7 +18,7 @@ Layout/EmptyLinesAroundModuleBody:
 Layout/MultilineOperationIndentation:
   Enabled: false
 Metrics/AbcSize:
- Max: 22
+ Max: 25
 Metrics/BlockLength:
   Exclude:
   - 'spec/**/*.rb'
