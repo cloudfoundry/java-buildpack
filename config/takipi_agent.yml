@@ -15,7 +15,7 @@
 
 # Configuration for the Takipi framework
 ---
-version: 4.+
+version: 4.47.0
 repository_root: https://get.takipi.com/cloudfoundry
 node_name_prefix: node
 application_name: 
