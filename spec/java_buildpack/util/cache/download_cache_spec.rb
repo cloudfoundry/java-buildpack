@@ -225,6 +225,22 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
   context do
 
+    let(:environment) { { 'HTTP_PROXY' => 'http://user%21:pass%40@proxy:9000', 'http_proxy' => nil } }
+
+    it 'decodes user/pass from HTTP_PROXY if encoded' do
+      stub_request(:get, uri)
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag',
+                                                               'Last-Modified' => 'foo-last-modified' })
+
+      allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, /user!/, /pass@/).and_call_original
+
+      download_cache.get(uri) {}
+    end
+
+  end
+
+  context do
+
     let(:environment) { { 'https_proxy' => 'http://proxy:9000', 'HTTPS_PROXY' => nil } }
 
     it 'uses https_proxy if specified and URL is secure' do
@@ -251,6 +267,22 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
       allow(Net::HTTP).to receive(:Proxy).and_call_original
       allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, nil, nil).and_call_original
+
+      download_cache.get(uri_secure) {}
+    end
+
+  end
+
+  context do
+
+    let(:environment) { { 'HTTPS_PROXY' => 'http://user%21:pass%40@proxy:9000', 'https_proxy' => nil } }
+
+    it 'decodes user/pass from HTTPS_PROXY if encoded' do
+      stub_request(:get, uri_secure)
+        .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag',
+                                                               'Last-Modified' => 'foo-last-modified' })
+
+      allow(Net::HTTP).to receive(:Proxy).with('proxy', 9000, /user!/, /pass@/).and_call_original
 
       download_cache.get(uri_secure) {}
     end
