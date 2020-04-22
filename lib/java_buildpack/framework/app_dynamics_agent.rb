@@ -155,14 +155,14 @@ module JavaBuildpack
 
         case response
         when Net::HTTPSuccess
-          return true
+          true
         when Net::HTTPRedirection
           location = response['location']
           @logger.info { "redirected to #{location}" }
-          return check_if_resource_exists(location, conf_file)
+          check_if_resource_exists(location, conf_file)
         else
           @logger.info { "Could not retrieve #{resource_uri}.  Code: #{response.code} Message: #{response.message}" }
-          return false
+          false
         end
       end
 

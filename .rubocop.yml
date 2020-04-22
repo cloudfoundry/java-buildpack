@@ -2,12 +2,9 @@
 require: rubocop-rspec
 
 AllCops:
-  # Include:
-  # - '**/Rakefile'
-  # - 'rakelib/**/*'
+  NewCops: enable
   Exclude:
   - 'build/**/*'
-  # - Gemfile
 Layout/EmptyLinesAroundBlockBody:
   Exclude:
   - 'spec/**/*.rb'
@@ -15,6 +12,8 @@ Layout/EmptyLinesAroundClassBody:
   Enabled: false
 Layout/EmptyLinesAroundModuleBody:
   Enabled: false
+Layout/LineLength:
+  Max: 120
 Layout/MultilineOperationIndentation:
   Enabled: false
 Metrics/AbcSize:
@@ -26,16 +25,14 @@ Metrics/ClassLength:
   Max: 250
 Metrics/CyclomaticComplexity:
   Max: 10
-Metrics/LineLength:
-  Max: 120
 Metrics/MethodLength:
   Max: 25
+Naming/MethodParameterName:
+  Enabled: false
 Metrics/ParameterLists:
   Max: 10
 Metrics/PerceivedComplexity:
   Max: 10
-Naming/UncommunicativeMethodParamName:
-  Enabled: false
 RSpec/AnyInstance:
   Enabled: false
 RSpec/ExampleLength:
