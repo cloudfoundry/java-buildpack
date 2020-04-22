@@ -56,6 +56,8 @@ describe JavaBuildpack::Jre::OpenJDKLikeJre do
   it 'does not disable dns caching if no BOSH DNS',
      cache_fixture: 'stub-java.tar.gz' do
 
+    allow_any_instance_of(Resolv::DNS::Config).to receive(:nameserver_port).and_return([['8.8.8.8', 53]])
+
     component.detect
     component.compile
 
