@@ -15,9 +15,11 @@
 
 # Configuration for the AppDynamics framework
 ---
-version: +
+version: 20.4.0_29862
 repository_root: https://packages.appdynamics.com/java
-default_application_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name | @sh")
-default_node_name: $(jq -r -n "\"$APPD_CF_NODE_PREFIX\" + ($VCAP_APPLICATION | .application_name) + \":$CF_INSTANCE_INDEX\"")
-default_tier_name:
+default_application_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name
+  | @sh")
+default_node_name: $(jq -r -n "\"$APPD_CF_NODE_PREFIX\" + ($VCAP_APPLICATION | .application_name)
+  + \":$CF_INSTANCE_INDEX\"")
+default_tier_name: 
 default_unique_host_name: $(jq -r -n "$VCAP_APPLICATION | .application_id + \":$CF_INSTANCE_INDEX\"")
