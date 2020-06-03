@@ -58,4 +58,14 @@ describe JavaBuildpack::Container::DistZipLike do
                                     '$PWD/bin/application')
   end
 
+  context do
+    let(:configuration) { { 'arguments' => 'some arguments' } }
+
+    it 'returns command line arguments when they are specified',
+       app_fixture: 'container_dist_zip' do
+
+      expect(component.release).to end_with('some arguments')
+    end
+  end
+
 end
