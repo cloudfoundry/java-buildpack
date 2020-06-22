@@ -52,4 +52,14 @@ describe JavaBuildpack::Container::DistZip do
     expect(component.detect).to be_nil
   end
 
+  context do
+    let(:configuration) { { 'arguments' => 'some arguments' } }
+
+    it 'returns command line arguments when they are specified',
+       app_fixture: 'container_dist_zip' do
+
+      expect(component.release).to end_with('some arguments')
+    end
+  end
+
 end
