@@ -5,7 +5,6 @@
     </XML>
     <codeStyleSettings language="ruby">
       <option name="KEEP_BLANK_LINES_IN_DECLARATIONS" value="1" />
-      <option name="ALIGN_GROUP_FIELD_DECLARATIONS" value="true" />
       <option name="SPACE_WITHIN_BRACES" value="true" />
       <indentOptions>
         <option name="CONTINUATION_INDENT_SIZE" value="2" />

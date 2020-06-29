@@ -85,7 +85,7 @@ module JavaBuildpack
     # @return [String] a +String+ representation of the version
     def to_s(human_readable = true)
       s = []
-      s << @version.blue if @version
+      s << (human_readable ? @version.blue : @version) if @version
       s << (human_readable ? '(offline)'.blue : 'offline') if @offline
 
       if remote_string
