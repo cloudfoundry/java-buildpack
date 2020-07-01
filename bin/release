@@ -24,6 +24,6 @@ require 'java_buildpack/buildpack'
 
 app_dir = ARGV[0]
 
-output = JavaBuildpack::Buildpack.with_buildpack(app_dir, 'Release failed with exception %s', &:release)
+output = JavaBuildpack::Buildpack.with_buildpack(app_dir, nil, nil, 'Release failed with exception %s', &:release)
 
 puts output
