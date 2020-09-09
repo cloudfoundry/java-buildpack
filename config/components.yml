@@ -74,4 +74,5 @@ frameworks:
   - "JavaBuildpack::Framework::YourKitProfiler"
   - "JavaBuildpack::Framework::TakipiAgent"
   - "JavaBuildpack::Framework::JavaSecurity"
+  - "JavaBuildpack::Framework::CheckmarxIastAgent"
   - "JavaBuildpack::Framework::JavaOpts"
