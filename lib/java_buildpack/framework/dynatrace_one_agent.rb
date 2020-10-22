@@ -107,8 +107,10 @@ module JavaBuildpack
 
       SKIP_ERRORS = 'skiperrors'
 
+      MAX_ENDPOINTS_SIZE = 1500 # limiting endpoints size due to https://github.com/cloudfoundry/java-buildpack/issues/828
+
       private_constant :APIURL, :APITOKEN, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_NETWORK_ZONE, :DT_LOGSTREAM,
-                       :DT_TENANT, :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :NETWORKZONE, :SKIP_ERRORS
+                       :DT_TENANT, :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :NETWORKZONE, :SKIP_ERRORS, :MAX_ENDPOINTS_SIZE
 
       def agent_download_url
         download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
@@ -158,11 +160,11 @@ module JavaBuildpack
 
       def endpoints(manifest)
         ep = manifest['communicationEndpoints']
-        str = "" 
+        str = ''
         i = 0
-        while str.size < 1500 && i < ep.length do
-            str += "#{ep[i]};"
-            i += 1
+        while str.size < MAX_ENDPOINTS_SIZE && i < ep.length
+          str += "#{ep[i]};"
+          i += 1
         end
         str.chop
       end
