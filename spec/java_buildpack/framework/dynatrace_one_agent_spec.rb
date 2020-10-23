@@ -23,6 +23,10 @@ require 'java_buildpack/util/tokenized_version'
 describe JavaBuildpack::Framework::DynatraceOneAgent do
   include_context 'with component help'
 
+  let(:configuration) do
+    { 'communication_endpoints' => nil }
+  end
+
   it 'does not detect without dynatrace-n/a service' do
     expect(component.detect).to be_nil
   end
@@ -136,6 +140,21 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
 
         expect(java_opts).not_to include('-agentpath:$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
           'liboneagentloader.so')
+      end
+
+    end
+
+    context do
+
+      let(:configuration) { { 'communication_endpoints' => "config-overwrite1;config-overwrite2" } }
+
+      it 'does overwrite connection points from configuration if it exists',
+         app_fixture: 'framework_dynatrace_one_agent' do
+
+        component.release
+
+        expect(environment_variables).to include('DT_CONNECTION_POINT=' \
+        '"config-overwrite1;config-overwrite2"')
       end
 
     end

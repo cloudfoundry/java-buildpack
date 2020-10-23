@@ -107,8 +107,11 @@ module JavaBuildpack
 
       SKIP_ERRORS = 'skiperrors'
 
+      COMMUNICATION_ENDPOINTS = 'communication_endpoints'
+
       private_constant :APIURL, :APITOKEN, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_NETWORK_ZONE, :DT_LOGSTREAM,
-                       :DT_TENANT, :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :NETWORKZONE, :SKIP_ERRORS
+                       :DT_TENANT, :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :NETWORKZONE, :SKIP_ERRORS,
+                       :COMMUNICATION_ENDPOINTS
 
       def agent_download_url
         download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
@@ -156,8 +159,12 @@ module JavaBuildpack
         environment_variables.add_environment_variable(DT_LOGSTREAM, 'stdout') unless logstream?
       end
 
+      def endpoints_from_config_or_manifest(manifest)
+        @configuration[COMMUNICATION_ENDPOINTS] || manifest['communicationEndpoints'].join(';')
+      end
+
       def endpoints(manifest)
-        "\"#{manifest['communicationEndpoints'].join(';')}\""
+        "\"#{endpoints_from_config_or_manifest(manifest)}\""
       end
 
       def error_file

@@ -33,6 +33,14 @@ The credential payload of the service may contain the following entries:
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
+
+The framework can be configured by modifying the [`config/dynatrace_one_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+
+| Name | Description
+| ---- | -----------
+| `communication_endpoints` | (Optional) This option allows to overwrite the list of communication endpoints for the Dynatrace OneAgent. Multiple URLs can be specified in a single string, separated by a semicolon, e.g. `"https://endpoint1:9999/communication;https://endpoint2:9999/communication"`
+
+
 ## Support
 This buildpack extension is currently Beta. If you have any questions or problems regarding the build pack itself please don't hesitate to contact Dynatrace on https://answers.ruxit.com/, be sure to use "cloudfoundry" as a topic.
 
