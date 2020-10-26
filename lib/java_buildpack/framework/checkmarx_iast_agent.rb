@@ -15,13 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 
 module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for running with Checkmarx IAST Agent
-    class CheckmarxIastAgent < JavaBuildpack::Component::BaseComponent
+    class CheckmarxIastAgent < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Util
 
       # Creates an instance.  In addition to the functionality inherited from +BaseComponent+, +@version+ and +@uri+
@@ -29,30 +30,31 @@ module JavaBuildpack
       #
       # @param [Hash] context a collection of utilities used by components
       def initialize(context)
-        super(context)
+        @application = context[:application]
+        @component_name = self.class.to_s.space_case
+        @configuration = context[:configuration]
+        @droplet = context[:droplet]
 
-        # Save the IAST server URL in server, if found
-        service = @application.services.find_service(FILTER, 'server')
-        @server = service['credentials']['server'].chomp '/' if service
-      end
+        if supports?
+          @version = ''
+          @uri = @application.services.find_service(FILTER, 'server')['credentials']['server'].chomp +
+                 '/iast/compilation/download/JAVA'
+        end
 
-      # (see JavaBuildpack::Component::BaseComponent#detect)
-      def detect
-        @server
+        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger DynatraceOneAgent
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        # Download and extract the agent from the IAST server
-        FileUtils.mkdir_p @droplet.sandbox
-        # curl --insecure: most IAST servers will use self-signed SSL
-        shell 'curl --fail --insecure --silent --show-error ' \
-              "#{@server}/iast/compilation/download/JAVA -o #{@droplet.sandbox}/cx-agent.zip"
-        shell "unzip #{@droplet.sandbox}/cx-agent.zip -d #{@droplet.sandbox}"
+        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
+          true, 'The Checkmarx IAST download location is always accessible'
+        ) do
+          download_zip(false)
+        end
 
         # Disable cache (no point, when running in a container)
-        File.open("#{@droplet.sandbox}/#{OVERRIDE_CONFIG}", 'a') do |file|
-          file.write("\nenableWeavedClassCache=false\n")
+        File.open(@droplet.sandbox + 'cx_agent.override.properties', 'a') do |f|
+          f.write("\nenableWeavedClassCache=false\n")
         end
       end
 
@@ -63,25 +65,27 @@ module JavaBuildpack
         # Default team to CxServer if not set as env var
         team = ENV['cxTeam'] || 'CxServer'
 
-        javaagent = "-javaagent:#{qualify_path(@droplet.sandbox + JAVA_AGENT_JAR, @droplet.root)}"
         @droplet.java_opts
-                .add_preformatted_options(javaagent)
-                .add_preformatted_options('-Xverify:none')
-                .add_system_property('cx.logToConsole', 'true')
-                .add_system_property('cx.appName', application_name)
-                .add_system_property('cxAppTag', app_tag)
-                .add_system_property('cxTeam', team)
+          .add_javaagent(@droplet.sandbox + 'cx-launcher.jar')
+          .add_preformatted_options('-Xverify:none')
+          .add_system_property('cx.logToConsole', 'true')
+          .add_system_property('cx.appName', application_name)
+          .add_system_property('cxAppTag', app_tag)
+          .add_system_property('cxTeam', team)
+      end
+
+      protected
+
+      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
+      def supports?
+        @application.services.find_service(FILTER, 'server')
       end
 
       private
 
-      JAVA_AGENT_JAR = 'cx-launcher.jar'
-
-      OVERRIDE_CONFIG = 'cx_agent.override.properties'
-
       FILTER = /^checkmarx-iast$/.freeze
 
-      private_constant :JAVA_AGENT_JAR, :FILTER, :OVERRIDE_CONFIG
+      private_constant :FILTER
 
       def application_name
         @application.details['application_name'] || 'ROOT'
