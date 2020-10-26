@@ -33,8 +33,8 @@ describe JavaBuildpack::Framework::CheckmarxIastAgent do
       allow(services).to receive(:find_service).and_return('credentials' => { 'server' => 'test-server' })
 
       allow(application_cache).to receive(:get)
-                                    .with('test-server/iast/compilation/download/JAVA')
-                                    .and_yield(Pathname.new('spec/fixtures/stub-checkmarx-agent.zip').open, false)
+        .with('test-server/iast/compilation/download/JAVA')
+        .and_yield(Pathname.new('spec/fixtures/stub-checkmarx-agent.zip').open, false)
     end
 
     it 'detects with checkmarx-iast service' do

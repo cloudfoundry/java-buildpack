@@ -41,7 +41,7 @@ module JavaBuildpack
                  '/iast/compilation/download/JAVA'
         end
 
-        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger DynatraceOneAgent
+        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger CheckmarxIastAgent
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -66,12 +66,12 @@ module JavaBuildpack
         team = ENV['cxTeam'] || 'CxServer'
 
         @droplet.java_opts
-          .add_javaagent(@droplet.sandbox + 'cx-launcher.jar')
-          .add_preformatted_options('-Xverify:none')
-          .add_system_property('cx.logToConsole', 'true')
-          .add_system_property('cx.appName', application_name)
-          .add_system_property('cxAppTag', app_tag)
-          .add_system_property('cxTeam', team)
+                .add_javaagent(@droplet.sandbox + 'cx-launcher.jar')
+                .add_preformatted_options('-Xverify:none')
+                .add_system_property('cx.logToConsole', 'true')
+                .add_system_property('cx.appName', application_name)
+                .add_system_property('cxAppTag', app_tag)
+                .add_system_property('cxTeam', team)
       end
 
       protected
