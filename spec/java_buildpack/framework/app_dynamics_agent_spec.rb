@@ -164,6 +164,30 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
           end
           component.compile
         end
+
+      end
+
+      context do
+        let(:environment) { { 'APPD_CONF_HTTP_URL' => 'https://foo.com' } }
+
+        it 'sets APPD_CONF_HTTP_URL env var to download config files over HTTPS',
+           cache_fixture: 'stub-app-dynamics-agent.zip' do
+
+          config_files = %w[logging/log4j2.xml logging/log4j.xml app-agent-config.xml controller-info.xml
+                            service-endpoint.xml transactions.xml custom-interceptors.xml
+                            custom-activity-correlation.xml]
+
+          config_files.each do |file|
+            uri = "https://foo.com/java/#{file}"
+            allow(application_cache).to receive(:get)
+              .with(uri)
+            allow(Net::HTTP).to receive(:start).with('foo.com', 443, use_ssl: true).and_call_original
+            stub_request(:head, uri)
+              .with(headers: { 'Accept' => '*/*', 'Host' => 'foo.com', 'User-Agent' => 'Ruby' })
+              .to_return(status: 200, body: '', headers: {})
+          end
+          component.compile
+        end
       end
     end
   end
