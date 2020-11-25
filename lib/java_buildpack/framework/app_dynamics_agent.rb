@@ -203,7 +203,7 @@ module JavaBuildpack
         app_conf_dir = @application.environment['APPD_CONF_DIR']
         @logger.info { "Copy override configuration files from #{app_conf_dir}" }
         CONFIG_FILES.each do |conf_file|
-          conf_file_path = @application.root + app_conf_dir + '/' + conf_file
+          conf_file_path = @application.root + app_conf_dir + conf_file
 
           next unless File.file?(conf_file_path)
 
