@@ -165,6 +165,18 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
           component.compile
         end
       end
+
+      context do
+
+        let(:environment) { { 'APPD_CONF_DIR' => 'BOOT-INF/classes/appdynamics/conf' } }
+
+        it 'sets APPD_CONF_DIR env var to copy config files from app dir',
+           app_fixture: 'framework_app_dynamics_agent',
+           cache_fixture: 'stub-app-dynamics-agent.zip' do
+
+          component.compile
+        end
+      end
     end
   end
 end
