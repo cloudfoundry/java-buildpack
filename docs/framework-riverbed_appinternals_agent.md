@@ -20,16 +20,19 @@ When binding Appinternals using a user-provided service, it must have <code>appi
 | ---- | -----------
 | `rvbd_dsa_port` | (Optional)The AppInternals agent (DSA) port (default 2111).
 | `rvbd_agent_port` | (Optional) The AppInternals agent socket port (default 7073).
-| `rvbd_moniker` | (Optional) A custom name for the application (default supplied by agent process discovery).
+| `rvbd_analysis_server` | (Optional) The AppInternals secure socket IP address for the Analysis server.
+| `rvbd_analysis_server_port` | (Optional) The AppInternals agent secure socket port (default 7090).
+| `rvbd_app_instance` | (Optional) A custom name for the application (default supplied by agent process discovery).
+| `rvbd_app_config` | (Optional) A custom name for the application config file (default "deafult+config.json").
 
 **NOTE**
 
-Change `rvbd_dsa_port` and `rvbd_agent_port` only if there is a port conflict
+Change `rvbd_dsa_port`, `rvbd_agent_port`, and `rvbd_analysis_server_port` only if there is a port conflict
 
 ### Example: Creating Riverbed Appinternals User-Provided Service Payload
 
 ``` 
-cf cups spring-music-appinternals -p '{"rvbd_dsa_port":"9999","rvbd_moniker":"my_app"}'
+cf cups spring-music-appinternals -p '{"rvbd_analysis_server":"99.99.99.99","rvbd_app_instance":"my_app"}'
 cf bind-service spring-music spring-music-appinternals
 ```
 
