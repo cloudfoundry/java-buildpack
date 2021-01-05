@@ -80,7 +80,7 @@ module JavaBuildpack
       def application_name(java_opts, credentials)
         name = credentials['application-name'] || @configuration['default_application_name'] ||
           @application.details['application_name']
-        java_opts.add_system_property('appdynamics.agent.applicationName', name.to_s)
+        java_opts.add_system_property('appdynamics.agent.applicationName', "\\\"#{name}\\\"")
       end
 
       def account_access_key(java_opts, credentials)
