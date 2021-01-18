@@ -66,7 +66,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/app_dynamics_agent/javaagent.jar')
         expect(java_opts).to include('-Dappdynamics.controller.hostName=test-host-name')
-        expect(java_opts).to include('-Dappdynamics.agent.applicationName=test-application-name')
+        expect(java_opts).to include('-Dappdynamics.agent.applicationName=\"test-application-name\"')
         expect(java_opts).to include('-Dappdynamics.agent.tierName=test-application-name')
         expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' \
                                      '\'.*instance_index[": ]*\\([[:digit:]]*\\).*\')')
@@ -88,7 +88,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
         it 'adds application_name from credentials to JAVA_OPTS if specified' do
           component.release
 
-          expect(java_opts).to include('-Dappdynamics.agent.applicationName=another-test-application-name')
+          expect(java_opts).to include('-Dappdynamics.agent.applicationName=\"another-test-application-name\"')
         end
       end
 
@@ -158,6 +158,30 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
             uri = "http://foo.com/java/#{file}"
             allow(application_cache).to receive(:get)
               .with(uri)
+            stub_request(:head, uri)
+              .with(headers: { 'Accept' => '*/*', 'Host' => 'foo.com', 'User-Agent' => 'Ruby' })
+              .to_return(status: 200, body: '', headers: {})
+          end
+          component.compile
+        end
+
+      end
+
+      context do
+        let(:environment) { { 'APPD_CONF_HTTP_URL' => 'https://foo.com' } }
+
+        it 'sets APPD_CONF_HTTP_URL env var to download config files over HTTPS',
+           cache_fixture: 'stub-app-dynamics-agent.zip' do
+
+          config_files = %w[logging/log4j2.xml logging/log4j.xml app-agent-config.xml controller-info.xml
+                            service-endpoint.xml transactions.xml custom-interceptors.xml
+                            custom-activity-correlation.xml]
+
+          config_files.each do |file|
+            uri = "https://foo.com/java/#{file}"
+            allow(application_cache).to receive(:get)
+              .with(uri)
+            allow(Net::HTTP).to receive(:start).with('foo.com', 443, use_ssl: true).and_call_original
             stub_request(:head, uri)
               .with(headers: { 'Accept' => '*/*', 'Host' => 'foo.com', 'User-Agent' => 'Ruby' })
               .to_return(status: 200, body: '', headers: {})

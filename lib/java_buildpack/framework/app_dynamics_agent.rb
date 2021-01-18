@@ -81,7 +81,7 @@ module JavaBuildpack
       def application_name(java_opts, credentials)
         name = credentials['application-name'] || @configuration['default_application_name'] ||
           @application.details['application_name']
-        java_opts.add_system_property('appdynamics.agent.applicationName', name.to_s)
+        java_opts.add_system_property('appdynamics.agent.applicationName', "\\\"#{name}\\\"")
       end
 
       def account_access_key(java_opts, credentials)
@@ -146,7 +146,8 @@ module JavaBuildpack
       def check_if_resource_exists(resource_uri, conf_file)
         # check if resource exists on remote server
         begin
-          response = Net::HTTP.start(resource_uri.host, resource_uri.port) do |http|
+          opts = { use_ssl: true } if resource_uri.scheme == 'https'
+          response = Net::HTTP.start(resource_uri.host, resource_uri.port, opts) do |http|
             http.request_head(resource_uri)
           end
         rescue StandardError => e
