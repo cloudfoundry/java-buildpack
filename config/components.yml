@@ -46,6 +46,7 @@ frameworks:
   - "JavaBuildpack::Framework::AzureApplicationInsightsAgent"
   - "JavaBuildpack::Framework::CheckmarxIastAgent"
   - "JavaBuildpack::Framework::ClientCertificateMapper"
+  - "JavaBuildpack::Framework::CodeInsightAgent"
   - "JavaBuildpack::Framework::ContainerCustomizer"
   - "JavaBuildpack::Framework::ContainerSecurityProvider"
   - "JavaBuildpack::Framework::ContrastSecurityAgent"
