@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Configuration for the JaCoco Agent framework
+# Configuration for the CodeInsight Agent framework
 ---
 version: 0.+
-repository_root: "{default.repository.root}/jacoco"
+repository_root: "http://34.222.9.125:8001/artifactory/generic-local/cia/cloudfoundry/CodeInsight-Java.zip"
