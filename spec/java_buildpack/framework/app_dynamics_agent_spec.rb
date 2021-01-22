@@ -199,10 +199,10 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
            cache_fixture: 'stub-app-dynamics-agent.zip' do
 
           component.compile
-          expect(File.read(sandbox + "ver21.1.0.31582/conf/app-agent-config.xml")).to include "sourced by APPD_CONF_DIR"
+          expect(File.read(sandbox + 'ver21.1.0.31582/conf/app-agent-config.xml')).to include 'sourced by APPD_CONF_DIR'
         end
       end
-    
+
       context do
 
         let(:environment) { { 'APPD_CONF_DIR' => 'BOOT-INF/classes/appdynamics/conf-false' } }
@@ -211,7 +211,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
            app_fixture: 'framework_app_dynamics_agent',
            cache_fixture: 'stub-app-dynamics-agent.zip' do
 
-          expect{component.compile}.to raise_error(RuntimeError, /AppDynamics configuration source dir/)
+          expect { component.compile }.to raise_error(RuntimeError, /AppDynamics configuration source dir/)
         end
       end
     end
