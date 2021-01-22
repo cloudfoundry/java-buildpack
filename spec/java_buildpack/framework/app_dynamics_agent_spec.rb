@@ -189,6 +189,31 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
           component.compile
         end
       end
+
+      context do
+
+        let(:environment) { { 'APPD_CONF_DIR' => 'BOOT-INF/classes/appdynamics/conf' } }
+
+        it 'sets APPD_CONF_DIR env var to copy config files from app dir',
+           app_fixture: 'framework_app_dynamics_agent',
+           cache_fixture: 'stub-app-dynamics-agent.zip' do
+
+          component.compile
+          expect(File.read(sandbox + 'ver21.1.0.31582/conf/app-agent-config.xml')).to include 'sourced by APPD_CONF_DIR'
+        end
+      end
+
+      context do
+
+        let(:environment) { { 'APPD_CONF_DIR' => 'BOOT-INF/classes/appdynamics/conf-false' } }
+
+        it 'sets APPD_CONF_DIR env var to copy config files from incorrect app dir',
+           app_fixture: 'framework_app_dynamics_agent',
+           cache_fixture: 'stub-app-dynamics-agent.zip' do
+
+          expect { component.compile }.to raise_error(RuntimeError, /AppDynamics configuration source dir/)
+        end
+      end
     end
   end
 end

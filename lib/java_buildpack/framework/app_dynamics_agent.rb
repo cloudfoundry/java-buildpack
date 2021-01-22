@@ -39,7 +39,8 @@ module JavaBuildpack
         default_conf_dir = resources_dir + @droplet.component_id + 'defaults'
 
         copy_appd_default_configuration(default_conf_dir)
-        override_default_config_if_applicable
+        override_default_config_remote
+        override_default_config_local
         @droplet.copy_resources
       end
 
@@ -169,7 +170,7 @@ module JavaBuildpack
 
       # Check for configuration files on a remote server. If found, copy to conf dir under each ver* dir
       # @return [Void]
-      def override_default_config_if_applicable
+      def override_default_config_remote
         return unless @application.environment['APPD_CONF_HTTP_URL']
 
         JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
@@ -191,6 +192,27 @@ module JavaBuildpack
                 FileUtils.cp_r file, target_directory + '/conf/' + conf_file
               end
             end
+          end
+        end
+      end
+
+      # Check for configuration files locally. If found, copy to conf dir under each ver* dir
+      # @return [Void]
+      def override_default_config_local
+        return unless @application.environment['APPD_CONF_DIR']
+
+        app_conf_dir = @application.root + @application.environment['APPD_CONF_DIR']
+
+        raise "AppDynamics configuration source dir #{app_conf_dir} does not exist" unless Dir.exist?(app_conf_dir)
+
+        @logger.info { "Copy override configuration files from #{app_conf_dir}" }
+        CONFIG_FILES.each do |conf_file|
+          conf_file_path = app_conf_dir + conf_file
+
+          next unless File.file?(conf_file_path)
+
+          Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
+            FileUtils.cp_r conf_file_path, target_directory + '/conf/' + conf_file
           end
         end
       end
