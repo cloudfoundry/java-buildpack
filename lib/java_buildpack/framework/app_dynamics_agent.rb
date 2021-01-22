@@ -201,10 +201,13 @@ module JavaBuildpack
       def override_default_config_local
         return unless @application.environment['APPD_CONF_DIR']
 
-        app_conf_dir = @application.environment['APPD_CONF_DIR']
+        app_conf_dir = @application.root + @application.environment['APPD_CONF_DIR']
+
+        raise "AppDynamics configuration source dir #{app_conf_dir} does not exist" unless Dir.exist?(app_conf_dir)
+
         @logger.info { "Copy override configuration files from #{app_conf_dir}" }
         CONFIG_FILES.each do |conf_file|
-          conf_file_path = @application.root + app_conf_dir + conf_file
+          conf_file_path = app_conf_dir + conf_file
 
           next unless File.file?(conf_file_path)
 

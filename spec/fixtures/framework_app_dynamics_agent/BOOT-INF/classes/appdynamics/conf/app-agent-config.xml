@@ -1,3 +1,4 @@
+<!-- sourced by APPD_CONF_DIR -->
 <app-agent-configuration>
     <configuration-properties>
         <property name="agent-overwrite" value="false"/>
