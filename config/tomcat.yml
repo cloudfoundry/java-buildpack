@@ -40,5 +40,5 @@ redis_store:
   timeout: 2000
   connection_pool_size: 2
 geode_store:
-  version: 0.+
-  repository_root: https://repo.spring.io/ext-release-local/geode-store
+  version: 1.13.+
+  repository_root: https://java-buildpack-tomcat-gemfire-store.s3-us-west-2.amazonaws.com

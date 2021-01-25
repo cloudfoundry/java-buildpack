@@ -92,8 +92,8 @@ By default, the Tomcat instance is configured to store all Sessions and their da
 ### Redis
 To enable Redis-based session replication, simply bind a Redis service containing a name, label, or tag that has `session-replication` as a substring.
 
-### Pivotal Cloud Cache
-To enable session state caching on 'Pivotal Cloud Cache', bind to a 'Pivotal Cloud Cache' service instance who's name either ends in `-session-replication` or is tagged with `session-replication`.
+### Tanzu GemFire for VMs
+To enable session state caching on Tanzu GemFire for VMs, bind to a Tanzu GemFire service instance whose name either ends in `-session-replication` or is tagged with `session-replication`.
 
 Service instances can be created with a tag:
 
