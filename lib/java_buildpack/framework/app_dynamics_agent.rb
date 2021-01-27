@@ -148,7 +148,11 @@ module JavaBuildpack
         begin
           opts = { use_ssl: true } if resource_uri.scheme == 'https'
           response = Net::HTTP.start(resource_uri.host, resource_uri.port, opts) do |http|
-            http.request_head(resource_uri)
+            req = Net::HTTP::Head.new(resource_uri)
+            if resource_uri.user != '' || resource_uri.password != ''
+              req.basic_auth(resource_uri.user, resource_uri.password)
+            end
+            http.request(req)
           end
         rescue StandardError => e
           @logger.error { "Request failure: #{e.message}" }
