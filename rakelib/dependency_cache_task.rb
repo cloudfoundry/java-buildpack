@@ -109,7 +109,10 @@ module Package
     end
 
     def component_ids
-      configuration('components').values.flatten.map { |component| component.split('::').last.snake_case }
+      conf = configuration('components').values.flatten.map { |component| component.split('::').last.snake_case }
+      offline_cache = ENV['ADD_TO_CACHE'].split(':')
+      (conf << offline_cache).flatten!.uniq!
+      conf
     end
 
     def configuration(id)
