@@ -44,6 +44,9 @@ module JavaBuildpack
         credentials = @application.services.find_service(FILTER, KEY_LOCATORS, KEY_USERS)['credentials']
         user = credentials[KEY_USERS].find { |u| cluster_operator?(u) }
 
+        File.open(@droplet.root + "gemfire.properties", "w") {|f| f.write("security-username=" + user['username'] +
+                                                                            "\nsecurity-password=" + user['password']) }
+
         @droplet.java_opts.add_system_property 'gemfire.security-username', user['username']
         @droplet.java_opts.add_system_property 'gemfire.security-password', user['password']
         @droplet.java_opts.add_system_property 'gemfire.security-client-auth-init',
