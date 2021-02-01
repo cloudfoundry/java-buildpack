@@ -107,8 +107,10 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
       expect(java_opts).to include(
         '-Dgemfire.security-client-auth-init=io.pivotal.cloudcache.ClientAuthInitialize.create'
       )
-      expect(java_opts).to include('-Dgemfire.security-username=some-username')
-      expect(java_opts).to include('-Dgemfire.security-password=some-password')
+
+      expect(app_dir + 'gemfire.properties').to exist
+      expect((app_dir + 'gemfire.properties').read)
+        .to eq(Pathname.new('spec/fixtures/expected_gemfire_properties').read)
     end
   end
 
@@ -139,8 +141,10 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
       expect(java_opts).to include(
         '-Dgemfire.security-client-auth-init=io.pivotal.cloudcache.ClientAuthInitialize.create'
       )
-      expect(java_opts).to include('-Dgemfire.security-username=cluster_operator')
-      expect(java_opts).to include('-Dgemfire.security-password=some-password')
+
+      expect(app_dir + 'gemfire.properties').to exist
+      expect((app_dir + 'gemfire.properties').read)
+        .to eq(Pathname.new('spec/fixtures/expected_gemfire_properties_without_role').read)
     end
   end
 end
