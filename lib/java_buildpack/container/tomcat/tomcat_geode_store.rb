@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2020 the original author or authors.
+# Copyright 2013-2021 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ module JavaBuildpack
         return unless supports?
 
         download_tar(false, tomcat_lib, tar_name)
+        detect_geode_tomcat_version
         mutate_context
         mutate_server
         create_cache_client_xml
@@ -58,7 +59,6 @@ module JavaBuildpack
       KEY_LOCATORS = 'locators'
       KEY_USERS = 'users'
 
-      SESSION_MANAGER_CLASS_NAME = 'org.apache.geode.modules.session.catalina.Tomcat9DeltaSessionManager'
       REGION_ATTRIBUTES_ID = 'PARTITION_REDUNDANT_HEAP_LRU'
       CACHE_CLIENT_LISTENER_CLASS_NAME =
         'org.apache.geode.modules.session.catalina.ClientServerCacheLifecycleListener'
@@ -67,7 +67,7 @@ module JavaBuildpack
       SCHEMA_LOCATION = 'http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd'
       LOCATOR_REGEXP = Regexp.new('([^\\[]+)\\[([^\\]]+)\\]').freeze
 
-      private_constant :FILTER, :KEY_LOCATORS, :KEY_USERS, :SESSION_MANAGER_CLASS_NAME, :REGION_ATTRIBUTES_ID,
+      private_constant :FILTER, :KEY_LOCATORS, :KEY_USERS, :REGION_ATTRIBUTES_ID,
                        :CACHE_CLIENT_LISTENER_CLASS_NAME, :SCHEMA_URL, :SCHEMA_INSTANCE_URL, :SCHEMA_LOCATION,
                        :LOCATOR_REGEXP
 
@@ -98,7 +98,7 @@ module JavaBuildpack
 
       def add_manager(context)
         context.add_element 'Manager',
-                            'className' => SESSION_MANAGER_CLASS_NAME,
+                            'className' => @session_manager_classname,
                             'enableLocalCache' => 'true',
                             'regionAttributesId' => REGION_ATTRIBUTES_ID
       end
@@ -124,9 +124,42 @@ module JavaBuildpack
         write_xml cache_client_xml_path, document
       end
 
+      def detect_geode_tomcat_version
+        geode_tomcat_version = nil
+
+        geode_modules_tomcat_pattern = /geode-modules-tomcat(?<version>[0-9]*).*.jar/.freeze
+        Dir.foreach(@droplet.sandbox + 'lib') do |file|
+          if geode_modules_tomcat_pattern.match(file)
+            unless geode_tomcat_version.nil?
+              raise('Multiple versions of geode-modules-tomcat jar found. ' \
+                'Please verify your geode_store tar only contains one geode-modules-tomcat jar.')
+            end
+
+            geode_tomcat_version = geode_modules_tomcat_pattern.match(file).named_captures['version']
+          end
+        end
+
+        if geode_tomcat_version.nil?
+          raise('Geode Tomcat module not found. ' \
+            'Please verify your geode_store tar contains a geode-modules-tomcat jar.')
+        end
+
+        tomcat_version = @configuration['tomcat_version']
+
+        # leave possibility for generic jar/session manager class that is compatible with all tomcat versions
+        if !geode_tomcat_version.empty? && geode_tomcat_version != tomcat_version
+          puts "       WARNING: Tomcat version #{tomcat_version} " \
+                  "does not match Geode Tomcat #{geode_tomcat_version} module. " \
+                  'If you encounter compatibility issues, please make sure these versions match.'
+        end
+
+        puts "       Detected Geode Tomcat #{geode_tomcat_version} module"
+        @session_manager_classname =
+          "org.apache.geode.modules.session.catalina.Tomcat#{geode_tomcat_version}DeltaSessionManager"
+      end
+
       def mutate_context
         puts '       Adding Geode-based Session Replication'
-
         document = read_xml context_xml
         context = REXML::XPath.match(document, '/Context').first
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2020 the original author or authors.
+# Copyright 2013-2021 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,8 +52,12 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::ModularComponent#sub_components)
       def sub_components(context)
+        instance = TomcatInstance.new(sub_configuration_context(context, 'tomcat'))
+        # pass Tomcat major version to geode_store so we can verify compatibility.
+        @configuration['geode_store']['tomcat_version'] = instance.instance_variable_get(:@version)[0]
+
         components = [
-          TomcatInstance.new(sub_configuration_context(context, 'tomcat')),
+          instance,
           TomcatAccessLoggingSupport.new(sub_configuration_context(context, 'access_logging_support')),
           TomcatGeodeStore.new(sub_configuration_context(context, 'geode_store')),
           TomcatInsightSupport.new(context),

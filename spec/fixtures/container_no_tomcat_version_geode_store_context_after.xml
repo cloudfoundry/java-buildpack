@@ -16,5 +16,5 @@
   ~ limitations under the License.
   --> 
 <Context allowLinking='true'>
-    <Manager className='org.apache.geode.modules.session.catalina.Tomcat9DeltaSessionManager' enableLocalCache='true' regionAttributesId='PARTITION_REDUNDANT_HEAP_LRU'/>
+    <Manager className='org.apache.geode.modules.session.catalina.TomcatDeltaSessionManager' enableLocalCache='true' regionAttributesId='PARTITION_REDUNDANT_HEAP_LRU'/>
 </Context>
