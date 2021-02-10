@@ -1,6 +1,3 @@
-#!/usr/bin/env ruby
-# frozen_string_literal: true
-
 # Cloud Foundry Java Buildpack
 # Copyright 2013-2020 the original author or authors.
 #
@@ -16,14 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-$stdout.sync = true
-$stderr.sync = true
-$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
-
-require 'java_buildpack/buildpack'
-
-app_dir = ARGV[0]
-
-output = JavaBuildpack::Buildpack.with_buildpack(app_dir, nil, nil, 'Release failed with exception %s', &:release)
-
-puts output
+# Configuration for the DistZip container
+---
+arguments:

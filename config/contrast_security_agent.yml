@@ -16,4 +16,4 @@
 # Configuration for the ContrastSecurity framework
 ---
 version: 3.+
-repository_root: https://artifacts.contrastsecurity.com/agents/java
+repository_root: https://download.run.pivotal.io/contrast-security

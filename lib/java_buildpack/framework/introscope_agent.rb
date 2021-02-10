@@ -125,7 +125,7 @@ module JavaBuildpack
       end
 
       def export_all_properties(credentials, java_opts)
-        credentials.keys.each do |key|
+        credentials.each_key do |key|
           correct_key = key.tr('_', '.')
           if %w[agentManager.url.1 agent.manager.url].include?(correct_key)
             add_url(credentials, java_opts)

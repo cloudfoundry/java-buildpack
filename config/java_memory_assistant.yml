@@ -30,6 +30,11 @@ agent:
     eden: 
     survivor: 
     old_gen: ">600MB"
+    tenured_gen:
+    code_heap.non_nmethods:
+    code_heap.non_profiled_nmethods:
+    code_heap.profiled_nmethods:
+
 clean_up:
   version: 0.+
   repository_root: https://raw.githubusercontent.com/SAP/java-memory-assistant-tools/repository-cu

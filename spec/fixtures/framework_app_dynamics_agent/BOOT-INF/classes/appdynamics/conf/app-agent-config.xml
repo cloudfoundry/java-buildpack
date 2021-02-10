@@ -1,0 +1,730 @@
+<!-- sourced by APPD_CONF_DIR -->
+<app-agent-configuration>
+    <configuration-properties>
+        <property name="agent-overwrite" value="false"/>
+        <!-- enables/disables the agent. TransactionEntryPoints will not be monitored. No new bt and metrics will be registered;
+        metrics, snpshots will not be reported; The background threads will not be stopped and once this is turned back on
+        monitoring is active immediately. Does not need a restart -->
+        <!-- property name="disable-agent" value="true"/ -->
+
+        <!-- defines the interval in seconds for the agent to poll for new configuration from the controller. needs a restart -->
+        <!-- property name="config-poll-interval" value="60"/ -->
+
+        <!-- uncomment this to enable timing stats for agent and controller rest communication. does not need a restart -->
+        <!-- property name="rest-stats-tracking-enabled" value="true" /-->
+
+        <!-- set requency for printing rest stats, default value is 60. does not need a restart -->
+        <!-- property name="rest-stats-tracking-frequency-in-seconds" value="60" / -->
+    </configuration-properties>
+
+    <sensitive-url-filters>
+        <!--
+            This section specifies how the agent scrubs any sensitive information from the url.
+            This only applies to urls under snapshot details. Urls can be scrubbed based on the segment number
+            and delimiter, or by defining a query parameter pattern.
+
+
+            A sensitive-url-filter element must have one of the following two attributes:
+
+                - segment: Numbers corresponding to index of the segments to be scrubbed, when split by delimiter.
+                           Segments start from 1.
+                - param-pattern: regex filter for redacting query parameters from the url string
+
+            For example, let's say we have url https://localhost:8080/foo/bar, and we have
+
+            <sensitive-url-filter delimiter="/"
+                                  segment="2,3"
+                                  match-filter="EQUALS|INLIST|STARTSWITH|ENDSWITH|CONTAINS|REGEX|NOT_EMPTY"
+                                  match-pattern="pattern"
+                                  param-pattern=""/>
+
+            In this case, url will be split into three segments,
+            1 - https://localhost:8080
+            2 - foo
+            3 - bar
+
+            delimiter - characters used to split the url, default is "/"
+            match-filter - the type of filtering to be used to match the url, default is NOT_EMPTY
+            match-pattern - the string pattern corresponding to the match-filter, if needed
+
+            Hence, the scrubbed url will be https://localhost:8080/*****/*****
+            Note: https:// or http:// will be ignored from segment count, and will never be scrubbed.
+        -->
+    </sensitive-url-filters>
+
+    <sensitive-data-filters>
+        <!--
+             This section specifies how the agent scrubs any sensitive information from the data it
+             discovered, whether that data comes from a system property, environment variable, jmx mbeans, or
+             anything else.
+
+             Each sensitive-data-filter element has three required attributes and one optional attribute:
+
+                 - applies-to: A comma-separated list of where this filter applies.  Right now, there
+                               are five possible values here: "system-properties", "environment-variables",
+                               "http-headers", "http-cookies", and "jmx-mbeans".
+                 - match-type: One of EQUALS, CONTAINS, STARTSWITH, ENDSWITH
+                 - match-pattern: The pattern to match against
+                 - redaction-regex: (Optional) The pattern group to redact
+
+             Here are some examples:
+
+             <sensitive-data-filter applies-to="system-properties"
+                                    match-type="EQUALS"
+                                    match-pattern="super.secret.password"/>
+             <sensitive-data-filter applies-to="environment-variables,system-properties, jmx-mbeans"
+                                    match-type="STARTSWITH"
+                                    match-pattern="DB_"/>
+             <sensitive-data-filter applies-to="http-headers"
+                                    match-type="STARTSWITH"
+                                    match-pattern=""
+                                    redaction-regex="\$[^$]*\$"/>
+        -->
+
+        <sensitive-data-filter applies-to="jmx-mbeans"
+                               match-type="CONTAINS"
+                               match-pattern="username"/>
+
+        <sensitive-data-filter applies-to="environment-variables,system-properties,jmx-mbeans"
+                               match-type="CONTAINS"
+                               match-pattern="password"/>
+
+        <sensitive-data-filter applies-to="environment-variables,system-properties"
+                               match-type="CONTAINS"
+                               match-pattern="key"/>
+
+        <sensitive-data-filter applies-to="environment-variables,system-properties"
+                               match-type="STARTSWITH"
+                               match-pattern=""/>
+
+    </sensitive-data-filters>
+
+     <sensitive-message-filters>
+         <!--
+        <sensitive-message-filter message-type="throwable,logger-message,all"
+                                  match-type="EQUALS|CONTAINS|STARTSWITH|ENDSWITH|REGEX"
+                                  match-pattern="CASESENSITIVE_PATTERN"
+                                  redaction-regex="SENSITIVE_INFO_REGEX_GROUP"/>
+        -->
+     </sensitive-message-filters>
+
+    <agent-services>
+        <agent-service name="DynamicServiceManager"
+                       implementation-class-name="com.singularity.ee.agent.appagent.kernel.DynamicServiceManager"
+                       enabled="true">
+
+            <implementation-class-name>
+                com.singularity.ee.agent.appagent.kernel.DynamicServiceManager
+            </implementation-class-name>
+
+            <configuration-properties>
+                <property name="external-service-directory" value="external-services"/>
+            </configuration-properties>
+
+        </agent-service>
+
+        <agent-service name="InstrumentationSdkPluginManager"
+                       implementation-class-name="com.singularity.ee.agent.appagent.kernel.InstrumentationSdkPluginManager"
+                       enabled="true">
+            <service-dependencies>BCIEngine,TransactionMonitoringService,SnapshotService</service-dependencies>
+
+            <configuration-properties>
+                <property name="sdk-plugin-directory" value="sdk-plugins"/>
+            </configuration-properties>
+        </agent-service>
+
+        <agent-service name="BCIFixer" enabled="true">
+            <service-dependencies>BCIEngine</service-dependencies>
+        </agent-service>
+
+        <agent-service name="BCIEngine" enabled="true">
+            <configuration-properties>
+                <!-- uncomment this and to enable timing stats for interceptors. does not need a restart -->
+                <!-- property name="interceptor-stats-tracking-enabled" value="true"/ -->
+
+                <!-- uncomment this to log where a specified interceptor is being called from periodically. does not need a restart -->
+                <!-- property name="interceptor-call-tracing" value="com.foo.AInterceptor/60,com.foo.BInterceptor/60"/-->
+
+                <!-- uncomment this to 'not register class file transformer for retransformation' in java 1.6. Needs a restart -->
+                <!-- property name="register-for-retransform" value="true" / -->
+            </configuration-properties>
+            <configuration>
+                <!--  the following packages are not processed by the BCI engine by default
+                1.java.* 2.sun.*  3.com.sun.* [except com.sun.jersey.*] 4.javax.* To add more packages to be excluded add a new custom-exclude tag.-->
+                <bci-processing-excludes>
+                    <override-system-exclude filter-type="equals" filter-value="foo"/>
+                    <custom-exclude filter-type="CONTAINS" filter-value="$JaxbAccessor"/>
+                    <custom-exclude filter-type="CONTAINS" filter-value="$$FastClassByCGLIB"/>
+                    <custom-exclude filter-type="STARTSWITH" filter-value="$Proxy"/>
+                    <custom-exclude filter-type="STARTSWITH" filter-value="org/mozilla/javascript/gen/"/>
+                    <custom-exclude filter-type="STARTSWITH" filter-value="atg/dms/"/>
+                    <custom-exclude filter-type="CONTAINS" filter-value="$$EnhancerByCGLIB$$"/>
+                    <custom-exclude filter-type="EQUALS" filter-value="org.jboss.resource.adapter.jms.JmsMessageConsumer"/>
+                    <custom-exclude filter-type="EQUALS" filter-value="com.ibm.ejs.jms.JMSMessageConsumerHandle"/>
+                    <custom-exclude filter-type="EQUALS" filter-value="io/netty/util/concurrent/DefaultThreadFactory$DefaultRunnableDecorator"/>
+                    <custom-exclude filter-type="STARTSWITH" filter-value="io/netty/util/concurrent/SingleThreadEventExecutor"/>
+                    <custom-exclude filter-type="STARTSWITH" filter-value="io/reactivex/netty/client/ConnectionPoolImpl"/>
+                    <!--- to disable lambda classes instrumentation, use the following line
+                        <custom-exclude filter-type="CONTAINS" filter-value="$$Lambda$"/>
+                    -->
+                </bci-processing-excludes>
+
+                <!-- definition for "overridable-exclude" which is just like "custom-exclude" but can be overridden
+                     by using "exclude-override".
+                     "exclude-override" is like "override-system-exclude" but is only applied on "overridable-exclude"
+                     -->
+                <overridable-exclude-definition>
+                    <!-- overriding for instrumenting kafka v9 consumers-->
+                    <exclude-override filter-type="EQUALS" filter-value="kafka.api.FetchResponse$$anonfun$dataGroupedByTopic$1"/>
+                    <!-- overriding for supporting spray applications-->
+                    <exclude-override filter-type="EQUALS" filter-value="spray.client.pipelining$$anonfun$sendReceive$1"/>
+                    <!-- overriding for supporting akka-http microservice-->
+                    <exclude-override filter-type="EQUALS" filter-value="akka.http.scaladsl.server.Route$$anonfun$asyncHandler$1"/>
+                    <exclude-override filter-type="EQUALS" filter-value="akka.http.scaladsl.server.Route$$anonfun$asyncHandler$1$$anonfun$apply$1"/>
+                    <exclude-override filter-type="EQUALS" filter-value="akka.http.scaladsl.server.Route$$anonfun$asyncHandler$1$$anonfun$apply$2"/>
+                    <exclude-override filter-type="EQUALS" filter-value="akka.http.scaladsl.server.StandardRoute$$anon$1"/>
+                    <exclude-override filter-type="STARTSWITH"
+                                      filter-value="akka.http.impl.engine.client.PoolSlot$SlotProcessor$$anon$1$$anon$"/>
+                    <exclude-override filter-type="EQUALS" filter-value="play.core.j.JavaAction$$anon$1"/>
+                    <!-- excluding because of CORE-47544-->
+                    <overridable-exclude filter-type="CONTAINS" filter-value="$$anonfun"/>
+                </overridable-exclude-definition>
+
+            </configuration>
+        </agent-service>
+        <agent-service name="SnapshotService" enabled="true">
+            <service-dependencies>BCIEngine</service-dependencies>
+            <configuration-properties>
+                <!-- uncomment this property to disable/enable the startup sampling for snapshots which will mean snapshots will be collected for all BTs for
+                the first 2 minutes of an application server start.-->
+                <!-- property name="enable-startup-snapshot-policy" value="true"/ -->
+
+                <!-- uncomment this and save the file to collect snapshots for all business transactions executed in this node. does not need a restart -->
+                <!-- property name="on-demand-snapshots" value="true"/ -->
+
+                <!-- uncomment this to use new/scalable coalesced call-graph generation mechanism, instead of single threaded STW sampling. does not need a restart -->
+                <!-- property name="coalesced-cg-generation" value="true"/ -->
+
+                <!-- uncomment this to use a samling rate for call graphs only for this node. The global configuration will be ignored if this is used. does not need a restart -->
+                <!-- property name="callgraph-granularity-in-ms" value="10"/ -->
+
+                <!-- uncomment this to show these packages in the call graph in addition to the ones configured in the UI. does not need a restart -->
+                <!-- property name="show-packages" value="com.foo.*,com.foo.bar.*"/ -->
+
+                <!-- uncomment this to show these packages in the call graph in addition to the ones configured in the UI. does not need a restart  -->
+                <!-- property name="dont-show-packages" value=value="com.foo.*,com.foo.bar.*"/ -->
+
+                <!-- uncomment this and add a comma separated list of 'classname/method name' that report a looped execution so that their executions are shown in the call graph.
+                                                                    this property needs a restart  -->
+                <!-- property name="loop-reporting-methods" value="com.foo.Bar1/loop,com.foo.Bar2/loop1"/ -->
+
+                <!-- uncomment to enable adaptive call sampling. Sampling frequency based on Average Response time for the business transaction in last 1 minute.
+                The following distribution is used. 10ms frequency for <= 10 seconds response time; 50 ms for 10 to 60 secs; 100 ms for 60 to 600 secs; 200ms for > 600 seconds -->
+                <!--property name="adaptive-callgraph-granularity" value="true" /-->
+            </configuration-properties>
+        </agent-service>
+        <agent-service name="TransactionMonitoringService" enabled="true">
+            <service-dependencies>BCIEngine,SnapshotService</service-dependencies>
+            <configuration-properties>
+                <!--uncomment this to disable transaction correlation -->
+                <!--property name="enable-transaction-correlation" value="false"/-->
+
+                <!-- enables transaction correlation through web service tiers, uncomment to enable -->
+                <!--property name="enable-soap-header-correlation" value="true"/-->
+
+                <!-- enables us to have multiple config files. -->
+                <property name="config-file-path" value="transactions.xml"/>
+
+                <!--uncomment and edit this tag to disable exit call monitoring for a specific type. This would mean that average data for that specific call type will not
+                 be collected.i.e.Calls Per Min/Avg Response Time etc for exit calls. However on a snapshot you would continue to get the same information as before.
+                 Do this if you make a large number of exit calls per transaction to reduce instrumentation overhead and not affecting the richness of the diagnostic information.-->
+                <!-- property name="disable-exit-call-metrics-for" value="JDBC,HTTP,WEB_SERVICE,JMS,RMI"/ -->
+
+                <!-- uncomment and edit this tag to disable exit call correlation for various exit call types-->
+                <!-- property name="disable-exit-call-correlation-for" value="HTTP,JMS,RMI"/ -->
+
+                <!-- uncomment this property and edit it[default is 50] to increase/decrease the number of business transactions discovered once an agent is started.
+                this is done to prevent business transaction metric explosion as an unsuitable discovery scheme can potentially produce thousands of transactions. -->
+                <!-- property name="max-business-transactions" value="50"/ -->
+
+                <!-- edit the jdbc properties here to add support for unsupported JDBC driver classes. , requires a server re-start-->
+                <!-- property name="jdbc-statements" value=""/ -->
+                <!-- property name="jdbc-connections" value=""/ -->
+                <!-- property name="jdbc-prepared-statements" value=""/ -->
+                <!-- property name="jdbc-callable-statements" value=""/ -->
+
+                <!-- edit the tags below to add class names if servlet classes are not instrumented, and to enable transaction identification using servlet
+                filters-->
+                <!-- property name="servlet-classes" value=""/ -->
+                <!-- property name="enable-servlet-filter" value="true"/ -->
+
+                <!-- uncomment the following to enable transaction correlation for jms .receive() call, default value is false -->
+                <!-- property name="enable-jms-receive-correlation" value="true"/ -->
+
+                <!-- timeout value in seconds for global transactions initiated by appdynamics api. The endTransaction api
+                will be invoked after the specified timeout period. Default value is 15 seconds -->
+                <!--property name="api-transaction-timeout-in-seconds" value="15" /-->
+
+                <!-- timeout value in seconds for threads participating in a global transaction added by appdynamics api.
+                The removeCurrentThread api will be invoked after the specified timeout period. Default value is 10 seconds -->
+                <!--property name="api-thread-activity-timeout-in-seconds" value="10" /-->
+
+                <!-- Disable/enable automatic HTTP error code reporting for error codes between 400 - 505, default TRUE. -->
+                <!--property name="enable-default-http-error-code-reporter" value="true" /-->
+
+                <!-- enable / disable bt level cpu time monitoring -->
+                <!--property name="enable-bt-cpu-time-monitoring" value="false"/-->
+
+                <!-- specify the threshold for end to end message processing latency for distributed asynchronous systems , does not need a restart -->
+                <!-- property name="end-to-end-message-latency-threshold-millis" value=""/-->
+
+                <!-- add classname/method e.g. foo/bar where foo is class name and bar is methd name to mark the method demarcating the end
+                of an async distributed transaction , does not need a restart -->
+                <!-- property name="async-transaction-demarcator" value=""/-->
+
+                <!--
+                Add comma-separated list of async environment names.  These will be used to enable async transaction detection
+                for supported environments.  Current supported async environments: mule,camel,jbossesb,tibcobw,scala
+                 -->
+                 <!--  property name="enable-async-correlation-for" value="mule,camel,jbossesb,tibcobw,scala"/ -->
+
+                <!--
+                Cassandra CQL / Datastax driver: uncomment to name Cassandra backends with IP/port instead of naming
+                with cluster name.  In any case the IP/port info goes into snapshot details.
+                 -->
+                 <!--  property name="enable-cassandra-backend-ip-naming" value="true" -->
+
+                <property name="async-instrumentation-strategy" value="constructor"/>
+            </configuration-properties>
+            <configuration>
+                <!-- Instrumentation strategy "constructor" (default) uses the <fork-config>
+                     section, while the experimental "executor" uses <async-config>.
+                -->
+                <async-config>
+                  <!-- This is the configuration for the "executor" strategy -->
+                    <exclude filter-type="STARTSWITH" filter-value="com.singularity.ee.agent/"/>
+                    <!--
+                    match-class
+                        type: inherits-from-class, implements-interface, matches-class, has-class-annotation
+                        name:
+                            filter-type: STARTSWITH, EQUALS, ENDSWITH, CONTAINS
+
+                    name-config
+                        type:
+                            0:none,             1:param,        2:instance,     3:classname,
+                            4:simple classname  5:thread id     6:thread name
+                        operation:
+                            param:      <paramIndex>.getter-chain   eg. 0.getName().toString()
+                            instance:   getter-chain                eg. getName().toString()
+
+                    action
+                        type: announcement, execution, suppression, cancellation, shutdown
+                        token:
+                            announcement:
+                                this         - invoked object
+                                <paramIndex> - argument (first argument is 0)
+                            execution:
+                                this         - invoked object
+                                <paramIndex> - argument (first argument is 0)
+                            cancellation:
+                                this         - invoked object
+                                <paramIndex> - argument (first argument is 0)
+                            shutdown:
+                                return       - returned object
+                    -->
+                    <!-- Announcement jobs -->
+                    <job>
+                        <match-class type="implements-interface"><name filter-type="EQUALS" filter-value="java.util.concurrent.Executor"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="execute"/></match-method>
+                        <action type="announcement" token="0"/>
+                        <name-config operation="0.getClass().getSimpleName()" type="1"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.ScheduledThreadPoolExecutor"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="delayedExecute"/></match-method>
+                        <action type="announcement" token="0"/>
+                        <name-config operation="0.getClass().getSimpleName()" type="1"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.lang.Thread"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="start"/></match-method>
+                        <action type="announcement" token="this"/>
+                        <name-config operation="" type="4"/>
+                    </job>
+                    <!-- Cancellation and Shutdown jobs -->
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.FutureTask"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="cancel"/></match-method>
+                        <action type="cancellation" token="this"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.ThreadPoolExecutor"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="reject"/></match-method>
+                        <action type="cancellation" token="0"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.ThreadPoolExecutor"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="shutdownNow"/></match-method>
+                        <action type="shutdown" token="return"/>
+                    </job>
+                    <!-- Execution jobs -->
+                    <job>
+                        <match-class type="implements-interface"><name filter-type="EQUALS" filter-value="java.lang.Runnable"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="run"/></match-method>
+                        <action type="execution" token="this"/>
+                        <name-config operation="" type="4"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="run"/></match-method>
+                        <action type="execution" token="this"/>
+                        <name-config operation="" type="4"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.FutureTask"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="run"/></match-method>
+                        <action type="execution" token="this"/>
+                        <name-config operation="" type="4"/>
+                    </job>
+                    <!-- Suppression jobs -->
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.Timer"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="&lt;init&gt;"/></match-method>
+                        <action type="suppression"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.ThreadPoolExecutor"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="addWorker"/></match-method>
+                        <action type="suppression"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="java.util.concurrent.ForkJoinPool"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="createWorker"/></match-method>
+                        <action type="suppression"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="scala.concurrent.forkjoin.ForkJoinPool"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="tryAddWorker"/></match-method>
+                        <action type="suppression"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="akka.actor.ActorSystemImpl"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="tryAddWorker"/></match-method>
+                        <action type="suppression"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="io.netty.util.concurrent.SingleThreadEventExecutor"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="startThread"/></match-method>
+                        <action type="suppression"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="start"/></match-method>
+                        <action type="suppression"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="org.apache.http.impl.nio.reactor.AbstractMultiworkerIOReactor"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="execute"/></match-method>
+                        <action type="suppression"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="org.jboss.netty.util.internal.DeadLockProofWorker"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="start"/></match-method>
+                        <action type="suppression"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="com.ning.http.client.providers.netty.NettyAsyncHttpProvider"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="newNettyTimer"/></match-method>
+                        <action type="suppression"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="io.netty.util.concurrent.SingleThreadEventExecutor"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="doStartThread"/></match-method>
+                        <action type="suppression"/>
+                    </job>
+                </async-config>
+                <fork-config>
+                  <!-- This is the configuration for the "constructor" strategy -->
+                    <!--
+                        <excludes filter-type="STARTSWITH | CONTAINS | ENDSWITH | EQUALS"
+                                  filter-value="comma-separated list of excludes"/>
+                        <exclude filter-type="STARTSWITH | CONTAINS | ENDSWITH | EQUALS"
+                                 filter-value="single class or package name to exclude"/>
+                        <include filter-type="STARTSWITH | CONTAINS | ENDSWITH | EQUALS"
+                                 filter-value="single class or package name to include - overriding the exclude"/>
+
+                        Note that there is no <includes> tag: <include> filters must refer only to
+                            a single class or package name.
+                    -->
+
+                    <!-- exclude java and org -->
+                    <excludes filter-type="STARTSWITH" filter-value="com.singularity/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="java/,javax/,com.sun/,sun/,org/,com/mysql"/>
+                    <!-- exclude weblogic and websphere -->
+                    <excludes filter-type="STARTSWITH" filter-value="com.bea/,com.weblogic/,weblogic/,com.ibm/,net/sf/,com/mchange/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.apple.java/"/>
+
+                    <excludes filter-type="CONTAINS" filter-value="closure"/>
+                    <excludes filter-type="CONTAINS" filter-value="Closure"/>
+
+                    <excludes filter-type="STARTSWITH" filter-value="com.singularity"/>
+
+                    <excludes filter-type="EQUALS" filter-value="com.tibco.pe.core.JobDispatcher$JobCourier"/>
+                    <excludes filter-type="EQUALS" filter-value="com.tibco.plugin.share.jms.impl.JMSReceiver$SessionController"/>
+                    <excludes filter-type="EQUALS" filter-value="com.tibco.tibjms.TibjmsxSessionImp$Dispatcher"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.googlecode/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.google/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.opensymphony/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.datastax.driver.core/"/>
+
+                    <!-- Scala/Akka/Play  -->
+                    <excludes filter-type="STARTSWITH" filter-value="scala.concurrent/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="akka/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="play.core.server/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="play.api.libs.concurrent/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.typesafe/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.jolbox.bonecp/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.avaje.ebeaninternal/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.ning.http/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="xsbt.boot/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="sbt"/>
+
+                    <excludes filter-type="STARTSWITH" filter-value="groovy.lang/,groovy.util/"/>
+
+                    <!-- Netty -->
+                    <include filter-type="EQUALS" filter-value="org.jboss.netty.handler.execution.ChannelUpstreamEventRunnable"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.yammer/"/>
+
+                    <!-- rx CORE-74268 -->
+                    <excludes filter-type="STARTSWITH" filter-value="rx.internal/,rx.schedulers/"/>
+
+                    <!-- atlassian -->
+                    <excludes filter-type="STARTSWITH" filter-value="com.atlassian.event.internal/,com.atlassian.jira.config.properties/,com.atlassian.jira.project.DefaultProjectManager$,com.atlassian.jira.issue.index.DefaultIssueIndexer$TaskCompleter"/>
+                    <include filter-type="STARTSWITH" filter-value="org.apache.jsp"/>
+                    <include filter-type="STARTSWITH" filter-value="org.apache.commons.dbcp/"/>
+
+                    <!-- CORE-{15443, 18536, 19236} -->
+                    <exclude filter-type="STARTSWITH" filter-value="com.tangosol.coherence.component.net/"/>
+                    <exclude filter-type="STARTSWITH" filter-value="com.tangosol.coherence.component.util.DaemonPool$"/>
+                    <exclude filter-type="STARTSWITH" filter-value="com.ning.http.client.providers.netty/"/>
+                    <exclude filter-type="STARTSWITH" filter-value="oracle.jdbc.driver/"/>
+                    <exclude filter-type="STARTSWITH" filter-value="net.spy.memcached/"/>
+                    <exclude filter-type="STARTSWITH" filter-value="com.rabbitmq.client.impl/"/>
+                    <exclude filter-type="STARTSWITH" filter-value="net.jini/"/>
+                    <exclude filter-type="STARTSWITH" filter-value="com.streambase.ext.org.apache.xmlrpc/"/>
+                    <exclude filter-type="STARTSWITH" filter-value="com.streambase.sb.client/"/>
+                    <exclude filter-type="STARTSWITH" filter-value="com.couchbase.client/"/>
+                    <include filter-type="STARTSWITH" filter-value="org.apache.camel.impl.DefaultProducerTemplate$"/>
+                    <include filter-type="EQUALS" filter-value="org.jboss.soa.esb.listeners.message.MessageAwareListener$TransactionalRunner"/>
+
+                    <!-- SonicMQ -->
+                    <excludes filter-type="STARTSWITH" filter-value="com.sonicsw/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="progress/"/>
+
+                    <!-- AWS framework -->
+                    <exclude filter-type="EQUALS" filter-value="com.amazonaws.http.IdleConnectionReaper"/>
+
+                    <!-- Liquibase -->
+                    <exclude filter-type="EQUALS" filter-value="liquibase.sdk.supplier.database.AllDatabases$1"/>
+                    <exclude filter-type="EQUALS" filter-value="liquibase.sdk.verifytest.VerifiedTestFactory$1"/>
+
+                    <!-- Logback -->
+                    <exclude filter-type="STARTSWITH" filter-value="ch.qos.logback.core.AsyncAppenderBase"/>
+
+                    <!-- Hazelcast not required as we are excluding com.hazelcast itself
+                    <exclude filter-type="STARTSWITH" filter-value="com.hazelcast.impl/"/> -->
+
+                    <!-- Excluding as part of CORE-75838
+                    This might also have packages for framework that we support,
+                    but the classes which are required to support/instrument the framework would be baked in our java code.
+                    Rules baked in the java code will supercede those mentioned in the fork-config excludes.
+                    Thus exluding this packages will not effect the framework we already support. -->
+                    <excludes filter-type="STARTSWITH" filter-value="io.netty/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="io.vertx/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="javassist/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.fasterxml/"/>
+                    <excludes filter-type="STARTSWITH" filter-value="com.hazelcast/"/>
+
+                    <!-- IBM Websphere BPM (JAVA-2288) -->
+                    <include filter-type="STARTSWITH" filter-value="com.ibm.bpe"/>
+                    <include filter-type="STARTSWITH" filter-value="com.ibm.bpm"/>
+                    <include filter-type="STARTSWITH" filter-value="com.ibm.ws"/>
+                    <include filter-type="STARTSWITH" filter-value="com.ibm.wsspi"/>
+                    <include filter-type="STARTSWITH" filter-value="com.ibm.io.async"/>
+
+                    <!--
+                    match-class
+                        type: inherits-from-class, implements-interface, matches-class, has-class-annotation
+                        name:
+                            filter-type: STARTSWITH, EQUALS, ENDSWITH, CONTAINS
+
+                    name-config
+                        type:
+                            0:none,             1:param,        2:instance,     3:classname,
+                            4:simple classname  5:thread id     6:thread name
+                        operation:
+                            param:      <paramIndex>.getter-chain   eg. 0.getName().toString()
+                            instance:   getter-chain                eg. getName().toString()
+
+                    retention-config
+                        type:
+                            0:none,             1:param,        2:instance,     3:classname,
+                            4:simple classname  5:thread id     6:thread name
+                        operation:
+                            param:      <paramIndex>.getter-chain   eg. 0.getName().toString()
+                            instance:   getter-chain                eg. getName().toString()
+                    -->
+                    <job>
+                        <match-class type="inherits-from-class"><name filter-type="EQUALS" filter-value="java.lang.Thread"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="run"/></match-method>
+                        <name-config operation="" type="4"/>
+                    </job>
+                    <job>
+                        <match-class type="implements-interface"><name filter-type="EQUALS" filter-value="java.lang.Runnable"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="run"/></match-method>
+                        <name-config operation="" type="4"/>
+                    </job>
+                    <job>
+                        <match-class type="implements-interface"><name filter-type="EQUALS" filter-value="java.util.concurrent.Callable"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="call"/></match-method>
+                        <name-config operation="" type="4"/>
+                    </job>
+                    <!-- Netty: the parent of ChannelUpstreamEventRunnable should be excluded, and a sibling class should be excluded, but ChannelUpstreamEventRunnable
+                         itself should be included.  The run() method is defined in the parent class, but it just delegates to doRun(), so use the doRun()
+                         method in the job definition -->
+                    <job>
+                        <match-class type="matches-class"><name filter-type="EQUALS" filter-value="org.jboss.netty.handler.execution.ChannelUpstreamEventRunnable"/></match-class>
+                        <match-method><name filter-type="EQUALS" filter-value="doRun"/></match-method>
+                        <name-config operation="" type="4"/>
+                    </job>
+                    <job>
+                        <match-class type="matches-class">
+                            <name filter-type="EQUALS" filter-value="com.tibco.pe.core.Job"/>
+                        </match-class>
+                        <match-method>
+                            <name filter-type="EQUALS" filter-value="k"/>
+                        </match-method>
+                        <name-config operation="" type="4"/>
+                        <retention-config type="1" operation="1.getTaskSize()"/>
+                    </job>
+
+                </fork-config>
+            </configuration>
+        </agent-service>
+        <agent-service name="JMXService" enabled="true">
+            <configuration-properties>
+                <property name="jmx-gc-minorCollectionBean" value=""/>
+                <property name="jmx-gc-majorCollectionBean" value=""/>
+                <property name="jmx-server-metrics-update-interval-in-seconds" value="60"/>
+            </configuration-properties>
+            <configuration>
+
+                <!--
+
+                Use the below configuration sample to create rules to exclude MBean attributes from MBean Browser.
+                <exclude object-name=<MBean name pattern> attributes=< * |comma separated list of attribute names> >
+
+                The example below will exclude all attributes of MBeans that match "Catalina:*".
+
+                <jmx-mbean-browser-excludes>
+                    <exclude object-name="Catalina:*" attributes="*"/>
+                </jmx-mbean-browser-excludes>
+
+                -->
+
+                <!--
+                  Add names of mbeans and attributes that are to be treated as continuosly increasing counters
+                -->
+                <jmx-forever-increasing-counters>
+                    <mbean object-name="Catalina:type=GlobalRequestProcessor,*" attributes="requestCount"/>
+                </jmx-forever-increasing-counters>
+
+            </configuration>
+        </agent-service>
+        <agent-service name="AgentResourceMonitor" enabled="true">
+            <service-dependencies>JMXService</service-dependencies>
+        </agent-service>
+        <agent-service name="ObjectMonitoringService" enabled="true">
+            <service-dependencies>BCIEngine</service-dependencies>
+            <configuration-properties>
+                <!-- Enable / Disable custom memory structure monitoring-->
+                <property name="enable-object-size-monitoring" value="false"/>
+
+                <!-- Enable / Disable object instance tracking feature -->
+                <property name="enable-instance-monitoring" value="false"/>
+
+                <!-- Enable / Disable automatic leak detection feature -->
+                <property name="enable-collection-monitoring" value="false" />
+
+                <!-- minimum period a collection needs to survive before it's sized for tracking -->
+                <property name="minimum-age-for-evaluation-in-minutes" value="30"/>
+
+                <!-- minimum period a collection needs to survive before it's sized for tracking -->
+                <property name="collection-capture-period-in-minutes" value="30"/>
+
+                <!-- minimum deep-size for captured collections to qualify as candidate for tracking -->
+                <property name="minimum-size-for-evaluation-in-mb" value="5"/>
+
+                <!-- removes collection capture instrumentation immediately -->
+                <property name="disable-collection-capture" value="false" />
+            </configuration-properties>
+            <!--
+            <configuration>
+                <collection-tracking>
+                    <map-class-names filter-type="inlist" filter-value="java.util.IdentityHashMap"/>
+                    <collection-class-names filter-type="inlist" filter-value="java.util.TreeSet"/>
+                </collection-tracking>
+            </configuration>
+            -->
+        </agent-service>
+        <agent-service name="AgentDiagnosticsService" enabled="true">
+            <service-dependencies>BCIEngine</service-dependencies>
+            <configuration-properties>
+                <!-- set this to true to enable thread dump on the app server VM. does not need a restart  -->
+                <property name="enable-thread-dump" value="false"/>
+
+                <!-- Set the thread dump interval in seconds, default value is 300 -->
+                <property name="thread-dump-interval" value="300"/>
+
+                <!-- Dump all threads in the system, default value is true. If set to false will dump only appdynamics threads-->
+                <property name="dump-all-threads" value="true"/>
+
+                <!-- Thread dump logger output, can be set to 'log4j' or 'file' logger. If file, the output is written to thread-dump.log,
+                default is log4j, log4j file name can be changed through log4j.xml change -->
+                <property name="thread-dump-logger" value="log4j"/>
+
+                <!-- Enables shutdown hook for JVM, default is false, uncomment to enable it. The shutdown log file is written
+                to logs/jvm-shutdown.log file with Current JVM memory status and dump for all threads.
+                Note : For details on when JVM shutdown hook is invoked please refer javadocs of java.lang.Runtime.addShutdownHook(..) -->
+                <property name="enable-shutdown-hook" value="false"/>
+            </configuration-properties>
+        </agent-service>
+        <agent-service name="Agent17Service" enabled="true" minimum-java-version="1.7">
+        </agent-service>
+        <agent-service name="LogParserService" enabled="true">
+        </agent-service>
+        <agent-service name="ResourceMonitoringService" enabled="false">
+            <service-dependencies>BCIEngine</service-dependencies>
+        </agent-service>
+
+        <!-- Make sure this is the last service all the time in the config file -->
+        <agent-service name="AgentProxyService" enabled="false">
+            <service-dependencies>TransactionMonitoringService</service-dependencies>
+            <configuration-properties>
+                <property name="first-port" value="5555"/>
+                <property name="async-req-thread-count" value="5"/>
+                <property name="async-msg-thread-count" value="3"/>
+            </configuration-properties>
+        </agent-service>
+        <!-- PLEASE ADD SERVICES BEFORE AgentProxyService -->
+    </agent-services>
+    <!-- Abbreviated form for setting node properties on specific services. -->
+    <!-- These section is always applied after the service definition -->
+    <!-- Properties defined here with the same name override -->
+    <!-- Properties defined here with a different name are added to the list of properties -->
+    <!--
+    <service-configuration-properties agent-service="SnapshotService">
+        <property name="enable-startup-snapshot-policy" value="true"/>
+    </service-configuration-properties>
+    -->
+</app-agent-configuration>

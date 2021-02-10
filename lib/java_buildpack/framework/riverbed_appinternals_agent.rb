@@ -18,30 +18,17 @@
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
+
 module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for running the Riverbed Appinternals Agent support.
     class RiverbedAppinternalsAgent < JavaBuildpack::Component::VersionedDependencyComponent
 
-      # Creates an instance
-      #
-      # @param [Hash] context a collection of utilities used the component
-      def initialize(context)
-        super(context)
-        @uri = download_url(credentials, @uri)
-      end
-
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
-          true, 'Downloading from Riverbed AppInternals Service Broker'
-        ) do
-          download_zip(false, @droplet.sandbox, @component_name)
-        end
+        download_zip(false, @droplet.sandbox, @component_name)
         @droplet.copy_resources
-      rescue StandardError => e
-        raise "Riverbed AppInternals download failed: #{e}"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -68,8 +55,6 @@ module JavaBuildpack
       end
 
       private
-
-      PROFILERURL = 'profilerUrlLinux'
 
       FILTER = /appinternals/.freeze
 
@@ -105,10 +90,6 @@ module JavaBuildpack
 
       def rvbd_moniker(credentials)
         credentials['rvbd_moniker'] || @configuration['rvbd_moniker']
-      end
-
-      def download_url(credentials, default_url)
-        (credentials[PROFILERURL] unless credentials.nil?) || default_url
       end
 
     end

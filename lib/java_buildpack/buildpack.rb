@@ -73,6 +73,14 @@ module JavaBuildpack
       container.compile
 
       log_cache_contents
+
+      return if @deps_dir.nil? || @index.nil?
+
+      FileUtils.mkdir_p File.join(@deps_dir, @index)
+      File.write(
+        File.join(@deps_dir, @index, 'config.yml'),
+        { 'name' => 'java', 'config' => {}, 'version' => @buildpack_version.to_s(false) }.to_yaml
+      )
     end
 
     # Generates the payload required to run the application.  The payload format is defined by the
@@ -114,9 +122,11 @@ module JavaBuildpack
 
     private_constant :BUILDPACK_MESSAGE, :LOAD_ROOT
 
-    def initialize(app_dir, application)
+    def initialize(app_dir, deps_dir, index, application)
       @logger = Logging::LoggerFactory.instance.get_logger Buildpack
       @buildpack_version = BuildpackVersion.new
+      @deps_dir = deps_dir
+      @index = index
 
       log_arguments
       log_environment_variables
@@ -260,12 +270,12 @@ module JavaBuildpack
       # @param [String] message an error message with an insert for the reason for failure
       # @yield [Buildpack] the buildpack to work with
       # @return [Object] the return value from the given block
-      def with_buildpack(app_dir, message)
+      def with_buildpack(app_dir, deps_dir, index, message)
         app_dir = Pathname.new(File.expand_path(app_dir))
         Logging::LoggerFactory.instance.setup app_dir
         application = Component::Application.new(app_dir)
 
-        yield new(app_dir, application) if block_given?
+        yield new(app_dir, deps_dir, index, application) if block_given?
       rescue StandardError => e
         handle_error(e, message)
       end

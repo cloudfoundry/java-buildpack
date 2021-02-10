@@ -4,18 +4,4 @@
         <locator host='some-locator' port='some-port'/>
         <locator host='some-other-locator' port='some-other-port'/>
     </pool>
-    <function-service>
-        <function>
-            <class-name>org.apache.geode.modules.util.CreateRegionFunction</class-name>
-        </function>
-        <function>
-            <class-name>org.apache.geode.modules.util.TouchPartitionedRegionEntriesFunction</class-name>
-        </function>
-        <function>
-            <class-name>org.apache.geode.modules.util.TouchReplicatedRegionEntriesFunction</class-name>
-        </function>
-        <function>
-            <class-name>org.apache.geode.modules.util.RegionSizeFunction</class-name>
-        </function>
-    </function-service>
 </client-cache>
