@@ -71,10 +71,6 @@ module JavaBuildpack
                        :CACHE_CLIENT_LISTENER_CLASS_NAME, :SCHEMA_URL, :SCHEMA_INSTANCE_URL, :SCHEMA_LOCATION,
                        :LOCATOR_REGEXP
 
-      def cluster_operator?(user)
-        user['username'] == 'cluster_operator' || user['roles'] && (user['roles'].include? 'cluster_operator')
-      end
-
       def add_client_cache(document)
         client_cache = document.add_element 'client-cache',
                                             'xmlns' => SCHEMA_URL,
