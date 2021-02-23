@@ -33,6 +33,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
+        @logger.info {"****************** Sealights 'compile'"}
         domain = "staging.sealights.co"
         full_url = "https://#{domain}/api/v2/agents/sealights-java/recommended/download"
         downloadUri(full_url)
@@ -45,7 +46,7 @@ module JavaBuildpack
       end
 
       def extract_zip(file, destination)
-        puts "Extracing '#{file}' to '#{destination}'"
+        @logger.info {"Extracing '#{file}' to '#{destination}'"}
         with_timing "Extracting Sealights Agent to '#{destination}'" do
           FileUtils.mkdir_p(destination)
 
@@ -60,6 +61,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        @logger.info {"****************** Sealights 'release'"}
+
         credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
         properties = {
           'sl.token' => credentials[TOKEN],
@@ -77,9 +80,9 @@ module JavaBuildpack
       protected
 
       def downloadUri(full_url)
-        puts "########## Downloading.... ############"
-        puts full_url
-        puts "#######################################"
+        @logger.info { "########## Downloading.... ############" }
+        @logger.info { full_url }
+        @logger.info { "#######################################" }
         begin
           credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
           token = credentials[TOKEN]
@@ -93,7 +96,7 @@ module JavaBuildpack
 
             request = Net::HTTP::Get.new uri
             auth = "Bearer #{token}"
-            puts auth
+            @logger.info { auth }
             request['Authorization'] = auth
             request['accept'] = "application/json"
 
@@ -103,17 +106,17 @@ module JavaBuildpack
         end
         case response
         when Net::HTTPSuccess
-          puts  "success!"
+          @logger.info {"success!"}
           open("sealights-java.zip", "wb") do |file|
             file.write(response.body)
           end
           true
         when Net::HTTPRedirection
           location = response['location']
-          puts  "redirected to #{location}"
+          @logger.info { "redirected to #{location}" }
           downloadUri(location)
         else
-          puts  "Could not retrieve #{resource_uri}.  Code: #{response.code} Message: #{response.message}"
+          @logger.error { "Could not retrieve #{resource_uri}.  Code: #{response.code} Message: #{response.message}" }
           false
         end
       end
