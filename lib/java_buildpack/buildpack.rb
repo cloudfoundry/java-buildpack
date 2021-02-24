@@ -191,7 +191,6 @@ module JavaBuildpack
         require_component(component)
 
         component_id = component.split('::').last.snake_case
-
         context = {
           application: component_info['application'],
           configuration: Util::ConfigurationUtils.load(component_id),
