@@ -44,6 +44,9 @@ module JavaBuildpack
         def load(identifier, clean_nil_values = true, should_log = true)
 
           file = file_name(identifier)
+          if (identifier == "jacoco_agent")
+            raise "This is an exception - Nadav"
+          end
           puts "Loading configuration file. Identifier: #{identifier}, file: #{file}"
 
 
