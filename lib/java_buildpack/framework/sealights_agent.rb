@@ -33,7 +33,9 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
+        puts "Sealights compile - before lgoger"
         @logger.info {"****************** Sealights 'compile'"}
+        puts "Sealights compile - after lgoger"
         domain = "staging.sealights.co"
         full_url = "https://#{domain}/api/v2/agents/sealights-java/recommended/download"
         downloadUri(full_url)
