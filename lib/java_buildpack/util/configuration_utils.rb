@@ -45,7 +45,12 @@ module JavaBuildpack
 
           file = file_name(identifier)
           if (identifier == "jacoco_agent")
-            raise "This is an exception - Nadav"
+            begin
+              raise "This is an exception - Nadav"
+            rescue => exception
+              puts exception.backtrace
+              raise # always reraise
+            end
           end
           puts "Loading configuration file. Identifier: #{identifier}, file: #{file}"
 
