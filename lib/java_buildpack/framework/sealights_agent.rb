@@ -28,6 +28,7 @@ module JavaBuildpack
 
       def initialize(context)
         super(context)
+        puts "################### Sealights Contructor ###################"
         @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger SealightsAgent
       end
 
@@ -125,6 +126,8 @@ module JavaBuildpack
       end
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
+        @logger.info { "########## Sealights Supports.... ############" }
+        puts { "########## !!!!!!!Sealights Supports.... ############" }
         @application.services.one_service? FILTER, TOKEN
       end
 
