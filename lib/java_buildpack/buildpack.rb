@@ -150,11 +150,15 @@ module JavaBuildpack
         'security_providers' => Component::SecurityProviders.new
       }
 
+      puts "(Nadav) Initializing the buildpack. mutable_java_home: #{mutable_java_home}\nimmutable_java_home: #{immutable_java_home}\n component_info: #{component_info}"
+
       instantiate_components(mutable_java_home, immutable_java_home, component_info)
     end
 
     def instantiate_components(mutable_java_home, immutable_java_home, component_info)
       components = JavaBuildpack::Util::ConfigurationUtils.load 'components'
+
+      puts "(Nadav) instantiate_components components['frameworks']: #{components['frameworks']}"
 
       @jres = instantiate(components['jres'], mutable_java_home, component_info)
       @frameworks = instantiate(components['frameworks'], immutable_java_home, component_info)
@@ -191,7 +195,7 @@ module JavaBuildpack
         require_component(component)
 
         component_id = component.split('::').last.snake_case
-
+        puts "About to load component_id: #{component_id}. component: #{component}"
         context = {
           application: component_info['application'],
           configuration: Util::ConfigurationUtils.load(component_id),
@@ -271,9 +275,11 @@ module JavaBuildpack
       # @yield [Buildpack] the buildpack to work with
       # @return [Object] the return value from the given block
       def with_buildpack(app_dir, deps_dir, index, message)
+        puts "(Nadav) Entrying the buildpack"
         app_dir = Pathname.new(File.expand_path(app_dir))
         Logging::LoggerFactory.instance.setup app_dir
         application = Component::Application.new(app_dir)
+        puts "(Nadav) app created"
 
         yield new(app_dir, deps_dir, index, application) if block_given?
       rescue StandardError => e
