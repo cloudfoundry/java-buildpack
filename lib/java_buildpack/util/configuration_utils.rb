@@ -44,16 +44,14 @@ module JavaBuildpack
         def load(identifier, clean_nil_values = true, should_log = true)
 
           file = file_name(identifier)
-          if (identifier == "jacoco_agent")
-            begin
-              raise "This is an exception - Nadav"
-            rescue => exception
-              puts exception.backtrace
-              raise # always reraise
-            end
-          end
-          puts "Loading configuration file. Identifier: #{identifier}, file: #{file}"
 
+          puts "Loading configuration file. Identifier: #{identifier}, file: #{file}"
+          begin
+            raise "This is an exception - Nadav"
+          rescue => exception
+            puts exception.backtrace
+            raise # always reraise
+          end
 
           if file.exist?
             var_name      = environment_variable_name(identifier)
