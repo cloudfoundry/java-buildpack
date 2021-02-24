@@ -94,7 +94,6 @@ module JavaBuildpack
       commands = []
       commands << component_detection('JRE', @jres, true).first.release
 
-      puts "(Nadav) Frameworks: #{@frameworks} "
       component_detection('framework', @frameworks, false).map(&:release)
 
       commands << container.release
@@ -186,7 +185,6 @@ module JavaBuildpack
     end
 
     def instantiate(components, java_home, component_info)
-      puts "(Nadav) components: #{components}"
       components.map do |component|
         @logger.debug { "Instantiating #{component}" }
 
