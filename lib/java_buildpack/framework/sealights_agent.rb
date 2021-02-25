@@ -48,8 +48,8 @@ module JavaBuildpack
       end
 
       def get_agent_path
-        # @droplet.sandbox.relative_path_from(@droplet.root)
-        "sealights-java"
+        @droplet.sandbox.relative_path_from(@droplet.root)
+        # "sealights-java"
       end
 
       def extract_zip(file, destination)
