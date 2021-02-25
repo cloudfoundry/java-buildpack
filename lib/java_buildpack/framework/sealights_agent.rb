@@ -82,7 +82,7 @@ module JavaBuildpack
         properties['port'] = credentials['port'] if credentials.key? 'port'
         properties['output'] = credentials['output'] if credentials.key? 'output'
 
-        @droplet.java_opts.add_javaagent_with_props(get_agent_path + 'sl-test-listener.jar', properties)
+        @droplet.java_opts.add_javaagent_with_props(get_agent_path + '/sl-test-listener.jar', properties)
       end
 
       protected
