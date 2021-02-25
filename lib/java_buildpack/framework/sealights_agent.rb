@@ -123,7 +123,6 @@ module JavaBuildpack
       end
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @logger.info { "########## Sealights Supports.... ############" }
         puts { "########## !!!!!!!Sealights Supports.... ############" }
         @application.services.one_service? FILTER, TOKEN
       end
