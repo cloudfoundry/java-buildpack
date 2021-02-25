@@ -38,7 +38,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
-        supports? ? "#{self.class.to_s.dash_case}=latest" : nil
+        supports? ? "#{self.class.to_s.dash_case}=#{@jar_finder.version(@application)}" : nil
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
