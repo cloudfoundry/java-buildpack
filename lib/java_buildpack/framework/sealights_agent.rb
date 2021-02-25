@@ -19,6 +19,7 @@ require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 require 'uri'
 require 'net/http'
+require 'zip'
 
 module JavaBuildpack
   module Framework
