@@ -94,6 +94,7 @@ module JavaBuildpack
           uri = URI.parse(full_url)
           if credentials.key? 'proxy'
             ENV['http_proxy'] = "http://127.0.0.1:8888"
+          end
 
           response = Net::HTTP.start(uri.host, uri.port,
                                      :use_ssl => uri.scheme == 'https',
@@ -124,7 +125,6 @@ module JavaBuildpack
           @logger.error { "Could not retrieve #{full_url}.  Code: #{response.code} Message: #{response.message}" }
           false
         end
-      end
       end
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
