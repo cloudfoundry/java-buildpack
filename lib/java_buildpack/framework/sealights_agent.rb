@@ -48,7 +48,7 @@ module JavaBuildpack
       end
 
       def get_agent_path
-        puts "Agent Path: #{@droplet.sandbox}"
+        @logger.info { "Agent Path: #{@droplet.sandbox}"}
         @droplet.sandbox
       end
 
