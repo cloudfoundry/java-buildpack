@@ -45,13 +45,6 @@ module JavaBuildpack
 
           file = file_name(identifier)
 
-          puts "Loading configuration file. Identifier: #{identifier}, file: #{file}"
-          # begin
-          #   raise "This is an exception - Nadav"
-          # rescue => exception
-          #   puts exception.backtrace
-          # end
-
           if file.exist?
             var_name      = environment_variable_name(identifier)
             user_provided = ENV[var_name]

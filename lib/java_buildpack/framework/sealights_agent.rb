@@ -49,7 +49,6 @@ module JavaBuildpack
 
       def get_agent_path
         @droplet.sandbox.relative_path_from(@droplet.root)
-        # "sealights-java"
       end
 
       def extract_zip(file, destination)
@@ -57,14 +56,6 @@ module JavaBuildpack
         with_timing "Extracting Sealights Agent to '#{destination}'" do
           FileUtils.mkdir_p(destination)
           shell "unzip -qq #{file} -d #{destination} 2>&1"
-
-
-          # Zip::File.open(file) do |zip_file|
-          #   zip_file.each do |f|
-          #     fpath = File.join(destination, f.name)
-          #     zip_file.extract(f, fpath) unless File.exist?(fpath)
-          #   end
-          # end
         end
       end
 
@@ -135,7 +126,6 @@ module JavaBuildpack
       end
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        puts { "########## !!!!!!!Sealights Supports.... ############" }
         @application.services.one_service? FILTER, TOKEN
       end
 
