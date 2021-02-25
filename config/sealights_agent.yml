@@ -16,4 +16,3 @@
 # Configuration for the SeaLights Agent framework
 ---
 version: +
-repository_root: https://staging.sealights.co/api/v2/agents/sealights-java/recommended/download
