@@ -48,11 +48,11 @@ module JavaBuildpack
       end
 
       def get_agent_path
-        @droplet.sandbox.relative_path_from(@droplet.root)
+        puts "Agent Path: #{@droplet.sandbox}"
+        @droplet.sandbox
       end
 
       def extract_zip(file, target_directory)
-        @logger.info {"Extracting '#{file}' to '#{target_directory.relative_path_from(@droplet.root)}}'"}
         with_timing "Extracting Sealights Agent to '#{target_directory}'" do
           FileUtils.mkdir_p(target_directory)
           shell "unzip -qq #{file} -d #{target_directory} 2>&1"
