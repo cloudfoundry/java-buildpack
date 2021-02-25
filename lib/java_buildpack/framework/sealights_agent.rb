@@ -80,12 +80,13 @@ module JavaBuildpack
         properties['sl.buildSessionId'] = credentials['buildSessionId'] if credentials.key? 'buildSessionId'
         properties['sl.buildSessionIdFile'] = credentials['buildSessionIdFile'] if credentials.key? 'buildSessionIdFile'
         properties['sl.proxy'] = credentials['proxy'] if credentials.key? 'proxy'
-        properties['port'] = credentials['port'] if credentials.key? 'port'
-        properties['output'] = credentials['output'] if credentials.key? 'output'
+        #add_system_property
 
 
         agent_path = Pathname.new(get_agent_path + '/sl-test-listener.jar')
-        @droplet.java_opts.add_javaagent_with_props(agent_path, properties)
+        properties.map { |k, v| @droplet.java_opts.add_system_property(k,v) }
+
+        @droplet.java_opts.add_javaagent(agent_path)
       end
 
       protected
