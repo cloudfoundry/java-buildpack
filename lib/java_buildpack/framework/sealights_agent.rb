@@ -24,7 +24,7 @@ module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for enabling zero-touch JacCoCo support.
-    class SealightsAgent < JavaBuildpack::Component::VersionedDependencyComponent
+    class SealightsAgent < JavaBuildpack::Component::BaseComponent # JavaBuildpack::Component::VersionedDependencyComponent
 
       def initialize(context)
         super(context)
