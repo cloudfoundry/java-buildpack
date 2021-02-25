@@ -121,7 +121,7 @@ module JavaBuildpack
           @logger.info { "redirected to #{location}" }
           downloadUri(location)
         else
-          @logger.error { "Could not retrieve #{resource_uri}.  Code: #{response.code} Message: #{response.message}" }
+          @logger.error { "Could not retrieve #{full_url}.  Code: #{response.code} Message: #{response.message}" }
           false
         end
       end
