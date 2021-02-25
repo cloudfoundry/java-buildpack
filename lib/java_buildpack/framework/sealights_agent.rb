@@ -19,6 +19,7 @@ require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 require 'uri'
 require 'net/http'
+require 'pathname'
 
 module JavaBuildpack
   module Framework
@@ -82,7 +83,9 @@ module JavaBuildpack
         properties['port'] = credentials['port'] if credentials.key? 'port'
         properties['output'] = credentials['output'] if credentials.key? 'output'
 
-        @droplet.java_opts.add_javaagent_with_props(get_agent_path + '/sl-test-listener.jar', properties)
+
+        agent_path = Pathname.new(get_agent_path + '/sl-test-listener.jar')
+        @droplet.java_opts.add_javaagent_with_props(agent_path, properties)
       end
 
       protected
