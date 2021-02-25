@@ -19,7 +19,6 @@ require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
 require 'uri'
 require 'net/http'
-require 'zip'
 
 module JavaBuildpack
   module Framework
@@ -56,13 +55,15 @@ module JavaBuildpack
         @logger.info {"Extracing '#{file}' to '#{destination}'"}
         with_timing "Extracting Sealights Agent to '#{destination}'" do
           FileUtils.mkdir_p(destination)
+          shell "unzip -qq #{file} -d #{destination} 2>&1"
 
-          Zip::File.open(file) do |zip_file|
-            zip_file.each do |f|
-              fpath = File.join(destination, f.name)
-              zip_file.extract(f, fpath) unless File.exist?(fpath)
-            end
-          end
+
+          # Zip::File.open(file) do |zip_file|
+          #   zip_file.each do |f|
+          #     fpath = File.join(destination, f.name)
+          #     zip_file.extract(f, fpath) unless File.exist?(fpath)
+          #   end
+          # end
         end
       end
 
