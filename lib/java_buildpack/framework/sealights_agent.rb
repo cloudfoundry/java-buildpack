@@ -31,6 +31,11 @@ module JavaBuildpack
         @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger SealightsAgent
       end
 
+      # (see JavaBuildpack::Component::BaseComponent#detect)
+      def detect
+        supports? ? "#{self.class.to_s.dash_case}=#{@jar_finder.version(@application)}" : nil
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         @logger.info {"****************** Sealights 'compile'"}
