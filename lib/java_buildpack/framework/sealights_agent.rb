@@ -43,7 +43,7 @@ module JavaBuildpack
         domain = "staging.sealights.co"
         full_url = "https://#{domain}/api/v2/agents/sealights-java/recommended/download"
         downloadUri(full_url)
-        extract_zip("sealights-java.zip", get_agent_path)
+        extract_zip("sealights-java.zip", @droplet.sandbox)
 
       end
 
@@ -51,11 +51,11 @@ module JavaBuildpack
         @droplet.sandbox.relative_path_from(@droplet.root)
       end
 
-      def extract_zip(file, destination)
-        @logger.info {"Extracing '#{file}' to '#{destination}'"}
-        with_timing "Extracting Sealights Agent to '#{destination}'" do
-          FileUtils.mkdir_p(destination)
-          shell "unzip -qq #{file} -d #{destination} 2>&1"
+      def extract_zip(file, target_directory)
+        @logger.info {"Extracting '#{file}' to '#{target_directory.relative_path_from(@droplet.root)}}'"}
+        with_timing "Extracting Sealights Agent to '#{target_directory}'" do
+          FileUtils.mkdir_p(target_directory)
+          shell "unzip -qq #{file} -d #{target_directory} 2>&1"
         end
       end
 
