@@ -48,14 +48,15 @@ module JavaBuildpack
       end
 
       def get_agent_path
-        @logger.info { "Agent Path: #{@droplet.sandbox}"}
-        @droplet.sandbox
+        @logger.info { "Agent Path: #{@droplet.sandbox.relative_path_from(root)}"}
+        @droplet.sandbox.relative_path_from(root)
       end
 
       def extract_zip(file, target_directory)
         with_timing "Extracting Sealights Agent to '#{target_directory}'" do
           FileUtils.mkdir_p(target_directory)
           shell "unzip -qq #{file} -d #{target_directory} 2>&1"
+          shell "ls -l #{target_directory} 2>&1"
         end
       end
 
@@ -75,6 +76,7 @@ module JavaBuildpack
 
 
         agent_path = Pathname.new(get_agent_path + '/sl-test-listener.jar')
+        @logger.info {"Agent path to set: #{agent_path}"}
         properties.map { |k, v| @droplet.java_opts.add_system_property(k,v) }
 
         @droplet.java_opts.add_javaagent(agent_path)
