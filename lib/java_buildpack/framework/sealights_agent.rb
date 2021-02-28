@@ -106,8 +106,8 @@ module JavaBuildpack
       def try_add_system_property(key)
         @logger.info {"try_add_system_property #{key}"}
         @logger.info {" @configuration[key] #{@configuration[key]}"}
-        @logger.info {" @configuration[key] #{@configuration[key].present?}"}
-        if (@configuration[key].present?)
+        @logger.info {" @configuration[key] #{@configuration[key] != nil}"}
+        if (@configuration[key] != nil)
           value = @configuration[key]
           prop = "sl." + key
           @logger.info {"Adding #{prop}=#{value}"}
