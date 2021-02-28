@@ -106,7 +106,7 @@ module JavaBuildpack
         @logger.info {"try_add_system_property #{key}"}
 
         credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
-        if credentials.key? key || @configuration[key]
+        if credentials.key? key || @configuration[key] != nil
           value = credentials[key] || @configuration[key]
           prop = "sl." + key
           @logger.info {"Adding #{prop}=#{value}"}
