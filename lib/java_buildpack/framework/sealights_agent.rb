@@ -49,7 +49,7 @@ module JavaBuildpack
 
       def get_agent_path
         @logger.info { "Agent Path: #{@droplet.sandbox.relative_path_from(@droplet.root)}"}
-        @droplet.sandbox.relative_path_from(@droplet.root)
+        @droplet.sandbox
       end
 
       def extract_zip(file, target_directory)
@@ -77,7 +77,8 @@ module JavaBuildpack
 
         full_path = File.join(get_agent_path, "sl-test-listener.jar")
         agent_path = Pathname.new(full_path)
-        @logger.info {"Agent path to set: #{full_path}"}
+        @logger.info {"Agent path to set (full_path): #{full_path}"}
+        @logger.info {"Agent path to set: #{agent_path}"}
         properties.map { |k, v| @droplet.java_opts.add_system_property(k,v) }
 
         @droplet.java_opts.add_javaagent(agent_path)
