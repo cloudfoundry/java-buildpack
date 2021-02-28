@@ -21,6 +21,7 @@ require 'uri'
 require 'net/http'
 require 'pathname'
 require "base64"
+require 'json'
 
 module JavaBuildpack
   module Framework
@@ -41,16 +42,20 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         @logger.info {"****************** Sealights 'compile'"}
+
+        download_url = get_download_url
+        downloadUri(download_url)
+        extract_zip("sealights-java.zip", get_agent_path)
+      end
+
+      def get_download_url
         credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
         token = credentials[TOKEN]
-
-        decoded_token = Base64.decode64(token)
+        interesting_part = token.split(/\./)[1]
+        decoded_token = Base64.decode64(interesting_part)
+        token_data = JSON.parse(decoded_token)
         @logger.info {"Decoded token: '#{decoded_token}'"}
-        domain = "staging.sealights.co"
-        full_url = "https://#{domain}/api/v2/agents/sealights-java/recommended/download"
-        downloadUri(full_url)
-        extract_zip("sealights-java.zip", get_agent_path)
-
+        "#{token_data['x-sl-server']}/v2/agents/sealights-java/recommended/download"
       end
 
       def get_agent_path
