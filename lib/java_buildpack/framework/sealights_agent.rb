@@ -75,23 +75,43 @@ module JavaBuildpack
         @logger.info {"****************** Sealights 'release'"}
 
         credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
-        properties = {
-          'sl.token' => credentials[TOKEN],
-        }
+        # properties = {
+        #   'sl.token' => credentials[TOKEN],
+        # }
 
-        properties['sl.buildSessionId'] = credentials['buildSessionId'] if credentials.key? 'buildSessionId'
-        properties['sl.buildSessionIdFile'] = credentials['buildSessionIdFile'] if credentials.key? 'buildSessionIdFile'
-        properties['sl.proxy'] = credentials['proxy'] if credentials.key? 'proxy'
-        #add_system_property
+        try_add_system_property(TOKEN)
+        try_add_system_property('buildSessionId')
+        try_add_system_property('buildSessionIdFile')
+        try_add_system_property('proxy')
+        try_add_system_property('labId')
+
+        # properties['sl.buildSessionId'] = credentials['buildSessionId'] if credentials.key? 'buildSessionId'
+        # properties['sl.buildSessionIdFile'] = credentials['buildSessionIdFile'] if credentials.key? 'buildSessionIdFile'
+        # properties['sl.proxy'] = credentials['proxy'] if credentials.key? 'proxy'
+        # #add_system_property
 
 
         full_path = File.join(get_agent_path, "sl-test-listener.jar")
         agent_path = Pathname.new(full_path)
         @logger.info {"Agent path to set (full_path): #{full_path}"}
         @logger.info {"Agent path to set: #{agent_path}"}
-        properties.map { |k, v| @droplet.java_opts.add_system_property(k,v) }
+        # properties.map { |k, v| @droplet.java_opts.add_system_property(k,v) }
 
         @droplet.java_opts.add_javaagent(agent_path)
+      end
+
+      def try_add_system_property(key)
+        @logger.info {"try_add_system_property #{key}"}
+        credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
+        if credentials.key? key
+          value = credentials[key]
+          prop = "sl." + key
+          @logger.info {"Adding #{prop}=#{value}"}
+          @droplet.java_opts.add_system_property(prop,value)
+        else
+          @logger.info {"No value for key #{key}"}
+        end
+
       end
 
       protected
