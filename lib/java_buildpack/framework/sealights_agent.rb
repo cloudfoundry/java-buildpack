@@ -48,8 +48,8 @@ module JavaBuildpack
       end
 
       def get_agent_path
-        @logger.info { "Agent Path: #{@droplet.sandbox.relative_path_from(root)}"}
-        @droplet.sandbox.relative_path_from(root)
+        @logger.info { "Agent Path: #{@droplet.sandbox.relative_path_from(@droplet.root)}"}
+        @droplet.sandbox.relative_path_from(@droplet.root)
       end
 
       def extract_zip(file, target_directory)
