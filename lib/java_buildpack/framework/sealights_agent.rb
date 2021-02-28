@@ -103,8 +103,8 @@ module JavaBuildpack
       def try_add_system_property(key)
         @logger.info {"try_add_system_property #{key}"}
         credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
-        if credentials.key? key
-          value = credentials[key]
+        if credentials.key? key || @configuration[key]
+          value = credentials[key] || @configuration[key]
           prop = "sl." + key
           @logger.info {"Adding #{prop}=#{value}"}
           @droplet.java_opts.add_system_property(prop,value)
