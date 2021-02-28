@@ -54,7 +54,6 @@ module JavaBuildpack
         interesting_part = token.split(/\./)[1]
         decoded_token = Base64.decode64(interesting_part)
         token_data = JSON.parse(decoded_token)
-        @logger.info {"Decoded token: '#{decoded_token}'"}
         "#{token_data['x-sl-server']}/v2/agents/sealights-java/recommended/download"
       end
 
