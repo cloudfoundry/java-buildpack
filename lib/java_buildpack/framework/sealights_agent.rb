@@ -75,13 +75,14 @@ module JavaBuildpack
         @logger.info {"****************** Sealights 'release'"}
 
         credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
-        # properties = {
-        #   'sl.token' => credentials[TOKEN],
-        # }
-        #
+        properties = {
+          'sl.token' => credentials[TOKEN],
+        }
+        properties.map { |k, v| @droplet.java_opts.add_system_property(k,v) }
+
         @logger.info {"Configuration #{@configuration}"}
 
-        try_add_system_property(TOKEN)
+        # try_add_system_property(TOKEN)
         try_add_system_property('buildSessionId')
         try_add_system_property('buildSessionIdFile')
         try_add_system_property('proxy')
@@ -97,18 +98,17 @@ module JavaBuildpack
         agent_path = Pathname.new(full_path)
         @logger.info {"Agent path to set (full_path): #{full_path}"}
         @logger.info {"Agent path to set: #{agent_path}"}
-        # properties.map { |k, v| @droplet.java_opts.add_system_property(k,v) }
+
 
         @droplet.java_opts.add_javaagent(agent_path)
       end
 
       def try_add_system_property(key)
         @logger.info {"try_add_system_property #{key}"}
-        credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
-        @logger.info {"credentials.key? key #{credentials.key? key}"}
         @logger.info {" @configuration[key] #{@configuration[key]}"}
-        if (credentials.key? key || @configuration[key].present?)
-          value = credentials[key] || @configuration[key]
+        @logger.info {" @configuration[key] #{@configuration[key].present?}"}
+        if (@configuration[key].present?)
+          value = @configuration[key]
           prop = "sl." + key
           @logger.info {"Adding #{prop}=#{value}"}
           @droplet.java_opts.add_system_property(prop,value)
