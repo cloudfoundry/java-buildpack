@@ -43,7 +43,7 @@ module JavaBuildpack
         domain = "staging.sealights.co"
         full_url = "https://#{domain}/api/v2/agents/sealights-java/recommended/download"
         downloadUri(full_url)
-        extract_zip("sealights-java.zip", @droplet.sandbox)
+        extract_zip("sealights-java.zip", get_agent_path)
 
       end
 
@@ -75,8 +75,9 @@ module JavaBuildpack
         #add_system_property
 
 
-        agent_path = Pathname.new(get_agent_path + '/sl-test-listener.jar')
-        @logger.info {"Agent path to set: #{agent_path}"}
+        full_path = File.join(get_agent_path, "sl-test-listener.jar")
+        agent_path = Pathname.new(full_path)
+        @logger.info {"Agent path to set: #{full_path}"}
         properties.map { |k, v| @droplet.java_opts.add_system_property(k,v) }
 
         @droplet.java_opts.add_javaagent(agent_path)
