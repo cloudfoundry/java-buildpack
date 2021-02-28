@@ -78,6 +78,8 @@ module JavaBuildpack
         # properties = {
         #   'sl.token' => credentials[TOKEN],
         # }
+        #
+        @logger.info {"Configuration #{@configuration}"}
 
         try_add_system_property(TOKEN)
         try_add_system_property('buildSessionId')
@@ -102,6 +104,7 @@ module JavaBuildpack
 
       def try_add_system_property(key)
         @logger.info {"try_add_system_property #{key}"}
+
         credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
         if credentials.key? key || @configuration[key]
           value = credentials[key] || @configuration[key]
