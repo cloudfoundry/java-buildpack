@@ -41,11 +41,6 @@ module JavaBuildpack
       def release
         return unless supports?
 
-        credentials = @application.services.find_service(FILTER, KEY_LOCATORS, KEY_USERS)['credentials']
-        user = credentials[KEY_USERS].find { |u| cluster_operator?(u) }
-
-        @droplet.java_opts.add_system_property 'gemfire.security-username', user['username']
-        @droplet.java_opts.add_system_property 'gemfire.security-password', user['password']
         @droplet.java_opts.add_system_property 'gemfire.security-client-auth-init',
                                                'io.pivotal.cloudcache.ClientAuthInitialize.create'
       end
@@ -75,10 +70,6 @@ module JavaBuildpack
       private_constant :FILTER, :KEY_LOCATORS, :KEY_USERS, :SESSION_MANAGER_CLASS_NAME, :REGION_ATTRIBUTES_ID,
                        :CACHE_CLIENT_LISTENER_CLASS_NAME, :SCHEMA_URL, :SCHEMA_INSTANCE_URL, :SCHEMA_LOCATION,
                        :LOCATOR_REGEXP
-
-      def cluster_operator?(user)
-        user['username'] == 'cluster_operator' || user['roles'] && (user['roles'].include? 'cluster_operator')
-      end
 
       def add_client_cache(document)
         client_cache = document.add_element 'client-cache',
