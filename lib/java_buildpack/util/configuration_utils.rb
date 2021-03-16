@@ -42,6 +42,7 @@ module JavaBuildpack
         #                             should be left to its default and exists to allow the logger to use the utility.
         # @return [Hash] the configuration or an empty hash if the configuration file does not exist
         def load(identifier, clean_nil_values = true, should_log = true)
+
           file = file_name(identifier)
 
           if file.exist?
