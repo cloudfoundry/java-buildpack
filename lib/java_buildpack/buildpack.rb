@@ -185,13 +185,13 @@ module JavaBuildpack
     end
 
     def instantiate(components, java_home, component_info)
-      puts "(Nadav) components: #{components}"
       components.map do |component|
         @logger.debug { "Instantiating #{component}" }
 
         require_component(component)
 
         component_id = component.split('::').last.snake_case
+
         context = {
           application: component_info['application'],
           configuration: Util::ConfigurationUtils.load(component_id),
