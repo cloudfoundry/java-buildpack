@@ -16,7 +16,6 @@
 # Configuration for the SeaLights Agent framework
 ---
 version: +
-repository_root: https://agents.sealights.co/sealights-java/sealights-java-latest.zip
 buildSessionId:
 buildSessionIdFile:
 labId:
