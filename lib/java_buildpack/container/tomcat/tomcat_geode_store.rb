@@ -23,7 +23,7 @@ require 'java_buildpack/logging/logger_factory'
 module JavaBuildpack
   module Container
 
-    # Encapsulates the detect, compile, and release functionality for Tomcat Redis support.
+    # Encapsulates the detect, compile, and release functionality for Tomcat Tanzu GemFire for VMs support.
     class TomcatGeodeStore < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Container
 
