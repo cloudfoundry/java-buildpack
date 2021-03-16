@@ -20,14 +20,14 @@ require 'java_buildpack/framework'
 require 'uri'
 require 'net/http'
 require 'pathname'
-require "base64"
+require 'base64'
 require 'json'
 
 module JavaBuildpack
   module Framework
 
-    # Encapsulates the functionality for enabling zero-touch JacCoCo support.
-    class SealightsAgent < JavaBuildpack::Component::BaseComponent # JavaBuildpack::Component::VersionedDependencyComponent
+    # Encapsulates the functionality for enabling zero-touch Sealights support.
+    class SealightsAgent < JavaBuildpack::Component::BaseComponent
 
       def initialize(context)
         super(context)
@@ -42,8 +42,8 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_url = get_download_url
-        downloadUri(download_url)
-        extract_zip("sealights-java.zip", get_agent_path)
+        download_uri(download_url)
+        extract_zip('sealights-java.zip', get_agent_path)
       end
 
       def get_download_url
@@ -71,11 +71,11 @@ module JavaBuildpack
       def release
         credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
         properties = {
-          'sl.token' => credentials[TOKEN],
+          'sl.token' => credentials[TOKEN]
         }
-        properties.map { |k, v| @droplet.java_opts.add_system_property(k,v) }
+        properties.map { |k, v| @droplet.java_opts.add_system_property(k, v) }
 
-        @logger.info {"Configuration #{@configuration}"}
+        @logger.info { "Configuration #{@configuration}" }
 
         # try_add_system_property(TOKEN)
         try_add_system_property('buildSessionId')
@@ -83,61 +83,55 @@ module JavaBuildpack
         try_add_system_property('proxy')
         try_add_system_property('labId')
 
-        full_path = File.join(get_agent_path, "sl-test-listener.jar")
+        full_path = File.join(get_agent_path, 'sl-test-listener.jar')
         agent_path = Pathname.new(full_path)
 
-
-        @logger.info {"Sealights agent path is set to: '#{agent_path}'"}
+        @logger.info { "Sealights agent path is set to: '#{agent_path}'" }
         @droplet.java_opts.add_javaagent(agent_path)
       end
 
       def try_add_system_property(key)
-        @logger.info {"try_add_system_property #{key}"}
-        @logger.info {" @configuration[key] #{@configuration[key]}"}
-        @logger.info {" @configuration[key] #{@configuration[key] != nil}"}
-        if (@configuration[key] != nil)
+        @logger.info { "try_add_system_property #{key}" }
+        @logger.info { " @configuration[key] #{@configuration[key]}" }
+        @logger.info { " @configuration[key] #{!@configuration[key].nil?}" }
+        if !@configuration[key].nil?
           value = @configuration[key]
-          prop = "sl." + key
-          @logger.info {"Adding #{prop}=#{value}"}
-          @droplet.java_opts.add_system_property(prop,value)
+          prop = 'sl.' + key
+          @logger.info { "Adding #{prop}=#{value}" }
+          @droplet.java_opts.add_system_property(prop, value)
         else
-          @logger.info {"No value for key #{key}"}
+          @logger.info { "No value for key #{key}" }
         end
-
       end
 
       protected
 
-      def downloadUri(full_url)
-        @logger.info { "########## Downloading Sealights Agent.... ############" }
+      def download_uri(full_url)
+        @logger.info { '########## Downloading Sealights Agent.... ############' }
         @logger.info { full_url }
-        @logger.info { "#######################################################" }
+        @logger.info { '#######################################################' }
         begin
           credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
           token = credentials[TOKEN]
           uri = URI.parse(full_url)
-          if credentials.key? 'proxy'
-            ENV['http_proxy'] = "http://127.0.0.1:8888"
-          end
+          ENV['http_proxy'] = 'http://127.0.0.1:8888' if credentials.key? 'proxy'
 
           response = Net::HTTP.start(uri.host, uri.port,
-                                     :use_ssl => uri.scheme == 'https',
-                                     :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
-
+                                     use_ssl: uri.scheme == 'https',
+                                     verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
             request = Net::HTTP::Get.new uri
             auth = "Bearer #{token}"
             @logger.info { auth }
             request['Authorization'] = auth
-            request['accept'] = "application/json"
+            request['accept'] = 'application/json'
 
             http.request request # Net::HTTPResponse object
-
           end
         end
         case response
         when Net::HTTPSuccess
-          @logger.info {"success!"}
-          open("sealights-java.zip", "wb") do |file|
+          @logger.info { 'success!' }
+          open('sealights-java.zip', 'wb') do |file|
             file.write(response.body)
           end
           true
@@ -150,6 +144,7 @@ module JavaBuildpack
           false
         end
       end
+
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         @application.services.one_service? FILTER, TOKEN
