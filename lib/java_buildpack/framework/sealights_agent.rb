@@ -41,9 +41,11 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
+        announce("'compile' method is starting")
         download_url = get_download_url
         download_uri(download_url)
         extract_zip('sealights-java.zip', get_agent_path)
+        announce("'compile' method has ended")
       end
 
       def get_download_url
@@ -86,8 +88,9 @@ module JavaBuildpack
         full_path = File.join(get_agent_path, 'sl-test-listener.jar')
         agent_path = Pathname.new(full_path)
 
-        @logger.info { "Sealights agent path is set to: '#{agent_path}'" }
         @droplet.java_opts.add_javaagent(agent_path)
+
+        announce("Agent was configured. Agent path is set to: '#{agent_path}")
       end
 
       def try_add_system_property(key)
@@ -107,9 +110,7 @@ module JavaBuildpack
       protected
 
       def download_uri(full_url)
-        @logger.info { '########## Downloading Sealights Agent.... ############' }
-        @logger.info { full_url }
-        @logger.info { '#######################################################' }
+        announce("Downloading Sealights Agent from '#{full_url}'")
         begin
           credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
           token = credentials[TOKEN]
@@ -130,7 +131,7 @@ module JavaBuildpack
         end
         case response
         when Net::HTTPSuccess
-          @logger.info { 'success!' }
+          announce('Agent was downloaded successfully.')
           open('sealights-java.zip', 'wb') do |file|
             file.write(response.body)
           end
@@ -140,6 +141,7 @@ module JavaBuildpack
           @logger.info { "redirected to #{location}" }
           downloadUri(location)
         else
+          announce('Failed to download the agent.')
           @logger.error { "Could not retrieve #{full_url}.  Code: #{response.code} Message: #{response.message}" }
           false
         end
@@ -148,6 +150,10 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         @application.services.one_service? FILTER, TOKEN
+      end
+      
+      def announce(msg)
+        @logger.info { "****************** Sealights Buildpack: #{msg} ******************" }
       end
 
       TOKEN = 'token'
