@@ -41,8 +41,6 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        @logger.info {"****************** Sealights 'compile'"}
-
         download_url = get_download_url
         downloadUri(download_url)
         extract_zip("sealights-java.zip", get_agent_path)
@@ -51,14 +49,13 @@ module JavaBuildpack
       def get_download_url
         credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
         token = credentials[TOKEN]
-        interesting_part = token.split(/\./)[1]
-        decoded_token = Base64.decode64(interesting_part)
+        sealights_data = token.split(/\./)[1]
+        decoded_token = Base64.decode64(sealights_data)
         token_data = JSON.parse(decoded_token)
         "#{token_data['x-sl-server']}/v2/agents/sealights-java/recommended/download"
       end
 
       def get_agent_path
-        @logger.info { "Agent Path: #{@droplet.sandbox.relative_path_from(@droplet.root)}"}
         @droplet.sandbox
       end
 
@@ -72,8 +69,6 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @logger.info {"****************** Sealights 'release'"}
-
         credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
         properties = {
           'sl.token' => credentials[TOKEN],
@@ -88,18 +83,11 @@ module JavaBuildpack
         try_add_system_property('proxy')
         try_add_system_property('labId')
 
-        # properties['sl.buildSessionId'] = credentials['buildSessionId'] if credentials.key? 'buildSessionId'
-        # properties['sl.buildSessionIdFile'] = credentials['buildSessionIdFile'] if credentials.key? 'buildSessionIdFile'
-        # properties['sl.proxy'] = credentials['proxy'] if credentials.key? 'proxy'
-        # #add_system_property
-
-
         full_path = File.join(get_agent_path, "sl-test-listener.jar")
         agent_path = Pathname.new(full_path)
-        @logger.info {"Agent path to set (full_path): #{full_path}"}
-        @logger.info {"Agent path to set: #{agent_path}"}
 
 
+        @logger.info {"Sealights agent path is set to: '#{agent_path}'"}
         @droplet.java_opts.add_javaagent(agent_path)
       end
 
@@ -121,9 +109,9 @@ module JavaBuildpack
       protected
 
       def downloadUri(full_url)
-        @logger.info { "########## Downloading.... ############" }
+        @logger.info { "########## Downloading Sealights Agent.... ############" }
         @logger.info { full_url }
-        @logger.info { "#######################################" }
+        @logger.info { "#######################################################" }
         begin
           credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
           token = credentials[TOKEN]
