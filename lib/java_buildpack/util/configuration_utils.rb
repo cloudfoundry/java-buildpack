@@ -44,6 +44,8 @@ module JavaBuildpack
         def load(identifier, clean_nil_values = true, should_log = true)
 
           file = file_name(identifier)
+          puts "Loading configuration file. Identifier: #{identifier}, file: #{file}"
+
 
           if file.exist?
             var_name      = environment_variable_name(identifier)
