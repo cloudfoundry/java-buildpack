@@ -25,6 +25,8 @@ The container can be configured by modifying the [`config/tomcat.yml`][] file in
 | `access_logging_support.repository_root` | The URL of the Tomcat Access Logging Support repository index ([details][repositories]).
 | `access_logging_support.version` | The version of Tomcat Access Logging Support to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat-access-logging-support/index.yml).
 | `access_logging_support.access_logging` | Set to `enabled` to turn on the access logging support. Default is `disabled`.
+| `geode_store.repository_root` | The URL of the Geode Store repository index ([details][repositories]).
+| `geode_store.version` | The version of Geode Store to use. Candidate versions can be found in [this listing](https://java-buildpack-tomcat-gemfire-store.s3-us-west-2.amazonaws.com/index.yml).
 | `lifecycle_support.repository_root` | The URL of the Tomcat Lifecycle Support repository index ([details][repositories]).
 | `lifecycle_support.version` | The version of Tomcat Lifecycle Support to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat-lifecycle-support/index.yml).
 | `logging_support.repository_root` | The URL of the Tomcat Logging Support repository index ([details][repositories]).
