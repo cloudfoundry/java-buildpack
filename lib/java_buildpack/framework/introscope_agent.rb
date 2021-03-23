@@ -43,6 +43,7 @@ module JavaBuildpack
           .add_system_property('introscope.agent.hostName', agent_host_name)
           .add_system_property('com.wily.introscope.agent.agentName', agent_name(credentials))
           .add_system_property('introscope.agent.defaultProcessName', default_process_name(credentials))
+          .add_system_property('com.wily.introscope.agent.startup.mode', 'neo')
 
         export_all_properties(credentials, java_opts)
       end
