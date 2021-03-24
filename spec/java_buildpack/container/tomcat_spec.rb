@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2020 the original author or authors.
+# Copyright 2013-2021 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -75,12 +75,16 @@ describe JavaBuildpack::Container::Tomcat do
   end
 
   it 'creates submodules' do
+    # create Tomcat instance double so we can pull version when creating submodules
+    tomcat_instance = instance_double(JavaBuildpack::Container::TomcatInstance)
+    tomcat_instance.instance_variable_set(:@version, %w[9 0 44])
+
+    allow(JavaBuildpack::Container::TomcatInstance)
+      .to receive(:new).with(sub_configuration_context(tomcat_configuration)).and_return(tomcat_instance)
     allow(JavaBuildpack::Container::TomcatAccessLoggingSupport)
       .to receive(:new).with(sub_configuration_context(access_logging_support_configuration))
     allow(JavaBuildpack::Container::TomcatGeodeStore)
-      .to receive(:new).with(sub_configuration_context(geode_store_configuration))
-    allow(JavaBuildpack::Container::TomcatInstance)
-      .to receive(:new).with(sub_configuration_context(tomcat_configuration))
+      .to receive(:new).with(sub_configuration_context(geode_store_configuration), '9')
     allow(JavaBuildpack::Container::TomcatInsightSupport).to receive(:new).with(context)
     allow(JavaBuildpack::Container::TomcatLifecycleSupport)
       .to receive(:new).with(sub_configuration_context(lifecycle_support_configuration))
