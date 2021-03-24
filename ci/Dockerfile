@@ -1,4 +1,5 @@
-FROM ubuntu:bionic
+ARG base_image=ubuntu:bionic
+FROM ${base_image}
 
 RUN apt-get update && apt-get install -y \
     build-essential \
