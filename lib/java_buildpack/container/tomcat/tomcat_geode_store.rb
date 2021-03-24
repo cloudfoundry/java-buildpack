@@ -27,6 +27,16 @@ module JavaBuildpack
     class TomcatGeodeStore < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Container
 
+      # Creates an instance.  In addition to the functionality inherited from +VersionedDependencyComponent+
+      # +@tomcat_version+ instance variable is exposed.
+      #
+      # @param [Hash] context a collection of utilities used by components
+      # @param [String] tomcat_version is the major version of tomcat
+      def initialize(context, tomcat_version)
+        super(context)
+        @tomcat_version = tomcat_version
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         return unless supports?
@@ -144,16 +154,15 @@ module JavaBuildpack
             'Please verify your geode_store tar contains a geode-modules-tomcat jar.')
         end
 
-        tomcat_version = @configuration['tomcat_version']
+        puts "       Detected Geode Tomcat #{geode_tomcat_version} module"
 
         # leave possibility for generic jar/session manager class that is compatible with all tomcat versions
-        if !geode_tomcat_version.empty? && geode_tomcat_version != tomcat_version
-          puts "       WARNING: Tomcat version #{tomcat_version} " \
+        if !geode_tomcat_version.empty? && geode_tomcat_version != @tomcat_version
+          puts "       WARNING: Tomcat version #{@tomcat_version} " \
                   "does not match Geode Tomcat #{geode_tomcat_version} module. " \
                   'If you encounter compatibility issues, please make sure these versions match.'
         end
 
-        puts "       Detected Geode Tomcat #{geode_tomcat_version} module"
         @session_manager_classname =
           "org.apache.geode.modules.session.catalina.Tomcat#{geode_tomcat_version}DeltaSessionManager"
       end

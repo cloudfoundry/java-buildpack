@@ -54,12 +54,12 @@ module JavaBuildpack
       def sub_components(context)
         instance = TomcatInstance.new(sub_configuration_context(context, 'tomcat'))
         # pass Tomcat major version to geode_store so we can verify compatibility.
-        @configuration['geode_store']['tomcat_version'] = instance.instance_variable_get(:@version)[0]
+        tomcat_version = instance.instance_variable_get(:@version)[0]
 
         components = [
           instance,
           TomcatAccessLoggingSupport.new(sub_configuration_context(context, 'access_logging_support')),
-          TomcatGeodeStore.new(sub_configuration_context(context, 'geode_store')),
+          TomcatGeodeStore.new(sub_configuration_context(context, 'geode_store'), tomcat_version),
           TomcatInsightSupport.new(context),
           TomcatLifecycleSupport.new(sub_configuration_context(context, 'lifecycle_support')),
           TomcatLoggingSupport.new(sub_configuration_context(context, 'logging_support')),

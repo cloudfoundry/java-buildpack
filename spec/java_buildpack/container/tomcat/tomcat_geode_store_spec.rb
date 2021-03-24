@@ -22,6 +22,8 @@ require 'java_buildpack/container/tomcat/tomcat_geode_store'
 describe JavaBuildpack::Container::TomcatGeodeStore do
   include_context 'with component help'
 
+  let(:component) { described_class.new(context, '9') }
+
   let(:component_id) { 'tomcat' }
 
   let(:configuration) do
@@ -83,9 +85,11 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
        app_fixture: 'container_tomcat_geode_store',
        cache_fixture: 'stub-geode-store.tar' do
 
+      component = described_class.new(context, '8')
+
       expect { component.compile }.to output(
         # rubocop:disable Layout/LineLength
-        /WARNING: Tomcat version  does not match Geode Tomcat 9 module\. If you encounter compatibility issues, please make sure these versions match\./
+        /WARNING: Tomcat version 8 does not match Geode Tomcat 9 module\. If you encounter compatibility issues, please make sure these versions match\./
         # rubocop:enable Layout/LineLength
       ).to_stdout
     end

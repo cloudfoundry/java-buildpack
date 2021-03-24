@@ -47,8 +47,8 @@ describe JavaBuildpack::Container::Tomcat do
   let(:lifecycle_support_configuration) { instance_double('lifecycle-support-configuration') }
 
   let(:logging_support_configuration) { instance_double('logging-support-configuration') }
-  # pass empty hash, so tomcat_version can be added in `sub_components` method
-  let(:geode_store_configuration) { {} }
+
+  let(:geode_store_configuration) { instance_double('geode_store_configuration') }
 
   let(:redis_store_configuration) { instance_double('redis-store-configuration') }
 
@@ -84,7 +84,7 @@ describe JavaBuildpack::Container::Tomcat do
     allow(JavaBuildpack::Container::TomcatAccessLoggingSupport)
       .to receive(:new).with(sub_configuration_context(access_logging_support_configuration))
     allow(JavaBuildpack::Container::TomcatGeodeStore)
-      .to receive(:new).with(sub_configuration_context(geode_store_configuration))
+      .to receive(:new).with(sub_configuration_context(geode_store_configuration), '9')
     allow(JavaBuildpack::Container::TomcatInsightSupport).to receive(:new).with(context)
     allow(JavaBuildpack::Container::TomcatLifecycleSupport)
       .to receive(:new).with(sub_configuration_context(lifecycle_support_configuration))
