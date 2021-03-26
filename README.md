@@ -158,9 +158,11 @@ The offline package is a version of the buildpack designed to run without access
 
 To pin the version of dependencies used by the buildpack to the ones currently resolvable use the `PINNED=true` argument. This will update the [`config/` directory][] to contain exact version of each dependency instead of version ranges.
 
+Only packages referenced in the [`config/components.yml` file][] will be cached. Additional packages may be added using the `ADD_TO_CACHE` argument. It has to be set to the name of a `.yml` file in the [`config/` directory][]). Multiple file names may be separated by colons. This is useful to add additional JREs.
+
 ```bash
 $ bundle install
-$ bundle exec rake clean package OFFLINE=true PINNED=true
+$ bundle exec rake clean package OFFLINE=true PINNED=true ADD_TO_CACHE=sap_machine_jre
 ...
 Creating build/java-buildpack-offline-cfd6b17.zip
 ```
