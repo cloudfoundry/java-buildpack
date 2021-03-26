@@ -157,12 +157,21 @@ Creating build/java-buildpack-cfd6b17.zip
 The offline package is a version of the buildpack designed to run without access to a network.  It packages the latest version of each dependency (as configured in the [`config/` directory][]) and [disables `remote_downloads`][]. This package is about 180M in size.  To create the offline package, use the `OFFLINE=true` argument:
 
 To pin the version of dependencies used by the buildpack to the ones currently resolvable use the `PINNED=true` argument. This will update the [`config/` directory][] to contain exact version of each dependency instead of version ranges.
+```bash
+$ bundle install
+$ bundle exec rake clean package OFFLINE=true PINNED=true
+...
+Creating build/java-buildpack-offline-cfd6b17.zip
+```
 
-Only packages referenced in the [`config/components.yml` file][] will be cached. Additional packages may be added using the `ADD_TO_CACHE` argument. It has to be set to the name of a `.yml` file in the [`config/` directory][]). Multiple file names may be separated by colons. This is useful to add additional JREs.
+Only packages referenced in the [`config/components.yml` file](config/components.yml) will be cached. Additional packages may be added using the `ADD_TO_CACHE` argument. The value of `ADD_TO_CACHE` should be set to the name of a `.yml` file in the [`config/` directory][] with the `.yml` file extension omitted (e.g. `sap_machine_jre`). Multiple file names may be separated by commas. This is useful to add additional JREs. These additional components will not be enabled by default and must be explicitly enabled in the application with the `JBP_CONFIG_COMPONENTS` environment variable.
 
 ```bash
 $ bundle install
-$ bundle exec rake clean package OFFLINE=true PINNED=true ADD_TO_CACHE=sap_machine_jre
+$ bundle exec rake clean package OFFLINE=true ADD_TO_CACHE=sap_machine_jre,ibm_jre
+...
+Caching https://public.dhe.ibm.com/ibmdl/export/pub/systems/cloud/runtimes/java/8.0.6.26/linux/x86_64/ibm-java-jre-8.0-6.26-x86_64-archive.bin
+Caching https://github.com/SAP/SapMachine/releases/download/sapmachine-11.0.10/sapmachine-jre-11.0.10_linux-x64_bin.tar.gz
 ...
 Creating build/java-buildpack-offline-cfd6b17.zip
 ```
