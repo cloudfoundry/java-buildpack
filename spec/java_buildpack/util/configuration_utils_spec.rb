@@ -115,7 +115,7 @@ describe JavaBuildpack::Util::ConfigurationUtils do
     context do
 
       let(:environment) do
-        { 'JBP_CONFIG_TEST' => '{version:1.8.+}' }
+        { 'JBP_CONFIG_TEST' => '{version: 1.8.+' }
       end
 
       it 'diagnoses invalid YAML syntax' do

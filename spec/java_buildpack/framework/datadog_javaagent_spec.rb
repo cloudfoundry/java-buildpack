@@ -23,6 +23,11 @@ require 'java_buildpack/util/tokenized_version'
 describe JavaBuildpack::Framework::DatadogJavaagent do
   include_context 'with component help'
 
+  let(:configuration) do
+    { 'default_application_version' => nil,
+      'default_application_name' => nil }
+  end
+
   describe '#detect' do
     subject(:detect) { component.detect }
 
@@ -45,7 +50,7 @@ describe JavaBuildpack::Framework::DatadogJavaagent do
     context 'when apm is enabled with no api key' do
       let(:environment) { { 'DD_APM_ENABLED' => 'true' } }
 
-      it { is_expected.to eq("datadog-javaagent=#{version}") }
+      it { is_expected.to be nil }
     end
 
     context 'when apm key is provided' do
@@ -56,16 +61,50 @@ describe JavaBuildpack::Framework::DatadogJavaagent do
   end
 
   context 'when apm key is provided' do
-    let(:environment) { { 'DD_API_KEY' => 'foo' } }
-
-    it 'compile downloads datadog-javaagent JAR', cache_fixture: 'stub-datadog-javaagent.jar' do
-      component.compile
-      expect(sandbox + "datadog-javaagent-#{version}.jar").to exist
+    let(:environment) do
+      super().update({ 'DD_API_KEY' => 'foo' })
     end
 
-    it 'release updates JAVA_OPTS' do
-      component.release
-      expect(java_opts).to include("-javaagent:$PWD/.java-buildpack/datadog_javaagent/datadog_javaagent-#{version}.jar")
+    context 'when datadog buildpack is present' do
+      before do
+        FileUtils.mkdir_p File.join(context[:droplet].root, 'datadog')
+      end
+
+      after do
+        FileUtils.rmdir File.join(context[:droplet].root, 'datadog')
+      end
+
+      it 'compile downloads datadog-javaagent JAR', cache_fixture: 'stub-datadog-javaagent.jar' do
+        component.compile
+        expect(sandbox + "datadog_javaagent-#{version}.jar").to exist
+      end
+
+      it 'release updates JAVA_OPTS' do
+        component.release
+
+        expect(java_opts).to include(
+          "-javaagent:$PWD/.java-buildpack/datadog_javaagent/datadog_javaagent-#{version}.jar"
+        )
+        expect(java_opts).to include('-Ddd.service=\"test-application-name\"')
+        expect(java_opts).to include('-Ddd.version=test-application-version')
+      end
+    end
+
+    context 'when datadog buildpack is not present' do
+      it 'compile downloads datadog-javaagent JAR', cache_fixture: 'stub-datadog-javaagent.jar' do
+        component.compile
+        expect(sandbox + "datadog_javaagent-#{version}.jar").not_to exist
+      end
+
+      it 'release updates JAVA_OPTS' do
+        component.release
+
+        expect(java_opts).not_to include(
+          "-javaagent:$PWD/.java-buildpack/datadog_javaagent/datadog_javaagent-#{version}.jar"
+        )
+        expect(java_opts).not_to include('-Ddd.service=\"test-application-name\"')
+        expect(java_opts).not_to include('-Ddd.version=test-application-version')
+      end
     end
   end
 end
