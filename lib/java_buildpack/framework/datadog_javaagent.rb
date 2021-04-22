@@ -25,23 +25,35 @@ module JavaBuildpack
     class DatadogJavaagent < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Util
 
+      def initialize(context)
+        super(context)
+        @datadog_buildpack = File.exist? File.join(@droplet.root, 'datadog')
+        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger DatadogJavaagent
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        download_jar
+        @logger.error 'Datadog Buildpack is required, but not found' unless @datadog_buildpack
+
+        download_jar if @datadog_buildpack
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        java_opts   = @droplet.java_opts
+        return unless @datadog_buildpack
+
+        java_opts = @droplet.java_opts
         java_opts.add_javaagent(@droplet.sandbox + jar_name)
 
-        if !@application.environment.key?('DD_SERVICE')
-          java_opts.add_system_property('dd.service', @application.details['application_name'])
+        unless @application.environment.key?('DD_SERVICE')
+          app_name = @configuration['default_application_name'] || @application.details['application_name']
+          java_opts.add_system_property('dd.service', "\\\"#{app_name}\\\"")
         end
 
-        if @application.details['application_version']
-          java_opts.add_system_property('dd.version', @application.details['application_version'])
-        end
+        return unless @application.details['application_version']
+
+        version = @configuration['default_application_version'] || @application.details['application_version']
+        java_opts.add_system_property('dd.version', version)
       end
 
       protected
@@ -50,8 +62,7 @@ module JavaBuildpack
       def supports?
         api_key_defined = @application.environment.key?('DD_API_KEY') && !@application.environment['DD_API_KEY'].empty?
         apm_disabled = @application.environment['DD_APM_ENABLED'] == 'false'
-        apm_enabled = @application.environment['DD_APM_ENABLED'] == 'true'
-        (api_key_defined && !apm_disabled) || apm_enabled
+        (api_key_defined && !apm_disabled)
       end
     end
   end
