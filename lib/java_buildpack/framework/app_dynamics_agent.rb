@@ -89,23 +89,27 @@ module JavaBuildpack
 
       def account_access_key(java_opts, credentials)
         account_access_key = credentials['account-access-key'] || credentials.dig('account-access-secret', 'secret')
+        account_access_key = Shellwords.escape(account_access_key)
+
         java_opts.add_system_property 'appdynamics.agent.accountAccessKey', account_access_key if account_access_key
       end
 
       def account_name(java_opts, credentials)
         account_name = credentials['account-name']
-        java_opts.add_system_property 'appdynamics.agent.accountName', account_name if account_name
+        java_opts.add_system_property 'appdynamics.agent.accountName', Shellwords.escape(account_name) if account_name
       end
 
       def host_name(java_opts, credentials)
         host_name = credentials['host-name']
         raise "'host-name' credential must be set" unless host_name
 
-        java_opts.add_system_property 'appdynamics.controller.hostName', host_name
+        java_opts.add_system_property 'appdynamics.controller.hostName', Shellwords.escape(host_name)
       end
 
       def node_name(java_opts, credentials)
-        name = credentials['node-name'] || @configuration['default_node_name']
+        name = @configuration['default_node_name']
+        name = Shellwords.escape(credentials['node-name']) if credentials['node-name']
+
         java_opts.add_system_property('appdynamics.agent.nodeName', name.to_s)
       end
 
@@ -120,13 +124,17 @@ module JavaBuildpack
       end
 
       def tier_name(java_opts, credentials)
-        name = credentials['tier-name'] || @configuration['default_tier_name'] ||
-          @application.details['application_name']
+        name = Shellwords.escape(@application.details['application_name'])
+        name = @configuration['default_tier_name'] if @configuration['default_tier_name']
+        name = Shellwords.escape(credentials['tier-name']) if credentials['tier-name']
+
         java_opts.add_system_property('appdynamics.agent.tierName', name.to_s)
       end
 
       def unique_host_name(java_opts)
-        name = @configuration['default_unique_host_name'] || @application.details['application_name']
+        name = @configuration['default_unique_host_name']
+        name = Shellwords.escape(@application.details['application_name']) if @application.details['application_name']
+
         java_opts.add_system_property('appdynamics.agent.uniqueHostId', name.to_s)
       end
 
