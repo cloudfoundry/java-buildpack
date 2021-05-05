@@ -66,7 +66,7 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
 
         expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/app_dynamics_agent/javaagent.jar')
         expect(java_opts).to include('-Dappdynamics.controller.hostName=test-host-name')
-        expect(java_opts).to include('-Dappdynamics.agent.applicationName=\"test-application-name\"')
+        expect(java_opts).to include('-Dappdynamics.agent.applicationName=test-application-name')
         expect(java_opts).to include('-Dappdynamics.agent.tierName=test-application-name')
         expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : ' \
                                      '\'.*instance_index[": ]*\\([[:digit:]]*\\).*\')')
@@ -83,12 +83,38 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
       end
 
       context do
-        let(:credentials) { super().merge 'application-name' => 'another-test-application-name' }
+        let(:credentials) { super().merge 'tier-name' => 'another-test tier-name' }
 
-        it 'adds application_name from credentials to JAVA_OPTS if specified' do
+        it 'adds tier_name from credentials with space in name to JAVA_OPTS if specified' do
           component.release
 
-          expect(java_opts).to include('-Dappdynamics.agent.applicationName=\"another-test-application-name\"')
+          expect(java_opts).to include('-Dappdynamics.agent.tierName=another-test\ tier-name')
+        end
+      end
+
+      context do
+        let(:credentials) { super().merge 'application-name' => 'another-test application-name' }
+
+        it 'adds application_name from credentials with space in name to JAVA_OPTS if specified' do
+          component.release
+
+          expect(java_opts).to include('-Dappdynamics.agent.applicationName=another-test\ application-name')
+        end
+      end
+
+      context do
+        let(:configuration) do
+          { 'default_tier_name' => nil,
+            'default_node_name' => nil,
+            'default_application_name' => 'default application-name' }
+        end
+
+        it 'adds application_name from default config to JAVA_OPTS if specified' do
+          component.release
+
+          # should not be escaped, escaping happens at runtime because default value is a sub-command
+          #   executed in the runtime container
+          expect(java_opts).to include('-Dappdynamics.agent.applicationName=default application-name')
         end
       end
 
