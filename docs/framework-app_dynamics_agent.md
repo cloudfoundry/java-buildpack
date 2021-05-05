@@ -13,20 +13,22 @@ The AppDynamics Agent Framework causes an application to be automatically config
 Tags are printed to standard output by the buildpack detect script
 
 ## User-Provided Service
-When binding AppDynamics using a user-provided service, it must have name or tag with `app-dynamics` or `appdynamics` in it. The credential payload can contain the following entries.  **Note:** Credentials marked as "(Optional)" may be required for some versions of the AppDynamics agent.  Please see the [AppDynamics Java Agent Configuration Properties][] for the version of the agent used by your application for more details.
+When binding AppDynamics using a user-provided service, it must have name or tag with `app-dynamics` or `appdynamics` in it. The credential payload can contain the following entries.
 
 | Name | Description
 | ---- | -----------
-| `account-access-key` | (Optional) The account access key to use when authenticating with the controller
-| `account-name` | (Optional) The account name to use when authenticating with the controller
-| `application-name` | (Optional) the application's name
+| `account-access-key` | The account access key to use when authenticating with the controller
+| `account-name` | The account name to use when authenticating with the controller
 | `host-name` | The controller host name
+| `port` | The controller port
+| `ssl-enabled` | Whether or not to use an SSL connection to the controller
+| `application-name` | (Optional) the application's name
 | `node-name` | (Optional) the application's node name
-| `port` | (Optional) The controller port
-| `ssl-enabled` | (Optional) Whether or not to use an SSL connection to the controller
 | `tier-name` | (Optional) the application's tier name
 
 To provide more complex values such as the `tier-name`, using the interactive mode when creating a user-provided service will manage the character escaping automatically. For example, the default `tier-name` could be set with a value of `Tier-$(expr "$VCAP_APPLICATION" : '.*instance_index[": ]*\([[:digit:]]*\).*')` to calculate a value from the Cloud Foundry instance index.
+
+**Note:** Some credentials were previously marked as "(Optional)" as requirements have changed across versions of the AppDynamics agent.  Please see the [AppDynamics Java Agent Configuration Properties][] for the version of the agent used by your application for more details.
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
