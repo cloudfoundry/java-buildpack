@@ -87,6 +87,7 @@ module Package
       'protect_app_security_provider' => 'Gemalto ProtectApp Security Provider',
       'redis_store' => 'Redis Session Store',
       'riverbed_appinternals_agent' => 'Riverbed Appinternals Agent',
+      'sealights_agent' => 'SeaLights Agent',
       'sky_walking_agent' => 'SkyWalking',
       'spring_auto_reconfiguration' => 'Spring Auto-reconfiguration',
       'spring_boot_cli' => 'Spring Boot CLI',
