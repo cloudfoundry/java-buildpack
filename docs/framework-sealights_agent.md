@@ -27,17 +27,22 @@ The framework can be configured by modifying the [`config/sealights_agent.yml`][
 
 | Name | Description
 | ---- | -----------
-| `build_session_id` | Sealights build session id for the application. Leave blank to use the value embedded in the jar/war artifact
-| `proxy` | Specify a proxy
-| `lab_id` | Specify a Sealights Lab Id
+| `build_session_id` | Sealights [Build Session ID][] for the application. Leave blank to use the value embedded in the jar/war artifacts
+| `proxy` | Specify a HTTP proxy used to communicate with the Sealights backend. Used when the corporate network prohibits communication to cloud services by default.
+| `lab_id` | Specify a Sealights [Lab ID][]
 | `auto_upgrade` | Enable/disable agent auto-upgrade. Off by default
+| `version` | The version of Auto-reconfiguration to use. Candidate versions can be found in [this listing][]. If auto_upgrade is turned on, a different version may be downloaded and used at runtime
 
-## Troubleshooting
+## Troubleshooting and Support
 
-If your container is running out of memory and exited with status 137, then you should setup and use a remote collector as explained in the `User-Provided Service` above section.
+For additional documentation and support, visit the official [Sealights Java agents documentation] page
 
 [`config/sealights_agent.yml`]: ../config/sealights_agent.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [repositories]: extending-repositories.md
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
 [Sealights Service]: https://www.sealights.io
+[Build Session ID]: https://sealights.atlassian.net/wiki/spaces/SUP/pages/3473472/Using+Java+Agents+-+Generating+a+session+ID
+[Lab ID]: https://sealights.atlassian.net/wiki/spaces/SUP/pages/762413124/Using+Java+Agents+-+Running+Tests+in+Parallel+Lab+Id
+[this listing]: https://agents.sealights.co/pcf/index.yml
+[Sealights Java agents documentation]: https://sealights.atlassian.net/wiki/spaces/SUP/pages/3014685/SeaLights+Java+agents
