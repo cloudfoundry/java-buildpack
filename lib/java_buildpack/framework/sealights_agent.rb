@@ -17,6 +17,7 @@
 
 require 'java_buildpack/framework'
 require 'java_buildpack/component/versioned_dependency_component'
+require 'shellwords'
 require 'fileutils'
 
 module JavaBuildpack
@@ -40,7 +41,7 @@ module JavaBuildpack
       def release
         @droplet.java_opts.add_javaagent(agent)
         credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
-        @droplet.java_opts.add_system_property('sl.token', credentials[TOKEN])
+        @droplet.java_opts.add_system_property('sl.token', Shellwords.escape(credentials[TOKEN]))
         @droplet.java_opts.add_system_property('sl.tags', 'pivotal_cloud_foundry')
         add_system_property 'sl.enableUpgrade', ENABLE_UPGRADE
         add_system_property 'sl.buildSessionId', BUILD_SESSION_ID
@@ -51,7 +52,7 @@ module JavaBuildpack
       def add_system_property(system_property, config_key)
         return unless @configuration.key?(config_key)
 
-        @droplet.java_opts.add_system_property(system_property, @configuration[config_key].to_s)
+        @droplet.java_opts.add_system_property(system_property, Shellwords.escape(@configuration[config_key]))
       end
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
