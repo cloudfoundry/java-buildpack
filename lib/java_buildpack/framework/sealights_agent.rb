@@ -49,6 +49,7 @@ module JavaBuildpack
         add_system_property 'sl.labId', LAB_ID
       end
 
+      # wrapper for setting system properties on the droplet from configuration keys
       def add_system_property(system_property, config_key)
         return unless @configuration.key?(config_key)
 
