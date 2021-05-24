@@ -44,7 +44,51 @@ The framework can be configured by modifying the [`config/app_dynamics_agent.yml
 | `version` | The version of AppDynamics to use. Candidate versions can be found in [this listing][].
 
 ### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/app_dynamics_agent` directory in the buildpack fork. For example, to override the default `app-agent-config.xml` add your custom file to `resources/app_dynamics_agent/<version>/conf/app-agent-config.xml`.
+The framework can also be configured by overlaying a set of resources on the default distribution.  To do this follow one of the options below.
+
+Configuration files are created in this order:
+
+1. Default AppDynamics configuration
+2. Buildpack default configuration is taken from `resources/app_dynamics_agent/default`
+3. External Configuration if configured
+4. Local Configuration if configured
+5. Buildpack Fork if it exists
+
+#### Buildpack Fork
+Add files to the `resources/app_dynamics_agent` directory in the buildpack fork.  For example, to override the default `app-agent-config.xml` add your custom file to `resources/app_dynamics_agent/<version>/conf/app-agent-config.xml`.
+
+#### External Configuration
+Set `APPD_CONF_HTTP_URL` to an HTTP or HTTPS URL which points to the directory where your configuration files exist. You may also include a user and password in the URL, like `https://user:pass@example.com`.
+
+The Java buildpack will take the URL to the directory provided and attempt to download the following files from that directory:
+
+- `logging/log4j2.xml` 
+- `logging/log4j.xml`
+- `app-agent-config.xml` 
+- `controller-info.xml`
+- `service-endpoint.xml` 
+- `transactions.xml` 
+- `custom-interceptors.xml`
+- `custom-activity-correlation.xml`
+
+Any file successfully downloaded will be copied to the configuration directory. The buildpack does not fail if files are missing.
+
+#### Local Configuration
+Set `APPD_CONF_DIR` to a relative path which points to the directory in your application files where your custom configuration exists.
+
+The Java buildpack will take the `app_root` + `APPD_CONF_DIR` directory and attempt to copy the followinig files from that directory:
+
+- `logging/log4j2.xml`
+- `logging/log4j.xml`
+- `app-agent-config.xml`
+- `controller-info.xml`
+- `service-endpoint.xml`
+- `transactions.xml`
+- `custom-interceptors.xml`
+- `custom-activity-correlation.xml`
+
+Any files that exist will be copied to the configuration directory. The buildpack does not fail if files are missing.
+
 
 [`config/app_dynamics_agent.yml`]: ../config/app_dynamics_agent.yml
 [AppDynamics Java Agent Configuration Properties]: https://docs.appdynamics.com/display/PRO42/Java+Agent+Configuration+Properties

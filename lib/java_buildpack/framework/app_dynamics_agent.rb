@@ -19,12 +19,22 @@ require 'fileutils'
 require 'shellwords'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
+require 'java_buildpack/util/external_config'
 
 module JavaBuildpack
   module Framework
 
     # Encapsulates the functionality for enabling zero-touch AppDynamics support.
     class AppDynamicsAgent < JavaBuildpack::Component::VersionedDependencyComponent
+      include JavaBuildpack::Util::ExternalConfig
+
+      # Full list of configuration files that can be downloaded remotely
+      CONFIG_FILES = %w[logging/log4j2.xml logging/log4j.xml app-agent-config.xml controller-info.xml
+                        service-endpoint.xml transactions.xml custom-interceptors.xml
+                        custom-activity-correlation.xml].freeze
+
+      # Prefix to be used with external configuration environment variable
+      CONFIG_PREFIX = 'APPD'
 
       def initialize(context)
         super(context)
@@ -40,7 +50,7 @@ module JavaBuildpack
         default_conf_dir = resources_dir + @droplet.component_id + 'defaults'
 
         copy_appd_default_configuration(default_conf_dir)
-        override_default_config_remote
+        override_default_config_remote(&method(:save_cfg_file))
         override_default_config_local
         @droplet.copy_resources
       end
@@ -71,13 +81,9 @@ module JavaBuildpack
 
       private
 
-      CONFIG_FILES = %w[logging/log4j2.xml logging/log4j.xml app-agent-config.xml controller-info.xml
-                        service-endpoint.xml transactions.xml custom-interceptors.xml
-                        custom-activity-correlation.xml].freeze
-
       FILTER = /app[-]?dynamics/.freeze
 
-      private_constant :CONFIG_FILES, :FILTER
+      private_constant :FILTER
 
       def application_name(java_opts, credentials)
         name = Shellwords.escape(@application.details['application_name'])
@@ -150,67 +156,6 @@ module JavaBuildpack
         end
       end
 
-      # Check if configuration file exists on the server before download
-      # @param [ResourceURI] uri URI of the remote configuration server
-      # @param [ConfigFileName] conf_file Name of the configuration file
-      # @return [Boolean] returns true if files exists on path specified by APPD_CONF_HTTP_URL, false otherwise
-      def check_if_resource_exists(resource_uri, conf_file)
-        # check if resource exists on remote server
-        begin
-          opts = { use_ssl: true } if resource_uri.scheme == 'https'
-          response = Net::HTTP.start(resource_uri.host, resource_uri.port, opts) do |http|
-            req = Net::HTTP::Head.new(resource_uri)
-            if resource_uri.user != '' || resource_uri.password != ''
-              req.basic_auth(resource_uri.user, resource_uri.password)
-            end
-            http.request(req)
-          end
-        rescue StandardError => e
-          @logger.error { "Request failure: #{e.message}" }
-          return false
-        end
-
-        case response
-        when Net::HTTPSuccess
-          true
-        when Net::HTTPRedirection
-          location = response['location']
-          @logger.info { "redirected to #{location}" }
-          check_if_resource_exists(location, conf_file)
-        else
-          @logger.info { "Could not retrieve #{resource_uri}.  Code: #{response.code} Message: #{response.message}" }
-          false
-        end
-      end
-
-      # Check for configuration files on a remote server. If found, copy to conf dir under each ver* dir
-      # @return [Void]
-      def override_default_config_remote
-        return unless @application.environment['APPD_CONF_HTTP_URL']
-
-        JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
-          true, 'The AppDynamics remote configuration download location is always accessible'
-        ) do
-          agent_root = @application.environment['APPD_CONF_HTTP_URL'].chomp('/') + '/java/'
-          @logger.info { "Downloading override configuration files from #{agent_root}" }
-          CONFIG_FILES.each do |conf_file|
-            uri = URI(agent_root + conf_file)
-
-            # `download()` uses retries with exponential backoff which is expensive
-            # for situations like 404 File not Found. Also, `download()` doesn't expose
-            # an api to disable retries, which makes this check necessary to prevent
-            # long install times.
-            next unless check_if_resource_exists(uri, conf_file)
-
-            download(false, uri.to_s) do |file|
-              Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
-                FileUtils.cp_r file, target_directory + '/conf/' + conf_file
-              end
-            end
-          end
-        end
-      end
-
       # Check for configuration files locally. If found, copy to conf dir under each ver* dir
       # @return [Void]
       def override_default_config_local
@@ -226,9 +171,13 @@ module JavaBuildpack
 
           next unless File.file?(conf_file_path)
 
-          Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
-            FileUtils.cp_r conf_file_path, target_directory + '/conf/' + conf_file
-          end
+          save_cfg_file(conf_file_path, conf_file)
+        end
+      end
+
+      def save_cfg_file(file, conf_file)
+        Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
+          FileUtils.cp_r file, target_directory + '/conf/' + conf_file
         end
       end
     end
