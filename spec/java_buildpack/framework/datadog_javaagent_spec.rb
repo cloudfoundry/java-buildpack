@@ -107,4 +107,24 @@ describe JavaBuildpack::Framework::DatadogJavaagent do
       end
     end
   end
+
+  context 'when dd_version environment variable is provided' do
+    let(:environment) do
+      super().update({ 'DD_VERSION' => 'env-variable-version' })
+    end
+
+    before do
+      FileUtils.mkdir_p File.join(context[:droplet].root, 'datadog')
+    end
+
+    after do
+      FileUtils.rmdir File.join(context[:droplet].root, 'datadog')
+    end
+
+    it 'release updates JAVA_OPTS with env variable version' do
+      component.release
+
+      expect(java_opts).to include('-Ddd.version=env-variable-version')
+    end
+  end
 end
