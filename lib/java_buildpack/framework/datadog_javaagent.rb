@@ -50,9 +50,8 @@ module JavaBuildpack
           java_opts.add_system_property('dd.service', "\\\"#{app_name}\\\"")
         end
 
-        return if @application.environment.key?('DD_VERSION') || !@application.details['application_version']
-
-        version = @configuration['default_application_version'] || @application.details['application_version']
+        version = @application.environment['DD_VERSION'] || @configuration['default_application_version'] ||
+          @application.details['application_version']
         java_opts.add_system_property('dd.version', version)
       end
 
