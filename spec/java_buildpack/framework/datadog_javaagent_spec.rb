@@ -107,4 +107,16 @@ describe JavaBuildpack::Framework::DatadogJavaagent do
       end
     end
   end
+
+  context 'when dd_version environment variable is provided' do
+    let(:environment) do
+      super().update({ 'DD_VERSION' => 'test-application-version' })
+    end
+
+    it 'release updates JAVA_OPTS' do
+      component.release
+
+      expect(java_opts).not_to include('-Ddd.version=test-application-version')
+    end
+  end
 end
