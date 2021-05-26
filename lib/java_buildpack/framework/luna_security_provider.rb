@@ -18,6 +18,7 @@
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
+require 'java_buildpack/util/external_config'
 require 'java_buildpack/util/qualify_path'
 
 module JavaBuildpack
@@ -26,6 +27,18 @@ module JavaBuildpack
     # Encapsulates the functionality for enabling zero-touch Safenet Luna HSM Java Security Provider support.
     class LunaSecurityProvider < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Util
+      include JavaBuildpack::Util::ExternalConfig
+
+      # Full list of configuration files that can be downloaded remotely
+      CONFIG_FILES = %w[Chrystoki.conf server-certificates.pem].freeze
+
+      # Prefix to be used with external configuration environment variable
+      CONFIG_PREFIX = 'LUNA'
+
+      def initialize(context)
+        super(context)
+        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger LunaSecurityProvider
+      end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
@@ -36,10 +49,11 @@ module JavaBuildpack
         @droplet.security_providers << 'com.safenetinc.luna.provider.LunaProvider'
         @droplet.root_libraries << luna_provider_jar if @droplet.java_home.java_9_or_later?
 
-        credentials = @application.services.find_service(FILTER, 'client', 'servers', 'groups')['credentials']
-        write_client credentials['client']
-        write_servers credentials['servers']
-        write_configuration credentials['servers'], credentials['groups']
+        write_credentials
+
+        override_default_config_remote do |file, conf_file|
+          FileUtils.cp_r file, @droplet.sandbox + conf_file
+        end
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -57,10 +71,26 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, 'client', 'servers', 'groups'
+        @application.services.one_service?(FILTER, 'client', 'servers', 'groups') ||
+          @application.services.one_service?(FILTER, 'client', 'servers') ||
+          @application.services.one_service?(FILTER, 'client')
       end
 
       private
+
+      def write_credentials
+        service = @application.services.find_service(FILTER, 'client', 'servers', 'groups') ||
+          @application.services.find_service(FILTER, 'client', 'servers') ||
+          @application.services.find_service(FILTER, 'client')
+        credentials = service['credentials']
+
+        write_client credentials['client'] if credentials.key? 'client'
+        write_servers credentials['servers'] if credentials.key? 'servers'
+
+        return unless credentials.key?('servers') && credentials.key?('groups')
+
+        write_configuration credentials['servers'], credentials['groups']
+      end
 
       FILTER = /luna/.freeze
 
@@ -252,6 +282,11 @@ module JavaBuildpack
         server_certificates.open(File::CREAT | File::WRONLY) do |f|
           servers.each { |server| f.write "#{server['certificate']}\n" }
         end
+      end
+
+      # Overrides method from ExternalConfig module & provides root URL for where external configuration will be located
+      def external_config_root
+        @application.environment["#{CONFIG_PREFIX}_CONF_HTTP_URL"].chomp('/') + '/'
       end
 
     end

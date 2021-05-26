@@ -98,7 +98,27 @@ The framework can be configured by modifying the [`config/luna_security_provider
 | `version` | Version of the Luna Security Provider to use.
 
 ### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/luna_security_provider` directory in the buildpack fork.
+The framework can also be configured by overlaying a set of resources on the default distribution.  To do this follow one of the options below.
+
+Configuration files are created in this order:
+
+1. Default configuration
+2. Buildpack fork
+3. Buildpack generated configuration if the bound service has both a `servers` and `groups` key
+4. External configuration if configured
+
+#### Buildpack Fork
+Add files to the `resources/luna_security_provider` directory in the buildpack fork.  For example, to override the default `Chrystoki.conf` add your custom file to `resources/luna_security_provider/Chrystoki.conf`.
+
+#### External Configuration
+Set `LUNA_CONF_HTTP_URL` to an HTTP or HTTPS URL which points to the directory where your configuration files exist. You may also include a user and password in the URL, like `https://user:pass@example.com`.
+
+The Java buildpack will take the URL to the directory provided and attempt to download the following files from that directory:
+
+- `Chrystoki.conf`
+- `server-certificates.pem`
+
+Any file successfully downloaded will be copied to the configuration directory. The buildpack does not fail if files are missing.
 
 [`config/luna_security_provider.yml`]: ../config/luna_security_provider.yml
 [Luna Security Service]: http://www.safenet-inc.com/data-encryption/hardware-security-modules-hsms/
