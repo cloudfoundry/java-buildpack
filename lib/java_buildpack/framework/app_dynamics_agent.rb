@@ -138,8 +138,8 @@ module JavaBuildpack
       end
 
       def unique_host_name(java_opts)
-        name = @configuration['default_unique_host_name']
-        name = Shellwords.escape(@application.details['application_name']) if @application.details['application_name']
+        name = Shellwords.escape(@application.details['application_name'])
+        name = @configuration['default_unique_host_name'] if @configuration['default_unique_host_name']
 
         java_opts.add_system_property('appdynamics.agent.uniqueHostId', name.to_s)
       end
