@@ -16,6 +16,7 @@
 # limitations under the License.
 
 require 'java_buildpack/util'
+require 'java_buildpack/util/sanitizer'
 require 'pathname'
 
 module JavaBuildpack
@@ -37,7 +38,7 @@ module JavaBuildpack
         JavaBuildpack::Util::Cache::InternetAvailability.instance.available(
           true, "The #{self.class.name} remote configuration download location is always accessible"
         ) do
-          @logger.info { "Downloading override configuration files from #{external_config_root}" }
+          @logger.info { "Downloading override configuration files from #{external_config_root.sanitize_uri}" }
           self.class::CONFIG_FILES.each do |conf_file|
             uri = URI(external_config_root + conf_file)
 
@@ -79,10 +80,11 @@ module JavaBuildpack
           true
         when Net::HTTPRedirection
           location = response['location']
-          @logger.info { "redirected to #{location}" }
+          @logger.info { "redirected to #{location.sanitize_uri}" }
           check_if_resource_exists(location, conf_file)
         else
-          @logger.info { "Could not retrieve #{resource_uri}.  Code: #{response.code} Message: #{response.message}" }
+          clean_url = resource_uri.to_s.sanitize_uri
+          @logger.info { "Could not fetch #{clean_url}. Code: #{response.code} - #{response.message}" }
           false
         end
       end
