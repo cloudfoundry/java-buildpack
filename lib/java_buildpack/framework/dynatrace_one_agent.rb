@@ -111,8 +111,16 @@ module JavaBuildpack
                        :DT_TENANT, :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :NETWORKZONE, :SKIP_ERRORS
 
       def agent_download_url
+        # setting the networkzone paramater to a sane default in case it's not set
+        if networkzone?
+          networkzone_value = credentials[NETWORKZONE]
+        else
+          networkzone_value = 'default'
+
         download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
-                       "&bitness=64&Api-Token=#{credentials[APITOKEN]}"
+                       "&bitness=64" \
+                       "&networkzone=#{networkzone_value}" \
+                       "&Api-Token=#{credentials[APITOKEN]}"
         ['latest', download_uri]
       end
 
