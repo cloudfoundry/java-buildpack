@@ -61,7 +61,6 @@ module Package
       'container_security_provider' => 'Container Security Provider',
       'contrast_security_agent' => 'Contrast Security Agent',
       'datadog_javaagent' => 'Datadog APM Javaagent',
-      'dynatrace_appmon_agent' => 'Dynatrace Appmon Agent',
       'dynatrace_one_agent' => 'Dynatrace OneAgent',
       'elastic_apm_agent' => 'Elastic APM Agent',
       'geode_store' => 'Geode Tomcat Session Store',
