@@ -112,7 +112,13 @@ module JavaBuildpack
 
       def agent_download_url
         download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
-                       "&bitness=64&Api-Token=#{credentials[APITOKEN]}"
+                       "&bitness=64" \
+                       "&Api-Token=#{credentials[APITOKEN]}"
+        #
+        # setting networkzone parameter if it's configured
+        if networkzone?
+          download_uri += "&networkzone=#{networkzone_value}"
+
         ['latest', download_uri]
       end
 
