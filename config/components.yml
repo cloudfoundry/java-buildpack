@@ -51,7 +51,6 @@ frameworks:
   - "JavaBuildpack::Framework::ContrastSecurityAgent"
   - "JavaBuildpack::Framework::DatadogJavaagent"
   - "JavaBuildpack::Framework::Debug"
-  - "JavaBuildpack::Framework::DynatraceAppmonAgent"
   - "JavaBuildpack::Framework::DynatraceOneAgent"
   - "JavaBuildpack::Framework::ElasticApmAgent"
   - "JavaBuildpack::Framework::GoogleStackdriverDebugger"

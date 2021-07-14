@@ -98,6 +98,31 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
         allow(services).to receive(:one_service?).with(/dynatrace/, 'apitoken', 'environmentid').and_return(true)
         allow(services).to receive(:find_service).and_return('credentials' => { 'environmentid' => 'test-environmentid',
                                                                                 'apiurl' => 'test-apiurl',
+                                                                                'apitoken' => 'test-apitoken',
+                                                                                'networkzone' => 'test-network-zone' })
+
+        allow(application_cache).to receive(:get)
+          .with('test-apiurl/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64&' \
+          'Api-Token=test-apitoken&networkzone=test-network-zone')
+          .and_yield(Pathname.new('spec/fixtures/stub-dynatrace-one-agent.zip').open, false)
+      end
+
+      it 'downloads Dynatrace agent zip with networkzone',
+         cache_fixture: 'stub-dynatrace-one-agent.zip' do
+
+        component.compile
+
+        expect(sandbox + 'agent/lib64/liboneagentloader.so').to exist
+        expect(sandbox + 'manifest.json').to exist
+      end
+    end
+
+    context do
+
+      before do
+        allow(services).to receive(:one_service?).with(/dynatrace/, 'apitoken', 'environmentid').and_return(true)
+        allow(services).to receive(:find_service).and_return('credentials' => { 'environmentid' => 'test-environmentid',
+                                                                                'apiurl' => 'test-apiurl',
                                                                                 'apitoken' => 'test-apitoken' })
         allow(application_cache).to receive(:get)
           .with('test-apiurl/v1/deployment/installer/agent/unix/paas/latest?include=java&bitness=64' \
