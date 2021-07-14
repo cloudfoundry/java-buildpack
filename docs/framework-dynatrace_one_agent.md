@@ -28,6 +28,7 @@ The credential payload of the service may contain the following entries:
 | `apitoken` | The token for integrating your Dynatrace environment with Cloud Foundry. You can find it in the deploy Dynatrace section within your environment.
 | `apiurl` | (Optional) The base URL of the Dynatrace API. If you are using Dynatrace Managed you will need to set this property to `https://<your-managed-server-url>/e/<environmentId>/api`. If you are using Dynatrace SaaS you don't need to set this property.
 | `environmentid` | Your Dynatrace environment ID is the unique identifier of your Dynatrace environment. You can find it in the deploy Dynatrace section within your environment.
+| `networkzone` | (Optional) Network zones are Dynatrace entities that represent your network structure. They help you to route the traffic efficiently, avoiding unnecessary traffic across data centers and network regions. Enter the network zone you wish to pass to the server during the OneAgent Download.
 | `skiperrors` | (Optional) The errors during agent download are skipped and the injection is disabled. Use this option at your own risk. Possible values are 'true' and 'false'. This option is disabled by default!
 
 ## Configuration
