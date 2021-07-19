@@ -186,6 +186,14 @@ $ bundle exec rake clean package VERSION=2.1
 Creating build/java-buildpack-2.1.zip
 ```
 
+### Packaging Caveats
+
+1. When pinning versions, only the default JRE version is pinned. There is [special handling to package additional versions of a JRE](https://github.com/cloudfoundry/java-buildpack/blob/main/rakelib/dependency_cache_task.rb#L128-L144) and the way this works, it will pick the latest version at the time you package not at the time of the version's release.
+2. The `index.yml` file for a dependencie is packaged in the buildpack cache when building offline buildpacks. The `index.yml` file isn't versioned with the release, so if you package an offline buildpack for an older release, it will pull the current `index.yml`, not the one from the time of the release. This can result in errors if a user tells the buildpack to install the latest version of a default dependency, because the latest version is calculated from the `index.yml` file which has more recent versions than what are packaged in the offline buildpack. Because of #1, this only impacts the default JRE. Non-default JREs always package the most recent version, which is also the most recent version in `index.yml` at the time you package the offline buildpack.
+3. Because of #1 and #2, it is not present to accurately reproduce packages of the buildpack, after releases have been cut. If building pinning or offline buildpacks, it is suggested to build them as soon as possible after a release is cut and save the produced artifact.
+
+See [#892](https://github.com/cloudfoundry/java-buildpack/issues/892#issuecomment-880212806) for additional details.
+
 ## Running Tests
 To run the tests, do the following:
 
