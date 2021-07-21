@@ -27,7 +27,7 @@ module JavaBuildpack
 
       def initialize(context)
         super(context)
-        @datadog_buildpack = File.exist? File.join(@droplet.root, 'datadog')
+        @datadog_buildpack = File.exist? File.join(@droplet.root, '.datadog')
         @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger DatadogJavaagent
       end
 
@@ -35,7 +35,10 @@ module JavaBuildpack
       def compile
         @logger.error 'Datadog Buildpack is required, but not found' unless @datadog_buildpack
 
-        download_jar if @datadog_buildpack
+        return unless @datadog_buildpack
+
+        download_jar
+        fix_class_count
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -62,6 +65,31 @@ module JavaBuildpack
         api_key_defined = @application.environment.key?('DD_API_KEY') && !@application.environment['DD_API_KEY'].empty?
         apm_disabled = @application.environment['DD_APM_ENABLED'] == 'false'
         (api_key_defined && !apm_disabled)
+      end
+
+      # fixes issue where some classes are not counted by adding shadow class files
+      def fix_class_count
+        cnt = classdata_count(@droplet.sandbox + jar_name)
+        zipdir = "#{@droplet.sandbox}/datadog_fakeclasses"
+        zipfile = "#{@droplet.sandbox}/datadog_fakeclasses.jar"
+
+        File.delete(zipfile) if File.exist? zipfile
+        FileUtils.rm_rf(zipdir)
+        FileUtils.mkdir_p(zipdir)
+
+        1.upto(cnt) do |i|
+          File.open("#{zipdir}/#{i}.class", 'w') do |f|
+            f.write(i.to_s)
+          end
+        end
+
+        `cd #{zipdir} && zip -r #{zipfile} .`
+        FileUtils.rm_rf(zipdir)
+      end
+
+      # count hidden class files in the agent JAR
+      def classdata_count(archive)
+        `unzip -l #{archive} | grep '\\(\\.classdata\\)$' | wc -l`.to_i
       end
     end
   end
