@@ -60,10 +60,16 @@ describe JavaBuildpack::Framework::ElasticApmAgent do
     end
 
     it 'updates JAVA_OPTS with additional options' do
+      val = 'object_name[java.lang:type=Memory] attribute[HeapMemoryUsage:metric_name=test_heap_metric]'
+      shell = '$(echo \'Hello world!\') and stuff'
+      var = '--> ${SOME_VAR} <--'
       allow(services).to receive(:find_service).and_return('credentials' => { 'secret_token' => 'test-secret_token',
                                                                               'server_urls' => 'different-serverurl',
                                                                               'service_name' => 'different-name',
-                                                                              'foo' => 'bar' })
+                                                                              'foo' => 'bar',
+                                                                              'capture_jmx_metrics' => val,
+                                                                              'sub' => shell,
+                                                                              'var' => var })
 
       component.release
 
@@ -71,6 +77,10 @@ describe JavaBuildpack::Framework::ElasticApmAgent do
       expect(java_opts).to include('-Delastic.apm.server_urls=different-serverurl')
       expect(java_opts).to include('-Delastic.apm.service_name=different-name')
       expect(java_opts).to include('-Delastic.apm.foo=bar')
+      escaped = 'object_name\[java.lang:type\=Memory\]\ attribute\[HeapMemoryUsage:metric_name\=test_heap_metric\]'
+      expect(java_opts).to include("-Delastic.apm.capture_jmx_metrics=#{escaped}")
+      expect(java_opts).to include('-Delastic.apm.sub=\"$(echo \'Hello world!\') and stuff\"')
+      expect(java_opts).to include('-Delastic.apm.var=\"--> ${SOME_VAR} <--\"')
     end
 
   end

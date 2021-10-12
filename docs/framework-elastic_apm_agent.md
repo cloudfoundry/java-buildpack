@@ -21,7 +21,7 @@ When binding Elastic APM using a user-provided service, it must have name or tag
 | ---- | -----------
 | `server_urls` | The URLs for the Elastic APM Server. They must be fully qualified, including protocol (http or https) and port.
 | `secret_token` (Optional)| This string is used to ensure that only your agents can send data to your APM server. Both the agents and the APM server have to be configured with the same secret token. Use if APM Server requires a token.
-| `***`	(Optional) | Any additional entries will be applied as a system property appended to `-Delastic.apm.` to allow full configuration of the agent. See [Configuration of Elastic Agent][].
+| `***`	(Optional) | Any additional entries will be applied as a system property appended to `-Delastic.apm.` to allow full configuration of the agent. See [Configuration of Elastic Agent][]. Values are shell-escaped by default, but do have limited support, use with caution, for incorporating subshells (i.e. `$(some-cmd)`) and accessing environment variables (i.e. `${SOME_VAR}`).
 
 
 ### Creating an Elastic APM USer Provided Service
