@@ -86,35 +86,35 @@ module JavaBuildpack
       private_constant :FILTER
 
       def application_name(java_opts, credentials)
-        name = Shellwords.escape(@application.details['application_name'])
+        name = escape(@application.details['application_name'])
         name = @configuration['default_application_name'] if @configuration['default_application_name']
-        name = Shellwords.escape(credentials['application-name']) if credentials['application-name']
+        name = escape(credentials['application-name']) if credentials['application-name']
 
         java_opts.add_system_property('appdynamics.agent.applicationName', name.to_s)
       end
 
       def account_access_key(java_opts, credentials)
         account_access_key = credentials['account-access-key'] || credentials.dig('account-access-secret', 'secret')
-        account_access_key = Shellwords.escape(account_access_key)
+        account_access_key = escape(account_access_key)
 
         java_opts.add_system_property 'appdynamics.agent.accountAccessKey', account_access_key if account_access_key
       end
 
       def account_name(java_opts, credentials)
         account_name = credentials['account-name']
-        java_opts.add_system_property 'appdynamics.agent.accountName', Shellwords.escape(account_name) if account_name
+        java_opts.add_system_property 'appdynamics.agent.accountName', escape(account_name) if account_name
       end
 
       def host_name(java_opts, credentials)
         host_name = credentials['host-name']
         raise "'host-name' credential must be set" unless host_name
 
-        java_opts.add_system_property 'appdynamics.controller.hostName', Shellwords.escape(host_name)
+        java_opts.add_system_property 'appdynamics.controller.hostName', escape(host_name)
       end
 
       def node_name(java_opts, credentials)
         name = @configuration['default_node_name']
-        name = Shellwords.escape(credentials['node-name']) if credentials['node-name']
+        name = escape(credentials['node-name']) if credentials['node-name']
 
         java_opts.add_system_property('appdynamics.agent.nodeName', name.to_s)
       end
@@ -130,15 +130,15 @@ module JavaBuildpack
       end
 
       def tier_name(java_opts, credentials)
-        name = Shellwords.escape(@application.details['application_name'])
+        name = escape(@application.details['application_name'])
         name = @configuration['default_tier_name'] if @configuration['default_tier_name']
-        name = Shellwords.escape(credentials['tier-name']) if credentials['tier-name']
+        name = escape(credentials['tier-name']) if credentials['tier-name']
 
         java_opts.add_system_property('appdynamics.agent.tierName', name.to_s)
       end
 
       def unique_host_name(java_opts)
-        name = Shellwords.escape(@application.details['application_name'])
+        name = escape(@application.details['application_name'])
         name = @configuration['default_unique_host_name'] if @configuration['default_unique_host_name']
 
         java_opts.add_system_property('appdynamics.agent.uniqueHostId', name.to_s)
@@ -178,6 +178,14 @@ module JavaBuildpack
       def save_cfg_file(file, conf_file)
         Dir.glob(@droplet.sandbox + 'ver*') do |target_directory|
           FileUtils.cp_r file, target_directory + '/conf/' + conf_file
+        end
+      end
+
+      def escape(value)
+        if /\$[\(\{][^\)\}]+[\)\}]/ =~ value
+          "\\\"#{value}\\\""
+        else
+          Shellwords.escape(value)
         end
       end
     end

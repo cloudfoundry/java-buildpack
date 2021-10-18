@@ -26,7 +26,7 @@ When binding AppDynamics using a user-provided service, it must have name or tag
 | `node-name` | (Optional) the application's node name
 | `tier-name` | (Optional) the application's tier name
 
-To provide more complex values such as the `tier-name`, using the interactive mode when creating a user-provided service will manage the character escaping automatically. For example, the default `tier-name` could be set with a value of `Tier-$(expr "$VCAP_APPLICATION" : '.*instance_index[": ]*\([[:digit:]]*\).*')` to calculate a value from the Cloud Foundry instance index.
+To provide more complex values such as the `tier-name`, using the interactive mode when creating a user-provided service will manage the character escaping automatically. For example, the default `tier-name` could be set with a value of `Tier-$(expr "${VCAP_APPLICATION}" : '.*instance_index[": ]*\([[:digit:]]*\).*')` to calculate a value from the Cloud Foundry instance index.
 
 **Note:** Some credentials were previously marked as "(Optional)" as requirements have changed across versions of the AppDynamics agent.  Please see the [AppDynamics Java Agent Configuration Properties][] for the version of the agent used by your application for more details.
 
