@@ -331,8 +331,9 @@ module Package
 
         rows = v['dependencies']
                .sort_by { |dependency| dependency['name'].downcase }
-               .map { |dependency| [dependency['name'], dependency['version'],
-                                    dependency['cve_link'], dependency['release_notes_link']] }
+               .map do |dependency|
+          [dependency['name'], dependency['version'], dependency['cve_link'], dependency['release_notes_link']]
+        end
 
         puts Terminal::Table.new title: "Java Buildpack #{v['buildpack']}", rows: rows
       end
@@ -354,8 +355,10 @@ module Package
 
         versions['dependencies']
           .sort_by { |dependency| dependency['name'].downcase }
-          .each { |dependency| puts "| #{dependency['name']} | `#{dependency['version']}` |" \
-            "#{dependency['cve_link']} | #{dependency['release_notes_link']} |" }
+          .each do |dependency|
+          puts "| #{dependency['name']} | `#{dependency['version']}` |" \
+              "#{dependency['cve_link']} | #{dependency['release_notes_link']} |"
+        end
       end
     end
 
