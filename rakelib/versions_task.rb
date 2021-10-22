@@ -29,6 +29,7 @@ require 'yaml'
 
 module Package
 
+  # rubocop:disable Metrics/ClassLength
   class VersionsTask < Rake::TaskLib
     include Package
 
@@ -95,10 +96,85 @@ module Package
       'your_kit_profiler' => 'YourKit Profiler'
     }.freeze
 
+    NOTE_LINKS = {
+      'access_logging_support' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
+      'agent' => { 'cve' => '', 'release' => '' },
+      'app_dynamics_agent' => { 'cve' => '',
+                                'release' => '[Release Notes](https://docs.appdynamics.com/4.5.x/en/product-and-' \
+                                'release-announcements/release-notes/language-agent-notes/java-agent-notes)' },
+      'azure_application_insights_agent' => { 'cve' => '', 'release' => '' },
+      'clean_up' => { 'cve' => '', 'release' => '' },
+      'client_certificate_mapper' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
+      'container_customizer' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
+      'container_security_provider' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
+      'contrast_security_agent' =>
+        { 'cve' => '',
+          'release' => '[Release Notes](https://docs.contrastsecurity.com/en/java-agent-release-notes.html)' },
+      'datadog_javaagent' => { 'cve' => '',
+                               'release' => '[Release Notes](https://github.com/DataDog/dd-trace-java/releases)' },
+      'dynatrace_one_agent' =>
+        { 'cve' => '',
+          'release' => '[Release Notes](https://www.dynatrace.com/support/help/whats-new/release-notes/#oneagent)' },
+      'elastic_apm_agent' =>
+        { 'cve' => '',
+          'release' => '[Release Notes](https://www.elastic.co/guide/en/apm/agent/java/current/release-notes.html)' },
+      'geode_store' => { 'cve' => '', 'release' => '' },
+      'google_stackdriver_debugger' =>
+        { 'cve' => '',
+          'release' => '[Release Notes](https://cloud.google.com/debugger/docs/release-notes)' },
+      'google_stackdriver_profiler' =>
+        { 'cve' => '',
+          'release' => '[Release Notes](https://cloud.google.com/profiler/docs/release-notes)' },
+      'groovy' => { 'cve' => '', 'release' => '[Release Notes](http://www.groovy-lang.org/releases.html)' },
+      'introscope_agent' => { 'cve' => '', 'release' => '' },
+      'jacoco_agent' => { 'cve' => '', 'release' => '[Release Notes](https://github.com/jacoco/jacoco/releases)' },
+      'jprofiler_profiler' =>
+        { 'cve' => '',
+          'release' => '[ChangeLog](https://www.ej-technologies.com/download/jprofiler/changelog.html)' },
+      'jre' => { 'cve' => '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2021.html#AppendixJAVA)',
+                 'release' => '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-8u312/)' },
+      'jre-11' => { 'cve' => '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2021.html#AppendixJAVA)',
+                    'release' => '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-11.0.13/)' },
+      'jre-17' => { 'cve' => '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2021.html#AppendixJAVA)',
+                    'release' => '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-17.0.1/)' },
+      'jrebel_agent' => { 'cve' => '', 'release' => '[ChangeLog](https://www.jrebel.com/products/jrebel/changelog)' },
+      'jvmkill_agent' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
+      'lifecycle_support' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
+      'logging_support' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
+      'luna_security_provider' =>
+        { 'cve' => '',
+          'release' =>
+            '[Release Notes](https://www.thalesdocs.com/gphsm/luna/7/docs/network/Content/CRN/Luna/CRN_Luna.htm)' },
+      'maria_db_jdbc' =>
+        { 'cve' => '',
+          'release' => '[Release Notes](https://mariadb.com/kb/en/mariadb-connector-j-274-release-notes/)' },
+      'memory_calculator' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
+      'metric_writer' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
+      'new_relic_agent' =>
+        { 'cve' => '',
+          'release' =>
+            '[Release Notes](https://docs.newrelic.com/docs/release-notes/agent-release-notes/java-release-notes/)' },
+      'postgresql_jdbc' => { 'cve' => '',
+                             'release' => '[ChangeLog](https://jdbc.postgresql.org/documentation/changelog.html)' },
+      'protect_app_security_provider' => { 'cve' => '', 'release' => '' },
+      'redis_store' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
+      'riverbed_appinternals_agent' => { 'cve' => '', 'release' => '' },
+      'sealights_agent' => { 'cve' => '', 'release' => '' },
+      'sky_walking_agent' => { 'cve' => '',
+                               'release' => '[ChangeLog](https://github.com/apache/skywalking/tree/master/changes)' },
+      'spring_auto_reconfiguration' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
+      'spring_boot_cli' => { 'cve' => '', 'release' => '' },
+      'takipi_agent' => { 'cve' => '', 'release' => '[Release Notes](https://doc.overops.com/docs/whats-new)' },
+      'tomcat' => { 'cve' => '[Security](https://tomcat.apache.org/security-9.html)',
+                    'release' => '[ChangeLog](https://tomcat.apache.org/tomcat-9.0-doc/changelog.html)' },
+      'your_kit_profiler' => { 'cve' => '',
+                               'release' => '[Release Notes](https://www.yourkit.com/download/yjp_2021_3_builds.jsp)' }
+    }.freeze
+
     PLATFORM_PATTERN = /\{platform\}/.freeze
 
     private_constant :ARCHITECTURE_PATTERN, :DEFAULT_REPOSITORY_ROOT_PATTERN, :NAME_MAPPINGS,
-                     :PLATFORM_PATTERN
+                     :PLATFORM_PATTERN, :NOTE_LINKS
 
     def augment(raw, key, pattern, candidates, &block)
       if raw.respond_to? :at
@@ -218,7 +294,9 @@ module Package
             'id' => id,
             'name' => name,
             'uri' => uri,
-            'version' => version
+            'version' => version,
+            'cve_link' => NOTE_LINKS[id]['cve'],
+            'release_notes_link' => NOTE_LINKS[id]['release']
           }
         end
       end
@@ -253,7 +331,8 @@ module Package
 
         rows = v['dependencies']
                .sort_by { |dependency| dependency['name'].downcase }
-               .map { |dependency| [dependency['name'], dependency['version']] }
+               .map { |dependency| [dependency['name'], dependency['version'],
+                                    dependency['cve_link'], dependency['release_notes_link']] }
 
         puts Terminal::Table.new title: "Java Buildpack #{v['buildpack']}", rows: rows
       end
@@ -263,20 +342,20 @@ module Package
       desc 'Display the versions of buildpack dependencies in JSON form'
       task json: [] do
         puts JSON.pretty_generate(versions['dependencies']
-          .sort_by { |dependency| dependency['name'].downcase }
-          .map { |dependency| "#{dependency['name']} #{dependency['version']}" })
+          .sort_by { |dependency| dependency['name'].downcase })
       end
     end
 
     def version_markdown_task
       desc 'Display the versions of buildpack dependencies in Markdown form'
       task markdown: [] do
-        puts '| Dependency | Version |'
-        puts '| ---------- | ------- |'
+        puts '| Dependency | Version | CVEs | Release Notes |'
+        puts '| ---------- | ------- | ---- | ------------- |'
 
         versions['dependencies']
           .sort_by { |dependency| dependency['name'].downcase }
-          .each { |dependency| puts "| #{dependency['name']} | `#{dependency['version']}` |" }
+          .each { |dependency| puts "| #{dependency['name']} | `#{dependency['version']}` |" \
+            "#{dependency['cve_link']} | #{dependency['release_notes_link']} |" }
       end
     end
 
@@ -295,5 +374,6 @@ module Package
     end
 
   end
+  # rubocop:enable Metrics/ClassLength
 
 end
