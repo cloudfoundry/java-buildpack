@@ -115,7 +115,7 @@ module JavaBuildpack
                        '&bitness=64' \
                        "&Api-Token=#{credentials[APITOKEN]}"
 
-        download_uri += "&networkzone=#{networkzone}" if networkzone?
+        download_uri += "&networkZone=#{networkzone}" if networkzone?
 
         ['latest', download_uri]
       end
