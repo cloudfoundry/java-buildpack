@@ -100,8 +100,8 @@ module Package
       'access_logging_support' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
       'agent' => { 'cve' => '', 'release' => '' },
       'app_dynamics_agent' => { 'cve' => '',
-                                'release' => '[Release Notes](https://docs.appdynamics.com/4.5.x/en/product-and-' \
-                                'release-announcements/release-notes/language-agent-notes/java-agent-notes)' },
+                                'release' => '[Release Notes](https://docs.appdynamics.com/21.12/en/' \
+                                'product-and-release-announcements/release-notes)' },
       'azure_application_insights_agent' => { 'cve' => '', 'release' => '' },
       'clean_up' => { 'cve' => '', 'release' => '' },
       'client_certificate_mapper' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
