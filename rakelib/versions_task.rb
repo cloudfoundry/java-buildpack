@@ -102,7 +102,9 @@ module Package
       'app_dynamics_agent' => { 'cve' => '',
                                 'release' => '[Release Notes](https://docs.appdynamics.com/4.5.x/en/product-and-' \
                                 'release-announcements/release-notes/language-agent-notes/java-agent-notes)' },
-      'azure_application_insights_agent' => { 'cve' => '', 'release' => '' },
+      'azure_application_insights_agent' =>
+        { 'cve' => '',
+          'release' => '[Release Notes](https://github.com/Microsoft/ApplicationInsights-Java/releases)' },
       'clean_up' => { 'cve' => '', 'release' => '' },
       'client_certificate_mapper' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
       'container_customizer' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
