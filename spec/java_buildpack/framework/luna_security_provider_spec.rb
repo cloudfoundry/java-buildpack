@@ -219,7 +219,7 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
         delegate
       end
 
-      it 'adds JAR to classpath during compile in Java 9',
+      it 'adds JAR to classpath during compile in Java 9+',
          cache_fixture: 'stub-luna-security-provider.tar' do
 
         component.compile
@@ -227,18 +227,24 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
         expect(root_libraries).to include(droplet.sandbox + 'jsp/LunaProvider.jar')
       end
 
-      it 'adds JAR to classpath during release in Java 9' do
+      it 'adds JAR to classpath during release in Java 9+' do
         component.release
 
         expect(root_libraries).to include(droplet.sandbox + 'jsp/LunaProvider.jar')
       end
 
-      it 'adds does not add extension directory in Java 9' do
+      it 'adds does not add extension directory in Java 9+' do
         component.release
 
         expect(extension_directories).not_to include(droplet.sandbox + 'ext')
       end
 
+      it 'updates environment variables for Java 9+' do
+        component.release
+        expect(environment_variables).to include(
+          'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/.java-buildpack/luna_security_provider/jsp/64/'
+        )
+      end
     end
 
     context do

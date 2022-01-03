@@ -62,6 +62,10 @@ module JavaBuildpack
 
         if @droplet.java_home.java_9_or_later?
           @droplet.root_libraries << luna_provider_jar
+
+          @droplet.environment_variables.add_environment_variable(
+            'LD_LIBRARY_PATH', "$LD_LIBRARY_PATH:#{ld_lib_path}"
+          )
         else
           @droplet.extension_directories << ext_dir
         end
@@ -126,6 +130,10 @@ module JavaBuildpack
 
       def lib_cklog
         @droplet.sandbox + 'libs/64/libcklog2.so'
+      end
+
+      def ld_lib_path
+        qualify_path(@droplet.sandbox, @droplet.root) + '/jsp/64/'
       end
 
       def setup_ext_dir
