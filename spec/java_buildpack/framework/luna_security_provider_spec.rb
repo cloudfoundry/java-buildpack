@@ -233,7 +233,7 @@ describe JavaBuildpack::Framework::LunaSecurityProvider do
         expect(root_libraries).to include(droplet.sandbox + 'jsp/LunaProvider.jar')
       end
 
-      it 'adds does not add extension directory in Java 9+' do
+      it 'does not add extension directory in Java 9+' do
         component.release
 
         expect(extension_directories).not_to include(droplet.sandbox + 'ext')
