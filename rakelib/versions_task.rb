@@ -133,12 +133,12 @@ module Package
       'jprofiler_profiler' =>
         { 'cve' => '',
           'release' => '[ChangeLog](https://www.ej-technologies.com/download/jprofiler/changelog.html)' },
-      'jre' => { 'cve' => '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2021.html#AppendixJAVA)',
-                 'release' => '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-8u312/)' },
-      'jre-11' => { 'cve' => '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2021.html#AppendixJAVA)',
-                    'release' => '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-11.0.13/)' },
-      'jre-17' => { 'cve' => '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2021.html#AppendixJAVA)',
-                    'release' => '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-17.0.1/)' },
+      'jre' => { 'cve' => '[Risk Matrix](https://www.oracle.com/security-alerts/cpujan2022.html#AppendixJAVA)',
+                 'release' => '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-8u322/)' },
+      'jre-11' => { 'cve' => '[Risk Matrix](https://www.oracle.com/security-alerts/cpujan2022.html#AppendixJAVA)',
+                    'release' => '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-11.0.14/)' },
+      'jre-17' => { 'cve' => '[Risk Matrix](https://www.oracle.com/security-alerts/cpujan2022.html#AppendixJAVA)',
+                    'release' => '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-17.0.2/)' },
       'jrebel_agent' => { 'cve' => '', 'release' => '[ChangeLog](https://www.jrebel.com/products/jrebel/changelog)' },
       'jvmkill_agent' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
       'lifecycle_support' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
@@ -170,7 +170,7 @@ module Package
       'tomcat' => { 'cve' => '[Security](https://tomcat.apache.org/security-9.html)',
                     'release' => '[ChangeLog](https://tomcat.apache.org/tomcat-9.0-doc/changelog.html)' },
       'your_kit_profiler' => { 'cve' => '',
-                               'release' => '[Release Notes](https://www.yourkit.com/download/yjp_2021_3_builds.jsp)' }
+                               'release' => '[Release Notes](https://www.yourkit.com/download/yjp_2021_11_builds.jsp)' }
     }.freeze
 
     PLATFORM_PATTERN = /\{platform\}/.freeze
