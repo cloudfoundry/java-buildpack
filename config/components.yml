@@ -75,5 +75,6 @@ frameworks:
   - "JavaBuildpack::Framework::SkyWalkingAgent"
   - "JavaBuildpack::Framework::YourKitProfiler"
   - "JavaBuildpack::Framework::TakipiAgent"
+  - "JavaBuildpack::Framework::TraceableJavaagent"
   - "JavaBuildpack::Framework::JavaSecurity"
   - "JavaBuildpack::Framework::JavaOpts"
