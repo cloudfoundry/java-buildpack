@@ -15,5 +15,5 @@
 
 # Configuration for the ContrastSecurity framework
 ---
-version: 3.+
+version: 3.13.0_26267
 repository_root: https://download.run.pivotal.io/contrast-security
