@@ -78,6 +78,7 @@ describe JavaBuildpack::Component::ModularComponent do
 
 end
 
+# rubocop:disable Lint/UselessMethodDefinition
 class StubModularComponent < JavaBuildpack::Component::ModularComponent
 
   def command
@@ -93,3 +94,4 @@ class StubModularComponent < JavaBuildpack::Component::ModularComponent
   end
 
 end
+# rubocop:enable Lint/UselessMethodDefinition

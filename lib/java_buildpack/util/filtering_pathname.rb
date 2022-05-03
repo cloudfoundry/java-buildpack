@@ -103,9 +103,9 @@ module JavaBuildpack
       end
 
       # @see Pathname.
-      def open(mode = nil, *args, &block)
+      def open(mode = nil, *args, **kwargs, &block)
         check_mutable if mode =~ /[wa]/
-        delegate.open(mode, *args, &block)
+        delegate.open(mode, *args, **kwargs, &block)
       end
 
       # @see Pathname.

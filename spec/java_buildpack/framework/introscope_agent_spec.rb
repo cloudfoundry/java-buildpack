@@ -83,7 +83,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
         expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.host.DEFAULT=test-host-name')
         expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.port.DEFAULT=5001')
         expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.socketfactory.DEFAULT=' \
-                                       'com.wily.isengard.postofficehub.link.net.DefaultSocketFactory')
+                                     'com.wily.isengard.postofficehub.link.net.DefaultSocketFactory')
 
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
@@ -107,7 +107,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
         expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.host.DEFAULT=test-host-name')
         expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.port.DEFAULT=5001')
         expect(java_opts).to include('-Dintroscope.agent.enterprisemanager.transport.tcp.socketfactory.DEFAULT=' \
-                                       'com.wily.isengard.postofficehub.link.net.DefaultSocketFactory')
+                                     'com.wily.isengard.postofficehub.link.net.DefaultSocketFactory')
 
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
@@ -133,7 +133,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
                                      'com.wily.isengard.postofficehub.link.net.SSLSocketFactory')
 
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
-                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+                                     '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
       end
     end
 
@@ -156,7 +156,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
                                      'com.wily.isengard.postofficehub.link.net.SSLSocketFactory')
 
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
-                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+                                     '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
       end
     end
 
@@ -179,7 +179,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
                                      'com.wily.isengard.postofficehub.link.net.HttpTunnelingSocketFactory')
 
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
-                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+                                     '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
       end
     end
 
@@ -202,7 +202,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
                                      'com.wily.isengard.postofficehub.link.net.HttpTunnelingSocketFactory')
 
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
-                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+                                     '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
       end
     end
 
@@ -225,7 +225,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
                                      'com.wily.isengard.postofficehub.link.net.HttpsTunnelingSocketFactory')
 
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
-                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+                                     '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
       end
     end
 
@@ -248,7 +248,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
                                      'com.wily.isengard.postofficehub.link.net.HttpsTunnelingSocketFactory')
 
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
-                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+                                     '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
       end
     end
 
@@ -274,7 +274,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
                                      'com.wily.isengard.postofficehub.link.net.HttpsTunnelingSocketFactory')
 
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
-                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+                                     '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
         expect(java_opts).to include('-DagentManager.credential=test-credential-cccf-88-ae')
       end
     end
@@ -301,7 +301,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
                                      'com.wily.isengard.postofficehub.link.net.HttpsTunnelingSocketFactory')
 
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
-                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+                                     '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
         expect(java_opts).to include('-DagentManager.credential=test-credential-cccf-88-ae')
       end
     end
@@ -329,7 +329,7 @@ describe JavaBuildpack::Framework::IntroscopeAgent do
                                      'com.wily.isengard.postofficehub.link.net.HttpsTunnelingSocketFactory')
 
         expect(java_opts).to include('-Dcom.wily.introscope.agent.agentName=$(expr "$VCAP_APPLICATION" : ' \
-                                      '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
+                                     '\'.*application_name[": ]*\\([A-Za-z0-9_-]*\\).*\')')
         expect(java_opts).to include('-DagentManager.credential=test-credential-cccf-88-ae')
       end
     end

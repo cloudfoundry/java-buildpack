@@ -40,7 +40,7 @@ module JavaBuildpack
       def release
         return if @droplet.java_home.java_9_or_later?
 
-        @droplet.extension_directories << java_security.parent.parent + 'ext' unless java_security.nil?
+        @droplet.extension_directories << (java_security.parent.parent + 'ext') unless java_security.nil?
       end
 
       private

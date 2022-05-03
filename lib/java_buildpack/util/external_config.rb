@@ -63,7 +63,7 @@ module JavaBuildpack
         # check if resource exists on remote server
         begin
           opts = { use_ssl: true } if resource_uri.scheme == 'https'
-          response = Net::HTTP.start(resource_uri.host, resource_uri.port, opts) do |http|
+          response = Net::HTTP.start(resource_uri.host, resource_uri.port, **opts) do |http|
             req = Net::HTTP::Head.new(resource_uri)
             if resource_uri.user != '' || resource_uri.password != ''
               req.basic_auth(resource_uri.user, resource_uri.password)

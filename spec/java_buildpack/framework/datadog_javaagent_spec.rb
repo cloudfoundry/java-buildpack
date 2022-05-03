@@ -32,25 +32,25 @@ describe JavaBuildpack::Framework::DatadogJavaagent do
     subject(:detect) { component.detect }
 
     it 'does not detect without an api key' do
-      expect(detect).to be nil
+      expect(detect).to be_nil
     end
 
     context 'when api key is empty' do
       let(:environment) { { 'DD_API_KEY' => '' } }
 
-      it { is_expected.to be nil }
+      it { is_expected.to be_nil }
     end
 
     context 'when apm is disabled' do
       let(:environment) { { 'DD_API_KEY' => 'foo', 'DD_APM_ENABLED' => 'false' } }
 
-      it { is_expected.to be nil }
+      it { is_expected.to be_nil }
     end
 
     context 'when apm is enabled with no api key' do
       let(:environment) { { 'DD_APM_ENABLED' => 'true' } }
 
-      it { is_expected.to be nil }
+      it { is_expected.to be_nil }
     end
 
     context 'when apm key is provided' do

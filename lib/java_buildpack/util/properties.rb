@@ -36,7 +36,7 @@ module JavaBuildpack
         contents.each_line do |line|
           next if blank_line?(line) || comment_line?(line)
 
-          match_data          = /^[\s]*([^:=\s]+)[\s]*[=:]?[\s]*(.*?)\s*$/.match(line)
+          match_data          = /^\s*([^:=\s]+)\s*[=:]?\s*(.*?)\s*$/.match(line)
           self[match_data[1]] = match_data[2] if match_data
         end
       end
@@ -44,11 +44,11 @@ module JavaBuildpack
       private
 
       def blank_line?(line)
-        line =~ /^[\s]*$/
+        line =~ /^\s*$/
       end
 
       def comment_line?(line)
-        line =~ /^[\s]*[#!].*$/
+        line =~ /^\s*[#!].*$/
       end
 
     end

@@ -35,7 +35,7 @@ describe JavaBuildpack::Framework::SkyWalkingAgent do
     let(:credentials) { {} }
 
     before do
-      allow(services).to receive(:one_service?).with(/sky[-]?walking/, 'servers').and_return(true)
+      allow(services).to receive(:one_service?).with(/sky-?walking/, 'servers').and_return(true)
       allow(services).to receive(:find_service).and_return('credentials' => credentials)
     end
 

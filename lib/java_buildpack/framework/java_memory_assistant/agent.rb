@@ -93,7 +93,7 @@ module JavaBuildpack
       end
 
       def log_level
-        @configuration['log_level'] || ENV['JBP_LOG_LEVEL'] || 'ERROR'
+        @configuration['log_level'] || ENV.fetch('JBP_LOG_LEVEL', nil) || 'ERROR'
       end
 
       def normalized_log_level

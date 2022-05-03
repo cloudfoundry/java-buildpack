@@ -37,8 +37,8 @@ describe JavaBuildpack::Component::AdditionalLibraries do
     end
 
     it 'renders as classpath' do
-      additional_libraries << droplet.sandbox + 'jar-2.jar'
-      additional_libraries << droplet.sandbox + 'jar-1.jar'
+      additional_libraries << (droplet.sandbox + 'jar-2.jar')
+      additional_libraries << (droplet.sandbox + 'jar-1.jar')
 
       expect(additional_libraries.as_classpath).to eq('-cp $PWD/.java-buildpack/additional_libraries/jar-1.jar:' \
                                                       '$PWD/.java-buildpack/additional_libraries/jar-2.jar')

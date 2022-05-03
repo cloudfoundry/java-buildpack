@@ -23,7 +23,7 @@ require 'java_buildpack/util/tokenized_version'
 describe JavaBuildpack::Component::ImmutableJavaHome do
 
   let(:delegate) do
-    instance_double(JavaBuildpack::Component::MutableJavaHome,
+    instance_double('JavaBuildpack::Component::MutableJavaHome',
                     root: Pathname.new('test-java-home'),
                     java_8_or_later?: true,
                     java_9_or_later?: true,

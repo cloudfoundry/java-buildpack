@@ -3,6 +3,7 @@ require: rubocop-rspec
 
 AllCops:
   NewCops: enable
+  SuggestExtensions: false
   Exclude:
   - 'build/**/*'
 Layout/EmptyLinesAroundBlockBody:
@@ -17,7 +18,7 @@ Layout/LineLength:
 Layout/MultilineOperationIndentation:
   Enabled: false
 Metrics/AbcSize:
- Max: 25
+  Max: 25
 Metrics/BlockLength:
   Exclude:
   - 'spec/**/*.rb'
@@ -53,5 +54,20 @@ Style/Documentation:
   Enabled: false
 Style/FormatStringToken:
   Enabled: false
-Style/MethodMissingSuper:
+Lint/MissingSuper:
   Enabled: false
+Style/StringConcatenation:
+  Enabled: false
+Lint/EmptyBlock:
+  Exclude:
+    - 'spec/**/*.rb'
+RSpec/MultipleMemoizedHelpers:
+  Max: 10
+RSpec/VerifiedDoubleReference:
+  EnforcedStyle: string
+Style/OptionalBooleanParameter:
+  Enabled: false
+Lint/RedundantCopDisableDirective:
+  Enabled: false # disabled as this can be tough to manage across multiple ruby versions
+Style/RedundantFreeze:
+  Enabled: false # enable when we only support ruby 3.0+

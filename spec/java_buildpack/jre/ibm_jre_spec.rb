@@ -59,9 +59,11 @@ class StubIbmJRE < JavaBuildpack::Jre::IbmJRE
 
   public :command, :sub_components
 
+  # rubocop:disable Lint/UselessMethodDefinition
   def supports?
     super
   end
+  # rubocop:enable Lint/UselessMethodDefinition
 
 end
 

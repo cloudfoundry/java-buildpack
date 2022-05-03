@@ -35,8 +35,8 @@ module Package
 
   PLATFORMS = %w[bionic].freeze
 
-  STAGING_DIR = "#{BUILD_DIR}/staging"
+  STAGING_DIR = "#{BUILD_DIR}/staging".freeze
 
-  PACKAGE_NAME = "#{BUILD_DIR}/java-buildpack#{offline}-#{version}.zip"
+  PACKAGE_NAME = "#{BUILD_DIR}/java-buildpack#{offline}-#{version}.zip".freeze
 
 end

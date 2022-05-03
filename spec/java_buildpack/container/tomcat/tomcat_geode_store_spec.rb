@@ -108,16 +108,18 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
        app_fixture: 'container_tomcat_geode_store',
        cache_fixture: 'stub-geode-store-tomcat-multi-version.tar' do
 
-      expect { component.compile }.to raise_error RuntimeError, 'Multiple versions of geode-modules-tomcat jar found.' \
-        ' Please verify your geode_store tar only contains one geode-modules-tomcat jar.'
+      # rubocop:disable Layout/LineLength
+      expect { component.compile }.to raise_error RuntimeError, 'Multiple versions of geode-modules-tomcat jar found. Please verify your geode_store tar only contains one geode-modules-tomcat jar.'
+      # rubocop:enable Layout/LineLength
     end
 
     it 'raises runtime error if no Geode Tomcat module jar is detected',
        app_fixture: 'container_tomcat_geode_store',
        cache_fixture: 'stub-geode-store-no-geode-tomcat.tar' do
 
-      expect { component.compile }.to raise_error RuntimeError, 'Geode Tomcat module not found. ' \
-          'Please verify your geode_store tar contains a geode-modules-tomcat jar.'
+      # rubocop:disable Layout/LineLength
+      expect { component.compile }.to raise_error RuntimeError, 'Geode Tomcat module not found. Please verify your geode_store tar contains a geode-modules-tomcat jar.'
+      # rubocop:enable Layout/LineLength
     end
 
     it 'mutates server.xml',

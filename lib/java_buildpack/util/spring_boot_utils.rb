@@ -29,7 +29,7 @@ module JavaBuildpack
       include JavaBuildpack::Util::Shell
 
       def initialize
-        @jar_finder = JavaBuildpack::Util::JarFinder.new(/.*spring-boot-([\d].*)\.jar/)
+        @jar_finder = JavaBuildpack::Util::JarFinder.new(/.*spring-boot-(\d.*)\.jar/)
       end
 
       # Caches the dependencies of a Thin Launcher application by execute the application with +dryRun+

@@ -99,9 +99,11 @@ module Package
     NOTE_LINKS = {
       'access_logging_support' => { 'cve' => 'Included inline above', 'release' => 'Included inline above' },
       'agent' => { 'cve' => '', 'release' => '' },
-      'app_dynamics_agent' => { 'cve' => '',
-                                'release' => '[Release Notes](https://docs.appdynamics.com/4.5.x/en/product-and-' \
-                                'release-announcements/release-notes/language-agent-notes/java-agent-notes)' },
+      'app_dynamics_agent' => {
+        'cve' => '',
+        'release' => '[Release Notes](https://docs.appdynamics.com/4.5.x/en/product-and-' \
+                     'release-announcements/release-notes/language-agent-notes/java-agent-notes)'
+      },
       'azure_application_insights_agent' =>
         { 'cve' => '',
           'release' => '[Release Notes](https://github.com/Microsoft/ApplicationInsights-Java/releases)' },
@@ -284,28 +286,32 @@ module Package
       configurations = component_ids.map { |component_id| component_configuration(component_id) }.flatten
 
       configurations.each do |configuration|
-        id = configuration['sub_component_id'] || configuration['component_id']
-
-        index_configuration(configuration).each do |index_configuration|
-          version, uri = get_from_cache(cache, configuration, index_configuration)
-
-          name = NAME_MAPPINGS[id]
-          raise "Unable to resolve name for '#{id}'" unless name
-
-          dependency_versions << {
-            'id' => id,
-            'name' => name,
-            'uri' => uri,
-            'version' => version,
-            'cve_link' => NOTE_LINKS[id]['cve'],
-            'release_notes_link' => NOTE_LINKS[id]['release']
-          }
-        end
+        map_config_to_dependency(cache, configuration, dependency_versions)
       end
 
       dependency_versions
         .uniq { |dependency| dependency['id'] }
         .sort_by { |dependency| dependency['id'] }
+    end
+
+    def map_config_to_dependency(cache, configuration, dependency_versions)
+      id = configuration['sub_component_id'] || configuration['component_id']
+
+      index_configuration(configuration).each do |index_configuration|
+        version, uri = get_from_cache(cache, configuration, index_configuration)
+
+        name = NAME_MAPPINGS[id]
+        raise "Unable to resolve name for '#{id}'" unless name
+
+        dependency_versions << {
+          'id' => id,
+          'name' => name,
+          'uri' => uri,
+          'version' => version,
+          'cve_link' => NOTE_LINKS[id]['cve'],
+          'release_notes_link' => NOTE_LINKS[id]['release']
+        }
+      end
     end
 
     def index_configuration(configuration)
@@ -359,7 +365,7 @@ module Package
           .sort_by { |dependency| dependency['name'].downcase }
           .each do |dependency|
           puts "| #{dependency['name']} | `#{dependency['version']}` |" \
-              "#{dependency['cve_link']} | #{dependency['release_notes_link']} |"
+               "#{dependency['cve_link']} | #{dependency['release_notes_link']} |"
         end
       end
     end

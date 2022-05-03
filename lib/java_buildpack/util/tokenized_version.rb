@@ -89,11 +89,14 @@ module JavaBuildpack
           tail = nil
         else
           raise "Invalid version '#{s}': must not end in '.'" if s[-1] == '.'
-          raise "Invalid version '#{s}': missing component" if s =~ /\.[\._]/
+          raise "Invalid version '#{s}': missing component" if s =~ /\.[._]/
 
-          tokens = s.match(/^([^\.]+)(?:\.(.*))?/)
+          tokens = s.match(/^([^.]+)(?:\.(.*))?/)
 
+          # disable as we still have to support Ruby 2.5, remove & update when we drop Bionic support
+          # rubocop:disable Style/SlicingWithRange
           major_or_minor, tail = tokens[1..-1]
+          # rubocop:enable Style/SlicingWithRange
 
           raise "Invalid major or minor version '#{major_or_minor}'" unless valid_major_minor_or_micro major_or_minor
         end
@@ -108,9 +111,12 @@ module JavaBuildpack
         else
           raise "Invalid version '#{s}': must not end in '_'" if s[-1] == '_'
 
-          tokens = s.match(/^([^\_]+)(?:_(.*))?/)
+          tokens = s.match(/^([^_]+)(?:_(.*))?/)
 
+          # disable as we still have to support Ruby 2.5, remove & update when we drop Bionic support
+          # rubocop:disable Style/SlicingWithRange
           micro, qualifier = tokens[1..-1]
+          # rubocop:enable Style/SlicingWithRange
 
           raise "Invalid micro version '#{micro}'" unless valid_major_minor_or_micro micro
           raise "Invalid qualifier '#{qualifier}'" unless valid_qualifier qualifier
@@ -144,23 +150,27 @@ module JavaBuildpack
       def validate(allow_wildcards)
         wildcarded = false
         each do |value|
-          if !value.nil? && value.end_with?(WILDCARD) && !allow_wildcards
+          if ends_with_wildcard(value) && !allow_wildcards
             raise "Invalid version '#{@version}': wildcards are not allowed this context"
           end
 
           raise "Invalid version '#{@version}': no characters are allowed after a wildcard" if wildcarded && value
 
-          wildcarded = true if !value.nil? && value.end_with?(WILDCARD)
+          wildcarded = true if ends_with_wildcard(value)
         end
         raise "Invalid version '#{@version}': missing component" if !wildcarded && compact.length < 3
       end
 
+      def ends_with_wildcard(value)
+        !value.nil? && value.end_with?(WILDCARD)
+      end
+
       def valid_major_minor_or_micro(major_minor_or_micro)
-        major_minor_or_micro =~ /^[\d]*$/ || major_minor_or_micro =~ /^\+$/
+        major_minor_or_micro =~ /^\d*$/ || major_minor_or_micro =~ /^\+$/
       end
 
       def valid_qualifier(qualifier)
-        qualifier.nil? || qualifier.empty? || qualifier =~ /^[-\.a-zA-Z\d]*[\+]?$/
+        qualifier.nil? || qualifier.empty? || qualifier =~ /^[-.a-zA-Z\d]*\+?$/
       end
     end
 

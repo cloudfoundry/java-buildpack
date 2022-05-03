@@ -33,7 +33,7 @@ module JavaBuildpack
         # @param [File] file the file to scan
         # @return [Boolean] +true+ if the file is a +beans+style configuration, +false+ otherwise.
         def beans?(file)
-          safe_read(file) { Pathname.new(file).read =~ /beans[\s]*\{/ }
+          safe_read(file) { Pathname.new(file).read =~ /beans\s*\{/ }
         end
 
         # Indicates whether a file has a +main()+ method in it
@@ -49,7 +49,7 @@ module JavaBuildpack
         # @param [File] file the file to scan
         # @return [Boolean] +true+ if the file is a POGO, +false+ otherwise.
         def pogo?(file)
-          safe_read(file) { Pathname.new(file).read =~ /class [\w]+[\s\w]*\{/ }
+          safe_read(file) { Pathname.new(file).read =~ /class \w+[\s\w]*\{/ }
         end
 
         # Indicates whether a file has a shebang

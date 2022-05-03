@@ -35,7 +35,7 @@ module JavaBuildpack
               "$scriptdir/#{additional_library.relative_path_from(root)}"
             end
 
-            update_file start_script, /^classpath=\"(.*)\"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
+            update_file start_script, /^classpath="(.*)"$/, "classpath=\"#{additional_classpath.join(':')}:\\1\""
           end
         end
 

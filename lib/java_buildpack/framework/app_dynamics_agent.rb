@@ -81,7 +81,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /app[-]?dynamics/.freeze
+      FILTER = /app-?dynamics/.freeze
 
       private_constant :FILTER
 
@@ -182,7 +182,7 @@ module JavaBuildpack
       end
 
       def escape(value)
-        if /\$[\(\{][^\)\}]+[\)\}]/ =~ value
+        if /\$[({][^)}]+[)}]/ =~ value
           "\\\"#{value}\\\""
         else
           Shellwords.escape(value)

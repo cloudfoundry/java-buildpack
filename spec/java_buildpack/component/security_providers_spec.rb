@@ -41,7 +41,7 @@ describe JavaBuildpack::Component::SecurityProviders do
     security_providers.write_to security_file
 
     expect(security_file.read).to eq("security.provider.1=test-security-provider-1\n" \
-                                             "security.provider.2=test-security-provider-2\n")
+                                     "security.provider.2=test-security-provider-2\n")
   end
 
 end

@@ -31,9 +31,9 @@ describe JavaBuildpack::Jre::OpenJDKLike do
 
   let(:java_home) { JavaBuildpack::Component::MutableJavaHome.new }
 
-  let(:version_7) { JavaBuildpack::Util::TokenizedVersion.new('1.7.0_+') }
+  let(:version7) { JavaBuildpack::Util::TokenizedVersion.new('1.7.0_+') }
 
-  let(:version_8) { JavaBuildpack::Util::TokenizedVersion.new('1.8.0_+') }
+  let(:version8) { JavaBuildpack::Util::TokenizedVersion.new('1.8.0_+') }
 
   let(:configuration) do
     { 'jre' => jre_configuration,
@@ -67,7 +67,7 @@ describe JavaBuildpack::Jre::OpenJDKLike do
   end
 
   it 'returns command for Java 7' do
-    java_home.version = version_7
+    java_home.version = version7
     expect(component.command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like/bin/' \
                                     'java-buildpack-memory-calculator-0.0.0 -totMemory=$MEMORY_LIMIT' \
                                     ' -loadedClasses=0 -poolType=permgen -stackThreads=200 -vmOptions="$JAVA_OPTS")' \
@@ -77,7 +77,7 @@ describe JavaBuildpack::Jre::OpenJDKLike do
   end
 
   it 'returns command for Java 8' do
-    java_home.version = version_8
+    java_home.version = version8
     expect(component.command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like/bin/' \
                                     'java-buildpack-memory-calculator-0.0.0 -totMemory=$MEMORY_LIMIT' \
                                     ' -loadedClasses=0 -poolType=metaspace -stackThreads=200 -vmOptions="$JAVA_OPTS")' \
@@ -92,10 +92,11 @@ class StubOpenJDKLike < JavaBuildpack::Jre::OpenJDKLike
 
   public :command, :sub_components
 
+  # rubocop:disable Lint/UselessMethodDefinition
   def supports?
     super
   end
-
+  # rubocop:enable Lint/UselessMethodDefinition
 end
 
 def sub_configuration_context(configuration)

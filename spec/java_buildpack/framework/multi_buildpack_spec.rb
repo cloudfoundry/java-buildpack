@@ -136,9 +136,9 @@ describe JavaBuildpack::Framework::MultiBuildpack do
     component.compile
 
     expect(java_opts).to include("-agentpath:$PWD/#{qualify_path('/multi-test-agent-1')}=" \
-                                         'test-key-1=test-value-1,test-key-2=test-value-2')
+                                 'test-key-1=test-value-1,test-key-2=test-value-2')
     expect(java_opts).to include("-agentpath:$PWD/#{qualify_path('/multi-test-agent-2')}=" \
-                                         'test-key-1=test-value-1,test-key-2=test-value-2')
+                                 'test-key-1=test-value-1,test-key-2=test-value-2')
   end
 
   it 'adds agentpaths_with_props during release',
@@ -147,9 +147,9 @@ describe JavaBuildpack::Framework::MultiBuildpack do
     component.release
 
     expect(java_opts).to include("-agentpath:$PWD/#{qualify_path('/multi-test-agent-1')}=" \
-                                         'test-key-1=test-value-1,test-key-2=test-value-2')
+                                 'test-key-1=test-value-1,test-key-2=test-value-2')
     expect(java_opts).to include("-agentpath:$PWD/#{qualify_path('/multi-test-agent-2')}=" \
-                                         'test-key-1=test-value-1,test-key-2=test-value-2')
+                                 'test-key-1=test-value-1,test-key-2=test-value-2')
   end
 
   it 'adds bootclasspath_ps during compile',

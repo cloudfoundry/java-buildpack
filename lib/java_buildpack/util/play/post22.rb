@@ -35,7 +35,7 @@ module JavaBuildpack
             "$app_home/#{additional_library.relative_path_from(start_script.dirname)}"
           end
 
-          update_file start_script, /^declare -r app_classpath=\"(.*)\"$/,
+          update_file start_script, /^declare -r app_classpath="(.*)"$/,
                       "declare -r app_classpath=\"#{additional_classpath.join(':')}:\\1\""
         end
 

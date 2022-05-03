@@ -25,6 +25,7 @@ require 'resolv'
 module JavaBuildpack
   module Jre
 
+    # rubocop: disable Naming/VariableNumber
     # Encapsulates the detect, compile, and release functionality for selecting an OpenJDK-like JRE.
     class OpenJDKLikeJre < JavaBuildpack::Component::VersionedDependencyComponent
 
@@ -91,6 +92,6 @@ module JavaBuildpack
       end
 
     end
-
+    # rubocop: enable Naming/VariableNumber
   end
 end

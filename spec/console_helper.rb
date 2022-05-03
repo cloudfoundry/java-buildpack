@@ -19,6 +19,7 @@ require 'spec_helper'
 require 'tee'
 require 'java_buildpack/util/colorize'
 
+# rubocop:disable Style/GlobalStdStream
 shared_context 'with console help' do
 
   STDOUT.sync
@@ -60,3 +61,4 @@ shared_context 'with console help' do
   end
 
 end
+# rubocop:enable Style/GlobalStdStream

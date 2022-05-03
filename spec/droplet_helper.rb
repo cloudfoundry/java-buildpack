@@ -32,6 +32,7 @@ require 'java_buildpack/util/snake_case'
 require 'java_buildpack/util/tokenized_version'
 require 'pathname'
 
+# rubocop: disable RSpec/MultipleMemoizedHelpers
 shared_context 'with droplet help' do
   include_context 'with application help'
   include_context 'with logging help'
@@ -88,8 +89,8 @@ shared_context 'with droplet help' do
     FileUtils.cp_r 'spec/fixtures/additional_libs/.', additional_libs_directory
     additional_libs_directory.children.each { |child| additional_libraries << child }
 
-    extension_directories << sandbox + 'test-extension-directory-1'
-    extension_directories << sandbox + 'test-extension-directory-2'
+    extension_directories << (sandbox + 'test-extension-directory-1')
+    extension_directories << (sandbox + 'test-extension-directory-2')
 
     FileUtils.cp_r 'spec/fixtures/root_libs/.', root_libs_directory
     root_libs_directory.children.each { |child| root_libraries << child }
@@ -98,3 +99,4 @@ shared_context 'with droplet help' do
   end
 
 end
+# rubocop: enable RSpec/MultipleMemoizedHelpers

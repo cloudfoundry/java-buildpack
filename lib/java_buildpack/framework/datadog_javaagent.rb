@@ -83,7 +83,7 @@ module JavaBuildpack
 
         1.upto(cnt) do |i|
           File.open("#{zipdir}/#{i}.class", 'w') do |f|
-            f.write(i.to_s)
+            File.write(f, i.to_s)
           end
         end
 

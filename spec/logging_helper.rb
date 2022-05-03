@@ -26,8 +26,8 @@ shared_context 'with logging help' do
   include_context 'with console help'
   include_context 'with application help'
 
-  previous_log_config    = ENV['JBP_CONFIG_LOGGING']
-  previous_log_level     = ENV['JBP_LOG_LEVEL']
+  previous_log_config    = ENV.fetch('JBP_CONFIG_LOGGING', nil)
+  previous_log_level     = ENV.fetch('JBP_LOG_LEVEL', nil)
   previous_debug_level   = $DEBUG
   previous_verbose_level = $VERBOSE
 

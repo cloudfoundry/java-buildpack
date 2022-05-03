@@ -79,7 +79,7 @@ module JavaBuildpack
 
       ARGUMENTS_PROPERTY = 'arguments'
 
-      PATTERN_APP_CLASSPATH = /^declare -r app_classpath=\"(.*)\"$/.freeze
+      PATTERN_APP_CLASSPATH = /^declare -r app_classpath="(.*)"$/.freeze
 
       PATTERN_CLASSPATH = /^CLASSPATH=(.*)$/.freeze
 

@@ -46,7 +46,7 @@ module JavaBuildpack
         # @return [Properties] the properties from the application's manifest (if any)
         def manifest(application)
           manifest_file = application.root + 'META-INF/MANIFEST.MF'
-          manifest_file = manifest_file.exist? ? manifest_file : nil
+          manifest_file = nil unless manifest_file.exist?
           JavaBuildpack::Util::Properties.new(manifest_file)
         end
 

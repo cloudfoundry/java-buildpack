@@ -76,7 +76,7 @@ describe JavaBuildpack::Container::Tomcat do
 
   it 'creates submodules' do
     # create Tomcat instance double so we can pull version when creating submodules
-    tomcat_instance = instance_double(JavaBuildpack::Container::TomcatInstance)
+    tomcat_instance = instance_double('JavaBuildpack::Container::TomcatInstance')
     tomcat_instance.instance_variable_set(:@version, %w[9 0 44])
 
     allow(JavaBuildpack::Container::TomcatInstance)

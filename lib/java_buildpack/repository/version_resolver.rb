@@ -42,11 +42,9 @@ module JavaBuildpack
           tokenized_candidate_version = safe_candidate_version candidate_version
           tokenized_versions          = versions.map { |version| create_token(version) }.compact
 
-          version = tokenized_versions
-                    .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
-                    .max { |a, b| a <=> b }
-
-          version
+          tokenized_versions
+            .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
+            .max { |a, b| a <=> b }
         end
 
         private
@@ -78,7 +76,7 @@ module JavaBuildpack
         def matches?(tokenized_candidate_version, tokenized_version)
           wildcard_matched = false
           (0..3).all? do |i|
-            next true if wildcard_matched || tokenized_candidate_version[i].nil? && tokenized_version[i].nil?
+            next true if wildcard_matched || (tokenized_candidate_version[i].nil? && tokenized_version[i].nil?)
 
             next false if tokenized_candidate_version[i].nil? && !tokenized_version[i].nil?
 
