@@ -33,7 +33,7 @@ module JavaBuildpack
       def initialize(context)
         super(context)
 
-        @jar_finder = JavaBuildpack::Util::JarFinder.new(/.*aspectjweaver-([\d].*)\.jar/)
+        @jar_finder = JavaBuildpack::Util::JarFinder.new(/.*aspectjweaver-(\d.*)\.jar/)
       end
 
       # (see JavaBuildpack::Component::BaseComponent#detect)

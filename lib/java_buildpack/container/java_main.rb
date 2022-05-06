@@ -112,7 +112,7 @@ module JavaBuildpack
 
       def manifest_class_path
         values = JavaBuildpack::Util::JavaMainUtils.manifest(@application)[CLASS_PATH_PROPERTY]
-        values.nil? ? [] : values.split(' ').map { |value| @droplet.root + value }
+        values.nil? ? [] : values.split.map { |value| @droplet.root + value }
       end
 
       def thin_root

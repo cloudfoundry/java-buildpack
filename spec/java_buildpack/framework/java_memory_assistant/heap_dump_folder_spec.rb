@@ -70,7 +70,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantHeapDumpFolder do
       expect(java_opts).to include('-Djma.heap_dump_folder="test/folder"')
       expect(environment_variables).to include('JMA_HEAP_DUMP_FOLDER=test/folder')
 
-      expect(log_contents).to match(%r{Heap dumps will be stored under \'test/folder\'})
+      expect(log_contents).to match(%r{Heap dumps will be stored under 'test/folder'})
     end
 
   end
@@ -100,7 +100,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantHeapDumpFolder do
       expect(java_opts).to include('-Djma.heap_dump_folder="/my_volume/test/folder"')
       expect(environment_variables).to include('JMA_HEAP_DUMP_FOLDER=/my_volume/test/folder')
 
-      expect(log_contents).to match(%r{Heap dumps will be stored under \'/my_volume/test/folder\'})
+      expect(log_contents).to match(%r{Heap dumps will be stored under '/my_volume/test/folder'})
     end
 
   end

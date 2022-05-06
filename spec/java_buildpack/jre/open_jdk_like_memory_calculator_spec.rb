@@ -29,13 +29,13 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
 
   let(:java_home) do
     java_home = JavaBuildpack::Component::MutableJavaHome.new
-    java_home.version = version_8
+    java_home.version = version8
     return java_home
   end
 
-  let(:version_8) { JavaBuildpack::Util::TokenizedVersion.new('1.8.0_162') }
+  let(:version8) { JavaBuildpack::Util::TokenizedVersion.new('1.8.0_162') }
 
-  let(:version_9) { JavaBuildpack::Util::TokenizedVersion.new('9.0.4_11') }
+  let(:version9) { JavaBuildpack::Util::TokenizedVersion.new('9.0.4_11') }
 
   it 'copies executable to bin directory',
      cache_fixture: 'stub-memory-calculator.tar.gz' do
@@ -86,14 +86,14 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
   it 'creates memory calculation command',
      app_fixture: 'jre_memory_calculator_application' do
 
-    java_home.version = version_8
+    java_home.version = version8
 
     command = component.memory_calculation_command
 
     expect(command).to eq('CALCULATED_MEMORY=$($PWD/.java-buildpack/open_jdk_like_memory_calculator/bin/' \
-                            'java-buildpack-memory-calculator-0.0.0 -totMemory=$MEMORY_LIMIT -loadedClasses=2 ' \
-                            '-poolType=metaspace -stackThreads=200 -vmOptions="$JAVA_OPTS") && echo JVM Memory ' \
-                            'Configuration: $CALCULATED_MEMORY && JAVA_OPTS="$JAVA_OPTS $CALCULATED_MEMORY"')
+                          'java-buildpack-memory-calculator-0.0.0 -totMemory=$MEMORY_LIMIT -loadedClasses=2 ' \
+                          '-poolType=metaspace -stackThreads=200 -vmOptions="$JAVA_OPTS") && echo JVM Memory ' \
+                          'Configuration: $CALCULATED_MEMORY && JAVA_OPTS="$JAVA_OPTS $CALCULATED_MEMORY"')
   end
 
   it 'does not throw an error when a directory ends in .jar',
@@ -118,7 +118,7 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
     it 'creates memory calculation command with headroom',
        app_fixture: 'jre_memory_calculator_application' do
 
-      java_home.version = version_8
+      java_home.version = version8
 
       command = component.memory_calculation_command
 
@@ -135,7 +135,7 @@ describe JavaBuildpack::Jre::OpenJDKLikeMemoryCalculator do
     it 'creates memory calculation command',
        app_fixture: 'jre_memory_calculator_application' do
 
-      java_home.version = version_9
+      java_home.version = version9
 
       command = component.memory_calculation_command
 

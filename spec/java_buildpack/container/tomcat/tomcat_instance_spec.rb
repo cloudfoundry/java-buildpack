@@ -67,7 +67,7 @@ describe JavaBuildpack::Container::TomcatInstance do
        cache_fixture: 'stub-tomcat.tar.gz' do
 
       component.compile
-      expect((sandbox + 'conf/context.xml').read).to match(%r{<Context>[\s]*<Resources allowLinking='true'/>})
+      expect((sandbox + 'conf/context.xml').read).to match(%r{<Context>\s*<Resources allowLinking='true'/>})
       expect((sandbox + 'conf/server.xml').read)
         .not_to match(%r{<Listener className='org.apache.catalina.core.JasperListener'/>})
     end

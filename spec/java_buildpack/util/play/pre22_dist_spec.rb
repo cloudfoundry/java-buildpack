@@ -105,7 +105,7 @@ describe JavaBuildpack::Util::Play::Pre22Dist do
 
     it 'returns command' do
       expect(play_app.release).to eq('test-var-2 test-var-1 PATH=$PWD/.test-java-home/bin:$PATH ' \
-      "#{java_home.as_env_var} exec $PWD/application-root/start $JAVA_OPTS")
+                                     "#{java_home.as_env_var} exec $PWD/application-root/start $JAVA_OPTS")
     end
   end
 
@@ -120,13 +120,15 @@ describe JavaBuildpack::Util::Play::Pre22Dist do
     it 'extends the classpath of a Play 2.1 dist application' do
       play_app.compile
 
+      # rubocop:disable Layout/LineLength
       expect((app_dir + 'application-root/start').read).to match 'classpath="\$scriptdir/../.additional_libs/' \
-      'test-jar-1.jar:\$scriptdir/../.additional_libs/test-jar-2.jar:'
+                                                                 'test-jar-1.jar:\$scriptdir/../.additional_libs/test-jar-2.jar:'
+      # rubocop:enable Layout/LineLength
     end
 
     it 'returns command' do
       expect(play_app.release).to eq('test-var-2 test-var-1 PATH=$PWD/.test-java-home/bin:$PATH ' \
-      "#{java_home.as_env_var} exec $PWD/application-root/start $JAVA_OPTS")
+                                     "#{java_home.as_env_var} exec $PWD/application-root/start $JAVA_OPTS")
     end
 
   end

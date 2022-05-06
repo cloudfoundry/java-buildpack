@@ -62,7 +62,7 @@ module JavaBuildpack
         return "''" if str.empty?
 
         str
-          .gsub(%r{([^A-Za-z0-9_\-.,:\/@\n$\\])}, '\\\\\\1')
+          .gsub(%r{([^A-Za-z0-9_\-.,:/@\n$\\])}, '\\\\\\1')
           .gsub(/\n/, "'\n'")
       end
 

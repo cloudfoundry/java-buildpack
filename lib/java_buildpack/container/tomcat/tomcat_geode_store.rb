@@ -142,7 +142,7 @@ module JavaBuildpack
           if geode_modules_tomcat_pattern.match(file)
             unless geode_tomcat_version.nil?
               raise('Multiple versions of geode-modules-tomcat jar found. ' \
-                'Please verify your geode_store tar only contains one geode-modules-tomcat jar.')
+                    'Please verify your geode_store tar only contains one geode-modules-tomcat jar.')
             end
 
             geode_tomcat_version = geode_modules_tomcat_pattern.match(file).named_captures['version']
@@ -151,7 +151,7 @@ module JavaBuildpack
 
         if geode_tomcat_version.nil?
           raise('Geode Tomcat module not found. ' \
-            'Please verify your geode_store tar contains a geode-modules-tomcat jar.')
+                'Please verify your geode_store tar contains a geode-modules-tomcat jar.')
         end
 
         puts "       Detected Geode Tomcat #{geode_tomcat_version} module"
@@ -159,8 +159,8 @@ module JavaBuildpack
         # leave possibility for generic jar/session manager class that is compatible with all tomcat versions
         if !geode_tomcat_version.empty? && geode_tomcat_version != @tomcat_version
           puts "       WARNING: Tomcat version #{@tomcat_version} " \
-                  "does not match Geode Tomcat #{geode_tomcat_version} module. " \
-                  'If you encounter compatibility issues, please make sure these versions match.'
+               "does not match Geode Tomcat #{geode_tomcat_version} module. " \
+               'If you encounter compatibility issues, please make sure these versions match.'
         end
 
         @session_manager_classname =

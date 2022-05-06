@@ -102,7 +102,7 @@ module Package
     def cache_task(uri)
       task uri do |t|
         @monitor.synchronize { rake_output_message "Caching #{t.name}" }
-        cache.get(t.name) {}
+        cache.get(t.name)
       end
 
       uri
@@ -110,7 +110,7 @@ module Package
 
     def component_ids
       conf = configuration('components').values.flatten.map { |component| component.split('::').last.snake_case }
-      offline_cache = ENV['ADD_TO_CACHE']
+      offline_cache = ENV.fetch('ADD_TO_CACHE', nil)
       unless offline_cache.nil?
         offline_cache = offline_cache.split(',')
         (conf << offline_cache).flatten!.uniq!

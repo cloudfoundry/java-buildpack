@@ -40,7 +40,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#detect)
       def detect
-        !dep_directories.empty? ? "multi-buildpack=#{names(dep_directories).join(',')}" : nil
+        dep_directories.empty? ? nil : "multi-buildpack=#{names(dep_directories).join(',')}"
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)

@@ -49,9 +49,9 @@ module JavaBuildpack
     def initialize(should_log = true)
       configuration = JavaBuildpack::Util::ConfigurationUtils.load('version', true, should_log)
       @hash         = configuration['hash'] || calculate_hash
-      @offline      = configuration['offline'] || ENV['OFFLINE'].to_b
+      @offline      = configuration['offline'] || ENV.fetch('OFFLINE', nil).to_b
       @remote       = configuration['remote'] || calculate_remote
-      @version      = configuration['version'] || ENV['VERSION'] || @hash
+      @version      = configuration['version'] || ENV.fetch('VERSION', nil) || @hash
 
       return unless should_log
 

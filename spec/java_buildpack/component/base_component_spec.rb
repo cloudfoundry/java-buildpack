@@ -84,7 +84,7 @@ describe JavaBuildpack::Component::BaseComponent do
   it 'prints timing information' do
     expect { |b| component.with_timing('test-caption', &b) }.to yield_control
 
-    expect(stdout.string).to match(/     test-caption \([\d]\.[\d]s\)/)
+    expect(stdout.string).to match(/     test-caption \(\d\.\ds\)/)
   end
 
 end

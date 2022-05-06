@@ -31,6 +31,8 @@ describe 'constantize' do # rubocop:disable RSpec/DescribeClass
 end
 
 module Test
+  # rubocop:disable Lint/EmptyClass
   class StubClass
   end
+  # rubocop:enable Lint/EmptyClass
 end

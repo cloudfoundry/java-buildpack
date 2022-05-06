@@ -61,9 +61,9 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         # Default cxAppTag to application name if not set as an env var
-        app_tag = ENV['cxAppTag'] || application_name
+        app_tag = ENV.fetch('cxAppTag', nil) || application_name
         # Default team to CxServer if not set as env var
-        team = ENV['cxTeam'] || 'CxServer'
+        team = ENV.fetch('cxTeam', nil) || 'CxServer'
 
         @droplet.java_opts
                 .add_javaagent(@droplet.sandbox + 'cx-launcher.jar')

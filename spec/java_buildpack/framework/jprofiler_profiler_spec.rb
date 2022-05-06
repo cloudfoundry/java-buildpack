@@ -46,7 +46,7 @@ describe JavaBuildpack::Framework::JprofilerProfiler do
         component.release
 
         expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/jprofiler_profiler/bin/linux-x64/' \
-        'libjprofilerti.so=port=8849,nowait')
+                                     'libjprofilerti.so=port=8849,nowait')
 
       end
 
@@ -57,7 +57,7 @@ describe JavaBuildpack::Framework::JprofilerProfiler do
           component.release
 
           expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/jprofiler_profiler/bin/linux-x64/' \
-          'libjprofilerti.so=port=8850,nowait')
+                                       'libjprofilerti.so=port=8850,nowait')
         end
       end
 
@@ -68,7 +68,7 @@ describe JavaBuildpack::Framework::JprofilerProfiler do
           component.release
 
           expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/jprofiler_profiler/bin/linux-x64/' \
-          'libjprofilerti.so=port=8849')
+                                       'libjprofilerti.so=port=8849')
         end
       end
 

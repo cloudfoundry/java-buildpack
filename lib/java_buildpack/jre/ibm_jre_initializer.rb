@@ -107,7 +107,7 @@ module JavaBuildpack
       end
 
       def memory_limit_finder
-        memory_limit = ENV['MEMORY_LIMIT']
+        memory_limit = ENV.fetch('MEMORY_LIMIT', nil)
         return nil unless memory_limit
 
         memory_limit_size = memory_size_bytes(memory_limit)
@@ -158,9 +158,9 @@ module JavaBuildpack
       end
 
       def memory_size_minified(membytes)
-        giga = membytes / 2**(10 * 3)
-        mega = membytes / 2**(10 * 2)
-        kilo = (membytes / 2**(10 * 1)).round
+        giga = membytes / (2**(10 * 3))
+        mega = membytes / (2**(10 * 2))
+        kilo = (membytes / (2**(10 * 1))).round
         if check_is_integer?(giga)
           minified_size_calculator(giga, 'G')
         elsif check_is_integer?(mega)

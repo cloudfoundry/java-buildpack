@@ -55,7 +55,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
       expect(java_opts).not_to include('--add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED')
 
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/java_memory_assistant_agent/' \
-        'java-memory-assistant-1.2.3.jar')
+                                   'java-memory-assistant-1.2.3.jar')
       expect(java_opts).to include('-Djma.enabled=true')
 
       expect(java_opts).to include('-Djma.check_interval=5s')
@@ -129,7 +129,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
       component.release
 
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/java_memory_assistant_agent/' \
-        'java-memory-assistant-0.1.0.jar')
+                                   'java-memory-assistant-0.1.0.jar')
       expect(java_opts).to include('-Djma.enabled=true')
       expect(java_opts).to include('-Djma.check_interval=10m')
       expect(java_opts).to include('\'-Djma.max_frequency=4/10h\'')
@@ -176,7 +176,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
       component.release
 
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/java_memory_assistant_agent/' \
-        'java-memory-assistant-0.1.0.jar')
+                                   'java-memory-assistant-0.1.0.jar')
 
       expect(java_opts).to include('\'-Djma.thresholds.heap=>600MB\'')
       expect(java_opts).to include('\'-Djma.thresholds.eden=< 30MB\'')
@@ -197,7 +197,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
       component.release
 
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/java_memory_assistant_agent/' \
-        'java-memory-assistant-0.1.0.jar')
+                                   'java-memory-assistant-0.1.0.jar')
 
       expect(java_opts).to include('-Djma.enabled=true')
       expect(java_opts).to include('-Djma.log_level=WARNING')
@@ -218,7 +218,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
       component.release
 
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/java_memory_assistant_agent/' \
-        'java-memory-assistant-0.1.0.jar')
+                                   'java-memory-assistant-0.1.0.jar')
 
       expect(java_opts).to include('-Djma.enabled=true')
       expect(java_opts).to include('-Djma.log_level=INFO')
@@ -280,7 +280,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantAgent do
 
     it 'fails if log_level is not recognized' do
       expect { component.release }.to raise_exception 'Invalid value of the \'log_level\'' \
-        ' property: \'ciao\''
+                                                      ' property: \'ciao\''
     end
 
   end

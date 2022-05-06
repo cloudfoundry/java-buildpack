@@ -45,10 +45,11 @@ describe JavaBuildpack::Framework::YourKitProfiler do
       it 'updates JAVA_OPTS' do
         component.release
 
+        # rubocop:disable Layout/LineLength
         expect(java_opts).to include("-agentpath:$PWD/.java-buildpack/your_kit_profiler/your_kit_profiler-#{version}=" \
-        'dir=$PWD/.java-buildpack/your_kit_profiler/snapshots,logdir=$PWD/.java-buildpack/your_kit_profiler/logs,' \
-        'port=10001,sessionname=test-application-name')
-
+                                     'dir=$PWD/.java-buildpack/your_kit_profiler/snapshots,logdir=$PWD/.java-buildpack/your_kit_profiler/logs,' \
+                                     'port=10001,sessionname=test-application-name')
+        # rubocop:enable Layout/LineLength
       end
 
       context do
@@ -57,9 +58,11 @@ describe JavaBuildpack::Framework::YourKitProfiler do
         it 'adds port from configuration to JAVA_OPTS if specified' do
           component.release
 
+          # rubocop:disable Layout/LineLength
           expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/your_kit_profiler/your_kit_profiler-' \
-          "#{version}=dir=$PWD/.java-buildpack/your_kit_profiler/snapshots,logdir=$PWD/.java-buildpack/" \
-          'your_kit_profiler/logs,port=10002,sessionname=test-application-name')
+                                       "#{version}=dir=$PWD/.java-buildpack/your_kit_profiler/snapshots,logdir=$PWD/.java-buildpack/" \
+                                       'your_kit_profiler/logs,port=10002,sessionname=test-application-name')
+          # rubocop:enable Layout/LineLength
         end
       end
 
@@ -69,9 +72,11 @@ describe JavaBuildpack::Framework::YourKitProfiler do
         it 'adds session name from configuration to JAVA_OPTS if specified' do
           component.release
 
+          # rubocop:disable Layout/LineLength
           expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/your_kit_profiler/your_kit_profiler-' \
-          "#{version}=dir=$PWD/.java-buildpack/your_kit_profiler/snapshots,logdir=$PWD/.java-buildpack/" \
-          'your_kit_profiler/logs,port=10001,sessionname=alternative-session-name')
+                                       "#{version}=dir=$PWD/.java-buildpack/your_kit_profiler/snapshots,logdir=$PWD/.java-buildpack/" \
+                                       'your_kit_profiler/logs,port=10001,sessionname=alternative-session-name')
+          # rubocop:enable Layout/LineLength
         end
       end
 

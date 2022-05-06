@@ -46,7 +46,7 @@ module JavaBuildpack
 
           if file.exist?
             var_name      = environment_variable_name(identifier)
-            user_provided = ENV[var_name]
+            user_provided = ENV.fetch(var_name, nil)
             configuration = load_configuration(file, user_provided, var_name, clean_nil_values, should_log)
           elsif should_log
             logger.debug { "No configuration file #{file} found" }
@@ -131,9 +131,10 @@ module JavaBuildpack
         end
 
         def merge_configuration(configuration, user_provided_value, var_name, should_log)
-          if user_provided_value.is_a?(Hash)
+          case user_provided_value
+          when Hash
             configuration = do_merge(configuration, user_provided_value, should_log)
-          elsif user_provided_value.is_a?(Array)
+          when Array
             user_provided_value.each { |new_prop| configuration = do_merge(configuration, new_prop, should_log) }
           else
             raise "User configuration value in environment variable #{var_name} is not valid: #{user_provided_value}"

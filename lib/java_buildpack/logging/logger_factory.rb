@@ -135,7 +135,7 @@ module JavaBuildpack
       end
 
       def severity(configuration)
-        severity = ENV['JBP_LOG_LEVEL']
+        severity = ENV.fetch('JBP_LOG_LEVEL', nil)
         severity ||= ruby_mode
         severity ||= configuration['default_log_level']
         severity ||= 'INFO'

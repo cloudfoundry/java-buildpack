@@ -301,7 +301,7 @@ module JavaBuildpack
         end
 
         def no_proxy?(uri)
-          hosts = (ENV['no_proxy'] || ENV['NO_PROXY'] || '').split ','
+          hosts = (ENV.fetch('no_proxy', nil) || ENV.fetch('NO_PROXY', nil) || '').split ','
           hosts.any? { |host| uri.host.end_with? host }
         end
 
@@ -309,9 +309,9 @@ module JavaBuildpack
           proxy_uri = if no_proxy?(uri)
                         URI.parse('')
                       elsif secure?(uri)
-                        URI.parse(ENV['https_proxy'] || ENV['HTTPS_PROXY'] || '')
+                        URI.parse(ENV.fetch('https_proxy', nil) || ENV.fetch('HTTPS_PROXY', nil) || '')
                       else
-                        URI.parse(ENV['http_proxy'] || ENV['HTTP_PROXY'] || '')
+                        URI.parse(ENV.fetch('http_proxy', nil) || ENV.fetch('HTTP_PROXY', nil) || '')
                       end
 
           proxy_user = proxy_uri.user ? URI.decode_www_form_component(proxy_uri.user) : nil
@@ -349,7 +349,7 @@ module JavaBuildpack
         def update(uri, cached_file)
           http_options = http_options(uri)
 
-          proxy(uri).start(uri.host, uri.port, http_options) do |http|
+          proxy(uri).start(uri.host, uri.port, **http_options) do |http|
             @logger.debug { "HTTP: #{http.address}, #{http.port}, #{http_options}" }
             debug_ssl(http) if secure?(uri)
 

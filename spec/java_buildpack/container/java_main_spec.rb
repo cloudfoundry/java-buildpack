@@ -88,10 +88,10 @@ describe JavaBuildpack::Container::JavaMain do
     it 'returns command' do
 
       expect(component.release).to eq('test-var-2 test-var-1 ' \
-                                        "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
-                                        '-cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/' \
-                                        '.additional_libs/test-jar-2.jar:$PWD/.root_libs/test-jar-3.jar:' \
-                                        '$PWD/.root_libs/test-jar-4.jar test-java-main-class')
+                                      "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
+                                      '-cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/' \
+                                      '.additional_libs/test-jar-2.jar:$PWD/.root_libs/test-jar-3.jar:' \
+                                      '$PWD/.root_libs/test-jar-4.jar test-java-main-class')
     end
   end
 
@@ -99,11 +99,11 @@ describe JavaBuildpack::Container::JavaMain do
      app_fixture: 'container_main' do
 
     expect(component.release).to eq('test-var-2 test-var-1 ' \
-                                      "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
-                                      '-cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/' \
-                                      '.additional_libs/test-jar-2.jar:$PWD/alpha.jar:$PWD/bravo.jar:$PWD/' \
-                                      'charlie.jar:$PWD/.root_libs/test-jar-3.jar:$PWD/.root_libs/test-jar-4.jar ' \
-                                      'test-main-class')
+                                    "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
+                                    '-cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/' \
+                                    '.additional_libs/test-jar-2.jar:$PWD/alpha.jar:$PWD/bravo.jar:$PWD/' \
+                                    'charlie.jar:$PWD/.root_libs/test-jar-3.jar:$PWD/.root_libs/test-jar-4.jar ' \
+                                    'test-main-class')
   end
 
   context do
@@ -112,10 +112,10 @@ describe JavaBuildpack::Container::JavaMain do
     it 'returns command line arguments when they are specified' do
 
       expect(component.release).to eq('test-var-2 test-var-1 ' \
-                                        "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
-                                        '-cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/' \
-                                        'test-jar-2.jar:$PWD/.root_libs/test-jar-3.jar:' \
-                                        '$PWD/.root_libs/test-jar-4.jar test-java-main-class some arguments')
+                                      "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
+                                      '-cp $PWD/.:$PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/' \
+                                      'test-jar-2.jar:$PWD/.root_libs/test-jar-3.jar:' \
+                                      '$PWD/.root_libs/test-jar-4.jar test-java-main-class some arguments')
     end
   end
 
@@ -123,27 +123,27 @@ describe JavaBuildpack::Container::JavaMain do
      app_fixture: 'container_main_spring_boot_jar_launcher' do
 
     expect(component.release).to eq('test-var-2 test-var-1 SERVER_PORT=$PORT ' \
-                                      "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
-                                      '-cp $PWD/.:$PWD/.root_libs/test-jar-3.jar:$PWD/.root_libs/test-jar-4.jar ' \
-                                      'org.springframework.boot.loader.JarLauncher')
+                                    "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
+                                    '-cp $PWD/.:$PWD/.root_libs/test-jar-3.jar:$PWD/.root_libs/test-jar-4.jar ' \
+                                    'org.springframework.boot.loader.JarLauncher')
   end
 
   it 'releases Spring boot applications with a WarLauncher in the MANIFEST.MF by specifying a port',
      app_fixture: 'container_main_spring_boot_war_launcher' do
 
     expect(component.release).to eq('test-var-2 test-var-1 SERVER_PORT=$PORT ' \
-                                      "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
-                                      '-cp $PWD/.:$PWD/.root_libs/test-jar-3.jar:$PWD/.root_libs/test-jar-4.jar ' \
-                                      'org.springframework.boot.loader.WarLauncher')
+                                    "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
+                                    '-cp $PWD/.:$PWD/.root_libs/test-jar-3.jar:$PWD/.root_libs/test-jar-4.jar ' \
+                                    'org.springframework.boot.loader.WarLauncher')
   end
 
   it 'releases Spring boot applications with a PropertiesLauncher in the MANIFEST.MF by specifying a port',
      app_fixture: 'container_main_spring_boot_properties_launcher' do
 
     expect(component.release).to eq('test-var-2 test-var-1 SERVER_PORT=$PORT ' \
-                                      "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
-                                      '-cp $PWD/.:$PWD/.root_libs/test-jar-3.jar:$PWD/.root_libs/test-jar-4.jar ' \
-                                      'org.springframework.boot.loader.PropertiesLauncher')
+                                    "eval exec #{qualify_path java_home.root, droplet.root}/bin/java $JAVA_OPTS " \
+                                    '-cp $PWD/.:$PWD/.root_libs/test-jar-3.jar:$PWD/.root_libs/test-jar-4.jar ' \
+                                    'org.springframework.boot.loader.PropertiesLauncher')
   end
 
   it 'releases Spring Boot thin applications by specifying thin.root',

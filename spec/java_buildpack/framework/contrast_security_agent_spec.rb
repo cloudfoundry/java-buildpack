@@ -74,7 +74,7 @@ describe JavaBuildpack::Framework::ContrastSecurityAgent do
       component.release
 
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/contrast_security_agent/contrast-engine-0.0.0.jar' \
-        '=$PWD/.java-buildpack/contrast_security_agent/contrast.config')
+                                   '=$PWD/.java-buildpack/contrast_security_agent/contrast.config')
       expect(java_opts).to include('-Dcontrast.dir=$TMPDIR')
       expect(java_opts).to include('-Dcontrast.override.appname=test-application-name')
     end

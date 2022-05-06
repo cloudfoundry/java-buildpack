@@ -107,8 +107,10 @@ describe JavaBuildpack::Util::SpringBootUtils do
 
     utils.cache_thin_dependencies java_home.root, 'test-application-root', 'test-thin-root'
 
+    # rubocop:disable Layout/LineLength
     expect(utils).to have_received(:shell).with("#{java_home.root + 'bin/java'} -Dthin.dryrun " \
-      '-Dthin.root=test-thin-root -cp test-application-root org.springframework.boot.loader.wrapper.ThinJarWrapper')
+                                                '-Dthin.root=test-thin-root -cp test-application-root org.springframework.boot.loader.wrapper.ThinJarWrapper')
+    # rubocop:enable Layout/LineLength
   end
 
 end

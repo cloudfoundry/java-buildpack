@@ -34,7 +34,7 @@ describe JavaBuildpack::Util::ConfigurationUtils do
   end
 
   it 'not load absent configuration file' do
-    pathname = instance_double(Pathname)
+    pathname = instance_double('Pathname')
     allow(Pathname).to receive(:new).and_return(pathname)
     allow(pathname).to receive(:exist?).and_return(false)
 
@@ -53,7 +53,7 @@ describe JavaBuildpack::Util::ConfigurationUtils do
   context do
 
     before do
-      pathname = instance_double(Pathname)
+      pathname = instance_double('Pathname')
       allow(Pathname).to receive(:new).and_return(pathname)
       allow(pathname).to receive(:exist?).and_return(true)
 

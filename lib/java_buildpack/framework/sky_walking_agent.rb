@@ -55,7 +55,7 @@ module JavaBuildpack
 
       private
 
-      FILTER = /sky[-]?walking/.freeze
+      FILTER = /sky-?walking/.freeze
 
       private_constant :FILTER
 

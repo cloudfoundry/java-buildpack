@@ -19,7 +19,7 @@ require 'spec_helper'
 
 shared_context 'with memory limit help' do
 
-  previous_memory_limit = ENV['MEMORY_LIMIT']
+  previous_memory_limit = ENV.fetch('MEMORY_LIMIT', nil)
 
   before do |example|
     memory_limit        = example.metadata[:memory_limit]

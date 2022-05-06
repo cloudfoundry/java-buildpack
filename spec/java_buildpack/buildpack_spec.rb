@@ -161,7 +161,9 @@ describe JavaBuildpack::Buildpack do
   end
 
   def with_buildpack(&_)
+    # rubocop:disable Style/ExplicitBlockArgument
     described_class.with_buildpack(app_dir, nil, nil, 'Error %s') { |buildpack| yield buildpack }
+    # rubocop:enable Style/ExplicitBlockArgument
   end
 
 end

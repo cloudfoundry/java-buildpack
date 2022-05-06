@@ -42,7 +42,7 @@ describe JavaBuildpack::Framework::JavaOpts do
   context do
     let(:configuration) do
       { 'java_opts' => '-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y ' \
-          "-XX:OnOutOfMemoryError='kill -9 %p'" }
+                       "-XX:OnOutOfMemoryError='kill -9 %p'" }
     end
 
     it 'adds split java_opts to context' do
@@ -81,7 +81,7 @@ describe JavaBuildpack::Framework::JavaOpts do
       { 'java_opts' => '-Dtest=something.\\\$dollar.\\\\\\\slash' }
     end
 
-    it 'can escape non-escaped characters ' do
+    it 'can escape non-escaped characters' do
       component.release
       expect(java_opts).to include('-Dtest=something.\\$dollar.\\\slash')
     end

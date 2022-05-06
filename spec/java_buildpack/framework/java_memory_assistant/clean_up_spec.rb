@@ -57,7 +57,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantCleanUp do
 
       expect(java_opts).to include('-Djma.command.interpreter=')
       expect(java_opts).to include('-Djma.execute.before=$PWD/.java-buildpack/java_memory_assistant_clean_up/' \
-        'cleanup')
+                                   'cleanup')
     end
 
   end
@@ -75,7 +75,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantCleanUp do
 
       expect(java_opts).not_to include('-Djma.command.interpreter=')
       expect(java_opts).not_to include('-Djma.execute.before=$PWD/.java-buildpack/java_memory_assistant_clean_up/' \
-        'cleanup')
+                                       'cleanup')
     end
 
   end
@@ -91,7 +91,7 @@ describe JavaBuildpack::Framework::JavaMemoryAssistantCleanUp do
 
       expect(java_opts).not_to include('-Djma.command.interpreter=')
       expect(java_opts).not_to include('-Djma.execute.before=$PWD/.java-buildpack/java_memory_assistant_clean_up/' \
-        'cleanup')
+                                       'cleanup')
     end
 
   end

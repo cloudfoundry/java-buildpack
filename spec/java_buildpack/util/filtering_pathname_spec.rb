@@ -16,6 +16,7 @@
 # limitations under the License.
 
 require 'application_helper'
+require 'logging_helper'
 require 'fileutils'
 require 'java_buildpack/util/filtering_pathname'
 require 'set'
@@ -124,7 +125,7 @@ describe JavaBuildpack::Util::FilteringPathname do
     expect((filtering_target + 'bad') == (app_dir + 'bad')).to be_truthy
   end
 
-  # rubocop:disable Lint/UselessComparison, Style/CaseEquality
+  # rubocop:disable Style/CaseEquality, Lint/BinaryOperatorWithIdenticalOperands
   it 'compares to filtering pathnames using <=>' do
     expect((filtering_target + 'good') <=> (filtering_target + 'good')).to eq(0)
     expect((filtering_target + 'good') <=> (filtering_target + 'bad')).to eq(1)
@@ -147,7 +148,7 @@ describe JavaBuildpack::Util::FilteringPathname do
     expect((filtering_target + 'good') === (filtering_target + 'good')).to be_truthy
     expect((filtering_target + 'bad') === (filtering_target + 'bad')).to be_truthy
   end
-  # rubocop:enable Lint/UselessComparison, Style/CaseEquality
+  # rubocop:enable Style/CaseEquality, Lint/BinaryOperatorWithIdenticalOperands
 
   it 'delegates relative_path_from' do
     target              = filtering_target + 'test1'
@@ -333,8 +334,8 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'delegates if open is called on a mutable instance with permissions' do
-    allow(app_dir).to receive(:open).with('w', 0o755)
-    mutable_target.open('w', 0o755) { |_| }
+    allow(app_dir).to receive(:open).with('w', 0o755, {})
+    mutable_target.open('w', 0o755, {}) { |_| }
   end
 
   it 'delegates if open is called on a mutable instance with permissions and options' do

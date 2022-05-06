@@ -53,13 +53,13 @@ module JavaBuildpack
         true
       end
 
-      TOMCAT_8 = JavaBuildpack::Util::TokenizedVersion.new('8.0.0').freeze
+      TOMCAT8 = JavaBuildpack::Util::TokenizedVersion.new('8.0.0').freeze
 
-      private_constant :TOMCAT_8
+      private_constant :TOMCAT8
 
       # Checks whether Tomcat instance is Tomcat 7 compatible
       def tomcat_7_compatible
-        @version < TOMCAT_8
+        @version < TOMCAT8
       end
 
       private

@@ -27,7 +27,7 @@ describe JavaBuildpack::Framework::JavaSecurity do
     component.release
 
     expect(java_opts).to include('-Djava.ext.dirs=$PWD/.java-buildpack/java_security/test-extension-directory-1:' \
-                                         '$PWD/.java-buildpack/java_security/test-extension-directory-2')
+                                 '$PWD/.java-buildpack/java_security/test-extension-directory-2')
   end
 
   it 'writes security provider security properties' do

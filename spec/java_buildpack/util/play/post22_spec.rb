@@ -44,25 +44,27 @@ describe JavaBuildpack::Util::Play::Post22 do
 
       expect((app_dir + 'bin/play-application').read)
         .to match 'declare -r app_classpath="\$app_home/../.additional_libs/test-jar-1.jar:' \
-        '\$app_home/../.additional_libs/test-jar-2.jar:'
+                  '\$app_home/../.additional_libs/test-jar-2.jar:'
     end
 
     it 'returns command' do
+      # rubocop:disable Layout/LineLength
       expect(play_app.release).to eq('test-var-2 test-var-1 PATH=$PWD/.test-java-home/bin:$PATH ' \
-      "#{java_home.as_env_var} exec $PWD/bin/play-application $(for I in $JAVA_OPTS ; do echo \"-J$I\" ; done)")
+                                     "#{java_home.as_env_var} exec $PWD/bin/play-application $(for I in $JAVA_OPTS ; do echo \"-J$I\" ; done)")
+      # rubocop:enable Layout/LineLength
     end
 
     context do
       let(:java_opts) do
         super() << '-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : \'.' \
-        '*instance_id[": ]*"\([a-z0-9]\+\)".*\')'
+                   '*instance_id[": ]*"\([a-z0-9]\+\)".*\')'
       end
 
       it 'allows options with expressions' do
         play_app.release
 
         expect(java_opts).to include('-Dappdynamics.agent.nodeName=$(expr "$VCAP_APPLICATION" : \'.' \
-        '*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
+                                     '*instance_id[": ]*"\([a-z0-9]\+\)".*\')')
       end
     end
 
