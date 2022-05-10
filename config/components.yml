@@ -66,7 +66,6 @@ frameworks:
   - "JavaBuildpack::Framework::MetricWriter"
   - "JavaBuildpack::Framework::NewRelicAgent"
   - "JavaBuildpack::Framework::PostgresqlJDBC"
-  - "JavaBuildpack::Framework::ProtectAppSecurityProvider"
   - "JavaBuildpack::Framework::RiverbedAppinternalsAgent"
   - "JavaBuildpack::Framework::SealightsAgent"
   - "JavaBuildpack::Framework::SeekerSecurityProvider"
