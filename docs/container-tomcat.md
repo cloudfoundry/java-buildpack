@@ -8,7 +8,7 @@ The Tomcat Container allows servlet 2 and 3 web applications to be run.  These a
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
-    <td><tt>tomcat-instance=&lang;version&rang;</tt>, <tt>tomcat-lifecycle-support=&lang;version&rang;</tt>, <tt>tomcat-logging-support=&lang;version&rang;</tt>, <tt>tomcat-redis-store=&lang;version&rang;</tt> <i>(optional)</i>, <tt>tomcat-external_configuration=&lang;version&rang;</tt> <i>(optional)</i></td>
+    <td><tt>tomcat-instance=&lang;version&rang;</tt>, <tt>tomcat-lifecycle-support=&lang;version&rang;</tt>, <tt>tomcat-logging-support=&lang;version&rang;</tt>, <tt>tomcat-redisson=&lang;version&rang;</tt> <i>(optional)</i>, <tt>tomcat-external_configuration=&lang;version&rang;</tt> <i>(optional)</i></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
@@ -23,22 +23,25 @@ The container can be configured by modifying the [`config/tomcat.yml`][] file in
 | Name | Description
 | ---- | -----------
 | `access_logging_support.repository_root` | The URL of the Tomcat Access Logging Support repository index ([details][repositories]).
-| `access_logging_support.version` | The version of Tomcat Access Logging Support to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat-access-logging-support/index.yml).
+| `access_logging_support.version` | The version of Tomcat Access Logging Support to use. Candidate versions can be found in [this listing](https://java-buildpack.cloudfoundry.org/tomcat-access-logging-support/index.yml).
 | `access_logging_support.access_logging` | Set to `enabled` to turn on the access logging support. Default is `disabled`.
 | `geode_store.repository_root` | The URL of the Geode Store repository index ([details][repositories]).
 | `geode_store.version` | The version of Geode Store to use. Candidate versions can be found in [this listing](https://java-buildpack-tomcat-gemfire-store.s3-us-west-2.amazonaws.com/index.yml).
 | `lifecycle_support.repository_root` | The URL of the Tomcat Lifecycle Support repository index ([details][repositories]).
-| `lifecycle_support.version` | The version of Tomcat Lifecycle Support to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat-lifecycle-support/index.yml).
+| `lifecycle_support.version` | The version of Tomcat Lifecycle Support to use. Candidate versions can be found in [this listing](https://java-buildpack.cloudfoundry.org/tomcat-lifecycle-support/index.yml).
 | `logging_support.repository_root` | The URL of the Tomcat Logging Support repository index ([details][repositories]).
-| `logging_support.version` | The version of Tomcat Logging Support to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat-logging-support/index.yml).
-| `redis_store.connection_pool_size` | The Redis connection pool size.  Note that this is per-instance, not per-application.
-| `redis_store.database` | The Redis database to connect to.
-| `redis_store.repository_root` | The URL of the Redis Store repository index ([details][repositories]).
-| `redis_store.timeout` | The Redis connection timeout (in milliseconds).
-| `redis_store.version` | The version of Redis Store to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/redis-store/index.yml).
+| `logging_support.version` | The version of Tomcat Logging Support to use. Candidate versions can be found in [this listing](https://java-buildpack.cloudfoundry.org/tomcat-logging-support/index.yml).
+| `redisson.repository_root` | The URL of the Redisson repository index ([details][repositories]).
+| `redisson.version` | The version of Redis Store to use. Candidate versions can be found in [this listing](https://java-buildpack.cloudfoundry.org/redisson/index.yml). 
+| `redisson.session_key_prefix` | String prefix applied to all Redis keys. Allows to connect different Tomcat environments to the same Redis instance. Defaults to `sessions:<app-name>`
+| `redisson.session_update_mode` | Maps to Redisson's [`updateMode` property](https://github.com/redisson/redisson/tree/master/redisson-tomcat#1-add-session-manager), it defaults to `DEFAULT`.
+| `redisson.database` | The Redis database to connect to. Defaults to 0.
+| `redisson.connection_timeout` | Timeout during connecting to any Redis server. Value in milliseconds. Defaults to 10,000.
+| `redisson.timeout` | Redis server response timeout. Starts to countdown when Redis command was successfully sent. Value in milliseconds. Defaults to 3000.
+| `redisson.connection_pool_size` | Redis connection maximum pool size. Defaults to 64. 
 | `tomcat.context_path` | The context path to expose the application at.
 | `tomcat.repository_root` | The URL of the Tomcat repository index ([details][repositories]).
-| `tomcat.version` | The version of Tomcat to use. Candidate versions can be found in [this listing](http://download.pivotal.io.s3.amazonaws.com/tomcat/index.yml).
+| `tomcat.version` | The version of Tomcat to use. Candidate versions can be found in [this listing](https://java-buildpack.cloudfoundry.org/tomcat/index.yml).
 | `tomcat.external_configuration_enabled` | Set to `true` to be able to supply an external Tomcat configuration. Default is `false`.
 | `external_configuration.version` | The version of the External Tomcat Configuration to use. Candidate versions can be found in the the repository that you have created to house the External Tomcat Configuration. Note: It is required the external configuration to allow symlinks.
 | `external_configuration.repository_root` | The URL of the External Tomcat Configuration repository index ([details][repositories]).

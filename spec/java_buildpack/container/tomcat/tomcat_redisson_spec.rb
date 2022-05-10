@@ -17,17 +17,22 @@
 
 require 'spec_helper'
 require 'component_helper'
-require 'java_buildpack/container/tomcat/tomcat_redis_store'
+require 'java_buildpack/container/tomcat/tomcat_redisson'
 
-describe JavaBuildpack::Container::TomcatRedisStore do
+describe JavaBuildpack::Container::TomcatRedisson do
   include_context 'with component help'
 
+  let(:version) { '3.17.1' }
+
+  let(:component) { described_class.new(context, '9') }
   let(:component_id) { 'tomcat' }
 
   let(:configuration) do
     { 'database' => 'test-database',
       'timeout' => 'test-timeout',
-      'connection_pool_size' => 'test-connection-pool-size' }
+      'connect_timeout' => 'test-connect-timeout',
+      'connection_pool_size' => 'test-connection-pool-size',
+      'session_update_mode' => 'test-session-update-mode' }
   end
 
   it 'does not detect without a session-replication service' do
@@ -45,26 +50,40 @@ describe JavaBuildpack::Container::TomcatRedisStore do
     end
 
     it 'detect with a session-replication service' do
-      expect(component.detect).to eq("tomcat-redis-store=#{version}")
+      expect(component.detect).to eq("tomcat-redisson=#{version}")
     end
 
     it 'copies resources',
-       app_fixture: 'container_tomcat_redis_store',
-       cache_fixture: 'stub-redis-store.jar' do
+       app_fixture: 'container_tomcat_redisson',
+       cache_fixture: 'stub-redisson.tgz' do
 
       component.compile
 
-      expect(sandbox + "lib/redis_store-#{version}.jar").to exist
+      expect(sandbox + "lib/redisson-all-#{version}.jar").to exist
+      expect(sandbox + "lib/redisson-tomcat-8-#{version}.jar").not_to exist
+      expect(sandbox + "lib/redisson-tomcat-9-#{version}.jar").to exist
+      expect(sandbox + "lib/redisson-tomcat-10-#{version}.jar").not_to exist
     end
 
     it 'mutates context.xml',
-       app_fixture: 'container_tomcat_redis_store',
-       cache_fixture: 'stub-redis-store.jar' do
+       app_fixture: 'container_tomcat_redisson',
+       cache_fixture: 'stub-redisson.tgz' do
 
       component.compile
 
       expect((sandbox + 'conf/context.xml').read)
-        .to eq(Pathname.new('spec/fixtures/container_tomcat_redis_store_context_after.xml').read)
+        .to eq(Pathname.new('spec/fixtures/container_tomcat_redisson_context_after.xml').read)
+    end
+
+    it 'generates redisson.yaml',
+       app_fixture: 'container_tomcat_redisson',
+       cache_fixture: 'stub-redisson.tgz' do
+
+      component.compile
+
+      expect(sandbox + 'conf/redisson.yaml').to exist
+      expect((sandbox + 'conf/redisson.yaml').read)
+        .to eq(Pathname.new('spec/fixtures/container_tomcat_redisson_yaml_after.yaml').read)
     end
 
   end
@@ -80,7 +99,7 @@ describe JavaBuildpack::Container::TomcatRedisStore do
     end
 
     it 'detects with a session-replication service' do
-      expect(component.detect).to eq("tomcat-redis-store=#{version}")
+      expect(component.detect).to eq("tomcat-redisson=#{version}")
     end
 
   end

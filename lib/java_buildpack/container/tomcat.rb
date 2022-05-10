@@ -24,7 +24,7 @@ require 'java_buildpack/container/tomcat/tomcat_insight_support'
 require 'java_buildpack/container/tomcat/tomcat_instance'
 require 'java_buildpack/container/tomcat/tomcat_lifecycle_support'
 require 'java_buildpack/container/tomcat/tomcat_logging_support'
-require 'java_buildpack/container/tomcat/tomcat_redis_store'
+require 'java_buildpack/container/tomcat/tomcat_redisson'
 require 'java_buildpack/container/tomcat/tomcat_setenv'
 require 'java_buildpack/util/java_main_utils'
 
@@ -63,7 +63,7 @@ module JavaBuildpack
           TomcatInsightSupport.new(context),
           TomcatLifecycleSupport.new(sub_configuration_context(context, 'lifecycle_support')),
           TomcatLoggingSupport.new(sub_configuration_context(context, 'logging_support')),
-          TomcatRedisStore.new(sub_configuration_context(context, 'redis_store')),
+          TomcatRedisson.new(sub_configuration_context(context, 'redisson'), tomcat_version),
           TomcatSetenv.new(context)
         ]
 

@@ -16,8 +16,5 @@
   ~ limitations under the License.
   --> 
 <Context allowLinking='true'>
-    <Valve className='com.gopivotal.manager.SessionFlushValve'/>
-    <Manager className='org.apache.catalina.session.PersistentManager'>
-        <Store className='com.gopivotal.manager.redis.RedisStore' host='test-host' port='test-port' database='test-database' password='test-password' timeout='test-timeout' connectionPoolSize='test-connection-pool-size'/>
-    </Manager>
+    <Manager className='org.redisson.tomcat.RedissonSessionManager' configPath='${catalina.base}/conf/redisson.yaml' updateMode='test-session-update-mode' keyPrefix='sessions:test-application-name'/>
 </Context>

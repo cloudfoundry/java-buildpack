@@ -1,0 +1,8 @@
+---
+singleServerConfig:
+  address: redis://test-host:test-port
+  password: test-password
+  database: test-database
+  connectTimeout: test-connect-timeout
+  timeout: test-timeout
+  connectionPoolSize: test-connection-pool-size

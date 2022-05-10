@@ -25,7 +25,7 @@ require 'java_buildpack/container/tomcat/tomcat_insight_support'
 require 'java_buildpack/container/tomcat/tomcat_instance'
 require 'java_buildpack/container/tomcat/tomcat_lifecycle_support'
 require 'java_buildpack/container/tomcat/tomcat_logging_support'
-require 'java_buildpack/container/tomcat/tomcat_redis_store'
+require 'java_buildpack/container/tomcat/tomcat_redisson'
 
 describe JavaBuildpack::Container::Tomcat do
   include_context 'with component help'
@@ -38,7 +38,7 @@ describe JavaBuildpack::Container::Tomcat do
       'geode_store' => geode_store_configuration,
       'lifecycle_support' => lifecycle_support_configuration,
       'logging_support' => logging_support_configuration,
-      'redis_store' => redis_store_configuration,
+      'redisson' => redisson_configuration,
       'tomcat' => tomcat_configuration }
   end
 
@@ -50,7 +50,7 @@ describe JavaBuildpack::Container::Tomcat do
 
   let(:geode_store_configuration) { instance_double('geode_store_configuration') }
 
-  let(:redis_store_configuration) { instance_double('redis-store-configuration') }
+  let(:redisson_configuration) { instance_double('redisson-configuration') }
 
   let(:tomcat_configuration) { { 'external_configuration_enabled' => false } }
 
@@ -90,8 +90,8 @@ describe JavaBuildpack::Container::Tomcat do
       .to receive(:new).with(sub_configuration_context(lifecycle_support_configuration))
     allow(JavaBuildpack::Container::TomcatLoggingSupport)
       .to receive(:new).with(sub_configuration_context(logging_support_configuration))
-    allow(JavaBuildpack::Container::TomcatRedisStore)
-      .to receive(:new).with(sub_configuration_context(redis_store_configuration))
+    allow(JavaBuildpack::Container::TomcatRedisson)
+      .to receive(:new).with(sub_configuration_context(redisson_configuration), '9')
     allow(JavaBuildpack::Container::TomcatSetenv).to receive(:new).with(context)
 
     component.sub_components context
