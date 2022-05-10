@@ -14,6 +14,9 @@
 # limitations under the License.
 
 # Configuration for the ProtectApp Security Provider framework
+
+# You must specify a the repository root of an ProtectApp repository. Please see the documentation for more detail.
+# e.g.  repository_root: "https://example.com/protectapp-installer/"
 ---
 version: 8.+
-repository_root: https://files.cf-hsm.io/protectapp-installer
+repository_root: ""
