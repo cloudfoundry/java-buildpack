@@ -90,7 +90,7 @@ module JavaBuildpack
 
       def write_java_opts(java_opts, configuration)
         configuration.each do |key, value|
-          if /\$[({][^)}]+[)}]/ =~ value
+          if /\$[({][^)}]+[)}]/ =~ value.to_s
             # we need \" because this is a system property which ends up inside `JAVA_OPTS` which is already quoted
             java_opts.add_system_property("elastic.apm.#{key}", "\\\"#{value}\\\"")
           else
