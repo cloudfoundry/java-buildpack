@@ -102,7 +102,9 @@ module Package
     def cache_task(uri)
       task uri do |t|
         @monitor.synchronize { rake_output_message "Caching #{t.name}" }
-        cache.get(t.name)
+        # rubocop:disable Lint/EmptyBlock
+        cache.get(t.name) {}
+        # rubocop:enable Lint/EmptyBlock
       end
 
       uri
