@@ -17,10 +17,13 @@
 
 require 'spec_helper'
 require 'component_helper'
+require 'logging_helper'
 require 'java_buildpack/framework/spring_auto_reconfiguration'
 
 describe JavaBuildpack::Framework::SpringAutoReconfiguration do
   include_context 'with component help'
+  include_context 'with console help'
+  include_context 'with logging help'
 
   let(:configuration) { { 'enabled' => true } }
 
@@ -36,8 +39,41 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
     expect(component.detect).to eq("spring-auto-reconfiguration=#{version}")
   end
 
+  it 'does not detect with Spring JAR and java-cfenv',
+     app_fixture: 'framework_auto_reconfiguration_java_cfenv' do
+
+    expect(component.detect).to be_nil
+  end
+
   it 'does not detect without Spring JAR' do
     expect(component.detect).to be_nil
+  end
+
+  it 'warns if SCC is present',
+     cache_fixture: 'stub-auto-reconfiguration.jar',
+     app_fixture: 'framework_auto_reconfiguration_scc' do
+
+    component.compile
+
+    expect(stderr.string).to match(/ATTENTION: The Spring Cloud Connectors library is present in your application/)
+  end
+
+  it 'does not warn when SCC is missing',
+     cache_fixture: 'stub-auto-reconfiguration.jar',
+     app_fixture: 'framework_auto_reconfiguration_servlet_3' do
+
+    component.compile
+
+    expect(stderr.string).not_to match(/ATTENTION: The Spring Cloud Connectors library is present in your application/)
+  end
+
+  it 'warns if SAR is contributed',
+     cache_fixture: 'stub-auto-reconfiguration.jar',
+     app_fixture: 'framework_auto_reconfiguration_servlet_3' do
+
+    component.compile
+
+    expect(stderr.string).to match(/ATTENTION: The Spring Auto Reconfiguration and shaded Spring Cloud/)
   end
 
   context do
