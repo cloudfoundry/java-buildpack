@@ -74,7 +74,7 @@ module JavaBuildpack
             'Dec 2022.'
         end
         @logger.warn do
-          'Please migrate to java-cfenv immediately. See https://via.vmw.com/EhzD for migration instructions.' \
+          'Please migrate to java-cfenv immediately. See https://via.vmw.com/EiBW for migration instructions.' \
         end
       end
 
@@ -92,7 +92,7 @@ module JavaBuildpack
         end
         @logger.warn do
           'If you are using these libraries, please migrate to java-cfenv immediately. ' \
-            'See https://via.vmw.com/EhzD for migration instructions. Once you upgrade this message will go away.'
+            'See https://via.vmw.com/EiBW for migration instructions. Once you upgrade this message will go away.'
         end
       end
     end
