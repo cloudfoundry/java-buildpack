@@ -34,6 +34,7 @@ jres:
   - "JavaBuildpack::Jre::OpenJdkJRE"
 # - "JavaBuildpack::Jre::OracleJRE"
 # - "JavaBuildpack::Jre::ZuluJRE"
+# - "JavaBuildpack::Jre::ZingJRE"
 # - "JavaBuildpack::Jre::SapMachineJRE"
 
 # Frameworks are processed in order.
