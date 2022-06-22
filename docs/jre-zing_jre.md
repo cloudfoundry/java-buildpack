@@ -1,5 +1,5 @@
 # Azul Platform Prime JRE
-Azul Platform Prime JRE provides Java runtimes developed by Azul team.  Unless otherwise configured, the version of Java that will be used is specified in [`config/zing_jre.yml`][].
+Azul Platform Prime JRE provides Java runtimes developed by Azul. No versions of the JRE are available by default due to licensing restrictions. Instead you will need to create a repository with the Prime JREs in it and configure the buildpack to use that repository. Unless otherwise configured, the version of Java that will be used is specified in [`config/zing_jre.yml`][].
 
 <table>
   <tr>
@@ -27,6 +27,7 @@ To use Azul Platform Prime JRE instead of OpenJDK without forking java-buildpack
 
 ```bash
 cf set-env <app_name> JBP_CONFIG_COMPONENTS '{jres: ["JavaBuildpack::Jre::ZingJRE"]}'
+cf set-env <app_name> JBP_CONFIG_ZING_JRE '{ jre: { repository_root: "<INTERNAL_REPOSITORY_URI>" } }'
 cf restage <app_name>
 ```
 
