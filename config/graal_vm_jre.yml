@@ -19,6 +19,8 @@
 ---
 jre:
   version: 19.3.+
+  version_lines:
+    - 19.3.+
   repository_root: ""
 jvmkill_agent:
   version: 1.+

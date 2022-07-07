@@ -18,6 +18,10 @@
 ---
 jre:
   version: 11.+
+  version_lines:
+    - 1.8.0_+
+    - 11.+
+    - 17.+
   repository_root: "https://sap.github.io/SapMachine/assets/cf/jre/linux/{architecture}"
 jvmkill_agent:
   version: 1.+

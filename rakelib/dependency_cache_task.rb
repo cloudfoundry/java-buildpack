@@ -36,6 +36,8 @@ module Package
     def initialize
       return unless BUILDPACK_VERSION.offline
 
+      @pkgcfg = nil
+
       JavaBuildpack::Logging::LoggerFactory.instance.setup "#{BUILD_DIR}/"
 
       @default_repository_root = default_repository_root
@@ -120,58 +122,12 @@ module Package
       conf
     end
 
-    def configuration(id)
-      JavaBuildpack::Util::ConfigurationUtils.load(id, false, false)
-    end
-
-    def configurations(component_id, configuration, sub_component_id = nil)
-      configurations = []
-
-      if repository_configuration?(configuration)
-        configuration['component_id']     = component_id
-        configuration['sub_component_id'] = sub_component_id if sub_component_id
-
-        if component_id == 'open_jdk_jre' && sub_component_id == 'jre'
-          c1 = configuration.clone
-          c1['version'] = '11.+'
-
-          configurations << c1
-        end
-
-        if component_id == 'open_jdk_jre' && sub_component_id == 'jre'
-          c1 = configuration.clone
-          c1['version'] = '17.+'
-
-          configurations << c1
-        end
-
-        configurations << configuration
-      else
-        configuration.each { |k, v| configurations << configurations(component_id, v, k) if v.is_a? Hash }
-      end
-
-      configurations
-    end
-
     def component_configuration(component_id)
       configurations(component_id, configuration(component_id))
     end
 
     def default_repository_root
       configuration('repository')['default_repository_root'].chomp('/')
-    end
-
-    def index_configuration(configuration)
-      [configuration['repository_root']]
-        .map { |r| { uri: r } }
-        .map { |r| augment_repository_root r }
-        .map { |r| augment_platform r }
-        .map { |r| augment_architecture r }
-        .map { |r| augment_path r }.flatten
-    end
-
-    def repository_configuration?(configuration)
-      configuration['version'] && configuration['repository_root']
     end
 
     def uris(configurations)
@@ -190,7 +146,7 @@ module Package
     def get_from_cache(configuration, index_configuration, uris)
       @cache.get(index_configuration[:uri]) do |f|
         index         = YAML.safe_load f
-        found_version = version(configuration, index)
+        found_version = Utils::VersionUtils.version(configuration, index)
         pin_version(configuration, found_version.to_s) if ENV['PINNED'].to_b
 
         if found_version.nil?
@@ -205,9 +161,29 @@ module Package
     def pin_version(old_configuration, version)
       component_id     = old_configuration['component_id']
       sub_component_id = old_configuration['sub_component_id']
-      rake_output_message "Pinning #{sub_component_id || component_id} version to #{version}"
+      if Utils::VersionUtils.openjdk_jre? old_configuration
+        rake_output_message "Pinning JRE #{sub_component_id || component_id} version to #{version}"
+        pin_jre(component_id, sub_component_id, version)
+      else
+        rake_output_message "Pinning #{sub_component_id || component_id} version to #{version}"
+        pin_component(component_id, sub_component_id, version)
+      end
+    end
+
+    def pin_component(component_id, sub_component_id, version)
       configuration_to_update = JavaBuildpack::Util::ConfigurationUtils.load(component_id, false, true)
       update_configuration(configuration_to_update, version, sub_component_id)
+      JavaBuildpack::Util::ConfigurationUtils.write(component_id, configuration_to_update)
+    end
+
+    def pin_jre(component_id, sub_component_id, version)
+      # update configuration file, pin version & version lines
+      configuration_to_update = JavaBuildpack::Util::ConfigurationUtils.load(component_id, false, true)
+      update_configuration(configuration_to_update, version, sub_component_id)
+      configuration_to_update['jre']['version_lines'].each_with_index do |version_pattern, index|
+        configuration_to_update['jre']['version_lines'][index] = version \
+          if Utils::VersionUtils.version_matches?(version_pattern, [version])
+      end
       JavaBuildpack::Util::ConfigurationUtils.write(component_id, configuration_to_update)
     end
 
@@ -220,12 +196,5 @@ module Package
         config.each_value { |v| update_configuration(v, version, sub_component) if v.is_a? Hash }
       end
     end
-
-    def version(configuration, index)
-      JavaBuildpack::Repository::VersionResolver
-        .resolve(JavaBuildpack::Util::TokenizedVersion.new(configuration['version']), index.keys)
-    end
-
   end
-
 end

@@ -45,9 +45,13 @@ module JavaBuildpack
           file = file_name(identifier)
 
           if file.exist?
-            var_name      = environment_variable_name(identifier)
-            user_provided = ENV.fetch(var_name, nil)
-            configuration = load_configuration(file, user_provided, var_name, clean_nil_values, should_log)
+            operator_var_name = default_variable_name(identifier)
+            operator_provided = ENV.fetch(operator_var_name, nil)
+
+            user_var_name = environment_variable_name(identifier)
+            user_provided = ENV.fetch(user_var_name, nil)
+            configuration = load_configuration(file, operator_provided, operator_var_name, user_provided,
+                                               user_var_name, clean_nil_values, should_log)
           elsif should_log
             logger.debug { "No configuration file #{file} found" }
           end
@@ -80,6 +84,7 @@ module JavaBuildpack
 
         CONFIG_DIRECTORY = Pathname.new(File.expand_path('../../../config', File.dirname(__FILE__))).freeze
 
+        DEFAULT_VARIABLE_PATTERN = 'JBP_DEFAULT_'
         ENVIRONMENT_VARIABLE_PATTERN = 'JBP_CONFIG_'
 
         private_constant :CONFIG_DIRECTORY, :ENVIRONMENT_VARIABLE_PATTERN
@@ -112,16 +117,26 @@ module JavaBuildpack
           header
         end
 
-        def load_configuration(file, user_provided, var_name, clean_nil_values, should_log)
+        def load_configuration(file, operator_provided, operator_var_name, user_provided, user_var_name,
+                               clean_nil_values, should_log)
           configuration = YAML.load_file(file)
           logger.debug { "Configuration from #{file}: #{configuration}" } if should_log
+
+          if operator_provided
+            begin
+              operator_provided_value = YAML.safe_load(operator_provided)
+              configuration = merge_configuration(configuration, operator_provided_value, operator_var_name, should_log)
+            rescue Psych::SyntaxError => e
+              raise "Default configuration value in environment variable #{operator_var_name} has invalid syntax: #{e}"
+            end
+          end
 
           if user_provided
             begin
               user_provided_value = YAML.safe_load(user_provided)
-              configuration       = merge_configuration(configuration, user_provided_value, var_name, should_log)
+              configuration       = merge_configuration(configuration, user_provided_value, user_var_name, should_log)
             rescue Psych::SyntaxError => e
-              raise "User configuration value in environment variable #{var_name} has invalid syntax: #{e}"
+              raise "User configuration value in environment variable #{user_var_name} has invalid syntax: #{e}"
             end
             logger.debug { "Configuration from #{file} modified with: #{user_provided}" } if should_log
           end
@@ -159,6 +174,10 @@ module JavaBuildpack
 
           logger.warn { "User config value for '#{key}' is not valid, must be of a similar type" } if should_log
           v1
+        end
+
+        def default_variable_name(config_name)
+          DEFAULT_VARIABLE_PATTERN + config_name.upcase
         end
 
         def environment_variable_name(config_name)
