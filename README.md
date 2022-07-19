@@ -45,6 +45,12 @@ $ cf set-staging-environment-variable-group '{"JBP_DEFAULT_OPEN_JDK_JRE":"{jre: 
 $ cf set-staging-environment-variable-group '{"JBP_CONFIG_REPOSITORY": "{default_repository_root: \"http://repo.example.io\" }"}'
 ```
 
+3. To change the default JVM vendor across all applications on a foundation. Be careful to ensure that your JSON is properly escaped.
+
+```bash
+$ cf set-staging-environment-variable-group '{"JBP_CONFIG_COMPONENTS": "{jres: [\"JavaBuildpack::Jre::ZuluJRE\"]}"}'
+```
+
 ### Application Developer
 
 1. To change the default version of Java to 11 and adjust the memory heuristics then apply this environment variable to the application.
