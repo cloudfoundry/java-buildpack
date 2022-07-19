@@ -20,9 +20,7 @@ jre:
   version: 1.8.+
   version_lines:
     - 1.8.+
-    - 11.+
-    - 17.+
-  repository_root: https://raw.githubusercontent.com/ibmruntimes/ci.docker/master/ibmjava/meta/jre/linux/x86_64
+  repository_root: https://raw.githubusercontent.com/ibmruntimes/ci.docker/master/ibmjava/meta/jre/linux/{architecture}
   heap_ratio: 0.75
 jvmkill_agent:
   version: 1.+

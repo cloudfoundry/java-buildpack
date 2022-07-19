@@ -36,7 +36,7 @@ module Utils
       end
 
       def openjdk_jre?(configuration)
-        configuration['component_id'] == 'open_jdk_jre' && configuration['sub_component_id'].start_with?('jre')
+        configuration['component_id'].end_with?('_jre') && configuration['sub_component_id'].start_with?('jre')
       end
 
       def java_version_lines(configuration, configurations)

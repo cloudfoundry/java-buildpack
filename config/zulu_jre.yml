@@ -24,7 +24,6 @@ jre:
   version_lines:
     - 1.8.0_+
     - 11.+
-    - 17.+
   repository_root: "https://cdn.azul.com/zulu/bin"
 jvmkill_agent:
   version: 1.+
