@@ -29,44 +29,56 @@ There are two levels of overrides: operator and application developer.
   - If you are an operator that wishes to override configuration across a foundation, you may do this by setting environment variable group entries that begin with a prefix of `JBP_DEFAULT`.
   - If you are an application developer that wishes to override configuration for an individual application, you may do this by setting environment variables that begin with a prefix of `JBP_CONFIG`. 
 
-For example, to change the default version of Java to 11 across all applications.
+Here are some examples:
+
+### Operator
+
+1. To change the default version of Java to 11 across all applications on a foundation.
 
 ```bash
 $ cf set-staging-environment-variable-group '{"JBP_DEFAULT_OPEN_JDK_JRE":"{jre: {version: 11.+ }}"}'
 ```
 
-To change the default version of Java to 11 and adjust the memory heuristics then apply this environment variable to the application.
+2. To change the default repository root across all applications on a foundation. Be careful to ensure that your JSON is properly escaped.
+
+```bash
+$ cf set-staging-environment-variable-group '{"JBP_CONFIG_REPOSITORY": "{default_repository_root: \"http://repo.example.io\" }"}'
+```
+
+### Application Developer
+
+1. To change the default version of Java to 11 and adjust the memory heuristics then apply this environment variable to the application.
 
 ```bash
 $ cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '{ jre: { version: 11.+ }, memory_calculator: { stack_threads: 25 } }'
 ```
 
-If the key or value contains a special character such as `:` it should be escaped with double quotes. For example, to change the default repository path for the buildpack.
+2. If the key or value contains a special character such as `:` it should be escaped with double quotes. For example, to change the default repository path for the buildpack.
 
 ```bash
 $ cf set-env my-application JBP_CONFIG_REPOSITORY '{ default_repository_root: "http://repo.example.io" }'
 ```
 
-If the key or value contains an environment variable that you want to bind at runtime you need to escape it from your shell. For example, to add command line arguments containing an environment variable to a [Java Main](docs/container-java_main.md) application.
+3. If the key or value contains an environment variable that you want to bind at runtime you need to escape it from your shell. For example, to add command line arguments containing an environment variable to a [Java Main](docs/container-java_main.md) application.
 
 ```bash
 $ cf set-env my-application JBP_CONFIG_JAVA_MAIN '{ arguments: "--server.port=9090 --foo=bar" }'
 ```
 
-An example of configuration is to specify a `javaagent` that is packaged within an application.
+4. An example of configuration is to specify a `javaagent` that is packaged within an application.
 
 ```bash
 $ cf set-env my-application JAVA_OPTS '-javaagent:app/META-INF/myagent.jar -Dmyagent.config_file=app/META-INF/my_agent.conf'
 ```
 
-Environment variable can also be specified in the applications `manifest` file. For example, to specify an environment variable in an applications manifest file that disables Auto-reconfiguration.
+5. Environment variable can also be specified in the applications `manifest` file. For example, to specify an environment variable in an applications manifest file that disables Auto-reconfiguration.
 
 ```bash
 env:
   JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{ enabled: false }'
 ```
 
-This final example shows how to change the version of Tomcat that is used by the buildpack with an environment variable specified in the applications manifest file.
+6. This final example shows how to change the version of Tomcat that is used by the buildpack with an environment variable specified in the applications manifest file.
 
 ```bash
 env:
