@@ -38,8 +38,10 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::ModularComponent#sub_components)
       def sub_components(context)
         [
+          JvmkillAgent.new(sub_configuration_context(context, 'jvmkill_agent')),
           OpenJDKLikeJre.new(sub_configuration_context(context, 'jre')
                                .merge(component_name: self.class.to_s.space_case)),
+          OpenJDKLikeMemoryCalculator.new(sub_configuration_context(context, 'memory_calculator')),
           OpenJDKLikeSecurityProviders.new(context)
         ]
       end
