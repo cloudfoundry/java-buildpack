@@ -49,34 +49,7 @@ To add the JCE Unlimited Strength `local_policy.jar`, add your file to `resource
 To add custom SSL certificates, add your `cacerts` file to `resources/zing_jre/lib/security/cacerts`.  This file will be overlayed onto the Azul Platform Prime distribution.
 
 ### `jvmkill`
-The `jvmkill` agent runs when an application has experience a resource exhaustion event.  When this event occurs, the agent will print out a histogram of the first 100 largest types by total number of bytes.
-
-```plain
-Resource exhaustion event: the JVM was unable to allocate memory from the heap.
-ResourceExhausted! (1/0)
-| Instance Count | Total Bytes | Class Name                                    |
-| 18273          | 313157136   | [B                                            |
-| 47806          | 7648568     | [C                                            |
-| 14635          | 1287880     | Ljava/lang/reflect/Method;                    |
-| 46590          | 1118160     | Ljava/lang/String;                            |
-| 8413           | 938504      | Ljava/lang/Class;                             |
-| 28573          | 914336      | Ljava/util/concurrent/ConcurrentHashMap$Node; |
-```
-
-It will also print out a summary of all of the memory spaces in the JVM.
-
-```plain
-Memory usage:
-   Heap memory: init 65011712, used 332392888, committed 351797248, max 351797248
-   Non-heap memory: init 2555904, used 63098592, committed 64815104, max 377790464
-Memory pool usage:
-   Code Cache: init 2555904, used 14702208, committed 15007744, max 251658240
-   PS Eden Space: init 16252928, used 84934656, committed 84934656, max 84934656
-   PS Survivor Space: init 2621440, used 0, committed 19398656, max 19398656
-   Compressed Class Space: init 0, used 5249512, committed 5505024, max 19214336
-   Metaspace: init 0, used 43150616, committed 44302336, max 106917888
-   PS Old Gen: init 43515904, used 247459792, committed 247463936, max 247463936
-```
+Azul Platform Prime JRE does not use the jvmkill agent instead by default uses the -XX:ExitOnOutOfMemoryError flag which terminates the JVM process when an out-of-memory error occurs.
 
 If a [Volume Service][] with the string `heap-dump` in its name or tag is bound to the application, terminal heap dumps will be written with the pattern `<CONTAINER_DIR>/<SPACE_NAME>-<SPACE_ID[0,8]>/<APPLICATION_NAME>-<APPLICATION_ID[0,8]>/<INSTANCE_INDEX>-<TIMESTAMP>-<INSTANCE_ID[0,8]>.hprof`
 
