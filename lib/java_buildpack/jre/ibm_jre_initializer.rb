@@ -16,6 +16,7 @@
 # limitations under the License.
 
 require 'fileutils'
+require 'tempfile'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/jre'
 require 'java_buildpack/util/tokenized_version'
