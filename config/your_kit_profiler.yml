@@ -15,7 +15,7 @@
 
 # JMX configuration
 ---
-version: +
+version: 2022.3.100
 repository_root: https://download.run.pivotal.io/your-kit/{platform}/{architecture}
 enabled: false
 port: 10001
