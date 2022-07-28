@@ -9,7 +9,7 @@
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="SHOULD_USE_SDK" VALUE="false" />
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="ALTERN_SDK_NAME" VALUE="" />
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="myPassParentEnvs" VALUE="true" />
-        <EXTENSION ID="BundlerRunConfigurationExtension" bundleExecEnabled="false" />
+        <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="DISABLE" bundleExecEnabled="false" />
         <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
         <EXTENSION ID="RubyCoverageRunConfigurationExtension" track_test_folders="true" runner="rcov">
           <COVERAGE_PATTERN ENABLED="true">
@@ -35,7 +35,7 @@
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="SHOULD_USE_SDK" VALUE="false" />
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="ALTERN_SDK_NAME" VALUE="rbenv: 2.3.8" />
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="myPassParentEnvs" VALUE="true" />
-        <EXTENSION ID="BundlerRunConfigurationExtension" bundleExecEnabled="false" />
+        <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="DISABLE" bundleExecEnabled="false" />
         <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
         <EXTENSION ID="RubyCoverageRunConfigurationExtension" track_test_folders="true" runner="rcov">
           <COVERAGE_PATTERN ENABLED="true">
@@ -61,7 +61,7 @@
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="SHOULD_USE_SDK" VALUE="false" />
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="ALTERN_SDK_NAME" VALUE="" />
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="myPassParentEnvs" VALUE="true" />
-        <EXTENSION ID="BundlerRunConfigurationExtension" bundleExecEnabled="false" />
+        <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="DISABLE" bundleExecEnabled="false" />
         <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
         <EXTENSION ID="RubyCoverageRunConfigurationExtension" track_test_folders="true" runner="rcov">
           <COVERAGE_PATTERN ENABLED="true">
@@ -87,7 +87,7 @@
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="SHOULD_USE_SDK" VALUE="false" />
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="ALTERN_SDK_NAME" VALUE="" />
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="myPassParentEnvs" VALUE="true" />
-        <EXTENSION ID="BundlerRunConfigurationExtension" bundleExecEnabled="false" />
+        <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="DISABLE" bundleExecEnabled="false" />
         <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
         <EXTENSION ID="RubyCoverageRunConfigurationExtension" track_test_folders="true" runner="rcov">
           <COVERAGE_PATTERN ENABLED="true">
@@ -113,7 +113,7 @@
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="SHOULD_USE_SDK" VALUE="false" />
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="ALTERN_SDK_NAME" VALUE="" />
         <RAKE_RUN_CONFIG_SETTINGS_ID NAME="myPassParentEnvs" VALUE="true" />
-        <EXTENSION ID="BundlerRunConfigurationExtension" bundleExecEnabled="false" />
+        <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="DISABLE" bundleExecEnabled="false" />
         <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
         <EXTENSION ID="RubyCoverageRunConfigurationExtension" track_test_folders="true" runner="rcov">
           <COVERAGE_PATTERN ENABLED="true">
@@ -143,7 +143,7 @@
         <envs>
           <env name="JRUBY_OPTS" value="-X+O" />
         </envs>
-        <EXTENSION ID="BundlerRunConfigurationExtension" bundleExecEnabled="false" />
+        <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="DISABLE" bundleExecEnabled="false" />
         <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
         <EXTENSION ID="RubyCoverageRunConfigurationExtension" track_test_folders="true" runner="rcov">
           <COVERAGE_PATTERN ENABLED="true">
@@ -181,7 +181,7 @@
         <envs>
           <env name="JRUBY_OPTS" value="-X+O" />
         </envs>
-        <EXTENSION ID="BundlerRunConfigurationExtension" bundleExecEnabled="false" />
+        <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="DISABLE" bundleExecEnabled="false" />
         <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
         <EXTENSION ID="RubyCoverageRunConfigurationExtension" track_test_folders="true" runner="rcov">
           <COVERAGE_PATTERN ENABLED="true">
@@ -225,7 +225,7 @@
         <envs>
           <env name="JRUBY_OPTS" value="-X+O" />
         </envs>
-        <EXTENSION ID="BundlerRunConfigurationExtension" bundleExecEnabled="false" />
+        <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="DISABLE" bundleExecEnabled="false" />
         <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
         <EXTENSION ID="RubyCoverageRunConfigurationExtension" track_test_folders="true" runner="rcov">
           <COVERAGE_PATTERN ENABLED="true">
@@ -263,7 +263,7 @@
         <envs>
           <env name="JRUBY_OPTS" value="-X+O" />
         </envs>
-        <EXTENSION ID="BundlerRunConfigurationExtension" bundleExecEnabled="false" />
+        <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="DISABLE" bundleExecEnabled="false" />
         <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
         <EXTENSION ID="RubyCoverageRunConfigurationExtension" track_test_folders="true" runner="rcov">
           <COVERAGE_PATTERN ENABLED="true">
@@ -307,7 +307,7 @@
         <envs>
           <env name="JRUBY_OPTS" value="-X+O" />
         </envs>
-        <EXTENSION ID="BundlerRunConfigurationExtension" bundleExecEnabled="false" />
+        <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="DISABLE" bundleExecEnabled="false" />
         <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
         <EXTENSION ID="RubyCoverageRunConfigurationExtension" track_test_folders="true" runner="rcov">
           <COVERAGE_PATTERN ENABLED="true">
@@ -345,7 +345,7 @@
         <envs>
           <env name="JRUBY_OPTS" value="-X+O" />
         </envs>
-        <EXTENSION ID="BundlerRunConfigurationExtension" bundleExecEnabled="false" />
+        <EXTENSION ID="BundlerRunConfigurationExtension" BUNDLE_MODE="DISABLE" bundleExecEnabled="false" />
         <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
         <EXTENSION ID="RubyCoverageRunConfigurationExtension" track_test_folders="true" runner="rcov">
           <COVERAGE_PATTERN ENABLED="true">
@@ -386,39 +386,301 @@
     </content>
     <orderEntry type="jdk" jdkName="rbenv: 3.0.4" jdkType="RUBY_SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="addressable (v2.8.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="ast (v2.4.2, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="bundler (v2.3.12, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="crack (v0.4.5, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.5.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="hashdiff (v1.0.1, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="parallel (v1.22.1, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="parser (v3.1.2.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="public_suffix (v4.0.7, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rainbow (v3.1.1, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rake (v13.0.6, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="redcarpet (v3.5.1, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="regexp_parser (v2.3.1, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rexml (v3.2.5, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec (v3.11.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.11.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v3.11.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v3.11.1, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.11.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubocop (v1.28.2, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubocop-ast (v1.17.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubocop-rspec (v2.10.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="ruby-progressbar (v1.11.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="rubyzip (v2.3.2, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="tee (v1.0.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="terminal-table (v3.0.2, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="unicode-display_width (v2.1.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="webmock (v3.14.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="webrick (v1.7.0, rbenv: 2.5.9) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="yard (v0.9.27, rbenv: 2.5.9) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="addressable (v2.8.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ast (v2.4.2, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="bundler (v2.3.12, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="crack (v0.4.5, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.5.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="hashdiff (v1.0.1, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="parallel (v1.22.1, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="parser (v3.1.2.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="public_suffix (v4.0.7, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rainbow (v3.1.1, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rake (v13.0.6, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="redcarpet (v3.5.1, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="regexp_parser (v2.3.1, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rexml (v3.2.5, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec (v3.11.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.11.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v3.11.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v3.11.1, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.11.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubocop (v1.28.2, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubocop-ast (v1.17.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubocop-rspec (v2.10.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ruby-progressbar (v1.11.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rubyzip (v2.3.2, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="tee (v1.0.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="terminal-table (v3.0.2, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="unicode-display_width (v2.1.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="webmock (v3.14.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="webrick (v1.7.0, rbenv: 3.0.4) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="yard (v0.9.27, rbenv: 3.0.4) [gem]" level="application" />
   </component>
   <component name="RModuleSettingsStorage">
     <LOAD_PATH number="4" string0="$MODULE_DIR$/lib" string1="$MODULE_DIR$/spec" string2="$MODULE_DIR$/bin" string3="$MODULE_DIR$/spec/bin" />
     <I18N_FOLDERS number="0" />
+  </component>
+  <component name="RakeTasksCache">
+    <option name="myRootTask">
+      <RakeTaskImpl id="rake">
+        <subtasks>
+          <RakeTaskImpl description="Check that all APIs have been documented" fullCommand="check_api_doc" id="check_api_doc" />
+          <RakeTaskImpl description="Remove any temporary products" fullCommand="clean" id="clean" />
+          <RakeTaskImpl description="Remove any generated files" fullCommand="clobber" id="clobber" />
+          <RakeTaskImpl description="Create packaged buildpack" fullCommand="package" id="package" />
+          <RakeTaskImpl description="Run RuboCop" fullCommand="rubocop" id="rubocop" />
+          <RakeTaskImpl id="rubocop">
+            <subtasks>
+              <RakeTaskImpl description="Auto-correct RuboCop offenses" fullCommand="rubocop:auto_correct" id="auto_correct" />
+            </subtasks>
+          </RakeTaskImpl>
+          <RakeTaskImpl description="Run RSpec code examples" fullCommand="spec" id="spec" />
+          <RakeTaskImpl description="Display the versions of buildpack dependencies in human readable form" fullCommand="versions" id="versions" />
+          <RakeTaskImpl id="versions">
+            <subtasks>
+              <RakeTaskImpl description="Display the versions of buildpack dependencies in JSON form" fullCommand="versions:json" id="json" />
+              <RakeTaskImpl description="Display the versions of buildpack dependencies in Markdown form" fullCommand="versions:markdown" id="markdown" />
+              <RakeTaskImpl description="Display the versions of buildpack dependencies in YAML form" fullCommand="versions:yaml" id="yaml" />
+            </subtasks>
+          </RakeTaskImpl>
+          <RakeTaskImpl description="Generate YARD Documentation" fullCommand="yard" id="yard" />
+          <RakeTaskImpl description="" fullCommand="build" id="build" />
+          <RakeTaskImpl description="" fullCommand="build/java-buildpack-6f691a4c.zip" id="build/java-buildpack-6f691a4c.zip" />
+          <RakeTaskImpl description="" fullCommand="build/staging" id="build/staging" />
+          <RakeTaskImpl description="" fullCommand="build/staging/LICENSE" id="build/staging/LICENSE" />
+          <RakeTaskImpl description="" fullCommand="build/staging/NOTICE" id="build/staging/NOTICE" />
+          <RakeTaskImpl description="" fullCommand="build/staging/bin" id="build/staging/bin" />
+          <RakeTaskImpl description="" fullCommand="build/staging/bin/compile" id="build/staging/bin/compile" />
+          <RakeTaskImpl description="" fullCommand="build/staging/bin/detect" id="build/staging/bin/detect" />
+          <RakeTaskImpl description="" fullCommand="build/staging/bin/finalize" id="build/staging/bin/finalize" />
+          <RakeTaskImpl description="" fullCommand="build/staging/bin/release" id="build/staging/bin/release" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config" id="build/staging/config" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/app_dynamics_agent.yml" id="build/staging/config/app_dynamics_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/aspectj_weaver_agent.yml" id="build/staging/config/aspectj_weaver_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/azure_application_insights_agent.yml" id="build/staging/config/azure_application_insights_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/cache.yml" id="build/staging/config/cache.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/client_certificate_mapper.yml" id="build/staging/config/client_certificate_mapper.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/components.yml" id="build/staging/config/components.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/container_customizer.yml" id="build/staging/config/container_customizer.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/container_security_provider.yml" id="build/staging/config/container_security_provider.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/contrast_security_agent.yml" id="build/staging/config/contrast_security_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/datadog_javaagent.yml" id="build/staging/config/datadog_javaagent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/debug.yml" id="build/staging/config/debug.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/dist_zip.yml" id="build/staging/config/dist_zip.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/dist_zip_like.yml" id="build/staging/config/dist_zip_like.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/elastic_apm_agent.yml" id="build/staging/config/elastic_apm_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/google_stackdriver_debugger.yml" id="build/staging/config/google_stackdriver_debugger.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/google_stackdriver_profiler.yml" id="build/staging/config/google_stackdriver_profiler.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/graal_vm_jre.yml" id="build/staging/config/graal_vm_jre.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/groovy.yml" id="build/staging/config/groovy.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/ibm_jre.yml" id="build/staging/config/ibm_jre.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/introscope_agent.yml" id="build/staging/config/introscope_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/jacoco_agent.yml" id="build/staging/config/jacoco_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/java_main.yml" id="build/staging/config/java_main.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/java_memory_assistant.yml" id="build/staging/config/java_memory_assistant.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/java_opts.yml" id="build/staging/config/java_opts.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/jmx.yml" id="build/staging/config/jmx.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/jprofiler_profiler.yml" id="build/staging/config/jprofiler_profiler.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/jrebel_agent.yml" id="build/staging/config/jrebel_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/logging.yml" id="build/staging/config/logging.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/luna_security_provider.yml" id="build/staging/config/luna_security_provider.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/maria_db_jdbc.yml" id="build/staging/config/maria_db_jdbc.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/metric_writer.yml" id="build/staging/config/metric_writer.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/new_relic_agent.yml" id="build/staging/config/new_relic_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/open_jdk_jre.yml" id="build/staging/config/open_jdk_jre.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/oracle_jre.yml" id="build/staging/config/oracle_jre.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/packaging.yml" id="build/staging/config/packaging.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/platform.yml" id="build/staging/config/platform.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/postgresql_jdbc.yml" id="build/staging/config/postgresql_jdbc.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/protect_app_security_provider.yml" id="build/staging/config/protect_app_security_provider.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/repository.yml" id="build/staging/config/repository.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/riverbed_appinternals_agent.yml" id="build/staging/config/riverbed_appinternals_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/sap_machine_jre.yml" id="build/staging/config/sap_machine_jre.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/sealights_agent.yml" id="build/staging/config/sealights_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/sky_walking_agent.yml" id="build/staging/config/sky_walking_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/spring_auto_reconfiguration.yml" id="build/staging/config/spring_auto_reconfiguration.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/spring_boot_cli.yml" id="build/staging/config/spring_boot_cli.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/takipi_agent.yml" id="build/staging/config/takipi_agent.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/tomcat.yml" id="build/staging/config/tomcat.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/version.yml" id="build/staging/config/version.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/your_kit_profiler.yml" id="build/staging/config/your_kit_profiler.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/config/zulu_jre.yml" id="build/staging/config/zulu_jre.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib" id="build/staging/lib" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack" id="build/staging/lib/java_buildpack" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack.rb" id="build/staging/lib/java_buildpack.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/buildpack.rb" id="build/staging/lib/java_buildpack/buildpack.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/buildpack_version.rb" id="build/staging/lib/java_buildpack/buildpack_version.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component" id="build/staging/lib/java_buildpack/component" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component.rb" id="build/staging/lib/java_buildpack/component.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/additional_libraries.rb" id="build/staging/lib/java_buildpack/component/additional_libraries.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/application.rb" id="build/staging/lib/java_buildpack/component/application.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/base_component.rb" id="build/staging/lib/java_buildpack/component/base_component.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/droplet.rb" id="build/staging/lib/java_buildpack/component/droplet.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/environment_variables.rb" id="build/staging/lib/java_buildpack/component/environment_variables.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/extension_directories.rb" id="build/staging/lib/java_buildpack/component/extension_directories.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/immutable_java_home.rb" id="build/staging/lib/java_buildpack/component/immutable_java_home.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/java_opts.rb" id="build/staging/lib/java_buildpack/component/java_opts.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/modular_component.rb" id="build/staging/lib/java_buildpack/component/modular_component.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/mutable_java_home.rb" id="build/staging/lib/java_buildpack/component/mutable_java_home.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/networking.rb" id="build/staging/lib/java_buildpack/component/networking.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/root_libraries.rb" id="build/staging/lib/java_buildpack/component/root_libraries.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/security_providers.rb" id="build/staging/lib/java_buildpack/component/security_providers.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/services.rb" id="build/staging/lib/java_buildpack/component/services.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/component/versioned_dependency_component.rb" id="build/staging/lib/java_buildpack/component/versioned_dependency_component.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container" id="build/staging/lib/java_buildpack/container" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container.rb" id="build/staging/lib/java_buildpack/container.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/dist_zip.rb" id="build/staging/lib/java_buildpack/container/dist_zip.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/dist_zip_like.rb" id="build/staging/lib/java_buildpack/container/dist_zip_like.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/groovy.rb" id="build/staging/lib/java_buildpack/container/groovy.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/java_main.rb" id="build/staging/lib/java_buildpack/container/java_main.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/play_framework.rb" id="build/staging/lib/java_buildpack/container/play_framework.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/ratpack.rb" id="build/staging/lib/java_buildpack/container/ratpack.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/spring_boot.rb" id="build/staging/lib/java_buildpack/container/spring_boot.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/spring_boot_cli.rb" id="build/staging/lib/java_buildpack/container/spring_boot_cli.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/tomcat" id="build/staging/lib/java_buildpack/container/tomcat" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/tomcat.rb" id="build/staging/lib/java_buildpack/container/tomcat.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/tomcat/tomcat_access_logging_support.rb" id="build/staging/lib/java_buildpack/container/tomcat/tomcat_access_logging_support.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/tomcat/tomcat_external_configuration.rb" id="build/staging/lib/java_buildpack/container/tomcat/tomcat_external_configuration.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/tomcat/tomcat_geode_store.rb" id="build/staging/lib/java_buildpack/container/tomcat/tomcat_geode_store.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/tomcat/tomcat_insight_support.rb" id="build/staging/lib/java_buildpack/container/tomcat/tomcat_insight_support.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/tomcat/tomcat_instance.rb" id="build/staging/lib/java_buildpack/container/tomcat/tomcat_instance.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/tomcat/tomcat_lifecycle_support.rb" id="build/staging/lib/java_buildpack/container/tomcat/tomcat_lifecycle_support.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/tomcat/tomcat_logging_support.rb" id="build/staging/lib/java_buildpack/container/tomcat/tomcat_logging_support.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/tomcat/tomcat_redis_store.rb" id="build/staging/lib/java_buildpack/container/tomcat/tomcat_redis_store.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/tomcat/tomcat_setenv.rb" id="build/staging/lib/java_buildpack/container/tomcat/tomcat_setenv.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/container/tomcat/tomcat_utils.rb" id="build/staging/lib/java_buildpack/container/tomcat/tomcat_utils.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework" id="build/staging/lib/java_buildpack/framework" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework.rb" id="build/staging/lib/java_buildpack/framework.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/app_dynamics_agent.rb" id="build/staging/lib/java_buildpack/framework/app_dynamics_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/aspectj_weaver_agent.rb" id="build/staging/lib/java_buildpack/framework/aspectj_weaver_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/azure_application_insights_agent.rb" id="build/staging/lib/java_buildpack/framework/azure_application_insights_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/checkmarx_iast_agent.rb" id="build/staging/lib/java_buildpack/framework/checkmarx_iast_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/client_certificate_mapper.rb" id="build/staging/lib/java_buildpack/framework/client_certificate_mapper.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/container_customizer.rb" id="build/staging/lib/java_buildpack/framework/container_customizer.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/container_security_provider.rb" id="build/staging/lib/java_buildpack/framework/container_security_provider.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/contrast_security_agent.rb" id="build/staging/lib/java_buildpack/framework/contrast_security_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/datadog_javaagent.rb" id="build/staging/lib/java_buildpack/framework/datadog_javaagent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/debug.rb" id="build/staging/lib/java_buildpack/framework/debug.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/dynatrace_one_agent.rb" id="build/staging/lib/java_buildpack/framework/dynatrace_one_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/elastic_apm_agent.rb" id="build/staging/lib/java_buildpack/framework/elastic_apm_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/google_stackdriver_debugger.rb" id="build/staging/lib/java_buildpack/framework/google_stackdriver_debugger.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/google_stackdriver_profiler.rb" id="build/staging/lib/java_buildpack/framework/google_stackdriver_profiler.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/introscope_agent.rb" id="build/staging/lib/java_buildpack/framework/introscope_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/jacoco_agent.rb" id="build/staging/lib/java_buildpack/framework/jacoco_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/java_memory_assistant" id="build/staging/lib/java_buildpack/framework/java_memory_assistant" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/java_memory_assistant.rb" id="build/staging/lib/java_buildpack/framework/java_memory_assistant.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/java_memory_assistant/agent.rb" id="build/staging/lib/java_buildpack/framework/java_memory_assistant/agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/java_memory_assistant/clean_up.rb" id="build/staging/lib/java_buildpack/framework/java_memory_assistant/clean_up.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/java_memory_assistant/heap_dump_folder.rb" id="build/staging/lib/java_buildpack/framework/java_memory_assistant/heap_dump_folder.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/java_opts.rb" id="build/staging/lib/java_buildpack/framework/java_opts.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/java_security.rb" id="build/staging/lib/java_buildpack/framework/java_security.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/jmx.rb" id="build/staging/lib/java_buildpack/framework/jmx.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/jprofiler_profiler.rb" id="build/staging/lib/java_buildpack/framework/jprofiler_profiler.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/jrebel_agent.rb" id="build/staging/lib/java_buildpack/framework/jrebel_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/luna_security_provider.rb" id="build/staging/lib/java_buildpack/framework/luna_security_provider.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/maria_db_jdbc.rb" id="build/staging/lib/java_buildpack/framework/maria_db_jdbc.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/metric_writer.rb" id="build/staging/lib/java_buildpack/framework/metric_writer.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/multi_buildpack.rb" id="build/staging/lib/java_buildpack/framework/multi_buildpack.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/new_relic_agent.rb" id="build/staging/lib/java_buildpack/framework/new_relic_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/postgresql_jdbc.rb" id="build/staging/lib/java_buildpack/framework/postgresql_jdbc.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/protect_app_security_provider.rb" id="build/staging/lib/java_buildpack/framework/protect_app_security_provider.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/riverbed_appinternals_agent.rb" id="build/staging/lib/java_buildpack/framework/riverbed_appinternals_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/sealights_agent.rb" id="build/staging/lib/java_buildpack/framework/sealights_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/seeker_security_provider.rb" id="build/staging/lib/java_buildpack/framework/seeker_security_provider.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/sky_walking_agent.rb" id="build/staging/lib/java_buildpack/framework/sky_walking_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/spring_auto_reconfiguration.rb" id="build/staging/lib/java_buildpack/framework/spring_auto_reconfiguration.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/spring_insight.rb" id="build/staging/lib/java_buildpack/framework/spring_insight.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/takipi_agent.rb" id="build/staging/lib/java_buildpack/framework/takipi_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/framework/your_kit_profiler.rb" id="build/staging/lib/java_buildpack/framework/your_kit_profiler.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre" id="build/staging/lib/java_buildpack/jre" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre.rb" id="build/staging/lib/java_buildpack/jre.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre/graal_vm_jre.rb" id="build/staging/lib/java_buildpack/jre/graal_vm_jre.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre/ibm_jre.rb" id="build/staging/lib/java_buildpack/jre/ibm_jre.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre/ibm_jre_initializer.rb" id="build/staging/lib/java_buildpack/jre/ibm_jre_initializer.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre/jvmkill_agent.rb" id="build/staging/lib/java_buildpack/jre/jvmkill_agent.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre/open_jdk_jre.rb" id="build/staging/lib/java_buildpack/jre/open_jdk_jre.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre/open_jdk_like.rb" id="build/staging/lib/java_buildpack/jre/open_jdk_like.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre/open_jdk_like_jre.rb" id="build/staging/lib/java_buildpack/jre/open_jdk_like_jre.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre/open_jdk_like_memory_calculator.rb" id="build/staging/lib/java_buildpack/jre/open_jdk_like_memory_calculator.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre/open_jdk_like_security_providers.rb" id="build/staging/lib/java_buildpack/jre/open_jdk_like_security_providers.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre/oracle_jre.rb" id="build/staging/lib/java_buildpack/jre/oracle_jre.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre/sap_machine_jre.rb" id="build/staging/lib/java_buildpack/jre/sap_machine_jre.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/jre/zulu_jre.rb" id="build/staging/lib/java_buildpack/jre/zulu_jre.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/logging" id="build/staging/lib/java_buildpack/logging" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/logging.rb" id="build/staging/lib/java_buildpack/logging.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/logging/delegating_logger.rb" id="build/staging/lib/java_buildpack/logging/delegating_logger.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/logging/logger_factory.rb" id="build/staging/lib/java_buildpack/logging/logger_factory.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/repository" id="build/staging/lib/java_buildpack/repository" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/repository.rb" id="build/staging/lib/java_buildpack/repository.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/repository/configured_item.rb" id="build/staging/lib/java_buildpack/repository/configured_item.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/repository/repository_index.rb" id="build/staging/lib/java_buildpack/repository/repository_index.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/repository/version_resolver.rb" id="build/staging/lib/java_buildpack/repository/version_resolver.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util" id="build/staging/lib/java_buildpack/util" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util.rb" id="build/staging/lib/java_buildpack/util.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/cache" id="build/staging/lib/java_buildpack/util/cache" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/cache.rb" id="build/staging/lib/java_buildpack/util/cache.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/cache/application_cache.rb" id="build/staging/lib/java_buildpack/util/cache/application_cache.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/cache/cache_factory.rb" id="build/staging/lib/java_buildpack/util/cache/cache_factory.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/cache/cached_file.rb" id="build/staging/lib/java_buildpack/util/cache/cached_file.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/cache/download_cache.rb" id="build/staging/lib/java_buildpack/util/cache/download_cache.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/cache/inferred_network_failure.rb" id="build/staging/lib/java_buildpack/util/cache/inferred_network_failure.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/cache/internet_availability.rb" id="build/staging/lib/java_buildpack/util/cache/internet_availability.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/class_file_utils.rb" id="build/staging/lib/java_buildpack/util/class_file_utils.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/colorize.rb" id="build/staging/lib/java_buildpack/util/colorize.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/configuration_utils.rb" id="build/staging/lib/java_buildpack/util/configuration_utils.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/constantize.rb" id="build/staging/lib/java_buildpack/util/constantize.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/dash_case.rb" id="build/staging/lib/java_buildpack/util/dash_case.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/external_config.rb" id="build/staging/lib/java_buildpack/util/external_config.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/file_enumerable.rb" id="build/staging/lib/java_buildpack/util/file_enumerable.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/filtering_pathname.rb" id="build/staging/lib/java_buildpack/util/filtering_pathname.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/find_single_directory.rb" id="build/staging/lib/java_buildpack/util/find_single_directory.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/format_duration.rb" id="build/staging/lib/java_buildpack/util/format_duration.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/groovy_utils.rb" id="build/staging/lib/java_buildpack/util/groovy_utils.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/jar_finder.rb" id="build/staging/lib/java_buildpack/util/jar_finder.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/java_main_utils.rb" id="build/staging/lib/java_buildpack/util/java_main_utils.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/play" id="build/staging/lib/java_buildpack/util/play" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/play.rb" id="build/staging/lib/java_buildpack/util/play.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/play/base.rb" id="build/staging/lib/java_buildpack/util/play/base.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/play/factory.rb" id="build/staging/lib/java_buildpack/util/play/factory.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/play/post22.rb" id="build/staging/lib/java_buildpack/util/play/post22.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/play/post22_dist.rb" id="build/staging/lib/java_buildpack/util/play/post22_dist.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/play/post22_staged.rb" id="build/staging/lib/java_buildpack/util/play/post22_staged.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/play/pre22.rb" id="build/staging/lib/java_buildpack/util/play/pre22.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/play/pre22_dist.rb" id="build/staging/lib/java_buildpack/util/play/pre22_dist.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/play/pre22_staged.rb" id="build/staging/lib/java_buildpack/util/play/pre22_staged.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/properties.rb" id="build/staging/lib/java_buildpack/util/properties.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/qualify_path.rb" id="build/staging/lib/java_buildpack/util/qualify_path.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/ratpack_utils.rb" id="build/staging/lib/java_buildpack/util/ratpack_utils.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/sanitizer.rb" id="build/staging/lib/java_buildpack/util/sanitizer.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/shell.rb" id="build/staging/lib/java_buildpack/util/shell.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/snake_case.rb" id="build/staging/lib/java_buildpack/util/snake_case.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/space_case.rb" id="build/staging/lib/java_buildpack/util/space_case.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/spring_boot_utils.rb" id="build/staging/lib/java_buildpack/util/spring_boot_utils.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/start_script.rb" id="build/staging/lib/java_buildpack/util/start_script.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/to_b.rb" id="build/staging/lib/java_buildpack/util/to_b.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/lib/java_buildpack/util/tokenized_version.rb" id="build/staging/lib/java_buildpack/util/tokenized_version.rb" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources" id="build/staging/resources" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/app_dynamics_agent" id="build/staging/resources/app_dynamics_agent" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/app_dynamics_agent/defaults" id="build/staging/resources/app_dynamics_agent/defaults" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/app_dynamics_agent/defaults/conf" id="build/staging/resources/app_dynamics_agent/defaults/conf" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/app_dynamics_agent/defaults/conf/app-agent-config.xml" id="build/staging/resources/app_dynamics_agent/defaults/conf/app-agent-config.xml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/azure_application_insights_agent" id="build/staging/resources/azure_application_insights_agent" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/azure_application_insights_agent/AI-Agent.xml" id="build/staging/resources/azure_application_insights_agent/AI-Agent.xml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/luna_security_provider" id="build/staging/resources/luna_security_provider" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/luna_security_provider/Chrystoki.conf" id="build/staging/resources/luna_security_provider/Chrystoki.conf" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/new_relic_agent" id="build/staging/resources/new_relic_agent" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/new_relic_agent/newrelic.yml" id="build/staging/resources/new_relic_agent/newrelic.yml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/protect_app_security_provider" id="build/staging/resources/protect_app_security_provider" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/protect_app_security_provider/IngrianNAE.properties" id="build/staging/resources/protect_app_security_provider/IngrianNAE.properties" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/tomcat" id="build/staging/resources/tomcat" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/tomcat/conf" id="build/staging/resources/tomcat/conf" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/tomcat/conf/context.xml" id="build/staging/resources/tomcat/conf/context.xml" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/tomcat/conf/logging.properties" id="build/staging/resources/tomcat/conf/logging.properties" />
+          <RakeTaskImpl description="" fullCommand="build/staging/resources/tomcat/conf/server.xml" id="build/staging/resources/tomcat/conf/server.xml" />
+          <RakeTaskImpl description="" fullCommand="default" id="default" />
+        </subtasks>
+      </RakeTaskImpl>
+    </option>
   </component>
 </module>

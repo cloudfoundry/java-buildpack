@@ -18,7 +18,10 @@
 # e.g.  repository_root: "https://example.com/graalvm-jre/{platform}/{architecture}"
 ---
 jre:
-  version: 19.3.+
+  version: 22.1.+
+  version_lines:
+    - 22.1.+
+    - 21.3.+
   repository_root: ""
 jvmkill_agent:
   version: 1.+

@@ -19,6 +19,46 @@ require 'java_buildpack/buildpack_version'
 
 module Package
 
+  def packaging
+    @pkgcfg = configuration('packaging') if @pkgcfg.nil?
+    @pkgcfg
+  end
+
+  def configuration(id)
+    JavaBuildpack::Util::ConfigurationUtils.load(id, false, false)
+  end
+
+  def configurations(component_id, configuration, sub_component_id = nil)
+    configurations = []
+
+    if repository_configuration?(configuration)
+      configuration['component_id'] = component_id
+      configuration['sub_component_id'] = sub_component_id if sub_component_id
+
+      Utils::VersionUtils.java_version_lines(configuration, configurations) \
+          if Utils::VersionUtils.openjdk_jre? configuration
+
+      configurations << configuration
+    else
+      configuration.each { |k, v| configurations << configurations(component_id, v, k) if v.is_a? Hash }
+    end
+
+    configurations
+  end
+
+  def index_configuration(configuration)
+    [configuration['repository_root']]
+      .map { |r| { uri: r } }
+      .map { |r| augment_repository_root r }
+      .map { |r| augment_platform r }
+      .map { |r| augment_architecture r }
+      .map { |r| augment_path r }.flatten
+  end
+
+  def repository_configuration?(configuration)
+    configuration['version'] && configuration['repository_root']
+  end
+
   def self.offline
     '-offline' if BUILDPACK_VERSION.offline
   end

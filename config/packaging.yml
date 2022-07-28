@@ -1,0 +1,190 @@
+# Cloud Foundry Java Buildpack
+# Copyright 2013-2022 the original author or authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+access_logging_support:
+  name: Tomcat Access Logging Support
+  cve_notes: Included inline above
+  release_notes: Included inline above
+
+agent:
+  name: Java Memory Assistant Agent
+
+app_dynamics_agent:
+  name: AppDynamics Agent
+  release_notes: '[Release Notes](https://docs.appdynamics.com/4.5.x/en/product-and-release-announcements/release-notes/language-agent-notes/java-agent-notes)'
+
+azure_application_insights_agent:
+  name: Azure Application Insights Agent
+  release_notes: '[Release Notes](https://github.com/Microsoft/ApplicationInsights-Java/releases)'
+
+clean_up:
+  name: Java Memory Assistant Clean Up
+
+client_certificate_mapper:
+  name: Client Certificate Mapper
+  cve_notes: 'Included inline above'
+  release_notes: 'Included inline above'
+
+container_customizer:
+  name: Spring Boot Container Customizer
+  cve_notes: 'Included inline above'
+  release_notes: 'Included inline above'
+
+container_security_provider:
+  name: Container Security Provider
+  cve_notes: 'Included inline above'
+  release_notes: 'Included inline above'
+
+contrast_security_agent:
+  name: Contrast Security Agent
+  release_notes: '[Release Notes](https://docs.contrastsecurity.com/en/java-agent-release-notes.html)'
+
+datadog_javaagent:
+  name: Datadog APM Javaagent
+  release_notes: '[Release Notes](https://github.com/DataDog/dd-trace-java/releases)'
+
+dynatrace_one_agent:
+  name: Dynatrace OneAgent
+  release_notes: '[Release Notes](https://www.dynatrace.com/support/help/whats-new/release-notes/#oneagent)'
+
+elastic_apm_agent:
+  name: Elastic APM Agent
+  release_notes: '[Release Notes](https://www.elastic.co/guide/en/apm/agent/java/current/release-notes.html)'
+
+geode_store:
+  name: Geode Tomcat Session Store
+
+google_stackdriver_debugger:
+  name: Google Stackdriver Debugger
+  release_notes: '[Release Notes](https://cloud.google.com/debugger/docs/release-notes)'
+
+google_stackdriver_profiler:
+  name: Google Stackdriver Profiler
+  release_notes: '[Release Notes](https://cloud.google.com/profiler/docs/release-notes)'
+
+groovy:
+  name: Groovy
+  release_notes: '[Release Notes](http://www.groovy-lang.org/releases.html)'
+
+introscope_agent:
+  name: CA Introscope APM Framework
+
+jacoco_agent:
+  name: JaCoCo Agent
+  release_notes: '[Release Notes](https://github.com/jacoco/jacoco/releases)'
+
+jprofiler_profiler:
+  name: JProfiler Profiler
+  release_notes: '[ChangeLog](https://www.ej-technologies.com/download/jprofiler/changelog.html)'
+
+jre:
+  name: OpenJDK JRE 8
+  cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpujul2022.html#AppendixJAVA)'
+  release_notes: '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-8u342/)'
+
+jre-11:
+  name: OpenJDK JRE 11
+  cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpujul2022.html#AppendixJAVA)'
+  release_notes: '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-11.0.16/)'
+
+jre-17:
+  name: OpenJDK JRE 17
+  cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpujul2022.html#AppendixJAVA)'
+  release_notes: '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-17.0.4/)'
+
+jrebel_agent:
+  name: JRebel Agent
+  release_notes: '[ChangeLog](https://www.jrebel.com/products/jrebel/changelog)'
+
+jvmkill_agent:
+  name: jvmkill Agent
+  cve_notes: 'Included inline above'
+  release_notes: 'Included inline above'
+
+lifecycle_support:
+  name: Tomcat Lifecycle Support
+  cve_notes: 'Included inline above'
+  release_notes: 'Included inline above'
+
+logging_support:
+  name: Tomcat Logging Support
+  cve_notes: 'Included inline above'
+  release_notes: 'Included inline above'
+
+luna_security_provider:
+  name: Gemalto Luna Security Provider
+  release_notes: '[Release Notes](https://www.thalesdocs.com/gphsm/luna/7/docs/network/Content/CRN/Luna/CRN_Luna.htm)'
+
+maria_db_jdbc:
+  name: MariaDB JDBC Driver
+  release_notes: '[Release Notes](https://mariadb.com/kb/en/mariadb-connector-j-274-release-notes/)'
+
+memory_calculator:
+  name: Memory Calculator
+  cve_notes: 'Included inline above'
+  release_notes: 'Included inline above'
+
+metric_writer:
+  name: Metric Writer
+  cve_notes: 'Included inline above'
+  release_notes: 'Included inline above'
+
+new_relic_agent:
+  name: New Relic Agent
+  release_notes: '[Release Notes](https://docs.newrelic.com/docs/release-notes/agent-release-notes/java-release-notes/)'
+
+postgresql_jdbc:
+  name: PostgreSQL JDBC Driver
+  release_notes: '[ChangeLog](https://jdbc.postgresql.org/documentation/changelog.html)'
+
+protect_app_security_provider:
+  name: Gemalto ProtectApp Security Provider
+
+redis_store:
+  name: Redis Session Store
+  cve_notes: 'Included inline above'
+  release_notes: 'Included inline above'
+
+riverbed_appinternals_agent:
+  name: Riverbed Appinternals Agent
+
+sealights_agent:
+  name: SeaLights Agent
+
+sky_walking_agent:
+  name: SkyWalking
+  release_notes: '[ChangeLog](https://github.com/apache/skywalking/tree/master/changes)'
+
+spring_auto_reconfiguration:
+  name: Spring Auto-reconfiguration
+  cve_notes: 'Included inline above'
+  release_notes: 'Included inline above'
+
+spring_boot_cli:
+  name: Spring Boot CLI
+
+takipi_agent:
+  name: Takipi Agent
+  release_notes: '[Release Notes](https://doc.overops.com/docs/whats-new)'
+
+tomcat:
+  name: Tomcat
+  cve_notes: '[Security](https://tomcat.apache.org/security-9.html)'
+  release_notes: '[ChangeLog](https://tomcat.apache.org/tomcat-9.0-doc/changelog.html)'
+
+your_kit_profiler:
+  name: YourKit Profiler
+  release_notes: '[Release Notes](https://www.yourkit.com/download/yjp_2022_3_builds.jsp)'

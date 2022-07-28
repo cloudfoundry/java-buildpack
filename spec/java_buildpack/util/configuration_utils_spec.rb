@@ -102,6 +102,66 @@ describe JavaBuildpack::Util::ConfigurationUtils do
     context do
 
       let(:environment) do
+        { 'JBP_DEFAULT_TEST' => '{bar: {alpha: {one: 3, two: {one: 3}}, bravo: newValue}, foo: lion}' }
+      end
+
+      it 'overlays operator default matching environment variables' do
+
+        expect(described_class.load('test')).to eq('foo' => { 'one' => '1', 'two' => 2 },
+                                                   'bar' => { 'alpha' => { 'one' => 3, 'two' => 'dog' } },
+                                                   'version' => '1.7.1')
+      end
+
+    end
+
+    context do
+
+      let(:environment) do
+        { 'JBP_DEFAULT_TEST' => '{version: 1.8.+}' }
+      end
+
+      it 'overlays operator default config' do
+        expect(described_class.load('test')).to eq('foo' => { 'one' => '1', 'two' => 2 },
+                                                   'bar' => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } },
+                                                   'version' => '1.8.+')
+      end
+
+    end
+
+    context do
+
+      let(:environment) do
+        { 'JBP_DEFAULT_TEST' => '{version: 11.+}',
+          'JBP_CONFIG_TEST' => '{version: 17.+}' }
+      end
+
+      it 'overlays operator default config and environment variable config' do
+        expect(described_class.load('test')).to eq('foo' => { 'one' => '1', 'two' => 2 },
+                                                   'bar' => { 'alpha' => { 'one' => 'cat', 'two' => 'dog' } },
+                                                   'version' => '17.+')
+      end
+
+    end
+
+    context do
+
+      let(:environment) do
+        { 'JBP_DEFAULT_TEST' => '{bar: {alpha: {one: 3, two: {one: 3}}, bravo: newValue}}',
+          'JBP_CONFIG_TEST' => '{bar: {alpha: {one: 9, two: {one: 3}}, bravo: newValue}}' }
+      end
+
+      it 'overlays operator default matching and environment variables' do
+
+        expect(described_class.load('test')).to eq('foo' => { 'one' => '1', 'two' => 2 },
+                                                   'bar' => { 'alpha' => { 'one' => 9, 'two' => 'dog' } },
+                                                   'version' => '1.7.1')
+      end
+
+    end
+
+    context do
+
+      let(:environment) do
         { 'JBP_CONFIG_TEST' => 'Not an array or a hash' }
       end
 
