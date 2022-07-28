@@ -24,21 +24,24 @@ module JavaBuildpack
 
     # Encapsulates the detect, compile, and release functionality for selecting an Azul Platform Prime JRE.
     class ZingJRE < OpenJDKLike
+      # (see JavaBuildpack::Component::ModularComponent#command)
       def command
-        ""
+        ''
       end
 
+      # (see JavaBuildpack::Component::ModularComponent#sub_components)
       def sub_components(context)
-          [
-            OpenJDKLikeJre.new(sub_configuration_context(context, 'jre')
-                               .merge(component_name: self.class.to_s.space_case)),
-            OpenJDKLikeSecurityProviders.new(context)
-          ]
+        [
+          OpenJDKLikeJre.new(sub_configuration_context(context, 'jre')
+                             .merge(component_name: self.class.to_s.space_case)),
+          OpenJDKLikeSecurityProviders.new(context)
+        ]
       end
-    
+
+      # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         super
-        @droplet.add_preformatted_options "-XX:+ExitOnOutOfMemoryError"
+        @droplet.add_preformatted_options '-XX:+ExitOnOutOfMemoryError'
       end
     end
   end
