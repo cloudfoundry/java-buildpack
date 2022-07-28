@@ -42,13 +42,13 @@ $ cf set-staging-environment-variable-group '{"JBP_DEFAULT_OPEN_JDK_JRE":"{jre: 
 2. To change the default repository root across all applications on a foundation. Be careful to ensure that your JSON is properly escaped.
 
 ```bash
-$ cf set-staging-environment-variable-group '{"JBP_CONFIG_REPOSITORY": "{default_repository_root: \"http://repo.example.io\" }"}'
+$ cf set-staging-environment-variable-group '{"JBP_DEFAULT_REPOSITORY": "{default_repository_root: \"http://repo.example.io\" }"}'
 ```
 
 3. To change the default JVM vendor across all applications on a foundation. Be careful to ensure that your JSON is properly escaped.
 
 ```bash
-$ cf set-staging-environment-variable-group '{"JBP_CONFIG_COMPONENTS": "{jres: [\"JavaBuildpack::Jre::ZuluJRE\"]}"}'
+$ cf set-staging-environment-variable-group '{"JBP_DEFAULT_COMPONENTS": "{jres: [\"JavaBuildpack::Jre::ZuluJRE\"]}"}'
 ```
 
 ### Application Developer
