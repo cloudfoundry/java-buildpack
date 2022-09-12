@@ -19,4 +19,4 @@
 ---
 version: 2.+
 repository_root: "{default.repository.root}/auto-reconfiguration"
-enabled: true
+enabled: false
