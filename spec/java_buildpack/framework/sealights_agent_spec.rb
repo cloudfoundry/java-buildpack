@@ -106,12 +106,49 @@ describe JavaBuildpack::Framework::SealightsAgent do
         expect(java_opts).not_to include(/proxy/)
       end
 
-      it 'does not specify JAVA_OPTS sl.enableUpgrade if one was not specified' do
+      it 'sets JAVA_OPTS sl.enableUpgrade to false by default' do
         component.release
 
-        expect(java_opts).not_to include(/enableUpgrade/)
+        expect(java_opts).to include('-Dsl.enableUpgrade=false')
+      end
+    end
+
+    context do
+      let(:credentials) { { 'token' => 'my_token', 'proxy' => 'my_proxy', 'lab_id' => 'my_lab' } }
+      let(:configuration) { {} }
+
+      it 'updates JAVA_OPTS sl.labId from the user provisioned service' do
+        component.release
+
+        expect(java_opts).to include("-Dsl.labId=#{credentials['lab_id']}")
       end
 
+      it 'updates JAVA_OPTS sl.proxy from the user provisioned service' do
+        component.release
+
+        expect(java_opts).to include("-Dsl.proxy=#{credentials['proxy']}")
+      end
+    end
+
+    context do
+      let(:credentials) { { 'token' => 'my_token', 'proxy' => 'my_proxy', 'lab_id' => 'my_lab' } }
+
+      let(:configuration) do
+        { 'proxy' => '127.0.0.1:8888',
+          'lab_id' => 'lab1' }
+      end
+
+      it 'updates JAVA_OPTS sl.labId from config (and not user provisioned service)' do
+        component.release
+
+        expect(java_opts).to include("-Dsl.labId=#{configuration['lab_id']}")
+      end
+
+      it 'updates JAVA_OPTS sl.proxy from config (and not user provisioned service)' do
+        component.release
+
+        expect(java_opts).to include("-Dsl.proxy=#{configuration['proxy']}")
+      end
     end
 
   end
