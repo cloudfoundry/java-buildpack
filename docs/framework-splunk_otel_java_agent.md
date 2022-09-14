@@ -5,14 +5,23 @@ with the [Splunk distribution of OpenTelemetry Java Instrumentation](https://git
 
 Trace data will be sent directly to Splunk Observability Cloud. 
 
-* **Detection criteria**: Existence of a bound service with the name `splunk-o11y`.
-* **Tags**: `splunk-otel-java-agent=<version>` to control which version of the instrumentation agent is used. 
-  * Default = latest available version
+<table>
+  <tr>
+    <td><strong>Detection Criterion</strong></td>
+    <td>Existence of a bound service containing the string <code>splunk-o11y</code></td>
+  </tr>
+  <tr>
+    <td><strong>Tags</strong></td>
+    <td><code>splunk-otel-java-agent=&lt;version&gt;</code></td>
+  </tr>
+</table>
+
+Tags are printed to standard output by the buildpack detect script
 
 ## User-Provided Service
 
 Users are currently expected to provide their own "custom user provided service" (cups) 
-instance and bind it to their application. The service MUST be named `splunk-o11y`.
+instance and bind it to their application. The service MUST contain the string `splunk-o11y`.
 
 For example, to create a service named `splunk-o11y` that represents Observability Cloud 
 realm `us0` and represents a user environment named `cf-demo`, you could use the following
