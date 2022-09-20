@@ -93,7 +93,7 @@ jprofiler_profiler:
 jre:
   name: OpenJDK JRE 8
   cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpujul2022.html#AppendixJAVA)'
-  release_notes: '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-8u342/)'
+  release_notes: '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-8u345/)'
 
 jre-11:
   name: OpenJDK JRE 11
