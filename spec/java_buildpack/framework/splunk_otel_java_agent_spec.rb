@@ -33,7 +33,7 @@ describe JavaBuildpack::Framework::SplunkOtelJavaAgent do
   context 'when detected' do
 
     before do
-      allow(services).to receive(:one_service?).with(/^splunk-o11y$/).and_return(true)
+      allow(services).to receive(:one_service?).with(/splunk-o11y/).and_return(true)
     end
 
     it 'detects with splunk-otel-java' do

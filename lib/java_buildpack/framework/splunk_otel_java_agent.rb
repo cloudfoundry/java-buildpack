@@ -51,7 +51,7 @@ module JavaBuildpack
         @application.services.one_service? REQUIRED_SERVICE_NAME_FILTER
       end
 
-      REQUIRED_SERVICE_NAME_FILTER = /^splunk-o11y$/.freeze
+      REQUIRED_SERVICE_NAME_FILTER = /splunk-o11y/.freeze
 
     end
   end
