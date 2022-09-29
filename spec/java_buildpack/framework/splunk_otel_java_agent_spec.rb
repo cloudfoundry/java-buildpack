@@ -62,11 +62,19 @@ describe JavaBuildpack::Framework::SplunkOtelJavaAgent do
 
     it 'sets the service name from the application name' do
       allow(services).to receive(:find_service).and_return('credentials' => { 'splunk.access.token' => 'sekret' })
-      # allow(details).to be( { 'application_name' => 'dick' })
 
       component.release
 
       expect(java_opts).to include('-Dotel.service.name=GreatServiceTM')
+    end
+
+    it 'prefers credentials over application_name for service name' do
+      creds = { 'credentials' => { 'otel.service.name' => 'sweet', 'splunk.access.token' => 'sekret' } }
+      allow(services).to receive(:find_service).and_return(creds)
+
+      component.release
+
+      expect(java_opts).to include('-Dotel.service.name=sweet')
     end
 
   end

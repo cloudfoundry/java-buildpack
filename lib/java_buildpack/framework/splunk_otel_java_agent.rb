@@ -40,6 +40,9 @@ module JavaBuildpack
           java_opts.add_system_property(key, value) if key.start_with?('splunk.') || key.start_with?('otel.')
         end
 
+        # Set the otel.service.name to the application_name if not specified in credentials
+        return if credentials.key? 'otel.service.name'
+
         app_name = @application.details['application_name']
         java_opts.add_system_property('otel.service.name', app_name)
       end
@@ -51,6 +54,7 @@ module JavaBuildpack
         @application.services.one_service? REQUIRED_SERVICE_NAME_FILTER
       end
 
+      # bound service must contain the string `splunk-o11y`
       REQUIRED_SERVICE_NAME_FILTER = /splunk-o11y/.freeze
 
     end
