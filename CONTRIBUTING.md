@@ -19,7 +19,9 @@ If you're considering anything more than correcting a typo or fixing a minor bug
 [vcap-dev]: https://groups.google.com/a/cloudfoundry.org/forum/#!forum/vcap-dev
 
 ## Sign the Contributor License Agreement
-Please open an issue in the [GitHub issue tracker][] to receive instructions on how to fill out the Contributor License Agreement.
+If you are not yet covered under a Corporate CLA or Individual CLA, you'll be prompted to sign or be approved by your company when you put in your first Pull Request. Please follow the prompts in the EasyCLA check within that Pull Request. For additional assistance please [open a ticket here][].
+
+[open a ticket here]: https://jira.linuxfoundation.org/servicedesk/customer/portal/4
 
 ## Use short branch names
 Branches used when submitting pull requests should preferably using succinct, lower-case, dash (-) delimited names, such as 'fix-warnings', 'fix-typo', etc. In [fork-and-edit][] cases, the GitHub default 'patch-1' is fine as well. This is important, because branch names show up in the merge commits that result from accepting pull requests, and should be as expressive and concise as possible.
