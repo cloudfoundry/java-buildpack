@@ -25,6 +25,7 @@ class String
     rich_uri          = URI(self)
     rich_uri.user     = nil
     rich_uri.password = nil
+    rich_uri.query = rich_uri.query&.gsub(/(Api-Token=dt\w*\.\w*)\.\w*/, '\1.REDACTED')
     rich_uri.to_s
   end
 
