@@ -43,10 +43,18 @@ module JavaBuildpack
         credentials = @application.services.find_service(FILTER, TOKEN)['credentials']
         @droplet.java_opts.add_system_property('sl.token', Shellwords.escape(credentials[TOKEN]))
         @droplet.java_opts.add_system_property('sl.tags', 'pivotal_cloud_foundry')
-        add_system_property 'sl.enableUpgrade', ENABLE_UPGRADE
+
+        # add sl.enableUpgrade system property
+        @droplet.java_opts.add_system_property('sl.enableUpgrade', @configuration[ENABLE_UPGRADE] ? 'true' : 'false')
+
+        # add sl.proxy system property if defined (either in config or user provisioned service)
+        add_system_property_from_cfg_or_svc credentials, 'sl.proxy', PROXY
+
+        # add sl.labId system property if defined (either in config or user provisioned service)
+        add_system_property_from_cfg_or_svc credentials, 'sl.labId', LAB_ID
+
+        # add build session if defined in config
         add_system_property 'sl.buildSessionId', BUILD_SESSION_ID
-        add_system_property 'sl.proxy', PROXY
-        add_system_property 'sl.labId', LAB_ID
       end
 
       # wrapper for setting system properties on the droplet from configuration keys
@@ -54,6 +62,15 @@ module JavaBuildpack
         return unless @configuration.key?(config_key)
 
         @droplet.java_opts.add_system_property(system_property, Shellwords.escape(@configuration[config_key]))
+      end
+
+      # add a system property based on either plugin configuration (which takes precedence) or user provisioned service
+      def add_system_property_from_cfg_or_svc(svc, system_property, config_key)
+        if @configuration.key?(config_key)
+          @droplet.java_opts.add_system_property(system_property, Shellwords.escape(@configuration[config_key]))
+        elsif svc.key?(config_key)
+          @droplet.java_opts.add_system_property(system_property, Shellwords.escape(svc[config_key]))
+        end
       end
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
