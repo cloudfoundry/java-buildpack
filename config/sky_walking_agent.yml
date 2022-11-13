@@ -16,5 +16,5 @@
 # Configuration for the Sky Walking framework.
 ---
 version: +
-repository_root: https://java-buildpack.cloudfoundry.org/sky-walking
+repository_root: "{default.repository.root}/sky-walking"
 default_application_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name | @sh")
