@@ -33,7 +33,9 @@ describe JavaBuildpack::Framework::AzureApplicationInsightsAgent do
   context do
 
     before do
-      allow(services).to receive(:one_service?).with(/azure-application-insights/, 'instrumentation_key')
+      allow(services).to receive(:one_service?).with(/azure-application-insights/,
+                                                     'connection_string',
+                                                     'instrumentation_key')
                                                .and_return(true)
     end
 
@@ -59,12 +61,14 @@ describe JavaBuildpack::Framework::AzureApplicationInsightsAgent do
 
     it 'updates JAVA_OPTS' do
       allow(services).to receive(:find_service)
-        .and_return('credentials' => { 'instrumentation_key' => 'test-instrumentation-key' })
+        .and_return('credentials' => { 'connection_string' => 'test-connection-string',
+                                       'instrumentation_key' => 'test-instrumentation-key' })
 
       component.release
 
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/azure_application_insights_agent/' \
                                    "azure_application_insights_agent-#{version}.jar")
+      expect(java_opts).to include('-Dapplicationinsights.connection.string=test-connection-string')
       expect(java_opts).to include('-DAPPLICATION_INSIGHTS_IKEY=test-instrumentation-key')
     end
 

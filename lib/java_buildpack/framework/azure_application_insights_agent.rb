@@ -33,25 +33,32 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = @application.services.find_service(FILTER, INSTRUMENTATION_KEY)['credentials']
+        credentials = @application.services.find_service(FILTER, CONNECTION_STRING, INSTRUMENTATION_KEY)['credentials']
 
-        @droplet
-          .java_opts.add_javaagent(@droplet.sandbox + jar_name)
-          .add_system_property('APPLICATION_INSIGHTS_IKEY', credentials[INSTRUMENTATION_KEY])
+        if credentials.key?(CONNECTION_STRING)
+          @droplet.java_opts.add_system_property('applicationinsights.connection.string',
+                                                 credentials[CONNECTION_STRING])
+        end
+        if credentials.key?(INSTRUMENTATION_KEY)
+          @droplet.java_opts.add_system_property('APPLICATION_INSIGHTS_IKEY',
+                                                 credentials[INSTRUMENTATION_KEY])
+        end
+        @droplet.java_opts.add_javaagent(@droplet.sandbox + jar_name)
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, INSTRUMENTATION_KEY
+        @application.services.one_service?(FILTER, CONNECTION_STRING, INSTRUMENTATION_KEY)
       end
 
       FILTER = /azure-application-insights/.freeze
 
+      CONNECTION_STRING = 'connection_string'
       INSTRUMENTATION_KEY = 'instrumentation_key'
 
-      private_constant :FILTER, :INSTRUMENTATION_KEY
+      private_constant :FILTER, :CONNECTION_STRING, :INSTRUMENTATION_KEY
 
     end
 
