@@ -72,6 +72,15 @@ describe JavaBuildpack::Framework::AzureApplicationInsightsAgent do
       expect(java_opts).to include('-DAPPLICATION_INSIGHTS_IKEY=test-instrumentation-key')
     end
 
+    it 'updates environment variables' do
+      allow(services).to receive(:find_service)
+        .and_return('credentials' => { 'instrumentation_key' => 'test-instrumentation-key' })
+
+      component.release
+
+      expect(environment_variables).to include('APPINSIGHTS_INSTRUMENTATIONKEY=test-instrumentation-key')
+    end
+
   end
 
 end

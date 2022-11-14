@@ -42,6 +42,10 @@ module JavaBuildpack
         if credentials.key?(INSTRUMENTATION_KEY)
           @droplet.java_opts.add_system_property('APPLICATION_INSIGHTS_IKEY',
                                                  credentials[INSTRUMENTATION_KEY])
+          # add environment variable for compatibility with agent version 3.x
+          # this triggers a warning message to switch to connection string
+          @droplet.environment_variables.add_environment_variable('APPINSIGHTS_INSTRUMENTATIONKEY',
+                                                                  credentials[INSTRUMENTATION_KEY])
         end
         @droplet.java_opts.add_javaagent(@droplet.sandbox + jar_name)
       end
