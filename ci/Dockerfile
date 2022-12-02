@@ -19,11 +19,7 @@ RUN locale-gen en_US.UTF-8 \
  && /usr/sbin/update-locale LANG=en_US.UTF-8 \
  && dpkg-reconfigure -f noninteractive locales
 
-RUN git clone https://github.com/rbenv/rbenv.git $HOME/.rbenv \
- && cd $HOME/.rbenv \
- && src/configure \
- && make -C src \
- && ln -s $HOME/.rbenv/bin/rbenv /usr/local/bin
+RUN git clone https://github.com/rbenv/rbenv.git $HOME/.rbenv && ln -s $HOME/.rbenv/libexec/rbenv /usr/local/bin
 
 RUN eval "$(rbenv init -)" \
  && git clone https://github.com/rbenv/ruby-build.git $(rbenv root)/plugins/ruby-build
