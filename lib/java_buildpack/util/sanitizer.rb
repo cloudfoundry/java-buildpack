@@ -22,11 +22,32 @@ class String
   #
   # @return [String] the sanitized uri
   def sanitize_uri
+    keywords = /key|password|username|cred[entials]*[s]*|password|token|api[-_]token|api|auth[entication]*|access[-_]token|secret[-_]token/i
+
     rich_uri          = URI(self)
     rich_uri.user     = nil
     rich_uri.password = nil
-    rich_uri.query = rich_uri.query&.gsub(/(Api-Token=dt\w*\.\w*)\.\w*/, '\1.REDACTED')
+
+    if(rich_uri.query)
+      params = Hash[URI.decode_www_form rich_uri.query]
+
+      query_params = ""
+
+      params.each do |key,value|
+        match = key.match(keywords)
+
+        if(match)
+          if(match[0] == "Api-Token" && value =~ /dt\w*/)
+            params[key] = value.gsub(/(dt\w*\.\w*)\.\w*/, '\1.REDACTED')
+          else
+            params[key] = "***"
+          end
+        end
+
+        query_params += key + "=" + params[key] + "&"
+      end
+      rich_uri.query = query_params.chop
+    end
     rich_uri.to_s
   end
-
 end
