@@ -71,6 +71,7 @@ frameworks:
   - "JavaBuildpack::Framework::SealightsAgent"
   - "JavaBuildpack::Framework::SeekerSecurityProvider"
   - "JavaBuildpack::Framework::SpringAutoReconfiguration"
+  - "JavaBuildpack::Framework::SplunkOtelJavaAgent"
   - "JavaBuildpack::Framework::SpringInsight"
   - "JavaBuildpack::Framework::SkyWalkingAgent"
   - "JavaBuildpack::Framework::YourKitProfiler"
