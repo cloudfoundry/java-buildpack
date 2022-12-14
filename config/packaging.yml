@@ -168,6 +168,10 @@ sky_walking_agent:
   name: SkyWalking
   release_notes: '[ChangeLog](https://github.com/apache/skywalking/tree/master/changes)'
 
+splunk_otel_java_agent:
+  name: Splunk OpenTelemetry Java Agent
+  release_notes: '[Release Notes](https://github.com/signalfx/splunk-otel-java/releases)'
+
 spring_auto_reconfiguration:
   name: Spring Auto-reconfiguration
   cve_notes: 'Included inline above'
