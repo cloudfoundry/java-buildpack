@@ -214,6 +214,17 @@ Caching https://github.com/SAP/SapMachine/releases/download/sapmachine-11.0.10/s
 Creating build/java-buildpack-offline-cfd6b17.zip
 ```
 
+Different platforms can be selected using the `PLATFORMS` arguments. Supported values of `PLATFORMS` are **bionic** for cflinuxfs3 and **jammy** for cflinuxfs4. The default value is **bionic**.
+
+```bash
+$ bundle exec rake clean package OFFLINE=true ADD_TO_CACHE=sap_machine_jre PLATFORMS=jammy,bionic
+...
+Caching https://java-buildpack.cloudfoundry.org/google-stackdriver-debugger/jammy/x86_64/index.yml
+Caching https://java-buildpack.cloudfoundry.org/google-stackdriver-debugger/bionic/x86_64/index.yml
+...
+Creating build/java-buildpack-offline-v*.**.zip
+```
+
 ### Package Versioning
 Keeping track of different versions of the buildpack can be difficult. To help with this, the rake `package` task puts a version discriminator in the name of the created package file. The default value for this discriminator is the current Git hash (e.g. `cfd6b17`). To change the version when creating a package, use the `VERSION=<VERSION>` argument:
 
