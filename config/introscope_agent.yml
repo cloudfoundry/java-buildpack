@@ -15,6 +15,6 @@
 
 # Configuration for the CA Wily framework
 ---
-version: +
+version: 22.11.0_11
 repository_root: https://packages.broadcom.com/artifactory/apm-agents
 default_agent_name: $(jq -r -n "$VCAP_APPLICATION | .application_name")
