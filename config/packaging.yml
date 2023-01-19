@@ -93,17 +93,17 @@ jprofiler_profiler:
 jre:
   name: OpenJDK JRE 8
   cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2022.html#AppendixJAVA)'
-  release_notes: '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-8u352/)'
+  release_notes: '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-8u362/)'
 
 jre-11:
   name: OpenJDK JRE 11
   cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2022.html#AppendixJAVA)'
-  release_notes: '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-11.0.17/)'
+  release_notes: '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-11.0.18/)'
 
 jre-17:
   name: OpenJDK JRE 17
   cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2022.html#AppendixJAVA)'
-  release_notes: '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-17.0.5/)'
+  release_notes: '[Release Notes](https://bell-sw.com/pages/liberica-release-notes-17.0.6/)'
 
 jrebel_agent:
   name: JRebel Agent
