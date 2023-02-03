@@ -83,7 +83,7 @@ module JavaBuildpack
       end
 
       def add_trusted_certificates(trusted_certificate)
-        File.open("#{@droplet.root}/ssl/certs/ca-certificates.crt", 'a') do |f|
+        File.open("#{@droplet.root}/etc/ssl/certs/ca-certificates.crt", 'a') do |f|
           f.write("#{trusted_certificate}\n")
         end
       end
