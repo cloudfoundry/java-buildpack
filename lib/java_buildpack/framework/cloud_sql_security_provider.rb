@@ -58,14 +58,13 @@ module JavaBuildpack
 
       protected
 
-      # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
         @application.services.one_service? FILTER, 'sslrootcert', 'sslcert', 'sslkey'
       end
 
       private
 
-      FILTER = /csb-google-mysql/.freeze
+      FILTER = /csb-google-/.freeze
 
       private_constant :FILTER
 
@@ -88,10 +87,6 @@ module JavaBuildpack
         cert.close
 
         shell "#{keytool} -import -trustcacerts -cacerts -storepass changeit -noprompt -alias CloudSQLCA -file #{cert.path}"
-      end
-
-      def ext_dir
-        @droplet.sandbox + 'ext'
       end
 
       def keystore
