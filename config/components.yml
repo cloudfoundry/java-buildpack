@@ -49,6 +49,7 @@ frameworks:
   - "JavaBuildpack::Framework::ClientCertificateMapper"
   - "JavaBuildpack::Framework::ContainerCustomizer"
   - "JavaBuildpack::Framework::ContainerSecurityProvider"
+  - "JavaBuildpack::Framework::CloudSqlSecurityProvider"
   - "JavaBuildpack::Framework::ContrastSecurityAgent"
   - "JavaBuildpack::Framework::DatadogJavaagent"
   - "JavaBuildpack::Framework::Debug"
