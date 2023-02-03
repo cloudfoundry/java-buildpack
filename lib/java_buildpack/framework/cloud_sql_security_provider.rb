@@ -18,21 +18,20 @@
 require 'fileutils'
 require 'shellwords'
 require 'tempfile'
-require 'java_buildpack/component/versioned_dependency_component'
+require 'java_buildpack/component/base_component'
 require 'java_buildpack/framework'
 require 'java_buildpack/util/qualify_path'
 
 module JavaBuildpack
   module Framework
 
-    # Encapsulates the functionality for enabling zero-touch Safenet ProtectApp Java Security Provider support.
-    class CloudSqlSecurityProvider < JavaBuildpack::Component::VersionedDependencyComponent
+    # Encapsulates the functionality for enabling secure communication with GCP CloudSQL instances.
+    class CloudSqlSecurityProvider < JavaBuildpack::Component::BaseComponent
       include JavaBuildpack::Util
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        log '#release'.yellow
-        download_zip false
+        return unless supports?
 
         @droplet.copy_resources
 
@@ -41,22 +40,26 @@ module JavaBuildpack
         pkcs12 = merge_client_credentials credentials
         add_client_credentials pkcs12
 
-        add_trusted_certificates credentials['sslrootcert']
+        add_trusted_certificate credentials['sslrootcert']
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        log '#release'.yellow
+        return unless supports?
+
         java_opts = @droplet.java_opts
 
         add_additional_properties(java_opts)
+      end
+
+      def detect
+        CloudSqlSecurityProvider.to_s.dash_case
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        log '#supports?'.yellow
         @application.services.one_service? FILTER, 'sslrootcert', 'sslcert', 'sslkey'
       end
 
@@ -67,9 +70,6 @@ module JavaBuildpack
       private_constant :FILTER
 
 
-      def log(message)
-        puts "#{'===========>'.blue} #{'CloudSqlSecurityProvider'.red.bold} #{message}"
-      end
       def add_additional_properties(java_opts)
         java_opts
           .add_system_property('javax.net.ssl.keyStore', keystore)
@@ -82,10 +82,12 @@ module JavaBuildpack
               " -alias #{File.basename(pkcs12)}"
       end
 
-      def add_trusted_certificates(trusted_certificate)
-        File.open("#{@droplet.root}/etc/ssl/certs/ca-certificates.crt", 'a') do |f|
-          f.write("#{trusted_certificate}\n")
-        end
+      def add_trusted_certificate(trusted_certificate)
+        cert = Tempfile.new('ca-cert-')
+        cert.write(trusted_certificate)
+        cert.close
+
+        shell "#{keytool} -import -trustcacerts -cacerts -storepass changeit -noprompt -alias CloudSQLCA -file #{cert.path}"
       end
 
       def ext_dir
