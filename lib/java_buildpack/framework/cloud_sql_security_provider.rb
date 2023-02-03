@@ -31,6 +31,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
+        log '#release'.yellow
         download_zip false
 
         @droplet.copy_resources
@@ -45,6 +46,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        log '#release'.yellow
         java_opts = @droplet.java_opts
 
         add_additional_properties(java_opts)
@@ -54,6 +56,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
+        log '#supports?'.yellow
         @application.services.one_service? FILTER, 'sslrootcert', 'sslcert', 'sslkey'
       end
 
@@ -63,6 +66,10 @@ module JavaBuildpack
 
       private_constant :FILTER
 
+
+      def log(message)
+        puts "#{'===========>'.blue} #{'CloudSqlSecurityProvider'.red.bold} #{message}"
+      end
       def add_additional_properties(java_opts)
         java_opts
           .add_system_property('javax.net.ssl.keyStore', keystore)
