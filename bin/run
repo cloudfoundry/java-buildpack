@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+
+set -e
+set -u
+set -o pipefail
+
+BUILDPACK_DIR="$(cd "$(dirname "${0}")/.." && pwd)"
+readonly BUILDPACK_DIR
+
+RUBY_DIR="/tmp/ruby"
+readonly RUBY_DIR
+
+function util::config::lookup() {
+  sed '/^#/d' < "${BUILDPACK_DIR}/config/ruby.yml"
+}
+
+function util::cache::present() {
+  if [[ -e "${BUILDPACK_DIR}/resources/cache" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function util::index::lookup() {
+  local repository_root
+  repository_root="$(grep "repository_root" <<< "$(util::config::lookup)" | cut -d' ' -f2)"
+
+  local uri
+  uri="${repository_root}/index.yml"
+
+  if util::cache::present; then
+    local sha
+    sha="$(printf "%s" "${uri}" | shasum -a 256 | cut -d' ' -f1)"
+    cat "${BUILDPACK_DIR}/resources/cache/${sha}.cached"
+  else
+    curl -ssL "${uri}"
+  fi
+}
+
+function util::semver::parse() {
+  local version major minor patch
+  version="$(grep "version" <<< "$(util::config::lookup)" | cut -d' ' -f2)"
+  major="$(cut -d'.' -f1 <<< "${version}")"
+  minor="$(cut -d'.' -f2 <<< "${version}")"
+  patch="$(cut -d'.' -f3 <<< "${version}")"
+
+  printf "%s" "${major/+/*}\\.${minor/+/*}\\.${patch/+/*}"
+}
+
+function util::ruby::stream() {
+  local uri
+  uri="${1}"
+
+  if util::cache::present; then
+    local sha
+    sha="$(printf "%s" "${uri}" | shasum -a 256 | cut -d' ' -f1)"
+    cat "${BUILDPACK_DIR}/resources/cache/${sha}.cached"
+  else
+    curl -ssL "${uri}"
+  fi
+}
+
+function util::install() {
+  local index semver
+  index="$(util::index::lookup)"
+  semver="$(util::semver::parse)"
+
+  local uri
+  uri="$(grep "${semver}" <<< "${index}" | head -n 1 | awk '{print $2}')"
+
+  util::ruby::stream "${uri}" | tar xz -C "${RUBY_DIR}"
+}
+
+function util::print::error() {
+  local message red reset
+  message="${1}"
+  red="\033[0;31m"
+  reset="\033[0;39m"
+
+  echo -e "${red}${message}${reset}" >&2
+  exit 1
+}
+
+function util::environment::setup() {
+  export PATH="${RUBY_DIR}/bin:${PATH:-}"
+  export LIBRARY_PATH="${RUBY_DIR}/lib:${LIBRARY_PATH:-}"
+  export LD_LIBRARY_PATH="${RUBY_DIR}/lib:${LIBRARY_PATH:-}"
+  export CPATH="${RUBY_DIR}/include:${CPATH:-}"
+}
+
+function main() {
+  local phase
+  phase="$(basename "${0}")"
+
+  if [[ "${CF_STACK}" == "cflinuxfs4" ]]; then
+    if [[ ! -e "${RUBY_DIR}" ]]; then
+      mkdir -p "${RUBY_DIR}"
+
+      util::install
+    fi
+
+    util::environment::setup
+  fi
+
+  exec "${BUILDPACK_DIR}/bin/ruby-run" "${phase}" "${@-}"
+}
+
+main "${@:-}"
