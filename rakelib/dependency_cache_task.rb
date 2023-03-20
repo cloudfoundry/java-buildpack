@@ -119,7 +119,7 @@ module Package
         offline_cache = offline_cache.split(',')
         (conf << offline_cache).flatten!.uniq!
       end
-      conf
+      conf << "ruby"
     end
 
     def component_configuration(component_id)
