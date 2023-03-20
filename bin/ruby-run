@@ -22,29 +22,29 @@ $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'java_buildpack/buildpack'
 
 case ARGV[0]
-  when "compile"
-    app_dir = ARGV[1]
-    JavaBuildpack::Buildpack.with_buildpack(app_dir, nil, nil, 'Compile failed with exception %s', &:compile)
+when 'compile'
+  app_dir = ARGV[1]
+  JavaBuildpack::Buildpack.with_buildpack(app_dir, nil, nil, 'Compile failed with exception %s', &:compile)
 
-  when "detect"
-    app_dir = ARGV[1]
-    components = JavaBuildpack::Buildpack.with_buildpack(app_dir, nil, nil, 'Detect failed with exception %s',
-                                                         &:detect).compact
-    if components.empty?
-      abort
-    else
-      str = components.join(' ')
-      puts str.length > 255 ? str.slice(0..251) + '...' : str
-    end
+when 'detect'
+  app_dir = ARGV[1]
+  components = JavaBuildpack::Buildpack.with_buildpack(app_dir, nil, nil, 'Detect failed with exception %s',
+                                                       &:detect).compact
+  if components.empty?
+    abort
+  else
+    str = components.join(' ')
+    puts str.length > 255 ? str.slice(0..251) + '...' : str
+  end
 
-  when "finalize"
-    app_dir  = ARGV[1]
-    deps_dir = ARGV[3]
-    index    = ARGV[4]
-    JavaBuildpack::Buildpack.with_buildpack(app_dir, deps_dir, index, 'Finalize failed with exception %s', &:compile)
+when 'finalize'
+  app_dir  = ARGV[1]
+  deps_dir = ARGV[3]
+  index    = ARGV[4]
+  JavaBuildpack::Buildpack.with_buildpack(app_dir, deps_dir, index, 'Finalize failed with exception %s', &:compile)
 
-  when "release"
-    app_dir  = ARGV[1]
-    output = JavaBuildpack::Buildpack.with_buildpack(app_dir, nil, nil, 'Release failed with exception %s', &:release)
-    puts output
+when 'release'
+  app_dir = ARGV[1]
+  output = JavaBuildpack::Buildpack.with_buildpack(app_dir, nil, nil, 'Release failed with exception %s', &:release)
+  puts output
 end
