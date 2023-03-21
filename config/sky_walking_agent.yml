@@ -15,6 +15,7 @@
 
 # Configuration for the Sky Walking framework.
 ---
-version: +
+version: 8.9.0
 repository_root: "{default.repository.root}/sky-walking"
-default_application_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name | @sh")
+default_application_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name
+  | @sh")
