@@ -73,7 +73,8 @@ describe JavaBuildpack::Repository::RepositoryIndex do
 
     allow_any_instance_of(described_class).to receive(:`).with('uname -s').and_return('Linux')
     allow_any_instance_of(described_class).to receive(:`).with('uname -m').and_return('x86_64')
-    allow_any_instance_of(described_class).to receive(:`).with('which lsb_release 2> /dev/null').and_return('')
+    allow_any_instance_of(described_class).to receive(:`)
+      .with("cat /etc/os-release | grep '^ID=' | cut -d'=' -f 2").and_return('')
     allow(redhat_release).to receive(:exist?).and_return(true)
     allow(redhat_release).to receive(:read).and_return('CentOS release 6.4 (Final)')
     allow(application_cache).to receive(:get).with('centos6/x86_64/test-uri/index.yml')
@@ -106,9 +107,10 @@ describe JavaBuildpack::Repository::RepositoryIndex do
 
     allow_any_instance_of(described_class).to receive(:`).with('uname -s').and_return('Linux')
     allow_any_instance_of(described_class).to receive(:`).with('uname -m').and_return('x86_64')
-    allow_any_instance_of(described_class).to receive(:`).with('which lsb_release 2> /dev/null')
-                                                         .and_return('/usr/bin/lsb_release')
-    allow_any_instance_of(described_class).to receive(:`).with('lsb_release -cs').and_return('precise')
+    allow_any_instance_of(described_class).to receive(:`).with("cat /etc/os-release | grep '^ID=' | cut -d'=' -f 2")
+                                                         .and_return('ubuntu')
+    allow_any_instance_of(described_class).to receive(:`)
+      .with("cat /etc/os-release | grep '^VERSION_CODENAME=' | cut -d'=' -f 2").and_return('precise')
     allow(application_cache).to receive(:get).with('precise/x86_64/test-uri/index.yml')
                                              .and_yield(Pathname.new('spec/fixtures/test-index.yml').open)
 
@@ -124,7 +126,8 @@ describe JavaBuildpack::Repository::RepositoryIndex do
 
     allow_any_instance_of(File).to receive(:exists?).with('/etc/redhat-release').and_return(false)
     allow_any_instance_of(described_class).to receive(:`).with('uname -s').and_return('Linux')
-    allow_any_instance_of(described_class).to receive(:`).with('which lsb_release 2> /dev/null').and_return('')
+    allow_any_instance_of(described_class).to receive(:`)
+      .with("cat /etc/os-release | grep '^ID=' | cut -d'=' -f 2").and_return('')
 
     expect { described_class.new('{platform}/{architecture}/test-uri') }
       .to raise_error('Unable to determine platform')
