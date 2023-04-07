@@ -26,6 +26,7 @@ module JavaBuildpack
     class ZingJRE < OpenJDKLike
       # (see JavaBuildpack::Component::ModularComponent#command)
       def command
+        # no command
       end
 
       # (see JavaBuildpack::Component::ModularComponent#sub_components)
