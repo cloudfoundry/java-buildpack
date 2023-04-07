@@ -94,7 +94,7 @@ function main() {
   phase="$(basename "${0}")"
 
   if [[ "${CF_STACK:-}" == "cflinuxfs4" ]]; then
-    if [[ ! -e "${RUBY_DIR}" ]]; then
+    if ! which ruby > /dev/null; then
       mkdir -p "${RUBY_DIR}"
 
       util::install
