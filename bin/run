@@ -7,7 +7,7 @@ set -o pipefail
 BUILDPACK_DIR="$(cd "$(dirname "${0}")/.." && pwd)"
 readonly BUILDPACK_DIR
 
-RUBY_DIR="/tmp/ruby"
+RUBY_DIR="/tmp/java-buildpack/ruby"
 readonly RUBY_DIR
 
 function util::config::lookup() {
