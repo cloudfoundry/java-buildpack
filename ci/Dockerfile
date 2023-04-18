@@ -1,15 +1,13 @@
-ARG base_image=ubuntu:bionic
+ARG base_image=ubuntu:jammy
 FROM ${base_image}
 
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     git \
-    libssl1.0-dev \
+    libssl-dev \
     libreadline-dev \
-    lsb-release \
     locales \
-    python \
     zip \
     zlib1g-dev \
  && apt-get clean \
@@ -27,12 +25,6 @@ RUN eval "$(rbenv init -)" \
 RUN eval "$(rbenv init -)" \
  && git clone https://github.com/sstephenson/rbenv-default-gems.git $(rbenv root)/plugins/rbenv-default-gems \
  && echo 'bundler 2.3.26' >> $(rbenv root)/default-gems
-
-RUN eval "$(rbenv init -)" \
- && rbenv install 2.5.9
-
-RUN eval "$(rbenv init -)" \
- && rbenv install 2.7.6
 
 RUN eval "$(rbenv init -)" \
  && rbenv install 3.0.4
