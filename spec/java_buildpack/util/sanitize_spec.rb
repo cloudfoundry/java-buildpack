@@ -37,7 +37,7 @@ describe 'sanitize_uri' do # rubocop:disable RSpec/DescribeClass
                                                   '&password=***'\
                                                   '&include=java'\
                                                   '&bitness=64'\
-                                                  '&Api-Token=dt0c01.H67ALCXCXK7PWAAOQLENSRET.REDACTED'\
+                                                  '&Api-Token=***'\
                                                   '&secret-token=***'\
                                                   '&token=***')
   end

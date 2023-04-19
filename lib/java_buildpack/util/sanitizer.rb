@@ -36,17 +36,8 @@ class String
 
     query_params = ''
 
-    params.each do |key, value|
-      match = key.match(keywords)
-
-      if match
-        params[key] = if match[0] == 'Api-Token' && value =~ /dt\w*/
-                        value.gsub(/(dt\w*\.\w*)\.\w*/, '\1.REDACTED')
-                      else
-                        '***'
-                      end
-      end
-
+    params.each do |key, _|
+      params[key] = '***' if key.match(keywords)
       query_params += key + '=' + params[key] + '&'
     end
 
