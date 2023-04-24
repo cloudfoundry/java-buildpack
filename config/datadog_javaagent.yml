@@ -15,5 +15,5 @@
 
 # Configuration for the Datadog APM Javaagent
 ---
-version: +
+version: 1.12.0
 repository_root: https://raw.githubusercontent.com/datadog/dd-trace-java/cloudfoundry/

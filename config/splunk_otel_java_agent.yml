@@ -16,6 +16,5 @@
 # Configuration for the Splunk Distribution of OpenTelemetry Java Instrumentation
 # See https://github.com/signalfx/splunk-otel-java for more information
 ---
-version: +
+version: 1.23.0
 repository_root: https://raw.githubusercontent.com/signalfx/splunk-otel-java/main/deployments/cloudfoundry/
-                 
