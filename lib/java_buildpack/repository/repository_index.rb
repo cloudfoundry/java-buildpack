@@ -89,8 +89,8 @@ module JavaBuildpack
           "#{tokens[1].downcase}#{tokens[2]}"
         elsif `uname -s` =~ /Darwin/
           'mountainlion'
-        elsif !`which lsb_release 2> /dev/null`.empty?
-          `lsb_release -cs`.strip
+        elsif `cat /etc/os-release | grep '^ID=' | cut -d'=' -f 2` =~ /ubuntu/
+          `cat /etc/os-release | grep '^VERSION_CODENAME=' | cut -d'=' -f 2`.strip
         else
           raise 'Unable to determine platform'
         end

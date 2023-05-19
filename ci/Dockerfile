@@ -36,3 +36,6 @@ RUN eval "$(rbenv init -)" \
 
 RUN eval "$(rbenv init -)" \
  && rbenv install 3.0.4
+
+RUN eval "$(rbenv init -)" \
+ && rbenv install 3.1.3

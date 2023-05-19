@@ -71,3 +71,7 @@ Lint/RedundantCopDisableDirective:
   Enabled: false # disabled as this can be tough to manage across multiple ruby versions
 Style/RedundantFreeze:
   Enabled: false # enable when we only support ruby 3.0+
+Naming/BlockForwarding:
+  Enabled: false # enable when we only support Ruby 3.1+
+Style/HashSyntax:
+  EnforcedShorthandSyntax: either

@@ -26,7 +26,7 @@ module JavaBuildpack
     class ZingJRE < OpenJDKLike
       # (see JavaBuildpack::Component::ModularComponent#command)
       def command
-        ''
+        # no command
       end
 
       # (see JavaBuildpack::Component::ModularComponent#sub_components)
@@ -40,8 +40,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        @droplet.java_opts.add_preformatted_options '-XX:+ExitOnOutOfMemoryError'
         super
-        @droplet.add_preformatted_options '-XX:+ExitOnOutOfMemoryError'
       end
     end
   end
