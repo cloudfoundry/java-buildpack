@@ -33,7 +33,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = @application.services.find_service(FILTER, CONNECTION_STRING, INSTRUMENTATION_KEY)['credentials']
+        credentials = @application.services.find_service(FILTER, [CONNECTION_STRING, INSTRUMENTATION_KEY])['credentials']
 
         if credentials.key?(CONNECTION_STRING)
           @droplet.java_opts.add_system_property('applicationinsights.connection.string',
@@ -54,7 +54,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service?(FILTER, CONNECTION_STRING, INSTRUMENTATION_KEY)
+        @application.services.one_service?(FILTER, [CONNECTION_STRING, INSTRUMENTATION_KEY])
       end
 
       FILTER = /azure-application-insights/.freeze
