@@ -33,7 +33,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = @application.services.find_service(FILTER, [CONNECTION_STRING, INSTRUMENTATION_KEY])['credentials']
+        credentials = @application.services.find_service(FILTER, [CONNECTION_STRING,
+                                                                  INSTRUMENTATION_KEY])['credentials']
 
         if credentials.key?(CONNECTION_STRING)
           @droplet.java_opts.add_system_property('applicationinsights.connection.string',

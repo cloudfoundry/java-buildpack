@@ -34,8 +34,7 @@ describe JavaBuildpack::Framework::AzureApplicationInsightsAgent do
 
     before do
       allow(services).to receive(:one_service?).with(/azure-application-insights/,
-                                                     'connection_string',
-                                                     'instrumentation_key')
+                                                     %w[connection_string instrumentation_key])
                                                .and_return(true)
     end
 
