@@ -23,7 +23,23 @@ describe 'sanitize_uri' do # rubocop:disable RSpec/DescribeClass
   include_context 'with application help'
 
   it 'sanitizes uri with credentials in' do
-    expect('https://myuser:mypass@myhost/path/to/file'.sanitize_uri).to eq('https://myhost/path/to/file')
+    expect('https://myuser:mypass@myhost/path/to/file'\
+           '?authentication=verysecret'\
+           '&cred=verysecret'\
+           '&password=verysecret'\
+           '&include=java'\
+           '&bitness=64'\
+           '&Api-Token=dt0c01.H67ALCXCXK7PWAAOQLENSRET.PRIVATEPART'\
+           '&secret-token=verysecret'\
+           '&token=123456789'.sanitize_uri).to eq('https://myhost/path/to/file'\
+                                                  '?authentication=***'\
+                                                  '&cred=***'\
+                                                  '&password=***'\
+                                                  '&include=java'\
+                                                  '&bitness=64'\
+                                                  '&Api-Token=***'\
+                                                  '&secret-token=***'\
+                                                  '&token=***')
   end
 
   it 'does not sanatize uri with no credentials in' do
