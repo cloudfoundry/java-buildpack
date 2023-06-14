@@ -36,11 +36,21 @@ The framework can be configured by modifying the [`config/takipi_agent.yml`][] f
 | `node_name_prefix` | Node name prefix, will be concatenated with `-` and instance index
 | `application_name` | Override the CloudFoundry default application name
 
+### Remarks
+In case **Java 9+** is being used, 2 JVM flags will be added to the execution:
+| Name | Description
+| ---- | -----------
+| `-XX:-UseTypeSpeculation` | Disable type speculation optimization of the JVM which might not work properly in some situations where an agent is present.
+| `-Xshare:off` | Disable class sharing as it might affect the agent's bytecode manipulation work.
+
+These two flags are needs as otherwise the agent or the JVM might not work properly together.
+
 ## Logs
 
-Currently, you can get the Takipi agent logs using `cf files` command:
+Currently, you can view the Takipi agent logs using the `cf ssh` command:
 ```
-cf files app_name app/.java-buildpack/takipi_agent/log/
+cf ssh app_name 
+cat ~/app/.java-buildpack/takipi_agent/log/agents/*.log
 ```
 
 ## Troubleshooting

@@ -31,6 +31,7 @@ module JavaBuildpack
       def compile
         download_tar
         @droplet.copy_resources
+        FileUtils.mkdir_p @droplet.sandbox + 'log/agents/'
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -38,6 +39,8 @@ module JavaBuildpack
         @droplet.java_opts
                 .add_agentpath(agent)
                 .add_system_property('takipi.name', application_name)
+
+        update_java9
 
         @droplet.environment_variables
                 .add_environment_variable('LD_LIBRARY_PATH',
@@ -97,6 +100,14 @@ module JavaBuildpack
 
       def node_name
         "#{@configuration['node_name_prefix']}-$CF_INSTANCE_INDEX"
+      end
+
+      def update_java9
+        return unless @droplet.java_home.java_9_or_later?
+
+        @droplet.java_opts
+                .add_preformatted_options('-Xshare:off')
+                .add_preformatted_options('-XX:-UseTypeSpeculation')
       end
 
     end
