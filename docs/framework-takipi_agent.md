@@ -47,9 +47,10 @@ These two flags are needs as otherwise the agent or the JVM might not work prope
 
 ## Logs
 
-Currently, you can get the Takipi agent logs using `cf files` command:
+Currently, you can view the Takipi agent logs using the `cf ssh` command:
 ```
-cf files app_name app/.java-buildpack/takipi_agent/log/
+cf ssh app_name 
+cat ~/app/.java-buildpack/takipi_agent/log/agents/*.log
 ```
 
 ## Troubleshooting
