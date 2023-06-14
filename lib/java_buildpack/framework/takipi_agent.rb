@@ -31,6 +31,7 @@ module JavaBuildpack
       def compile
         download_tar
         @droplet.copy_resources
+        FileUtils.mkdir_p @droplet.sandbox + 'log/agents/'
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
