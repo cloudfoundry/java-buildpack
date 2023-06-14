@@ -39,6 +39,8 @@ module JavaBuildpack
                 .add_agentpath(agent)
                 .add_system_property('takipi.name', application_name)
 
+        update_java9
+
         @droplet.environment_variables
                 .add_environment_variable('LD_LIBRARY_PATH',
                                           "$LD_LIBRARY_PATH:#{qualify_path(lib, @droplet.root)}")
@@ -97,6 +99,14 @@ module JavaBuildpack
 
       def node_name
         "#{@configuration['node_name_prefix']}-$CF_INSTANCE_INDEX"
+      end
+
+      def update_java9
+        return unless @droplet.java_home.java_9_or_later?
+
+        @droplet.java_opts
+                .add_system_property('-Xshare:off')
+                .add_system_property('-XX:-UseTypeSpeculation')
       end
 
     end
