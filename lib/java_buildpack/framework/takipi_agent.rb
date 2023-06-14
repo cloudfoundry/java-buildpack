@@ -105,8 +105,8 @@ module JavaBuildpack
         return unless @droplet.java_home.java_9_or_later?
 
         @droplet.java_opts
-                .add_system_property('-Xshare:off')
-                .add_system_property('-XX:-UseTypeSpeculation')
+                .add_preformatted_options('-Xshare:off')
+                .add_preformatted_options('-XX:-UseTypeSpeculation')
       end
 
     end
