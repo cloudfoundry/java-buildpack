@@ -16,7 +16,7 @@
 # Configuration for the AppDynamics framework
 ---
 version: +
-repository_root: https://packages.appdynamics.com/java
+repository_root: "{default.repository.root}/appdynamics"
 default_application_name: $(jq -r -n "$VCAP_APPLICATION | .space_name + \":\" + .application_name | @sh")
 default_node_name: $(jq -r -n "\"$APPD_CF_NODE_PREFIX\" + ($VCAP_APPLICATION | .application_name) + \":$CF_INSTANCE_INDEX\" | @sh")
 default_tier_name:
