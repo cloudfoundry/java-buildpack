@@ -93,15 +93,13 @@ function main() {
   local phase
   phase="$(basename "${0}")"
 
-  if [[ "${CF_STACK:-}" == "cflinuxfs4" ]]; then
-    if ! which ruby > /dev/null; then
-      mkdir -p "${RUBY_DIR}"
+  if ! which ruby > /dev/null; then
+    mkdir -p "${RUBY_DIR}"
 
-      util::install
-    fi
-
+    util::install
     util::environment::setup
   fi
+
 
   exec "${BUILDPACK_DIR}/bin/ruby-run" "${phase}" "${@-}"
 }
