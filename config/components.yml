@@ -54,7 +54,7 @@ frameworks:
   - "JavaBuildpack::Framework::Debug"
   - "JavaBuildpack::Framework::DynatraceOneAgent"
   - "JavaBuildpack::Framework::ElasticApmAgent"
-  - "JavaBuildpack::Framework::GoogleStackdriverDebugger"
+#  - "JavaBuildpack::Framework::GoogleStackdriverDebugger"
   - "JavaBuildpack::Framework::GoogleStackdriverProfiler"
   - "JavaBuildpack::Framework::IntroscopeAgent"
   - "JavaBuildpack::Framework::JacocoAgent"
