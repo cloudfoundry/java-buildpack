@@ -42,5 +42,5 @@ redis_store:
 geode_store:
   # The version of Geode Store must be less than or equal to your Tanzu Gemfire for VMs version to ensure compatibility.
   # The Geode Store version is pinned to 1.12.4 to be compatible with the most commonly used versions of Tanzu Gemfire for VMs.
-  version: 1.13.7
+  version: 1.14.9
   repository_root: https://java-buildpack-tomcat-gemfire-store.s3-us-west-2.amazonaws.com
