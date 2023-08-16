@@ -39,8 +39,14 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
     expect(component.detect).to eq("spring-auto-reconfiguration=#{version}")
   end
 
-  it 'does not detect with Spring JAR and java-cfenv',
+  it 'does not detect with Spring JAR and user java-cfenv',
      app_fixture: 'framework_auto_reconfiguration_java_cfenv' do
+
+    expect(component.detect).to be_nil
+  end
+
+  it 'does not detect with Spring JAR and buildpack java-cfenv',
+     app_fixture: 'framework_auto_reconfiguration_java_cfenv_bp' do
 
     expect(component.detect).to be_nil
   end

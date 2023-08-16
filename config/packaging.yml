@@ -82,6 +82,10 @@ jacoco_agent:
   name: JaCoCo Agent
   release_notes: '[Release Notes](https://github.com/jacoco/jacoco/releases)'
 
+java_cf_env:
+  name: Java CFEnv
+  release_notes: '[Release Notes](https://github.com/pivotal-cf/java-cfenv/releases)'
+
 jprofiler_profiler:
   name: JProfiler Profiler
   release_notes: '[ChangeLog](https://www.ej-technologies.com/download/jprofiler/changelog.html)'
