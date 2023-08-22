@@ -49,6 +49,12 @@ describe JavaBuildpack::Framework::MariaDbJDBC do
       expect(component.detect).to be_nil
     end
 
+    it 'does not detect if the application has a new style -j MySQL driver',
+       app_fixture: 'framework_mariadb_jdbc_with_new_mysql_driver' do
+
+      expect(component.detect).to be_nil
+    end
+
     it 'downloads the MariaDB driver when needed',
        cache_fixture: 'stub-mariadb-java-client.jar' do
 
