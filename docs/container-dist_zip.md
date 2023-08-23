@@ -5,13 +5,13 @@ The Dist Zip Container allows applications packaged in [`distZip`-style][] to be
   <tr>
     <td><strong>Detection Criteria</strong></td>
     <td><ul>
-      <li>A start script in the <tt>bin/</tt> subdirectory of the application directory or one of its immediate subdirectories (but not in both), and</li>
-      <li>A JAR file in the <tt>lib/</tt> subdirectory of the application directory or one of its immediate subdirectories (but not in both)</li>
+      <li>A start script in the <code>bin/</code> subdirectory of the application directory or one of its immediate subdirectories (but not in both) - for example, a <code>bin</code> folder with: <code>bin/myscript</code> along with <code>bin/myscript.bat</code>, and</li>
+      <li>A JAR file in the <code>lib/</code> subdirectory of the application directory or one of its immediate subdirectories (but not in both)</li>
     </ul></td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
-    <td><tt>dist-zip</tt></td>
+    <td><code>dist-zip</code></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
