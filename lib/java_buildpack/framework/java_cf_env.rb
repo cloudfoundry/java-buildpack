@@ -48,7 +48,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @configuration['enabled'] &&  spring_boot_3? && !java_cfenv?
+        @configuration['enabled'] && spring_boot_3? && !java_cfenv?
       end
 
       private
