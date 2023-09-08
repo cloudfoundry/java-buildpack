@@ -79,6 +79,6 @@ describe JavaBuildpack::Framework::JavaCfEnv do
 
     component.release
 
-    expect(environment_variables).to include('SPRING_PROFILES_INCLUDE=cloud')
+    expect(environment_variables).to include('SPRING_PROFILES_INCLUDE=$SPRING_PROFILES_INCLUDE,cloud')
   end
 end

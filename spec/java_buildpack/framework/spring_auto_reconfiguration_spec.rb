@@ -107,11 +107,11 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
   context('when java-cfenv injects its lib') do
 
     before do
-      additional_libraries.insert 0, additional_libs_directory + 'stub-java-cfenv.jar'
+      additional_libraries.insert 0, additional_libs_directory + 'java_cf_env.jar'
     end
 
     after do
-      additional_libraries.delete additional_libs_directory + 'stub-java-cfenv.jar'
+      additional_libraries.delete additional_libs_directory + 'java_cf_env.jar'
     end
 
     it 'does not detect with Spring JAR and injected cfenv',

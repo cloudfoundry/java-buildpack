@@ -33,6 +33,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         log_warning_scc_manual if spring_cloud_connectors?
+        return if java_cf_env_framework?
 
         download_jar
         @droplet.additional_libraries << (@droplet.sandbox + jar_name)
@@ -42,6 +43,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        return if java_cf_env_framework?
+
         @droplet.additional_libraries << (@droplet.sandbox + jar_name)
       end
 
@@ -59,8 +62,12 @@ module JavaBuildpack
       end
 
       def java_cfenv?
-        (@droplet.root + '**/*java-cfenv*.jar').glob.any? || @droplet.additional_libraries.any? do |additional_library|
-          additional_library.instance_variable_get(:@pathname).fnmatch?('*java-cfenv*.jar')
+        (@droplet.root + '**/*java-cfenv*.jar').glob.any? || java_cf_env_framework?
+      end
+
+      def java_cf_env_framework?
+        @droplet.additional_libraries.any? do |additional_library|
+          additional_library.instance_variable_get(:@pathname).fnmatch?('*java_cf_env*.jar')
         end
       end
 

@@ -41,7 +41,8 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.additional_libraries << (@droplet.sandbox + jar_name)
-        @droplet.environment_variables.add_environment_variable 'SPRING_PROFILES_INCLUDE', 'cloud'
+        @droplet.environment_variables.add_environment_variable \
+          'SPRING_PROFILES_INCLUDE', '$SPRING_PROFILES_INCLUDE,cloud'
       end
 
       protected
