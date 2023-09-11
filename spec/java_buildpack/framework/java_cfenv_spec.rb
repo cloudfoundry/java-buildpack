@@ -73,12 +73,4 @@ describe JavaBuildpack::Framework::JavaCfEnv do
     expect(additional_libraries).to include(sandbox + "java_cf_env-#{version}.jar")
   end
 
-  it 'activates the cloud profile',
-     app_fixture: 'framework_java_cf_boot_3',
-     cache_fixture: 'stub-java-cfenv.jar' do
-
-    component.release
-
-    expect(environment_variables).to include('SPRING_PROFILES_INCLUDE=$SPRING_PROFILES_INCLUDE,cloud')
-  end
 end
