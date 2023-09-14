@@ -1,0 +1,3 @@
+Spring-Boot-Lib: manifest-lib-value/
+Main-Class: org.springframework.boot.loader.JarLauncher
+Spring-Boot-Version: 2.1.0.RELEASE

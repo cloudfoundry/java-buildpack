@@ -39,7 +39,7 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
     expect(component.detect).to eq("spring-auto-reconfiguration=#{version}")
   end
 
-  it 'does not detect with Spring JAR and java-cfenv',
+  it 'does not detect with Spring JAR and user java-cfenv',
      app_fixture: 'framework_auto_reconfiguration_java_cfenv' do
 
     expect(component.detect).to be_nil
@@ -104,4 +104,21 @@ describe JavaBuildpack::Framework::SpringAutoReconfiguration do
     expect(additional_libraries).to include(sandbox + "spring_auto_reconfiguration-#{version}.jar")
   end
 
+  context('when java-cfenv injects its lib') do
+
+    before do
+      additional_libraries.insert 0, additional_libs_directory + 'java_cf_env.jar'
+    end
+
+    after do
+      additional_libraries.delete additional_libs_directory + 'java_cf_env.jar'
+    end
+
+    it 'does not detect with Spring JAR and injected cfenv',
+       app_fixture: 'framework_auto_reconfiguration_servlet_3' do
+
+      expect(component.detect).to be_nil
+    end
+
+  end
 end

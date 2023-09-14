@@ -126,6 +126,7 @@ The buildpack supports extension through the use of Git repository forking. The 
   * [Google Stackdriver Profiler](docs/framework-google_stackdriver_profiler.md) ([Configuration](docs/framework-google_stackdriver_profiler.md#configuration))
   * [Introscope Agent](docs/framework-introscope_agent.md) ([Configuration](docs/framework-introscope_agent.md#configuration))
   * [JaCoCo Agent](docs/framework-jacoco_agent.md) ([Configuration](docs/framework-jacoco_agent.md#configuration))
+  * [Java CfEnv](docs/framework-java-cfenv.md) ([Configuration](docs/framework-java-cfenv.md#configuration))
   * [Java Memory Assistant](docs/framework-java_memory_assistant.md) ([Configuration](docs/framework-java_memory_assistant.md#configuration))
   * [Java Options](docs/framework-java_opts.md) ([Configuration](docs/framework-java_opts.md#configuration))
   * [JProfiler Profiler](docs/framework-jprofiler_profiler.md) ([Configuration](docs/framework-jprofiler_profiler.md#configuration))
