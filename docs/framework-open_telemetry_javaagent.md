@@ -20,8 +20,16 @@ Tags are printed to standard output by the buildpack detect script
 
 ## User-Provided Service
 
-Users are currently expected to provide their own "custom user provided service" (cups) 
-instance and bind it to their application. The service MUST contain the string `otel-collector`.
+Users are currently expected to `create-user-provided-service` (cups) of the collector
+and bind it to their application. The service MUST contain the string `otel-collector`.
+
+For example, to create a service named `otel-collector` that represents an environment named `cf-demo`, you could use the following commands:
+
+```
+$ cf cups otel-collector -p '{"otel.resource.attributes": "deployment.environment=cf-demo"}'
+$ cf bind-service myApp otel-collector
+$ cf restage myApp
+```
 
 ### Choosing a version
 
