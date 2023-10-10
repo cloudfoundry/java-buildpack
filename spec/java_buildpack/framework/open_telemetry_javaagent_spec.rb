@@ -17,7 +17,7 @@
 
 require 'spec_helper'
 require 'component_helper'
-require 'java_buildpack/framework/opentelemetry_javaagent'
+require 'java_buildpack/framework/open_telemetry_javaagent'
 require 'java_buildpack/util/tokenized_version'
 
 describe JavaBuildpack::Framework::OpenTelemetryJavaagent do
@@ -37,21 +37,21 @@ describe JavaBuildpack::Framework::OpenTelemetryJavaagent do
     end
 
     it 'detects with opentelemetry-javaagent' do
-      expect(component.detect).to eq("opentelemetry-javaagent=#{version}")
+      expect(component.detect).to eq("open-telemetry-javaagent=#{version}")
     end
 
     it 'downloads the opentelemetry javaagent jar', cache_fixture: 'stub-download.jar' do
 
       component.compile
 
-      expect(sandbox + "opentelemetry_javaagent-#{version}.jar").to exist
+      expect(sandbox + "open_telemetry_javaagent-#{version}.jar").to exist
     end
 
     it 'updates JAVA_OPTS' do
       component.release
 
       expect(java_opts).to include(
-        "-javaagent:$PWD/.java-buildpack/opentelemetry_javaagent/opentelemetry_javaagent-#{version}.jar"
+        "-javaagent:$PWD/.java-buildpack/open_telemetry_javaagent/open_telemetry_javaagent-#{version}.jar"
       )
     end
 
