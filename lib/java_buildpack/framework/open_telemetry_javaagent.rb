@@ -34,6 +34,15 @@ module JavaBuildpack
         java_opts = @droplet.java_opts
         java_opts.add_javaagent(@droplet.sandbox + jar_name)
 
+        credentials = @application.services.find_service(REQUIRED_SERVICE_NAME_FILTER)['credentials']
+        # Add all otel.* credentials from the service bind as jvm system properties
+        credentials&.each do |key, value|
+          java_opts.add_system_property(key, value) if key.start_with?('otel.')
+        end
+
+        # Set the otel.service.name to the application_name if not specified in credentials
+        return if credentials.key? 'otel.service.name'
+
         # Set the otel.service.name to the application_name
         app_name = @application.details['application_name']
         java_opts.add_system_property('otel.service.name', app_name)
