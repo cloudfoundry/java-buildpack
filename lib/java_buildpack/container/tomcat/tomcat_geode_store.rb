@@ -137,7 +137,7 @@ module JavaBuildpack
       def detect_geode_tomcat_version
         geode_tomcat_version = nil
 
-        geode_modules_tomcat_pattern = /geode-modules-tomcat(?<version>[0-9]*).*.jar/.freeze
+        geode_modules_tomcat_pattern = /ge.*-modules-tomcat(?<version>[0-9]*).*.jar/.freeze
         Dir.foreach(@droplet.sandbox + 'lib') do |file|
           if geode_modules_tomcat_pattern.match(file)
             unless geode_tomcat_version.nil?
