@@ -1,10 +1,10 @@
 {
   "technologies" : {
-    "java" : {
+    "process" : {
       "linux-x86-64" : [
           {
-            "path": "agent/lib64/liboneagentloader.so",
-            "binarytype" : "loader"
+            "path": "agent/lib64/liboneagentproc.so",
+            "binarytype" : "primary"
           }
       ]
     }

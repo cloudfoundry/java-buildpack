@@ -50,18 +50,17 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
 
       component.compile
 
-      expect(sandbox + 'agent/lib64/liboneagentloader.so').to exist
+      expect(sandbox + 'agent/lib64/liboneagentproc.so').to exist
       expect(sandbox + 'manifest.json').to exist
     end
 
-    it 'updates JAVA_OPTS with agent loader and share set to off',
+    it 'sets LD_PRELOAD with liboneagentproc',
        app_fixture: 'framework_dynatrace_one_agent' do
 
       component.release
 
-      expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
-                                   'liboneagentloader.so')
-      expect(java_opts).to include('-Xshare:off')
+      expect(environment_variables).to include('LD_PRELOAD=$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
+                                              'liboneagentproc.so')
     end
 
     it 'updates environment variables',
@@ -112,7 +111,7 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
 
         component.compile
 
-        expect(sandbox + 'agent/lib64/liboneagentloader.so').to exist
+        expect(sandbox + 'agent/lib64/liboneagentproc.so').to exist
         expect(sandbox + 'manifest.json').to exist
       end
     end

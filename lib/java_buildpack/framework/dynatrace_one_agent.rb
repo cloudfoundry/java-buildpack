@@ -68,8 +68,8 @@ module JavaBuildpack
 
         manifest = agent_manifest
 
-        @droplet.java_opts.add_agentpath(agent_path(manifest))
-        @droplet.java_opts.add_preformatted_options('-Xshare:off')
+        environment_variables = @droplet.environment_variables
+        environment_variables.add_environment_variable(LD_PRELOAD, agent_path(manifest))
 
         dynatrace_environment_variables(manifest)
       end
@@ -99,6 +99,8 @@ module JavaBuildpack
 
       DT_NETWORK_ZONE = 'DT_NETWORK_ZONE'
 
+      LD_PRELOAD = 'LD_PRELOAD'
+
       ENVIRONMENTID = 'environmentid'
 
       FILTER = /dynatrace/.freeze
@@ -126,8 +128,8 @@ module JavaBuildpack
 
       def agent_path(manifest)
         technologies  = manifest['technologies']
-        java_binaries = technologies['java']['linux-x86-64']
-        loader        = java_binaries.find { |bin| bin['binarytype'] == 'loader' }
+        java_binaries = technologies['process']['linux-x86-64']
+        loader        = java_binaries.find { |bin| bin['binarytype'] == 'primary' }
         @droplet.sandbox + loader['path']
       end
 
