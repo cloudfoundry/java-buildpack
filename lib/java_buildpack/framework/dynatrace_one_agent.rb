@@ -71,6 +71,10 @@ module JavaBuildpack
         environment_variables = @droplet.environment_variables
         environment_variables.add_environment_variable(LD_PRELOAD, agent_path(manifest))
 
+        if enable_fips?
+          File.delete(@droplet.sandbox + 'agent/dt_fips_disabled.flag')
+        end
+
         dynatrace_environment_variables(manifest)
       end
 
@@ -86,6 +90,8 @@ module JavaBuildpack
       APIURL = 'apiurl'
 
       APITOKEN = 'apitoken'
+
+      ENABLE_FIPS = 'enablefips'
 
       DT_APPLICATION_ID = 'DT_APPLICATIONID'
 
@@ -109,8 +115,9 @@ module JavaBuildpack
 
       SKIP_ERRORS = 'skiperrors'
 
-      private_constant :APIURL, :APITOKEN, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_NETWORK_ZONE, :DT_LOGSTREAM,
-                       :DT_TENANT, :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :NETWORKZONE, :SKIP_ERRORS
+      private_constant :APIURL, :APITOKEN, :ENABLE_FIPS, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_NETWORK_ZONE,
+                       :DT_LOGSTREAM, :DT_TENANT, :DT_TENANTTOKEN, :LD_PRELOAD, :ENVIRONMENTID, :FILTER, :NETWORKZONE,
+                       :SKIP_ERRORS
 
       def agent_download_url
         download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
@@ -193,7 +200,11 @@ module JavaBuildpack
       end
 
       def skip_errors?
-        credentials[SKIP_ERRORS].to_b
+        credentials[SKIP_ERRORS] == "true"
+      end
+
+      def enable_fips?
+        credentials[ENABLE_FIPS] == "true"
       end
 
       def tenanttoken(manifest)
