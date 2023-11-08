@@ -33,6 +33,36 @@ describe JavaBuildpack::Framework::ClientCertificateMapper do
 
     expect(sandbox + "client_certificate_mapper-#{version}.jar").to exist
     expect(additional_libraries).to include(sandbox + "client_certificate_mapper-#{version}.jar")
+    # version was not patched by the compile step
+    expect(configuration).to eq({})
+  end
+
+
+  it 'configures client certificate mapper to download version 2.+ during compile of spring boot 3 app',
+     app_fixture: 'framework_java_cf_boot_3',
+     cache_fixture: 'stub-client-certificate-mapper.jar' do
+
+    component.compile
+
+    expect(sandbox + "client_certificate_mapper-#{version}.jar").to exist
+    expect(additional_libraries).to include(sandbox + "client_certificate_mapper-#{version}.jar")
+    # version of the dep. was forced to 2.+ by the compile step, because Spring Boot 3 was found
+    expect(configuration).to eq({ 'version' => '2.+' })
+  end
+
+  context 'user forced javax to be used' do
+    let(:configuration) { { 'javax_forced' => true } }
+    it 'configures client certificate mapper to download version 1 during compile of spring boot 3 app ',
+       app_fixture: 'framework_java_cf_boot_3',
+       cache_fixture: 'stub-client-certificate-mapper.jar' do
+
+      component.compile
+
+      expect(sandbox + "client_certificate_mapper-#{version}.jar").to exist
+      expect(additional_libraries).to include(sandbox + "client_certificate_mapper-#{version}.jar")
+      # user prevented version 2.+, forcing javax
+      expect(configuration).to eq({ 'javax_forced' => true })
+    end
   end
 
   it 'adds the jar to the additional libraries during release',

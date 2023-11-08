@@ -16,4 +16,7 @@
 # Container security provider configuration
 ---
 version: 1.+
-repository_root: "{default.repository.root}/client-certificate-mapper"
+version_lines:
+  - 2.+
+repository_root: "https://anthonydahanne.github.io/java-buildpack-client-certificate-mapper"
+javax_forced: false
