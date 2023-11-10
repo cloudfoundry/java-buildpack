@@ -16,17 +16,17 @@
 # Configuration for JRE repositories keyed by vendor
 ---
 jre:
-  version: 1.8.0_+
+  version: 1.8.0_392
   version_lines:
-  - 1.8.0_+
-  - 11.+
-  - 17.+
+  - 1.8.0_392
+  - 11.0.21_10
+  - 17.0.9_11
   repository_root: "{default.repository.root}/openjdk/{platform}/{architecture}"
 jvmkill_agent:
-  version: 1.+
+  version: 1.17.0_RELEASE
   repository_root: "{default.repository.root}/jvmkill/{platform}/{architecture}"
 memory_calculator:
-  version: 3.+
+  version: 3.13.0_RELEASE
   repository_root: "{default.repository.root}/memory-calculator/{platform}/{architecture}"
   class_count:
   headroom:
