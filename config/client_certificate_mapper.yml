@@ -15,5 +15,7 @@
 
 # Container security provider configuration
 ---
-version: 1.+
+version: 2.+
+version_lines:
+  - 2.+
 repository_root: "{default.repository.root}/client-certificate-mapper"
