@@ -20,8 +20,8 @@ Tags are printed to standard output by the buildpack detect script
 
 ## User-Provided Service
 
-Users are currently expected to provide their own "custom user provided service" (cups) 
-instance and bind it to their application. The service MUST contain the string `splunk-o11y`.
+Users are currently expected to `create-user-provided-service` (cups) of the collector
+and bind it to their application. The service MUST contain the string `splunk-o11y`.
 
 For example, to create a service named `splunk-o11y` that represents Observability Cloud 
 realm `us0` and represents a user environment named `cf-demo`, you could use the following

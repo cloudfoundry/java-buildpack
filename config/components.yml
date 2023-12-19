@@ -67,6 +67,7 @@ frameworks:
   - "JavaBuildpack::Framework::MariaDbJDBC"
   - "JavaBuildpack::Framework::MetricWriter"
   - "JavaBuildpack::Framework::NewRelicAgent"
+  - "JavaBuildpack::Framework::OpenTelemetryJavaagent"
   - "JavaBuildpack::Framework::PostgresqlJDBC"
   - "JavaBuildpack::Framework::RiverbedAppinternalsAgent"
   - "JavaBuildpack::Framework::SealightsAgent"
