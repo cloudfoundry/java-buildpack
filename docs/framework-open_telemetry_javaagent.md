@@ -26,10 +26,12 @@ and bind it to their application. The service MUST contain the string `otel-coll
 For example, to create a service named `otel-collector` that represents an environment named `cf-demo`, you could use the following commands:
 
 ```
-$ cf cups otel-collector -p '{"otel.resource.attributes": "deployment.environment=cf-demo"}'
+$ cf cups otel-collector -p '{"otel.exporter.otlp.endpoint" : "https://my-collector-endpoint", "otel.exporter.otlp.headers" : "authorization=Basic SOMEBAS64STRING","otel.exporter.otlp.protocol" : "grpc", "otel.traces.exporter" : "otlp", "otel.metrics.exporter" : "otlp", "otel.resource.attributes": "deployment.environment=cf-demo"}'
 $ cf bind-service myApp otel-collector
 $ cf restage myApp
 ```
+
+Additional configuration options for the Agent can be found [here](https://opentelemetry.io/docs/instrumentation/java/automatic/agent-config/#configuring-with-environment-variables)
 
 ### Choosing a version
 
