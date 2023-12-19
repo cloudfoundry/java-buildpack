@@ -151,6 +151,10 @@ new_relic_agent:
   name: New Relic Agent
   release_notes: '[Release Notes](https://docs.newrelic.com/docs/release-notes/agent-release-notes/java-release-notes/)'
 
+open_telemetry_javaagent:
+  name: Open Telemetry Agent
+  release_notes: '[Release Notes](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases)'
+
 postgresql_jdbc:
   name: PostgreSQL JDBC Driver
   release_notes: '[ChangeLog](https://jdbc.postgresql.org/documentation/changelog.html)'
