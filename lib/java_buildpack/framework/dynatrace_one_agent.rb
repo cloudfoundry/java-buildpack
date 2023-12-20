@@ -202,7 +202,7 @@ module JavaBuildpack
       end
 
       def enable_fips?
-        credentials[ENABLE_FIPS] == "true"
+        credentials[ENABLE_FIPS] == 'true'
       end
 
       def tenanttoken(manifest)
