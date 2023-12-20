@@ -30,6 +30,7 @@ The credential payload of the service may contain the following entries:
 | `environmentid` | Your Dynatrace environment ID is the unique identifier of your Dynatrace environment. You can find it in the deploy Dynatrace section within your environment.
 | `networkzone` | (Optional) Network zones are Dynatrace entities that represent your network structure. They help you to route the traffic efficiently, avoiding unnecessary traffic across data centers and network regions. Enter the network zone you wish to pass to the server during the OneAgent Download.
 | `skiperrors` | (Optional) The errors during agent download are skipped and the injection is disabled. Use this option at your own risk. Possible values are 'true' and 'false'. This option is disabled by default!
+| `enablefips`| (Optional) Enables the use of [FIPS 140 cryptographic algorithms](https://docs.dynatrace.com/docs/shortlink/oneagentctl#fips-140). Possible values are 'true' and 'false'. This option is disabled by default!
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].

@@ -68,8 +68,10 @@ module JavaBuildpack
 
         manifest = agent_manifest
 
-        @droplet.java_opts.add_agentpath(agent_path(manifest))
-        @droplet.java_opts.add_preformatted_options('-Xshare:off')
+        environment_variables = @droplet.environment_variables
+        environment_variables.add_environment_variable(LD_PRELOAD, agent_path(manifest))
+
+        File.delete(@droplet.sandbox + 'agent/dt_fips_disabled.flag') if enable_fips?
 
         dynatrace_environment_variables(manifest)
       end
@@ -87,6 +89,8 @@ module JavaBuildpack
 
       APITOKEN = 'apitoken'
 
+      ENABLE_FIPS = 'enablefips'
+
       DT_APPLICATION_ID = 'DT_APPLICATIONID'
 
       DT_CONNECTION_POINT = 'DT_CONNECTION_POINT'
@@ -99,6 +103,8 @@ module JavaBuildpack
 
       DT_NETWORK_ZONE = 'DT_NETWORK_ZONE'
 
+      LD_PRELOAD = 'LD_PRELOAD'
+
       ENVIRONMENTID = 'environmentid'
 
       FILTER = /dynatrace/.freeze
@@ -107,8 +113,9 @@ module JavaBuildpack
 
       SKIP_ERRORS = 'skiperrors'
 
-      private_constant :APIURL, :APITOKEN, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_NETWORK_ZONE, :DT_LOGSTREAM,
-                       :DT_TENANT, :DT_TENANTTOKEN, :ENVIRONMENTID, :FILTER, :NETWORKZONE, :SKIP_ERRORS
+      private_constant :APIURL, :APITOKEN, :ENABLE_FIPS, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_NETWORK_ZONE,
+                       :DT_LOGSTREAM, :DT_TENANT, :DT_TENANTTOKEN, :LD_PRELOAD, :ENVIRONMENTID, :FILTER, :NETWORKZONE,
+                       :SKIP_ERRORS
 
       def agent_download_url
         download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
@@ -126,8 +133,8 @@ module JavaBuildpack
 
       def agent_path(manifest)
         technologies  = manifest['technologies']
-        java_binaries = technologies['java']['linux-x86-64']
-        loader        = java_binaries.find { |bin| bin['binarytype'] == 'loader' }
+        java_binaries = technologies['process']['linux-x86-64']
+        loader        = java_binaries.find { |bin| bin['binarytype'] == 'primary' }
         @droplet.sandbox + loader['path']
       end
 
@@ -191,7 +198,11 @@ module JavaBuildpack
       end
 
       def skip_errors?
-        credentials[SKIP_ERRORS].to_b
+        credentials[SKIP_ERRORS] == 'true'
+      end
+
+      def enable_fips?
+        credentials[ENABLE_FIPS] == 'true'
       end
 
       def tenanttoken(manifest)
