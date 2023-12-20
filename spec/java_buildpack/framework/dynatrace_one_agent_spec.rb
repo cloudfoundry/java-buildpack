@@ -60,7 +60,7 @@ describe JavaBuildpack::Framework::DynatraceOneAgent do
       component.release
 
       expect(environment_variables).to include('LD_PRELOAD=$PWD/.java-buildpack/dynatrace_one_agent/agent/lib64/' \
-                                              'liboneagentproc.so')
+                                               'liboneagentproc.so')
     end
 
     it 'updates environment variables',
