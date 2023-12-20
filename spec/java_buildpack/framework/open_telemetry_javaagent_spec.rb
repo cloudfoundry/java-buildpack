@@ -48,14 +48,22 @@ describe JavaBuildpack::Framework::OpenTelemetryJavaagent do
     end
 
     it 'updates JAVA_OPTS' do
+      allow(services).to receive(:find_service).and_return('credentials' => { 'otel.exporter.otlp.endpoint' => 'https://my-collector-endpoint',
+                                                                              'ignored' => 'not used',
+                                                                              'otel.foo' => 'bar' })
       component.release
 
       expect(java_opts).to include(
         "-javaagent:$PWD/.java-buildpack/open_telemetry_javaagent/open_telemetry_javaagent-#{version}.jar"
       )
+      expect(java_opts).to include('-Dotel.exporter.otlp.endpoint=https://my-collector-endpoint')
+      expect(java_opts).to include('-Dotel.foo=bar')
     end
 
     it 'sets the service name from the application name' do
+      allow(services).to receive(:find_service).and_return('credentials' => { 'otel.exporter.otlp.endpoint' => 'https://my-collector-endpoint',
+                                                                              'ignored' => 'not used',
+                                                                              'otel.foo' => 'bar' })
       component.release
 
       expect(java_opts).to include('-Dotel.service.name=GreatServiceTM')
