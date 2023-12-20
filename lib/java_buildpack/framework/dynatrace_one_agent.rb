@@ -71,9 +71,7 @@ module JavaBuildpack
         environment_variables = @droplet.environment_variables
         environment_variables.add_environment_variable(LD_PRELOAD, agent_path(manifest))
 
-        if enable_fips?
-          File.delete(@droplet.sandbox + 'agent/dt_fips_disabled.flag')
-        end
+        File.delete(@droplet.sandbox + 'agent/dt_fips_disabled.flag') if enable_fips?
 
         dynatrace_environment_variables(manifest)
       end
