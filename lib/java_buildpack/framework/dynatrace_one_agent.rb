@@ -198,7 +198,7 @@ module JavaBuildpack
       end
 
       def skip_errors?
-        credentials[SKIP_ERRORS] == "true"
+        credentials[SKIP_ERRORS] == 'true'
       end
 
       def enable_fips?
