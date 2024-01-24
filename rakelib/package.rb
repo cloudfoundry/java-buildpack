@@ -73,7 +73,14 @@ module Package
 
   BUILDPACK_VERSION = JavaBuildpack::BuildpackVersion.new(false).freeze
 
-  PLATFORMS = %w[bionic jammy].freeze
+  PLATFORMS = %w[]
+  platform_var = ENV.fetch('PLATFORMS', 'bionic')
+  if platform_var != 'bionic'
+    platform_var = platform_var.split(',')
+    (PLATFORMS << platform_var).flatten!.uniq!
+  else
+    PLATFORMS << platform_var
+  end
 
   STAGING_DIR = "#{BUILD_DIR}/staging".freeze
 
