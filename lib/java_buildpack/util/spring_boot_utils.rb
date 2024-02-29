@@ -87,6 +87,14 @@ module JavaBuildpack
           @jar_finder.version(application)
       end
 
+      # The version of Spring Boot used by the application - only considers the MANIFEST entry
+      #
+      # @param [Application] application the application to search
+      # @return [String] the version of Spring Boot used by the application
+      def version_strict(application)
+        JavaBuildpack::Util::JavaMainUtils.manifest(application)[SPRING_BOOT_VERSION]
+      end
+
       private
 
       SPRING_BOOT_LIB = 'Spring-Boot-Lib'

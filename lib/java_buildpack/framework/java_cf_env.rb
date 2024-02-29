@@ -53,8 +53,8 @@ module JavaBuildpack
       private
 
       def spring_boot_3?
-        @spring_boot_utils.is?(@application) && Gem::Version.new((@spring_boot_utils.version @application)).release >=
-          Gem::Version.new('3.0.0')
+        @spring_boot_utils.is?(@application) &&
+        Gem::Version.new((@spring_boot_utils.version_strict @application)).release >= Gem::Version.new('3.0.0')
       end
 
       def java_cfenv?
