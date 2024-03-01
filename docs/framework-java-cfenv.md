@@ -8,7 +8,7 @@ It also sets the 'cloud' profile for Spring Boot applications, as the Spring Aut
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td>Existence of a <tt>spring-boot-3*.jar</tt> file in the application directory or a `Spring-Boot-Version: 3.*` manifest entry</td>
+    <td>Existence of a `Spring-Boot-Version: 3.*` manifest entry</td>
     <td>No existing `java-cfenv` library found</td>
   </tr>
   <tr>
