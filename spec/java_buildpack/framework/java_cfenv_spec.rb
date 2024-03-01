@@ -39,6 +39,12 @@ describe JavaBuildpack::Framework::JavaCfEnv do
     expect(component.detect).to be_nil
   end
 
+  it 'does not detect with Spring Boot 3 named jar but not Spring Boot 3 Manifest',
+     app_fixture: 'framework_java_not_spring_boot3' do
+
+    expect(component.detect).to be_nil
+  end
+
   it 'does not detect with Spring Boot 3 & java-cfenv present',
      app_fixture: 'framework_java_cf_exists' do
 
