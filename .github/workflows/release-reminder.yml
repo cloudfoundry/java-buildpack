@@ -1,0 +1,98 @@
+name: Release Reminder
+
+on:
+  schedule:
+    - cron: '0 0 * * 4' # Run at midnight on Thursdays
+  workflow_dispatch: {}
+
+jobs:
+  determine-date:
+    name: Release buildpacks on 2nd and 4th Thursday of the month
+    runs-on: ubuntu-22.04
+    outputs:
+      should_run: ${{ steps.should_run.outputs.bool }}
+    steps:
+      - name: Should run
+        id: should_run
+        run: |
+          if [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
+            echo "Skipping date check, because workflow was run manually"
+            echo "bool=true" >> "${GITHUB_OUTPUT}"
+          else
+            day_of_month=$(date +%d)
+            # Check if it's the second or fourth Thursday of the month
+            # second thursday of the month will always be between day 8 and 14 (inclusive)
+            if [[ "$day_of_month" -ge "8" && "$day_of_month" -le "14" ]]; then
+                echo "It's the second Thursday of the month"
+                echo "bool=true" >> "${GITHUB_OUTPUT}"
+            # fourth thursday of the month will always be between day 21 and 28 (inclusive)
+            elif [[ "$day_of_month" -ge "22" && "$day_of_month" -le "28" ]]; then
+                echo "It's the fourth Thursday of the month"
+                echo "bool=true" >> "${GITHUB_OUTPUT}"
+            else
+                echo "It's another Thursday of the month"
+                echo "bool=false" >> "${GITHUB_OUTPUT}"
+            fi
+          fi
+  reminder:
+    name: Reminder
+    runs-on: ubuntu-22.04
+    needs: [ determine-date ]
+    if: ${{ needs.determine-date.outputs.should_run == 'true' }}
+    steps:
+      - name: Get Date
+        id: date
+        run: |
+          today=$(date +'%m-%d')
+          window_close_date=$(date -d "+5 days" +'%m-%d')
+
+          echo "today=$today" >> "${GITHUB_OUTPUT}"
+          echo "window_close_date=$window_close_date" >> "${GITHUB_OUTPUT}"
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.CF_BOT_GITHUB_TOKEN }}
+          ref: develop
+          fetch-depth: 0
+
+      - name: Get Latest Version
+        id: latest-version
+        run: |
+          echo "val=$(git describe --abbrev=0 --tag)" >> "${GITHUB_OUTPUT}"
+
+      - name: PHP specific task
+        id: php-specific
+        if: github.repository == 'cloudfoundry/php-buildpack'
+        run: |
+          echo 'task=* Bump PHP modules. See [doc](https://github.com/cloudfoundry/buildpacks-ci/tree/master/scripts/php-modules#pre-buildpack-release-task)' >> "${GITHUB_OUTPUT}"
+          echo 'title=Bump PHP Modules and ' >> "${GITHUB_OUTPUT}"
+
+      - name: File Issue
+        id: file-issue
+        uses: paketo-buildpacks/github-config/actions/issue/file@main
+        with:
+          token: ${{ secrets.CF_BOT_GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
+          issue_title: "${{ steps.php-specific.outputs.title }}Release: ${{ github.event.repository.name }} (${{ steps.date.outputs.today }})"
+          issue_body: |
+            Release reminder for ${{ github.event.repository.name }}
+
+            The ideal release date window for this buildpack starts on: ${{ steps.date.outputs.today }} and ends on ${{ steps.date.outputs.window_close_date }}.
+
+            ${{ steps.php-specific.outputs.task }}
+            * See [diff from latest version]("https://github.com/${{ github.repository }}/compare/${{ steps.latest-version.outputs.val }}..develop") and validate if a release is required.
+            * Make sure the latest commit on `develop` has passed tests on the [CI](https://buildpacks.ci.cf-app.com/teams/main/pipelines/${{ github.event.repository.name }})
+            * Refer [release instructions](https://github.com/pivotal-cf/tanzu-buildpacks/wiki/Releasing-CF-Buildpacks). (private link)
+
+      - name: Add issue to project
+        id: issue-to-proj
+        uses: paketo-buildpacks/github-config/actions/issue/add-to-project@main
+        with:
+          # CF buildpacks project - https://github.com/orgs/cloudfoundry/projects/37
+          project-org: cloudfoundry
+          project-num: 37
+          field-name: Workstream
+          option-name: Release Train
+          issue-node-id: ${{ steps.file-issue.outputs.node-id }}
+          token: ${{ secrets.CF_BOT_GITHUB_TOKEN }}
