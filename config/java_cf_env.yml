@@ -17,6 +17,6 @@
 # See https://github.com/pivotal-cf/java-cfenv for library information
 
 ---
-version: 3.+
+version: 3.1.5
 repository_root: "{default.repository.root}/java-cfenv"
 enabled: true
