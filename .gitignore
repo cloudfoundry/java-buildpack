@@ -3,6 +3,7 @@
 .idea/tasks.xml
 .idea/workspace.xml
 .yardoc
+.DS_Store
 build/
 doc
 .envrc
