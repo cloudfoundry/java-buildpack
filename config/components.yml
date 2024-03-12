@@ -80,3 +80,4 @@ frameworks:
   - "JavaBuildpack::Framework::TakipiAgent"
   - "JavaBuildpack::Framework::JavaSecurity"
   - "JavaBuildpack::Framework::JavaOpts"
+  - "JavaBuildpack::Framework::InstanaAgent"
