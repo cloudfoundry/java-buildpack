@@ -68,7 +68,7 @@ describe JavaBuildpack::Container::TomcatGeodeStore do
 
       expect(sandbox + 'lib/stub-jar-1.jar').to exist
       expect(sandbox + 'lib/stub-jar-2.jar').to exist
-      expect(sandbox + 'lib/geode-modules-tomcat9.jar').to exist
+      expect(sandbox + 'lib/gemfire-session-management-tomcat9.jar').to exist
     end
 
     it 'mutates context.xml',
