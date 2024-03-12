@@ -136,12 +136,8 @@ module JavaBuildpack
 
       def detect_geode_tomcat_version
         geode_tomcat_version = nil
-        puts "===DEBUG ABHISHEK==="
-        puts @droplet.sandbox + 'lib'
         geode_modules_tomcat_pattern = /ge.*-tomcat(?<version>[0-9]*).*.jar/.freeze
         Dir.foreach(@droplet.sandbox + 'lib') do |file|
-          puts "===DEBUG ABHISHEK==="
-          puts file
           if geode_modules_tomcat_pattern.match(file)
             unless geode_tomcat_version.nil?
               raise('Multiple versions of geode-modules-tomcat jar found. ' \
@@ -149,8 +145,6 @@ module JavaBuildpack
             end
 
             geode_tomcat_version = geode_modules_tomcat_pattern.match(file).named_captures['version']
-            puts "===DEBUG ABHISHEK==="
-            puts geode_tomcat_version
           end
         end
 
