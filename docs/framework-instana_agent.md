@@ -7,7 +7,7 @@ The Instana Agent Framework causes an application to be automatically configured
   <tr>
     <td><strong>Detection Criterion</strong></td><td>Existence of a single bound Instana service.
       <ul>
-        <li>Existence of a Instana service is defined as the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>instana</code> as a substring with at least `agentkey` and `endpointurl` set as credentials.</li>
+        <li>Existence of a Instana service is defined as the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>instana</code> as a substring with at least <code>agentkey</code> and <code>endpointurl</code> set as credentials.</li>
       </ul>
     </td>
   </tr>
