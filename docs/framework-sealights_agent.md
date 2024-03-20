@@ -16,11 +16,12 @@ Tags are printed to standard output by the buildpack detect script
 When binding Sealights using a user-provided service, it must have name or tag with `sealights` in it.
 The credential payload can contain the following entries. 
 
-| Name | Description
-| ---- | -----------
-| `token` | A Sealights Agent token
-| `proxy` | Specify a HTTP proxy used to communicate with the Sealights backend. Required when a corporate network prohibits communication to cloud services. The default is to have no proxy configured. This does not inherit from `http_proxy`/`https_proxy` or `http.proxyHost/https.proxyHost`, you must set this specifically if a proxy is needed.
-| `lab_id` | Specify a Sealights [Lab ID][]
+| Name             | Description
+|------------------| -----------
+| `token`          | A Sealights Agent token
+| `proxy`          | Specify a HTTP proxy used to communicate with the Sealights backend. Required when a corporate network prohibits communication to cloud services. The default is to have no proxy configured. This does not inherit from `http_proxy`/`https_proxy` or `http.proxyHost/https.proxyHost`, you must set this specifically if a proxy is needed.
+| `lab_id`         | Specify a Sealights [Lab ID][]
+| `customAgentUrl` | Specify an url to download zip containing custom Sealights agent jar. If the custom agent is downloaded then the 'enable_upgrade' is forced to 'false'
 
 All fields above except the agent token may be also specified in the [Configuration Section](#configuration) below.
 
@@ -34,8 +35,9 @@ The framework can be configured by modifying the [`config/sealights_agent.yml`][
 | `build_session_id` | Sealights [Build Session ID][] for the application. Leave blank to use the value embedded in the jar/war artifacts
 | `proxy` | Specify a HTTP proxy used to communicate with the Sealights backend. Required when a corporate network prohibits communication to cloud services. The default is to have no proxy configured. This does not inherit from `http_proxy`/`https_proxy` or `http.proxyHost/https.proxyHost`, you must set this specifically if a proxy is needed.
 | `lab_id` | Specify a Sealights [Lab ID][]
-| `auto_upgrade` | Enable/disable agent auto-upgrade. Off by default
+| `enable_upgrade` | Enable/disable agent auto-upgrade. Off by default
 | `version` | The version of Auto-reconfiguration to use. Candidate versions can be found in [this listing][]. If auto_upgrade is turned on, a different version may be downloaded and used at runtime
+| `customAgentUrl` | Specify an url to download zip containing custom Sealights agent jar. If the custom agent is downloaded then the 'enable_upgrade' is forced to 'false'
 
 Configuration settings will take precedence over the ones specified in the [User-Provided Service](#user-provided-service), if those are defined.
 
