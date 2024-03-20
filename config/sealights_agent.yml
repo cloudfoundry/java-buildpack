@@ -15,7 +15,7 @@
 
 # Configuration for the SeaLights Agent framework
 ---
-version: +
+version: 4.0.2465
 repository_root: https://agents.sealights.co/pcf
 build_session_id:
 lab_id:
