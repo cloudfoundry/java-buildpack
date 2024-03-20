@@ -50,7 +50,7 @@ container_security_provider:
 
 contrast_security_agent:
   name: Contrast Security Agent
-  release_notes: '[Release Notes](https://docs.contrastsecurity.com/en/java-agent-release-notes.html)'
+  release_notes: '[Release Notes](https://docs.contrastsecurity.com/en/java-agent-release-notes-and-archive.html)'
 
 datadog_javaagent:
   name: Datadog APM Javaagent
