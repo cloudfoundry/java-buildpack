@@ -46,7 +46,7 @@ module JavaBuildpack
       private
 
       def driver?
-        %w[mariadb-java-client*.jar mysql-connector-j*.jar].any? do |candidate|
+        %w[mariadb-java-client*.jar mysql-connector-j*.jar aws-mysql-jdbc*.jar].any? do |candidate|
           (@application.root + '**' + candidate).glob.any?
         end
       end
