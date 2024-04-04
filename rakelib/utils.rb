@@ -39,12 +39,27 @@ module Utils
         configuration['component_id'].end_with?('_jre') && configuration['sub_component_id'].start_with?('jre')
       end
 
+      def tomcat?(configuration)
+        configuration['component_id'].end_with?('tomcat') && configuration['sub_component_id'].start_with?('tomcat')
+      end
+
       def java_version_lines(configuration, configurations)
         configuration['version_lines'].each do |v|
           next if version_line_matches?(configuration, v)
 
           c1 = configuration.clone
           c1['sub_component_id'] = "jre-#{v.split('.')[0]}"
+          c1['version'] = v
+          configurations << c1
+        end
+      end
+
+      def tomcat_version_lines(configuration, configurations)
+        configuration['version_lines'].each do |v|
+          next if version_line_matches?(configuration, v)
+
+          c1 = configuration.clone
+          c1['sub_component_id'] = "tomcat-#{v.split('.')[0]}"
           c1['version'] = v
           configurations << c1
         end

@@ -164,6 +164,9 @@ module Package
       if Utils::VersionUtils.openjdk_jre? old_configuration
         rake_output_message "Pinning JRE #{sub_component_id || component_id} version to #{version}"
         pin_jre(component_id, sub_component_id, version)
+      elsif Utils::VersionUtils.tomcat? old_configuration
+        rake_output_message "Pinning Tomcat #{sub_component_id || component_id} version to #{version}"
+        pin_tomcat(component_id, sub_component_id, version)
       else
         rake_output_message "Pinning #{sub_component_id || component_id} version to #{version}"
         pin_component(component_id, sub_component_id, version)
@@ -182,6 +185,17 @@ module Package
       update_configuration(configuration_to_update, version, sub_component_id)
       configuration_to_update['jre']['version_lines'].each_with_index do |version_pattern, index|
         configuration_to_update['jre']['version_lines'][index] = version \
+          if Utils::VersionUtils.version_matches?(version_pattern, [version])
+      end
+      JavaBuildpack::Util::ConfigurationUtils.write(component_id, configuration_to_update)
+    end
+
+    def pin_tomcat(component_id, sub_component_id, version)
+      # update configuration file, pin version & version lines
+      configuration_to_update = JavaBuildpack::Util::ConfigurationUtils.load(component_id, false, true)
+      update_configuration(configuration_to_update, version, sub_component_id)
+      configuration_to_update['tomcat']['version_lines'].each_with_index do |version_pattern, index|
+        configuration_to_update['tomcat']['version_lines'][index] = version \
           if Utils::VersionUtils.version_matches?(version_pattern, [version])
       end
       JavaBuildpack::Util::ConfigurationUtils.write(component_id, configuration_to_update)
