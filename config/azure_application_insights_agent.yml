@@ -15,5 +15,5 @@
 
 # Configuration for the Azure Application Insights framework.
 ---
-version: 3.+
+version: 3.5.1
 repository_root: "{default.repository.root}/azure-application-insights"

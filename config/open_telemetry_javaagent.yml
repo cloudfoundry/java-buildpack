@@ -15,5 +15,5 @@
 
 # Configuration for the OpenTelemetry Javaagent
 ---
-version: +
+version: 2.3.0
 repository_root: https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/cloudfoundry/
