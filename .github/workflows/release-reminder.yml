@@ -23,12 +23,12 @@ jobs:
             last_day_cutoff=$(expr $(date -d "-$(date +%d) days month" +%d) - 6)
             # Check if it's the second or last Thursday of the month
             # second thursday of the month will always be between day 8 and 14 (inclusive)
-            if [[ "$day_of_month" -ge "8" && "$day_of_month" -le "14" ]]; then
+            if [ "$day_of_month" -ge "8" && "$day_of_month" -le "14" ]; then
                 echo "It's the second Thursday of the month"
                 echo "bool=true" >> "${GITHUB_OUTPUT}"
             # last thursday of the month will always be within 6 days of the last day of the month
             # $last_day_cutoff=(# days in this month - 6)
-            elif [[ "$day_of_month" -ge "$last_day_cutoff" ]]; then
+            elif [ "$day_of_month" -ge "$last_day_cutoff" ]; then
                 echo "It's the last Thursday of the month"
                 echo "bool=true" >> "${GITHUB_OUTPUT}"
             else
