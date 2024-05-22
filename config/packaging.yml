@@ -194,9 +194,14 @@ takipi_agent:
   release_notes: '[Release Notes](https://doc.overops.com/docs/whats-new)'
 
 tomcat:
-  name: Tomcat
+  name: Tomcat 9
   cve_notes: '[Security](https://tomcat.apache.org/security-9.html)'
   release_notes: '[ChangeLog](https://tomcat.apache.org/tomcat-9.0-doc/changelog.html)'
+
+tomcat-10:
+  name: Tomcat 10.1
+  cve_notes: '[Security](https://tomcat.apache.org/security-10.html)'
+  release_notes: '[ChangeLog](https://tomcat.apache.org/tomcat-10.1-doc/changelog.html)'
 
 your_kit_profiler:
   name: YourKit Profiler

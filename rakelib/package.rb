@@ -38,6 +38,9 @@ module Package
       Utils::VersionUtils.java_version_lines(configuration, configurations) \
           if Utils::VersionUtils.openjdk_jre? configuration
 
+      Utils::VersionUtils.tomcat_version_lines(configuration, configurations) \
+          if Utils::VersionUtils.tomcat? configuration
+
       configurations << configuration
     else
       configuration.each { |k, v| configurations << configurations(component_id, v, k) if v.is_a? Hash }
