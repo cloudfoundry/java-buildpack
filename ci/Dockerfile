@@ -1,7 +1,7 @@
 ARG base_image=ubuntu:bionic
 FROM ${base_image}
 
-RUN apt-get update && apt-get install -y wget
+RUN apt-get update && apt-get install -y wget gnupg
 
 RUN wget -q -O - https://download.bell-sw.com/pki/GPG-KEY-bellsoft | apt-key add -
 RUN echo "deb [arch=amd64] https://apt.bell-sw.com/ stable main" | tee /etc/apt/sources.list.d/bellsoft.list
