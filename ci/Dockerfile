@@ -1,6 +1,9 @@
 ARG base_image=ubuntu:bionic
 FROM ${base_image}
 
+RUN wget -q -O - https://download.bell-sw.com/pki/GPG-KEY-bellsoft | sudo apt-key add -
+RUN echo "deb [arch=amd64] https://apt.bell-sw.com/ stable main" | sudo tee /etc/apt/sources.list.d/bellsoft.list
+
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
@@ -12,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     python \
     zip \
     zlib1g-dev \
-    openjdk-17 \
+    bellsoft-java17 \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
