@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     locales \
     zip \
     zlib1g-dev \
+    openjdk-17-jdk \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
