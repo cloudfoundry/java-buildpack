@@ -116,7 +116,7 @@ module JavaBuildpack
       SKIP_ERRORS = 'skiperrors'
 
       private_constant :ADDTECHNOLOGIES, :APIURL, :APITOKEN, :ENABLE_FIPS, :DT_APPLICATION_ID, :DT_CONNECTION_POINT,
-                       :DT_NETWORK_ZONE, :DT_LOGSTREAM, :DT_TENANT, :DT_TENANTTOKEN, :LD_PRELOAD, :ENVIRONMENTID, 
+                       :DT_NETWORK_ZONE, :DT_LOGSTREAM, :DT_TENANT, :DT_TENANTTOKEN, :LD_PRELOAD, :ENVIRONMENTID,
                        :FILTER, :NETWORKZONE, :SKIP_ERRORS
 
       def agent_download_url
@@ -137,8 +137,6 @@ module JavaBuildpack
           end
         end
         return code_modules
-      end
-
       end
 
       def agent_manifest
