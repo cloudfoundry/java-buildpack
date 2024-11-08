@@ -89,7 +89,6 @@ module JavaBuildpack
       # @return [Void]
       def download(version, uri, name = @component_name)
         download_start_time = Time.now
-        print "FIXMEDEBUG #{'----->'.red.bold} Downloading #{name.blue.bold} #{version.to_s.blue} from #{uri} "
         print "#{'----->'.red.bold} Downloading #{name.blue.bold} #{version.to_s.blue} from #{uri.sanitize_uri} "
 
         JavaBuildpack::Util::Cache::CacheFactory.create.get(uri) do |file, downloaded|
