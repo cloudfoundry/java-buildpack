@@ -36,11 +36,13 @@ class String
 
     query_params = ''
 
-    params.each do |key, _|
-      params[key] = '***' if key.match(keywords)
-      query_params += key + '=' + params[key] + '&'
+    params.split("&").each do |single_param|
+      k, v = single_param.split("=")
+      if k.match(keywords)
+        v = "***"
+      end
+      query_params += k + '=' +v + '&'
     end
-
     query_params
   end
 
@@ -53,8 +55,7 @@ class String
     rich_uri.password = nil
 
     if rich_uri.query
-      params = (URI.decode_www_form rich_uri.query).to_h
-      query_params = handle_params(params)
+      query_params = handle_params(rich_uri.query)
       rich_uri.query = query_params.chop
     end
 
