@@ -83,10 +83,6 @@ module JavaBuildpack
         @pathname === comparison_target(other) # rubocop:disable Style/CaseEquality
       end
 
-      # Dispatch superclass methods via method_missing.
-      undef_method :taint
-      undef_method :untaint
-
       # @see Pathname.
       def +(other)
         filtered_pathname(@pathname + other)
@@ -104,7 +100,7 @@ module JavaBuildpack
 
       # @see Pathname.
       def open(mode = nil, *args, **kwargs, &block)
-        check_mutable if mode =~ /[wa]/
+        check_mutable if /[wa]/ =~ mode.to_s
         delegate.open(mode, *args, **kwargs, &block)
       end
 
@@ -150,7 +146,7 @@ module JavaBuildpack
       private
 
       MUTATORS = %i[chmod chown delete lchmod lchown make_link make_symlink mkdir mkpath rename rmdir rmtree taint
-                    unlink untaint].to_set.freeze
+                    unlink].to_set.freeze
 
       private_constant :MUTATORS
 
