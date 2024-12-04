@@ -170,6 +170,10 @@ redis_store:
 riverbed_appinternals_agent:
   name: Riverbed Appinternals Agent
 
+ruby:
+  name: Ruby
+  release_notes: 'https://www.ruby-lang.org/en/downloads/releases'
+
 sealights_agent:
   name: SeaLights Agent
 

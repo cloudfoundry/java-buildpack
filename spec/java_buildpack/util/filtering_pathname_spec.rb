@@ -380,24 +380,6 @@ describe JavaBuildpack::Util::FilteringPathname do
     mutable_target.unlink
   end
 
-  it 'raises error if untaint is called on an immutable instance' do
-    expect { immutable_target.untaint }.to raise_error(/FilteringPathname is immutable/)
-  end
-
-  it 'delegates if untaint is called on a mutable instance' do
-    allow(app_dir).to receive(:untaint)
-    mutable_target.untaint
-  end
-
-  it 'raises error if taint is called on an immutable instance' do
-    expect { immutable_target.taint }.to raise_error(/FilteringPathname is immutable/)
-  end
-
-  it 'delegates if taint is called on a mutable instance' do
-    allow(app_dir).to receive(:taint)
-    mutable_target.taint
-  end
-
   it 'raises error if mkpath is called on an immutable instance' do
     expect { immutable_target.mkpath }.to raise_error(/FilteringPathname is immutable/)
   end
