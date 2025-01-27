@@ -85,6 +85,8 @@ module JavaBuildpack
 
       private
 
+      ADDTECHNOLOGIES = 'addtechnologies'
+
       APIURL = 'apiurl'
 
       APITOKEN = 'apitoken'
@@ -113,18 +115,28 @@ module JavaBuildpack
 
       SKIP_ERRORS = 'skiperrors'
 
-      private_constant :APIURL, :APITOKEN, :ENABLE_FIPS, :DT_APPLICATION_ID, :DT_CONNECTION_POINT, :DT_NETWORK_ZONE,
-                       :DT_LOGSTREAM, :DT_TENANT, :DT_TENANTTOKEN, :LD_PRELOAD, :ENVIRONMENTID, :FILTER, :NETWORKZONE,
-                       :SKIP_ERRORS
+      private_constant :ADDTECHNOLOGIES, :APIURL, :APITOKEN, :ENABLE_FIPS, :DT_APPLICATION_ID, :DT_CONNECTION_POINT,
+                       :DT_NETWORK_ZONE, :DT_LOGSTREAM, :DT_TENANT, :DT_TENANTTOKEN, :LD_PRELOAD, :ENVIRONMENTID,
+                       :FILTER, :NETWORKZONE, :SKIP_ERRORS
 
       def agent_download_url
-        download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?include=java" \
+        download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?#{technologies(credentials)}" \
                        '&bitness=64' \
                        "&Api-Token=#{credentials[APITOKEN]}"
 
         download_uri += "&networkZone=#{networkzone}" if networkzone?
 
         ['latest', download_uri]
+      end
+
+      def technologies(credentials)
+        code_modules = "include=java"
+        if not credentials[ADDTECHNOLOGIES].empty?
+          credentials[ADDTECHNOLOGIES].split(",").each do |tech|
+            code_modules += "&include=#{tech}"
+          end
+        end
+        return code_modules
       end
 
       def agent_manifest
