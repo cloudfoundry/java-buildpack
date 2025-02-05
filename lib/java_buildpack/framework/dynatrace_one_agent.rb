@@ -120,7 +120,8 @@ module JavaBuildpack
                        :FILTER, :NETWORKZONE, :SKIP_ERRORS
 
       def agent_download_url
-        download_uri = "#{api_base_url(credentials)}/v1/deployment/installer/agent/unix/paas/latest?#{technologies(credentials)}" \
+        download_uri = "#{api_base_url(credentials)}" \
+                       "/v1/deployment/installer/agent/unix/paas/latest?#{technologies(credentials)}" \
                        '&bitness=64' \
                        "&Api-Token=#{credentials[APITOKEN]}"
 
@@ -130,13 +131,13 @@ module JavaBuildpack
       end
 
       def technologies(credentials)
-        code_modules = "include=java"
-        if not credentials[ADDTECHNOLOGIES].empty?
-          credentials[ADDTECHNOLOGIES].split(",").each do |tech|
+        code_modules = 'include=java'
+        if credentials.key?(ADDTECHNOLOGIES)
+          credentials[ADDTECHNOLOGIES].split(',').each do |tech|
             code_modules += "&include=#{tech}"
           end
         end
-        return code_modules
+        code_modules
       end
 
       def agent_manifest

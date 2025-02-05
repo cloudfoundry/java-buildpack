@@ -36,12 +36,10 @@ class String
 
     query_params = ''
 
-    params.split("&").each do |single_param|
-      k, v = single_param.split("=")
-      if k.match(keywords)
-        v = "***"
-      end
-      query_params += k + '=' +v + '&'
+    params.split('&').each do |single_param|
+      k, v = single_param.split('=')
+      v = '***' if k.match(keywords)
+      query_params += k + '=' + v + '&'
     end
     query_params
   end
