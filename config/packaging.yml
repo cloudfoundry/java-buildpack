@@ -92,23 +92,23 @@ jprofiler_profiler:
 
 jre:
   name: OpenJDK JRE 8
-  cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2024.html#AppendixJAVA)'
-  release_notes: '[Release Notes](https://docs.bell-sw.com/liberica-jdk/8u432b7/general/release-notes/)'
+  cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpujan2025.html#AppendixJAVA)'
+  release_notes: '[Release Notes](https://docs.bell-sw.com/liberica-jdk/8u442b7/general/release-notes/)'
 
 jre-11:
   name: OpenJDK JRE 11
-  cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2024.html#AppendixJAVA)'
-  release_notes: '[Release Notes](https://docs.bell-sw.com/liberica-jdk/11.0.25b11/general/release-notes/)'
+  cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpujan2025.html#AppendixJAVA)'
+  release_notes: '[Release Notes](https://docs.bell-sw.com/liberica-jdk/11.0.26b9/general/release-notes/)'
 
 jre-17:
   name: OpenJDK JRE 17
-  cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2024.html#AppendixJAVA)'
-  release_notes: '[Release Notes](https://docs.bell-sw.com/liberica-jdk/17.0.13b12/general/release-notes/)'
+  cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpujan2025.html#AppendixJAVA)'
+  release_notes: '[Release Notes](https://docs.bell-sw.com/liberica-jdk/17.0.14b10/general/release-notes/)'
 
 jre-21:
   name: OpenJDK JRE 21
-  cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpuoct2024.html#AppendixJAVA)'
-  release_notes: '[Release Notes](https://docs.bell-sw.com/liberica-jdk/21.0.5b11/general/release-notes/)'
+  cve_notes: '[Risk Matrix](https://www.oracle.com/security-alerts/cpujan2025.html#AppendixJAVA)'
+  release_notes: '[Release Notes](https://docs.bell-sw.com/liberica-jdk/21.0.6b10/general/release-notes/)'
 
 jrebel_agent:
   name: JRebel Agent
@@ -209,4 +209,4 @@ tomcat-10:
 
 your_kit_profiler:
   name: YourKit Profiler
-  release_notes: '[Release Notes](https://www.yourkit.com/download/yjp_2024_3_builds.jsp)'
+  release_notes: '[Release Notes](https://www.yourkit.com/download/yjp_2024_9_builds.jsp)'
