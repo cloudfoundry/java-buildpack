@@ -28,23 +28,29 @@ module JavaBuildpack
     class ContrastSecurityAgent < JavaBuildpack::Component::VersionedDependencyComponent
       include JavaBuildpack::Util
 
+      def initialize(context)
+        super(context)
+        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger ContrastSecurityAgent
+      end
+
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_jar
         @droplet.copy_resources
-
-        write_configuration @application.services.find_service(FILTER, API_KEY, SERVICE_KEY, TEAMSERVER_URL,
-                                                               USERNAME)['credentials']
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        @droplet.java_opts.add_system_property('contrast.override.appname', application_name) unless appname_exist?
+        # Fetch the credentials and settings
+        credentials = @application.services.find_service(FILTER, API_KEY, SERVICE_KEY, TEAMSERVER_URL,
+                                                         USERNAME)['credentials']
 
+        # Add the Contrast config via env vars
+        add_config_to_env credentials
+
+        # Add the -javaagent option to cause the agent to start with the JVM
         @droplet.java_opts
-                .add_system_property('contrast.dir', '$TMPDIR')
-                .add_preformatted_options("-javaagent:#{qualify_path(@droplet.sandbox + jar_name, @droplet.root)}=" \
-                                          "#{qualify_path(contrast_config, @droplet.root)}")
+                .add_preformatted_options("-javaagent:#{qualify_path(@droplet.sandbox + jar_name, @droplet.root)}")
       end
 
       protected
@@ -78,40 +84,14 @@ module JavaBuildpack
       private_constant :API_KEY, :FILTER, :INFLECTION_VERSION, :PLUGIN_PACKAGE, :SERVICE_KEY, :TEAMSERVER_URL,
                        :USERNAME
 
-      def add_contrast(doc, credentials)
-        contrast = doc.add_element('contrast')
-        (contrast.add_element 'id').add_text('default')
-        (contrast.add_element 'global-key').add_text(credentials[API_KEY])
-        (contrast.add_element 'url').add_text("#{credentials[TEAMSERVER_URL]}/Contrast/s/")
-        (contrast.add_element 'results-mode').add_text('never')
-
-        add_user contrast, credentials
-        add_plugins contrast
-      end
-
-      def add_plugins(contrast)
-        plugin_group = contrast.add_element('plugins')
-
-        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.security.SecurityPlugin")
-        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.architecture.ArchitecturePlugin")
-        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.appupdater.ApplicationUpdatePlugin")
-        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.sitemap.SitemapPlugin")
-        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.frameworks.FrameworkSupportPlugin")
-        (plugin_group.add_element 'plugin').add_text("#{PLUGIN_PACKAGE}.http.HttpPlugin")
-      end
-
-      def add_user(contrast, credentials)
-        user = contrast.add_element('user')
-        (user.add_element 'id').add_text(credentials[USERNAME])
-        (user.add_element 'key').add_text(credentials[SERVICE_KEY])
-      end
-
       def application_name
         @application.details['application_name'] || 'ROOT'
       end
 
       def appname_exist?
-        @droplet.java_opts.any? { |java_opt| java_opt =~ /contrast.override.appname/ }
+        @droplet.java_opts.any? do |java_opt|
+          java_opt =~ /contrast\.override\.appname/ || java_opt =~ /contrast\.application\.name/
+        end
       end
 
       def contrast_config
@@ -122,16 +102,62 @@ module JavaBuildpack
         "#{@version[0]}.#{@version[1]}.#{@version[2]}"
       end
 
-      def write_configuration(credentials)
-        doc = REXML::Document.new
+      # Add Contrast config to the env variables of the droplet.
+      def add_config_to_env(credentials)
+        env_vars = @droplet.environment_variables
 
-        add_contrast doc, credentials
+        # Add any extra environment variables that start with CONTRAST__
+        process_extra_env_vars credentials, env_vars
 
-        contrast_config.open(File::CREAT | File::WRONLY) { |f| f.write(doc) }
+        # Add the config in the backwards compatible old format setting name
+        add_env_var env_vars, 'CONTRAST__API__API_KEY', credentials[API_KEY]
+        add_env_var env_vars, 'CONTRAST__API__SERVICE_KEY', credentials[SERVICE_KEY]
+        add_env_var env_vars, 'CONTRAST__API__URL', "#{credentials[TEAMSERVER_URL]}/Contrast"
+        add_env_var env_vars, 'CONTRAST__API__USER_NAME', credentials[USERNAME]
+
+        add_env_var env_vars, 'CONTRAST__AGENT__CONTRAST_WORKING_DIR', '$TMPDIR'
+
+        app_name = application_name
+        add_env_var env_vars, 'CONTRAST__APPLICATION__NAME', app_name unless appname_exist?
+
+        # Add the config for the proxy, if it exists
+        add_proxy_config credentials, env_vars
+      end
+
+      # Add any generic new config from the broker, for any entry that starts with CONTRAST__ add to the env
+      # The intention is to allow the broker to add any new config that it wants to, without needing to modify the
+      # buildpack
+      def process_extra_env_vars(credentials, env_vars)
+        credentials.each do |key, value|
+          # Add any that start with CONTRAST__ AND non-empty values
+          matched = key.match?(/^CONTRAST__/) && !value.to_s.empty?
+          add_env_var env_vars, key, value if matched
+        end
+      end
+
+      def add_env_var(env_vars, key, value)
+        env_vars.add_environment_variable key, value
+      end
+
+      def add_proxy_config(credentials, env_vars)
+        host_set = credentials_value_set?(credentials, 'proxy_host')
+        add_env_var env_vars, 'CONTRAST__API__PROXY__HOST', credentials['proxy_host'] if host_set
+
+        port_set = credentials_value_set?(credentials, 'proxy_port')
+        add_env_var env_vars, 'CONTRAST__API__PROXY__PORT', credentials['proxy_port'] if port_set
+
+        pass_set = credentials_value_set?(credentials, 'proxy_pass')
+        add_env_var env_vars, 'CONTRAST__API__PROXY__PASS', credentials['proxy_pass'] if pass_set
+
+        user_set = credentials_value_set?(credentials, 'proxy_user')
+        add_env_var env_vars, 'CONTRAST__API__PROXY__USER', credentials['proxy_user'] if user_set
+      end
+
+      def credentials_value_set?(credentials, key)
+        !credentials[key].to_s.empty?
       end
 
     end
 
   end
-
 end
