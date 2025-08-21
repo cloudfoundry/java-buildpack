@@ -21,13 +21,22 @@ Users may optionally provide their own JaCoCo service. A user-provided JaCoCo se
 
 The credential payload of the service may contain the following entries:
 
-| Name | Description
-| ---- | -----------
-| `address` | The host for the agent to connect to or listen on
-| `excludes` | (Optional) A list of class names that should be excluded from execution analysis. The list entries are separated by a colon (:) and may use wildcard characters (* and ?).
-| `includes` | (Optional) A list of class names that should be included in execution analysis. The list entries are separated by a colon (:) and may use wildcard characters (* and ?).
-| `port` | (Optional) The port for the agent to connect to or listen on
-| `output` | (Optional) The mode for the agent. Possible values are either tcpclient (default) or tcpserver. 
+| Name                   | Description
+|------------------------|------------
+| `address`              | The host for the agent to connect to or listen on.
+| `destfile`             | (Optional) The path to the file where execution data is written. Default is `jacoco.exec`.
+| `sessionid`            | (Optional) The identifier for the coverage session. Useful for distinguishing between different test runs.
+| `append`               | (Optional) If set to `true`, coverage data is appended to the existing file. Default is `false`.
+| `includes`             | (Optional) A list of class names to include in execution analysis. Entries are separated by a colon (`:`) and may use wildcards (`*`, `?`).
+| `excludes`             | (Optional) A list of class names to exclude from execution analysis. Entries are separated by a colon (`:`) and may use wildcards (`*`, `?`).
+| `exclclassloader`      | (Optional) A list of class loader names to exclude from instrumentation. Entries are separated by a colon (`:`).
+| `inclbootstrapclasses` | (Optional) If set to `true`, includes bootstrap classes for instrumentation. Default is `false`.
+| `inclnolocationclasses`| (Optional) If set to `true`, includes classes without a location for instrumentation. Default is `false`.
+| `dumponexit`           | (Optional) If set to `true`, coverage data is written on JVM shutdown. Default is `true`.
+| `output`               | (Optional) The mode for the agent. Possible values are `tcpclient` (default) or `tcpserver`.
+| `port`                 | (Optional) The port for the agent to connect to or listen on.
+| `classdumpdir`         | (Optional) The directory where class files are dumped if class dumping is enabled.
+| `jmx`                  | (Optional) If set to `true`, enables JMX control for the agent. Default is `false`.
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].

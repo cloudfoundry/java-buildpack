@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2020 the original author or authors.
+# Copyright 2013-2025 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,19 +31,8 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = @application.services.find_service(FILTER, ADDRESS)['credentials']
-        properties = {
-          'address' => credentials[ADDRESS],
-          'output' => 'tcpclient',
-          'sessionid' => '$CF_INSTANCE_GUID'
-        }
-
-        properties['excludes'] = credentials['excludes'] if credentials.key? 'excludes'
-        properties['includes'] = credentials['includes'] if credentials.key? 'includes'
-        properties['port'] = credentials['port'] if credentials.key? 'port'
-        properties['output'] = credentials['output'] if credentials.key? 'output'
-
-        @droplet.java_opts.add_javaagent_with_props(@droplet.sandbox + 'jacocoagent.jar', properties)
+        @droplet.java_opts.add_javaagent_with_props(@droplet.sandbox + 'jacocoagent.jar',
+                                                    build_properties(service_credentials))
       end
 
       protected
@@ -58,6 +47,51 @@ module JavaBuildpack
       FILTER = /jacoco/.freeze
 
       private_constant :ADDRESS, :FILTER
+
+      OPTIONAL_PROPS = {
+        'excludes' => nil,
+        'includes' => nil,
+        'port' => nil,
+        'destfile' => nil,
+        'append' => nil,
+        'exclclassloader' => nil,
+        'inclbootstrapclasses' => nil,
+        'inclnolocationclasses' => nil,
+        'dumponexit' => nil,
+        'classdumpdir' => nil,
+        'jmx' => nil
+      }.freeze
+
+      private_constant :ADDRESS, :FILTER, :OPTIONAL_PROPS
+
+      private
+
+      def service_credentials
+        @application.services.find_service(FILTER, ADDRESS)['credentials']
+      end
+
+      def build_properties(credentials)
+        properties = base_properties(credentials)
+        properties.merge!(optional_properties(credentials))
+      end
+
+      def base_properties(credentials)
+        {
+          'address' => credentials[ADDRESS],
+          'output' => credentials['output'] || 'tcpclient',
+          'sessionid' => credentials['sessionid'] || '$CF_INSTANCE_GUID'
+        }
+      end
+
+      def optional_properties(credentials)
+        opts = {}
+        OPTIONAL_PROPS.each_key do |key|
+          next unless credentials.key?(key)
+
+          opts[key] = credentials[key]
+        end
+        opts
+      end
 
     end
 

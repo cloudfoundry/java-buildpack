@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2020 the original author or authors.
+# Copyright 2013-2025 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,6 +31,42 @@ describe JavaBuildpack::Framework::JacocoAgent do
 
     before do
       allow(services).to receive(:one_service?).with(/jacoco/, 'address').and_return(true)
+    end
+
+    let(:extended_credentials) do
+      { 'address' => 'ext-address',
+        'output' => 'tcpserver',
+        'sessionid' => 'ext-session',
+        'excludes' => 'ex.*',
+        'includes' => 'in.*',
+        'port' => 7654,
+        'destfile' => 'custom.exec',
+        'append' => 'false',
+        'exclclassloader' => 'loader.*',
+        'inclbootstrapclasses' => 'true',
+        'inclnolocationclasses' => 'true',
+        'dumponexit' => 'false',
+        'classdumpdir' => 'dumpdir',
+        'jmx' => 'true' }
+    end
+
+    let(:extended_expected) do
+      [
+        '-javaagent:$PWD/.java-buildpack/jacoco_agent/jacocoagent.jar=address=ext-address',
+        'output=tcpserver',
+        'sessionid=ext-session',
+        'excludes=ex.*',
+        'includes=in.*',
+        'port=7654',
+        'destfile=custom.exec',
+        'append=false',
+        'exclclassloader=loader.*',
+        'inclbootstrapclasses=true',
+        'inclnolocationclasses=true',
+        'dumponexit=false',
+        'classdumpdir=dumpdir',
+        'jmx=true'
+      ].join(',')
     end
 
     it 'detects with jacoco service' do
@@ -66,6 +102,12 @@ describe JavaBuildpack::Framework::JacocoAgent do
       expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/jacoco_agent/jacocoagent.jar=' \
                                    'address=test-address,output=test-output,sessionid=$CF_INSTANCE_GUID,' \
                                    'excludes=test-excludes,includes=test-includes,port=6300')
+    end
+
+    it 'updates JAVA_OPTS with extended options' do
+      allow(services).to receive(:find_service).and_return('credentials' => extended_credentials)
+      component.release
+      expect(java_opts).to include(extended_expected)
     end
 
   end
