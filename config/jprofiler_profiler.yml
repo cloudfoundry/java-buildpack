@@ -15,7 +15,7 @@
 
 # JMX configuration
 ---
-version: 13.+
+version: 15.+
 repository_root: https://download.run.pivotal.io/jprofiler
 enabled: false
 nowait: true
