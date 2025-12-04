@@ -23,7 +23,7 @@ require 'java_buildpack/util/tokenized_version'
 describe JavaBuildpack::Framework::CfMetricsExporter do
   include_context 'with component help'
 
-  let(:configuration) { { 'version' => '0.6.2', 'uri' => 'https://example.invalid/cf-metrics-exporter-0.6.2.jar' } }
+  let(:configuration) { { 'version' => '0.7.1', 'uri' => 'https://example.invalid/cf-metrics-exporter-0.7.1.jar' } }
 
   it 'does not detect by default' do
     expect(component.detect).to be_nil
@@ -36,17 +36,17 @@ describe JavaBuildpack::Framework::CfMetricsExporter do
     end
 
     it 'detects' do
-      expect(component.detect).to eq('cf-metrics-exporter=0.6.2')
+      expect(component.detect).to eq('cf-metrics-exporter=0.7.1')
     end
 
     it 'downloads the agent jar', cache_fixture: 'stub-download.jar' do
       component.compile
-      expect(sandbox + 'cf-metrics-exporter-0.6.2.jar').to exist
+      expect(sandbox + 'cf-metrics-exporter-0.7.1.jar').to exist
     end
 
     it 'adds -javaagent without props when none provided' do
       component.release
-      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/cf_metrics_exporter/cf-metrics-exporter-0.6.2.jar')
+      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/cf_metrics_exporter/cf-metrics-exporter-0.7.1.jar')
     end
 
     it 'adds -javaagent with props when CF_METRICS_EXPORTER_PROPS is set' do
@@ -54,7 +54,7 @@ describe JavaBuildpack::Framework::CfMetricsExporter do
         .to receive(:[]).with('CF_METRICS_EXPORTER_PROPS').and_return('foo=bar,port=1234')
 
       component.release
-      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/cf_metrics_exporter/cf-metrics-exporter-0.6.2.jar=foo=bar,port=1234')
+      expect(java_opts).to include('-javaagent:$PWD/.java-buildpack/cf_metrics_exporter/cf-metrics-exporter-0.7.1.jar=foo=bar,port=1234')
     end
   end
 end

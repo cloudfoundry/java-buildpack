@@ -4,7 +4,7 @@
 # You can override values here using the environment variable:
 #   JBP_CONFIG_CF_METRICS_EXPORTER
 # Example:
-#   cf set-env my-app JBP_CONFIG_CF_METRICS_EXPORTER '{ version: 0.6.2, uri: "https://.../cf-metrics-exporter-0.6.2.jar" }'
+#   cf set-env my-app JBP_CONFIG_CF_METRICS_EXPORTER '{ version: 0.7.1, uri: "https://.../cf-metrics-exporter-0.7.1.jar" }'
 ---
 cf_metrics_exporter:
   version: +

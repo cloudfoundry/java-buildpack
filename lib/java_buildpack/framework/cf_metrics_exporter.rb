@@ -79,8 +79,8 @@ module JavaBuildpack
 
       private
 
-      DEFAULT_VERSION = '0.6.2'
-      DEFAULT_URI     = 'https://github.com/rabobank/cf-metrics-exporter/releases/download/0.6.2/cf-metrics-exporter-0.6.2.jar'
+      DEFAULT_VERSION = '0.7.1'
+      DEFAULT_URI     = 'https://github.com/rabobank/cf-metrics-exporter/releases/download/0.7.1/cf-metrics-exporter-0.7.1.jar'
 
       def jar_name(version)
         "cf-metrics-exporter-#{version}.jar"

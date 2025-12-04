@@ -4,7 +4,7 @@ The CF Metrics Exporter adds the cf-metrics-exporter Java agent to your applicat
 
 Source and releases: https://github.com/rabobank/cf-metrics-exporter
 
-Version used by default: 0.6.2
+Version used by default: 0.7.1
 
 What it does
 - Parse autoscaler endpoint info from VCAP_SERVICES.
@@ -88,4 +88,4 @@ Overriding artifact location/version (operators or advanced users)
 - The buildpack reads `config/cf_metrics_exporter.yml` which defines `version` and `uri`.
 - You can override via `JBP_CONFIG_CF_METRICS_EXPORTER`, for example:
 
-cf set-env my-app JBP_CONFIG_CF_METRICS_EXPORTER '{ version: 0.6.2, uri: "https://github.com/rabobank/cf-metrics-exporter/releases/download/0.6.2/cf-metrics-exporter-0.6.2.jar" }'
+cf set-env my-app JBP_CONFIG_CF_METRICS_EXPORTER '{ version: 0.7.1, uri: "https://github.com/rabobank/cf-metrics-exporter/releases/download/0.7.1/cf-metrics-exporter-0.7.1.jar" }'
