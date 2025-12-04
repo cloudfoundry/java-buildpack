@@ -27,10 +27,8 @@ module JavaBuildpack
     # Enable via application manifest/environment:
     #   CF_METRICS_EXPORTER_ENABLED: "true"
     #
-    # Configure agent options via either:
-    #   CF_METRICS_EXPORTER_PROPS: "k1=v1,k2=v2" (comma-separated key=value list)
-    # or
-    #   CF_METRICS_EXPORTER_AGENT_ARGS: "rawAgentArgString" (passed verbatim after '=')
+    # Configure agent options via:
+    #   CF_METRICS_EXPORTER_PROPS: "rawAgentArgString" (passed verbatim after '=')
     #
     # The artifact location and version can be controlled via config/cf_metrics_exporter.yml
     class CfMetricsExporter < JavaBuildpack::Component::BaseComponent
@@ -55,13 +53,10 @@ module JavaBuildpack
         agent_jar = @droplet.sandbox + jar_name(version)
 
         props_env = @application.environment['CF_METRICS_EXPORTER_PROPS']
-        raw_args  = @application.environment['CF_METRICS_EXPORTER_AGENT_ARGS']
 
         if props_env && !props_env.empty?
-          properties = parse_props(props_env)
-          java_opts.add_javaagent_with_props(agent_jar, properties)
-        elsif raw_args && !raw_args.empty?
-          java_opts.add_preformatted_options "-javaagent:#{agent_jar.relative_path_from(@droplet.root)}=#{raw_args}"
+          # Pass the string verbatim so users can copy/paste from and to -javaagent command line
+          java_opts.add_preformatted_options "-javaagent:#{agent_jar.relative_path_from(@droplet.root)}=#{props_env}"
         else
           java_opts.add_javaagent(agent_jar)
         end
@@ -84,12 +79,6 @@ module JavaBuildpack
 
       def jar_name(version)
         "cf-metrics-exporter-#{version}.jar"
-      end
-
-      def parse_props(props_env)
-        # Accept comma or whitespace separated key=value pairs
-        pairs = props_env.split(/[\s,]+/).reject(&:empty?)
-        Hash[pairs.map { |p| k, v = p.split('=', 2); [k, v] }]
       end
 
     end

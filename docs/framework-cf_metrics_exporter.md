@@ -13,9 +13,9 @@ What it does
 - Average is computed over the configured interval (default 10s); longer intervals smooth peaks.
 
 Supported RPS sources (rspType)
-- spring-request (default): Uses ByteBuddy to instrument Spring Boot request handling.
+- spring-request (default): Uses byte code transformation to instrument Spring Boot request handling.
   - Transforms:
-    - org.springframework.web.servlet.DispatcherServlet#handle
+    - org.springframework.web.servlet.DispatcherServlet#doService 
     - org.springframework.web.reactive.DispatcherHandler#handle
   - Works with Netty (WebFlux/Reactor), Tomcat (also with virtual threads), Undertow.
 - tomcat-mbean: Uses JMX MBean attribute `requestCount` on `Tomcat:type=GlobalRequestProcessor,name="http-nio-<port>"`. Requires `server.tomcat.mbeanregistry.enabled=true` in the application.
@@ -32,41 +32,35 @@ env:
   CF_METRICS_EXPORTER_ENABLED: "true"
 
 Agent settings
-The agent understands both key=value options and flag-style options without a value. Flag options can be supplied either as a bare key (e.g. `debug`) or with leading dashes (e.g. `--debug`) depending on your preference. The buildpack passes options verbatim to the agent.
+The agent understands both key=value options and flag-style options without a value. The buildpack passes options verbatim to the agent.
 
-- debug: Enable debug logging. Flag only (no value needed). Example flags: `debug` or `--debug`.
-- trace: Enable trace logging. Flag only. Example: `trace` or `--trace`.
+- debug: Enable debug logging. Flag only (no value needed): `debug`.
+- trace: Enable trace logging. Flag only: `trace`.
 - rpsType: Select RPS source. One of `spring-request` (default), `tomcat-mbean`, `random`.
 - intervalSeconds: Interval in seconds for sampling and sending metrics. Default 10.
 - metricsEndpoint: Explicit custom metrics endpoint (normally auto-detected from VCAP_SERVICES; not required).
 - environmentVarName: Name of the env var to read to set the `environment` attribute (e.g. `CF_ENVIRONMENT`, when your app has `CF_ENVIRONMENT=test`).
-- enableLogEmitter: Enable logging of emitted metrics. Flag only. Example: `enableLogEmitter` or `--enableLogEmitter`.
-- disableAgent: Disable the agent completely. Flag only. Example: `disableAgent` or `--disableAgent`.
+- enableLogEmitter: Enable logging of emitted metrics. Flag only: `enableLogEmitter`.
+- disableAgent: Disable the agent completely. Flag only: `disableAgent`.
 
 Examples
 1) Minimal with Spring Boot (default rspType) and log emitter enabled using flags (no equals):
 
 env:
   CF_METRICS_EXPORTER_ENABLED: "true"
-  CF_METRICS_EXPORTER_PROPS: "debug enableLogEmitter"
+  CF_METRICS_EXPORTER_PROPS: "debug,enableLogEmitter"
 
 2) Explicit rspType and interval using key=value, plus a flag without value:
 
 env:
   CF_METRICS_EXPORTER_ENABLED: "true"
-  CF_METRICS_EXPORTER_PROPS: "rpsType=tomcat-mbean intervalSeconds=5 enableLogEmitter"
-
-3) Provide a raw agent argument string (verbatim) including commas, flags with leading dashes are fine too:
-
-env:
-  CF_METRICS_EXPORTER_ENABLED: "true"
-  CF_METRICS_EXPORTER_AGENT_ARGS: "debug,enableLogEmitter,rpsType=random,intervalSeconds=3"
+  CF_METRICS_EXPORTER_PROPS: "rpsType=tomcat-mbean,intervalSeconds=5,enableLogEmitter"
 
 Notes on supplying options
-- CF_METRICS_EXPORTER_PROPS: Space or comma separated list. Each entry may be:
-  - key=value (e.g. `rpsType=tomcat-mbean`), or
-  - a flag without `=` (e.g. `debug`, `enableLogEmitter`).
-- CF_METRICS_EXPORTER_AGENT_ARGS: Raw string appended after `=`, e.g. `-javaagent:/path/cf-metrics-exporter.jar=<your string>`. You control commas/spaces. You can mix `key=value` and flag-only entries, with or without leading dashes.
+- CF_METRICS_EXPORTER_PROPS is a raw string appended after `=` in the `-javaagent` option. You can copy/paste it to and from a plain Java command line.
+- So use a comma-separated list to avoid issues with shell/argument parsing. Examples:
+  - `debug,enableLogEmitter`
+  - `rpsType=tomcat-mbean,intervalSeconds=5,enableLogEmitter`
 
 OpenTelemetry export (optional)
 - The agent will export `custom_throughput` to an OpenTelemetry collector when an OTLP endpoint is configured. Supported environment variables:
