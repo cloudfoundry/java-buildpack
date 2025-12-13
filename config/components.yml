@@ -20,7 +20,7 @@ containers:
   - "JavaBuildpack::Container::Groovy"
   - "JavaBuildpack::Container::JavaMain"
   - "JavaBuildpack::Container::PlayFramework"
-  - "JavaBuildpack::Container::Ratpack"
+  - "JavaBuildpack::Container::Ratpack"  # NOTE: Ratpack is handled by DistZip container (uses Gradle distZip packaging)
   - "JavaBuildpack::Container::SpringBoot"
   - "JavaBuildpack::Container::SpringBootCLI"
   - "JavaBuildpack::Container::Tomcat"
@@ -39,9 +39,10 @@ jres:
 
 # Frameworks are processed in order.
 # The MultiBuildpack framework is first in order to allow any framework to override contributions from earlier buildpacks
+# NOTE: Multi-buildpack support is now natively handled by Cloud Foundry buildpack lifecycle (libbuildpack)
 # The JavaOpts is last in order to allow any user-defined JAVA_OPTS to override contributions from earlier frameworks
 frameworks:
-  - "JavaBuildpack::Framework::MultiBuildpack"
+  - "JavaBuildpack::Framework::MultiBuildpack"  # NOTE: Native CF multi-buildpack support via libbuildpack
   - "JavaBuildpack::Framework::AppDynamicsAgent"
   - "JavaBuildpack::Framework::AspectjWeaverAgent"
   - "JavaBuildpack::Framework::AzureApplicationInsightsAgent"
@@ -74,9 +75,9 @@ frameworks:
   - "JavaBuildpack::Framework::SeekerSecurityProvider"
   - "JavaBuildpack::Framework::SpringAutoReconfiguration"
   - "JavaBuildpack::Framework::SplunkOtelJavaAgent"
-  - "JavaBuildpack::Framework::SpringInsight"
+  - "JavaBuildpack::Framework::SpringInsight"  # NOTE: OBSOLETE - Spring Insight is deprecated, replaced by modern APM tools
   - "JavaBuildpack::Framework::SkyWalkingAgent"
   - "JavaBuildpack::Framework::YourKitProfiler"
   - "JavaBuildpack::Framework::TakipiAgent"
-  - "JavaBuildpack::Framework::JavaSecurity"
+  - "JavaBuildpack::Framework::JavaSecurity"  # NOTE: In Go buildpack, handled by individual security provider frameworks
   - "JavaBuildpack::Framework::JavaOpts"

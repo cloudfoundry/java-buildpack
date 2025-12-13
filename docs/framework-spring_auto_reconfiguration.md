@@ -1,21 +1,47 @@
 # Spring Auto-reconfiguration Framework
 
-⚠️ **DEPRECATED**: This framework is disabled by default as of December 2025. Please migrate to [java-cfenv](framework-java_cf_env.md).
+---
+## 🛑 CRITICAL DEPRECATION NOTICE 🛑
+
+**THIS FRAMEWORK IS DEPRECATED AND DISABLED BY DEFAULT**
+
+**Status**: Disabled since December 2025  
+**Reason**: Spring Cloud Connectors entered maintenance mode in July 2019  
+**Action Required**: **MIGRATE TO JAVA-CFENV IMMEDIATELY**
+
+See the **[Migration Guide from Spring Auto-reconfiguration to java-cfenv](spring-auto-reconfiguration-migration.md)** for step-by-step instructions.
+
+---
 
 The Spring Auto-reconfiguration Framework causes an application to be automatically reconfigured to work with configured cloud services.
 
-## Deprecation Notice
+## Why This Framework is Deprecated
 
-**Spring Auto-reconfiguration has been deprecated** since July 2019 when Spring Cloud Connectors entered maintenance mode. This framework is now **disabled by default**.
+1. **Spring Cloud Connectors is in maintenance mode** (since July 2019)
+2. **No security updates or bug fixes** will be provided
+3. **Not compatible with modern Spring Boot** (3.x+) 
+4. **Replaced by java-cfenv** - the official successor library
 
-**Migration Path**:
-- For **Spring Boot 3.x** applications: Use [java-cfenv](https://github.com/pivotal-cf/java-cfenv) (see [java-cfenv framework docs](framework-java_cf_env.md))
-- For **Spring Boot 2.x** applications: Migrate to java-cfenv when upgrading to Spring Boot 3.x
+## Migration Path
 
-**To re-enable** (not recommended):
+| Your Application | Recommended Action |
+|------------------|-------------------|
+| **Spring Boot 3.x** | **Migrate to [java-cfenv](framework-java-cfenv.md) NOW** |
+| **Spring Boot 2.x** | Plan migration to java-cfenv when upgrading to Spring Boot 3.x |
+| **Legacy Spring apps** | Consider upgrading to Spring Boot 3.x + java-cfenv |
+
+**See**: [Complete Migration Guide](spring-auto-reconfiguration-migration.md)
+
+## Re-enabling (NOT RECOMMENDED)
+
+If you absolutely must re-enable this deprecated framework temporarily:
+
 ```bash
 cf set-env my-app JBP_CONFIG_SPRING_AUTO_RECONFIGURATION '{enabled: true}'
+cf restage my-app
 ```
+
+**⚠️ WARNING**: This is a temporary workaround only. Plan your migration immediately.
 
 <table>
   <tr>
