@@ -150,5 +150,27 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 		})
+
+		context("with external Tomcat configuration", func() {
+			it("detects external configuration setting but warns it's not in manifest", func() {
+				deployment, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"BP_JAVA_VERSION":   "11",
+						"JBP_CONFIG_TOMCAT": "{tomcat: {external_configuration_enabled: true}, external_configuration: {repository_root: \"https://my-repo.example.com/config\"}}",
+					}).
+					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
+
+				Expect(err).NotTo(HaveOccurred(), logs.String)
+
+				// Verify external configuration was detected
+				Expect(logs.String()).To(ContainSubstring("External Tomcat configuration is enabled"))
+
+				// Verify warning about missing manifest entry
+				Expect(logs.String()).To(ContainSubstring("External configuration not found in manifest"))
+
+				// Verify deployment still succeeds (external config is optional)
+				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
+			})
+		})
 	}
 }

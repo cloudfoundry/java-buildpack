@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/cloudfoundry/java-buildpack/src/java/jres"
 	"github.com/cloudfoundry/libbuildpack"
@@ -123,6 +124,11 @@ export CATALINA_BASE=%s
 		t.context.Log.Warning("Could not install Tomcat support: %s", err.Error())
 	}
 
+	// Install external Tomcat configuration if enabled
+	if err := t.installExternalConfiguration(tomcatDir); err != nil {
+		t.context.Log.Warning("Could not install external Tomcat configuration: %s", err.Error())
+	}
+
 	// JVMKill agent is installed and configured by JRE component
 
 	return nil
@@ -142,6 +148,133 @@ func (t *TomcatContainer) installTomcatSupport() error {
 
 	t.context.Log.Info("Installed Tomcat Lifecycle Support version %s", dep.Version)
 	return nil
+}
+
+// installExternalConfiguration installs external Tomcat configuration if enabled
+func (t *TomcatContainer) installExternalConfiguration(tomcatDir string) error {
+	// Check if external configuration is enabled
+	externalConfigEnabled, repositoryRoot, version := t.isExternalConfigurationEnabled()
+
+	if !externalConfigEnabled {
+		t.context.Log.Debug("External Tomcat configuration is disabled")
+		return nil
+	}
+
+	t.context.Log.Info("External Tomcat configuration is enabled")
+
+	if repositoryRoot == "" {
+		t.context.Log.Warning("External configuration enabled but repository_root not set")
+		t.context.Log.Warning("To use external Tomcat configuration, you must:")
+		t.context.Log.Warning("  1. Fork this buildpack and add external config to manifest.yml")
+		t.context.Log.Warning("  2. Or use a custom buildpack with external configuration included")
+		return nil
+	}
+
+	if version == "" {
+		version = "1.0.0" // default version
+	}
+
+	t.context.Log.Info("External configuration repository: %s (version: %s)", repositoryRoot, version)
+
+	// Try to install from manifest if available
+	// This will work if the user has added the external configuration to their forked buildpack manifest
+	dep, err := t.context.Manifest.DefaultVersion("tomcat-external-configuration")
+	if err != nil {
+		t.context.Log.Warning("External configuration not found in manifest: %s", err.Error())
+		t.context.Log.Warning("To use external Tomcat configuration, add it to manifest.yml:")
+		t.context.Log.Warning("  - name: tomcat-external-configuration")
+		t.context.Log.Warning("    version: %s", version)
+		t.context.Log.Warning("    uri: %s/tomcat-external-configuration-%s.tar.gz", repositoryRoot, version)
+		t.context.Log.Warning("    sha256: <checksum>")
+		return nil
+	}
+
+	t.context.Log.Info("Downloading external Tomcat configuration version %s", dep.Version)
+
+	// Install external configuration with strip=1 to overlay onto Tomcat directory
+	// The external config archive has structure: tomcat/conf/...
+	// We strip the top-level "tomcat/" directory and extract directly to tomcatDir
+	if err := t.context.Installer.InstallDependencyWithStrip(dep, tomcatDir, 1); err != nil {
+		return fmt.Errorf("failed to install external configuration: %w", err)
+	}
+
+	t.context.Log.Info("Installed external Tomcat configuration version %s", dep.Version)
+	return nil
+}
+
+// isExternalConfigurationEnabled checks if external configuration is enabled in config
+// Returns: (enabled bool, repositoryRoot string, version string)
+func (t *TomcatContainer) isExternalConfigurationEnabled() (bool, string, string) {
+	// Read buildpack configuration from environment or config file
+	// The libbuildpack Stager provides access to buildpack config
+
+	// Check for JBP_CONFIG_TOMCAT environment variable
+	configEnv := os.Getenv("JBP_CONFIG_TOMCAT")
+	if configEnv != "" {
+		// Parse the configuration to check external_configuration_enabled
+		// For now, we'll do a simple string check
+		// A full implementation would parse the YAML/JSON
+		t.context.Log.Debug("JBP_CONFIG_TOMCAT: %s", configEnv)
+
+		// Simple check for external_configuration_enabled: true
+		if strings.Contains(configEnv, "external_configuration_enabled") &&
+			(strings.Contains(configEnv, "true") || strings.Contains(configEnv, "True")) {
+
+			// Extract repository_root and version if present
+			repositoryRoot := extractRepositoryRoot(configEnv)
+			version := extractVersion(configEnv)
+			return true, repositoryRoot, version
+		}
+	}
+
+	// Default to false (disabled)
+	return false, "", ""
+}
+
+// extractRepositoryRoot extracts the repository_root value from config string
+func extractRepositoryRoot(config string) string {
+	// Simple extraction - look for repository_root: "value"
+	// This is a basic implementation; a full parser would use YAML/JSON libraries
+
+	// Look for repository_root: "..."
+	if idx := strings.Index(config, "repository_root"); idx != -1 {
+		remaining := config[idx:]
+		// Find the opening quote
+		if startQuote := strings.Index(remaining, "\""); startQuote != -1 {
+			remaining = remaining[startQuote+1:]
+			// Find the closing quote
+			if endQuote := strings.Index(remaining, "\""); endQuote != -1 {
+				return remaining[:endQuote]
+			}
+		}
+	}
+
+	return ""
+}
+
+// extractVersion extracts the version value from config string
+func extractVersion(config string) string {
+	// Look for version: "value" in the external_configuration section
+	// This is a basic implementation; a full parser would use YAML/JSON libraries
+
+	// Find external_configuration section first
+	if idx := strings.Index(config, "external_configuration"); idx != -1 {
+		remaining := config[idx:]
+		// Look for version: "..."
+		if versionIdx := strings.Index(remaining, "version"); versionIdx != -1 {
+			remaining = remaining[versionIdx:]
+			// Find the opening quote
+			if startQuote := strings.Index(remaining, "\""); startQuote != -1 {
+				remaining = remaining[startQuote+1:]
+				// Find the closing quote
+				if endQuote := strings.Index(remaining, "\""); endQuote != -1 {
+					return remaining[:endQuote]
+				}
+			}
+		}
+	}
+
+	return ""
 }
 
 // Finalize performs final Tomcat configuration
