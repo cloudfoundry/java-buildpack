@@ -22,8 +22,6 @@ default_versions:
   version: 11.x
 - name: sapmachine
   version: 17.x
-- name: graalvm
-  version: 21.x
 - name: tomcat
   version: 10.1.x
 - name: tomcat-lifecycle-support
@@ -86,18 +84,6 @@ url_to_dependency_map:
   version: $2
 - match: sapmachine-jre-(\d+\.\d+\.\d+)
   name: sapmachine
-  version: $1
-- match: oracle-jre-(\d+\.\d+\.\d+)
-  name: oracle
-  version: $1
-- match: ibm-java-(\d+\.\d+\.\d+\.\d+)
-  name: ibm
-  version: $1
-- match: zing-jre-(\d+\.\d+\.\d+)
-  name: zing
-  version: $1
-- match: graalvm-jre-(\d+\.\d+\.\d+)
-  name: graalvm
   version: $1
 - match: tomcat-(\d+\.\d+\.\d+)
   name: tomcat
@@ -292,80 +278,6 @@ dependencies:
   version: 17.0.13
   uri: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.13/sapmachine-jre-17.0.13_linux-x64_bin.tar.gz
   sha256: b5f16befcb6415cfcf3bdb57b361c8eeca8176d494cd1e6c067cd56acec1afe6
-  cf_stacks:
-  - cflinuxfs4
-
-# GraalVM JRE versions
-# Note: GraalVM requires user-provided repository configuration via JBP_CONFIG_GRAAL_VM_JRE
-# Users must specify repository_root in buildpack.yml or environment variables
-# Example: JBP_CONFIG_GRAAL_VM_JRE='{jre: {repository_root: "https://example.com/graalvm"}}'
-# Repository: Oracle GraalVM releases (https://github.com/graalvm/graalvm-ce-builds/releases)
-# Placeholder entries - users must provide actual download URLs
-- name: graalvm
-  version: 17.0.13
-  uri: https://example.com/graalvm/graalvm-jre-17.0.13_linux-x64_bin.tar.gz
-  sha256: PLACEHOLDER_SHA256_GRAALVM_17
-  cf_stacks:
-  - cflinuxfs4
-
-- name: graalvm
-  version: 21.0.5
-  uri: https://example.com/graalvm/graalvm-jre-21.0.5_linux-x64_bin.tar.gz
-  sha256: PLACEHOLDER_SHA256_GRAALVM_21
-  cf_stacks:
-  - cflinuxfs4
-
-# Oracle JRE versions
-# Note: Oracle JRE requires user-provided repository configuration via JBP_CONFIG_ORACLE_JRE
-# Users must specify repository_root in buildpack.yml or environment variables
-# Example: JBP_CONFIG_ORACLE_JRE='{jre: {repository_root: "https://example.com/oracle-jre"}}'
-# Repository: Oracle Technology Network (requires license acceptance)
-# Placeholder entries - users must provide actual download URLs
-- name: oracle
-  version: 8.0.422
-  uri: https://example.com/oracle-jre/jre-8u422-linux-x64.tar.gz
-  sha256: PLACEHOLDER_SHA256_ORACLE_8
-  cf_stacks:
-  - cflinuxfs4
-
-- name: oracle
-  version: 11.0.25
-  uri: https://example.com/oracle-jre/jre-11.0.25_linux-x64_bin.tar.gz
-  sha256: PLACEHOLDER_SHA256_ORACLE_11
-  cf_stacks:
-  - cflinuxfs4
-
-- name: oracle
-  version: 17.0.13
-  uri: https://example.com/oracle-jre/jre-17.0.13_linux-x64_bin.tar.gz
-  sha256: PLACEHOLDER_SHA256_ORACLE_17
-  cf_stacks:
-  - cflinuxfs4
-
-# IBM JRE versions
-# DEPRECATED: IBM JRE has been replaced by IBM Semeru Runtime (https://developer.ibm.com/languages/java/semeru-runtimes/)
-# Note: IBM JRE requires user-provided repository configuration via JBP_CONFIG_IBM_JRE
-# Users must specify repository_root in buildpack.yml or environment variables
-# Example: JBP_CONFIG_IBM_JRE='{jre: {repository_root: "https://example.com/ibm-jre"}}'
-# Repository: IBM Developer (requires IBM ID) - older versions may not be available
-# Placeholder entry - users must provide actual download URL
-- name: ibm
-  version: 8.0.8.26
-  uri: https://example.com/ibm-jre/ibm-java-jre-8.0-8.26-linux-x86_64.tar.gz
-  sha256: PLACEHOLDER_SHA256_IBM_8
-  cf_stacks:
-  - cflinuxfs4
-
-# Zing JRE versions
-# Note: Zing JRE requires user-provided repository configuration via JBP_CONFIG_ZING_JRE
-# Users must specify repository_root in buildpack.yml or environment variables
-# Example: JBP_CONFIG_ZING_JRE='{jre: {repository_root: "https://example.com/zing"}}'
-# Repository: Azul Platform Prime (formerly Zing) - requires license and account
-# Placeholder entry - users must provide actual download URL
-- name: zing
-  version: 17.0.13
-  uri: https://example.com/zing-jre/zing-jre-17.0.13-linux_x64.tar.gz
-  sha256: PLACEHOLDER_SHA256_ZING_17
   cf_stacks:
   - cflinuxfs4
 
@@ -572,33 +484,6 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# NOTE: This manifest.yml includes core dependencies for:
-# ✅ OpenJDK JRE versions: 8, 11, 17, 21, 23
-# ✅ Alternative JRE vendors: Zulu (8, 11, 17), SAP Machine (11, 17)
-# ✅ User-configured JRE vendors: GraalVM (17, 21), Oracle (8, 11, 17), IBM (8), Zing (17)
-# ✅ Tomcat versions: 9.x, 10.x
-# ✅ Groovy 4.x
-# ✅ JVMKill agent and Memory Calculator
-# ✅ Tomcat support libraries (commented out - unavailable)
-# ✅ APM agents: New Relic, Datadog, Elastic APM, Azure App Insights, SkyWalking, Splunk OTEL
-# ✅ Cloud profilers: Google Stackdriver Profiler
-# ✅ Spring service bindings: Auto-reconfiguration, Java CF Env
-# ✅ JDBC drivers: PostgreSQL, MariaDB
-# ⚠️  Debug and JMX frameworks (no external dependencies - use app-provided tools)
-#
-# ⚠️  Restricted/Unavailable Dependencies:
-# - AppDynamics: Requires authentication (see commented section above)
-# - Dynatrace: Requires environment-specific URLs (see commented section above)
-# - Introscope Agent (CA APM): Requires Broadcom/CA license and customer portal access
-# - Riverbed AppInternals: Requires Aternity license and customer portal access
-# - Google Stackdriver Debugger: DEPRECATED by Google (use Cloud Logging/Error Reporting instead)
-#
-# ⚠️  Checkmarx IAST Agent: Downloads dynamically from service binding URL (no manifest entry needed)
-#
-# Additional dependencies still need to be added for:
-# - Security providers (ProtectApp, etc.)
-# - Debug frameworks (JRebel, JProfiler, YourKit)
-# - Spring Boot CLI, Play Framework, Ratpack support libraries
 
 # ========================================
 # JaCoCo Code Coverage Agent
