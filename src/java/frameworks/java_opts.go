@@ -107,7 +107,7 @@ func (j *JavaOptsFramework) loadConfig() (*JavaOptsConfig, error) {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_JAVA_OPTS: %w", err)
 		}
 
-		// If the result is a string, parse it again as YAML (double-encoded scenario)
+		// Handle different YAML formats for backward compatibility
 		var configData []byte
 		switch v := yamlContent.(type) {
 		case string:
@@ -120,13 +120,54 @@ func (j *JavaOptsFramework) loadConfig() (*JavaOptsConfig, error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to marshal config map: %w", err)
 			}
+		case []interface{}:
+			// Handle legacy format: [from_environment: false, java_opts: ...]
+			// This parses as an array of maps, so we need to merge them
+			mergedMap := make(map[interface{}]interface{})
+			for _, item := range v {
+				if m, ok := item.(map[interface{}]interface{}); ok {
+					for k, val := range m {
+						mergedMap[k] = val
+					}
+				}
+			}
+			var err error
+			configData, err = yaml.Marshal(mergedMap)
+			if err != nil {
+				return nil, fmt.Errorf("failed to marshal merged config map: %w", err)
+			}
 		default:
 			return nil, fmt.Errorf("unexpected YAML type: %T", v)
 		}
 
-		// Parse into JavaOptsConfig
-		if err := yaml.Unmarshal(configData, config); err != nil {
+		// Parse into a generic map first to handle both string and array formats for java_opts
+		var rawConfig map[string]interface{}
+		if err := yaml.Unmarshal(configData, &rawConfig); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_JAVA_OPTS structure: %w", err)
+		}
+
+		// Handle from_environment field
+		if fromEnv, ok := rawConfig["from_environment"].(bool); ok {
+			config.FromEnvironment = fromEnv
+		}
+
+		// Handle java_opts field - support both string and array formats
+		if javaOptsRaw, ok := rawConfig["java_opts"]; ok {
+			switch opts := javaOptsRaw.(type) {
+			case []interface{}:
+				// Already an array
+				for _, opt := range opts {
+					if optStr, ok := opt.(string); ok {
+						config.JavaOpts = append(config.JavaOpts, optStr)
+					}
+				}
+			case string:
+				// Legacy format: space-separated string
+				// Split on spaces but preserve quoted strings
+				if opts != "" {
+					config.JavaOpts = strings.Fields(opts)
+				}
+			}
 		}
 
 		return config, nil

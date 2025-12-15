@@ -3,6 +3,7 @@ package frameworks_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/cloudfoundry/java-buildpack/src/java/frameworks"
@@ -847,5 +848,69 @@ func TestSpringAutoReconfigurationDisabled(t *testing.T) {
 	}
 	if name != "" {
 		t.Errorf("Expected no detection when disabled, got: %s", name)
+	}
+}
+
+// TestJavaOptsLegacyFormat tests backward compatibility with legacy YAML format
+// Issue: https://github.com/cloudfoundry/java-buildpack/issues/1133
+func TestJavaOptsLegacyFormat(t *testing.T) {
+	// Test legacy format: [from_environment: false, java_opts: -Xmx512M -Xms256M ...]
+	// This was accepted by the Ruby buildpack
+	os.Setenv("JBP_CONFIG_JAVA_OPTS", "[from_environment: false, java_opts: -Xmx512M -Xms256M -Xss1M -XX:MetaspaceSize=157286K -XX:MaxMetaspaceSize=314572K -DoptionKey=optionValue]")
+	defer os.Unsetenv("JBP_CONFIG_JAVA_OPTS")
+
+	tmpDir, err := os.MkdirTemp("", "java-buildpack-test-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// Create deps directory for the stager
+	depsDir := filepath.Join(tmpDir, "deps")
+	if err := os.MkdirAll(filepath.Join(depsDir, "0"), 0755); err != nil {
+		t.Fatalf("Failed to create deps dir: %v", err)
+	}
+
+	logger := libbuildpack.NewLogger(os.Stdout)
+	manifest := &libbuildpack.Manifest{}
+	stager := libbuildpack.NewStager([]string{tmpDir, "", depsDir, "0"}, logger, manifest)
+
+	ctx := &frameworks.Context{
+		Stager:   stager,
+		Manifest: manifest,
+		Log:      logger,
+	}
+
+	framework := frameworks.NewJavaOptsFramework(ctx)
+
+	// Should detect with legacy format
+	name, err := framework.Detect()
+	if err != nil {
+		t.Fatalf("Expected no error with legacy format, got: %v", err)
+	}
+	if name != "Java Opts" {
+		t.Errorf("Expected 'Java Opts', got: %s", name)
+	}
+
+	// Verify the opts were parsed correctly
+	err = framework.Finalize()
+	if err != nil {
+		t.Fatalf("Expected no error from Finalize(), got: %v", err)
+	}
+
+	// Read the JAVA_OPTS env file (written to depsDir/0/env/JAVA_OPTS)
+	envFile := filepath.Join(depsDir, "0", "env", "JAVA_OPTS")
+	data, err := os.ReadFile(envFile)
+	if err != nil {
+		t.Fatalf("Failed to read JAVA_OPTS env file: %v", err)
+	}
+
+	javaOpts := string(data)
+	expectedOpts := []string{"-Xmx512M", "-Xms256M", "-Xss1M", "-XX:MetaspaceSize=157286K", "-XX:MaxMetaspaceSize=314572K", "-DoptionKey=optionValue"}
+
+	for _, opt := range expectedOpts {
+		if !strings.Contains(javaOpts, opt) {
+			t.Errorf("Expected JAVA_OPTS to contain %s, got: %s", opt, javaOpts)
+		}
 	}
 }

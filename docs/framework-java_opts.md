@@ -57,13 +57,48 @@ Finally, from the applications manifest use;
     JAVA_OPTS: '-Dexample.other=something.\\\\\$dollar.\\\\\\\slash'
 ```
 
-## Example
+## Examples
+
+### Configuration File Example
 ```yaml
-# JAVA_OPTS configuration
+# config/java_opts.yml
 ---
 from_environment: false
 java_opts: -Xloggc:$PWD/beacon_gc.log -verbose:gc
 ```
+
+### Environment Variable Override Examples
+
+To override the configuration via the `JBP_CONFIG_JAVA_OPTS` environment variable, use YAML flow style (inline YAML) with curly braces:
+
+**Example 1: Using an array of options (recommended)**
+```bash
+cf set-env my-application JBP_CONFIG_JAVA_OPTS '{ java_opts: ["-Xms256m", "-Xmx1024m", "-XX:+UseG1GC"] }'
+```
+
+Or in the application manifest:
+```yaml
+env:
+  JBP_CONFIG_JAVA_OPTS: '{ java_opts: ["-Xms256m", "-Xmx1024m", "-XX:+UseG1GC"] }'
+```
+
+**Example 2: Disabling from_environment**
+```bash
+cf set-env my-application JBP_CONFIG_JAVA_OPTS '{ from_environment: false, java_opts: ["-Xmx512m"] }'
+```
+
+**Example 3: Multiple JVM options**
+```yaml
+env:
+  JBP_CONFIG_JAVA_OPTS: '{ from_environment: false, java_opts: ["-Xmx512M", "-Xms256M", "-Xss1M", "-XX:MetaspaceSize=157286K", "-XX:MaxMetaspaceSize=314572K"] }'
+```
+
+**Note**: For backward compatibility, a space-separated string is also supported:
+```yaml
+env:
+  JBP_CONFIG_JAVA_OPTS: '{ java_opts: "-Xmx512M -Xms256M" }'
+```
+However, using an array format is recommended for clarity and to avoid parsing ambiguities.
 
 ## Allowed Memory Settings
 
