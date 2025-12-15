@@ -3,9 +3,13 @@ package frameworks
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/cloudfoundry/libbuildpack"
 )
 
 // SeekerSecurityProviderFramework implements Synopsys Seeker IAST agent support
@@ -62,31 +66,64 @@ func (s *SeekerSecurityProviderFramework) Supply() error {
 		return fmt.Errorf("seeker_server_url not found in service credentials")
 	}
 
-	// Download Seeker agent from server
+	// Construct agent download URL
 	// URL format: https://seeker.example.com/rest/api/latest/installers/agents/binaries/JAVA
-	// agentURL := serverURL + "/rest/api/latest/installers/agents/binaries/JAVA"
+	agentURL := serverURL + "/rest/api/latest/installers/agents/binaries/JAVA"
 
 	seekerDir := filepath.Join(s.context.Stager.DepDir(), "seeker_security_provider")
 	if err := os.MkdirAll(seekerDir, 0755); err != nil {
 		return fmt.Errorf("failed to create Seeker directory: %w", err)
 	}
 
-	// Download and extract agent ZIP
-	s.context.Log.Info("Downloading Seeker agent from %s", serverURL)
-
-	// Note: In a real implementation, we would use the downloader to fetch the ZIP
-	// and extract it. For now, we'll create a placeholder that expects the agent
-	// to be downloaded via the buildpack's download mechanism
-
-	// The Ruby implementation uses download_zip which:
-	// 1. Downloads ZIP from agentURL
-	// 2. Extracts to sandbox directory
-	// 3. Expects seeker-agent.jar to be in the extracted files
-
-	// For Go implementation, we need to add similar download logic
-	// This would typically use http.Get() and archive/zip
+	// Download and extract agent ZIP from Seeker server
+	s.context.Log.Info("Downloading Seeker agent from %s", agentURL)
+	if err := s.downloadAndExtractAgent(agentURL, seekerDir); err != nil {
+		return fmt.Errorf("failed to download Seeker agent: %w", err)
+	}
 
 	s.context.Log.Info("Installed Synopsys Seeker Security Provider from %s", serverURL)
+	return nil
+}
+
+// downloadAndExtractAgent downloads the Seeker agent ZIP and extracts it
+func (s *SeekerSecurityProviderFramework) downloadAndExtractAgent(agentURL, seekerDir string) error {
+	// Create temporary file for download
+	tmpFile, err := os.CreateTemp("", "seeker-agent-*.zip")
+	if err != nil {
+		return fmt.Errorf("failed to create temp file: %w", err)
+	}
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	// Download the ZIP archive from Seeker server
+	resp, err := http.Get(agentURL)
+	if err != nil {
+		return fmt.Errorf("HTTP request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("HTTP request failed with status %d", resp.StatusCode)
+	}
+
+	// Write response to temp file
+	if _, err := io.Copy(tmpFile, resp.Body); err != nil {
+		return fmt.Errorf("failed to write agent to temp file: %w", err)
+	}
+	tmpFile.Close()
+
+	// Extract the ZIP to seekerDir without stripping (strip_top_level = false in Ruby)
+	s.context.Log.Info("Extracting Seeker agent to: %s", seekerDir)
+	if err := libbuildpack.ExtractZip(tmpFile.Name(), seekerDir); err != nil {
+		return fmt.Errorf("failed to extract agent ZIP: %w", err)
+	}
+
+	// Verify seeker-agent.jar exists
+	agentJar := filepath.Join(seekerDir, "seeker-agent.jar")
+	if _, err := os.Stat(agentJar); err != nil {
+		return fmt.Errorf("seeker-agent.jar not found in extracted ZIP: %w", err)
+	}
+
 	return nil
 }
 
