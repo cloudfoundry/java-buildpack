@@ -98,9 +98,12 @@ func (f *Finalizer) finalizeJRE() error {
 	// Register the same JRE providers as in supply phase
 	// We need to detect which one was used during supply
 	registry.Register(jres.NewOpenJDKJRE(ctx))
-	// Additional JRE providers:
-	// registry.Register(jres.NewZuluJRE(ctx))
-	// registry.Register(jres.NewGraalVMJRE(ctx))
+	registry.Register(jres.NewZuluJRE(ctx))
+	registry.Register(jres.NewSapMachineJRE(ctx))
+	registry.Register(jres.NewGraalVMJRE(ctx))
+	registry.Register(jres.NewIBMJRE(ctx))
+	registry.Register(jres.NewOracleJRE(ctx))
+	registry.Register(jres.NewZingJRE(ctx))
 
 	// Detect which JRE was installed (should match supply phase)
 	jre, jreName, err := registry.Detect()
