@@ -515,9 +515,9 @@ dependencies:
 
 # Splunk OpenTelemetry Java Agent
 - name: splunk-otel-javaagent
-  version: 2.12.0
-  uri: https://github.com/signalfx/splunk-otel-java/releases/download/v2.12.0/splunk-otel-javaagent-2.12.0.jar
-  sha256: 0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5
+  version: 2.22.0
+  uri: https://github.com/signalfx/splunk-otel-java/releases/download/v2.22.0/splunk-otel-javaagent.jar
+  sha256: 070b98db6eaffe6705465706b187d4a6abb50505a1abe80600498b4ebca46bc3
   cf_stacks:
   - cflinuxfs4
 
