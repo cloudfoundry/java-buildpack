@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // ZingJRE implements the JRE interface for Azul Platform Prime (Zing) JRE
@@ -60,12 +58,7 @@ func (z *ZingJRE) Supply() error {
 	// Determine version
 	dep, err := GetJREVersion(z.ctx, "zing")
 	if err != nil {
-		z.ctx.Log.Warning("Unable to determine Zing JRE version from manifest, using default")
-		// Fallback to hardcoded version
-		dep = libbuildpack.Dependency{
-			Name:    "zing",
-			Version: "17.0.13",
-		}
+		return fmt.Errorf("failed to determine Zing JRE version from manifest: %w", err)
 	}
 
 	z.version = dep.Version

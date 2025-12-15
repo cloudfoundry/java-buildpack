@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // ZuluJRE implements the JRE interface for Azul Zulu OpenJDK
@@ -59,12 +57,7 @@ func (z *ZuluJRE) Supply() error {
 	// Determine version
 	dep, err := GetJREVersion(z.ctx, "zulu")
 	if err != nil {
-		z.ctx.Log.Warning("Unable to determine Zulu version from manifest, using default")
-		// Fallback to hardcoded version
-		dep = libbuildpack.Dependency{
-			Name:    "zulu",
-			Version: "11.0.25",
-		}
+		return fmt.Errorf("failed to determine Zulu version from manifest: %w", err)
 	}
 
 	z.version = dep.Version

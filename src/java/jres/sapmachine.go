@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // SapMachineJRE implements the JRE interface for SAP Machine OpenJDK
@@ -59,12 +57,7 @@ func (s *SapMachineJRE) Supply() error {
 	// Determine version
 	dep, err := GetJREVersion(s.ctx, "sapmachine")
 	if err != nil {
-		s.ctx.Log.Warning("Unable to determine SAP Machine version from manifest, using default")
-		// Fallback to hardcoded version
-		dep = libbuildpack.Dependency{
-			Name:    "sapmachine",
-			Version: "17.0.13",
-		}
+		return fmt.Errorf("failed to determine SAP Machine version from manifest: %w", err)
 	}
 
 	s.version = dep.Version

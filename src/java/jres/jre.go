@@ -41,8 +41,9 @@ type Context struct {
 
 // Registry manages multiple JRE providers
 type Registry struct {
-	ctx       *Context
-	providers []JRE
+	ctx        *Context
+	providers  []JRE
+	defaultJRE JRE
 }
 
 // NewRegistry creates a new JRE registry
@@ -58,20 +59,50 @@ func (r *Registry) Register(jre JRE) {
 	r.providers = append(r.providers, jre)
 }
 
-// Detect finds the first JRE provider that should be used
+// SetDefault sets the default JRE to use when no JRE is explicitly configured
+func (r *Registry) SetDefault(jre JRE) {
+	r.defaultJRE = jre
+}
+
+// Detect finds the JRE provider that should be used
+// If a JRE is explicitly configured, it uses that JRE and fails if detection errors
+// If no JRE is explicitly configured, it uses the configured default JRE
 // Returns the JRE, its name, and any error
 func (r *Registry) Detect() (JRE, string, error) {
+	var detectionErrors []error
+
+	// Check if any JRE is explicitly configured
 	for _, jre := range r.providers {
 		detected, err := jre.Detect()
 		if err != nil {
-			r.ctx.Log.Warning("Error detecting JRE %s: %s", jre.Name(), err.Error())
+			// Collect detection errors - if a JRE is explicitly configured but fails to detect,
+			// we should fail the build rather than silently falling back to the default
+			detectionErrors = append(detectionErrors, fmt.Errorf("%s: %w", jre.Name(), err))
 			continue
 		}
 		if detected {
 			return jre, jre.Name(), nil
 		}
 	}
-	return nil, "", nil
+
+	// If we had detection errors, fail the build
+	// This ensures explicit JRE configurations don't silently fall back to defaults
+	if len(detectionErrors) > 0 {
+		r.ctx.Log.Error("JRE detection errors occurred:")
+		for _, err := range detectionErrors {
+			r.ctx.Log.Error("  - %s", err.Error())
+		}
+		return nil, "", fmt.Errorf("JRE detection failed with %d error(s)", len(detectionErrors))
+	}
+
+	// No explicit configuration found, use default JRE
+	if r.defaultJRE != nil {
+		r.ctx.Log.Info("No JRE explicitly configured, using default: %s", r.defaultJRE.Name())
+		return r.defaultJRE, r.defaultJRE.Name(), nil
+	}
+
+	// No default JRE configured
+	return nil, "", fmt.Errorf("no JRE found and no default JRE configured")
 }
 
 // Component represents a JRE component (memory calculator, jvmkill, etc.)

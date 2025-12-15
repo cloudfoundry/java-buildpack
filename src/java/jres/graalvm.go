@@ -57,10 +57,7 @@ func (g *GraalVMJRE) Supply() error {
 	// Determine version
 	dep, err := GetJREVersion(g.ctx, "graalvm")
 	if err != nil {
-		g.ctx.Log.Warning("Unable to determine GraalVM version from manifest")
-		// GraalVM requires user to configure repository_root in config/graal_vm_jre.yml
-		// If not configured, this will fail
-		return fmt.Errorf("GraalVM requires repository_root to be configured in config/graal_vm_jre.yml or via JBP_CONFIG_GRAAL_VM_JRE environment variable")
+		return fmt.Errorf("failed to determine GraalVM version from manifest: %w", err)
 	}
 
 	g.version = dep.Version

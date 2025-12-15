@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // IBMJRE implements the JRE interface for IBM JRE
@@ -61,12 +59,7 @@ func (i *IBMJRE) Supply() error {
 	// Determine version
 	dep, err := GetJREVersion(i.ctx, "ibm")
 	if err != nil {
-		i.ctx.Log.Warning("Unable to determine IBM JRE version from manifest, using default")
-		// Fallback to hardcoded version
-		dep = libbuildpack.Dependency{
-			Name:    "ibm",
-			Version: "8.0.8.26",
-		}
+		return fmt.Errorf("failed to determine IBM JRE version from manifest: %w", err)
 	}
 
 	i.version = dep.Version

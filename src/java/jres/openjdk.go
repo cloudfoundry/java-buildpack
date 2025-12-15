@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // OpenJDKJRE implements the JRE interface for OpenJDK
@@ -35,12 +33,21 @@ func (o *OpenJDKJRE) Name() string {
 }
 
 // Detect returns true if OpenJDK should be used
-// OpenJDK is the default JRE, so it always returns true unless another JRE is explicitly configured
+// OpenJDK is selected via JBP_CONFIG_COMPONENTS environment variable
 func (o *OpenJDKJRE) Detect() (bool, error) {
-	// Check if another JRE is explicitly configured via environment
-	// For now, OpenJDK is always selected (default)
-	// In the future, we'll check JBP_CONFIG_COMPONENTS environment variable
-	return true, nil
+	// Check if explicitly configured via environment
+	// Format: JBP_CONFIG_COMPONENTS='{jres: ["JavaBuildpack::Jre::OpenJdkJRE"]}'
+	configuredJRE := os.Getenv("JBP_CONFIG_COMPONENTS")
+	if configuredJRE != "" && (containsString(configuredJRE, "OpenJdkJRE") || containsString(configuredJRE, "OpenJDK")) {
+		return true, nil
+	}
+
+	// Also check legacy config
+	if DetectJREByEnv("open_jdk_jre") {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 // Supply installs the OpenJDK JRE and its components
@@ -50,12 +57,7 @@ func (o *OpenJDKJRE) Supply() error {
 	// Determine version
 	dep, err := GetJREVersion(o.ctx, "openjdk")
 	if err != nil {
-		o.ctx.Log.Warning("Unable to determine OpenJDK version from manifest, using default")
-		// Fallback to hardcoded version
-		dep = libbuildpack.Dependency{
-			Name:    "openjdk",
-			Version: "17.0.13",
-		}
+		return fmt.Errorf("failed to determine OpenJDK version from manifest: %w", err)
 	}
 
 	o.version = dep.Version

@@ -91,9 +91,12 @@ func (s *Supplier) installJRE() error {
 	// Create and populate JRE registry
 	registry := jres.NewRegistry(ctx)
 
-	// Register JRE providers in priority order
-	// OpenJDK is the default and most commonly used
-	registry.Register(jres.NewOpenJDKJRE(ctx))
+	// Register OpenJDK and set it as the default JRE
+	openJDK := jres.NewOpenJDKJRE(ctx)
+	registry.Register(openJDK)
+	registry.SetDefault(openJDK)
+
+	// Register additional JRE providers
 	registry.Register(jres.NewZuluJRE(ctx))
 	registry.Register(jres.NewSapMachineJRE(ctx))
 	registry.Register(jres.NewGraalVMJRE(ctx))
@@ -102,14 +105,12 @@ func (s *Supplier) installJRE() error {
 	registry.Register(jres.NewZingJRE(ctx))
 
 	// Detect which JRE to use
+	// With SetDefault(openJDK) configured, this will always return a JRE unless
+	// an explicitly configured JRE fails detection
 	jre, jreName, err := registry.Detect()
 	if err != nil {
 		s.Log.Error("Failed to detect JRE: %s", err.Error())
 		return err
-	}
-	if jre == nil {
-		s.Log.Error("No suitable JRE found")
-		return fmt.Errorf("no suitable JRE found")
 	}
 
 	s.Log.Info("Selected JRE: %s", jreName)

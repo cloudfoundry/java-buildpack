@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // OracleJRE implements the JRE interface for Oracle JRE
@@ -60,12 +58,7 @@ func (o *OracleJRE) Supply() error {
 	// Determine version
 	dep, err := GetJREVersion(o.ctx, "oracle")
 	if err != nil {
-		o.ctx.Log.Warning("Unable to determine Oracle JRE version from manifest, using default")
-		// Fallback to hardcoded version
-		dep = libbuildpack.Dependency{
-			Name:    "oracle",
-			Version: "17.0.13",
-		}
+		return fmt.Errorf("failed to determine Oracle JRE version from manifest: %w", err)
 	}
 
 	o.version = dep.Version

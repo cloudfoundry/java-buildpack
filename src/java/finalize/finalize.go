@@ -95,9 +95,17 @@ func (f *Finalizer) finalizeJRE() error {
 	// Create and populate JRE registry
 	registry := jres.NewRegistry(ctx)
 
-	// Register the same JRE providers as in supply phase
-	// We need to detect which one was used during supply
-	registry.Register(jres.NewOpenJDKJRE(ctx))
+	// Register OpenJDK and set it as the default JRE
+	// This MUST match the behavior in the supply phase to ensure consistent detection.
+	// The finalize phase re-detects the JRE (rather than reading stored config) to support:
+	// 1. Multi-buildpack scenarios where supply and finalize may run in different contexts
+	// 2. Environment variable overrides that occur between phases
+	// 3. Detection of JREs installed by other buildpacks
+	openJDK := jres.NewOpenJDKJRE(ctx)
+	registry.Register(openJDK)
+	registry.SetDefault(openJDK)
+
+	// Register additional JRE providers
 	registry.Register(jres.NewZuluJRE(ctx))
 	registry.Register(jres.NewSapMachineJRE(ctx))
 	registry.Register(jres.NewGraalVMJRE(ctx))
@@ -106,14 +114,12 @@ func (f *Finalizer) finalizeJRE() error {
 	registry.Register(jres.NewZingJRE(ctx))
 
 	// Detect which JRE was installed (should match supply phase)
+	// With SetDefault(openJDK) configured, this will always return a JRE unless
+	// an explicitly configured JRE fails detection
 	jre, jreName, err := registry.Detect()
 	if err != nil {
 		f.Log.Error("Failed to detect JRE: %s", err.Error())
 		return err
-	}
-	if jre == nil {
-		f.Log.Warning("No JRE found during finalize, skipping JRE finalization")
-		return nil
 	}
 
 	f.Log.Info("Finalizing JRE: %s", jreName)
