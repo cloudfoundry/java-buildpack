@@ -58,22 +58,19 @@ func (g *GoogleStackdriverDebuggerFramework) Supply() error {
 	// Get dependency from manifest
 	dep, err := g.context.Manifest.DefaultVersion("google-stackdriver-debugger")
 	if err != nil {
-		g.context.Log.Warning("Unable to find Google Stackdriver Debugger in manifest: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("unable to find Google Stackdriver Debugger in manifest: %w", err)
 	}
 
 	// Install the debugger
 	debuggerDir := filepath.Join(g.context.Stager.DepDir(), "google_stackdriver_debugger")
 	if err := g.context.Installer.InstallDependency(dep, debuggerDir); err != nil {
-		g.context.Log.Warning("Failed to install Google Stackdriver Debugger: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("failed to install Google Stackdriver Debugger: %w", err)
 	}
 
 	// Find the installed agent (native library)
 	agentPattern := filepath.Join(debuggerDir, "cdbg_java_agent.so")
 	if _, err := os.Stat(agentPattern); err != nil {
-		g.context.Log.Warning("Google Stackdriver Debugger agent not found after installation")
-		return nil
+		return fmt.Errorf("Google Stackdriver Debugger agent not found after installation: %w", err)
 	}
 	g.agentPath = agentPattern
 

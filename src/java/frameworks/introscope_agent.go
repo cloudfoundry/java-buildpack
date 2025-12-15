@@ -52,22 +52,19 @@ func (i *IntroscopeAgentFramework) Supply() error {
 	// Get dependency from manifest
 	dep, err := i.context.Manifest.DefaultVersion("introscope-agent")
 	if err != nil {
-		i.context.Log.Warning("Unable to find Introscope agent in manifest: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("unable to find Introscope agent in manifest: %w", err)
 	}
 
 	// Install the agent
 	agentDir := filepath.Join(i.context.Stager.DepDir(), "introscope_agent")
 	if err := i.context.Installer.InstallDependency(dep, agentDir); err != nil {
-		i.context.Log.Warning("Failed to install Introscope agent: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("failed to install Introscope agent: %w", err)
 	}
 
 	// Find the installed agent JAR
 	agentPattern := filepath.Join(agentDir, "Agent.jar")
 	if _, err := os.Stat(agentPattern); err != nil {
-		i.context.Log.Warning("Introscope Agent.jar not found after installation")
-		return nil
+		return fmt.Errorf("Introscope Agent.jar not found after installation: %w", err)
 	}
 	i.agentPath = agentPattern
 

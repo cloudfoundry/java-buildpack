@@ -79,15 +79,13 @@ func (s *SplunkOtelJavaAgentFramework) Supply() error {
 	// Get dependency from manifest
 	dep, err := s.context.Manifest.DefaultVersion("splunk-otel-java-agent")
 	if err != nil {
-		s.context.Log.Warning("Unable to find Splunk OTEL Java agent in manifest: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("unable to find Splunk OTEL Java agent in manifest: %w", err)
 	}
 
 	// Install the agent
 	agentDir := filepath.Join(s.context.Stager.DepDir(), "splunk_otel_java_agent")
 	if err := s.context.Installer.InstallDependency(dep, agentDir); err != nil {
-		s.context.Log.Warning("Failed to install Splunk OTEL Java agent: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("failed to install Splunk OTEL Java agent: %w", err)
 	}
 
 	// Find the installed agent JAR
@@ -96,8 +94,7 @@ func (s *SplunkOtelJavaAgentFramework) Supply() error {
 		// Try alternative name
 		jarPattern = filepath.Join(agentDir, "splunk-otel-javaagent-all.jar")
 		if _, err := os.Stat(jarPattern); err != nil {
-			s.context.Log.Warning("Splunk OTEL Java agent JAR not found after installation")
-			return nil
+			return fmt.Errorf("Splunk OTEL Java agent JAR not found after installation in %s (tried both splunk-otel-javaagent.jar and splunk-otel-javaagent-all.jar)", agentDir)
 		}
 	}
 	s.jarPath = jarPattern

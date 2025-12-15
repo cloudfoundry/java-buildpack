@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 )
@@ -56,23 +57,25 @@ func (f *MariaDBJDBCFramework) Supply() error {
 	// Get dependency from manifest
 	dep, err := f.context.Manifest.DefaultVersion("mariadb-jdbc")
 	if err != nil {
-		f.context.Log.Warning("Unable to find MariaDB JDBC in manifest: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("unable to find MariaDB JDBC in manifest: %w", err)
 	}
 
 	// Install to lib subdirectory
 	mariadbDir := filepath.Join(f.context.Stager.DepDir(), "mariadb_jdbc")
 	if err := f.context.Installer.InstallDependency(dep, mariadbDir); err != nil {
-		f.context.Log.Warning("Failed to install MariaDB JDBC: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("failed to install MariaDB JDBC: %w", err)
 	}
 
 	// Find the installed JAR
 	jarPattern := filepath.Join(mariadbDir, "mariadb-java-client-*.jar")
 	matches, err := filepath.Glob(jarPattern)
-	if err == nil && len(matches) > 0 {
-		f.jarPath = matches[0]
+	if err != nil {
+		return fmt.Errorf("failed to search for MariaDB JDBC JAR: %w", err)
 	}
+	if len(matches) == 0 {
+		return fmt.Errorf("MariaDB JDBC JAR not found after installation in %s", mariadbDir)
+	}
+	f.jarPath = matches[0]
 
 	f.context.Log.Info("MariaDB JDBC %s installed", dep.Version)
 	return nil

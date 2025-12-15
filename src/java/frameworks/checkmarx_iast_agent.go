@@ -65,21 +65,18 @@ func (c *CheckmarxIASTAgentFramework) Supply() error {
 	// Get credentials from service binding
 	credentials := c.getCredentials()
 	if credentials.URL == "" {
-		c.context.Log.Warning("Checkmarx IAST agent URL not found in service binding")
-		return nil // Non-blocking
+		return fmt.Errorf("Checkmarx IAST agent URL not found in service binding credentials")
 	}
 
 	// Download the agent from the URL provided in service credentials
 	agentDir := filepath.Join(c.context.Stager.DepDir(), "checkmarx_iast_agent")
 	if err := os.MkdirAll(agentDir, 0755); err != nil {
-		c.context.Log.Warning("Failed to create Checkmarx IAST agent directory: %s", err)
-		return nil
+		return fmt.Errorf("failed to create Checkmarx IAST agent directory: %w", err)
 	}
 
 	jarPath := filepath.Join(agentDir, "cx-agent.jar")
 	if err := c.downloadAgent(credentials.URL, jarPath); err != nil {
-		c.context.Log.Warning("Failed to download Checkmarx IAST agent: %s", err)
-		return nil
+		return fmt.Errorf("failed to download Checkmarx IAST agent: %w", err)
 	}
 
 	c.jarPath = jarPath

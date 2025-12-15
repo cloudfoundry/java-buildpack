@@ -86,23 +86,23 @@ func (d *DatadogJavaagentFramework) Supply() error {
 	// Get dependency from manifest
 	dep, err := d.context.Manifest.DefaultVersion("datadog-javaagent")
 	if err != nil {
-		d.context.Log.Warning("Unable to find Datadog Javaagent in manifest: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("unable to find Datadog Javaagent in manifest: %w", err)
 	}
 
 	// Install the agent
 	datadogDir := filepath.Join(d.context.Stager.DepDir(), "datadog_javaagent")
 	if err := d.context.Installer.InstallDependency(dep, datadogDir); err != nil {
-		d.context.Log.Warning("Failed to install Datadog Javaagent: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("failed to install Datadog Javaagent: %w", err)
 	}
 
 	// Find the installed JAR
 	jarPattern := filepath.Join(datadogDir, "dd-java-agent*.jar")
 	matches, err := filepath.Glob(jarPattern)
-	if err != nil || len(matches) == 0 {
-		d.context.Log.Warning("Datadog agent JAR not found after installation")
-		return nil
+	if err != nil {
+		return fmt.Errorf("failed to search for Datadog agent JAR: %w", err)
+	}
+	if len(matches) == 0 {
+		return fmt.Errorf("Datadog agent JAR not found after installation in %s", datadogDir)
 	}
 	d.jarPath = matches[0]
 

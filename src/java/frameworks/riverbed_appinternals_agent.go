@@ -52,22 +52,19 @@ func (r *RiverbedAppInternalsAgentFramework) Supply() error {
 	// Get dependency from manifest
 	dep, err := r.context.Manifest.DefaultVersion("riverbed-appinternals-agent")
 	if err != nil {
-		r.context.Log.Warning("Unable to find Riverbed AppInternals agent in manifest: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("unable to find Riverbed AppInternals agent in manifest: %w", err)
 	}
 
 	// Install the agent
 	agentDir := filepath.Join(r.context.Stager.DepDir(), "riverbed_appinternals_agent")
 	if err := r.context.Installer.InstallDependency(dep, agentDir); err != nil {
-		r.context.Log.Warning("Failed to install Riverbed AppInternals agent: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("failed to install Riverbed AppInternals agent: %w", err)
 	}
 
 	// Find the installed agent directory (contains lib/rvbd-agent.jar)
 	agentJarPath := filepath.Join(agentDir, "lib", "rvbd-agent.jar")
 	if _, err := os.Stat(agentJarPath); err != nil {
-		r.context.Log.Warning("Riverbed AppInternals agent JAR not found after installation")
-		return nil
+		return fmt.Errorf("Riverbed AppInternals agent JAR not found after installation: %w", err)
 	}
 	r.agentPath = agentJarPath
 

@@ -63,23 +63,23 @@ func (e *ElasticApmAgentFramework) Supply() error {
 	// Get dependency from manifest
 	dep, err := e.context.Manifest.DefaultVersion("elastic-apm-agent")
 	if err != nil {
-		e.context.Log.Warning("Unable to find Elastic APM agent in manifest: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("unable to find Elastic APM agent in manifest: %w", err)
 	}
 
 	// Install the agent
 	elasticDir := filepath.Join(e.context.Stager.DepDir(), "elastic_apm_agent")
 	if err := e.context.Installer.InstallDependency(dep, elasticDir); err != nil {
-		e.context.Log.Warning("Failed to install Elastic APM agent: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("failed to install Elastic APM agent: %w", err)
 	}
 
 	// Find the installed JAR
 	jarPattern := filepath.Join(elasticDir, "elastic-apm-agent*.jar")
 	matches, err := filepath.Glob(jarPattern)
-	if err != nil || len(matches) == 0 {
-		e.context.Log.Warning("Elastic APM agent JAR not found after installation")
-		return nil
+	if err != nil {
+		return fmt.Errorf("failed to search for Elastic APM agent JAR: %w", err)
+	}
+	if len(matches) == 0 {
+		return fmt.Errorf("Elastic APM agent JAR not found after installation in %s", elasticDir)
 	}
 	e.jarPath = matches[0]
 

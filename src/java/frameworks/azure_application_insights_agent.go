@@ -84,23 +84,23 @@ func (a *AzureApplicationInsightsAgentFramework) Supply() error {
 	// Get dependency from manifest
 	dep, err := a.context.Manifest.DefaultVersion("azure-application-insights-agent")
 	if err != nil {
-		a.context.Log.Warning("Unable to find Azure Application Insights agent in manifest: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("unable to find Azure Application Insights agent in manifest: %w", err)
 	}
 
 	// Install the agent
 	agentDir := filepath.Join(a.context.Stager.DepDir(), "azure_application_insights_agent")
 	if err := a.context.Installer.InstallDependency(dep, agentDir); err != nil {
-		a.context.Log.Warning("Failed to install Azure Application Insights agent: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("failed to install Azure Application Insights agent: %w", err)
 	}
 
 	// Find the installed JAR
 	jarPattern := filepath.Join(agentDir, "applicationinsights-agent-*.jar")
 	matches, err := filepath.Glob(jarPattern)
-	if err != nil || len(matches) == 0 {
-		a.context.Log.Warning("Azure Application Insights agent JAR not found after installation")
-		return nil
+	if err != nil {
+		return fmt.Errorf("failed to search for Azure Application Insights agent JAR: %w", err)
+	}
+	if len(matches) == 0 {
+		return fmt.Errorf("Azure Application Insights agent JAR not found after installation in %s", agentDir)
 	}
 	a.jarPath = matches[0]
 

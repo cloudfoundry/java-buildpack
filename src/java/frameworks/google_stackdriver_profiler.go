@@ -72,22 +72,19 @@ func (g *GoogleStackdriverProfilerFramework) Supply() error {
 	// Get dependency from manifest
 	dep, err := g.context.Manifest.DefaultVersion("google-stackdriver-profiler")
 	if err != nil {
-		g.context.Log.Warning("Unable to find Google Stackdriver Profiler in manifest: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("unable to find Google Stackdriver Profiler in manifest: %w", err)
 	}
 
 	// Install the profiler
 	profilerDir := filepath.Join(g.context.Stager.DepDir(), "google_stackdriver_profiler")
 	if err := g.context.Installer.InstallDependency(dep, profilerDir); err != nil {
-		g.context.Log.Warning("Failed to install Google Stackdriver Profiler: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("failed to install Google Stackdriver Profiler: %w", err)
 	}
 
 	// Find the installed agent (native library)
 	agentPattern := filepath.Join(profilerDir, "profiler_java_agent.so")
 	if _, err := os.Stat(agentPattern); err != nil {
-		g.context.Log.Warning("Google Stackdriver Profiler agent not found after installation")
-		return nil
+		return fmt.Errorf("Google Stackdriver Profiler agent not found after installation: %w", err)
 	}
 	g.agentPath = agentPattern
 

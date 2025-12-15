@@ -70,22 +70,19 @@ func (s *SkyWalkingAgentFramework) Supply() error {
 	// Get dependency from manifest
 	dep, err := s.context.Manifest.DefaultVersion("sky-walking-agent")
 	if err != nil {
-		s.context.Log.Warning("Unable to find SkyWalking agent in manifest: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("unable to find SkyWalking agent in manifest: %w", err)
 	}
 
 	// Install the agent
 	agentDir := filepath.Join(s.context.Stager.DepDir(), "sky_walking_agent")
 	if err := s.context.Installer.InstallDependency(dep, agentDir); err != nil {
-		s.context.Log.Warning("Failed to install SkyWalking agent: %s", err)
-		return nil // Non-blocking
+		return fmt.Errorf("failed to install SkyWalking agent: %w", err)
 	}
 
 	// Find the installed agent JAR
 	jarPattern := filepath.Join(agentDir, "skywalking-agent.jar")
 	if _, err := os.Stat(jarPattern); err != nil {
-		s.context.Log.Warning("SkyWalking agent JAR not found after installation")
-		return nil
+		return fmt.Errorf("SkyWalking agent JAR not found after installation: %w", err)
 	}
 	s.jarPath = jarPattern
 
