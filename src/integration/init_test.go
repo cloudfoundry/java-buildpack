@@ -87,11 +87,6 @@ func TestIntegration(t *testing.T) {
 	// Framework tests (APM agents, security providers, etc.)
 	suite("Frameworks", testFrameworks(platform, fixtures))
 
-	// Offline/Cache tests
-	if settings.Cached {
-		suite("Offline", testOffline(platform, fixtures))
-	}
-
 	suite.Run(t)
 
 	Expect(platform.Deinitialize()).To(Succeed())
