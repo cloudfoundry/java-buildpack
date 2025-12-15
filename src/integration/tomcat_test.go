@@ -163,24 +163,28 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 		})
 
 		context("with external Tomcat configuration", func() {
-			it("detects external configuration setting but warns it's not in manifest", func() {
-				deployment, logs, err := platform.Deploy.
+			it("attempts to download external configuration from repository_root URL", func() {
+				// Use a fake but syntactically valid URL - the build should fail since the URL doesn't exist
+				_, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
 						"BP_JAVA_VERSION":   "11",
-						"JBP_CONFIG_TOMCAT": "{tomcat: {external_configuration_enabled: true}, external_configuration: {repository_root: \"https://my-repo.example.com/config\"}}",
+						"JBP_CONFIG_TOMCAT": "{tomcat: {external_configuration_enabled: true}, external_configuration: {repository_root: \"https://example.com/tomcat-config\", version: \"1.4.0\"}}",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
 
-				Expect(err).NotTo(HaveOccurred(), logs.String)
+				// Build should fail since external config is required when explicitly configured
+				Expect(err).To(HaveOccurred())
 
 				// Verify external configuration was detected
 				Expect(logs.String()).To(ContainSubstring("External Tomcat configuration is enabled"))
+				Expect(logs.String()).To(ContainSubstring("External configuration repository: https://example.com/tomcat-config (version: 1.4.0)"))
 
-				// Verify warning about missing manifest entry
-				Expect(logs.String()).To(ContainSubstring("External configuration not found in manifest"))
+				// Verify it attempts direct download (new behavior)
+				Expect(logs.String()).To(ContainSubstring("External configuration not in manifest, downloading directly from repository"))
+				Expect(logs.String()).To(ContainSubstring("Downloading external configuration from: https://example.com/tomcat-config/tomcat-external-configuration-1.4.0.tar.gz"))
 
-				// Verify deployment still succeeds (external config is optional)
-				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
+				// Verify build fails when download fails
+				Expect(logs.String()).To(ContainSubstring("failed to install external Tomcat configuration"))
 			})
 		})
 	}

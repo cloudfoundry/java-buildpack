@@ -2,6 +2,8 @@ package containers
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -126,7 +128,7 @@ export CATALINA_BASE=%s
 
 	// Install external Tomcat configuration if enabled
 	if err := t.installExternalConfiguration(tomcatDir); err != nil {
-		t.context.Log.Warning("Could not install external Tomcat configuration: %s", err.Error())
+		return fmt.Errorf("failed to install external Tomcat configuration: %w", err)
 	}
 
 	// JVMKill agent is installed and configured by JRE component
@@ -176,20 +178,16 @@ func (t *TomcatContainer) installExternalConfiguration(tomcatDir string) error {
 
 	t.context.Log.Info("External configuration repository: %s (version: %s)", repositoryRoot, version)
 
-	// Try to install from manifest if available
+	// Try to install from manifest first if available
 	// This will work if the user has added the external configuration to their forked buildpack manifest
 	dep, err := t.context.Manifest.DefaultVersion("tomcat-external-configuration")
 	if err != nil {
-		t.context.Log.Warning("External configuration not found in manifest: %s", err.Error())
-		t.context.Log.Warning("To use external Tomcat configuration, add it to manifest.yml:")
-		t.context.Log.Warning("  - name: tomcat-external-configuration")
-		t.context.Log.Warning("    version: %s", version)
-		t.context.Log.Warning("    uri: %s/tomcat-external-configuration-%s.tar.gz", repositoryRoot, version)
-		t.context.Log.Warning("    sha256: <checksum>")
-		return nil
+		// Manifest entry not found - download directly from repository_root
+		t.context.Log.Info("External configuration not in manifest, downloading directly from repository")
+		return t.downloadExternalConfiguration(repositoryRoot, version, tomcatDir)
 	}
 
-	t.context.Log.Info("Downloading external Tomcat configuration version %s", dep.Version)
+	t.context.Log.Info("Downloading external Tomcat configuration version %s from manifest", dep.Version)
 
 	// Install external configuration with strip=1 to overlay onto Tomcat directory
 	// The external config archive has structure: tomcat/conf/...
@@ -199,6 +197,49 @@ func (t *TomcatContainer) installExternalConfiguration(tomcatDir string) error {
 	}
 
 	t.context.Log.Info("Installed external Tomcat configuration version %s", dep.Version)
+	return nil
+}
+
+// downloadExternalConfiguration downloads external Tomcat configuration directly from a URL
+func (t *TomcatContainer) downloadExternalConfiguration(repositoryRoot, version, tomcatDir string) error {
+	// Construct download URL
+	downloadURL := fmt.Sprintf("%s/tomcat-external-configuration-%s.tar.gz", repositoryRoot, version)
+	t.context.Log.Info("Downloading external configuration from: %s", downloadURL)
+
+	// Create temporary file for download
+	tmpFile, err := os.CreateTemp("", "tomcat-external-config-*.tar.gz")
+	if err != nil {
+		return fmt.Errorf("failed to create temp file: %w", err)
+	}
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	// Download the archive
+	resp, err := http.Get(downloadURL)
+	if err != nil {
+		return fmt.Errorf("failed to download external configuration: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download external configuration: HTTP %d", resp.StatusCode)
+	}
+
+	// Write response to temp file
+	if _, err := io.Copy(tmpFile, resp.Body); err != nil {
+		return fmt.Errorf("failed to write external configuration to temp file: %w", err)
+	}
+	tmpFile.Close()
+
+	// Extract the archive to tomcatDir with strip=1
+	// The external config archive has structure: tomcat/conf/...
+	// We strip the top-level "tomcat/" directory and extract directly to tomcatDir
+	t.context.Log.Info("Extracting external configuration to: %s", tomcatDir)
+	if err := libbuildpack.ExtractTarGzWithStrip(tmpFile.Name(), tomcatDir, 1); err != nil {
+		return fmt.Errorf("failed to extract external configuration: %w", err)
+	}
+
+	t.context.Log.Info("Successfully installed external Tomcat configuration version %s", version)
 	return nil
 }
 
