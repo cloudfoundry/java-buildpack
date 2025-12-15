@@ -124,6 +124,17 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				// This test explicitly uses a git URL to ensure the bash scripts work correctly.
 				// The fix converted everything to pure bash (no Go wrappers) and removed all
 				// echo statements so only clean YAML is output.
+				//
+				// LIMITATION: Git URL buildpacks only work on CF platform because the CF CLI
+				// handles git cloning (see cloudfoundry/setup.go:332-335 which passes git URLs
+				// directly to `cf push -b <url>`). Switchblade's Docker platform only supports
+				// HTTP downloads via buildpacks_cache.go:64 http.Get(), not git clone.
+				// The test must run on CF platform to properly test git URL buildpack deployment.
+
+				if settings.Platform == "docker" {
+					t.Skip("Git URL buildpacks require CF platform - Docker platform cannot clone git repos")
+				}
+
 				deployment, logs, err := platform.Deploy.
 					WithBuildpacks("https://github.com/cloudfoundry/java-buildpack.git#feature/go-migration").
 					WithEnv(map[string]string{
