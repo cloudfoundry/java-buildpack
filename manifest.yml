@@ -66,8 +66,6 @@ default_versions:
   version: 6.x
 - name: jrebel
   version: 2025.x
-- name: takipi
-  version: 4.x
 - name: your-kit-profiler
   version: 2025.x
 - name: jprofiler-profiler
@@ -166,9 +164,6 @@ url_to_dependency_map:
   version: $1
 - match: jrebel-(\d+\.\d+\.\d+)
   name: jrebel
-  version: $1
-- match: takipi-agent-(\d+\.\d+\.\d+)
-  name: takipi
   version: $1
 - match: YourKit-JavaProfiler-(\d+\.\d+)
   name: your-kit-profiler
@@ -635,17 +630,6 @@ dependencies:
   version: 2025.4.1
   uri: https://dl.zeroturnaround.com/jrebel/releases/jrebel-2025.4.1-nosetup.zip
   sha256: f5f8dc137b349350745b2dde316e2e629d924f784b7bec1ef8144ee8a9d6f1eb
-  cf_stacks:
-  - cflinuxfs4
-
-# ========================================
-# Takipi Agent (OverOps)
-# ========================================
-# Repository: https://get.takipi.com/cloudfoundry/
-- name: takipi
-  version: 4.83.0
-  uri: https://get.takipi.com/cloudfoundry/takipi-agent-4.83.0.tar.gz
-  sha256: 8fa660fb0169cbf1f465d7f6aa3cba8ee804172864a99a2292c2c6b7f44da1d8
   cf_stacks:
   - cflinuxfs4
 
