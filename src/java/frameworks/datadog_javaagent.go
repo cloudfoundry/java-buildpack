@@ -124,31 +124,36 @@ func (d *DatadogJavaagentFramework) Finalize() error {
 
 	d.context.Log.BeginStep("Configuring Datadog Java agent")
 
-	// Add javaagent to JAVA_OPTS
-	javaagentOpt := fmt.Sprintf("-javaagent:%s", d.jarPath)
-	if err := d.appendToJavaOpts(javaagentOpt); err != nil {
-		d.context.Log.Warning("Failed to add Datadog agent to JAVA_OPTS: %s", err)
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(d.context.Stager.DepDir(), d.jarPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for Datadog agent: %w", err)
 	}
+	runtimeJarPath := filepath.Join("$DEPS_DIR/0", relPath)
+
+	// Build all JAVA_OPTS options
+	var opts []string
+	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
 
 	// Set dd.service if DD_SERVICE not set
 	if os.Getenv("DD_SERVICE") == "" {
 		// Get application name from VCAP_APPLICATION
 		appName := d.getApplicationName()
 		if appName != "" {
-			serviceOpt := fmt.Sprintf("-Ddd.service=\"%s\"", appName)
-			if err := d.appendToJavaOpts(serviceOpt); err != nil {
-				d.context.Log.Warning("Failed to set dd.service: %s", err)
-			}
+			opts = append(opts, fmt.Sprintf("-Ddd.service=\"%s\"", appName))
 		}
 	}
 
 	// Set dd.version
 	appVersion := d.getApplicationVersion()
 	if appVersion != "" {
-		versionOpt := fmt.Sprintf("-Ddd.version=%s", appVersion)
-		if err := d.appendToJavaOpts(versionOpt); err != nil {
-			d.context.Log.Warning("Failed to set dd.version: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Ddd.version=%s", appVersion))
+	}
+
+	// Write all options to .opts file
+	javaOpts := strings.Join(opts, " ")
+	if err := writeJavaOptsFile(d.context, 18, "datadog_javaagent", javaOpts); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS for Datadog: %w", err)
 	}
 
 	d.context.Log.Info("Datadog Java agent configured")
@@ -275,26 +280,6 @@ func (d *DatadogJavaagentFramework) createJAR(sourceDir, jarPath string) error {
 		_, err = zipEntry.Write(fileData)
 		return err
 	})
-}
-
-// appendToJavaOpts appends a value to JAVA_OPTS
-func (d *DatadogJavaagentFramework) appendToJavaOpts(value string) error {
-	javaOptsFile := filepath.Join(d.context.Stager.DepDir(), "env", "JAVA_OPTS")
-
-	// Read existing JAVA_OPTS
-	var existingOpts string
-	if data, err := os.ReadFile(javaOptsFile); err == nil {
-		existingOpts = string(data)
-	}
-
-	// Append new value
-	if existingOpts != "" {
-		existingOpts += " "
-	}
-	existingOpts += value
-
-	// Write back
-	return d.context.Stager.WriteEnvFile(javaOptsFile, existingOpts)
 }
 
 // getApplicationName returns the application name from VCAP_APPLICATION

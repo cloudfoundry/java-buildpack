@@ -247,34 +247,39 @@ func DetermineJavaVersion(javaHome string) (int, error) {
 	return 17, nil
 }
 
-// WriteJavaOpts writes JAVA_OPTS to a profile.d script for runtime export
+// WriteJavaOpts writes JAVA_OPTS to a .opts file for centralized assembly
+// JRE components use priority 05 to run early (before frameworks)
 func WriteJavaOpts(ctx *Context, opts string) error {
-	profileDir := filepath.Join(ctx.Stager.BuildDir(), ".profile.d")
-	if err := os.MkdirAll(profileDir, 0755); err != nil {
-		return fmt.Errorf("failed to create .profile.d directory: %w", err)
+	return WriteJavaOptsWithPriority(ctx, 05, "jre", opts)
+}
+
+// WriteJavaOptsWithPriority writes JAVA_OPTS to a numbered .opts file for centralized assembly
+// Priority determines execution order (lower numbers run first)
+// Multiple calls with the same priority/name will append to the same file
+func WriteJavaOptsWithPriority(ctx *Context, priority int, name string, opts string) error {
+	// Create java_opts directory in deps
+	optsDir := filepath.Join(ctx.Stager.DepDir(), "java_opts")
+	if err := os.MkdirAll(optsDir, 0755); err != nil {
+		return fmt.Errorf("failed to create java_opts directory: %w", err)
 	}
 
-	profileScript := filepath.Join(profileDir, "java_opts.sh")
+	// Write .opts file with priority prefix (e.g., 05_jre.opts)
+	filename := fmt.Sprintf("%02d_%s.opts", priority, name)
+	optsFile := filepath.Join(optsDir, filename)
 
-	// Append to existing JAVA_OPTS if file exists
-	var scriptContent string
-	if existing, err := os.ReadFile(profileScript); err == nil {
-		// File exists - extract current JAVA_OPTS value and append
-		scriptContent = string(existing)
-		// Remove the trailing newline if present
-		scriptContent = strings.TrimSuffix(scriptContent, "\n")
-		// Append new opts to the export line
-		scriptContent = strings.Replace(scriptContent, "${JAVA_OPTS:-}", "${JAVA_OPTS:-} "+opts, 1)
-		scriptContent += "\n"
+	// Append to existing content if file exists
+	var content string
+	if existing, err := os.ReadFile(optsFile); err == nil {
+		content = strings.TrimSpace(string(existing)) + " " + opts
 	} else {
-		// Create new profile.d script with export statement
-		scriptContent = fmt.Sprintf("export JAVA_OPTS=\"${JAVA_OPTS:-%s}\"\n", opts)
+		content = opts
 	}
 
-	if err := os.WriteFile(profileScript, []byte(scriptContent), 0755); err != nil {
-		return fmt.Errorf("failed to write profile.d/java_opts.sh: %w", err)
+	if err := os.WriteFile(optsFile, []byte(content), 0644); err != nil {
+		return fmt.Errorf("failed to write %s: %w", filename, err)
 	}
 
+	ctx.Log.Debug("Wrote JAVA_OPTS to %s (priority %d)", filename, priority)
 	return nil
 }
 

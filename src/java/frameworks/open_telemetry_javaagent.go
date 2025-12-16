@@ -71,11 +71,8 @@ func (o *OpenTelemetryJavaagentFramework) Supply() error {
 
 // Finalize performs final OpenTelemetry configuration
 func (o *OpenTelemetryJavaagentFramework) Finalize() error {
-	o.context.Log.BeginStep("Configuring OpenTelemetry Javaagent")
-
-	// Find the OpenTelemetry agent JAR
-	agentDir := filepath.Join(o.context.Stager.DepDir(), "open_telemetry_javaagent")
-	agentJar := filepath.Join(agentDir, "opentelemetry-javaagent.jar")
+	// Build runtime agent path
+	agentJar := "$DEPS_DIR/0/open_telemetry_javaagent/opentelemetry-javaagent.jar"
 
 	// Add javaagent to JAVA_OPTS
 	javaOpts := fmt.Sprintf("-javaagent:%s", agentJar)
@@ -115,11 +112,11 @@ func (o *OpenTelemetryJavaagentFramework) Finalize() error {
 		}
 	}
 
-	// Append to JAVA_OPTS (preserves values from other frameworks)
-	if err := AppendToJavaOpts(o.context, javaOpts); err != nil {
-		return fmt.Errorf("failed to set JAVA_OPTS for OpenTelemetry: %w", err)
+	// Write to .opts file using priority 36
+	if err := writeJavaOptsFile(o.context, 36, "open_telemetry_javaagent", javaOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	o.context.Log.Info("Configured OpenTelemetry Javaagent")
+	o.context.Log.Info("OpenTelemetry Javaagent configured (priority 36)")
 	return nil
 }

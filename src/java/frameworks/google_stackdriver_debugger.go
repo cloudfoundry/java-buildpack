@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // GoogleStackdriverDebuggerFramework represents the Google Stackdriver Debugger framework
@@ -86,28 +87,35 @@ func (g *GoogleStackdriverDebuggerFramework) Finalize() error {
 
 	g.context.Log.BeginStep("Configuring Google Stackdriver Debugger")
 
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(g.context.Stager.DepDir(), g.agentPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for Google Stackdriver Debugger: %w", err)
+	}
+	runtimeAgentPath := filepath.Join("$DEPS_DIR/0", relPath)
+
 	// Get credentials
 	credentials := g.getCredentials()
 
-	// Add agentpath to JAVA_OPTS
-	agentOpt := fmt.Sprintf("-agentpath:%s", g.agentPath)
+	// Build all JAVA_OPTS options
+	var opts []string
 
-	// Add project ID if available
+	// Add agentpath with project ID if available
 	if credentials.ProjectID != "" {
-		agentOpt += fmt.Sprintf("=-Dcom.google.cdbg.module=%s", credentials.ProjectID)
-	}
-
-	if err := g.appendToJavaOpts(agentOpt); err != nil {
-		g.context.Log.Warning("Failed to add Google Stackdriver Debugger to JAVA_OPTS: %s", err)
-		return nil
+		opts = append(opts, fmt.Sprintf("-agentpath:%s=-Dcom.google.cdbg.module=%s", runtimeAgentPath, credentials.ProjectID))
+	} else {
+		opts = append(opts, fmt.Sprintf("-agentpath:%s", runtimeAgentPath))
 	}
 
 	// Set application version
 	if appVersion := g.getApplicationVersion(); appVersion != "" {
-		versionOpt := fmt.Sprintf("-Dcom.google.cdbg.version=%s", appVersion)
-		if err := g.appendToJavaOpts(versionOpt); err != nil {
-			g.context.Log.Warning("Failed to set debugger version: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dcom.google.cdbg.version=%s", appVersion))
+	}
+
+	// Write all options to .opts file
+	javaOpts := strings.Join(opts, " ")
+	if err := writeJavaOptsFile(g.context, 21, "google_stackdriver_debugger", javaOpts); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS for Google Stackdriver Debugger: %w", err)
 	}
 
 	g.context.Log.Info("Google Stackdriver Debugger configured")
@@ -194,24 +202,4 @@ func (g *GoogleStackdriverDebuggerFramework) getApplicationVersion() string {
 	}
 
 	return ""
-}
-
-// appendToJavaOpts appends a value to JAVA_OPTS
-func (g *GoogleStackdriverDebuggerFramework) appendToJavaOpts(value string) error {
-	javaOptsFile := filepath.Join(g.context.Stager.DepDir(), "env", "JAVA_OPTS")
-
-	// Read existing JAVA_OPTS
-	var existingOpts string
-	if data, err := os.ReadFile(javaOptsFile); err == nil {
-		existingOpts = string(data)
-	}
-
-	// Append new value
-	if existingOpts != "" {
-		existingOpts += " "
-	}
-	existingOpts += value
-
-	// Write back
-	return g.context.Stager.WriteEnvFile(javaOptsFile, existingOpts)
 }

@@ -172,17 +172,11 @@ func (a *AppDynamicsFramework) Finalize() error {
 		}
 	}
 
-	// Append to JAVA_OPTS (preserves values from other frameworks)
-	if err := AppendToJavaOpts(a.context, javaOpts); err != nil {
-		return fmt.Errorf("failed to set JAVA_OPTS for AppDynamics: %w", err)
+	// Write JAVA_OPTS to .opts file with priority 11 (Ruby buildpack line 45)
+	if err := writeJavaOptsFile(a.context, 11, "app_dynamics", javaOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	a.context.Log.Info("Installed AppDynamics Agent version %s", dep.Version)
-	return nil
-}
-
-// Finalize performs final AppDynamics configuration
-func (a *AppDynamicsFramework) Finalize() error {
-	// AppDynamics doesn't require finalization
+	a.context.Log.Info("Configured AppDynamics Agent for runtime (priority 11)")
 	return nil
 }

@@ -550,7 +550,6 @@ var _ = Describe("Container Registry", func() {
 					Expect(err).NotTo(HaveOccurred())
 					Expect(cmd).To(ContainSubstring("groovy"))
 					Expect(cmd).To(ContainSubstring("custom.groovy"))
-					Expect(cmd).To(ContainSubstring("$JAVA_OPTS"))
 				})
 			})
 

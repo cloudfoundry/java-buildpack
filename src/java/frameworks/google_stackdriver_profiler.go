@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // GoogleStackdriverProfilerFramework represents the Google Stackdriver Profiler framework
@@ -100,30 +101,45 @@ func (g *GoogleStackdriverProfilerFramework) Finalize() error {
 
 	g.context.Log.BeginStep("Configuring Google Stackdriver Profiler")
 
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(g.context.Stager.DepDir(), g.agentPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for Google Stackdriver Profiler: %w", err)
+	}
+	runtimeAgentPath := filepath.Join("$DEPS_DIR/0", relPath)
+
 	// Get credentials
 	credentials := g.getCredentials()
 
-	// Add agentpath to JAVA_OPTS
-	agentOpt := fmt.Sprintf("-agentpath:%s", g.agentPath)
+	// Build agentpath option with arguments
+	var agentArgs []string
 
 	// Add service name (application name)
 	if appName := g.getApplicationName(); appName != "" {
-		agentOpt += fmt.Sprintf("=-cprof_service=%s", appName)
+		agentArgs = append(agentArgs, fmt.Sprintf("-cprof_service=%s", appName))
 	}
 
 	// Add service version
 	if appVersion := g.getApplicationVersion(); appVersion != "" {
-		agentOpt += fmt.Sprintf(",-cprof_service_version=%s", appVersion)
+		agentArgs = append(agentArgs, fmt.Sprintf("-cprof_service_version=%s", appVersion))
 	}
 
 	// Add project ID if available
 	if credentials.ProjectID != "" {
-		agentOpt += fmt.Sprintf(",-cprof_project_id=%s", credentials.ProjectID)
+		agentArgs = append(agentArgs, fmt.Sprintf("-cprof_project_id=%s", credentials.ProjectID))
 	}
 
-	if err := g.appendToJavaOpts(agentOpt); err != nil {
-		g.context.Log.Warning("Failed to add Google Stackdriver Profiler to JAVA_OPTS: %s", err)
-		return nil
+	// Build the complete -agentpath option
+	var agentOpt string
+	if len(agentArgs) > 0 {
+		agentOpt = fmt.Sprintf("-agentpath:%s=%s", runtimeAgentPath, strings.Join(agentArgs, ","))
+	} else {
+		agentOpt = fmt.Sprintf("-agentpath:%s", runtimeAgentPath)
+	}
+
+	// Write to .opts file
+	if err := writeJavaOptsFile(g.context, 22, "google_stackdriver_profiler", agentOpt); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS for Google Stackdriver Profiler: %w", err)
 	}
 
 	g.context.Log.Info("Google Stackdriver Profiler configured")
@@ -212,24 +228,4 @@ func (g *GoogleStackdriverProfilerFramework) getApplicationVersion() string {
 	}
 
 	return ""
-}
-
-// appendToJavaOpts appends a value to JAVA_OPTS
-func (g *GoogleStackdriverProfilerFramework) appendToJavaOpts(value string) error {
-	javaOptsFile := filepath.Join(g.context.Stager.DepDir(), "env", "JAVA_OPTS")
-
-	// Read existing JAVA_OPTS
-	var existingOpts string
-	if data, err := os.ReadFile(javaOptsFile); err == nil {
-		existingOpts = string(data)
-	}
-
-	// Append new value
-	if existingOpts != "" {
-		existingOpts += " "
-	}
-	existingOpts += value
-
-	// Write back
-	return g.context.Stager.WriteEnvFile(javaOptsFile, existingOpts)
 }

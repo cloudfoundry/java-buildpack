@@ -77,33 +77,29 @@ func (f *JProfilerProfilerFramework) Supply() error {
 // findJProfilerAgent searches for the JProfiler agent library in the install directory
 func (f *JProfilerProfilerFramework) findJProfilerAgent(installDir string) (string, error) {
 	// Common paths where the agent might be located after extraction
+	// JProfiler for linux-x64 (the buildpack target platform)
 	possiblePaths := []string{
-		// Direct path (if tar.gz extracts flat)
+		// Direct path (flat extraction)
 		filepath.Join(installDir, "bin", "linux-x64", "libjprofilerti.so"),
-		// Nested directory (jprofiler14.0.5/bin/linux-x64/libjprofilerti.so)
-		"",
-		// Root (unlikely but check anyway)
+		// Flat root (unlikely but check)
 		filepath.Join(installDir, "libjprofilerti.so"),
 	}
 
 	// Try predefined paths first
 	for _, path := range possiblePaths {
-		if path == "" {
-			continue
-		}
 		if _, err := os.Stat(path); err == nil {
 			return path, nil
 		}
 	}
 
-	// Search recursively for nested directories
+	// Search recursively for nested directories (e.g., jprofiler14.0.5/bin/linux-x64/...)
 	var foundPath string
 	filepath.Walk(installDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return nil // Continue walking on errors
+			return nil
 		}
-		if !info.IsDir() && info.Name() == "libjprofilerti.so" {
-			// Found the agent library
+		// Look for libjprofilerti.so in a linux-amd64 directory
+		if !info.IsDir() && info.Name() == "libjprofilerti.so" && filepath.Base(filepath.Dir(path)) == "linux-amd64" {
 			foundPath = path
 			return filepath.SkipAll
 		}
@@ -130,6 +126,13 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 	}
 	f.ctx.Log.Debug("Found JProfiler agent at: %s", agentPath)
 
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(f.ctx.Stager.DepDir(), agentPath)
+	if err != nil {
+		return fmt.Errorf("failed to compute relative path: %w", err)
+	}
+	runtimeAgentPath := filepath.Join("$DEPS_DIR/0", relPath)
+
 	// Build agent options
 	// Default options: port=8849, nowait (don't wait for profiler UI to connect)
 	port := "8849"
@@ -152,16 +155,13 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 	} else {
 		agentOptions = fmt.Sprintf("port=%s", port)
 	}
-	javaAgent := fmt.Sprintf("-agentpath:%s=%s", agentPath, agentOptions)
+	javaAgent := fmt.Sprintf("-agentpath:%s=%s", runtimeAgentPath, agentOptions)
 
-	// Write to profile.d script using libbuildpack's standard method
-	profileContent := fmt.Sprintf(`export JAVA_OPTS="$JAVA_OPTS %s"
-`, javaAgent)
-
-	if err := f.ctx.Stager.WriteProfileD("jprofiler.sh", profileContent); err != nil {
-		return fmt.Errorf("failed to write profile script: %w", err)
+	// Write to .opts file using priority 30
+	if err := writeJavaOptsFile(f.ctx, 30, "jprofiler_profiler", javaAgent); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	f.ctx.Log.Info("JProfiler Profiler configured for runtime")
+	f.ctx.Log.Info("JProfiler Profiler configured (priority 30)")
 	return nil
 }

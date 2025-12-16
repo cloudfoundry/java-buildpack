@@ -145,25 +145,28 @@ func (s *SeekerSecurityProviderFramework) Finalize() error {
 		return fmt.Errorf("seeker_server_url not found in service credentials")
 	}
 
-	// Find the Seeker agent JAR
-	seekerDir := filepath.Join(s.context.Stager.DepDir(), "seeker_security_provider")
-	agentJar := filepath.Join(seekerDir, "seeker-agent.jar")
+	// Build runtime agent path
+	agentJar := "$DEPS_DIR/0/seeker_security_provider/seeker-agent.jar"
 
-	// Create profile.d script to set up Seeker at runtime
+	// Build javaagent option
+	javaOpts := fmt.Sprintf("-javaagent:%s", agentJar)
+
+	// Write to .opts file using priority 40
+	if err := writeJavaOptsFile(s.context, 40, "seeker_security_provider", javaOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
+	}
+
+	// Set SEEKER_SERVER_URL environment variable via profile.d
 	profileScript := fmt.Sprintf(`#!/bin/bash
-
 # Configure Synopsys Seeker Security Provider
 export SEEKER_SERVER_URL="%s"
-
-# Add Seeker agent to JAVA_OPTS
-export JAVA_OPTS="${JAVA_OPTS} -javaagent:%s"
-`, serverURL, agentJar)
+`, serverURL)
 
 	if err := s.context.Stager.WriteProfileD("seeker_security_provider.sh", profileScript); err != nil {
 		return fmt.Errorf("failed to write Seeker profile.d script: %w", err)
 	}
 
-	s.context.Log.Info("Configured Synopsys Seeker Security Provider")
+	s.context.Log.Info("Seeker Security Provider configured (priority 40)")
 	return nil
 }
 

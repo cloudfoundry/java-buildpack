@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // IntroscopeAgentFramework represents the CA APM Introscope agent framework
@@ -80,15 +81,19 @@ func (i *IntroscopeAgentFramework) Finalize() error {
 
 	i.context.Log.BeginStep("Configuring Introscope agent")
 
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(i.context.Stager.DepDir(), i.agentPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for Introscope agent: %w", err)
+	}
+	runtimeJarPath := filepath.Join("$DEPS_DIR/0", relPath)
+
 	// Get credentials from service binding
 	credentials := i.getCredentials()
 
-	// Add javaagent to JAVA_OPTS
-	javaagentOpt := fmt.Sprintf("-javaagent:%s", i.agentPath)
-	if err := i.appendToJavaOpts(javaagentOpt); err != nil {
-		i.context.Log.Warning("Failed to add Introscope agent to JAVA_OPTS: %s", err)
-		return nil
-	}
+	// Build all JAVA_OPTS options
+	var opts []string
+	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
 
 	// Configure agent name (default to application name)
 	agentName := credentials.AgentName
@@ -96,26 +101,23 @@ func (i *IntroscopeAgentFramework) Finalize() error {
 		agentName = i.getApplicationName()
 	}
 	if agentName != "" {
-		nameOpt := fmt.Sprintf("-Dcom.wily.introscope.agentProfile.agent.name=%s", agentName)
-		if err := i.appendToJavaOpts(nameOpt); err != nil {
-			i.context.Log.Warning("Failed to set agent name: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dcom.wily.introscope.agentProfile.agent.name=%s", agentName))
 	}
 
 	// Configure Enterprise Manager host
 	if credentials.EMHost != "" {
-		hostOpt := fmt.Sprintf("-Dcom.wily.introscope.agentProfile.agent.enterpriseManager.host=%s", credentials.EMHost)
-		if err := i.appendToJavaOpts(hostOpt); err != nil {
-			i.context.Log.Warning("Failed to set EM host: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dcom.wily.introscope.agentProfile.agent.enterpriseManager.host=%s", credentials.EMHost))
 	}
 
 	// Configure Enterprise Manager port
 	if credentials.EMPort != "" {
-		portOpt := fmt.Sprintf("-Dcom.wily.introscope.agentProfile.agent.enterpriseManager.port=%s", credentials.EMPort)
-		if err := i.appendToJavaOpts(portOpt); err != nil {
-			i.context.Log.Warning("Failed to set EM port: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dcom.wily.introscope.agentProfile.agent.enterpriseManager.port=%s", credentials.EMPort))
+	}
+
+	// Write all options to .opts file
+	javaOpts := strings.Join(opts, " ")
+	if err := writeJavaOptsFile(i.context, 27, "introscope_agent", javaOpts); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS for Introscope: %w", err)
 	}
 
 	i.context.Log.Info("Introscope agent configured")
@@ -236,22 +238,3 @@ func (i *IntroscopeAgentFramework) getApplicationName() string {
 	return ""
 }
 
-// appendToJavaOpts appends a value to JAVA_OPTS
-func (i *IntroscopeAgentFramework) appendToJavaOpts(value string) error {
-	javaOptsFile := filepath.Join(i.context.Stager.DepDir(), "env", "JAVA_OPTS")
-
-	// Read existing JAVA_OPTS
-	var existingOpts string
-	if data, err := os.ReadFile(javaOptsFile); err == nil {
-		existingOpts = string(data)
-	}
-
-	// Append new value
-	if existingOpts != "" {
-		existingOpts += " "
-	}
-	existingOpts += value
-
-	// Write back
-	return i.context.Stager.WriteEnvFile(javaOptsFile, existingOpts)
-}

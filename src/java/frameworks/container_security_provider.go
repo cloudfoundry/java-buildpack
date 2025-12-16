@@ -103,11 +103,13 @@ func (c *ContainerSecurityProviderFramework) Finalize() error {
 		javaOpts += fmt.Sprintf(" -Dorg.cloudfoundry.security.trustmanager.enabled=%s", trustManagerEnabled)
 	}
 
-	// Append to JAVA_OPTS (preserves values from other frameworks)
-	if err := AppendToJavaOpts(c.context, javaOpts); err != nil {
-		return fmt.Errorf("failed to set JAVA_OPTS for Container Security Provider: %w", err)
+	// Write JAVA_OPTS to .opts file with priority 17 (Ruby buildpack line 51)
+	// This ensures Container Security Provider runs BEFORE JRebel (priority 31)
+	if err := writeJavaOptsFile(c.context, 17, "container_security", javaOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
+	c.context.Log.Info("Configured Container Security Provider for runtime (priority 17)")
 	return nil
 }
 

@@ -130,8 +130,18 @@ func (f *YourKitProfilerFramework) Finalize() error {
 	}
 	f.ctx.Log.Debug("Found YourKit agent at: %s", agentPath)
 
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(f.ctx.Stager.DepDir(), agentPath)
+	if err != nil {
+		return fmt.Errorf("failed to compute relative path: %w", err)
+	}
+	runtimeAgentPath := filepath.Join("$DEPS_DIR/0", relPath)
+
 	// Build agent options
 	// Default options: dir=<home>/yourkit, logdir=<home>/yourkit, port=10001, sessionname=<space>:<app>
+	runtimeHomeDir := "$DEPS_DIR/0/yourkit"
+
+	// Create home directory at staging time
 	homeDir := filepath.Join(f.ctx.Stager.DepDir(), "yourkit")
 	if err := os.MkdirAll(homeDir, 0755); err != nil {
 		return fmt.Errorf("failed to create yourkit directory: %w", err)
@@ -148,19 +158,16 @@ func (f *YourKitProfilerFramework) Finalize() error {
 		// For now, use default
 	}
 
-	// Build agent path with options
+	// Build agent path with options using runtime paths
 	agentOptions := fmt.Sprintf("dir=%s,logdir=%s,port=%s,sessionname=%s",
-		homeDir, homeDir, port, sessionName)
-	javaAgent := fmt.Sprintf("-agentpath:%s=%s", agentPath, agentOptions)
+		runtimeHomeDir, runtimeHomeDir, port, sessionName)
+	javaAgent := fmt.Sprintf("-agentpath:%s=%s", runtimeAgentPath, agentOptions)
 
-	// Write to profile.d script using libbuildpack's standard method
-	profileContent := fmt.Sprintf(`export JAVA_OPTS="$JAVA_OPTS %s"
-`, javaAgent)
-
-	if err := f.ctx.Stager.WriteProfileD("yourkit.sh", profileContent); err != nil {
-		return fmt.Errorf("failed to write profile script: %w", err)
+	// Write to .opts file using priority 45
+	if err := writeJavaOptsFile(f.ctx, 45, "your_kit_profiler", javaAgent); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	f.ctx.Log.Info("YourKit Profiler configured for runtime")
+	f.ctx.Log.Info("YourKit Profiler configured (priority 45)")
 	return nil
 }

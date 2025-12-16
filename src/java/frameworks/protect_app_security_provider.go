@@ -105,41 +105,35 @@ func (p *ProtectAppSecurityProviderFramework) Finalize() error {
 		return fmt.Errorf("unable to determine ProtectApp Security Provider version: %w", err)
 	}
 
-	// Find the ProtectApp JAR
-	extDir := filepath.Join(protectAppDir, "ext")
-	protectAppJar := filepath.Join(extDir, fmt.Sprintf("IngrianNAE-%s.000.jar", dep.Version))
+	// Build runtime paths
+	runtimeProtectAppDir := "$DEPS_DIR/0/protect_app_security_provider"
+	runtimeKeystorePath := filepath.Join(runtimeProtectAppDir, "nae-keystore.jks")
+	runtimeProtectAppJar := filepath.Join(runtimeProtectAppDir, "ext", fmt.Sprintf("IngrianNAE-%s.000.jar", dep.Version))
 
 	// Build Java options for ProtectApp
-	javaOpts := []string{
-		fmt.Sprintf("-Dcom.ingrian.security.nae.IngrianNAE_Properties_Conf_Filename=%s", filepath.Join(protectAppDir, "IngrianNAE.properties")),
-		fmt.Sprintf("-Dcom.ingrian.security.nae.Key_Store_Location=%s", keystorePath),
+	javaOptsSlice := []string{
+		fmt.Sprintf("-Xbootclasspath/a:%s", runtimeProtectAppJar),
+		fmt.Sprintf("-Dcom.ingrian.security.nae.IngrianNAE_Properties_Conf_Filename=%s/IngrianNAE.properties", runtimeProtectAppDir),
+		fmt.Sprintf("-Dcom.ingrian.security.nae.Key_Store_Location=%s", runtimeKeystorePath),
 		fmt.Sprintf("-Dcom.ingrian.security.nae.Key_Store_Password=%s", keystorePassword),
 	}
 
 	// Add additional properties from credentials (excluding client and trusted_certificates)
 	for key, value := range credentials {
 		if key != "client" && key != "trusted_certificates" {
-			javaOpts = append(javaOpts, fmt.Sprintf("-Dcom.ingrian.security.nae.%s=%v", key, value))
+			javaOptsSlice = append(javaOptsSlice, fmt.Sprintf("-Dcom.ingrian.security.nae.%s=%v", key, value))
 		}
 	}
 
-	// Create profile.d script to set up ProtectApp at runtime
-	profileScript := fmt.Sprintf(`#!/bin/bash
+	// Add security provider property
+	javaOptsSlice = append(javaOptsSlice, fmt.Sprintf("-Djava.security.properties=%s/java.security", runtimeProtectAppDir))
 
-# Configure ProtectApp Security Provider
+	// Combine all options
+	javaOptsStr := strings.Join(javaOptsSlice, " ")
 
-# Add ProtectApp JAR to classpath for Java 9+
-export JAVA_OPTS="${JAVA_OPTS} -Xbootclasspath/a:%s"
-
-# Add ProtectApp configuration
-export JAVA_OPTS="${JAVA_OPTS} %s"
-
-# Add security provider
-export JAVA_OPTS="${JAVA_OPTS} -Djava.security.properties=%s"
-`, protectAppJar, strings.Join(javaOpts, " "), filepath.Join(protectAppDir, "java.security"))
-
-	if err := p.context.Stager.WriteProfileD("protect_app_security_provider.sh", profileScript); err != nil {
-		return fmt.Errorf("failed to write ProtectApp profile.d script: %w", err)
+	// Write to .opts file using priority 38
+	if err := writeJavaOptsFile(p.context, 38, "protect_app_security_provider", javaOptsStr); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
 	// Write java.security file with ProtectApp security provider

@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // SplunkOtelJavaAgentFramework represents the Splunk Distribution of OpenTelemetry Java agent framework
@@ -111,46 +112,44 @@ func (s *SplunkOtelJavaAgentFramework) Finalize() error {
 
 	s.context.Log.BeginStep("Configuring Splunk OTEL Java agent")
 
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(s.context.Stager.DepDir(), s.jarPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for Splunk OTEL Java agent: %w", err)
+	}
+	runtimeJarPath := filepath.Join("$DEPS_DIR/0", relPath)
+
 	// Get credentials from service binding
 	credentials := s.getCredentials()
 
-	// Add javaagent to JAVA_OPTS
-	javaagentOpt := fmt.Sprintf("-javaagent:%s", s.jarPath)
-	if err := s.appendToJavaOpts(javaagentOpt); err != nil {
-		s.context.Log.Warning("Failed to add Splunk OTEL Java agent to JAVA_OPTS: %s", err)
-		return nil
-	}
+	// Build all JAVA_OPTS options
+	var opts []string
+	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
 
 	// Configure service name
 	if appName := s.getApplicationName(); appName != "" {
-		nameOpt := fmt.Sprintf("-Dotel.service.name=%s", appName)
-		if err := s.appendToJavaOpts(nameOpt); err != nil {
-			s.context.Log.Warning("Failed to set service name: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dotel.service.name=%s", appName))
 	}
 
 	// Configure OTLP endpoint
 	if credentials.OTLPEndpoint != "" {
-		endpointOpt := fmt.Sprintf("-Dotel.exporter.otlp.endpoint=%s", credentials.OTLPEndpoint)
-		if err := s.appendToJavaOpts(endpointOpt); err != nil {
-			s.context.Log.Warning("Failed to set OTLP endpoint: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dotel.exporter.otlp.endpoint=%s", credentials.OTLPEndpoint))
 	}
 
 	// Configure access token
 	if credentials.AccessToken != "" {
-		tokenOpt := fmt.Sprintf("-Dsplunk.access.token=%s", credentials.AccessToken)
-		if err := s.appendToJavaOpts(tokenOpt); err != nil {
-			s.context.Log.Warning("Failed to set access token: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dsplunk.access.token=%s", credentials.AccessToken))
 	}
 
 	// Configure realm
 	if credentials.Realm != "" {
-		realmOpt := fmt.Sprintf("-Dsplunk.realm=%s", credentials.Realm)
-		if err := s.appendToJavaOpts(realmOpt); err != nil {
-			s.context.Log.Warning("Failed to set realm: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dsplunk.realm=%s", credentials.Realm))
+	}
+
+	// Write all options to .opts file
+	javaOpts := strings.Join(opts, " ")
+	if err := writeJavaOptsFile(s.context, 42, "splunk_otel_java_agent", javaOpts); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS for Splunk OTEL: %w", err)
 	}
 
 	s.context.Log.Info("Splunk OTEL Java agent configured")
@@ -252,22 +251,3 @@ func (s *SplunkOtelJavaAgentFramework) getApplicationName() string {
 	return ""
 }
 
-// appendToJavaOpts appends a value to JAVA_OPTS
-func (s *SplunkOtelJavaAgentFramework) appendToJavaOpts(value string) error {
-	javaOptsFile := filepath.Join(s.context.Stager.DepDir(), "env", "JAVA_OPTS")
-
-	// Read existing JAVA_OPTS
-	var existingOpts string
-	if data, err := os.ReadFile(javaOptsFile); err == nil {
-		existingOpts = string(data)
-	}
-
-	// Append new value
-	if existingOpts != "" {
-		existingOpts += " "
-	}
-	existingOpts += value
-
-	// Write back
-	return s.context.Stager.WriteEnvFile(javaOptsFile, existingOpts)
-}

@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // CheckmarxIASTAgentFramework represents the Checkmarx IAST agent framework
@@ -92,30 +93,34 @@ func (c *CheckmarxIASTAgentFramework) Finalize() error {
 
 	c.context.Log.BeginStep("Configuring Checkmarx IAST agent")
 
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(c.context.Stager.DepDir(), c.jarPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for Checkmarx IAST agent: %w", err)
+	}
+	runtimeJarPath := filepath.Join("$DEPS_DIR/0", relPath)
+
+	// Build all JAVA_OPTS options
+	var opts []string
+	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
+
 	// Get credentials
 	credentials := c.getCredentials()
 
-	// Add javaagent to JAVA_OPTS
-	javaagentOpt := fmt.Sprintf("-javaagent:%s", c.jarPath)
-	if err := c.appendToJavaOpts(javaagentOpt); err != nil {
-		c.context.Log.Warning("Failed to add Checkmarx IAST agent to JAVA_OPTS: %s", err)
-		return nil
-	}
-
 	// Set Checkmarx manager URL if available
 	if credentials.ManagerURL != "" {
-		managerOpt := fmt.Sprintf("-Dcheckmarx.manager.url=%s", credentials.ManagerURL)
-		if err := c.appendToJavaOpts(managerOpt); err != nil {
-			c.context.Log.Warning("Failed to set Checkmarx manager URL: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dcheckmarx.manager.url=%s", credentials.ManagerURL))
 	}
 
 	// Set API key if available
 	if credentials.APIKey != "" {
-		apiKeyOpt := fmt.Sprintf("-Dcheckmarx.api.key=%s", credentials.APIKey)
-		if err := c.appendToJavaOpts(apiKeyOpt); err != nil {
-			c.context.Log.Warning("Failed to set Checkmarx API key: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dcheckmarx.api.key=%s", credentials.APIKey))
+	}
+
+	// Write all options to .opts file
+	javaOpts := strings.Join(opts, " ")
+	if err := writeJavaOptsFile(c.context, 14, "checkmarx_iast_agent", javaOpts); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS for Checkmarx IAST: %w", err)
 	}
 
 	c.context.Log.Info("Checkmarx IAST agent configured")
@@ -202,24 +207,4 @@ func (c *CheckmarxIASTAgentFramework) downloadAgent(url, destPath string) error 
 	}
 
 	return nil
-}
-
-// appendToJavaOpts appends a value to JAVA_OPTS
-func (c *CheckmarxIASTAgentFramework) appendToJavaOpts(value string) error {
-	javaOptsFile := filepath.Join(c.context.Stager.DepDir(), "env", "JAVA_OPTS")
-
-	// Read existing JAVA_OPTS
-	var existingOpts string
-	if data, err := os.ReadFile(javaOptsFile); err == nil {
-		existingOpts = string(data)
-	}
-
-	// Append new value
-	if existingOpts != "" {
-		existingOpts += " "
-	}
-	existingOpts += value
-
-	// Write back
-	return c.context.Stager.WriteEnvFile(javaOptsFile, existingOpts)
 }

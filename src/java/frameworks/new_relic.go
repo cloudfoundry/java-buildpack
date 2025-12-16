@@ -143,17 +143,11 @@ func (n *NewRelicFramework) Finalize() error {
 		}
 	}
 
-	// Append to JAVA_OPTS (preserves values from other frameworks)
-	if err := AppendToJavaOpts(n.context, javaOpts); err != nil {
-		return fmt.Errorf("failed to set JAVA_OPTS for New Relic: %w", err)
+	// Write to .opts file using priority 35
+	if err := writeJavaOptsFile(n.context, 35, "new_relic", javaOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	n.context.Log.Info("Installed New Relic Agent version %s", dep.Version)
-	return nil
-}
-
-// Finalize performs final New Relic configuration
-func (n *NewRelicFramework) Finalize() error {
-	// New Relic doesn't require finalization
+	n.context.Log.Info("New Relic Agent configured (priority 35)")
 	return nil
 }

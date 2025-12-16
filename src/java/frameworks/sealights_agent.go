@@ -112,8 +112,8 @@ func (f *SealightsAgentFramework) Finalize() error {
 
 			if _, err := os.Stat(agentPath); err != nil {
 				return fmt.Errorf("sealights test-listener JAR not found in %s: %w", installDir, err)
+			}
 		}
-	}
 	}
 
 	// Convert staging path to runtime path
@@ -163,24 +163,26 @@ func (f *SealightsAgentFramework) Finalize() error {
 		systemProps += fmt.Sprintf(" -Dsl.log.level=%s", logLevel)
 	}
 
-	// Set log folder to deps directory
+	// Set log folder to runtime deps directory
+	systemProps += " -Dsl.log.folder=$DEPS_DIR/0/sealights_logs"
+
+	// Build javaagent argument
+	javaAgent := fmt.Sprintf("-javaagent:%s", runtimeAgentPath)
+
+	// Combine javaagent and system properties
+	javaOpts := fmt.Sprintf("%s %s", javaAgent, systemProps)
+
+	// Write to .opts file using priority 39
+	if err := writeJavaOptsFile(f.ctx, 39, "sealights_agent", javaOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
+	}
+
+	// Create log directory at staging time
 	logFolder := filepath.Join(f.ctx.Stager.DepDir(), "sealights_logs")
 	if err := os.MkdirAll(logFolder, 0755); err != nil {
 		return fmt.Errorf("failed to create log directory: %w", err)
 	}
-	systemProps += fmt.Sprintf(" -Dsl.log.folder=%s", logFolder)
 
-	// Build javaagent argument
-	javaAgent := fmt.Sprintf("-javaagent:%s", agentPath)
-
-	// Write to profile.d script using libbuildpack's standard method
-	profileContent := fmt.Sprintf(`export JAVA_OPTS="$JAVA_OPTS %s %s"
-`, javaAgent, systemProps)
-
-	if err := f.ctx.Stager.WriteProfileD("sealights.sh", profileContent); err != nil {
-		return fmt.Errorf("failed to write profile script: %w", err)
-	}
-
-	f.ctx.Log.Info("Sealights Agent configured for runtime")
+	f.ctx.Log.Info("Sealights Agent configured (priority 39)")
 	return nil
 }

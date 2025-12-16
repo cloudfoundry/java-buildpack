@@ -164,6 +164,13 @@ func (f *Finalizer) finalizeFrameworks() error {
 		}
 	}
 
+	// After all frameworks have written their .opts files, create the centralized assembly script
+	// This script reads all .opts files in priority order and assembles JAVA_OPTS at runtime
+	if err := frameworks.CreateJavaOptsAssemblyScript(ctx); err != nil {
+		f.Log.Warning("Failed to create JAVA_OPTS assembly script: %s", err.Error())
+		// Don't fail the build, but this means JAVA_OPTS won't be assembled
+	}
+
 	return nil
 }
 

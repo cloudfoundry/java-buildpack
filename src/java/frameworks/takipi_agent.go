@@ -97,6 +97,13 @@ func (f *TakipiAgentFramework) Finalize() error {
 		return fmt.Errorf("takipi agent not found at %s: %w", agentPath, err)
 	}
 
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(f.ctx.Stager.DepDir(), agentPath)
+	if err != nil {
+		return fmt.Errorf("failed to compute relative path: %w", err)
+	}
+	runtimeAgentPath := filepath.Join("$DEPS_DIR/0", relPath)
+
 	// Get service credentials
 	vcapServices, err := GetVCAPServices()
 	if err != nil {
@@ -117,7 +124,7 @@ func (f *TakipiAgentFramework) Finalize() error {
 	}
 
 	// Add agent to JAVA_OPTS
-	javaOpts := fmt.Sprintf("-agentpath:%s", agentPath)
+	javaOpts := fmt.Sprintf("-agentpath:%s", runtimeAgentPath)
 
 	// Get application name from VCAP_APPLICATION
 	appName := os.Getenv("VCAP_APPLICATION")
@@ -130,14 +137,19 @@ func (f *TakipiAgentFramework) Finalize() error {
 	// Add Java 9+ options if needed
 	javaOpts += " -Xshare:off -XX:-UseTypeSpeculation"
 
-	// Set environment variables
-	libPath := filepath.Join(installDir, "lib")
+	// Write to .opts file using priority 46
+	if err := writeJavaOptsFile(f.ctx, 46, "takipi", javaOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
+	}
 
-	profileContent := fmt.Sprintf(`export JAVA_OPTS="$JAVA_OPTS %s"
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%s"
+	// Set environment variables via profile.d (LD_LIBRARY_PATH and Takipi-specific vars)
+	libPath := "$DEPS_DIR/0/takipi/lib"
+	runtimeInstallDir := "$DEPS_DIR/0/takipi"
+
+	profileContent := fmt.Sprintf(`export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%s"
 export TAKIPI_HOME="%s"
 export TAKIPI_MACHINE_NAME="node-$CF_INSTANCE_INDEX"
-`, javaOpts, libPath, installDir)
+`, libPath, runtimeInstallDir)
 
 	// Add service credentials as environment variables
 	if service != nil {
@@ -156,6 +168,6 @@ export TAKIPI_MACHINE_NAME="node-$CF_INSTANCE_INDEX"
 		return fmt.Errorf("failed to write profile script: %w", err)
 	}
 
-	f.ctx.Log.Info("Takipi Agent configured for runtime")
+	f.ctx.Log.Info("Takipi Agent configured (priority 46)")
 	return nil
 }

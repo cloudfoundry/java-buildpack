@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // AzureApplicationInsightsAgentFramework represents the Azure Application Insights Java agent framework
@@ -116,36 +117,37 @@ func (a *AzureApplicationInsightsAgentFramework) Finalize() error {
 
 	a.context.Log.BeginStep("Configuring Azure Application Insights agent")
 
-	// Add javaagent to JAVA_OPTS
-	javaagentOpt := fmt.Sprintf("-javaagent:%s", a.jarPath)
-	if err := a.appendToJavaOpts(javaagentOpt); err != nil {
-		a.context.Log.Warning("Failed to add Azure Application Insights agent to JAVA_OPTS: %s", err)
-		return nil
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(a.context.Stager.DepDir(), a.jarPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for Azure Application Insights agent: %w", err)
 	}
+	runtimeJarPath := filepath.Join("$DEPS_DIR/0", relPath)
+
+	// Build all JAVA_OPTS options
+	var opts []string
+	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
 
 	// Get credentials from service binding or environment
 	credentials := a.getCredentials()
 
 	// Set connection string if available
 	if credentials.ConnectionString != "" {
-		connOpt := fmt.Sprintf("-Dapplicationinsights.connection.string=%s", credentials.ConnectionString)
-		if err := a.appendToJavaOpts(connOpt); err != nil {
-			a.context.Log.Warning("Failed to set connection string: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dapplicationinsights.connection.string=%s", credentials.ConnectionString))
 	} else if credentials.InstrumentationKey != "" {
 		// Fallback to instrumentation key
-		keyOpt := fmt.Sprintf("-Dapplicationinsights.instrumentation-key=%s", credentials.InstrumentationKey)
-		if err := a.appendToJavaOpts(keyOpt); err != nil {
-			a.context.Log.Warning("Failed to set instrumentation key: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dapplicationinsights.instrumentation-key=%s", credentials.InstrumentationKey))
 	}
 
 	// Set cloud role name (application name)
 	if appName := a.getApplicationName(); appName != "" {
-		roleOpt := fmt.Sprintf("-Dapplicationinsights.role.name=%s", appName)
-		if err := a.appendToJavaOpts(roleOpt); err != nil {
-			a.context.Log.Warning("Failed to set cloud role name: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dapplicationinsights.role.name=%s", appName))
+	}
+
+	// Write all options to .opts file
+	javaOpts := strings.Join(opts, " ")
+	if err := writeJavaOptsFile(a.context, 13, "azure_application_insights_agent", javaOpts); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS for Azure Application Insights: %w", err)
 	}
 
 	a.context.Log.Info("Azure Application Insights agent configured")
@@ -218,26 +220,6 @@ func (a *AzureApplicationInsightsAgentFramework) getCredentials() AzureCredentia
 	}
 
 	return creds
-}
-
-// appendToJavaOpts appends a value to JAVA_OPTS
-func (a *AzureApplicationInsightsAgentFramework) appendToJavaOpts(value string) error {
-	javaOptsFile := filepath.Join(a.context.Stager.DepDir(), "env", "JAVA_OPTS")
-
-	// Read existing JAVA_OPTS
-	var existingOpts string
-	if data, err := os.ReadFile(javaOptsFile); err == nil {
-		existingOpts = string(data)
-	}
-
-	// Append new value
-	if existingOpts != "" {
-		existingOpts += " "
-	}
-	existingOpts += value
-
-	// Write back
-	return a.context.Stager.WriteEnvFile(javaOptsFile, existingOpts)
 }
 
 // getApplicationName returns the application name from VCAP_APPLICATION

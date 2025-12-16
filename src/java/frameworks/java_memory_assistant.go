@@ -85,18 +85,12 @@ func (j *JavaMemoryAssistantFramework) Finalize() error {
 	// Construct javaagent argument
 	javaagentArg := fmt.Sprintf("-javaagent:%s=%s", runtimeAgentPath, agentConfig)
 
-	// Add to JAVA_OPTS via profile.d script
-	profileScript := fmt.Sprintf(`# Java Memory Assistant Framework
-export JAVA_OPTS="$JAVA_OPTS %s"
-`, javaagentArg)
-
-	if err := j.context.Stager.WriteProfileD("java_memory_assistant.sh", profileScript); err != nil {
-		return fmt.Errorf("failed to write java_memory_assistant.sh profile.d script: %w", err)
+	// Write to .opts file using priority 28
+	if err := writeJavaOptsFile(j.context, 28, "java_memory_assistant", javaagentArg); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	j.context.Log.Info("Configured Java Memory Assistant agent")
-	j.context.Log.Debug("Agent will be loaded with: %s", javaagentArg)
-
+	j.context.Log.Info("Java Memory Assistant configured (priority 28)")
 	return nil
 }
 

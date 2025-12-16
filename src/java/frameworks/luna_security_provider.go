@@ -82,10 +82,8 @@ func (l *LunaSecurityProviderFramework) Supply() error {
 
 // Finalize configures the Luna security provider for runtime
 func (l *LunaSecurityProviderFramework) Finalize() error {
-	lunaDir := filepath.Join(l.context.Stager.DepDir(), "luna_security_provider")
-
-	// Set ChrystokiConfigurationPath environment variable
-	if err := l.context.Stager.WriteEnvFile("ChrystokiConfigurationPath", lunaDir); err != nil {
+	// Set ChrystokiConfigurationPath environment variable with runtime path
+	if err := l.context.Stager.WriteEnvFile("ChrystokiConfigurationPath", "$DEPS_DIR/0/luna_security_provider"); err != nil {
 		return fmt.Errorf("failed to set ChrystokiConfigurationPath: %w", err)
 	}
 
@@ -96,16 +94,14 @@ func (l *LunaSecurityProviderFramework) Finalize() error {
 		javaVersion = 8
 	}
 
+	var javaOpts string
 	if javaVersion >= 9 {
 		// Java 9+: Add to bootstrap classpath and set LD_LIBRARY_PATH
-		lunaProviderJar := filepath.Join(lunaDir, "jsp", "LunaProvider.jar")
-		ldLibPath := filepath.Join(lunaDir, "jsp", "64")
+		lunaProviderJar := "$DEPS_DIR/0/luna_security_provider/jsp/LunaProvider.jar"
+		ldLibPath := "$DEPS_DIR/0/luna_security_provider/jsp/64"
 
-		// Append to JAVA_OPTS (preserves values from other frameworks)
-		javaOpts := fmt.Sprintf("-Xbootclasspath/a:%s", lunaProviderJar)
-		if err := AppendToJavaOpts(l.context, javaOpts); err != nil {
-			return fmt.Errorf("failed to set JAVA_OPTS for Luna Security Provider: %w", err)
-		}
+		// Build JAVA_OPTS with runtime path
+		javaOpts = fmt.Sprintf("-Xbootclasspath/a:%s", lunaProviderJar)
 
 		// Set LD_LIBRARY_PATH for native library loading
 		existingLdPath := os.Getenv("LD_LIBRARY_PATH")
@@ -119,14 +115,16 @@ func (l *LunaSecurityProviderFramework) Finalize() error {
 		}
 	} else {
 		// Java 8: Use extension directory
-		extDir := filepath.Join(lunaDir, "ext")
-		javaOpts := fmt.Sprintf("-Djava.ext.dirs=%s:$JAVA_HOME/jre/lib/ext:$JAVA_HOME/lib/ext", extDir)
-
-		if err := AppendToJavaOpts(l.context, javaOpts); err != nil {
-			return fmt.Errorf("failed to set JAVA_OPTS for Luna Security Provider: %w", err)
-		}
+		extDir := "$DEPS_DIR/0/luna_security_provider/ext"
+		javaOpts = fmt.Sprintf("-Djava.ext.dirs=%s:$JAVA_HOME/jre/lib/ext:$JAVA_HOME/lib/ext", extDir)
 	}
 
+	// Write to .opts file using priority 32
+	if err := writeJavaOptsFile(l.context, 32, "luna_security_provider", javaOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
+	}
+
+	l.context.Log.Info("Luna Security Provider configured (priority 32)")
 	return nil
 }
 

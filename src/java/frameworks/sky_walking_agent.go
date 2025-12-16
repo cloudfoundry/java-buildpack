@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // SkyWalkingAgentFramework represents the Apache SkyWalking agent framework
@@ -98,31 +99,35 @@ func (s *SkyWalkingAgentFramework) Finalize() error {
 
 	s.context.Log.BeginStep("Configuring SkyWalking agent")
 
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(s.context.Stager.DepDir(), s.jarPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for SkyWalking agent: %w", err)
+	}
+	runtimeJarPath := filepath.Join("$DEPS_DIR/0", relPath)
+
 	// Get credentials from service binding
 	credentials := s.getCredentials()
 
-	// Add javaagent to JAVA_OPTS
-	javaagentOpt := fmt.Sprintf("-javaagent:%s", s.jarPath)
-	if err := s.appendToJavaOpts(javaagentOpt); err != nil {
-		s.context.Log.Warning("Failed to add SkyWalking agent to JAVA_OPTS: %s", err)
-		return nil
-	}
+	// Build all JAVA_OPTS options
+	var opts []string
+	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
 
 	// Configure application name (default to space:application_name)
 	appName := s.getApplicationName()
 	if appName != "" {
-		nameOpt := fmt.Sprintf("-Dskywalking.agent.service_name=%s", appName)
-		if err := s.appendToJavaOpts(nameOpt); err != nil {
-			s.context.Log.Warning("Failed to set service name: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dskywalking.agent.service_name=%s", appName))
 	}
 
 	// Configure collector backend services
 	if credentials.CollectorBackendServices != "" {
-		backendOpt := fmt.Sprintf("-Dskywalking.collector.backend_service=%s", credentials.CollectorBackendServices)
-		if err := s.appendToJavaOpts(backendOpt); err != nil {
-			s.context.Log.Warning("Failed to set collector backend services: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Dskywalking.collector.backend_service=%s", credentials.CollectorBackendServices))
+	}
+
+	// Write all options to .opts file
+	javaOpts := strings.Join(opts, " ")
+	if err := writeJavaOptsFile(s.context, 41, "sky_walking_agent", javaOpts); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS for SkyWalking: %w", err)
 	}
 
 	s.context.Log.Info("SkyWalking agent configured")
@@ -215,22 +220,3 @@ func (s *SkyWalkingAgentFramework) getApplicationName() string {
 	return ""
 }
 
-// appendToJavaOpts appends a value to JAVA_OPTS
-func (s *SkyWalkingAgentFramework) appendToJavaOpts(value string) error {
-	javaOptsFile := filepath.Join(s.context.Stager.DepDir(), "env", "JAVA_OPTS")
-
-	// Read existing JAVA_OPTS
-	var existingOpts string
-	if data, err := os.ReadFile(javaOptsFile); err == nil {
-		existingOpts = string(data)
-	}
-
-	// Append new value
-	if existingOpts != "" {
-		existingOpts += " "
-	}
-	existingOpts += value
-
-	// Write back
-	return s.context.Stager.WriteEnvFile(javaOptsFile, existingOpts)
-}

@@ -64,9 +64,9 @@ func (d *DebugFramework) Finalize() error {
 
 	debugOpts := fmt.Sprintf("-agentlib:jdwp=transport=dt_socket,server=y,address=%d,suspend=%s", port, suspendValue)
 
-	// Append to JAVA_OPTS (preserves values from other frameworks)
-	if err := AppendToJavaOpts(d.context, debugOpts); err != nil {
-		return fmt.Errorf("failed to set JAVA_OPTS for debugging: %w", err)
+	// Write JAVA_OPTS to .opts file with priority 20 (Ruby buildpack line 54)
+	if err := writeJavaOptsFile(d.context, 20, "debug", debugOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
 	return nil

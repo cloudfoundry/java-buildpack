@@ -48,9 +48,9 @@ func (a *AspectJWeaverAgentFramework) Detect() (string, error) {
 	return "", nil
 }
 
-// Supply does nothing for AspectJ Weaver - the JAR is already in the application
+// Supply phase - nothing to install for AspectJ (app-provided JAR)
 func (a *AspectJWeaverAgentFramework) Supply() error {
-	a.context.Log.Info("AspectJ Weaver Agent detected (using application-provided JAR)")
+	a.context.Log.Info("AspectJ Weaver Agent detected - using application-provided JAR")
 	return nil
 }
 
@@ -58,7 +58,7 @@ func (a *AspectJWeaverAgentFramework) Supply() error {
 func (a *AspectJWeaverAgentFramework) Finalize() error {
 	a.context.Log.Info("Configuring AspectJ Weaver Agent")
 
-	// Re-detect JAR if not set (separate finalize instance)
+	// Find JAR if not set (separate finalize instance)
 	if a.aspectjJar == "" {
 		jar, err := a.findAspectJWeaver()
 		if err != nil || jar == "" {
@@ -68,20 +68,28 @@ func (a *AspectJWeaverAgentFramework) Finalize() error {
 		a.aspectjJar = jar
 	}
 
-	// Verify JAR exists
+	// Verify JAR exists at staging time
 	if _, err := os.Stat(a.aspectjJar); err != nil {
 		a.context.Log.Warning("AspectJ Weaver JAR not found: %s", a.aspectjJar)
 		return nil
 	}
 
-	// Append javaagent to JAVA_OPTS (preserves values from other frameworks)
-	javaOpts := fmt.Sprintf("-javaagent:%s", a.aspectjJar)
-	if err := AppendToJavaOpts(a.context, javaOpts); err != nil {
-		a.context.Log.Warning("Failed to set JAVA_OPTS for AspectJ Weaver: %s", err)
-		return nil
+	// Build runtime path using $HOME
+	relPath, err := filepath.Rel(a.context.Stager.BuildDir(), a.aspectjJar)
+	if err != nil {
+		return fmt.Errorf("failed to compute relative path: %w", err)
+	}
+	runtimeJarPath := filepath.Join("$HOME", relPath)
+
+	// Build JAVA_OPTS with javaagent using runtime path
+	javaOpts := fmt.Sprintf("-javaagent:%s", runtimeJarPath)
+
+	// Write JAVA_OPTS to .opts file with priority 12 (Ruby buildpack line 46)
+	if err := writeJavaOptsFile(a.context, 12, "aspectj_weaver", javaOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	a.context.Log.Info("AspectJ Weaver Agent configured successfully")
+	a.context.Log.Info("AspectJ Weaver Agent configured successfully (priority 12)")
 	return nil
 }
 

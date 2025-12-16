@@ -2,6 +2,7 @@ package jres_test
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -343,27 +344,27 @@ IMPLEMENTOR="Eclipse Adoptium"`
 	})
 
 	Describe("WriteJavaOpts", func() {
-		It("writes JAVA_OPTS to profile.d script", func() {
+		It("writes JAVA_OPTS to .opts file with priority 05", func() {
 			opts := "-Xmx512m -Xms256m"
 			err := jres.WriteJavaOpts(ctx, opts)
 			Expect(err).NotTo(HaveOccurred())
 
-			profileScript := buildDir + "/.profile.d/java_opts.sh"
-			Expect(profileScript).To(BeAnExistingFile())
+			// Check that .opts file was created in deps/0/java_opts/05_jre.opts
+			optsFile := filepath.Join(depsDir, "0", "java_opts", "05_jre.opts")
+			Expect(optsFile).To(BeAnExistingFile())
 
-			content, err := os.ReadFile(profileScript)
+			content, err := os.ReadFile(optsFile)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(string(content)).To(ContainSubstring(opts))
-			Expect(string(content)).To(ContainSubstring("export JAVA_OPTS="))
 		})
 
-		It("creates directory if it doesn't exist", func() {
+		It("creates java_opts directory if it doesn't exist", func() {
 			opts := "-verbose:gc"
 			err := jres.WriteJavaOpts(ctx, opts)
 			Expect(err).NotTo(HaveOccurred())
 
-			profileScript := buildDir + "/.profile.d/java_opts.sh"
-			Expect(profileScript).To(BeAnExistingFile())
+			optsFile := filepath.Join(depsDir, "0", "java_opts", "05_jre.opts")
+			Expect(optsFile).To(BeAnExistingFile())
 		})
 	})
 })

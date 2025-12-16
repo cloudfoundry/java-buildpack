@@ -40,7 +40,7 @@ func (j *JmxFramework) Supply() error {
 	return nil
 }
 
-// Finalize adds JMX options to JAVA_OPTS
+// Finalize adds JMX options to JAVA_OPTS via profile.d script
 func (j *JmxFramework) Finalize() error {
 	if !j.isEnabled() {
 		return nil
@@ -58,9 +58,9 @@ func (j *JmxFramework) Finalize() error {
 		port, port,
 	)
 
-	// Append to JAVA_OPTS (preserves values from other frameworks)
-	if err := AppendToJavaOpts(j.context, jmxOpts); err != nil {
-		return fmt.Errorf("failed to set JAVA_OPTS for JMX: %w", err)
+	// Write JAVA_OPTS to .opts file with priority 29 (Ruby buildpack line 63)
+	if err := writeJavaOptsFile(j.context, 29, "jmx", jmxOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
 	return nil

@@ -62,7 +62,7 @@ func (j *JRebelAgentFramework) Supply() error {
 		// Try flat path (older versions)
 		j.agentLibPath = filepath.Join(frameworkDir, "lib", "libjrebel64.so")
 		if _, err := os.Stat(j.agentLibPath); err != nil {
-		j.agentLibPath = filepath.Join(frameworkDir, "libjrebel64.so")
+			j.agentLibPath = filepath.Join(frameworkDir, "libjrebel64.so")
 		}
 	}
 
@@ -83,7 +83,7 @@ func (j *JRebelAgentFramework) Finalize() error {
 			// Try flat path (older versions)
 			j.agentLibPath = filepath.Join(frameworkDir, "lib", "libjrebel64.so")
 			if _, err := os.Stat(j.agentLibPath); err != nil {
-			j.agentLibPath = filepath.Join(frameworkDir, "libjrebel64.so")
+				j.agentLibPath = filepath.Join(frameworkDir, "libjrebel64.so")
 			}
 		}
 	}
@@ -103,5 +103,14 @@ func (j *JRebelAgentFramework) Finalize() error {
 		return nil
 	}
 	runtimeAgentPath := fmt.Sprintf("$DEPS_DIR/0/jrebel/%s", relPath)
+
+	// Write JAVA_OPTS to .opts file with priority 31 (Ruby buildpack line 65)
+	// This ensures JRebel runs AFTER Container Security Provider (priority 17)
+	javaOpts := fmt.Sprintf("-agentpath:%s", runtimeAgentPath)
+	if err := writeJavaOptsFile(j.context, 31, "jrebel", javaOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
+	}
+
+	j.context.Log.Info("JRebel Agent configured successfully (priority 31)")
 	return nil
 }

@@ -95,28 +95,36 @@ func (e *ElasticApmAgentFramework) Finalize() error {
 
 	e.context.Log.BeginStep("Configuring Elastic APM agent")
 
+	// Convert staging paths to runtime paths
+	relJarPath, err := filepath.Rel(e.context.Stager.DepDir(), e.jarPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for Elastic APM agent: %w", err)
+	}
+	runtimeJarPath := filepath.Join("$DEPS_DIR/0", relJarPath)
+	runtimeHomeDir := "$DEPS_DIR/0/elastic_apm_agent"
+
 	// Build configuration map
 	config := e.buildConfiguration()
 
-	// Write configuration as system properties to JAVA_OPTS
+	// Build all JAVA_OPTS options
+	var opts []string
+
+	// Add configuration as system properties
 	for key, value := range config {
 		sysProp := e.formatSystemProperty(key, value)
-		if err := e.appendToJavaOpts(sysProp); err != nil {
-			e.context.Log.Warning("Failed to add Elastic APM config %s: %s", key, err)
-		}
+		opts = append(opts, sysProp)
 	}
 
 	// Add javaagent
-	elasticDir := filepath.Join(e.context.Stager.DepDir(), "elastic_apm_agent")
-	javaagentOpt := fmt.Sprintf("-javaagent:%s", e.jarPath)
-	if err := e.appendToJavaOpts(javaagentOpt); err != nil {
-		e.context.Log.Warning("Failed to add Elastic APM agent to JAVA_OPTS: %s", err)
-	}
+	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
 
 	// Add elastic.apm.home system property
-	homeOpt := fmt.Sprintf("-Delastic.apm.home=%s", elasticDir)
-	if err := e.appendToJavaOpts(homeOpt); err != nil {
-		e.context.Log.Warning("Failed to set elastic.apm.home: %s", err)
+	opts = append(opts, fmt.Sprintf("-Delastic.apm.home=%s", runtimeHomeDir))
+
+	// Write all options to .opts file
+	javaOpts := strings.Join(opts, " ")
+	if err := writeJavaOptsFile(e.context, 19, "elastic_apm_agent", javaOpts); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS for Elastic APM: %w", err)
 	}
 
 	e.context.Log.Info("Elastic APM agent configured")
@@ -242,26 +250,6 @@ func shellEscape(s string) string {
 	// Otherwise, single-quote and escape single quotes
 	escaped := strings.ReplaceAll(s, "'", `'"'"'`)
 	return fmt.Sprintf("'%s'", escaped)
-}
-
-// appendToJavaOpts appends a value to JAVA_OPTS
-func (e *ElasticApmAgentFramework) appendToJavaOpts(value string) error {
-	javaOptsFile := filepath.Join(e.context.Stager.DepDir(), "env", "JAVA_OPTS")
-
-	// Read existing JAVA_OPTS
-	var existingOpts string
-	if data, err := os.ReadFile(javaOptsFile); err == nil {
-		existingOpts = string(data)
-	}
-
-	// Append new value
-	if existingOpts != "" {
-		existingOpts += " "
-	}
-	existingOpts += value
-
-	// Write back
-	return e.context.Stager.WriteEnvFile(javaOptsFile, existingOpts)
 }
 
 // getApplicationName returns the application name from VCAP_APPLICATION

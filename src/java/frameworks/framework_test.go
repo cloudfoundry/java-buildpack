@@ -898,11 +898,12 @@ func TestJavaOptsLegacyFormat(t *testing.T) {
 		t.Fatalf("Expected no error from Finalize(), got: %v", err)
 	}
 
-	// Read the JAVA_OPTS env file (written to depsDir/0/env/JAVA_OPTS)
-	envFile := filepath.Join(depsDir, "0", "env", "JAVA_OPTS")
-	data, err := os.ReadFile(envFile)
+	// Read the JAVA_OPTS .opts file (written to depsDir/0/java_opts/99_user_java_opts.opts)
+	// With the new centralized JAVA_OPTS assembly, opts are written to .opts files
+	optsFile := filepath.Join(depsDir, "0", "java_opts", "99_user_java_opts.opts")
+	data, err := os.ReadFile(optsFile)
 	if err != nil {
-		t.Fatalf("Failed to read JAVA_OPTS env file: %v", err)
+		t.Fatalf("Failed to read JAVA_OPTS .opts file: %v", err)
 	}
 
 	javaOpts := string(data)

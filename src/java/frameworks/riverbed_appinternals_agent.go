@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // RiverbedAppInternalsAgentFramework represents the Riverbed AppInternals agent framework
@@ -80,15 +81,19 @@ func (r *RiverbedAppInternalsAgentFramework) Finalize() error {
 
 	r.context.Log.BeginStep("Configuring Riverbed AppInternals agent")
 
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(r.context.Stager.DepDir(), r.agentPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for Riverbed AppInternals agent: %w", err)
+	}
+	runtimeJarPath := filepath.Join("$DEPS_DIR/0", relPath)
+
 	// Get credentials from service binding
 	credentials := r.getCredentials()
 
-	// Add javaagent to JAVA_OPTS
-	javaagentOpt := fmt.Sprintf("-javaagent:%s", r.agentPath)
-	if err := r.appendToJavaOpts(javaagentOpt); err != nil {
-		r.context.Log.Warning("Failed to add Riverbed AppInternals agent to JAVA_OPTS: %s", err)
-		return nil
-	}
+	// Build all JAVA_OPTS options
+	var opts []string
+	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
 
 	// Configure moniker (application name)
 	moniker := credentials.Moniker
@@ -96,18 +101,18 @@ func (r *RiverbedAppInternalsAgentFramework) Finalize() error {
 		moniker = r.getApplicationName()
 	}
 	if moniker != "" {
-		monikerOpt := fmt.Sprintf("-Drvbd.moniker=%s", moniker)
-		if err := r.appendToJavaOpts(monikerOpt); err != nil {
-			r.context.Log.Warning("Failed to set moniker: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Drvbd.moniker=%s", moniker))
 	}
 
 	// Configure analysis server
 	if credentials.AnalysisServer != "" {
-		serverOpt := fmt.Sprintf("-Drvbd.analysis.server=%s", credentials.AnalysisServer)
-		if err := r.appendToJavaOpts(serverOpt); err != nil {
-			r.context.Log.Warning("Failed to set analysis server: %s", err)
-		}
+		opts = append(opts, fmt.Sprintf("-Drvbd.analysis.server=%s", credentials.AnalysisServer))
+	}
+
+	// Write all options to .opts file
+	javaOpts := strings.Join(opts, " ")
+	if err := writeJavaOptsFile(r.context, 37, "riverbed_appinternals_agent", javaOpts); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS for Riverbed AppInternals: %w", err)
 	}
 
 	r.context.Log.Info("Riverbed AppInternals agent configured")
@@ -206,22 +211,3 @@ func (r *RiverbedAppInternalsAgentFramework) getApplicationName() string {
 	return ""
 }
 
-// appendToJavaOpts appends a value to JAVA_OPTS
-func (r *RiverbedAppInternalsAgentFramework) appendToJavaOpts(value string) error {
-	javaOptsFile := filepath.Join(r.context.Stager.DepDir(), "env", "JAVA_OPTS")
-
-	// Read existing JAVA_OPTS
-	var existingOpts string
-	if data, err := os.ReadFile(javaOptsFile); err == nil {
-		existingOpts = string(data)
-	}
-
-	// Append new value
-	if existingOpts != "" {
-		existingOpts += " "
-	}
-	existingOpts += value
-
-	// Write back
-	return r.context.Stager.WriteEnvFile(javaOptsFile, existingOpts)
-}

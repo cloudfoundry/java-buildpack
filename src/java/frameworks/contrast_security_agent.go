@@ -123,11 +123,11 @@ func (c *ContrastSecurityAgentFramework) Finalize() error {
 	c.context.Log.Info("Configuring Contrast Security Agent")
 
 	// Find the Contrast Security agent JAR dynamically
-		frameworkDir := filepath.Join(c.context.Stager.DepDir(), "contrast-security")
+	frameworkDir := filepath.Join(c.context.Stager.DepDir(), "contrast-security")
 	agentJarPath, err := c.findContrastAgent(frameworkDir)
-		if err != nil {
+	if err != nil {
 		return fmt.Errorf("failed to locate contrast security agent JAR: %w", err)
-		}
+	}
 	c.agentJarPath = agentJarPath
 	c.context.Log.Debug("Found Contrast Security agent at: %s", agentJarPath)
 
@@ -155,21 +155,28 @@ func (c *ContrastSecurityAgentFramework) Finalize() error {
 		}
 	}
 
-	// Append javaagent to JAVA_OPTS (preserves values from other frameworks)
-	javaOpts := fmt.Sprintf("-javaagent:%s=%s", c.agentJarPath, c.configPath)
-	if err := AppendToJavaOpts(c.context, javaOpts); err != nil {
-		c.context.Log.Warning("Failed to set JAVA_OPTS for Contrast Security: %s", err)
-		return nil
+	// Convert staging paths to runtime paths using $DEPS_DIR
+	agentRelPath, err := filepath.Rel(c.context.Stager.DepDir(), c.agentJarPath)
+	if err != nil {
+		return fmt.Errorf("failed to compute relative path for agent jar: %w", err)
+	}
+	runtimeAgentPath := filepath.Join("$DEPS_DIR/0", agentRelPath)
+
+	configRelPath, err := filepath.Rel(c.context.Stager.DepDir(), c.configPath)
+	if err != nil {
+		return fmt.Errorf("failed to compute relative path for config: %w", err)
+	}
+	runtimeConfigPath := filepath.Join("$DEPS_DIR/0", configRelPath)
+
+	// Build JAVA_OPTS with javaagent and system properties using runtime paths
+	javaOpts := fmt.Sprintf("-javaagent:%s=%s -Dcontrast.dir=$TMPDIR", runtimeAgentPath, runtimeConfigPath)
+
+	// Write JAVA_OPTS to .opts file with priority 18 (Ruby buildpack line 52)
+	if err := writeJavaOptsFile(c.context, 18, "contrast_security", javaOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	// Append system properties
-	contrastDir := fmt.Sprintf("-Dcontrast.dir=$TMPDIR")
-	if err := AppendToJavaOpts(c.context, contrastDir); err != nil {
-		c.context.Log.Warning("Failed to set contrast.dir: %s", err)
-		return nil
-	}
-
-	c.context.Log.Info("Contrast Security Agent configured successfully")
+	c.context.Log.Info("Contrast Security Agent configured successfully (priority 18)")
 	return nil
 }
 

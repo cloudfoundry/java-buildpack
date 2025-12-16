@@ -187,18 +187,18 @@ func (j *JacocoAgentFramework) Finalize() error {
 	first := true
 	for key, value := range properties {
 		if first {
-		javaagentOpts += fmt.Sprintf("=%s=%s", key, value)
+			javaagentOpts += fmt.Sprintf("=%s=%s", key, value)
 			first = false
 		} else {
 			javaagentOpts += fmt.Sprintf(",%s=%s", key, value)
 		}
 	}
 
-	// Append to JAVA_OPTS (preserves values from other frameworks)
-	if err := AppendToJavaOpts(j.context, javaagentOpts); err != nil {
-		return fmt.Errorf("failed to set JAVA_OPTS for JaCoCo: %w", err)
+	// Write to .opts file using priority 26
+	if err := writeJavaOptsFile(j.context, 26, "jacoco", javaagentOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	j.context.Log.Info("Configured JaCoCo Agent with address: %s", properties["address"])
+	j.context.Log.Info("JaCoCo Agent configured (priority 26)")
 	return nil
 }
