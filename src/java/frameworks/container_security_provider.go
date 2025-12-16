@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 // ContainerSecurityProviderFramework implements container-based security provider support
@@ -57,7 +58,8 @@ func (c *ContainerSecurityProviderFramework) Finalize() error {
 		return nil
 	}
 
-	jarPath := matches[0]
+	// Get just the filename for runtime path construction
+	jarFilename := filepath.Base(matches[0])
 
 	// Detect Java version to determine extension mechanism
 	// Java 9+ uses root libraries (-Xbootclasspath/a), Java 8 uses extension directories
@@ -67,19 +69,22 @@ func (c *ContainerSecurityProviderFramework) Finalize() error {
 		javaVersion = 8
 	}
 
-	// Add to JAVA_OPTS
-	javaOpts := ""
+	// Build JAVA_OPTS with runtime paths using $DEPS_DIR
+	var javaOpts string
 	if javaVersion >= 9 {
 		// Java 9+: Add to bootstrap classpath via -Xbootclasspath/a
-		javaOpts = fmt.Sprintf("-Xbootclasspath/a:%s", jarPath)
+		runtimeJarPath := fmt.Sprintf("$DEPS_DIR/0/container_security_provider/%s", jarFilename)
+		javaOpts = fmt.Sprintf("-Xbootclasspath/a:%s", runtimeJarPath)
 	} else {
 		// Java 8: Use extension directory
-		javaOpts = fmt.Sprintf("-Djava.ext.dirs=%s:$JAVA_HOME/jre/lib/ext:$JAVA_HOME/lib/ext", providerDir)
+		runtimeProviderDir := "$DEPS_DIR/0/container_security_provider"
+		javaOpts = fmt.Sprintf("-Djava.ext.dirs=%s:$JAVA_HOME/jre/lib/ext:$JAVA_HOME/lib/ext", runtimeProviderDir)
 	}
 
 	// Add security provider to java.security.properties
 	// Insert at position 1 (after default providers)
-	securityProvider := "-Djava.security.properties=" + filepath.Join(c.context.Stager.DepDir(), "container_security_provider", "java.security")
+	runtimeSecurityFile := "$DEPS_DIR/0/container_security_provider/java.security"
+	securityProvider := fmt.Sprintf("-Djava.security.properties=%s", runtimeSecurityFile)
 	javaOpts += " " + securityProvider
 
 	// Write security properties file
@@ -107,19 +112,94 @@ func (c *ContainerSecurityProviderFramework) Finalize() error {
 }
 
 // writeSecurityProperties writes the java.security properties file with CloudFoundryContainerProvider
+// It reads existing security providers from the JRE and inserts CloudFoundryContainerProvider at position 1
 func (c *ContainerSecurityProviderFramework) writeSecurityProperties() error {
 	providerDir := filepath.Join(c.context.Stager.DepDir(), "container_security_provider")
 	securityFile := filepath.Join(providerDir, "java.security")
 
-	// Write security provider configuration
-	// Insert CloudFoundryContainerProvider at position 1
-	content := "security.provider.1=org.cloudfoundry.security.CloudFoundryContainerProvider\n"
+	// Read existing security providers from JRE's java.security file
+	existingProviders, err := c.readExistingSecurityProviders()
+	if err != nil {
+		c.context.Log.Warning("Unable to read existing security providers, using defaults: %s", err)
+		existingProviders = c.getDefaultSecurityProviders()
+	}
+
+	// Build security provider configuration
+	// Insert CloudFoundryContainerProvider at position 1, followed by existing providers
+	var content string
+	content += "security.provider.1=org.cloudfoundry.security.CloudFoundryContainerProvider\n"
+
+	// Add existing providers starting at position 2
+	for i, provider := range existingProviders {
+		content += fmt.Sprintf("security.provider.%d=%s\n", i+2, provider)
+	}
 
 	if err := os.WriteFile(securityFile, []byte(content), 0644); err != nil {
 		return fmt.Errorf("failed to write security properties file: %w", err)
 	}
 
 	return nil
+}
+
+// readExistingSecurityProviders reads security providers from the JRE's java.security file
+func (c *ContainerSecurityProviderFramework) readExistingSecurityProviders() ([]string, error) {
+	javaHome := os.Getenv("JAVA_HOME")
+	if javaHome == "" {
+		return nil, fmt.Errorf("JAVA_HOME not set")
+	}
+
+	// Try Java 9+ location first (conf/security/java.security)
+	javaSecurityPath := filepath.Join(javaHome, "conf", "security", "java.security")
+	if _, err := os.Stat(javaSecurityPath); os.IsNotExist(err) {
+		// Fall back to Java 8 location (jre/lib/security/java.security or lib/security/java.security)
+		javaSecurityPath = filepath.Join(javaHome, "lib", "security", "java.security")
+		if _, err := os.Stat(javaSecurityPath); os.IsNotExist(err) {
+			javaSecurityPath = filepath.Join(javaHome, "jre", "lib", "security", "java.security")
+		}
+	}
+
+	content, err := os.ReadFile(javaSecurityPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read %s: %w", javaSecurityPath, err)
+	}
+
+	return c.parseSecurityProviders(string(content)), nil
+}
+
+// parseSecurityProviders extracts security.provider.N entries from java.security content
+func (c *ContainerSecurityProviderFramework) parseSecurityProviders(content string) []string {
+	var providers []string
+	lines := strings.Split(content, "\n")
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "security.provider.") && strings.Contains(line, "=") {
+			parts := strings.SplitN(line, "=", 2)
+			if len(parts) == 2 {
+				provider := strings.TrimSpace(parts[1])
+				if provider != "" {
+					providers = append(providers, provider)
+				}
+			}
+		}
+	}
+
+	return providers
+}
+
+// getDefaultSecurityProviders returns default security providers for OpenJDK/HotSpot
+func (c *ContainerSecurityProviderFramework) getDefaultSecurityProviders() []string {
+	return []string{
+		"sun.security.provider.Sun",
+		"sun.security.rsa.SunRsaSign",
+		"sun.security.ec.SunEC",
+		"com.sun.net.ssl.internal.ssl.Provider",
+		"com.sun.crypto.provider.SunJCE",
+		"sun.security.jgss.SunProvider",
+		"com.sun.security.sasl.Provider",
+		"org.jcp.xml.dsig.internal.dom.XMLDSigRI",
+		"sun.security.smartcardio.SunPCSC",
+	}
 }
 
 // getJavaMajorVersion detects the Java major version from JAVA_HOME
