@@ -2,6 +2,7 @@ package frameworks
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/cloudfoundry/libbuildpack"
@@ -37,6 +38,44 @@ func (a *AppDynamicsFramework) Detect() (string, error) {
 	return "", nil
 }
 
+// findAppDynamicsAgent locates the javaagent.jar in the agent directory
+func (a *AppDynamicsFramework) findAppDynamicsAgent(agentDir string) (string, error) {
+	// Common paths to check
+	commonPaths := []string{
+		filepath.Join(agentDir, "javaagent.jar"),
+		filepath.Join(agentDir, "ver*", "javaagent.jar"), // versioned directory pattern
+	}
+
+	for _, pattern := range commonPaths {
+		matches, _ := filepath.Glob(pattern)
+		if len(matches) > 0 {
+			// Return first match
+			if _, err := os.Stat(matches[0]); err == nil {
+				return matches[0], nil
+			}
+		}
+	}
+
+	// Search recursively for javaagent.jar
+	var foundPath string
+	filepath.Walk(agentDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if !info.IsDir() && info.Name() == "javaagent.jar" {
+			foundPath = path
+			return filepath.SkipAll
+		}
+		return nil
+	})
+
+	if foundPath != "" {
+		return foundPath, nil
+	}
+
+	return "", fmt.Errorf("javaagent.jar not found in %s", agentDir)
+}
+
 // Supply installs the AppDynamics agent
 func (a *AppDynamicsFramework) Supply() error {
 	a.context.Log.BeginStep("Installing AppDynamics Agent")
@@ -57,8 +96,27 @@ func (a *AppDynamicsFramework) Supply() error {
 		return fmt.Errorf("failed to install AppDynamics agent: %w", err)
 	}
 
-	// Find the AppDynamics agent JAR
-	agentJar := filepath.Join(agentDir, "javaagent.jar")
+	a.context.Log.Info("Installed AppDynamics Agent version %s", dep.Version)
+	return nil
+}
+
+// Finalize configures AppDynamics agent for runtime
+func (a *AppDynamicsFramework) Finalize() error {
+
+	// Find the actual AppDynamics agent jar at staging time
+	agentDir := filepath.Join(a.context.Stager.DepDir(), "app_dynamics_agent")
+	agentJarPath, err := a.findAppDynamicsAgent(agentDir)
+	if err != nil {
+		return fmt.Errorf("failed to locate javaagent.jar: %w", err)
+	}
+	a.context.Log.Debug("Found AppDynamics agent at: %s", agentJarPath)
+
+	// Build runtime path using $DEPS_DIR
+	relPath, err := filepath.Rel(a.context.Stager.DepDir(), agentJarPath)
+	if err != nil {
+		return fmt.Errorf("failed to compute relative path: %w", err)
+	}
+	runtimeAgentPath := filepath.Join("$DEPS_DIR/0", relPath)
 
 	// Get AppDynamics configuration from service binding
 	vcapServices, _ := GetVCAPServices()
@@ -69,8 +127,8 @@ func (a *AppDynamicsFramework) Supply() error {
 		service = vcapServices.GetServiceByNamePattern("appdynamics")
 	}
 
-	// Build javaagent options
-	javaOpts := fmt.Sprintf("-javaagent:%s", agentJar)
+	// Build javaagent options with runtime path using $DEPS_DIR
+	javaOpts := fmt.Sprintf("-javaagent:%s", runtimeAgentPath)
 
 	if service != nil {
 		// Add controller host
