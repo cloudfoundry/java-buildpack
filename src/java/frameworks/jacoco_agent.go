@@ -115,8 +115,6 @@ func (j *JacocoAgentFramework) findJacocoAgent(installDir string) (string, error
 
 // Finalize configures the JaCoCo agent for runtime
 func (j *JacocoAgentFramework) Finalize() error {
-	j.context.Log.BeginStep("Configuring JaCoCo Agent")
-
 	// Get JaCoCo service credentials
 	vcapServices, err := GetVCAPServices()
 	if err != nil {
@@ -167,18 +165,33 @@ func (j *JacocoAgentFramework) Finalize() error {
 		properties["output"] = output
 	}
 
-	// Find jacocoagent.jar (may be in lib/ subdirectory)
+	// Find jacocoagent.jar at staging time to determine relative path
 	agentDir := filepath.Join(j.context.Stager.DepDir(), "jacoco_agent")
 	agentJar, err := j.findJacocoAgent(agentDir)
 	if err != nil {
 		return fmt.Errorf("failed to locate jacocoagent.jar: %w", err)
 	}
 	j.context.Log.Debug("Found JaCoCo agent at: %s", agentJar)
-	javaagentOpts := fmt.Sprintf("-javaagent:%s", agentJar)
 
-	// Append properties as key=value pairs
+	// Build runtime path using $DEPS_DIR
+	relPath, err := filepath.Rel(j.context.Stager.DepDir(), agentJar)
+	if err != nil {
+		return fmt.Errorf("failed to compute relative path: %w", err)
+	}
+	runtimeAgentPath := filepath.Join("$DEPS_DIR/0", relPath)
+
+	// Build javaagent option with runtime path
+	javaagentOpts := fmt.Sprintf("-javaagent:%s", runtimeAgentPath)
+
+	// Append properties as key=value pairs separated by commas
+	first := true
 	for key, value := range properties {
+		if first {
 		javaagentOpts += fmt.Sprintf("=%s=%s", key, value)
+			first = false
+		} else {
+			javaagentOpts += fmt.Sprintf(",%s=%s", key, value)
+		}
 	}
 
 	// Append to JAVA_OPTS (preserves values from other frameworks)
