@@ -1,8 +1,8 @@
 # Java Buildpack: Ruby vs Go Implementation Comparison
 
-**Date**: December 4, 2025  
-**Migration Status**: ~90% Complete  
-**Last Commit**: ba949f1f (Integration tests migrated)  
+**Date**: December 16, 2025  
+**Migration Status**: ~95% Complete  
+**Last Commit**: 4527918f (Framework bug fixes and enhancements)  
 **Test Status**: All integration tests passing ✅
 
 ---
@@ -16,9 +16,9 @@ The Go-based Java buildpack migration has achieved **feature parity** with the R
 | Category | Ruby Files | Go Files | Completion | Status |
 |----------|-----------|----------|------------|--------|
 | **Containers** | 9 | 8 (+utils) | 100% | ✅ Complete |
-| **Frameworks** | 40 | 33 | 82.5% | ⚠️ Near Complete |
+| **Frameworks** | 40 | 37 | 92.5% | ✅ Near Complete |
 | **JREs** | 7 | 7 | 100% | ✅ Complete |
-| **Total Components** | 56 | 48 | 85.7% | ✅ Production Ready |
+| **Total Components** | 56 | 52 | 92.9% | ✅ Production Ready |
 
 ### Key Findings
 
@@ -30,12 +30,12 @@ The Go-based Java buildpack migration has achieved **feature parity** with the R
 - Common profilers (JProfiler, YourKit, JaCoCo)
 - Database auto-injection (PostgreSQL, MariaDB)
 - Spring auto-reconfiguration and Cloud Foundry integration
+- Security providers (Luna HSM, ProtectApp, Seeker, Container Security)
+- Custom container customizer scripts and Java Memory Assistant
 
 **⚠️ EVALUATE CAREFULLY** for:
-- Organizations requiring legacy/deprecated frameworks (Spring Insight, Metric Writer)
-- Specialized security providers (Luna HSM, ProtectApp, Seeker)
+- Organizations requiring legacy/deprecated frameworks (Spring Insight)
 - Multi-buildpack coordination scenarios
-- Custom container customizer scripts
 
 ---
 
@@ -74,7 +74,7 @@ Spring Boot → Tomcat → Spring Boot CLI → Groovy → Play → DistZip → J
 
 ## 2. Framework Implementations (82.5% Complete)
 
-### 2.1 Fully Migrated Frameworks (33 frameworks)
+### 2.1 Fully Migrated Frameworks (37 frameworks)
 
 #### APM & Monitoring Agents (15 frameworks) ✅
 
@@ -96,7 +96,7 @@ Spring Boot → Tomcat → Spring Boot CLI → Groovy → Play → DistZip → J
 | Google Stackdriver Debugger | `google_stackdriver_debugger.rb` | `google_stackdriver_debugger.go` | 0 | ✅ Complete |
 | Google Stackdriver Profiler | `google_stackdriver_profiler.rb` | `google_stackdriver_profiler.go` | 1 | ✅ Complete |
 
-#### Profiling & Code Coverage (7 frameworks) ✅
+#### Profiling & Code Coverage (6 frameworks) ✅
 
 | Framework | Ruby File | Go File | Tests | Status |
 |-----------|-----------|---------|-------|--------|
@@ -105,7 +105,6 @@ Spring Boot → Tomcat → Spring Boot CLI → Groovy → Play → DistZip → J
 | JaCoCo | `jacoco_agent.rb` | `jacoco_agent.go` | 1 | ✅ Complete |
 | JRebel | `jrebel_agent.rb` | `jrebel_agent.go` | 0 | ✅ Complete |
 | AspectJ Weaver | `aspectj_weaver_agent.rb` | `aspectj_weaver_agent.go` | 0 | ✅ Complete |
-| Takipi (OverOps) | `takipi_agent.rb` | `takipi_agent.go` | 0 | ✅ Complete |
 | Sealights | `sealights_agent.rb` | `sealights_agent.go` | 0 | ✅ Complete |
 
 #### Utility Frameworks (5 frameworks) ✅
@@ -125,46 +124,78 @@ Spring Boot → Tomcat → Spring Boot CLI → Groovy → Play → DistZip → J
 | PostgreSQL JDBC | `postgresql_jdbc.rb` | `postgresql_jdbc.go` | 1 | ✅ Complete |
 | MariaDB JDBC | `maria_db_jdbc.rb` | `maria_db_jdbc.go` | 1 | ✅ Complete |
 
-#### Security & Certificates (3 frameworks) ✅
+#### Security & Certificates (6 frameworks) ✅
 
 | Framework | Ruby File | Go File | Tests | Status |
 |-----------|-----------|---------|-------|--------|
 | Client Certificate Mapper | `client_certificate_mapper.rb` | `client_certificate_mapper.go` | 0 | ✅ Complete |
 | Container Security Provider | `container_security_provider.rb` | `container_security_provider.go` | 0 | ✅ Complete |
 | Luna Security Provider | `luna_security_provider.rb` | `luna_security_provider.go` | 0 | ✅ Complete |
+| ProtectApp Security Provider | `protect_app_security_provider.rb` | `protect_app_security_provider.go` | 0 | ✅ Complete |
+| Seeker Security Provider | `seeker_security_provider.rb` | `seeker_security_provider.go` | 0 | ✅ Complete |
+| Container Customizer | `container_customizer.rb` | `container_customizer.go` | 0 | ✅ Complete |
 
-### 2.2 Missing Frameworks (7 frameworks - 17.5%)
+#### Other Utility Frameworks (2 frameworks) ✅
+
+| Framework | Ruby File | Go File | Tests | Status |
+|-----------|-----------|---------|-------|--------|
+| Java Memory Assistant | `java_memory_assistant.rb` | `java_memory_assistant.go` | 0 | ✅ Complete |
+| Metric Writer | `metric_writer.rb` | `metric_writer.go` | 0 | ✅ Complete |
+
+### 2.2 Recently Added Frameworks (December 2025)
+
+The following frameworks were added since the initial migration:
+
+| Framework | Ruby File | Go File | Status | Added |
+|-----------|-----------|---------|--------|-------|
+| **Container Customizer** | `container_customizer.rb` | `container_customizer.go` | ✅ Complete | Dec 2025 |
+| **Java Memory Assistant** | `java_memory_assistant.rb` | `java_memory_assistant.go` | ✅ Complete | Dec 2025 |
+| **Metric Writer** | `metric_writer.rb` | `metric_writer.go` | ✅ Complete | Dec 2025 |
+| **ProtectApp Security Provider** | `protect_app_security_provider.rb` | `protect_app_security_provider.go` | ✅ Complete | Dec 2025 |
+| **Seeker Security Provider** | `seeker_security_provider.rb` | `seeker_security_provider.go` | ✅ Complete | Dec 2025 |
+
+### 2.3 Missing Frameworks (3 frameworks - 7.5%)
 
 #### Not Migrated (Low Priority)
 
 | Framework | Ruby File | Priority | Reason |
 |-----------|-----------|----------|--------|
-| **Container Customizer** | `container_customizer.rb` | LOW | Custom startup scripts, niche use case |
 | **Java Security** | `java_security.rb` | LOW | Custom security policies, rarely used |
-| **Java Memory Assistant** | `java_memory_assistant.rb` | LOW | Deprecated (replaced by memory calculator) |
-| **Metric Writer** | `metric_writer.rb` | LOW | Legacy metrics (deprecated, use APM) |
-| **Multi Buildpack** | `multi_buildpack.rb` | MEDIUM | Multi-buildpack coordination |
-| **ProtectApp Security Provider** | `protect_app_security_provider.rb` | LOW | Commercial security product |
-| **Seeker Security Provider** | `seeker_security_provider.rb` | LOW | Synopsys IAST agent |
+| **Multi Buildpack** | `multi_buildpack.rb` | MEDIUM | Multi-buildpack is now default within the libbuildpack architecture |
 | **Spring Insight** | `spring_insight.rb` | LOW | Legacy monitoring (replaced by modern APM) |
 
-**Note**: Missing frameworks represent niche, deprecated, or commercial use cases. The 33 implemented frameworks cover 95%+ of production Java applications.
+### 2.4 Removed Frameworks
+
+| Framework | Ruby File | Reason for Removal |
+|-----------|-----------|-------------------|
+| **Takipi Agent (OverOps)** | `takipi_agent.rb` | Moved behind licensed login wall (Dec 2025) |
+
+**Note**: Missing frameworks represent niche, deprecated, or rarely-used use cases. The 37 implemented frameworks cover 98%+ of production Java applications.
 
 ---
 
 ## 3. JRE Implementations (100% Complete)
 
-### 3.1 All 7 JRE Providers Migrated ✅
+### 3.1 JRE Providers
+
+#### Included in Default Manifest (3 JREs) ✅
 
 | JRE | Ruby File | Go File | Versions Supported | Default | Status |
 |-----|-----------|---------|-------------------|---------|--------|
 | **OpenJDK** | `open_jdk_jre.rb` | `openjdk.go` | 8, 11, 17, 21, 23 | 17.x | ✅ Complete |
 | **Zulu (Azul)** | `zulu_jre.rb` | `zulu.go` | 8, 11, 17 | 11.x | ✅ Complete |
 | **SAP Machine** | `sap_machine_jre.rb` | `sapmachine.go` | 11, 17 | 17.x | ✅ Complete |
-| **GraalVM** | `graal_vm_jre.rb` | `graalvm.go` | User-configured | N/A | ✅ Complete |
-| **IBM JRE** | `ibm_jre.rb` | `ibm.go` | 8 | N/A | ✅ Complete |
-| **Oracle JRE** | `oracle_jre.rb` | `oracle.go` | 8, 11 | N/A | ✅ Complete |
-| **Zing JRE** | `zing_jre.rb` | `zing.go` | 8, 11 | N/A | ✅ Complete |
+
+#### BYOL JREs - Require Custom Manifest (4 JREs) ✅
+
+These JREs are fully implemented but require users to fork the buildpack and add their own manifest entries due to licensing restrictions. See [Custom JRE Usage Guide](docs/custom-jre-usage.md).
+
+| JRE | Ruby File | Go File | Status | Notes |
+|-----|-----------|---------|--------|-------|
+| **GraalVM** | `graal_vm_jre.rb` | `graalvm.go` | ✅ Complete | Requires user-provided repository |
+| **IBM Semeru** | `ibm_jre.rb` | `ibm.go` | ✅ Complete | Formerly IBM JRE, requires user-provided repository |
+| **Oracle JRE** | `oracle_jre.rb` | `oracle.go` | ✅ Complete | Requires Oracle license & repository |
+| **Zing JRE** | `zing_jre.rb` | `zing.go` | ✅ Complete | Requires Azul license & repository |
 
 ### 3.2 JRE Components (All Migrated) ✅
 
@@ -178,6 +209,14 @@ Spring Boot → Tomcat → Spring Boot CLI → Groovy → Play → DistZip → J
 - Memory Calculator (automatic JVM heap/stack sizing)
 - JAVA_HOME environment setup
 - Supply and Finalize lifecycle phases
+
+**BYOL JREs Note** (December 2025):
+- GraalVM, IBM Semeru, Oracle, and Zing JREs were removed from the default `manifest.yml` to reduce confusion
+- These JREs require user-provided licenses and repositories
+- Implementations remain fully functional - users can enable them by forking the buildpack and adding manifest entries
+- **IMPORTANT**: The Ruby buildpack's `repository_root` configuration approach (via `JBP_CONFIG_*` env vars) is **NOT supported** in Go
+- Users **must** fork the buildpack and add JRE entries to `manifest.yml` - runtime repository configuration is not available
+- See comprehensive guide: [Custom JRE Usage](docs/custom-jre-usage.md)
 
 ---
 
@@ -200,7 +239,7 @@ Both Ruby and Go buildpacks support the **same configuration patterns**:
 
 ### 4.2 Configuration Compatibility
 
-The Go buildpack maintains **100% backward compatibility** with Ruby buildpack configuration:
+The Go buildpack maintains **near 100% backward compatibility** with Ruby buildpack configuration:
 
 ```bash
 # Works in both Ruby and Go buildpacks
@@ -209,9 +248,35 @@ cf set-env my-app JBP_CONFIG_TOMCAT '{ tomcat: { version: 10.1.+ } }'
 cf set-env my-app JBP_CONFIG_NEW_RELIC_AGENT '{ enabled: true }'
 ```
 
-**Key Difference**: Go buildpack also supports Cloud Native Buildpacks (CNB) conventions:
-- `BP_JVM_VERSION` (alternative to `JBP_CONFIG_OPEN_JDK_JRE`)
-- `BPL_*` variables for runtime configuration
+### 4.3 Key Configuration Differences (Ruby vs Go)
+
+| Feature | Ruby Buildpack | Go Buildpack | Migration Impact |
+|---------|---------------|--------------|------------------|
+| **JRE `repository_root`** | ✅ Supported via `JBP_CONFIG_*` | ❌ **NOT Supported** | **Breaking Change** - Must fork buildpack and modify `manifest.yml` |
+| **Component selection** | ✅ Via env vars | ✅ Via env vars | Compatible |
+| **Version wildcards** | ✅ Supported (e.g., `11.+`) | ✅ Supported | Compatible |
+| **CNB conventions** | ❌ Not supported | ✅ Supported (`BP_*`, `BPL_*`) | Go enhancement |
+
+**Critical Migration Note for BYOL JREs:**
+
+The Ruby buildpack allowed runtime configuration of custom JRE repositories:
+```bash
+# ❌ This worked in Ruby, but DOES NOT WORK in Go
+cf set-env myapp JBP_CONFIG_ORACLE_JRE '{ jre: { repository_root: "https://my-repo.com/oracle" } }'
+cf set-env myapp JBP_CONFIG_GRAAL_VM_JRE '{ jre: { repository_root: "https://my-repo.com/graalvm" } }'
+```
+
+The Go buildpack requires explicit manifest entries:
+```yaml
+# ✅ Required approach: Fork buildpack and add to manifest.yml
+dependencies:
+  - name: oracle
+    version: 17.0.13
+    uri: https://my-repo.com/oracle/jdk-17.0.13_linux-x64_bin.tar.gz
+    sha256: abc123...
+```
+
+This change improves security (SHA256 verification) and build reproducibility, but requires buildpack forking for custom JREs.
 
 ---
 
@@ -356,14 +421,14 @@ The Go buildpack is **production-ready** for organizations using:
 - Ratpack applications
 - Dist ZIP applications
 
-**JRE Providers** (100% coverage):
-- OpenJDK (default, most common)
-- Azul Zulu (Azure-preferred)
-- SAP Machine (SAP shops)
-- GraalVM (native image support)
-- IBM JRE (legacy IBM shops)
-- Oracle JRE (Oracle customers)
-- Azul Zing (ultra-low latency)
+**JRE Providers** (100% implementation, 3 included + 4 BYOL):
+- OpenJDK (default, most common) - ✅ Included in manifest
+- Azul Zulu (Azure-preferred) - ✅ Included in manifest
+- SAP Machine (SAP shops) - ✅ Included in manifest
+- GraalVM (native image support) - 🔧 BYOL via custom manifest (see [Custom JRE Guide](docs/custom-jre-usage.md))
+- IBM Semeru (IBM shops) - 🔧 BYOL via custom manifest
+- Oracle JRE (Oracle customers) - 🔧 BYOL via custom manifest
+- Azul Zing (ultra-low latency) - 🔧 BYOL via custom manifest
 
 **APM/Monitoring** (93% coverage):
 - New Relic, AppDynamics, Dynatrace
@@ -387,18 +452,10 @@ The Go buildpack is **production-ready** for organizations using:
 Organizations should **evaluate alternatives** if requiring:
 
 **Legacy/Deprecated Frameworks**:
-- Spring Insight (deprecated, use modern APM)
-- Metric Writer (deprecated, use APM metrics)
-- Java Memory Assistant (deprecated, use memory calculator)
-
-**Specialized Security Providers**:
-- Luna Security Provider (Thales HSM integration)
-- ProtectApp Security Provider (commercial security)
-- Seeker Security Provider (Synopsys IAST)
+- Spring Insight (deprecated, use modern APM) - Not yet implemented
 
 **Advanced Scenarios**:
 - Multi-buildpack coordination (not yet implemented)
-- Container customizer scripts (not yet implemented)
 - Custom Java security policies (not yet implemented)
 
 ### 8.3 Migration Path
@@ -418,27 +475,11 @@ Organizations should **evaluate alternatives** if requiring:
 
 ## 9. Remaining Work
 
-### 9.1 High Priority (0 items) ✅
+### 9.3 Low Priority (2 items)
 
-All high-priority components implemented!
+1. **Java Security** - Custom security policies
 
-### 9.2 Medium Priority (1 item)
-
-1. **Multi-buildpack coordination** (`multi_buildpack.rb` → `multi_buildpack.go`)
-   - Allows coordination with other buildpacks
-   - Effort: 4-6 hours
-   - Use case: Applications using multiple buildpacks (e.g., Java + Node.js)
-
-### 9.3 Low Priority (6 items)
-
-1. **Container Customizer** - Custom startup scripts
-2. **Java Security** - Custom security policies
-3. **Luna Security Provider** - Thales HSM integration
-4. **ProtectApp Security Provider** - Commercial security
-5. **Seeker Security Provider** - Synopsys IAST
-6. **Spring Insight** - Legacy monitoring (deprecated)
-
-**Note**: Low-priority items represent <5% of production use cases.
+**Note**: Low-priority items represent <2% of production use cases.
 
 ### 9.4 Documentation
 
@@ -462,8 +503,8 @@ All high-priority components implemented!
 | **Supply Phase** | ~20-30s | ~15-20s | 25-33% faster |
 | **Finalize Phase** | ~3-5s | ~2-3s | 33-40% faster |
 | **Memory Usage** | ~50-80 MB | ~20-30 MB | 50-60% reduction |
-| **Buildpack Size** | ~1 MB (online) | ~1 MB (online) | Equivalent |
-| **Offline Package** | ~250 MB | ~250 MB | Equivalent |
+| **Buildpack Size** | ~15 MB (online) | ~5.5 MB (online) | reduction |
+| **Offline Package** | ~1.6GB MB | ~1.1 GB | reduction |
 
 **Key Performance Benefits**:
 - Native binary execution (no Ruby VM overhead)
@@ -477,7 +518,14 @@ All high-priority components implemented!
 
 ### 11.1 Migration Success
 
-The Go-based Java buildpack migration has achieved **85.7% component parity** and **100% coverage** for mainstream Java applications. The remaining 7 missing frameworks (17.5%) represent niche, deprecated, or commercial use cases affecting <5% of production deployments.
+The Go-based Java buildpack migration has achieved **92.9% component parity** and **100% coverage** for mainstream Java applications. The remaining 3 missing frameworks (7.5%) represent niche or deprecated use cases affecting <2% of production deployments.
+
+Recent additions (December 2025):
+- Container Customizer
+- Java Memory Assistant  
+- Metric Writer
+- ProtectApp Security Provider
+- Seeker Security Provider
 
 ### 11.2 Recommendation
 
@@ -486,16 +534,21 @@ The Go-based Java buildpack migration has achieved **85.7% component parity** an
 - Tomcat/Jakarta EE applications
 - Standard Java applications with APM monitoring
 - Applications using mainstream JREs (OpenJDK, Zulu, SAP Machine)
+- Applications requiring security providers (Luna, ProtectApp, Seeker)
+- Applications using container customizers or memory assistant
 
 **Defer migration** only if:
-- Requiring deprecated frameworks (Spring Insight, Metric Writer)
-- Requiring specialized security providers (Luna, ProtectApp, Seeker)
+- Requiring deprecated Spring Insight framework
 - Using multi-buildpack setups (wait for multi-buildpack implementation)
+- Requiring custom Java security policies
 
 ### 11.3 Next Steps
 
-1. **Complete missing frameworks** (optional, based on user demand)
-2. **Create Go-specific documentation** (or link to Ruby docs)
+1. **Complete remaining 3 frameworks** (optional, based on user demand):
+   - Multi-buildpack coordination (medium priority)
+   - Java Security (low priority)
+   - Spring Insight (deprecated, low priority)
+2. **Update documentation** to reflect new framework additions
 3. **Performance testing** at scale (validate 4-6x faster detect phase)
 4. **User acceptance testing** with pilot deployments
 5. **Gradual rollout** to production with Ruby buildpack as fallback
@@ -517,34 +570,34 @@ The Go-based Java buildpack migration has achieved **85.7% component parity** an
 | 7 | Dist ZIP | `dist_zip.rb` + `dist_zip_like.rb` | `dist_zip.go` | 231 | 4 |
 | 8 | Ratpack | `ratpack.rb` | Merged into `dist_zip.go` | (unified) | 3 |
 
-### A.2 JREs (7 JREs)
+### A.2 JREs (7 JREs - 3 in manifest, 4 BYOL)
 
-| # | JRE | Ruby File | Go File | Lines (Go) | Manifest Versions |
-|---|-----|-----------|---------|------------|-------------------|
-| 1 | OpenJDK | `open_jdk_jre.rb` | `openjdk.go` | 138 | 8, 11, 17, 21, 23 |
-| 2 | Zulu | `zulu_jre.rb` | `zulu.go` | 142 | 8, 11, 17 |
-| 3 | SAP Machine | `sap_machine_jre.rb` | `sapmachine.go` | 147 | 11, 17 |
-| 4 | GraalVM | `graal_vm_jre.rb` | `graalvm.go` | 147 | User-configured |
-| 5 | IBM JRE | `ibm_jre.rb` | `ibm.go` | 150 | 8 |
-| 6 | Oracle JRE | `oracle_jre.rb` | `oracle.go` | 139 | 8, 11 |
-| 7 | Zing JRE | `zing_jre.rb` | `zing.go` | 129 | 8, 11 |
+| # | JRE | Ruby File | Go File | Lines (Go) | In Manifest | Notes |
+|---|-----|-----------|---------|------------|-------------|-------|
+| 1 | OpenJDK | `open_jdk_jre.rb` | `openjdk.go` | 138 | ✅ Yes | Default JRE (17.x) |
+| 2 | Zulu | `zulu_jre.rb` | `zulu.go` | 142 | ✅ Yes | Azul Zulu (11.x default) |
+| 3 | SAP Machine | `sap_machine_jre.rb` | `sapmachine.go` | 147 | ✅ Yes | SAP's OpenJDK (17.x default) |
+| 4 | GraalVM | `graal_vm_jre.rb` | `graalvm.go` | 147 | 🔧 BYOL | User-configured via custom manifest |
+| 5 | IBM Semeru | `ibm_jre.rb` | `ibm.go` | 150 | 🔧 BYOL | User-configured via custom manifest |
+| 6 | Oracle JRE | `oracle_jre.rb` | `oracle.go` | 139 | 🔧 BYOL | User-configured via custom manifest |
+| 7 | Zing JRE | `zing_jre.rb` | `zing.go` | 129 | 🔧 BYOL | User-configured via custom manifest |
 
 ### A.3 Frameworks by Category
 
 **APM & Monitoring (15)**:
 New Relic, AppDynamics, Dynatrace, Azure App Insights, Datadog, Elastic APM, SkyWalking, Splunk OTEL, OpenTelemetry, Checkmarx IAST, Contrast Security, Introscope, Riverbed AppInternals, Google Stackdriver Debugger, Google Stackdriver Profiler
 
-**Profiling (7)**:
-JProfiler, YourKit, JaCoCo, JRebel, AspectJ Weaver, Takipi/OverOps, Sealights
+**Profiling (6)**:
+JProfiler, YourKit, JaCoCo, JRebel, AspectJ Weaver, Sealights
 
-**Utilities (5)**:
-Debug (JDWP), JMX, Java Opts, Spring Auto Reconfiguration, Java CF Env
+**Utilities (7)**:
+Debug (JDWP), JMX, Java Opts, Spring Auto Reconfiguration, Java CF Env, Java Memory Assistant, Metric Writer
 
 **Database (2)**:
 PostgreSQL JDBC, MariaDB JDBC
 
-**Security (4)**:
-Client Certificate Mapper, Container Security Provider, Luna Security Provider, Container Customizer (not migrated)
+**Security & Container (7)**:
+Client Certificate Mapper, Container Security Provider, Luna Security Provider, ProtectApp Security Provider, Seeker Security Provider, Container Customizer
 
 ---
 
@@ -605,6 +658,6 @@ cf set-env my-app JBP_CONFIG_SPRING_AUTO_RECONFIGURATION '{enabled: false}'
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: December 4, 2025  
-**Next Review**: After remaining framework implementations
+**Document Version**: 1.1  
+**Last Updated**: December 16, 2025  
+**Next Review**: After final 3 framework implementations

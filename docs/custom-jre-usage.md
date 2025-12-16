@@ -2,11 +2,32 @@
 
 This guide explains how to use custom Java Runtime Environments (JREs) with the Cloud Foundry Java Buildpack when the JRE you need is not available in the buildpack's manifest.
 
+## ⚠️ IMPORTANT: Migration from Ruby Buildpack
+
+**If you are migrating from the Ruby-based Java Buildpack:**
+
+The Go-based buildpack **DOES NOT SUPPORT** the `repository_root` configuration approach that was available in the Ruby buildpack. 
+
+**Ruby Buildpack (NO LONGER WORKS):**
+```bash
+# ❌ This does NOT work in the Go buildpack
+cf set-env myapp JBP_CONFIG_ORACLE_JRE '{ jre: { repository_root: "https://my-repo.com" } }'
+```
+
+**Go Buildpack (Required Approach):**
+- You **MUST** fork the buildpack and add JRE entries to `manifest.yml`
+- Runtime `repository_root` configuration via `JBP_CONFIG_*` environment variables is not supported
+- This change improves security and build reproducibility by requiring explicit manifest entries
+
+See Option 1 below for the correct approach.
+
+---
+
 ## Overview
 
 The Java Buildpack includes OpenJDK, Zulu, and SAPMachine JREs in its manifest. If you need a different JRE or a specific version not included, you have two options:
 
-1. **Fork the buildpack and add custom manifest entries** (Recommended)
+1. **Fork the buildpack and add custom manifest entries** (Recommended & Required for BYOL JREs)
 2. **Use a multi-buildpack approach with a supply buildpack**
 
 ---
