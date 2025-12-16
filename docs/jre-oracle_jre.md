@@ -48,13 +48,18 @@ cf restage <app_name>
 | `memory_calculator` | Memory calculator defaults, described below under "Memory".
 
 ### Additional Resources
-The JRE can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/oracle_jre` directory in the buildpack fork.
+
+**Note:** The `resources/oracle_jre` directory approach from the Ruby buildpack (2013-2025) is no longer supported. This was a **buildpack-level** feature for teams with forked buildpacks. The Go buildpack does not package the `resources/` directory.
 
 #### JCE Unlimited Strength
-To add the JCE Unlimited Strength `local_policy.jar`, add your file to `resources/oracle_jre/lib/security/local_policy.jar`. In case you you'r using the 'server jre', then the file should go to `resources/oracle_jre/jre/lib/security/local_policy.jar`. This file will be overlayed onto the Oracle distribution.
+To add custom JCE Unlimited Strength files, you must:
+1. Fork the buildpack repository and add your `local_policy.jar` to the appropriate location
+2. Modify `manifest.yml` to include your custom files in the buildpack package
+3. Package and install your custom buildpack to Cloud Foundry
 
 #### Custom CA Certificates
-To add custom SSL certificates, add your `cacerts` file to `resources/oracle_jre/lib/security/cacerts`.  This file will be overlayed onto the Oracle distribution.
+
+**Recommended approach:** Use [Cloud Foundry Trusted System Certificates](https://docs.cloudfoundry.org/devguide/deploy-apps/trusted-system-certificates.html). This is the standard Cloud Foundry approach and works for all apps. Operators deploy trusted certificates that are automatically available in `/etc/cf-system-certificates` and `/etc/ssl/certs`.
 
 ### `jvmkill`
 The `jvmkill` agent runs when an application has experience a resource exhaustion event.  When this event occurs, the agent will print out a histogram of the first 100 largest types by total number of bytes.

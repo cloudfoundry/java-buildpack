@@ -58,10 +58,9 @@ $ cf set-env my-application JBP_CONFIG_TOMCAT '{tomcat: { context_path: /first-s
 
 
 ### Additional Resources
-The container can also be configured by overlaying a set of resources on the default distribution.  To do this follow one of the options below.
+The container can be configured by using external Tomcat configuration as described below.
 
-#### Buildpack Fork
-Add files to the `resources/tomcat` directory in the buildpack fork.  For example, to override the default `logging.properties` add your custom file to `resources/tomcat/conf/logging.properties`.
+**Note:** The `resources/tomcat` directory approach from the Ruby buildpack (2013-2025) is no longer supported. This was a **buildpack-level** feature where teams would fork the java-buildpack repository, add custom files to `resources/tomcat/`, and package their custom buildpack. The Go buildpack does not package the `resources/` directory. Use external configuration instead (see below).
 
 #### External Tomcat Configuration
 Supply a repository with an external Tomcat configuration that will be downloaded during staging.

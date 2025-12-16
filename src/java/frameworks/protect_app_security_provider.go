@@ -68,18 +68,6 @@ func (p *ProtectAppSecurityProviderFramework) Supply() error {
 		return fmt.Errorf("failed to install ProtectApp Security Provider: %w", err)
 	}
 
-	// Copy IngrianNAE.properties from resources if exists
-	resourcesDir := filepath.Join(p.context.Stager.BuildDir(), "..", "resources", "protect_app_security_provider")
-	ingrianPropsSource := filepath.Join(resourcesDir, "IngrianNAE.properties")
-	ingrianPropsDest := filepath.Join(protectAppDir, "IngrianNAE.properties")
-
-	if _, err := os.Stat(ingrianPropsSource); err == nil {
-		data, err := os.ReadFile(ingrianPropsSource)
-		if err == nil {
-			_ = os.WriteFile(ingrianPropsDest, data, 0644)
-		}
-	}
-
 	p.context.Log.Info("Installed ProtectApp Security Provider version %s", dep.Version)
 	return nil
 }

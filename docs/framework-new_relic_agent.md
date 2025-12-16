@@ -59,8 +59,9 @@ extensions
 |...
 ```
 
-### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/new_relic_agent` directory in the buildpack fork.  For example, to override the default `new_relic.yml` add your custom file to `resources/new_relic_agent/newrelic.yml`.
+### Additional Configuration
+
+**Note:** The `resources/new_relic_agent` directory approach from the Ruby buildpack (2013-2025) is no longer supported. The Go buildpack does not package the `resources/` directory.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/new_relic_agent.yml`]: ../config/new_relic_agent.yml

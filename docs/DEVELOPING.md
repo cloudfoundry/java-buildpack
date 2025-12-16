@@ -116,7 +116,6 @@ java-buildpack/
 │   ├── components.yml       # Component registry
 │   ├── open_jdk_jre.yml    # Example: OpenJDK configuration
 │   └── ...                  # Component-specific configs
-├── resources/               # Static resources (templates, configs)
 ├── scripts/                 # Build and test scripts
 │   ├── build.sh            # Build binaries
 │   ├── unit.sh             # Run unit tests

@@ -40,7 +40,8 @@ The framework can be configured by modifying the [`config/jacoc_agent.yml`][] fi
 | `version` | The version of JaCoCo to use. Candidate versions can be found in [this listing][].
 
 ### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/jacoco_agent` directory in the buildpack fork.  For example, to override the default `jacoco.yml` add your custom file to `resources/jacoco_agent/jacoco.yml`.
+
+**Note:** The `resources/jacoco_agent` directory approach from the Ruby buildpack (2013-2025) is no longer supported. This was a **buildpack-level** feature where teams would fork the java-buildpack repository, add custom files to `resources/jacoco_agent/`, and package their custom buildpack. The Go buildpack does not package the `resources/` directory.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [`config/jacoco_agent.yml`]: ../config/jacoco_agent.yml

@@ -5,8 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // LunaSecurityProviderFramework implements Safenet Luna HSM Java Security Provider support
@@ -71,23 +69,6 @@ func (l *LunaSecurityProviderFramework) Supply() error {
 	}
 	if err := l.createSymlink(lunaAPIso, filepath.Join(extDir, "libLunaAPI.so")); err != nil {
 		l.context.Log.Warning("Failed to create libLunaAPI.so symlink: %s", err.Error())
-	}
-
-	// Copy default Chrystoki.conf from buildpack resources
-	buildpackDir, err := libbuildpack.GetBuildpackDir()
-	if err != nil {
-		l.context.Log.Warning("Unable to determine buildpack directory: %s", err.Error())
-	} else {
-		resourcesDir := filepath.Join(buildpackDir, "resources", "luna_security_provider")
-		defaultChrystoki := filepath.Join(resourcesDir, "Chrystoki.conf")
-		targetChrystoki := filepath.Join(lunaDir, "Chrystoki.conf")
-
-		// Copy default config if it exists
-		if content, err := os.ReadFile(defaultChrystoki); err == nil {
-			if err := os.WriteFile(targetChrystoki, content, 0644); err != nil {
-				l.context.Log.Warning("Failed to copy default Chrystoki.conf: %s", err.Error())
-			}
-		}
 	}
 
 	// Write credentials from VCAP_SERVICES

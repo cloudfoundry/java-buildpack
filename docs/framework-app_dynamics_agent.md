@@ -44,18 +44,15 @@ The framework can be configured by modifying the [`config/app_dynamics_agent.yml
 | `version` | The version of AppDynamics to use. Candidate versions can be found in [this listing][].
 
 ### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution.  To do this follow one of the options below.
+The framework can be configured by providing custom configuration files.
 
-Configuration files are created in this order:
+Configuration files are applied in this order:
 
 1. Default AppDynamics configuration
-2. Buildpack default configuration is taken from `resources/app_dynamics_agent/default`
-3. External Configuration if configured
-4. Local Configuration if configured
-5. Buildpack Fork if it exists
+2. External Configuration (if configured via `APPD_CONF_HTTP_URL`)
+3. Local Configuration (if configured via `APPD_CONF_DIR`)
 
-#### Buildpack Fork
-Add files to the `resources/app_dynamics_agent` directory in the buildpack fork.  For example, to override the default `app-agent-config.xml` add your custom file to `resources/app_dynamics_agent/<version>/conf/app-agent-config.xml`.
+**Note:** The `resources/app_dynamics_agent` directory approach from the Ruby buildpack (2013-2025) is no longer supported. This was a **buildpack-level** feature where teams would fork the java-buildpack repository, add custom files to `resources/app_dynamics_agent/`, and package their custom buildpack. The Go buildpack does not package the `resources/` directory. Use External Configuration or Local Configuration instead (see below).
 
 #### External Configuration
 Set `APPD_CONF_HTTP_URL` to an HTTP or HTTPS URL which points to the directory where your configuration files exist. You may also include a user and password in the URL, like `https://user:pass@example.com`.

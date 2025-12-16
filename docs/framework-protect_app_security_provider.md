@@ -86,8 +86,13 @@ The framework can be configured by modifying the [`config/protect_app_security_p
 | `repository_root` | The URL of the ProtectApp Security Provider repository index ([details][repositories]).
 | `version` | Version of the ProtectApp Security Provider to use.
 
-### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/protect_app_security_provider` directory in the buildpack fork.
+### Additional Configuration
+
+**Note:** The `resources/protect_app_security_provider` directory approach from the Ruby buildpack (2013-2025) is no longer supported. The Go buildpack does not package the `resources/` directory.
+
+All ProtectApp configuration should be provided via:
+- System properties passed through VCAP_SERVICES credentials (using the `-Dcom.ingrian.security.nae.*` prefix)
+- The credentials payload as documented above
 
 [`config/protect_app_security_provider.yml`]: ../config/protect_app_security_provider.yml
 [ProtectApp Security Service]: https://safenet.gemalto.com/data-encryption/protectapp-application-protection/

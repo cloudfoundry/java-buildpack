@@ -38,10 +38,12 @@ cf restage <app_name>
 | `memory_calculator` | Memory calculator defaults, described below under "Memory".
 
 ### Additional Resources
-The JRE can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/sap_machine_jre` directory in the buildpack fork.
+
+**Note:** The `resources/sap_machine_jre` directory approach from the Ruby buildpack (2013-2025) is no longer supported. This was a **buildpack-level** feature for teams with forked buildpacks. The Go buildpack does not package the `resources/` directory.
 
 #### Custom CA Certificates
-To add custom SSL certificates, add your `cacerts` file to `resources/sap_machine_jre/lib/security/cacerts`.  This file will be overlayed onto the SapMachine distribution.
+
+**Recommended approach:** Use [Cloud Foundry Trusted System Certificates](https://docs.cloudfoundry.org/devguide/deploy-apps/trusted-system-certificates.html). This is the standard Cloud Foundry approach and works for all apps. Operators deploy trusted certificates that are automatically available in `/etc/cf-system-certificates` and `/etc/ssl/certs`.
 
 ### `jvmkill`
 The `jvmkill` agent runs when an application has experience a resource exhaustion event.  When this event occurs, the agent will print out a histogram of the first 100 largest types by total number of bytes.

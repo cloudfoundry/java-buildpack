@@ -37,7 +37,8 @@ The framework can be configured by modifying the [`config/sky_walking_agent.yml`
 | `version` | The version of SkyWalking to use. Candidate versions can be found in [this listing][].
 
 ### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/sky_walking_agent` directory in the buildpack fork.
+
+**Note:** The `resources/sky_walking_agent` directory approach from the Ruby buildpack (2013-2025) is no longer supported. This was a **buildpack-level** feature where teams would fork the java-buildpack repository, add custom files to `resources/sky_walking_agent/`, and package their custom buildpack. The Go buildpack does not package the `resources/` directory.
 
 [`config/sky_walking_agent.yml`]: ../config/sky_walking_agent.yml
 [SkyWalking Java Agent Configuration Properties]: https://github.com/apache/incubator-skywalking/blob/master/docs/en/Deploy-skywalking-agent.md
