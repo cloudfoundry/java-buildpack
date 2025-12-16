@@ -409,15 +409,15 @@ describe JavaBuildpack::Util::FilteringPathname do
   end
 
   it 'raises error if getwd is used' do
-    expect { described_class.getwd }.to raise_error(/undefined method `getwd'/)
+    expect { described_class.getwd }.to raise_error(NoMethodError, /undefined method [`']getwd'/)
   end
 
   it 'raises error if glob is used' do
-    expect { described_class.glob '' }.to raise_error(/undefined method `glob'/)
+    expect { described_class.glob '' }.to raise_error(NoMethodError, /undefined method [`']glob'/)
   end
 
   it 'raises error if pwd is used' do
-    expect { described_class.pwd }.to raise_error(/undefined method `pwd'/)
+    expect { described_class.pwd }.to raise_error(NoMethodError, /undefined method [`']pwd'/)
   end
 
   def create_file(filename)

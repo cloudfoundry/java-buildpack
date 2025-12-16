@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'tmpdir'
 require 'webmock/rspec'
 WebMock.disable_net_connect!(allow: 'codeclimate.com')
 

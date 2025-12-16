@@ -39,5 +39,5 @@ The framework can be configured by modifying the [`config/google_stackdriver_pro
 [`config/google_stackdriver_profiler.yml`]: ../config/google_stackdriver_profiler.yml
 [Google Stackdriver Profiler Service]: https://cloud.google.com/profiler/
 [repositories]: extending-repositories.md
-[this listing]: https://java-buildpack.cloudfoundry.org/google-stackdriver-profiler/bionic/x86_64/index.yml
+[this listing]: https://java-buildpack.cloudfoundry.org/google-stackdriver-profiler/jammy/x86_64/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering

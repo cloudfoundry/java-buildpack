@@ -14,7 +14,7 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  --> 
+  -->
 <Context allowLinking='true'>
     <Manager className='org.apache.geode.modules.session.catalina.TomcatDeltaSessionManager' enableLocalCache='true' regionAttributesId='PARTITION_REDUNDANT_HEAP_LRU'/>
 </Context>

@@ -326,18 +326,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
       .to_return(status: 200, body: 'foo-cached', headers: { Etag: 'foo-etag', 'Last-Modified' => 'foo-last-modified' })
 
     allow(Net::HTTP).to receive(:Proxy).and_call_original
-
-    # behavior changed between ruby 2 & 3 with how default hash kwargs are passed
-    # this causes different arguments for the mock based on the ruby version
-    # Remove this when we drop support for ruby 2
-    case RUBY_VERSION
-    when /2\.\d+\.\d+/
-      allow(Net::HTTP).to receive(:start).with('foo-uri', 80, {}).and_call_original
-    when /3\.\d+\.\d+/
-      allow(Net::HTTP).to receive(:start).with('foo-uri', 80).and_call_original
-    else
-      raise 'unexpected ruby version'
-    end
+    allow(Net::HTTP).to receive(:start).with('foo-uri', 80).and_call_original
 
     download_cache.get(uri) {}
   end
@@ -348,18 +337,7 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
 
     allow(ca_certs_directory).to receive(:exist?).and_return(true)
     allow(Net::HTTP).to receive(:Proxy).and_call_original
-
-    # behavior changed between ruby 2 & 3 with how default hash kwargs are passed
-    # this causes different arguments for the mock based on the ruby version
-    # Remove this when we drop support for ruby 2
-    case RUBY_VERSION
-    when /2\.\d+\.\d+/
-      allow(Net::HTTP).to receive(:start).with('foo-uri', 80, {}).and_call_original
-    when /3\.\d+\.\d+/
-      allow(Net::HTTP).to receive(:start).with('foo-uri', 80).and_call_original
-    else
-      raise 'unexpected ruby version'
-    end
+    allow(Net::HTTP).to receive(:start).with('foo-uri', 80).and_call_original
 
     download_cache.get(uri) {}
   end

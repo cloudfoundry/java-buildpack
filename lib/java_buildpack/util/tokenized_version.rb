@@ -93,10 +93,7 @@ module JavaBuildpack
 
           tokens = s.match(/^([^.]+)(?:\.(.*))?/)
 
-          # disable as we still have to support Ruby 2.5, remove & update when we drop Bionic support
-          # rubocop:disable Style/SlicingWithRange
-          major_or_minor, tail = tokens[1..-1]
-          # rubocop:enable Style/SlicingWithRange
+          major_or_minor, tail = tokens[1..]
 
           raise "Invalid major or minor version '#{major_or_minor}'" unless valid_major_minor_or_micro major_or_minor
         end
@@ -113,10 +110,7 @@ module JavaBuildpack
 
           tokens = s.match(/^([^_]+)(?:_(.*))?/)
 
-          # disable as we still have to support Ruby 2.5, remove & update when we drop Bionic support
-          # rubocop:disable Style/SlicingWithRange
-          micro, qualifier = tokens[1..-1]
-          # rubocop:enable Style/SlicingWithRange
+          micro, qualifier = tokens[1..]
 
           raise "Invalid micro version '#{micro}'" unless valid_major_minor_or_micro micro
           raise "Invalid qualifier '#{qualifier}'" unless valid_qualifier qualifier

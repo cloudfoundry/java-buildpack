@@ -93,13 +93,15 @@ function main() {
   local phase
   phase="$(basename "${0}")"
 
-  if ! which ruby > /dev/null; then
-    mkdir -p "${RUBY_DIR}"
+  # Always install and use buildpack Ruby to ensure consistent version
+  # regardless of system Ruby availability
+  mkdir -p "${RUBY_DIR}"
 
+  if [ ! -d "${RUBY_DIR}/bin" ]; then
     util::install
-    util::environment::setup
   fi
 
+  util::environment::setup
 
   exec "${BUILDPACK_DIR}/bin/ruby-run" "${phase}" "${@-}"
 }

@@ -14,6 +14,8 @@
 # limitations under the License.
 
 # Configuration for Ruby
+# Note: Ruby 3.2.8+ is required for Psych 5.0.1+ which supports YAML.load_file
+# with permitted_classes and aliases keyword arguments used throughout the buildpack
 ---
 version: 3.2.+
 repository_root: https://raw.githubusercontent.com/cloudfoundry/ruby-buildpack/master/java-index

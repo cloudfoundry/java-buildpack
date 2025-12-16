@@ -119,14 +119,14 @@ module JavaBuildpack
 
         def load_configuration(file, operator_provided, operator_var_name, user_provided, user_var_name,
                                clean_nil_values, should_log)
-          configuration = YAML.load_file(file)
+          configuration = YAML.load_file(file, permitted_classes: [Symbol], aliases: true)
           logger.debug { "Configuration from #{file}: #{configuration}" } if should_log
 
           if operator_provided
             begin
               operator_provided_value = YAML.safe_load(operator_provided)
               configuration = merge_configuration(configuration, operator_provided_value, operator_var_name, should_log)
-            rescue Psych::SyntaxError => e
+            rescue Psych::SyntaxError, Psych::DisallowedClass => e
               raise "Default configuration value in environment variable #{operator_var_name} has invalid syntax: #{e}"
             end
           end
@@ -135,7 +135,7 @@ module JavaBuildpack
             begin
               user_provided_value = YAML.safe_load(user_provided)
               configuration       = merge_configuration(configuration, user_provided_value, user_var_name, should_log)
-            rescue Psych::SyntaxError => e
+            rescue Psych::SyntaxError, Psych::DisallowedClass => e
               raise "User configuration value in environment variable #{user_var_name} has invalid syntax: #{e}"
             end
             logger.debug { "Configuration from #{file} modified with: #{user_provided}" } if should_log

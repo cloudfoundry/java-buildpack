@@ -129,7 +129,8 @@ module JavaBuildpack
       end
 
       def create_cache_client_xml
-        document = REXML::Document.new('<?xml version="1.0" encoding="UTF-8"?>')
+        document = REXML::Document.new
+        document << REXML::XMLDecl.new('1.0', 'UTF-8')
         add_client_cache document
         write_xml cache_client_xml_path, document
       end

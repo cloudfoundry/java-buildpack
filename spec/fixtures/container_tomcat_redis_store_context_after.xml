@@ -14,7 +14,7 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  --> 
+  -->
 <Context allowLinking='true'>
     <Valve className='com.gopivotal.manager.SessionFlushValve'/>
     <Manager className='org.apache.catalina.session.PersistentManager'>

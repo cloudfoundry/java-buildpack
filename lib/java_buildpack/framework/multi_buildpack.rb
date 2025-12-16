@@ -269,7 +269,7 @@ module JavaBuildpack
       end
 
       def config(config_file)
-        YAML.load_file(config_file)
+        YAML.load_file(config_file, permitted_classes: [Symbol], aliases: true)
       end
 
       def config_file(dep_directory)

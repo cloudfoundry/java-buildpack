@@ -73,3 +73,9 @@ class StubJavaMemoryAssistant < JavaBuildpack::Framework::JavaMemoryAssistant
   public :command, :sub_components, :supports?
 
 end
+
+def sub_configuration_context(configuration)
+  c = context.clone
+  c[:configuration] = configuration
+  c
+end

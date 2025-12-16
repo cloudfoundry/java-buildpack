@@ -1,5 +1,6 @@
 ---
-require: rubocop-rspec
+plugins:
+  - rubocop-rspec
 
 AllCops:
   NewCops: enable
@@ -40,7 +41,9 @@ RSpec/ExampleLength:
   Max: 20
 RSpec/ExpectOutput:
   Enabled: false
-RSpec/FilePath:
+RSpec/SpecFilePathFormat:
+  Enabled: false
+RSpec/SpecFilePathSuffix:
   Enabled: false
 RSpec/MissingExampleGroupArgument:
   Enabled: false
@@ -64,7 +67,7 @@ Lint/EmptyBlock:
 RSpec/MultipleMemoizedHelpers:
   Max: 10
 RSpec/VerifiedDoubleReference:
-  EnforcedStyle: string
+  Enabled: false
 Style/OptionalBooleanParameter:
   Enabled: false
 Lint/RedundantCopDisableDirective:

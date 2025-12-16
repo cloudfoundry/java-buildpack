@@ -39,5 +39,5 @@ The framework can be configured by modifying the [`config/google_stackdriver_deb
 [`config/google_stackdriver_debugger.yml`]: ../config/google_stackdriver_debugger.yml
 [Google Stackdriver Debugger Service]: https://cloud.google.com/debugger/
 [repositories]: extending-repositories.md
-[this listing]: https://java-buildpack.cloudfoundry.org/google-stackdriver-debugger/bionic/x86_64/index.yml
+[this listing]: https://java-buildpack.cloudfoundry.org/google-stackdriver-debugger/jammy/x86_64/index.yml
 [version syntax]: extending-repositories.md#version-syntax-and-ordering
