@@ -98,13 +98,8 @@ func (c *ContainerSecurityProviderFramework) Finalize() error {
 		javaOpts += fmt.Sprintf(" -Dorg.cloudfoundry.security.trustmanager.enabled=%s", trustManagerEnabled)
 	}
 
-	// Write JAVA_OPTS to environment
-	existingOpts := os.Getenv("JAVA_OPTS")
-	if existingOpts != "" {
-		javaOpts = existingOpts + " " + javaOpts
-	}
-
-	if err := c.context.Stager.WriteEnvFile("JAVA_OPTS", javaOpts); err != nil {
+	// Append to JAVA_OPTS (preserves values from other frameworks)
+	if err := AppendToJavaOpts(c.context, javaOpts); err != nil {
 		return fmt.Errorf("failed to set JAVA_OPTS for Container Security Provider: %w", err)
 	}
 

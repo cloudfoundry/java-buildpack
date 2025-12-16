@@ -181,8 +181,8 @@ func (j *JacocoAgentFramework) Finalize() error {
 		javaagentOpts += fmt.Sprintf("=%s=%s", key, value)
 	}
 
-	// Write JAVA_OPTS to environment
-	if err := j.context.Stager.WriteEnvFile("JAVA_OPTS", javaagentOpts); err != nil {
+	// Append to JAVA_OPTS (preserves values from other frameworks)
+	if err := AppendToJavaOpts(j.context, javaagentOpts); err != nil {
 		return fmt.Errorf("failed to set JAVA_OPTS for JaCoCo: %w", err)
 	}
 

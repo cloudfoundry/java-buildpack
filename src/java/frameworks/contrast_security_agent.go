@@ -111,16 +111,16 @@ func (c *ContrastSecurityAgentFramework) Finalize() error {
 		}
 	}
 
-	// Add javaagent to JAVA_OPTS
+	// Append javaagent to JAVA_OPTS (preserves values from other frameworks)
 	javaOpts := fmt.Sprintf("-javaagent:%s=%s", c.agentJarPath, c.configPath)
-	if err := c.context.Stager.WriteEnvFile("JAVA_OPTS", javaOpts); err != nil {
+	if err := AppendToJavaOpts(c.context, javaOpts); err != nil {
 		c.context.Log.Warning("Failed to set JAVA_OPTS for Contrast Security: %s", err)
 		return nil
 	}
 
-	// Add system properties
+	// Append system properties
 	contrastDir := fmt.Sprintf("-Dcontrast.dir=$TMPDIR")
-	if err := c.context.Stager.WriteEnvFile("JAVA_OPTS", contrastDir); err != nil {
+	if err := AppendToJavaOpts(c.context, contrastDir); err != nil {
 		c.context.Log.Warning("Failed to set contrast.dir: %s", err)
 		return nil
 	}

@@ -58,14 +58,8 @@ func (j *JmxFramework) Finalize() error {
 		port, port,
 	)
 
-	// Add to JAVA_OPTS
-	javaOpts := os.Getenv("JAVA_OPTS")
-	if javaOpts != "" {
-		javaOpts += " "
-	}
-	javaOpts += jmxOpts
-
-	if err := j.context.Stager.WriteEnvFile("JAVA_OPTS", javaOpts); err != nil {
+	// Append to JAVA_OPTS (preserves values from other frameworks)
+	if err := AppendToJavaOpts(j.context, jmxOpts); err != nil {
 		return fmt.Errorf("failed to set JAVA_OPTS for JMX: %w", err)
 	}
 

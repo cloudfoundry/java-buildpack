@@ -74,9 +74,9 @@ func (a *AspectJWeaverAgentFramework) Finalize() error {
 		return nil
 	}
 
-	// Add javaagent to JAVA_OPTS
+	// Append javaagent to JAVA_OPTS (preserves values from other frameworks)
 	javaOpts := fmt.Sprintf("-javaagent:%s", a.aspectjJar)
-	if err := a.context.Stager.WriteEnvFile("JAVA_OPTS", javaOpts); err != nil {
+	if err := AppendToJavaOpts(a.context, javaOpts); err != nil {
 		a.context.Log.Warning("Failed to set JAVA_OPTS for AspectJ Weaver: %s", err)
 		return nil
 	}

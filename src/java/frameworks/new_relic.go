@@ -91,8 +91,8 @@ func (n *NewRelicFramework) Supply() error {
 		}
 	}
 
-	// Write JAVA_OPTS to environment
-	if err := n.context.Stager.WriteEnvFile("JAVA_OPTS", javaOpts); err != nil {
+	// Append to JAVA_OPTS (preserves values from other frameworks)
+	if err := AppendToJavaOpts(n.context, javaOpts); err != nil {
 		return fmt.Errorf("failed to set JAVA_OPTS for New Relic: %w", err)
 	}
 

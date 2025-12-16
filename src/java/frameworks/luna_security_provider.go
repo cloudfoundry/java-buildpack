@@ -101,14 +101,9 @@ func (l *LunaSecurityProviderFramework) Finalize() error {
 		lunaProviderJar := filepath.Join(lunaDir, "jsp", "LunaProvider.jar")
 		ldLibPath := filepath.Join(lunaDir, "jsp", "64")
 
-		// Add to JAVA_OPTS
+		// Append to JAVA_OPTS (preserves values from other frameworks)
 		javaOpts := fmt.Sprintf("-Xbootclasspath/a:%s", lunaProviderJar)
-		existingOpts := os.Getenv("JAVA_OPTS")
-		if existingOpts != "" {
-			javaOpts = existingOpts + " " + javaOpts
-		}
-
-		if err := l.context.Stager.WriteEnvFile("JAVA_OPTS", javaOpts); err != nil {
+		if err := AppendToJavaOpts(l.context, javaOpts); err != nil {
 			return fmt.Errorf("failed to set JAVA_OPTS for Luna Security Provider: %w", err)
 		}
 
@@ -127,12 +122,7 @@ func (l *LunaSecurityProviderFramework) Finalize() error {
 		extDir := filepath.Join(lunaDir, "ext")
 		javaOpts := fmt.Sprintf("-Djava.ext.dirs=%s:$JAVA_HOME/jre/lib/ext:$JAVA_HOME/lib/ext", extDir)
 
-		existingOpts := os.Getenv("JAVA_OPTS")
-		if existingOpts != "" {
-			javaOpts = existingOpts + " " + javaOpts
-		}
-
-		if err := l.context.Stager.WriteEnvFile("JAVA_OPTS", javaOpts); err != nil {
+		if err := AppendToJavaOpts(l.context, javaOpts); err != nil {
 			return fmt.Errorf("failed to set JAVA_OPTS for Luna Security Provider: %w", err)
 		}
 	}

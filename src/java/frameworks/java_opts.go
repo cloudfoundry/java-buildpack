@@ -58,36 +58,71 @@ func (j *JavaOptsFramework) Finalize() error {
 		return nil // Don't fail the build
 	}
 
-	var javaOpts []string
+	var configuredOpts []string
 
 	// Add configured java_opts from config file
 	if len(config.JavaOpts) > 0 {
 		j.context.Log.Info("Adding configured JAVA_OPTS: %v", config.JavaOpts)
-		javaOpts = append(javaOpts, config.JavaOpts...)
+		configuredOpts = append(configuredOpts, config.JavaOpts...)
 	}
 
-	// Add $JAVA_OPTS from environment if from_environment is true
+	// Build the default JAVA_OPTS value (used if user doesn't set JAVA_OPTS at runtime)
+	defaultOpts := strings.Join(configuredOpts, " ")
+
+	// Read existing JAVA_OPTS from staging environment (set by other frameworks/agents)
+	// During staging, Cloud Foundry reads env files and sets them as environment variables
+	existingStagingOpts := os.Getenv("JAVA_OPTS")
+
+	// Build combined staging JAVA_OPTS (for env file used by subsequent buildpacks)
+	var stagingOpts string
+	if existingStagingOpts != "" && defaultOpts != "" {
+		stagingOpts = existingStagingOpts + " " + defaultOpts
+	} else if existingStagingOpts != "" {
+		stagingOpts = existingStagingOpts
+	} else {
+		stagingOpts = defaultOpts
+	}
+
+	// Create profile.d script for runtime
+	// Following the pattern from Ruby buildpack's JRuby support and other CF buildpacks
+	// Use ${JAVA_OPTS:-default} to allow user override while providing sensible defaults
+	var profileScript string
 	if config.FromEnvironment {
-		j.context.Log.Info("Including JAVA_OPTS from environment at runtime")
-		// Add a placeholder that will be expanded at runtime in the startup script
-		javaOpts = append(javaOpts, "${JAVA_OPTS}")
+		// User can override by setting JAVA_OPTS; otherwise use all accumulated defaults
+		if stagingOpts != "" {
+			profileScript = fmt.Sprintf(`export JAVA_OPTS=${JAVA_OPTS:-%s}
+`, stagingOpts)
+		} else {
+			// No defaults configured, just ensure JAVA_OPTS is set (empty if not provided)
+			profileScript = `export JAVA_OPTS=${JAVA_OPTS:-}
+`
+		}
+	} else {
+		// from_environment is false - always use configured opts, ignore user's JAVA_OPTS
+		if stagingOpts != "" {
+			profileScript = fmt.Sprintf(`export JAVA_OPTS=%s
+`, stagingOpts)
+		} else {
+			// No opts configured and from_environment is false
+			profileScript = `export JAVA_OPTS=
+`
+		}
 	}
 
-	// If no opts to add, skip
-	if len(javaOpts) == 0 {
-		j.context.Log.Info("No JAVA_OPTS to configure")
-		return nil
+	// Write the profile.d script for runtime
+	if err := j.context.Stager.WriteProfileD("java_opts.sh", profileScript); err != nil {
+		return fmt.Errorf("failed to write java_opts profile.d script: %w", err)
 	}
 
-	// Join all opts into a single string
-	optsString := strings.Join(javaOpts, " ")
-
-	// Append to existing JAVA_OPTS environment file (don't overwrite)
-	if err := j.context.Stager.WriteEnvFile("JAVA_OPTS", optsString); err != nil {
-		return fmt.Errorf("failed to set JAVA_OPTS: %w", err)
+	// Write to env file for staging time (used by subsequent buildpacks and frameworks)
+	// This accumulates JAVA_OPTS from all frameworks that ran before us
+	if stagingOpts != "" {
+		if err := j.context.Stager.WriteEnvFile("JAVA_OPTS", stagingOpts); err != nil {
+			return fmt.Errorf("failed to write JAVA_OPTS env file: %w", err)
+		}
 	}
 
-	j.context.Log.Info("Configured JAVA_OPTS")
+	j.context.Log.Info("Configured JAVA_OPTS for runtime")
 	return nil
 }
 

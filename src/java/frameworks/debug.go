@@ -64,14 +64,8 @@ func (d *DebugFramework) Finalize() error {
 
 	debugOpts := fmt.Sprintf("-agentlib:jdwp=transport=dt_socket,server=y,address=%d,suspend=%s", port, suspendValue)
 
-	// Add to JAVA_OPTS
-	javaOpts := os.Getenv("JAVA_OPTS")
-	if javaOpts != "" {
-		javaOpts += " "
-	}
-	javaOpts += debugOpts
-
-	if err := d.context.Stager.WriteEnvFile("JAVA_OPTS", javaOpts); err != nil {
+	// Append to JAVA_OPTS (preserves values from other frameworks)
+	if err := AppendToJavaOpts(d.context, debugOpts); err != nil {
 		return fmt.Errorf("failed to set JAVA_OPTS for debugging: %w", err)
 	}
 

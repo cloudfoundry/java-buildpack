@@ -86,9 +86,9 @@ func (j *JRebelAgentFramework) Finalize() error {
 		return nil
 	}
 
-	// Add agentpath to JAVA_OPTS
+	// Append agentpath to JAVA_OPTS (preserves values from other frameworks)
 	javaOpts := fmt.Sprintf("-agentpath:%s", j.agentLibPath)
-	if err := j.context.Stager.WriteEnvFile("JAVA_OPTS", javaOpts); err != nil {
+	if err := AppendToJavaOpts(j.context, javaOpts); err != nil {
 		j.context.Log.Warning("Failed to set JAVA_OPTS for JRebel: %s", err)
 		return nil
 	}

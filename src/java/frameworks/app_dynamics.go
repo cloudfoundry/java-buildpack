@@ -114,8 +114,8 @@ func (a *AppDynamicsFramework) Supply() error {
 		}
 	}
 
-	// Write JAVA_OPTS to environment
-	if err := a.context.Stager.WriteEnvFile("JAVA_OPTS", javaOpts); err != nil {
+	// Append to JAVA_OPTS (preserves values from other frameworks)
+	if err := AppendToJavaOpts(a.context, javaOpts); err != nil {
 		return fmt.Errorf("failed to set JAVA_OPTS for AppDynamics: %w", err)
 	}
 
