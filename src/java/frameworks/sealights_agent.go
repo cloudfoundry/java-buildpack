@@ -82,20 +82,46 @@ func (f *SealightsAgentFramework) Finalize() error {
 
 	installDir := filepath.Join(f.ctx.Stager.DepDir(), "sealights_agent")
 
-	// Find the JAR agent (sl-test-listener.jar)
+	// Find the JAR agent (sl-test-listener.jar or sl-test-listener-*.jar)
+	// NOTE: There are multiple Sealights JARs (sl-build-scanner, sl-test-listener, etc.)
+	// We need the test-listener for runtime agent support
 	agentPath := filepath.Join(installDir, "sl-test-listener.jar")
 
 	// Verify agent exists
 	if _, err := os.Stat(agentPath); err != nil {
-		f.ctx.Log.Warning("Sealights agent not found at %s, searching for it", agentPath)
-		// Try to find any sl-*.jar file
-		matches, _ := filepath.Glob(filepath.Join(installDir, "sl-*.jar"))
+		f.ctx.Log.Warning("Sealights agent not found at exact path %s, searching for versioned file", agentPath)
+		// Try to find sl-test-listener-*.jar (versioned)
+		matches, _ := filepath.Glob(filepath.Join(installDir, "sl-test-listener*.jar"))
 		if len(matches) > 0 {
 			agentPath = matches[0]
+			f.ctx.Log.Debug("Found Sealights test-listener: %s", agentPath)
 		} else {
-			return fmt.Errorf("sealights agent JAR not found: %w", err)
+			// Fallback: search recursively for any sl-test-listener*.jar
+			filepath.Walk(installDir, func(path string, info os.FileInfo, err error) error {
+				if err != nil {
+					return nil
+				}
+				baseName := filepath.Base(path)
+				if !info.IsDir() && (baseName == "sl-test-listener.jar" ||
+					(filepath.HasPrefix(baseName, "sl-test-listener") && filepath.Ext(baseName) == ".jar")) {
+					agentPath = path
+					return filepath.SkipAll
+				}
+				return nil
+			})
+
+			if _, err := os.Stat(agentPath); err != nil {
+				return fmt.Errorf("sealights test-listener JAR not found in %s: %w", installDir, err)
 		}
 	}
+	}
+
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(f.ctx.Stager.DepDir(), agentPath)
+	if err != nil {
+		return fmt.Errorf("failed to compute relative path: %w", err)
+	}
+	runtimeAgentPath := filepath.Join("$DEPS_DIR/0", relPath)
 
 	// Get service credentials
 	vcapServices, err := GetVCAPServices()
