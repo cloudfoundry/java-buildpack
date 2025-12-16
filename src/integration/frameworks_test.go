@@ -595,8 +595,9 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					deployment, logs, err := platform.Deploy.
 						WithServices(map[string]switchblade.Service{
 							"jacoco": {
-								"address": "jacoco.example.com",
+								"address": "localhost",
 								"port":    "6300",
+								"output":  "file", // Use file output instead of tcpclient to avoid network dependency
 							},
 						}).
 						WithEnv(map[string]string{
@@ -718,7 +719,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 							"BP_JAVA_VERSION":         "11",
 							"JBP_CONFIG_JREBEL_AGENT": "'{enabled: true}'",
 						}).
-						Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
+						Execute(name, filepath.Join(fixtures, "containers", "spring_boot_multi_framework"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
 
 					// JRebel agent should be detected when enabled
