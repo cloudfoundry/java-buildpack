@@ -119,6 +119,8 @@ func (g *GroovyContainer) Release() (string, error) {
 		return "", fmt.Errorf("no Groovy script specified (set GROOVY_SCRIPT)")
 	}
 
-	cmd := fmt.Sprintf("$GROOVY_HOME/bin/groovy $JAVA_OPTS %s", mainScript)
+	// Note: JAVA_OPTS is set via environment variables (profile.d/java_opts.sh)
+	// The groovy command reads JAVA_OPTS from the environment, not command-line args
+	cmd := fmt.Sprintf("$GROOVY_HOME/bin/groovy %s", mainScript)
 	return cmd, nil
 }
