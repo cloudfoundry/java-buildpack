@@ -103,6 +103,16 @@ func (z *ZingJRE) Finalize() error {
 		}
 	}
 
+	// Set JAVA_HOME in environment for frameworks that need it during finalize phase
+	// (e.g., Luna Security Provider, Container Security Provider)
+	if z.javaHome != "" {
+		if err := os.Setenv("JAVA_HOME", z.javaHome); err != nil {
+			z.ctx.Log.Warning("Failed to set JAVA_HOME environment variable: %s", err.Error())
+		} else {
+			z.ctx.Log.Debug("Set JAVA_HOME=%s", z.javaHome)
+		}
+	}
+
 	// Add Zing-specific JVM option for OOM handling
 	// Unlike other JREs, Zing uses built-in -XX:+ExitOnOutOfMemoryError instead of jvmkill
 	if err := WriteJavaOpts(z.ctx, "-XX:+ExitOnOutOfMemoryError"); err != nil {

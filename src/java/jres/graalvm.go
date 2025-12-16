@@ -123,6 +123,16 @@ func (g *GraalVMJRE) Finalize() error {
 		}
 	}
 
+	// Set JAVA_HOME in environment for frameworks that need it during finalize phase
+	// (e.g., Luna Security Provider, Container Security Provider)
+	if g.javaHome != "" {
+		if err := os.Setenv("JAVA_HOME", g.javaHome); err != nil {
+			g.ctx.Log.Warning("Failed to set JAVA_HOME environment variable: %s", err.Error())
+		} else {
+			g.ctx.Log.Debug("Set JAVA_HOME=%s", g.javaHome)
+		}
+	}
+
 	// Determine Java major version for memory calculator
 	javaMajorVersion := 17 // default
 	if g.javaHome != "" {

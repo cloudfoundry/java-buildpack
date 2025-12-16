@@ -124,6 +124,16 @@ func (o *OracleJRE) Finalize() error {
 		}
 	}
 
+	// Set JAVA_HOME in environment for frameworks that need it during finalize phase
+	// (e.g., Luna Security Provider, Container Security Provider)
+	if o.javaHome != "" {
+		if err := os.Setenv("JAVA_HOME", o.javaHome); err != nil {
+			o.ctx.Log.Warning("Failed to set JAVA_HOME environment variable: %s", err.Error())
+		} else {
+			o.ctx.Log.Debug("Set JAVA_HOME=%s", o.javaHome)
+		}
+	}
+
 	// Determine Java major version for memory calculator
 	javaMajorVersion := 17 // default
 	if o.javaHome != "" {

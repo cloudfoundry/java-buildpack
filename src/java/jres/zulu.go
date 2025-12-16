@@ -123,6 +123,16 @@ func (z *ZuluJRE) Finalize() error {
 		}
 	}
 
+	// Set JAVA_HOME in environment for frameworks that need it during finalize phase
+	// (e.g., Luna Security Provider, Container Security Provider)
+	if z.javaHome != "" {
+		if err := os.Setenv("JAVA_HOME", z.javaHome); err != nil {
+			z.ctx.Log.Warning("Failed to set JAVA_HOME environment variable: %s", err.Error())
+		} else {
+			z.ctx.Log.Debug("Set JAVA_HOME=%s", z.javaHome)
+		}
+	}
+
 	// Determine Java major version for memory calculator
 	javaMajorVersion := 11 // default
 	if z.javaHome != "" {

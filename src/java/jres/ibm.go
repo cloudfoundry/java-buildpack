@@ -126,6 +126,16 @@ func (i *IBMJRE) Finalize() error {
 		}
 	}
 
+	// Set JAVA_HOME in environment for frameworks that need it during finalize phase
+	// (e.g., Luna Security Provider, Container Security Provider)
+	if i.javaHome != "" {
+		if err := os.Setenv("JAVA_HOME", i.javaHome); err != nil {
+			i.ctx.Log.Warning("Failed to set JAVA_HOME environment variable: %s", err.Error())
+		} else {
+			i.ctx.Log.Debug("Set JAVA_HOME=%s", i.javaHome)
+		}
+	}
+
 	// Determine Java major version for memory calculator
 	javaMajorVersion := 8 // IBM JRE default
 	if i.javaHome != "" {

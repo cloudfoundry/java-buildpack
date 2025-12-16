@@ -123,6 +123,16 @@ func (s *SapMachineJRE) Finalize() error {
 		}
 	}
 
+	// Set JAVA_HOME in environment for frameworks that need it during finalize phase
+	// (e.g., Luna Security Provider, Container Security Provider)
+	if s.javaHome != "" {
+		if err := os.Setenv("JAVA_HOME", s.javaHome); err != nil {
+			s.ctx.Log.Warning("Failed to set JAVA_HOME environment variable: %s", err.Error())
+		} else {
+			s.ctx.Log.Debug("Set JAVA_HOME=%s", s.javaHome)
+		}
+	}
+
 	// Determine Java major version for memory calculator
 	javaMajorVersion := 17 // default
 	if s.javaHome != "" {
