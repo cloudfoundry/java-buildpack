@@ -93,25 +93,13 @@ func (f *Finalizer) finalizeJRE() error {
 	}
 
 	// Create and populate JRE registry
-	registry := jres.NewRegistry(ctx)
-
-	// Register OpenJDK and set it as the default JRE
 	// This MUST match the behavior in the supply phase to ensure consistent detection.
 	// The finalize phase re-detects the JRE (rather than reading stored config) to support:
 	// 1. Multi-buildpack scenarios where supply and finalize may run in different contexts
 	// 2. Environment variable overrides that occur between phases
 	// 3. Detection of JREs installed by other buildpacks
-	openJDK := jres.NewOpenJDKJRE(ctx)
-	registry.Register(openJDK)
-	registry.SetDefault(openJDK)
-
-	// Register additional JRE providers
-	registry.Register(jres.NewZuluJRE(ctx))
-	registry.Register(jres.NewSapMachineJRE(ctx))
-	registry.Register(jres.NewGraalVMJRE(ctx))
-	registry.Register(jres.NewIBMJRE(ctx))
-	registry.Register(jres.NewOracleJRE(ctx))
-	registry.Register(jres.NewZingJRE(ctx))
+	registry := jres.NewRegistry(ctx)
+	registry.RegisterStandardJREs()
 
 	// Detect which JRE was installed (should match supply phase)
 	// With SetDefault(openJDK) configured, this will always return a JRE unless
@@ -150,56 +138,7 @@ func (f *Finalizer) finalizeFrameworks() error {
 
 	// Create and populate framework registry
 	registry := frameworks.NewRegistry(ctx)
-
-	// APM Agents (Priority 1)
-	registry.Register(frameworks.NewNewRelicFramework(ctx))
-	registry.Register(frameworks.NewAppDynamicsFramework(ctx))
-	registry.Register(frameworks.NewDynatraceFramework(ctx))
-	registry.Register(frameworks.NewDatadogJavaagentFramework(ctx))
-	registry.Register(frameworks.NewElasticApmAgentFramework(ctx))
-
-	// Spring Service Bindings (Priority 1)
-	registry.Register(frameworks.NewSpringAutoReconfigurationFramework(ctx))
-	registry.Register(frameworks.NewJavaCfEnvFramework(ctx))
-
-	// JDBC Drivers (Priority 1)
-	registry.Register(frameworks.NewPostgresqlJdbcFramework(ctx))
-	registry.Register(frameworks.NewMariaDBJDBCFramework(ctx))
-
-	// mTLS Support (Priority 1)
-	registry.Register(frameworks.NewClientCertificateMapperFramework(ctx))
-
-	// Security Providers (Priority 1)
-	registry.Register(frameworks.NewContainerSecurityProviderFramework(ctx))
-	registry.Register(frameworks.NewLunaSecurityProviderFramework(ctx))
-
-	// Development Tools (Priority 1)
-	registry.Register(frameworks.NewDebugFramework(ctx))
-	registry.Register(frameworks.NewJmxFramework(ctx))
-	registry.Register(frameworks.NewJavaOptsFramework(ctx))
-
-	// APM Agents (Priority 2)
-	registry.Register(frameworks.NewAzureApplicationInsightsAgentFramework(ctx))
-	registry.Register(frameworks.NewCheckmarxIASTAgentFramework(ctx))
-	registry.Register(frameworks.NewGoogleStackdriverDebuggerFramework(ctx))
-	registry.Register(frameworks.NewGoogleStackdriverProfilerFramework(ctx))
-	registry.Register(frameworks.NewIntroscopeAgentFramework(ctx))
-	registry.Register(frameworks.NewOpenTelemetryJavaagentFramework(ctx))
-	registry.Register(frameworks.NewRiverbedAppInternalsAgentFramework(ctx))
-	registry.Register(frameworks.NewSkyWalkingAgentFramework(ctx))
-	registry.Register(frameworks.NewSplunkOtelJavaAgentFramework(ctx))
-
-	// Testing & Code Coverage (Priority 3)
-	registry.Register(frameworks.NewJacocoAgentFramework(ctx))
-
-	// Code Instrumentation (Priority 3)
-	registry.Register(frameworks.NewJRebelAgentFramework(ctx))
-	registry.Register(frameworks.NewContrastSecurityAgentFramework(ctx))
-	registry.Register(frameworks.NewAspectJWeaverAgentFramework(ctx))
-	registry.Register(frameworks.NewTakipiAgentFramework(ctx))
-	registry.Register(frameworks.NewYourKitProfilerFramework(ctx))
-	registry.Register(frameworks.NewJProfilerProfilerFramework(ctx))
-	registry.Register(frameworks.NewSealightsAgentFramework(ctx))
+	registry.RegisterStandardFrameworks()
 
 	// Detect all frameworks that were installed
 	detectedFrameworks, frameworkNames, err := registry.DetectAll()

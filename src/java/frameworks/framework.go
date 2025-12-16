@@ -48,6 +48,70 @@ func (r *Registry) Register(f Framework) {
 	r.frameworks = append(r.frameworks, f)
 }
 
+// RegisterStandardFrameworks registers all standard frameworks in the correct priority order.
+// This ensures Supply and Finalize phases use the same detection order.
+// IMPORTANT: The order matters! Frameworks are checked in registration order.
+func (r *Registry) RegisterStandardFrameworks() {
+	// APM Agents (Priority 1)
+	r.Register(NewNewRelicFramework(r.context))
+	r.Register(NewAppDynamicsFramework(r.context))
+	r.Register(NewDynatraceFramework(r.context))
+	r.Register(NewDatadogJavaagentFramework(r.context))
+	r.Register(NewElasticApmAgentFramework(r.context))
+
+	// Spring Service Bindings (Priority 1)
+	r.Register(NewSpringAutoReconfigurationFramework(r.context))
+	r.Register(NewJavaCfEnvFramework(r.context))
+
+	// JDBC Drivers (Priority 1)
+	r.Register(NewPostgresqlJdbcFramework(r.context))
+	r.Register(NewMariaDBJDBCFramework(r.context))
+
+	// mTLS Support (Priority 1)
+	r.Register(NewClientCertificateMapperFramework(r.context))
+
+	// Security Providers (Priority 1)
+	r.Register(NewContainerSecurityProviderFramework(r.context))
+	r.Register(NewLunaSecurityProviderFramework(r.context))
+	r.Register(NewProtectAppSecurityProviderFramework(r.context))
+	r.Register(NewSeekerSecurityProviderFramework(r.context))
+
+	// Container & Runtime Support (Priority 1)
+	r.Register(NewContainerCustomizerFramework(r.context))
+	r.Register(NewJavaMemoryAssistantFramework(r.context))
+
+	// Metrics & Observability (Priority 1)
+	r.Register(NewMetricWriterFramework(r.context))
+
+	// Development Tools (Priority 1)
+	r.Register(NewDebugFramework(r.context))
+	r.Register(NewJmxFramework(r.context))
+	r.Register(NewJavaOptsFramework(r.context))
+
+	// APM Agents (Priority 2)
+	r.Register(NewAzureApplicationInsightsAgentFramework(r.context))
+	r.Register(NewCheckmarxIASTAgentFramework(r.context))
+	r.Register(NewGoogleStackdriverDebuggerFramework(r.context))
+	r.Register(NewGoogleStackdriverProfilerFramework(r.context))
+	r.Register(NewIntroscopeAgentFramework(r.context))
+	r.Register(NewOpenTelemetryJavaagentFramework(r.context))
+	r.Register(NewRiverbedAppInternalsAgentFramework(r.context))
+	r.Register(NewSkyWalkingAgentFramework(r.context))
+	r.Register(NewSplunkOtelJavaAgentFramework(r.context))
+
+	// Testing & Code Coverage (Priority 3)
+	r.Register(NewJacocoAgentFramework(r.context))
+
+	// Code Instrumentation & Additional Development Tools (Priority 3)
+	r.Register(NewJRebelAgentFramework(r.context))
+	r.Register(NewContrastSecurityAgentFramework(r.context))
+	r.Register(NewAspectJWeaverAgentFramework(r.context))
+	r.Register(NewTakipiAgentFramework(r.context))
+	r.Register(NewYourKitProfilerFramework(r.context))
+	r.Register(NewJProfilerProfilerFramework(r.context))
+	r.Register(NewSealightsAgentFramework(r.context))
+}
+
 // DetectAll returns all frameworks that should be included
 func (r *Registry) DetectAll() ([]Framework, []string, error) {
 	var matched []Framework

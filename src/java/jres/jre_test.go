@@ -68,9 +68,10 @@ var _ = Describe("JRE Registry", func() {
 			Expect(registry).NotTo(BeNil())
 		})
 
-		It("has no JREs registered by default", func() {
+		It("returns error when no JREs registered", func() {
 			jre, name, err := registry.Detect()
-			Expect(err).NotTo(HaveOccurred())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("no JRE found"))
 			Expect(jre).To(BeNil())
 			Expect(name).To(BeEmpty())
 		})
@@ -78,8 +79,10 @@ var _ = Describe("JRE Registry", func() {
 
 	Describe("Register and Detect", func() {
 		BeforeEach(func() {
-			// Register OpenJDK JRE
-			registry.Register(jres.NewOpenJDKJRE(ctx))
+			// Register OpenJDK JRE and set it as default
+			openJDK := jres.NewOpenJDKJRE(ctx)
+			registry.Register(openJDK)
+			registry.SetDefault(openJDK)
 		})
 
 		It("detects registered JREs", func() {
@@ -91,15 +94,31 @@ var _ = Describe("JRE Registry", func() {
 	})
 
 	Describe("Multiple JREs", func() {
-		It("returns first matching JRE", func() {
-			// Register multiple JREs (OpenJDK always detects)
-			jre1 := jres.NewOpenJDKJRE(ctx)
-			registry.Register(jre1)
+		It("returns default JRE when none explicitly configured", func() {
+			// Register OpenJDK and set as default (mimics production usage)
+			openJDK := jres.NewOpenJDKJRE(ctx)
+			registry.Register(openJDK)
+			registry.SetDefault(openJDK)
 
 			jre, name, err := registry.Detect()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(jre).NotTo(BeNil())
 			Expect(name).To(Equal("OpenJDK"))
+		})
+
+		It("returns explicitly configured JRE over default", func() {
+			// Setup: Configure SapMachine via environment
+			os.Setenv("JBP_CONFIG_SAP_MACHINE_JRE", "{jre: {version: 17.+}}")
+			defer os.Unsetenv("JBP_CONFIG_SAP_MACHINE_JRE")
+
+			// Register all standard JREs (mimics production)
+			registry.RegisterStandardJREs()
+
+			// Should detect SapMachine, not OpenJDK
+			jre, name, err := registry.Detect()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(jre).NotTo(BeNil())
+			Expect(name).To(Equal("SapMachine"))
 		})
 	})
 })

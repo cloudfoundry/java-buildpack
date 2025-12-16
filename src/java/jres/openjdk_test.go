@@ -64,10 +64,28 @@ var _ = Describe("OpenJDK JRE", func() {
 	})
 
 	Describe("Detect", func() {
-		It("always detects (default JRE)", func() {
-			detected, err := openJDK.Detect()
-			Expect(err).NotTo(HaveOccurred())
-			Expect(detected).To(BeTrue())
+		Context("when explicitly configured", func() {
+			BeforeEach(func() {
+				os.Setenv("JBP_CONFIG_OPEN_JDK_JRE", "{jre: {version: 17.+}}")
+			})
+
+			AfterEach(func() {
+				os.Unsetenv("JBP_CONFIG_OPEN_JDK_JRE")
+			})
+
+			It("detects when configured via environment", func() {
+				detected, err := openJDK.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(detected).To(BeTrue())
+			})
+		})
+
+		Context("when not explicitly configured", func() {
+			It("does not detect (relies on being set as default in Registry)", func() {
+				detected, err := openJDK.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(detected).To(BeFalse())
+			})
 		})
 	})
 

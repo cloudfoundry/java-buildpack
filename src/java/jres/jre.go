@@ -64,6 +64,24 @@ func (r *Registry) SetDefault(jre JRE) {
 	r.defaultJRE = jre
 }
 
+// RegisterStandardJREs registers all standard JRE providers in the correct priority order.
+// This ensures Supply and Finalize phases use the same detection order.
+// OpenJDK is set as the default JRE.
+func (r *Registry) RegisterStandardJREs() {
+	// Register OpenJDK and set it as the default JRE
+	openJDK := NewOpenJDKJRE(r.ctx)
+	r.Register(openJDK)
+	r.SetDefault(openJDK)
+
+	// Register additional JRE providers
+	r.Register(NewZuluJRE(r.ctx))
+	r.Register(NewSapMachineJRE(r.ctx))
+	r.Register(NewGraalVMJRE(r.ctx))
+	r.Register(NewOracleJRE(r.ctx))
+	r.Register(NewIBMJRE(r.ctx))
+	r.Register(NewZingJRE(r.ctx))
+}
+
 // Detect finds the JRE provider that should be used
 // If a JRE is explicitly configured, it uses that JRE and fails if detection errors
 // If no JRE is explicitly configured, it uses the configured default JRE
@@ -101,7 +119,8 @@ func (r *Registry) Detect() (JRE, string, error) {
 		return r.defaultJRE, r.defaultJRE.Name(), nil
 	}
 
-	// No default JRE configured
+	// No JRE found and no default configured - this is an error condition
+	// A Java application cannot run without a JRE
 	return nil, "", fmt.Errorf("no JRE found and no default JRE configured")
 }
 
