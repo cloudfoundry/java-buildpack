@@ -56,10 +56,14 @@ func (j *JRebelAgentFramework) Supply() error {
 	}
 
 	// Find libjrebel64.so in the extracted files
-	j.agentLibPath = filepath.Join(frameworkDir, "lib", "libjrebel64.so")
+	// The ZIP contains a nested jrebel/ directory structure
+	j.agentLibPath = filepath.Join(frameworkDir, "jrebel", "lib", "libjrebel64.so")
 	if _, err := os.Stat(j.agentLibPath); err != nil {
-		// Try alternative path
+		// Try flat path (older versions)
+		j.agentLibPath = filepath.Join(frameworkDir, "lib", "libjrebel64.so")
+		if _, err := os.Stat(j.agentLibPath); err != nil {
 		j.agentLibPath = filepath.Join(frameworkDir, "libjrebel64.so")
+		}
 	}
 
 	j.context.Log.Info("JRebel Agent installed successfully")
@@ -73,26 +77,31 @@ func (j *JRebelAgentFramework) Finalize() error {
 	// Reconstruct path if not set (separate finalize instance)
 	if j.agentLibPath == "" {
 		frameworkDir := filepath.Join(j.context.Stager.DepDir(), "jrebel")
-		j.agentLibPath = filepath.Join(frameworkDir, "lib", "libjrebel64.so")
+		// Try nested path first (current versions)
+		j.agentLibPath = filepath.Join(frameworkDir, "jrebel", "lib", "libjrebel64.so")
 		if _, err := os.Stat(j.agentLibPath); err != nil {
-			// Try alternative path
+			// Try flat path (older versions)
+			j.agentLibPath = filepath.Join(frameworkDir, "lib", "libjrebel64.so")
+			if _, err := os.Stat(j.agentLibPath); err != nil {
 			j.agentLibPath = filepath.Join(frameworkDir, "libjrebel64.so")
+			}
 		}
 	}
 
-	// Verify agent library exists
+	// Verify agent library exists at staging time
 	if _, err := os.Stat(j.agentLibPath); err != nil {
 		j.context.Log.Warning("JRebel agent library not found: %s", j.agentLibPath)
 		return nil
 	}
 
-	// Append agentpath to JAVA_OPTS (preserves values from other frameworks)
-	javaOpts := fmt.Sprintf("-agentpath:%s", j.agentLibPath)
-	if err := AppendToJavaOpts(j.context, javaOpts); err != nil {
-		j.context.Log.Warning("Failed to set JAVA_OPTS for JRebel: %s", err)
+	// Convert staging path to runtime path using $DEPS_DIR
+	// Extract the relative path from the absolute staging path
+	frameworkDir := filepath.Join(j.context.Stager.DepDir(), "jrebel")
+	relPath, err := filepath.Rel(frameworkDir, j.agentLibPath)
+	if err != nil {
+		j.context.Log.Warning("Failed to determine relative path for JRebel agent: %s", err)
 		return nil
 	}
-
-	j.context.Log.Info("JRebel Agent configured successfully")
+	runtimeAgentPath := fmt.Sprintf("$DEPS_DIR/0/jrebel/%s", relPath)
 	return nil
 }
