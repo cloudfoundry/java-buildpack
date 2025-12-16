@@ -2,6 +2,7 @@ package frameworks
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/cloudfoundry/libbuildpack"
@@ -44,6 +45,40 @@ func (n *NewRelicFramework) Detect() (string, error) {
 	return "", nil
 }
 
+// findNewRelicAgent locates the newrelic.jar in the agent directory
+func (n *NewRelicFramework) findNewRelicAgent(agentDir string) (string, error) {
+	// Common paths to check
+	commonPaths := []string{
+		filepath.Join(agentDir, "newrelic.jar"),
+		filepath.Join(agentDir, "newrelic", "newrelic.jar"),
+	}
+
+	for _, path := range commonPaths {
+		if _, err := os.Stat(path); err == nil {
+			return path, nil
+		}
+	}
+
+	// Search recursively for newrelic.jar
+	var foundPath string
+	filepath.Walk(agentDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if !info.IsDir() && info.Name() == "newrelic.jar" {
+			foundPath = path
+			return filepath.SkipAll
+		}
+		return nil
+	})
+
+	if foundPath != "" {
+		return foundPath, nil
+	}
+
+	return "", fmt.Errorf("newrelic.jar not found in %s", agentDir)
+}
+
 // Supply installs the New Relic agent
 func (n *NewRelicFramework) Supply() error {
 	n.context.Log.BeginStep("Installing New Relic Agent")
@@ -64,11 +99,28 @@ func (n *NewRelicFramework) Supply() error {
 		return fmt.Errorf("failed to install New Relic agent: %w", err)
 	}
 
-	// Find the New Relic agent JAR
-	agentJar := filepath.Join(agentDir, "newrelic.jar")
+	n.context.Log.Info("Installed New Relic Agent version %s", dep.Version)
+	return nil
+}
+
+// Finalize performs final New Relic configuration
+func (n *NewRelicFramework) Finalize() error {
+	// Find the actual New Relic agent jar at staging time
+	agentDir := filepath.Join(n.context.Stager.DepDir(), "new_relic_agent")
+	agentJarPath, err := n.findNewRelicAgent(agentDir)
+	if err != nil {
+		return fmt.Errorf("failed to locate newrelic.jar: %w", err)
+	}
+
+	// Build runtime path using $DEPS_DIR
+	relPath, err := filepath.Rel(n.context.Stager.DepDir(), agentJarPath)
+	if err != nil {
+		return fmt.Errorf("failed to compute relative path: %w", err)
+	}
+	runtimeAgentPath := filepath.Join("$DEPS_DIR/0", relPath)
 
 	// Add javaagent to JAVA_OPTS
-	javaOpts := fmt.Sprintf("-javaagent:%s", agentJar)
+	javaOpts := fmt.Sprintf("-javaagent:%s", runtimeAgentPath)
 
 	// Get New Relic configuration from service binding
 	vcapServices, _ := GetVCAPServices()
