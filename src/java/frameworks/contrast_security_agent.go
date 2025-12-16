@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // ContrastSecurityAgentFramework represents the Contrast Security Agent framework
@@ -37,6 +38,47 @@ func (c *ContrastSecurityAgentFramework) Detect() (string, error) {
 	return "", nil
 }
 
+// findContrastAgent locates the Contrast Security agent JAR in the install directory
+func (c *ContrastSecurityAgentFramework) findContrastAgent(frameworkDir string) (string, error) {
+	// Try exact match first if we know the version
+	if c.agentJarPath != "" {
+		if _, err := os.Stat(c.agentJarPath); err == nil {
+			return c.agentJarPath, nil
+		}
+	}
+
+	// Search for contrast-security-*.jar
+	matches, _ := filepath.Glob(filepath.Join(frameworkDir, "contrast-security-*.jar"))
+	if len(matches) > 0 {
+		return matches[0], nil
+	}
+
+	// Search for any contrast*.jar
+	matches, _ = filepath.Glob(filepath.Join(frameworkDir, "contrast*.jar"))
+	if len(matches) > 0 {
+		return matches[0], nil
+	}
+
+	// Walk recursively as fallback
+	var foundPath string
+	filepath.Walk(frameworkDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if !info.IsDir() && strings.Contains(info.Name(), "contrast") && strings.HasSuffix(info.Name(), ".jar") {
+			foundPath = path
+			return filepath.SkipAll
+		}
+		return nil
+	})
+
+	if foundPath != "" {
+		return foundPath, nil
+	}
+
+	return "", fmt.Errorf("contrast security agent JAR not found in %s", frameworkDir)
+}
+
 // Supply downloads and installs the Contrast Security agent
 func (c *ContrastSecurityAgentFramework) Supply() error {
 	c.context.Log.Info("Installing Contrast Security Agent")
@@ -47,14 +89,19 @@ func (c *ContrastSecurityAgentFramework) Supply() error {
 	}
 
 	frameworkDir := filepath.Join(c.context.Stager.DepDir(), "contrast-security")
-	if err := os.MkdirAll(frameworkDir, 0755); err != nil {
-		return fmt.Errorf("failed to create contrast-security directory: %w", err)
-	}
 
-	c.agentJarPath = filepath.Join(frameworkDir, fmt.Sprintf("contrast-security-%s.jar", dep.Version))
-	if err := c.context.Installer.InstallOnlyVersion(dep.Name, c.agentJarPath); err != nil {
+	// Use InstallDependency instead of InstallOnlyVersion to properly extract
+	if err := c.context.Installer.InstallDependency(dep, frameworkDir); err != nil {
 		return fmt.Errorf("failed to install contrast-security agent: %w", err)
 	}
+
+	// Find the actual JAR file that was installed
+	agentJar, err := c.findContrastAgent(frameworkDir)
+	if err != nil {
+		return fmt.Errorf("failed to locate contrast-security agent after installation: %w", err)
+	}
+	c.agentJarPath = agentJar
+	c.context.Log.Debug("Installed Contrast Security agent at: %s", agentJar)
 
 	// Store credentials for use in Finalize
 	vcapServices, err := GetVCAPServices()
@@ -75,17 +122,14 @@ func (c *ContrastSecurityAgentFramework) Supply() error {
 func (c *ContrastSecurityAgentFramework) Finalize() error {
 	c.context.Log.Info("Configuring Contrast Security Agent")
 
-	// Reconstruct paths if not set (separate finalize instance)
-	if c.agentJarPath == "" {
+	// Find the Contrast Security agent JAR dynamically
 		frameworkDir := filepath.Join(c.context.Stager.DepDir(), "contrast-security")
-		dep, err := c.context.Manifest.DefaultVersion("contrast-security")
+	agentJarPath, err := c.findContrastAgent(frameworkDir)
 		if err != nil {
-			c.context.Log.Warning("Failed to get contrast-security version: %s", err)
-			return nil
+		return fmt.Errorf("failed to locate contrast security agent JAR: %w", err)
 		}
-		c.agentJarPath = filepath.Join(frameworkDir, fmt.Sprintf("contrast-security-%s.jar", dep.Version))
-		c.configPath = filepath.Join(frameworkDir, "contrast.config")
-	}
+	c.agentJarPath = agentJarPath
+	c.context.Log.Debug("Found Contrast Security agent at: %s", agentJarPath)
 
 	// Get credentials if not already set
 	if c.credentials == nil {
