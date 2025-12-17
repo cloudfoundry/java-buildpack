@@ -10,6 +10,7 @@ import (
 
 	"github.com/cloudfoundry/java-buildpack/src/java/jres"
 	"github.com/cloudfoundry/libbuildpack"
+	yaml "gopkg.in/yaml.v2"
 )
 
 // TomcatContainer handles servlet/WAR applications
@@ -200,13 +201,44 @@ func (t *TomcatContainer) installExternalConfiguration(tomcatDir string) error {
 	return nil
 }
 
-// downloadExternalConfiguration downloads external Tomcat configuration directly from a URL
+// downloadExternalConfiguration downloads external Tomcat configuration by first fetching
+// index.yml to lookup the actual download URL for the specified version
 func (t *TomcatContainer) downloadExternalConfiguration(repositoryRoot, version, tomcatDir string) error {
-	// Construct download URL
-	downloadURL := fmt.Sprintf("%s/tomcat-external-configuration-%s.tar.gz", repositoryRoot, version)
-	t.context.Log.Info("Downloading external configuration from: %s", downloadURL)
+	// Step 1: Download and parse index.yml from repository_root
+	indexURL := fmt.Sprintf("%s/index.yml", repositoryRoot)
+	t.context.Log.Info("Fetching external configuration index from: %s", indexURL)
 
-	// Create temporary file for download
+	indexResp, err := http.Get(indexURL)
+	if err != nil {
+		return fmt.Errorf("failed to download index.yml: %w", err)
+	}
+	defer indexResp.Body.Close()
+
+	if indexResp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download index.yml: HTTP %d", indexResp.StatusCode)
+	}
+
+	// Read and parse index.yml
+	indexData, err := io.ReadAll(indexResp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read index.yml: %w", err)
+	}
+
+	// Parse YAML as map[string]string (version -> URL)
+	var index map[string]string
+	if err := yaml.Unmarshal(indexData, &index); err != nil {
+		return fmt.Errorf("failed to parse index.yml: %w", err)
+	}
+
+	// Step 2: Look up the download URL for the requested version
+	downloadURL, found := index[version]
+	if !found {
+		return fmt.Errorf("version %s not found in index.yml (available versions: %v)", version, getKeys(index))
+	}
+
+	t.context.Log.Info("Found version %s in index, downloading from: %s", version, downloadURL)
+
+	// Step 3: Download the configuration archive
 	tmpFile, err := os.CreateTemp("", "tomcat-external-config-*.tar.gz")
 	if err != nil {
 		return fmt.Errorf("failed to create temp file: %w", err)
@@ -214,7 +246,6 @@ func (t *TomcatContainer) downloadExternalConfiguration(repositoryRoot, version,
 	defer os.Remove(tmpFile.Name())
 	defer tmpFile.Close()
 
-	// Download the archive
 	resp, err := http.Get(downloadURL)
 	if err != nil {
 		return fmt.Errorf("failed to download external configuration: %w", err)
@@ -231,7 +262,7 @@ func (t *TomcatContainer) downloadExternalConfiguration(repositoryRoot, version,
 	}
 	tmpFile.Close()
 
-	// Extract the archive to tomcatDir with strip=1
+	// Step 4: Extract the archive to tomcatDir with strip=1
 	// The external config archive has structure: tomcat/conf/...
 	// We strip the top-level "tomcat/" directory and extract directly to tomcatDir
 	t.context.Log.Info("Extracting external configuration to: %s", tomcatDir)
@@ -241,6 +272,15 @@ func (t *TomcatContainer) downloadExternalConfiguration(repositoryRoot, version,
 
 	t.context.Log.Info("Successfully installed external Tomcat configuration version %s", version)
 	return nil
+}
+
+// getKeys returns the keys of a map as a slice (for error messages)
+func getKeys(m map[string]string) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 // isExternalConfigurationEnabled checks if external configuration is enabled in config

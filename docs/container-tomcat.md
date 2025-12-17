@@ -74,14 +74,30 @@ env:
   JBP_CONFIG_TOMCAT: '{ tomcat: { external_configuration_enabled: true }, external_configuration: { repository_root: "https://your-repository.example.com/tomcat-config", version: "1.4.0" } }'
 ```
 
-The buildpack will construct the download URL as: `{repository_root}/tomcat-external-configuration-{version}.tar.gz`
+**How it works:**
 
-For example, with the configuration above, it will download:
-`https://your-repository.example.com/tomcat-config/tomcat-external-configuration-1.4.0.tar.gz`
+1. The buildpack downloads `{repository_root}/index.yml` which contains a mapping of versions to download URLs
+2. It looks up the URL for the requested version in the index
+3. It downloads the configuration archive from that URL
+4. It extracts and overlays the configuration onto the Tomcat installation
+
+**Repository Structure:**
+
+Your repository must contain an `index.yml` file at the root with the following format:
+
+```yaml
+1.0.0: https://your-repository.example.com/tomcat-config/tomcat-config-1.0.0.tar.gz
+1.1.0: https://your-repository.example.com/tomcat-config/tomcat-config-1.1.0.tar.gz
+1.2.0: https://your-repository.example.com/tomcat-config/tomcat-config-1.2.0.tar.gz
+1.3.0: https://your-repository.example.com/tomcat-config/tomcat-config-1.3.0.tar.gz
+1.4.0: https://your-repository.example.com/tomcat-config/tomcat-config-1.4.0.tar.gz
+```
+
+The buildpack will fetch `https://your-repository.example.com/tomcat-config/index.yml`, look up version `1.4.0`, and download the corresponding tar.gz file.
 
 **Archive Format Requirements:**
 
-The artifacts that the repository provides must be in TAR.GZ format and must follow the Tomcat archive structure:
+The configuration archives must be in TAR.GZ format and must follow the Tomcat archive structure:
 
 ```
 tomcat-external-configuration-1.4.0.tar.gz
@@ -93,7 +109,7 @@ tomcat-external-configuration-1.4.0.tar.gz
         └── ...
 ```
 
-The buildpack will extract the contents of the `tomcat/` directory and overlay them onto the Tomcat installation directory.
+The buildpack will extract the contents of the `tomcat/` directory (using `--strip-components=1`) and overlay them onto the Tomcat installation directory.
 
 **Configuration Options:**
 
@@ -106,8 +122,8 @@ The buildpack will extract the contents of the `tomcat/` directory and overlay t
 **Notes:**
 * The external configuration must allow symlinks. For more information check [Tomcat 7 configuration] or [Tomcat 8 configuration].
 * `JasperListener` is removed in Tomcat 8 so you should not add it to the server.xml.
-* The buildpack first checks if `tomcat-external-configuration` is defined in the buildpack's manifest.yml (for forked buildpacks). If not found, it downloads directly from the `repository_root` URL.
-* If the download fails, the build will fail. Ensure your repository URL is accessible and the archive exists.
+* The buildpack first checks if `tomcat-external-configuration` is defined in the buildpack's manifest.yml (for forked buildpacks). If not found, it downloads from the `repository_root` using the index.yml approach.
+* If the download fails or the version is not found in index.yml, the build will fail. Ensure your repository URL is accessible and the version exists in the index.
 
 ## Session Replication
 By default, the Tomcat instance is configured to store all Sessions and their data in memory.  Under certain circumstances it my be appropriate to persist the Sessions and their data to a repository.  When this is the case (small amounts of data that should survive the failure of any individual instance), the buildpack can automatically configure Tomcat to do so by binding an appropriate service.
