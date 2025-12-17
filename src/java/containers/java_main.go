@@ -187,7 +187,8 @@ func (j *JavaMainContainer) Release() (string, error) {
 	var cmd string
 	if j.jarFile != "" {
 		// Run from JAR
-		cmd = fmt.Sprintf("$JAVA_HOME/bin/java $JAVA_OPTS -jar %s", j.jarFile)
+		// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
+		cmd = fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -jar %s", j.jarFile)
 	} else {
 		// Build classpath and embed it directly in the command
 		// (Don't rely on $CLASSPATH environment variable)
@@ -195,7 +196,8 @@ func (j *JavaMainContainer) Release() (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("failed to build classpath: %w", err)
 		}
-		cmd = fmt.Sprintf("$JAVA_HOME/bin/java $JAVA_OPTS -cp %s %s", classpath, mainClass)
+		// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
+		cmd = fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp %s %s", classpath, mainClass)
 	}
 
 	return cmd, nil

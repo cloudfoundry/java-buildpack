@@ -237,14 +237,16 @@ func (s *SpringBootContainer) Release() (string, error) {
 			// True Spring Boot exploded JAR - use JarLauncher
 			// Determine the correct JarLauncher class name based on Spring Boot version
 			jarLauncherClass := s.getJarLauncherClass(buildDir)
-			return fmt.Sprintf("$JAVA_HOME/bin/java $JAVA_OPTS -cp . %s", jarLauncherClass), nil
+			// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
+			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp . %s", jarLauncherClass), nil
 		}
 
 		// Exploded JAR but NOT Spring Boot - use Main-Class from MANIFEST.MF
 		mainClass := s.readMainClassFromManifest(buildDir)
 		if mainClass != "" {
 			// Use classpath from BOOT-INF/classes and BOOT-INF/lib
-			return fmt.Sprintf("$JAVA_HOME/bin/java $JAVA_OPTS -cp $HOME:$HOME/BOOT-INF/classes:$HOME/BOOT-INF/lib/* %s", mainClass), nil
+			// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
+			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp $HOME:$HOME/BOOT-INF/classes:$HOME/BOOT-INF/lib/* %s", mainClass), nil
 		}
 
 		return "", fmt.Errorf("exploded JAR found but no Main-Class in MANIFEST.MF")
@@ -266,7 +268,8 @@ func (s *SpringBootContainer) Release() (string, error) {
 		jarFile = jar
 	}
 
-	cmd := fmt.Sprintf("$JAVA_HOME/bin/java $JAVA_OPTS -jar %s", jarFile)
+	// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
+	cmd := fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -jar %s", jarFile)
 	return cmd, nil
 }
 

@@ -907,6 +907,7 @@ func TestJavaOptsLegacyFormat(t *testing.T) {
 	}
 
 	javaOpts := string(data)
+	// Note: Spaces are escaped with backslashes, but = is safe and not escaped
 	expectedOpts := []string{"-Xmx512M", "-Xms256M", "-Xss1M", "-XX:MetaspaceSize=157286K", "-XX:MaxMetaspaceSize=314572K", "-DoptionKey=optionValue"}
 
 	for _, opt := range expectedOpts {

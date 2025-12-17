@@ -708,6 +708,55 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					Expect(logs.String()).To(ContainSubstring("Java Opts"))
 					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
 				})
+
+				it("handles quoted strings with spaces in JAVA_OPTS", func() {
+					deployment, logs, err := platform.Deploy.
+						WithEnv(map[string]string{
+							"BP_JAVA_VERSION":      "11",
+							"JBP_CONFIG_JAVA_OPTS": `'java_opts: -DtestJBPConfig1=''test test'' -DtestJBPConfig2="value with spaces"'`,
+						}).
+						Execute(name, filepath.Join(fixtures, "apps", "integration_valid"))
+					Expect(err).NotTo(HaveOccurred(), logs.String)
+
+					// Java Opts framework should detect configuration
+					Expect(logs.String()).To(ContainSubstring("Java Opts"))
+					// Should properly handle quoted strings with spaces
+					Expect(logs.String()).To(ContainSubstring("Adding configured JAVA_OPTS"))
+					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
+				})
+
+				it("expands environment variables in JAVA_OPTS at runtime", func() {
+					deployment, logs, err := platform.Deploy.
+						WithEnv(map[string]string{
+							"BP_JAVA_VERSION":      "11",
+							"TEST_ENV_VAR":         "test-value-123",
+							"JBP_CONFIG_JAVA_OPTS": `'java_opts: -DtestEnvVar="$TEST_ENV_VAR" -DtestPath="$PATH"'`,
+						}).
+						Execute(name, filepath.Join(fixtures, "apps", "integration_valid"))
+					Expect(err).NotTo(HaveOccurred(), logs.String)
+
+					// Java Opts framework should detect configuration
+					Expect(logs.String()).To(ContainSubstring("Java Opts"))
+					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
+				})
+
+				it("handles complex scenario with quotes and env vars like Ruby buildpack", func() {
+					deployment, logs, err := platform.Deploy.
+						WithEnv(map[string]string{
+							"BP_JAVA_VERSION":      "11",
+							"JBP_CONFIG_JAVA_OPTS": `'java_opts: -DtestJBPConfig1=''test test'' -DtestJBPConfig2="$PATH"'`,
+						}).
+						Execute(name, filepath.Join(fixtures, "apps", "integration_valid"))
+					Expect(err).NotTo(HaveOccurred(), logs.String)
+
+					// This test verifies the fix for the Ruby vs Go buildpack parity issue
+					// Ruby buildpack correctly handled:
+					// - Single quotes with spaces: -DtestJBPConfig1='test test' -> -DtestJBPConfig1=test test
+					// - Environment variable expansion: -DtestJBPConfig2="$PATH" -> -DtestJBPConfig2=/usr/local/bin:/usr/bin:/bin
+					Expect(logs.String()).To(ContainSubstring("Java Opts"))
+					Expect(logs.String()).To(ContainSubstring("Adding configured JAVA_OPTS"))
+					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
+				})
 			})
 		})
 

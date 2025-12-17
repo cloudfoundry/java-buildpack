@@ -65,7 +65,7 @@ func CreateJavaOptsAssemblyScript(ctx *Context) error {
 # Centralized JAVA_OPTS Assembly
 # Reads all .opts files from $DEPS_DIR/0/java_opts/ in numerical order
 # and assembles them into a single JAVA_OPTS environment variable
-# Expands runtime variables like $DEPS_DIR, $HOME, and $JAVA_OPTS
+# Expands runtime variables like $DEPS_DIR, $HOME, $JAVA_OPTS, and all other environment variables
 
 # Save original JAVA_OPTS from environment (user-provided)
 USER_JAVA_OPTS="$JAVA_OPTS"
@@ -79,14 +79,20 @@ if [ -d "$DEPS_DIR/0/java_opts" ]; then
             # Read content and expand runtime variables
             opts_content=$(cat "$opts_file")
             
+            # First, expand special variables that need specific handling
             # Expand $DEPS_DIR variable
             opts_content=$(echo "$opts_content" | sed "s|\$DEPS_DIR|$DEPS_DIR|g")
             
             # Expand $HOME variable (for app-provided JARs like AspectJ)
             opts_content=$(echo "$opts_content" | sed "s|\$HOME|$HOME|g")
             
-            # Now expand $JAVA_OPTS to the saved USER_JAVA_OPTS value (not the loop's current JAVA_OPTS)
+            # Expand $JAVA_OPTS to the saved USER_JAVA_OPTS value (not the loop's current JAVA_OPTS)
             opts_content=$(echo "$opts_content" | sed "s|\$JAVA_OPTS|$USER_JAVA_OPTS|g")
+            
+            # Now expand all remaining environment variables using eval with proper escaping
+            # This mimics Ruby buildpack behavior where shell naturally expands variables
+            # Use eval in a subshell to safely expand variables without executing commands
+            opts_content=$(eval "echo \"$opts_content\"")
             
             if [ -n "$opts_content" ]; then
                 JAVA_OPTS="$JAVA_OPTS $opts_content"

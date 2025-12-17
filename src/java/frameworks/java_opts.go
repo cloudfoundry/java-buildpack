@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"unicode"
 
 	"gopkg.in/yaml.v2"
 )
@@ -67,7 +68,13 @@ func (j *JavaOptsFramework) Finalize() error {
 	}
 
 	// Build the configured JAVA_OPTS value
-	optsString := strings.Join(configuredOpts, " ")
+	// Escape each opt using Ruby buildpack's strategy: backslash-escape special characters
+	// This allows values with spaces to be preserved when passed through shell evaluation
+	var escapedOpts []string
+	for _, opt := range configuredOpts {
+		escapedOpts = append(escapedOpts, rubyStyleEscape(opt))
+	}
+	optsString := strings.Join(escapedOpts, " ")
 
 	// Write user-defined JAVA_OPTS to .opts file with priority 99 (Ruby buildpack line 82)
 	// This ensures user opts run LAST, allowing them to override framework defaults
@@ -98,6 +105,136 @@ func (j *JavaOptsFramework) Finalize() error {
 
 	j.context.Log.Info("Configured user JAVA_OPTS for runtime (priority 99)")
 	return nil
+}
+
+// shellSplit splits a string like a shell would, respecting quotes
+// Similar to Ruby's Shellwords.shellsplit
+func shellSplit(input string) ([]string, error) {
+	var tokens []string
+	var current strings.Builder
+	var inSingleQuote, inDoubleQuote bool
+	var escaped bool
+
+	for _, r := range input {
+		// Handle escape sequences
+		if escaped {
+			current.WriteRune(r)
+			escaped = false
+			continue
+		}
+
+		if r == '\\' {
+			escaped = true
+			continue
+		}
+
+		// Handle quotes
+		if r == '\'' && !inDoubleQuote {
+			inSingleQuote = !inSingleQuote
+			continue
+		}
+
+		if r == '"' && !inSingleQuote {
+			inDoubleQuote = !inDoubleQuote
+			continue
+		}
+
+		// Handle spaces (word separators when not quoted)
+		if unicode.IsSpace(r) && !inSingleQuote && !inDoubleQuote {
+			if current.Len() > 0 {
+				tokens = append(tokens, current.String())
+				current.Reset()
+			}
+			continue
+		}
+
+		// Regular character
+		current.WriteRune(r)
+	}
+
+	// Add last token if exists
+	if current.Len() > 0 {
+		tokens = append(tokens, current.String())
+	}
+
+	// Check for unclosed quotes
+	if inSingleQuote || inDoubleQuote {
+		return nil, fmt.Errorf("unclosed quote in string: %s", input)
+	}
+
+	return tokens, nil
+}
+
+// rubyStyleEscape escapes a Java option exactly like the Ruby buildpack
+//
+// Ruby source: lib/java_buildpack/framework/java_opts.rb:40-41
+//
+//	.map { |java_opt| /(?<key>.+?)=(?<value>.+)/ =~ java_opt ? "#{key}=#{escape_value(value)}" : java_opt }
+//
+// Strategy: Split on first '=' and escape only the VALUE part
+//
+// Examples:
+//
+//	"-Xmx512M"                          → "-Xmx512M"
+//	"-Dkey=value with spaces"           → "-Dkey=value\\ with\\ spaces"
+//	"-XX:OnOutOfMemoryError=kill -9 %p" → "-XX:OnOutOfMemoryError=kill\\ -9\\ \\%p"
+func rubyStyleEscape(javaOpt string) string {
+	idx := strings.IndexByte(javaOpt, '=')
+
+	if idx == -1 || idx == len(javaOpt)-1 {
+		return javaOpt // No '=' or ends with '='
+	}
+
+	key := javaOpt[:idx]
+	value := javaOpt[idx+1:]
+
+	return key + "=" + escapeValue(value)
+}
+
+// escapeValue escapes a string for shell safety using Ruby's escape_value method
+//
+// Ruby source: lib/java_buildpack/framework/java_opts.rb:61-67
+//
+//	str.gsub(%r{([^A-Za-z0-9_\-.,:/@\n$\\])}, '\\\\\\1').gsub(/\n/, "'\n'")
+//
+// Safe chars (not escaped): A-Za-z0-9_-.,:/@$\
+// All other chars are backslash-escaped, including: = ( ) [ ] { } ; & | space % etc.
+func escapeValue(value string) string {
+	if value == "" {
+		return "''"
+	}
+
+	var result strings.Builder
+	for _, ch := range value {
+		if ch == '\n' {
+			result.WriteString("'\n'") // Special newline handling
+			continue
+		}
+
+		if !isRubySafeChar(ch) {
+			result.WriteRune('\\')
+		}
+		result.WriteRune(ch)
+	}
+	return result.String()
+}
+
+// isRubySafeChar checks if a character is in Ruby's safe set: A-Za-z0-9_-.,:/@\n$\
+// Note: '=' is NOT safe and will be escaped
+func isRubySafeChar(ch rune) bool {
+	return (ch >= 'A' && ch <= 'Z') ||
+		(ch >= 'a' && ch <= 'z') ||
+		(ch >= '0' && ch <= '9') ||
+		ch == '_' ||
+		ch == '-' ||
+		ch == '.' ||
+		ch == ',' ||
+		ch == ':' ||
+		ch == '/' ||
+		ch == '@' ||
+		ch == '\n' ||
+		ch == '$' ||
+		ch == '\\'
 }
 
 // loadConfig loads the java_opts.yml configuration
@@ -172,9 +309,13 @@ func (j *JavaOptsFramework) loadConfig() (*JavaOptsConfig, error) {
 				}
 			case string:
 				// Legacy format: space-separated string
-				// Split on spaces but preserve quoted strings
+				// Split on spaces but preserve quoted strings (like Ruby's shellsplit)
 				if opts != "" {
-					config.JavaOpts = strings.Fields(opts)
+					tokens, err := shellSplit(opts)
+					if err != nil {
+						return nil, fmt.Errorf("failed to parse java_opts string: %w", err)
+					}
+					config.JavaOpts = tokens
 				}
 			}
 		}
