@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 // ContrastSecurityAgentFramework represents the Contrast Security Agent framework
@@ -40,43 +39,21 @@ func (c *ContrastSecurityAgentFramework) Detect() (string, error) {
 
 // findContrastAgent locates the Contrast Security agent JAR in the install directory
 func (c *ContrastSecurityAgentFramework) findContrastAgent(frameworkDir string) (string, error) {
-	// Try exact match first if we know the version
+	// Try exact match first if cached
 	if c.agentJarPath != "" {
 		if _, err := os.Stat(c.agentJarPath); err == nil {
 			return c.agentJarPath, nil
 		}
 	}
 
-	// Search for contrast-security-*.jar
-	matches, _ := filepath.Glob(filepath.Join(frameworkDir, "contrast-security-*.jar"))
-	if len(matches) > 0 {
-		return matches[0], nil
+	// Try specific pattern first, then fallback to generic
+	path, err := FindFileByPattern(frameworkDir, "contrast-security-*.jar", []string{""})
+	if err == nil {
+		return path, nil
 	}
 
-	// Search for any contrast*.jar
-	matches, _ = filepath.Glob(filepath.Join(frameworkDir, "contrast*.jar"))
-	if len(matches) > 0 {
-		return matches[0], nil
-	}
-
-	// Walk recursively as fallback
-	var foundPath string
-	filepath.Walk(frameworkDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return nil
-		}
-		if !info.IsDir() && strings.Contains(info.Name(), "contrast") && strings.HasSuffix(info.Name(), ".jar") {
-			foundPath = path
-			return filepath.SkipAll
-		}
-		return nil
-	})
-
-	if foundPath != "" {
-		return foundPath, nil
-	}
-
-	return "", fmt.Errorf("contrast security agent JAR not found in %s", frameworkDir)
+	// Fallback to any contrast*.jar
+	return FindFileByPattern(frameworkDir, "contrast*.jar", []string{""})
 }
 
 // Supply downloads and installs the Contrast Security agent

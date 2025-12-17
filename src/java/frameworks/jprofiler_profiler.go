@@ -76,41 +76,14 @@ func (f *JProfilerProfilerFramework) Supply() error {
 
 // findJProfilerAgent searches for the JProfiler agent library in the install directory
 func (f *JProfilerProfilerFramework) findJProfilerAgent(installDir string) (string, error) {
-	// Common paths where the agent might be located after extraction
-	// JProfiler for linux-x64 (the buildpack target platform)
-	possiblePaths := []string{
-		// Direct path (flat extraction)
-		filepath.Join(installDir, "bin", "linux-x64", "libjprofilerti.so"),
-		// Flat root (unlikely but check)
-		filepath.Join(installDir, "libjprofilerti.so"),
-	}
-
-	// Try predefined paths first
-	for _, path := range possiblePaths {
-		if _, err := os.Stat(path); err == nil {
-			return path, nil
-		}
-	}
-
-	// Search recursively for nested directories (e.g., jprofiler14.0.5/bin/linux-x64/...)
-	var foundPath string
-	filepath.Walk(installDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return nil
-		}
-		// Look for libjprofilerti.so in a linux-amd64 directory
-		if !info.IsDir() && info.Name() == "libjprofilerti.so" && filepath.Base(filepath.Dir(path)) == "linux-amd64" {
-			foundPath = path
-			return filepath.SkipAll
-		}
-		return nil
-	})
-
-	if foundPath != "" {
-		return foundPath, nil
-	}
-
-	return "", fmt.Errorf("jprofiler agent libjprofilerti.so not found in %s", installDir)
+	// JProfiler for linux-x64/amd64 (the buildpack target platform)
+	// Must filter by architecture to avoid ARM64 version (linux-aarch64)
+	return FindFileInDirectoryWithArchFilter(
+		installDir,
+		"libjprofilerti.so",
+		[]string{"bin/linux-x64", "bin/linux-amd64"},
+		[]string{"linux-x64", "linux-amd64"},
+	)
 }
 
 // Finalize configures the JProfiler profiler runtime environment

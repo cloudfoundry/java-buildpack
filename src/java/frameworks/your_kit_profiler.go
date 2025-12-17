@@ -76,45 +76,14 @@ func (f *YourKitProfilerFramework) Supply() error {
 
 // findYourKitAgent searches for the YourKit agent library in the install directory
 func (f *YourKitProfilerFramework) findYourKitAgent(installDir string) (string, error) {
-	// Common paths where the agent might be located after extraction
-	possiblePaths := []string{
-		// Direct path (if ZIP extracts flat)
-		filepath.Join(installDir, "bin", "linux-x86-64", "libyjpagent.so"),
-		// Nested directory (YourKit-JavaProfiler-VERSION/bin/linux-x86-64/libyjpagent.so)
-		"",
-		// Root (unlikely but check anyway)
-		filepath.Join(installDir, "libyjpagent.so"),
-	}
-
-	// Try predefined paths first
-	for _, path := range possiblePaths {
-		if path == "" {
-			continue
-		}
-		if _, err := os.Stat(path); err == nil {
-			return path, nil
-		}
-	}
-
-	// Search recursively for nested directories
-	var foundPath string
-	filepath.Walk(installDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return nil // Continue walking on errors
-		}
-		if !info.IsDir() && info.Name() == "libyjpagent.so" {
-			// Found the agent library
-			foundPath = path
-			return filepath.SkipAll
-		}
-		return nil
-	})
-
-	if foundPath != "" {
-		return foundPath, nil
-	}
-
-	return "", fmt.Errorf("yourkit agent libyjpagent.so not found in %s", installDir)
+	// YourKit for linux-x86-64 (the buildpack target platform)
+	// Must filter by architecture to avoid ARM64 version if present
+	return FindFileInDirectoryWithArchFilter(
+		installDir,
+		"libyjpagent.so",
+		[]string{"bin/linux-x86-64"},
+		[]string{"linux-x86-64"},
+	)
 }
 
 // Finalize configures the YourKit profiler runtime environment

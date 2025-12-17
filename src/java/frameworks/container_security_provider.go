@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
@@ -63,7 +62,7 @@ func (c *ContainerSecurityProviderFramework) Finalize() error {
 
 	// Detect Java version to determine extension mechanism
 	// Java 9+ uses root libraries (-Xbootclasspath/a), Java 8 uses extension directories
-	javaVersion, err := c.getJavaMajorVersion()
+	javaVersion, err := GetJavaMajorVersion()
 	if err != nil {
 		c.context.Log.Warning("Unable to detect Java version, assuming Java 8: %s", err.Error())
 		javaVersion = 8
@@ -204,30 +203,6 @@ func (c *ContainerSecurityProviderFramework) getDefaultSecurityProviders() []str
 	}
 }
 
-// getJavaMajorVersion detects the Java major version from JAVA_HOME
-func (c *ContainerSecurityProviderFramework) getJavaMajorVersion() (int, error) {
-	// Check if JAVA_HOME is set
-	javaHome := os.Getenv("JAVA_HOME")
-	if javaHome == "" {
-		return 0, fmt.Errorf("JAVA_HOME not set")
-	}
-
-	// Read release file
-	releaseFile := filepath.Join(javaHome, "release")
-	content, err := os.ReadFile(releaseFile)
-	if err != nil {
-		return 0, fmt.Errorf("failed to read release file: %w", err)
-	}
-
-	// Parse JAVA_VERSION from release file
-	version := parseJavaVersion(string(content))
-	if version == 0 {
-		return 0, fmt.Errorf("unable to parse Java version")
-	}
-
-	return version, nil
-}
-
 // getKeyManagerEnabled returns the key_manager_enabled configuration value
 func (c *ContainerSecurityProviderFramework) getKeyManagerEnabled() string {
 	config := os.Getenv("JBP_CONFIG_CONTAINER_SECURITY_PROVIDER")
@@ -268,75 +243,4 @@ func (c *ContainerSecurityProviderFramework) getTrustManagerEnabled() string {
 	}
 
 	return ""
-}
-
-// parseJavaVersion parses Java major version from release file content
-func parseJavaVersion(content string) int {
-	// Look for JAVA_VERSION="1.8.0_..." or JAVA_VERSION="11.0...."
-	lines := splitByNewline(content)
-	for _, line := range lines {
-		if contains(line, "JAVA_VERSION=") {
-			// Extract version string
-			start := stringIndexOf(line, "\"")
-			if start == -1 {
-				continue
-			}
-			end := stringIndexOf(line[start+1:], "\"")
-			if end == -1 {
-				continue
-			}
-			version := line[start+1 : start+1+end]
-
-			// Parse major version
-			if stringStartsWith(version, "1.8") {
-				return 8
-			}
-			if stringStartsWith(version, "1.7") {
-				return 7
-			}
-
-			// Java 9+ format: "11.0.1" or "17.0.1"
-			dotIndex := stringIndexOf(version, ".")
-			if dotIndex > 0 {
-				major := version[:dotIndex]
-				if majorVersion, err := strconv.Atoi(major); err == nil {
-					return majorVersion
-				}
-			}
-		}
-	}
-
-	return 0
-}
-
-// Helper functions for string manipulation
-func splitByNewline(s string) []string {
-	var lines []string
-	start := 0
-	for i := 0; i < len(s); i++ {
-		if s[i] == '\n' {
-			lines = append(lines, s[start:i])
-			start = i + 1
-		}
-	}
-	if start < len(s) {
-		lines = append(lines, s[start:])
-	}
-	return lines
-}
-
-func stringIndexOf(s, substr string) int {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return i
-		}
-	}
-	return -1
-}
-
-func stringStartsWith(s, prefix string) bool {
-	if len(s) < len(prefix) {
-		return false
-	}
-	return s[:len(prefix)] == prefix
 }

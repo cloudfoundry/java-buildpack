@@ -138,7 +138,7 @@ func (d *DatadogJavaagentFramework) Finalize() error {
 	// Set dd.service if DD_SERVICE not set
 	if os.Getenv("DD_SERVICE") == "" {
 		// Get application name from VCAP_APPLICATION
-		appName := d.getApplicationName()
+		appName := GetApplicationName(false)
 		if appName != "" {
 			opts = append(opts, fmt.Sprintf("-Ddd.service=\"%s\"", appName))
 		}
@@ -152,7 +152,7 @@ func (d *DatadogJavaagentFramework) Finalize() error {
 
 	// Write all options to .opts file
 	javaOpts := strings.Join(opts, " ")
-	if err := writeJavaOptsFile(d.context, 18, "datadog_javaagent", javaOpts); err != nil {
+	if err := writeJavaOptsFile(d.context, 19, "datadog_javaagent", javaOpts); err != nil {
 		return fmt.Errorf("failed to write JAVA_OPTS for Datadog: %w", err)
 	}
 
@@ -280,26 +280,6 @@ func (d *DatadogJavaagentFramework) createJAR(sourceDir, jarPath string) error {
 		_, err = zipEntry.Write(fileData)
 		return err
 	})
-}
-
-// getApplicationName returns the application name from VCAP_APPLICATION
-func (d *DatadogJavaagentFramework) getApplicationName() string {
-	vcapApp := os.Getenv("VCAP_APPLICATION")
-	if vcapApp == "" {
-		return ""
-	}
-
-	// Parse JSON to get application_name
-	var appData map[string]interface{}
-	if err := json.Unmarshal([]byte(vcapApp), &appData); err != nil {
-		return ""
-	}
-
-	if name, ok := appData["application_name"].(string); ok {
-		return name
-	}
-
-	return ""
 }
 
 // getApplicationVersion returns the application version

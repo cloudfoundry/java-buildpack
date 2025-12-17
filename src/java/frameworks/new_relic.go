@@ -2,7 +2,6 @@ package frameworks
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/cloudfoundry/libbuildpack"
@@ -47,36 +46,7 @@ func (n *NewRelicFramework) Detect() (string, error) {
 
 // findNewRelicAgent locates the newrelic.jar in the agent directory
 func (n *NewRelicFramework) findNewRelicAgent(agentDir string) (string, error) {
-	// Common paths to check
-	commonPaths := []string{
-		filepath.Join(agentDir, "newrelic.jar"),
-		filepath.Join(agentDir, "newrelic", "newrelic.jar"),
-	}
-
-	for _, path := range commonPaths {
-		if _, err := os.Stat(path); err == nil {
-			return path, nil
-		}
-	}
-
-	// Search recursively for newrelic.jar
-	var foundPath string
-	filepath.Walk(agentDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return nil
-		}
-		if !info.IsDir() && info.Name() == "newrelic.jar" {
-			foundPath = path
-			return filepath.SkipAll
-		}
-		return nil
-	})
-
-	if foundPath != "" {
-		return foundPath, nil
-	}
-
-	return "", fmt.Errorf("newrelic.jar not found in %s", agentDir)
+	return FindFileInDirectory(agentDir, "newrelic.jar", []string{"", "newrelic"})
 }
 
 // Supply installs the New Relic agent

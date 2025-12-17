@@ -7,13 +7,36 @@ import (
 )
 
 // writeJavaOptsFile writes JAVA_OPTS to a numbered .opts file for centralized assembly
+//
 // Priority determines execution order (lower numbers run first):
-//   - JRE base options: 05
-//   - Container Security Provider: 17 (Ruby line 51)
-//   - Debug: 20 (Ruby line 54)
-//   - JMX: 29 (Ruby line 63)
-//   - JRebel: 31 (Ruby line 65)
-//   - User JAVA_OPTS: 99 (Ruby line 82, always last)
+//   - 05: JRE base options
+//   - 11: AppDynamics Agent
+//   - 12: AspectJ Weaver Agent
+//   - 13: Azure Application Insights Agent
+//   - 14: Checkmarx IAST Agent
+//   - 17: Container Security Provider
+//   - 18: Contrast Security Agent
+//   - 19: Datadog Java Agent (changed from 18 to avoid collision)
+//   - 20: Debug Framework, Elastic APM Agent
+//   - 21: Google Stackdriver Debugger
+//   - 22: Google Stackdriver Profiler
+//   - 26: JaCoCo Agent
+//   - 27: Introscope Agent
+//   - 29: JMX Framework
+//   - 30: JProfiler Profiler
+//   - 31: JRebel Agent
+//   - 32: Luna Security Provider
+//   - 35: New Relic Agent
+//   - 36: OpenTelemetry Javaagent
+//   - 37: Riverbed AppInternals Agent
+//   - 38: ProtectApp Security Provider
+//   - 39: Sealights Agent
+//   - 40: Seeker Security Provider
+//   - 41: SkyWalking Agent
+//   - 42: Splunk OTEL Java Agent
+//   - 45: YourKit Profiler
+//   - 46: Takipi Agent
+//   - 99: User JAVA_OPTS (always last)
 //
 // At runtime, profile.d/00_java_opts.sh reads all .opts files in order and assembles JAVA_OPTS
 func writeJavaOptsFile(ctx *Context, priority int, name string, javaOpts string) error {

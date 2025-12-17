@@ -114,7 +114,7 @@ func (s *SkyWalkingAgentFramework) Finalize() error {
 	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
 
 	// Configure application name (default to space:application_name)
-	appName := s.getApplicationName()
+	appName := GetApplicationName(true)
 	if appName != "" {
 		opts = append(opts, fmt.Sprintf("-Dskywalking.agent.service_name=%s", appName))
 	}
@@ -193,30 +193,3 @@ func (s *SkyWalkingAgentFramework) getCredentials() SkyWalkingCredentials {
 
 	return creds
 }
-
-// getApplicationName returns the application name in format "space:application_name"
-func (s *SkyWalkingAgentFramework) getApplicationName() string {
-	vcapApp := os.Getenv("VCAP_APPLICATION")
-	if vcapApp == "" {
-		return ""
-	}
-
-	var appData map[string]interface{}
-	if err := json.Unmarshal([]byte(vcapApp), &appData); err != nil {
-		return ""
-	}
-
-	spaceName, hasSpace := appData["space_name"].(string)
-	appName, hasApp := appData["application_name"].(string)
-
-	if hasSpace && hasApp {
-		return fmt.Sprintf("%s:%s", spaceName, appName)
-	}
-
-	if hasApp {
-		return appName
-	}
-
-	return ""
-}
-

@@ -2,7 +2,6 @@ package frameworks
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/cloudfoundry/libbuildpack"
@@ -40,40 +39,7 @@ func (a *AppDynamicsFramework) Detect() (string, error) {
 
 // findAppDynamicsAgent locates the javaagent.jar in the agent directory
 func (a *AppDynamicsFramework) findAppDynamicsAgent(agentDir string) (string, error) {
-	// Common paths to check
-	commonPaths := []string{
-		filepath.Join(agentDir, "javaagent.jar"),
-		filepath.Join(agentDir, "ver*", "javaagent.jar"), // versioned directory pattern
-	}
-
-	for _, pattern := range commonPaths {
-		matches, _ := filepath.Glob(pattern)
-		if len(matches) > 0 {
-			// Return first match
-			if _, err := os.Stat(matches[0]); err == nil {
-				return matches[0], nil
-			}
-		}
-	}
-
-	// Search recursively for javaagent.jar
-	var foundPath string
-	filepath.Walk(agentDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return nil
-		}
-		if !info.IsDir() && info.Name() == "javaagent.jar" {
-			foundPath = path
-			return filepath.SkipAll
-		}
-		return nil
-	})
-
-	if foundPath != "" {
-		return foundPath, nil
-	}
-
-	return "", fmt.Errorf("javaagent.jar not found in %s", agentDir)
+	return FindFileInDirectory(agentDir, "javaagent.jar", []string{"", "ver*"})
 }
 
 // Supply installs the AppDynamics agent

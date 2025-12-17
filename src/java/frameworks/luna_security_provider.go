@@ -88,7 +88,7 @@ func (l *LunaSecurityProviderFramework) Finalize() error {
 	}
 
 	// Detect Java version to determine extension mechanism
-	javaVersion, err := l.getJavaMajorVersion()
+	javaVersion, err := GetJavaMajorVersion()
 	if err != nil {
 		l.context.Log.Warning("Unable to detect Java version, assuming Java 8: %s", err.Error())
 		javaVersion = 8
@@ -407,27 +407,6 @@ func (l *LunaSecurityProviderFramework) createSymlink(target, link string) error
 	}
 
 	return os.Symlink(relTarget, link)
-}
-
-// getJavaMajorVersion detects the Java major version from JAVA_HOME
-func (l *LunaSecurityProviderFramework) getJavaMajorVersion() (int, error) {
-	javaHome := os.Getenv("JAVA_HOME")
-	if javaHome == "" {
-		return 0, fmt.Errorf("JAVA_HOME not set")
-	}
-
-	releaseFile := filepath.Join(javaHome, "release")
-	content, err := os.ReadFile(releaseFile)
-	if err != nil {
-		return 0, fmt.Errorf("failed to read release file: %w", err)
-	}
-
-	version := parseJavaVersion(string(content))
-	if version == 0 {
-		return 0, fmt.Errorf("unable to parse Java version")
-	}
-
-	return version, nil
 }
 
 // getConfigBool retrieves a boolean configuration value from JBP_CONFIG_LUNA_SECURITY_PROVIDER

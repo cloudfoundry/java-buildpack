@@ -2,7 +2,11 @@ package frameworks
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/cloudfoundry/libbuildpack"
 )
@@ -303,4 +307,217 @@ func AppendToJavaOpts(ctx *Context, value string) error {
 	// Also update the current process environment so subsequent frameworks
 	// in the same phase can read the accumulated value
 	return os.Setenv("JAVA_OPTS", combinedOpts)
+}
+
+// GetApplicationName returns the application name from VCAP_APPLICATION.
+// If includeSpace is true, returns "space_name:application_name" format,
+// falling back to just "application_name" if space is not available.
+// Returns empty string if application name is not available.
+func GetApplicationName(includeSpace bool) string {
+	vcapApp := os.Getenv("VCAP_APPLICATION")
+	if vcapApp == "" {
+		return ""
+	}
+
+	var appData map[string]interface{}
+	if err := json.Unmarshal([]byte(vcapApp), &appData); err != nil {
+		return ""
+	}
+
+	appName, hasApp := appData["application_name"].(string)
+	if !hasApp {
+		return ""
+	}
+
+	if includeSpace {
+		if spaceName, hasSpace := appData["space_name"].(string); hasSpace {
+			return spaceName + ":" + appName
+		}
+	}
+
+	return appName
+}
+
+// GetJavaMajorVersion returns the Java major version (e.g., 8, 11, 17)
+// from the JAVA_HOME/release file
+func GetJavaMajorVersion() (int, error) {
+	javaHome := os.Getenv("JAVA_HOME")
+	if javaHome == "" {
+		return 0, fmt.Errorf("JAVA_HOME not set")
+	}
+
+	releaseFile := filepath.Join(javaHome, "release")
+	content, err := os.ReadFile(releaseFile)
+	if err != nil {
+		return 0, fmt.Errorf("failed to read release file: %w", err)
+	}
+
+	// Parse JAVA_VERSION from release file
+	lines := strings.Split(string(content), "\n")
+	for _, line := range lines {
+		if strings.Contains(line, "JAVA_VERSION=") {
+			// Extract version string from JAVA_VERSION="..."
+			start := strings.Index(line, "\"")
+			if start == -1 {
+				continue
+			}
+			end := strings.Index(line[start+1:], "\"")
+			if end == -1 {
+				continue
+			}
+			version := line[start+1 : start+1+end]
+
+			// Parse major version
+			if strings.HasPrefix(version, "1.8") {
+				return 8, nil
+			}
+			if strings.HasPrefix(version, "1.7") {
+				return 7, nil
+			}
+
+			// Java 9+ format: "11.0.1" or "17.0.1"
+			dotIndex := strings.Index(version, ".")
+			if dotIndex > 0 {
+				major := version[:dotIndex]
+				if majorVersion, err := strconv.Atoi(major); err == nil {
+					return majorVersion, nil
+				}
+			}
+		}
+	}
+
+	return 0, fmt.Errorf("unable to parse Java version from release file")
+}
+
+// FindFileInDirectory searches for a file by name in a directory, checking common
+// locations first and then recursively searching if not found.
+// Returns the full path to the file or an error if not found.
+//
+// Parameters:
+//   - baseDir: The directory to search in
+//   - filename: The exact filename to search for (e.g., "javaagent.jar", "libjprofilerti.so")
+//   - commonSubdirs: Optional subdirectories to check first (e.g., ["lib", "bin/linux-x64"])
+//
+// Example:
+//
+//	agentPath, err := FindFileInDirectory(installDir, "javaagent.jar", []string{"", "lib"})
+func FindFileInDirectory(baseDir, filename string, commonSubdirs []string) (string, error) {
+	return FindFileInDirectoryWithArchFilter(baseDir, filename, commonSubdirs, nil)
+}
+
+// FindFileInDirectoryWithArchFilter searches for a file by name in a directory with optional
+// architecture filtering. This is useful when archives contain multiple platform versions
+// (e.g., linux-aarch64, linux-amd64, linux-x64) and you need to ensure the correct one.
+//
+// Parameters:
+//   - baseDir: The directory to search in
+//   - filename: The exact filename to search for
+//   - commonSubdirs: Optional subdirectories to check first
+//   - archDirs: Optional list of valid parent directory names (e.g., ["linux-x64", "linux-amd64"]).
+//     If nil, any parent directory is accepted.
+//
+// Example:
+//
+//	agentPath, err := FindFileInDirectoryWithArchFilter(installDir, "libjprofilerti.so",
+//	    []string{"bin/linux-x64", "bin/linux-amd64"}, []string{"linux-x64", "linux-amd64"})
+func FindFileInDirectoryWithArchFilter(baseDir, filename string, commonSubdirs []string, archDirs []string) (string, error) {
+	// Helper to check if a path's parent dir matches archDirs filter
+	matchesArchFilter := func(path string) bool {
+		if archDirs == nil || len(archDirs) == 0 {
+			return true // No filter, accept all
+		}
+		parentDir := filepath.Base(filepath.Dir(path))
+		for _, validArch := range archDirs {
+			if parentDir == validArch {
+				return true
+			}
+		}
+		return false
+	}
+
+	// Check common locations first
+	for _, subdir := range commonSubdirs {
+		path := filepath.Join(baseDir, subdir, filename)
+		if _, err := os.Stat(path); err == nil && matchesArchFilter(path) {
+			return path, nil
+		}
+	}
+
+	// Check with glob patterns for versioned directories (e.g., "ver*/javaagent.jar")
+	for _, subdir := range commonSubdirs {
+		pattern := filepath.Join(baseDir, subdir, "*", filename)
+		matches, _ := filepath.Glob(pattern)
+		for _, match := range matches {
+			if _, err := os.Stat(match); err == nil && matchesArchFilter(match) {
+				return match, nil
+			}
+		}
+	}
+
+	// Search recursively as fallback
+	var foundPath string
+	filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil // Continue walking on errors
+		}
+		if !info.IsDir() && info.Name() == filename && matchesArchFilter(path) {
+			foundPath = path
+			return filepath.SkipAll
+		}
+		return nil
+	})
+
+	if foundPath != "" {
+		return foundPath, nil
+	}
+
+	archMsg := ""
+	if archDirs != nil && len(archDirs) > 0 {
+		archMsg = fmt.Sprintf(" (matching arch: %v)", archDirs)
+	}
+	return "", fmt.Errorf("%s not found in %s%s", filename, baseDir, archMsg)
+}
+
+// FindFileByPattern searches for a file matching a glob pattern in a directory.
+// Returns the first matching file or an error if not found.
+//
+// Parameters:
+//   - baseDir: The directory to search in
+//   - pattern: The glob pattern to match (e.g., "contrast*.jar", "sl-test-listener*.jar")
+//   - commonSubdirs: Optional subdirectories to check first
+//
+// Example:
+//
+//	agentPath, err := FindFileByPattern(installDir, "contrast*.jar", []string{""})
+func FindFileByPattern(baseDir, pattern string, commonSubdirs []string) (string, error) {
+	// Check common locations first
+	for _, subdir := range commonSubdirs {
+		globPattern := filepath.Join(baseDir, subdir, pattern)
+		matches, _ := filepath.Glob(globPattern)
+		if len(matches) > 0 {
+			return matches[0], nil
+		}
+	}
+
+	// Search recursively as fallback
+	var foundPath string
+	filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if !info.IsDir() {
+			matched, _ := filepath.Match(pattern, info.Name())
+			if matched {
+				foundPath = path
+				return filepath.SkipAll
+			}
+		}
+		return nil
+	})
+
+	if foundPath != "" {
+		return foundPath, nil
+	}
+
+	return "", fmt.Errorf("no file matching %s found in %s", pattern, baseDir)
 }
