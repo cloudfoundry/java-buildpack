@@ -25,12 +25,12 @@ import (
 
 // YourKitProfilerFramework represents the YourKit profiler framework
 type YourKitProfilerFramework struct {
-	ctx *Context
+	context *Context
 }
 
 // NewYourKitProfilerFramework creates a new YourKitProfilerFramework instance
 func NewYourKitProfilerFramework(ctx *Context) *YourKitProfilerFramework {
-	return &YourKitProfilerFramework{ctx: ctx}
+	return &YourKitProfilerFramework{context: ctx}
 }
 
 // Detect returns the framework name if YourKit is explicitly enabled
@@ -50,27 +50,27 @@ func (f *YourKitProfilerFramework) Detect() (string, error) {
 
 // Supply downloads and installs the YourKit profiler native library
 func (f *YourKitProfilerFramework) Supply() error {
-	f.ctx.Log.Debug("YourKit Profiler Supply phase")
+	f.context.Log.Debug("YourKit Profiler Supply phase")
 
 	// Get version from manifest
 	dep := libbuildpack.Dependency{Name: "your-kit-profiler", Version: ""}
-	version, err := f.ctx.Manifest.DefaultVersion(dep.Name)
+	version, err := f.context.Manifest.DefaultVersion(dep.Name)
 	if err != nil {
 		return fmt.Errorf("failed to get default version for your-kit-profiler: %w", err)
 	}
 	dep.Version = version.Version
 
 	// Install directory
-	installDir := filepath.Join(f.ctx.Stager.DepDir(), "your_kit_profiler")
+	installDir := filepath.Join(f.context.Stager.DepDir(), "your_kit_profiler")
 
-	f.ctx.Log.BeginStep("Installing YourKit Profiler %s", dep.Version)
+	f.context.Log.BeginStep("Installing YourKit Profiler %s", dep.Version)
 
 	// Download and extract native library
-	if err := f.ctx.Installer.InstallDependency(dep, installDir); err != nil {
+	if err := f.context.Installer.InstallDependency(dep, installDir); err != nil {
 		return fmt.Errorf("failed to install your-kit-profiler: %w", err)
 	}
 
-	f.ctx.Log.Info("YourKit Profiler installed successfully")
+	f.context.Log.Info("YourKit Profiler installed successfully")
 	return nil
 }
 
@@ -119,19 +119,19 @@ func (f *YourKitProfilerFramework) findYourKitAgent(installDir string) (string, 
 
 // Finalize configures the YourKit profiler runtime environment
 func (f *YourKitProfilerFramework) Finalize() error {
-	f.ctx.Log.Debug("YourKit Profiler Finalize phase")
+	f.context.Log.Debug("YourKit Profiler Finalize phase")
 
-	installDir := filepath.Join(f.ctx.Stager.DepDir(), "your_kit_profiler")
+	installDir := filepath.Join(f.context.Stager.DepDir(), "your_kit_profiler")
 
 	// Find the native library (libyjpagent.so)
 	agentPath, err := f.findYourKitAgent(installDir)
 	if err != nil {
 		return fmt.Errorf("failed to locate yourkit agent: %w", err)
 	}
-	f.ctx.Log.Debug("Found YourKit agent at: %s", agentPath)
+	f.context.Log.Debug("Found YourKit agent at: %s", agentPath)
 
 	// Convert staging path to runtime path
-	relPath, err := filepath.Rel(f.ctx.Stager.DepDir(), agentPath)
+	relPath, err := filepath.Rel(f.context.Stager.DepDir(), agentPath)
 	if err != nil {
 		return fmt.Errorf("failed to compute relative path: %w", err)
 	}
@@ -142,7 +142,7 @@ func (f *YourKitProfilerFramework) Finalize() error {
 	runtimeHomeDir := "$DEPS_DIR/0/yourkit"
 
 	// Create home directory at staging time
-	homeDir := filepath.Join(f.ctx.Stager.DepDir(), "yourkit")
+	homeDir := filepath.Join(f.context.Stager.DepDir(), "yourkit")
 	if err := os.MkdirAll(homeDir, 0755); err != nil {
 		return fmt.Errorf("failed to create yourkit directory: %w", err)
 	}
@@ -164,10 +164,10 @@ func (f *YourKitProfilerFramework) Finalize() error {
 	javaAgent := fmt.Sprintf("-agentpath:%s=%s", runtimeAgentPath, agentOptions)
 
 	// Write to .opts file using priority 45
-	if err := writeJavaOptsFile(f.ctx, 45, "your_kit_profiler", javaAgent); err != nil {
+	if err := writeJavaOptsFile(f.context, 45, "your_kit_profiler", javaAgent); err != nil {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	f.ctx.Log.Info("YourKit Profiler configured (priority 45)")
+	f.context.Log.Info("YourKit Profiler configured (priority 45)")
 	return nil
 }

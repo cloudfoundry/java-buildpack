@@ -74,7 +74,7 @@ func (a *AspectJWeaverAgentFramework) Finalize() error {
 		return nil
 	}
 
-	// Build runtime path using $HOME
+	// Build runtime path using $HOME (app-provided JAR in BuildDir)
 	relPath, err := filepath.Rel(a.context.Stager.BuildDir(), a.aspectjJar)
 	if err != nil {
 		return fmt.Errorf("failed to compute relative path: %w", err)

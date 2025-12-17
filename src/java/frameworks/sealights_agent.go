@@ -25,12 +25,12 @@ import (
 
 // SealightsAgentFramework represents the Sealights agent framework
 type SealightsAgentFramework struct {
-	ctx *Context
+	context *Context
 }
 
 // NewSealightsAgentFramework creates a new SealightsAgentFramework instance
 func NewSealightsAgentFramework(ctx *Context) *SealightsAgentFramework {
-	return &SealightsAgentFramework{ctx: ctx}
+	return &SealightsAgentFramework{context: ctx}
 }
 
 // Detect returns the framework name if a Sealights service is bound
@@ -52,35 +52,35 @@ func (f *SealightsAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Sealights agent
 func (f *SealightsAgentFramework) Supply() error {
-	f.ctx.Log.Debug("Sealights Agent Supply phase")
+	f.context.Log.Debug("Sealights Agent Supply phase")
 
 	// Get version from manifest
 	dep := libbuildpack.Dependency{Name: "sealights-agent", Version: ""}
-	version, err := f.ctx.Manifest.DefaultVersion(dep.Name)
+	version, err := f.context.Manifest.DefaultVersion(dep.Name)
 	if err != nil {
 		return fmt.Errorf("failed to get default version for sealights-agent: %w", err)
 	}
 	dep.Version = version.Version
 
 	// Install directory
-	installDir := filepath.Join(f.ctx.Stager.DepDir(), "sealights_agent")
+	installDir := filepath.Join(f.context.Stager.DepDir(), "sealights_agent")
 
-	f.ctx.Log.BeginStep("Installing Sealights Agent %s", dep.Version)
+	f.context.Log.BeginStep("Installing Sealights Agent %s", dep.Version)
 
 	// Download and extract ZIP with JAR agent
-	if err := f.ctx.Installer.InstallDependency(dep, installDir); err != nil {
+	if err := f.context.Installer.InstallDependency(dep, installDir); err != nil {
 		return fmt.Errorf("failed to install sealights-agent: %w", err)
 	}
 
-	f.ctx.Log.Info("Sealights Agent installed successfully")
+	f.context.Log.Info("Sealights Agent installed successfully")
 	return nil
 }
 
 // Finalize configures the Sealights agent runtime environment
 func (f *SealightsAgentFramework) Finalize() error {
-	f.ctx.Log.Debug("Sealights Agent Finalize phase")
+	f.context.Log.Debug("Sealights Agent Finalize phase")
 
-	installDir := filepath.Join(f.ctx.Stager.DepDir(), "sealights_agent")
+	installDir := filepath.Join(f.context.Stager.DepDir(), "sealights_agent")
 
 	// Find the JAR agent (sl-test-listener.jar or sl-test-listener-*.jar)
 	// NOTE: There are multiple Sealights JARs (sl-build-scanner, sl-test-listener, etc.)
@@ -89,12 +89,12 @@ func (f *SealightsAgentFramework) Finalize() error {
 
 	// Verify agent exists
 	if _, err := os.Stat(agentPath); err != nil {
-		f.ctx.Log.Warning("Sealights agent not found at exact path %s, searching for versioned file", agentPath)
+		f.context.Log.Warning("Sealights agent not found at exact path %s, searching for versioned file", agentPath)
 		// Try to find sl-test-listener-*.jar (versioned)
 		matches, _ := filepath.Glob(filepath.Join(installDir, "sl-test-listener*.jar"))
 		if len(matches) > 0 {
 			agentPath = matches[0]
-			f.ctx.Log.Debug("Found Sealights test-listener: %s", agentPath)
+			f.context.Log.Debug("Found Sealights test-listener: %s", agentPath)
 		} else {
 			// Fallback: search recursively for any sl-test-listener*.jar
 			filepath.Walk(installDir, func(path string, info os.FileInfo, err error) error {
@@ -117,7 +117,7 @@ func (f *SealightsAgentFramework) Finalize() error {
 	}
 
 	// Convert staging path to runtime path
-	relPath, err := filepath.Rel(f.ctx.Stager.DepDir(), agentPath)
+	relPath, err := filepath.Rel(f.context.Stager.DepDir(), agentPath)
 	if err != nil {
 		return fmt.Errorf("failed to compute relative path: %w", err)
 	}
@@ -173,16 +173,16 @@ func (f *SealightsAgentFramework) Finalize() error {
 	javaOpts := fmt.Sprintf("%s %s", javaAgent, systemProps)
 
 	// Write to .opts file using priority 39
-	if err := writeJavaOptsFile(f.ctx, 39, "sealights_agent", javaOpts); err != nil {
+	if err := writeJavaOptsFile(f.context, 39, "sealights_agent", javaOpts); err != nil {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
 	// Create log directory at staging time
-	logFolder := filepath.Join(f.ctx.Stager.DepDir(), "sealights_logs")
+	logFolder := filepath.Join(f.context.Stager.DepDir(), "sealights_logs")
 	if err := os.MkdirAll(logFolder, 0755); err != nil {
 		return fmt.Errorf("failed to create log directory: %w", err)
 	}
 
-	f.ctx.Log.Info("Sealights Agent configured (priority 39)")
+	f.context.Log.Info("Sealights Agent configured (priority 39)")
 	return nil
 }

@@ -25,12 +25,12 @@ import (
 
 // TakipiAgentFramework represents the OverOps (formerly Takipi) agent framework
 type TakipiAgentFramework struct {
-	ctx *Context
+	context *Context
 }
 
 // NewTakipiAgentFramework creates a new TakipiAgentFramework instance
 func NewTakipiAgentFramework(ctx *Context) *TakipiAgentFramework {
-	return &TakipiAgentFramework{ctx: ctx}
+	return &TakipiAgentFramework{context: ctx}
 }
 
 // Detect returns the framework name if a Takipi/OverOps service is bound
@@ -55,23 +55,23 @@ func (f *TakipiAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Takipi agent
 func (f *TakipiAgentFramework) Supply() error {
-	f.ctx.Log.Debug("Takipi Agent Supply phase")
+	f.context.Log.Debug("Takipi Agent Supply phase")
 
 	// Get version from manifest
 	dep := libbuildpack.Dependency{Name: "takipi", Version: ""}
-	version, err := f.ctx.Manifest.DefaultVersion(dep.Name)
+	version, err := f.context.Manifest.DefaultVersion(dep.Name)
 	if err != nil {
 		return fmt.Errorf("failed to get default version for takipi: %w", err)
 	}
 	dep.Version = version.Version
 
 	// Install directory
-	installDir := filepath.Join(f.ctx.Stager.DepDir(), "takipi")
+	installDir := filepath.Join(f.context.Stager.DepDir(), "takipi")
 
-	f.ctx.Log.BeginStep("Installing Takipi Agent %s", dep.Version)
+	f.context.Log.BeginStep("Installing Takipi Agent %s", dep.Version)
 
 	// Download and extract tarball
-	if err := f.ctx.Installer.InstallDependency(dep, installDir); err != nil {
+	if err := f.context.Installer.InstallDependency(dep, installDir); err != nil {
 		return fmt.Errorf("failed to install takipi: %w", err)
 	}
 
@@ -81,15 +81,15 @@ func (f *TakipiAgentFramework) Supply() error {
 		return fmt.Errorf("failed to create log directory: %w", err)
 	}
 
-	f.ctx.Log.Info("Takipi Agent installed successfully")
+	f.context.Log.Info("Takipi Agent installed successfully")
 	return nil
 }
 
 // Finalize configures the Takipi agent runtime environment
 func (f *TakipiAgentFramework) Finalize() error {
-	f.ctx.Log.Debug("Takipi Agent Finalize phase")
+	f.context.Log.Debug("Takipi Agent Finalize phase")
 
-	installDir := filepath.Join(f.ctx.Stager.DepDir(), "takipi")
+	installDir := filepath.Join(f.context.Stager.DepDir(), "takipi")
 	agentPath := filepath.Join(installDir, "lib", "libTakipiAgent.so")
 
 	// Verify agent exists
@@ -98,7 +98,7 @@ func (f *TakipiAgentFramework) Finalize() error {
 	}
 
 	// Convert staging path to runtime path
-	relPath, err := filepath.Rel(f.ctx.Stager.DepDir(), agentPath)
+	relPath, err := filepath.Rel(f.context.Stager.DepDir(), agentPath)
 	if err != nil {
 		return fmt.Errorf("failed to compute relative path: %w", err)
 	}
@@ -138,7 +138,7 @@ func (f *TakipiAgentFramework) Finalize() error {
 	javaOpts += " -Xshare:off -XX:-UseTypeSpeculation"
 
 	// Write to .opts file using priority 46
-	if err := writeJavaOptsFile(f.ctx, 46, "takipi", javaOpts); err != nil {
+	if err := writeJavaOptsFile(f.context, 46, "takipi", javaOpts); err != nil {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
@@ -164,10 +164,10 @@ export TAKIPI_MACHINE_NAME="node-$CF_INSTANCE_INDEX"
 		}
 	}
 
-	if err := f.ctx.Stager.WriteProfileD("takipi.sh", profileContent); err != nil {
+	if err := f.context.Stager.WriteProfileD("takipi.sh", profileContent); err != nil {
 		return fmt.Errorf("failed to write profile script: %w", err)
 	}
 
-	f.ctx.Log.Info("Takipi Agent configured (priority 46)")
+	f.context.Log.Info("Takipi Agent configured (priority 46)")
 	return nil
 }

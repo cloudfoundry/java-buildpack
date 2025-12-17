@@ -25,12 +25,12 @@ import (
 
 // JProfilerProfilerFramework represents the JProfiler profiler framework
 type JProfilerProfilerFramework struct {
-	ctx *Context
+	context *Context
 }
 
 // NewJProfilerProfilerFramework creates a new JProfilerProfilerFramework instance
 func NewJProfilerProfilerFramework(ctx *Context) *JProfilerProfilerFramework {
-	return &JProfilerProfilerFramework{ctx: ctx}
+	return &JProfilerProfilerFramework{context: ctx}
 }
 
 // Detect returns the framework name if JProfiler is explicitly enabled
@@ -50,27 +50,27 @@ func (f *JProfilerProfilerFramework) Detect() (string, error) {
 
 // Supply downloads and installs the JProfiler profiler
 func (f *JProfilerProfilerFramework) Supply() error {
-	f.ctx.Log.Debug("JProfiler Profiler Supply phase")
+	f.context.Log.Debug("JProfiler Profiler Supply phase")
 
 	// Get version from manifest
 	dep := libbuildpack.Dependency{Name: "jprofiler-profiler", Version: ""}
-	version, err := f.ctx.Manifest.DefaultVersion(dep.Name)
+	version, err := f.context.Manifest.DefaultVersion(dep.Name)
 	if err != nil {
 		return fmt.Errorf("failed to get default version for jprofiler-profiler: %w", err)
 	}
 	dep.Version = version.Version
 
 	// Install directory
-	installDir := filepath.Join(f.ctx.Stager.DepDir(), "jprofiler_profiler")
+	installDir := filepath.Join(f.context.Stager.DepDir(), "jprofiler_profiler")
 
-	f.ctx.Log.BeginStep("Installing JProfiler Profiler %s", dep.Version)
+	f.context.Log.BeginStep("Installing JProfiler Profiler %s", dep.Version)
 
 	// Download and extract tarball
-	if err := f.ctx.Installer.InstallDependency(dep, installDir); err != nil {
+	if err := f.context.Installer.InstallDependency(dep, installDir); err != nil {
 		return fmt.Errorf("failed to install jprofiler-profiler: %w", err)
 	}
 
-	f.ctx.Log.Info("JProfiler Profiler installed successfully")
+	f.context.Log.Info("JProfiler Profiler installed successfully")
 	return nil
 }
 
@@ -115,19 +115,19 @@ func (f *JProfilerProfilerFramework) findJProfilerAgent(installDir string) (stri
 
 // Finalize configures the JProfiler profiler runtime environment
 func (f *JProfilerProfilerFramework) Finalize() error {
-	f.ctx.Log.Debug("JProfiler Profiler Finalize phase")
+	f.context.Log.Debug("JProfiler Profiler Finalize phase")
 
-	installDir := filepath.Join(f.ctx.Stager.DepDir(), "jprofiler_profiler")
+	installDir := filepath.Join(f.context.Stager.DepDir(), "jprofiler_profiler")
 
 	// Find the native library (libjprofilerti.so in bin/linux-x64/)
 	agentPath, err := f.findJProfilerAgent(installDir)
 	if err != nil {
 		return fmt.Errorf("failed to locate jprofiler agent: %w", err)
 	}
-	f.ctx.Log.Debug("Found JProfiler agent at: %s", agentPath)
+	f.context.Log.Debug("Found JProfiler agent at: %s", agentPath)
 
 	// Convert staging path to runtime path
-	relPath, err := filepath.Rel(f.ctx.Stager.DepDir(), agentPath)
+	relPath, err := filepath.Rel(f.context.Stager.DepDir(), agentPath)
 	if err != nil {
 		return fmt.Errorf("failed to compute relative path: %w", err)
 	}
@@ -158,10 +158,10 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 	javaAgent := fmt.Sprintf("-agentpath:%s=%s", runtimeAgentPath, agentOptions)
 
 	// Write to .opts file using priority 30
-	if err := writeJavaOptsFile(f.ctx, 30, "jprofiler_profiler", javaAgent); err != nil {
+	if err := writeJavaOptsFile(f.context, 30, "jprofiler_profiler", javaAgent); err != nil {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	f.ctx.Log.Info("JProfiler Profiler configured (priority 30)")
+	f.context.Log.Info("JProfiler Profiler configured (priority 30)")
 	return nil
 }
