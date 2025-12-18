@@ -1,12 +1,11 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
-
 )
 
 // Framework represents a cross-cutting concern (APM agents, security providers, etc.)
@@ -21,7 +20,6 @@ type Framework interface {
 	// Finalize performs final framework configuration
 	Finalize() error
 }
-
 
 // Registry manages available frameworks
 type Registry struct {
@@ -254,51 +252,6 @@ func stringContains(s, substr string) bool {
 	return false
 }
 
-// AppendToJavaOpts appends a value to JAVA_OPTS environment variable, preserving existing values.
-// This function ensures that multiple frameworks can add their options without overwriting each other.
-//
-// During the Supply phase, frameworks write to env/JAVA_OPTS file which is then sourced by
-// Cloud Foundry between buildpack phases. This helper reads the current JAVA_OPTS from the
-// process environment (set by previous frameworks), appends the new value, and writes it back.
-//
-// Parameters:
-//   - ctx: Framework context containing Stager for writing env files
-//   - value: The JAVA_OPTS value to append (e.g., "-javaagent:/path/to/agent.jar")
-//
-// Returns error if writing the env file fails.
-//
-// Example usage:
-//
-//	if err := AppendToJavaOpts(ctx, "-javaagent:/deps/0/agent.jar"); err != nil {
-//	    return fmt.Errorf("failed to set JAVA_OPTS: %w", err)
-//	}
-func AppendToJavaOpts(ctx *common.Context, value string) error {
-	if value == "" {
-		return nil // Nothing to append
-	}
-
-	// Read existing JAVA_OPTS from environment
-	// During Supply phase, this reflects what previous frameworks have written
-	existingOpts := os.Getenv("JAVA_OPTS")
-
-	// Build combined JAVA_OPTS
-	var combinedOpts string
-	if existingOpts != "" {
-		combinedOpts = existingOpts + " " + value
-	} else {
-		combinedOpts = value
-	}
-
-	// Write to env file for next buildpack phase and subsequent frameworks
-	if err := ctx.Stager.WriteEnvFile("JAVA_OPTS", combinedOpts); err != nil {
-		return err
-	}
-
-	// Also update the current process environment so subsequent frameworks
-	// in the same phase can read the accumulated value
-	return os.Setenv("JAVA_OPTS", combinedOpts)
-}
-
 // GetApplicationName returns the application name from VCAP_APPLICATION.
 // If includeSpace is true, returns "space_name:application_name" format,
 // falling back to just "application_name" if space is not available.
@@ -327,7 +280,6 @@ func GetApplicationName(includeSpace bool) string {
 
 	return appName
 }
-
 
 // FindFileInDirectory searches for a file by name in a directory, checking common
 // locations first and then recursively searching if not found.
