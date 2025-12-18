@@ -14,11 +14,11 @@ import (
 //go:generate faux --package github.com/cloudfoundry/switchblade/internal/cloudfoundry --interface StagePhase --name CloudFoundryStagePhase --output fakes/cloudfoundry_stage_phase.go
 //go:generate faux --package github.com/cloudfoundry/switchblade/internal/cloudfoundry --interface TeardownPhase --name CloudFoundryTeardownPhase --output fakes/cloudfoundry_teardown_phase.go
 
-func NewCloudFoundry(initialize cloudfoundry.InitializePhase, deinitialize cloudfoundry.DeinitializePhase, setup cloudfoundry.SetupPhase, stage cloudfoundry.StagePhase, teardown cloudfoundry.TeardownPhase, workspace string) Platform {
+func NewCloudFoundry(initialize cloudfoundry.InitializePhase, deinitialize cloudfoundry.DeinitializePhase, setup cloudfoundry.SetupPhase, stage cloudfoundry.StagePhase, teardown cloudfoundry.TeardownPhase, workspace string, cli cloudfoundry.Executable) Platform {
 	return Platform{
 		initialize:   cloudFoundryInitializeProcess{initialize: initialize},
 		deinitialize: cloudFoundryDeinitializeProcess{deinitialize: deinitialize},
-		Deploy:       cloudFoundryDeployProcess{setup: setup, stage: stage, workspace: workspace},
+		Deploy:       cloudFoundryDeployProcess{setup: setup, stage: stage, workspace: workspace, cli: cli},
 		Delete:       cloudFoundryDeleteProcess{teardown: teardown, workspace: workspace},
 	}
 }
@@ -51,6 +51,7 @@ type cloudFoundryDeployProcess struct {
 	setup     cloudfoundry.SetupPhase
 	stage     cloudfoundry.StagePhase
 	workspace string
+	cli       cloudfoundry.Executable
 }
 
 func (p cloudFoundryDeployProcess) WithBuildpacks(buildpacks ...string) DeployProcess {
@@ -111,6 +112,9 @@ func (p cloudFoundryDeployProcess) Execute(name, source string) (Deployment, fmt
 		Name:        name,
 		ExternalURL: externalURL,
 		InternalURL: internalURL,
+		platform:    CloudFoundry,
+		workspace:   home,
+		cfCLI:       p.cli,
 	}, logs, nil
 }
 

@@ -18,17 +18,17 @@ github.com/cenkalti/backoff/v4
 # github.com/cloudfoundry/libbuildpack v0.0.0-20251203175254-7be530ec9fef
 ## explicit; go 1.22.5
 github.com/cloudfoundry/libbuildpack
-# github.com/cloudfoundry/switchblade v0.9.2
+# github.com/cloudfoundry/switchblade v0.9.3
 ## explicit; go 1.23.0
 github.com/cloudfoundry/switchblade
 github.com/cloudfoundry/switchblade/internal/cloudfoundry
 github.com/cloudfoundry/switchblade/internal/docker
 github.com/cloudfoundry/switchblade/matchers
+# github.com/containerd/log v0.1.0
+## explicit; go 1.20
 # github.com/distribution/reference v0.6.0
 ## explicit; go 1.20
 github.com/distribution/reference
-# github.com/docker/distribution v2.8.1+incompatible
-## explicit
 # github.com/docker/docker v27.5.1+incompatible
 ## explicit
 github.com/docker/docker/api
@@ -254,3 +254,5 @@ golang.org/x/tools/internal/versions
 # gopkg.in/yaml.v2 v2.4.0
 ## explicit; go 1.15
 gopkg.in/yaml.v2
+# go.opentelemetry.io/otel/exporters/otlp/otlptrace => go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.32.0
+# go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp => go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.32.0

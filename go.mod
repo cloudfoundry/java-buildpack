@@ -4,7 +4,7 @@ go 1.25.4
 
 require (
 	github.com/cloudfoundry/libbuildpack v0.0.0-20251203175254-7be530ec9fef
-	github.com/cloudfoundry/switchblade v0.9.2
+	github.com/cloudfoundry/switchblade v0.9.3
 	github.com/onsi/ginkgo/v2 v2.27.2
 	github.com/onsi/gomega v1.38.2
 	github.com/sclevine/spec v1.4.0
@@ -17,8 +17,8 @@ require (
 	github.com/Microsoft/go-winio v0.6.0 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
+	github.com/containerd/log v0.1.0 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
-	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/docker v27.5.1+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
@@ -48,4 +48,11 @@ require (
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
 	golang.org/x/tools v0.39.0 // indirect
+)
+
+// Replace directives to fix OpenTelemetry dependency conflicts from docker/docker test dependencies
+// The docker client's test code (which we don't run) pulls in old OTEL versions with reorganized internals
+replace (
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace => go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.32.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp => go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.32.0
 )

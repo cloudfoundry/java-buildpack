@@ -37,17 +37,11 @@ func (s Stage) Run(logs io.Writer, home, name string) (string, error) {
 	if err != nil {
 		// In CF API v3, staging failure logs are not automatically captured in stdout/stderr
 		// We need to fetch them explicitly using 'cf logs --recent'
-		recentLogs := bytes.NewBuffer(nil)
-		logErr := s.cli.Execute(pexec.Execution{
-			Args:   []string{"logs", name, "--recent"},
-			Stdout: recentLogs,
-			Stderr: recentLogs,
-			Env:    env,
-		})
-		if logErr == nil && recentLogs.Len() > 0 {
+		recentLogs, logErr := FetchRecentLogs(s.cli, home, name)
+		if logErr == nil && len(recentLogs) > 0 {
 			// Append recent logs to the main logs buffer
 			_, _ = logs.Write([]byte("\n--- Recent Logs (cf logs --recent) ---\n"))
-			_, _ = logs.Write(recentLogs.Bytes())
+			_, _ = logs.Write([]byte(recentLogs))
 		}
 
 		return "", fmt.Errorf("failed to start: %w\n\nOutput:\n%s", err, logs)

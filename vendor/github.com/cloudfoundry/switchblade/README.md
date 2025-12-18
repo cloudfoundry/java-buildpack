@@ -175,6 +175,31 @@ deployment, logs, err := platform.Deploy.
   Execute("my-app", "/path/to/my/app/source")
 ```
 
+### Retrieving runtime logs: `RuntimeLogs`
+
+The `deployment.RuntimeLogs()` method retrieves logs from the running application
+after deployment succeeds. This is useful for testing runtime behavior such as
+application startup, service connections, and module loading.
+
+```go
+// Deploy an application
+deployment, stagingLogs, err := platform.Deploy.Execute("my-app", "/path/to/my/app/source")
+Expect(err).NotTo(HaveOccurred())
+
+// stagingLogs contains build-time output (buildpack detection, compilation, etc.)
+Expect(stagingLogs).To(ContainLines(ContainSubstring("Installing dependencies...")))
+
+// Retrieve runtime logs (application startup, service connections, etc.)
+runtimeLogs, err := deployment.RuntimeLogs()
+Expect(err).NotTo(HaveOccurred())
+Expect(runtimeLogs).To(ContainSubstring("Application started"))
+Expect(runtimeLogs).To(ContainSubstring("Connected to Redis"))
+```
+
+**Note:** The logs returned from `platform.Deploy.Execute()` are **staging logs**
+(build-time), while `deployment.RuntimeLogs()` returns **runtime logs** (post-deployment).
+Use staging logs to test buildpack behavior, and runtime logs to test application behavior.
+
 ## Other utilities
 
 ### Random name generation: `RandomName`

@@ -15,11 +15,11 @@ import (
 //go:generate faux --package github.com/cloudfoundry/switchblade/internal/docker --interface StartPhase --name DockerStartPhase --output fakes/docker_start_phase.go
 //go:generate faux --package github.com/cloudfoundry/switchblade/internal/docker --interface TeardownPhase --name DockerTeardownPhase --output fakes/docker_teardown_phase.go
 
-func NewDocker(initialize docker.InitializePhase, deinitialize docker.DeinitializePhase, setup docker.SetupPhase, stage docker.StagePhase, start docker.StartPhase, teardown docker.TeardownPhase) Platform {
+func NewDocker(initialize docker.InitializePhase, deinitialize docker.DeinitializePhase, setup docker.SetupPhase, stage docker.StagePhase, start docker.StartPhase, teardown docker.TeardownPhase, client LogsClient) Platform {
 	return Platform{
 		initialize:   dockerInitializeProcess{initialize: initialize},
 		deinitialize: dockerDeinitializeProcess{deinitialize: deinitialize},
-		Deploy:       dockerDeployProcess{setup: setup, stage: stage, start: start},
+		Deploy:       dockerDeployProcess{setup: setup, stage: stage, start: start, client: client},
 		Delete:       dockerDeleteProcess{teardown: teardown},
 	}
 }
@@ -49,9 +49,10 @@ func (p dockerDeinitializeProcess) Execute() error {
 }
 
 type dockerDeployProcess struct {
-	setup docker.SetupPhase
-	stage docker.StagePhase
-	start docker.StartPhase
+	setup  docker.SetupPhase
+	stage  docker.StagePhase
+	start  docker.StartPhase
+	client LogsClient
 }
 
 func (p dockerDeployProcess) WithBuildpacks(buildpacks ...string) DeployProcess {
@@ -120,6 +121,8 @@ func (p dockerDeployProcess) Execute(name, path string) (Deployment, fmt.Stringe
 		Name:        name,
 		ExternalURL: externalURL,
 		InternalURL: internalURL,
+		platform:    Docker,
+		dockerCLI:   p.client,
 	}, logs, nil
 }
 

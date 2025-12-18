@@ -71,9 +71,9 @@ func NewPlatform(platformType, token, stack string) (Platform, error) {
 		stage := cloudfoundry.NewStage(cli)
 		teardown := cloudfoundry.NewTeardown(cli)
 
-		return NewCloudFoundry(initialize, deinitialize, setup, stage, teardown, os.TempDir()), nil
+		return NewCloudFoundry(initialize, deinitialize, setup, stage, teardown, os.TempDir(), cli), nil
 	case Docker:
-		client, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+		dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 		if err != nil {
 			return Platform{}, err
 		}
@@ -86,16 +86,16 @@ func NewPlatform(platformType, token, stack string) (Platform, error) {
 		buildpacksCache := docker.NewBuildpacksCache(filepath.Join(workspace, "buildpacks-cache"))
 		buildpacksRegistry := docker.NewBuildpacksRegistry("https://api.github.com", token)
 		buildpacksManager := docker.NewBuildpacksManager(archiver, buildpacksCache, buildpacksRegistry)
-		networkManager := docker.NewNetworkManager(client)
+		networkManager := docker.NewNetworkManager(dockerClient)
 
 		initialize := docker.NewInitialize(buildpacksRegistry, networkManager)
 		deinitialize := docker.NewDeinitialize(networkManager)
-		setup := docker.NewSetup(client, lifecycleManager, buildpacksManager, archiver, networkManager, workspace, stack)
-		stage := docker.NewStage(client, archiver, workspace)
-		start := docker.NewStart(client, networkManager, workspace, stack)
-		teardown := docker.NewTeardown(client, workspace)
+		setup := docker.NewSetup(dockerClient, lifecycleManager, buildpacksManager, archiver, networkManager, workspace, stack)
+		stage := docker.NewStage(dockerClient, archiver, workspace)
+		start := docker.NewStart(dockerClient, networkManager, workspace, stack)
+		teardown := docker.NewTeardown(dockerClient, workspace)
 
-		return NewDocker(initialize, deinitialize, setup, stage, start, teardown), nil
+		return NewDocker(initialize, deinitialize, setup, stage, start, teardown, dockerClient), nil
 	}
 
 	return Platform{}, fmt.Errorf("unknown platform type: %q", platformType)
