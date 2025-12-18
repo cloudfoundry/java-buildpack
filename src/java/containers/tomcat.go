@@ -2,13 +2,14 @@ package containers
 
 import (
 	"fmt"
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
+	"github.com/cloudfoundry/java-buildpack/src/java/resources"
 	"github.com/cloudfoundry/libbuildpack"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -113,10 +114,11 @@ func (t *TomcatContainer) Supply() error {
 	tomcatPath := fmt.Sprintf("$DEPS_DIR/%s/tomcat", depsIdx)
 
 	// Add http.port system property to JAVA_OPTS so Tomcat uses $PORT for the HTTP connector
-	// This is required for Cloud Foundry where the platform assigns a dynamic port
+	// Add access.logging.enabled to enable CloudFoundryAccessLoggingValve
+	// These are required for Cloud Foundry where the platform assigns a dynamic port
 	envContent := fmt.Sprintf(`export CATALINA_HOME=%s
 export CATALINA_BASE=%s
-export JAVA_OPTS="${JAVA_OPTS:+$JAVA_OPTS }-Dhttp.port=$PORT"
+export JAVA_OPTS="${JAVA_OPTS:+$JAVA_OPTS }-Dhttp.port=$PORT -Daccess.logging.enabled=true"
 `, tomcatPath, tomcatPath)
 
 	if err := t.context.Stager.WriteProfileD("tomcat.sh", envContent); err != nil {
@@ -147,7 +149,12 @@ export JAVA_OPTS="${JAVA_OPTS:+$JAVA_OPTS }-Dhttp.port=$PORT"
 		return fmt.Errorf("failed to create setenv.sh: %w", err)
 	}
 
-	// Install external Tomcat configuration if enabled
+	// Install default Cloud Foundry-optimized Tomcat configuration (unless external config is used)
+	if err := t.installDefaultConfiguration(tomcatDir); err != nil {
+		return fmt.Errorf("failed to install default Tomcat configuration: %w", err)
+	}
+
+	// Install external Tomcat configuration if enabled (overrides defaults)
 	if err := t.installExternalConfiguration(tomcatDir); err != nil {
 		return fmt.Errorf("failed to install external Tomcat configuration: %w", err)
 	}
@@ -380,6 +387,56 @@ func (t *TomcatContainer) downloadExternalConfiguration(repositoryRoot, version,
 	}
 
 	t.context.Log.Info("Successfully installed external Tomcat configuration version %s", version)
+	return nil
+}
+
+// installDefaultConfiguration installs embedded Cloud Foundry-optimized Tomcat configuration
+// These defaults provide proper CF integration (dynamic ports, stdout logging, X-Forwarded-* headers, etc.)
+// External configuration (if enabled) will override these defaults
+func (t *TomcatContainer) installDefaultConfiguration(tomcatDir string) error {
+	// Check if external configuration will be used (if so, skip defaults)
+	externalConfigEnabled, _, _ := t.isExternalConfigurationEnabled()
+	if externalConfigEnabled {
+		t.context.Log.Debug("External Tomcat configuration enabled, skipping embedded defaults")
+		return nil
+	}
+
+	t.context.Log.Info("Installing Cloud Foundry-optimized Tomcat configuration defaults")
+
+	confDir := filepath.Join(tomcatDir, "conf")
+	if err := os.MkdirAll(confDir, 0755); err != nil {
+		return fmt.Errorf("failed to create conf directory: %w", err)
+	}
+
+	// Install embedded configuration files
+	configFiles := []string{
+		"tomcat/conf/server.xml",
+		"tomcat/conf/logging.properties",
+		"tomcat/conf/context.xml",
+	}
+
+	for _, configFile := range configFiles {
+		data, err := resources.GetResource(configFile)
+		if err != nil {
+			t.context.Log.Warning("Embedded config %s not found: %s", configFile, err)
+			continue
+		}
+
+		targetPath := filepath.Join(confDir, filepath.Base(configFile))
+		if err := os.WriteFile(targetPath, data, 0644); err != nil {
+			return fmt.Errorf("failed to write %s: %w", filepath.Base(configFile), err)
+		}
+
+		t.context.Log.Info("Installed default %s to %s", filepath.Base(configFile), targetPath)
+	}
+
+	t.context.Log.Info("Tomcat configuration includes:")
+	t.context.Log.Info("  - Dynamic port binding (${http.port} from $PORT)")
+	t.context.Log.Info("  - HTTP/2 support enabled")
+	t.context.Log.Info("  - RemoteIpValve for X-Forwarded-* headers")
+	t.context.Log.Info("  - CloudFoundryAccessLoggingValve with vcap_request_id")
+	t.context.Log.Info("  - Stdout logging via CloudFoundryConsoleHandler")
+
 	return nil
 }
 

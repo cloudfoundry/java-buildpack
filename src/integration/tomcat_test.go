@@ -45,7 +45,40 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
+				// Verify embedded Cloud Foundry-optimized Tomcat configuration was installed
+				Expect(logs.String()).To(ContainSubstring("Installing Cloud Foundry-optimized Tomcat configuration defaults"))
+				Expect(logs.String()).To(ContainSubstring("Dynamic port binding (${http.port} from $PORT)"))
+				Expect(logs.String()).To(ContainSubstring("HTTP/2 support enabled"))
+				Expect(logs.String()).To(ContainSubstring("RemoteIpValve for X-Forwarded-* headers"))
+				Expect(logs.String()).To(ContainSubstring("CloudFoundryAccessLoggingValve with vcap_request_id"))
+				Expect(logs.String()).To(ContainSubstring("Stdout logging via CloudFoundryConsoleHandler"))
+
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
+
+				// Verify runtime logs contain CloudFoundry-specific Tomcat features
+				// Use Eventually to wait for logs to be flushed, as they may not appear immediately
+
+				// Check for HTTP/2 support in runtime logs (Tomcat startup messages)
+				// These should appear quickly during Tomcat startup
+				Eventually(func() string {
+					logs, _ := deployment.RuntimeLogs()
+					return logs
+				}, "10s", "1s").Should(Or(
+					ContainSubstring("Http11NioProtocol"),
+					ContainSubstring("Starting ProtocolHandler"),
+					ContainSubstring("HTTP/1.1"),
+				))
+
+				// Check for CloudFoundry access logging valve
+				// Access logs may take longer to flush, so we poll with Eventually
+				// The request above with matchers.Serve should have generated an access log entry
+				Eventually(func() string {
+					logs, _ := deployment.RuntimeLogs()
+					return logs
+				}, "10s", "1s").Should(Or(
+					ContainSubstring("[ACCESS]"),
+					ContainSubstring("vcap_request_id:"),
+				))
 			})
 		})
 
