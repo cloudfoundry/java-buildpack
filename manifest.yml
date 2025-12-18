@@ -24,7 +24,11 @@ default_versions:
   version: 17.x
 - name: tomcat
   version: 10.1.x
+- name: tomcat-access-logging-support
+  version: 3.x
 - name: tomcat-lifecycle-support
+  version: 3.x
+- name: tomcat-logging-support
   version: 3.x
 - name: groovy
   version: 4.0.x

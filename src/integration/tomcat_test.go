@@ -163,38 +163,42 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 		})
 
 		context("with external Tomcat configuration", func() {
-			it("detects configuration and attempts index.yml lookup", func() {
+			it("downloads and applies configuration from real repository", func() {
 				// This test verifies the external configuration workflow:
 				// 1. Configuration is detected from JBP_CONFIG_TOMCAT
-				// 2. Buildpack attempts to fetch index.yml from repository_root
-				// 3. Build fails gracefully when repository is unreachable
-				//
-				// Note: We use a fake URL since we cannot easily mock HTTP in integration tests.
-				// The build will fail at the index.yml download step, which is expected.
-				_, logs, err := platform.Deploy.
+				// 2. Buildpack fetches index.yml from repository_root
+				// 3. Buildpack downloads the specified version's tar.gz
+				// 4. Configuration is extracted and applied to Tomcat
+				// 5. Application deploys successfully with custom configuration
+				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
 						"BP_JAVA_VERSION":   "11",
-						"JBP_CONFIG_TOMCAT": "{tomcat: {external_configuration_enabled: true}, external_configuration: {repository_root: \"https://example.com/tomcat-config\", version: \"1.4.0\"}}",
+						"JBP_CONFIG_TOMCAT": "{tomcat: {external_configuration_enabled: true}, external_configuration: {repository_root: \"https://tomcat-config.cfapps.eu12.hana.ondemand.com\", version: \"1.4.0\"}}",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
 
-				// Build should fail since the repository URL doesn't exist
-				Expect(err).To(HaveOccurred())
+				// Build should succeed with real repository
+				Expect(err).NotTo(HaveOccurred())
 
 				// Verify external configuration was detected and parsed correctly
 				Expect(logs.String()).To(ContainSubstring("External Tomcat configuration is enabled"))
-				Expect(logs.String()).To(ContainSubstring("External configuration repository: https://example.com/tomcat-config (version: 1.4.0)"))
+				Expect(logs.String()).To(ContainSubstring("External configuration repository: https://tomcat-config.cfapps.eu12.hana.ondemand.com (version: 1.4.0)"))
 
 				// Verify buildpack falls back to direct download when not in manifest
 				Expect(logs.String()).To(ContainSubstring("External configuration not in manifest, downloading directly from repository"))
 
-				// Verify buildpack attempts to fetch index.yml (this is the key behavior)
-				Expect(logs.String()).To(ContainSubstring("Fetching external configuration index from: https://example.com/tomcat-config/index.yml"))
+				// Verify buildpack fetches index.yml successfully
+				Expect(logs.String()).To(ContainSubstring("Fetching external configuration index from: https://tomcat-config.cfapps.eu12.hana.ondemand.com/index.yml"))
 
-				// Verify build fails with appropriate error when index.yml cannot be downloaded
-				Expect(logs.String()).To(ContainSubstring("failed to install external Tomcat configuration"))
-				// The error could be connection failure, 404, or DNS resolution - just verify it mentions index.yml
-				Expect(logs.String()).To(ContainSubstring("index.yml"))
+				// Verify buildpack downloads the configuration archive
+				Expect(logs.String()).To(ContainSubstring("Found version 1.4.0 in index"))
+				Expect(logs.String()).To(ContainSubstring("Extracting external configuration"))
+
+				// Verify configuration was installed successfully
+				Expect(logs.String()).To(ContainSubstring("Successfully installed external Tomcat configuration version 1.4.0"))
+
+				// Verify application starts successfully with custom configuration
+				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 		})
 	}

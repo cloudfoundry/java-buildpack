@@ -1,8 +1,8 @@
 package containers
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"io"
 	"net/http"
 	"os"
@@ -108,12 +108,15 @@ func (t *TomcatContainer) Supply() error {
 
 	t.context.Log.Info("Installed Tomcat version %s", dep.Version)
 
-	// Write profile.d script to set CATALINA_HOME and CATALINA_BASE at runtime
+	// Write profile.d script to set CATALINA_HOME, CATALINA_BASE, and JAVA_OPTS at runtime
 	depsIdx := t.context.Stager.DepsIdx()
 	tomcatPath := fmt.Sprintf("$DEPS_DIR/%s/tomcat", depsIdx)
 
+	// Add http.port system property to JAVA_OPTS so Tomcat uses $PORT for the HTTP connector
+	// This is required for Cloud Foundry where the platform assigns a dynamic port
 	envContent := fmt.Sprintf(`export CATALINA_HOME=%s
 export CATALINA_BASE=%s
+export JAVA_OPTS="${JAVA_OPTS:+$JAVA_OPTS }-Dhttp.port=$PORT"
 `, tomcatPath, tomcatPath)
 
 	if err := t.context.Stager.WriteProfileD("tomcat.sh", envContent); err != nil {
@@ -122,9 +125,26 @@ export CATALINA_BASE=%s
 		t.context.Log.Debug("Created profile.d script: tomcat.sh")
 	}
 
-	// Install Tomcat support libraries
-	if err := t.installTomcatSupport(); err != nil {
-		t.context.Log.Warning("Could not install Tomcat support: %s", err.Error())
+	// Install Tomcat support libraries (lifecycle, access-logging, and logging)
+	// These are ALWAYS required for proper Tomcat initialization with Cloud Foundry
+	if err := t.installTomcatLifecycleSupport(); err != nil {
+		return fmt.Errorf("failed to install Tomcat lifecycle support: %w", err)
+	}
+
+	if err := t.installTomcatAccessLoggingSupport(); err != nil {
+		return fmt.Errorf("failed to install Tomcat access logging support: %w", err)
+	}
+
+	loggingSupportJar, err := t.installTomcatLoggingSupport()
+	if err != nil {
+		return fmt.Errorf("failed to install Tomcat logging support: %w", err)
+	}
+
+	// Create setenv.sh in tomcat/bin to add logging support JAR to CLASSPATH
+	// Tomcat's catalina.sh automatically sources setenv.sh if it exists
+	// This ensures the logging JAR is on the classpath before Tomcat's logging initializes
+	if err := t.createSetenvScript(tomcatDir, loggingSupportJar); err != nil {
+		return fmt.Errorf("failed to create setenv.sh: %w", err)
 	}
 
 	// Install external Tomcat configuration if enabled
@@ -137,19 +157,108 @@ export CATALINA_BASE=%s
 	return nil
 }
 
-// installTomcatSupport installs Tomcat support libraries
-func (t *TomcatContainer) installTomcatSupport() error {
+// installTomcatLifecycleSupport installs Tomcat lifecycle support library to tomcat/lib
+func (t *TomcatContainer) installTomcatLifecycleSupport() error {
 	dep, err := t.context.Manifest.DefaultVersion("tomcat-lifecycle-support")
 	if err != nil {
 		return err
 	}
 
-	supportDir := filepath.Join(t.context.Stager.DepDir(), "tomcat-lifecycle-support")
-	if err := t.context.Installer.InstallDependency(dep, supportDir); err != nil {
-		return fmt.Errorf("failed to install Tomcat support: %w", err)
+	// InstallDependency for JAR files (non-archives) copies the file to the target directory
+	// The JAR will be placed in tomcat/lib/ as tomcat/lib/tomcat-lifecycle-support-X.Y.Z.RELEASE.jar
+	tomcatDir := filepath.Join(t.context.Stager.DepDir(), "tomcat")
+	libDir := filepath.Join(tomcatDir, "lib")
+
+	// Ensure lib directory exists
+	if err := os.MkdirAll(libDir, 0755); err != nil {
+		return fmt.Errorf("failed to create tomcat lib directory: %w", err)
 	}
 
-	t.context.Log.Info("Installed Tomcat Lifecycle Support version %s", dep.Version)
+	if err := t.context.Installer.InstallDependency(dep, libDir); err != nil {
+		return fmt.Errorf("failed to install Tomcat lifecycle support: %w", err)
+	}
+
+	t.context.Log.Info("Successfully installed Tomcat Lifecycle Support %s to tomcat/lib", dep.Version)
+	return nil
+}
+
+// installTomcatAccessLoggingSupport installs Tomcat access logging support library to tomcat/lib
+func (t *TomcatContainer) installTomcatAccessLoggingSupport() error {
+	dep, err := t.context.Manifest.DefaultVersion("tomcat-access-logging-support")
+	if err != nil {
+		return err
+	}
+
+	// InstallDependency for JAR files (non-archives) copies the file to the target directory
+	// The JAR will be placed in tomcat/lib/ as tomcat/lib/tomcat-access-logging-support-X.Y.Z.RELEASE.jar
+	tomcatDir := filepath.Join(t.context.Stager.DepDir(), "tomcat")
+	libDir := filepath.Join(tomcatDir, "lib")
+
+	// Ensure lib directory exists
+	if err := os.MkdirAll(libDir, 0755); err != nil {
+		return fmt.Errorf("failed to create tomcat lib directory: %w", err)
+	}
+
+	if err := t.context.Installer.InstallDependency(dep, libDir); err != nil {
+		return fmt.Errorf("failed to install Tomcat access logging support: %w", err)
+	}
+
+	t.context.Log.Info("Successfully installed Tomcat Access Logging Support %s to tomcat/lib", dep.Version)
+	return nil
+}
+
+// installTomcatLoggingSupport installs Tomcat logging support library to tomcat/bin
+// This JAR must be on the classpath BEFORE Tomcat's logging initializes
+// Returns the JAR filename so it can be added to CLASSPATH in profile.d script
+func (t *TomcatContainer) installTomcatLoggingSupport() (string, error) {
+	dep, err := t.context.Manifest.DefaultVersion("tomcat-logging-support")
+	if err != nil {
+		return "", err
+	}
+
+	// InstallDependency for JAR files (non-archives) copies the file to the target directory
+	// The JAR will be placed in tomcat/bin/ as tomcat/bin/tomcat-logging-support-X.Y.Z.RELEASE.jar
+	tomcatDir := filepath.Join(t.context.Stager.DepDir(), "tomcat")
+	binDir := filepath.Join(tomcatDir, "bin")
+
+	// Ensure bin directory exists
+	if err := os.MkdirAll(binDir, 0755); err != nil {
+		return "", fmt.Errorf("failed to create tomcat bin directory: %w", err)
+	}
+
+	if err := t.context.Installer.InstallDependency(dep, binDir); err != nil {
+		return "", fmt.Errorf("failed to install Tomcat logging support: %w", err)
+	}
+
+	jarName := fmt.Sprintf("%s-%s.RELEASE.jar", dep.Name, dep.Version)
+	t.context.Log.Info("Successfully installed Tomcat Logging Support %s to tomcat/bin (contains CloudFoundryConsoleHandler)", dep.Version)
+	return jarName, nil
+}
+
+// createSetenvScript creates a setenv.sh script in tomcat/bin to add logging support JAR to CLASSPATH
+// Tomcat's catalina.sh automatically sources setenv.sh if it exists
+func (t *TomcatContainer) createSetenvScript(tomcatDir, loggingSupportJar string) error {
+	binDir := filepath.Join(tomcatDir, "bin")
+	setenvPath := filepath.Join(binDir, "setenv.sh")
+
+	// Build the runtime path to the logging JAR
+	// At runtime, CATALINA_HOME points to $DEPS_DIR/0/tomcat
+	jarPath := "$CATALINA_HOME/bin/" + loggingSupportJar
+
+	// Create setenv.sh content that adds logging JAR to CLASSPATH
+	setenvContent := fmt.Sprintf(`#!/bin/sh
+# This file is sourced by catalina.sh before starting Tomcat
+# Add Tomcat logging support JAR to CLASSPATH for CloudFoundryConsoleHandler
+
+CLASSPATH=$CLASSPATH:%s
+`, jarPath)
+
+	// Write the setenv.sh file
+	if err := os.WriteFile(setenvPath, []byte(setenvContent), 0755); err != nil {
+		return fmt.Errorf("failed to write setenv.sh: %w", err)
+	}
+
+	t.context.Log.Info("Created setenv.sh to add logging support JAR to CLASSPATH")
 	return nil
 }
 
@@ -190,10 +299,10 @@ func (t *TomcatContainer) installExternalConfiguration(tomcatDir string) error {
 
 	t.context.Log.Info("Downloading external Tomcat configuration version %s from manifest", dep.Version)
 
-	// Install external configuration with strip=1 to overlay onto Tomcat directory
-	// The external config archive has structure: tomcat/conf/...
-	// We strip the top-level "tomcat/" directory and extract directly to tomcatDir
-	if err := t.context.Installer.InstallDependencyWithStrip(dep, tomcatDir, 1); err != nil {
+	// Install external configuration with strip=0 to overlay onto Tomcat directory
+	// The external config archive has structure: ./conf/...
+	// We extract directly to tomcatDir (no stripping needed)
+	if err := t.context.Installer.InstallDependencyWithStrip(dep, tomcatDir, 0); err != nil {
 		return fmt.Errorf("failed to install external configuration: %w", err)
 	}
 
@@ -262,11 +371,11 @@ func (t *TomcatContainer) downloadExternalConfiguration(repositoryRoot, version,
 	}
 	tmpFile.Close()
 
-	// Step 4: Extract the archive to tomcatDir with strip=1
-	// The external config archive has structure: tomcat/conf/...
-	// We strip the top-level "tomcat/" directory and extract directly to tomcatDir
+	// Step 4: Extract the archive to tomcatDir with strip=0
+	// The external config archive has structure: ./conf/...
+	// We extract directly to tomcatDir (no stripping needed)
 	t.context.Log.Info("Extracting external configuration to: %s", tomcatDir)
-	if err := libbuildpack.ExtractTarGzWithStrip(tmpFile.Name(), tomcatDir, 1); err != nil {
+	if err := libbuildpack.ExtractTarGzWithStrip(tmpFile.Name(), tomcatDir, 0); err != nil {
 		return fmt.Errorf("failed to extract external configuration: %w", err)
 	}
 
@@ -381,10 +490,8 @@ func (t *TomcatContainer) Finalize() error {
 		t.context.Log.Info("Tomcat configured to serve application from $HOME (BuildDir)")
 	}
 
-	// Configure Tomcat support JAR in common classpath
-	if err := t.configureTomcatSupport(tomcatDir); err != nil {
-		t.context.Log.Warning("Could not configure Tomcat support: %s", err.Error())
-	}
+	// Tomcat support JARs are already installed directly to tomcat/lib during Supply phase
+	// No additional configuration needed in Finalize phase
 
 	// JVMKill agent is configured by JRE component in JAVA_OPTS
 
@@ -418,52 +525,8 @@ func (t *TomcatContainer) configureContextDocBase(tomcatHome string) error {
 	return nil
 }
 
-// configureTomcatSupport adds Tomcat support JAR to common classpath
-func (t *TomcatContainer) configureTomcatSupport(tomcatHome string) error {
-	supportDir := filepath.Join(t.context.Stager.DepDir(), "tomcat-lifecycle-support")
-
-	// Check if support was installed
-	if _, err := os.Stat(supportDir); os.IsNotExist(err) {
-		return nil // Support not installed, skip
-	}
-
-	// Find the support JAR
-	matches, err := filepath.Glob(filepath.Join(supportDir, "*.jar"))
-	if err != nil || len(matches) == 0 {
-		return fmt.Errorf("tomcat support JAR not found in %s", supportDir)
-	}
-
-	supportJar := matches[0]
-
-	// Create setenv.sh to add support JAR to classpath
-	// This follows Tomcat's standard configuration mechanism
-	binDir := filepath.Join(tomcatHome, "bin")
-	setenvFile := filepath.Join(binDir, "setenv.sh")
-
-	// Calculate runtime path to support JAR (relative to CATALINA_BASE)
-	// At runtime: $CATALINA_BASE = /home/vcap/deps/0/tomcat/...
-	// Support JAR is at: /home/vcap/deps/0/tomcat-lifecycle-support/...
-	relPath, err := filepath.Rel(tomcatHome, supportJar)
-	if err != nil {
-		// If we can't calculate relative path, use absolute reference
-		relPath = fmt.Sprintf("$CATALINA_BASE/../tomcat-lifecycle-support/%s", filepath.Base(supportJar))
-	} else {
-		relPath = fmt.Sprintf("$CATALINA_BASE/%s", relPath)
-	}
-
-	setenvContent := fmt.Sprintf(`#!/bin/bash
-# Add Tomcat Lifecycle Support to classpath
-export CLASSPATH="%s:$CLASSPATH"
-`, relPath)
-
-	if err := os.WriteFile(setenvFile, []byte(setenvContent), 0755); err != nil {
-		return fmt.Errorf("failed to write setenv.sh: %w", err)
-	}
-
-	t.context.Log.Debug("Configured Tomcat support JAR in setenv.sh")
-	return nil
-}
-
+// configureTomcatSupport copies Tomcat lifecycle support JAR to Tomcat's lib directory
+// This ensures the JAR is loaded early enough for logging initialization
 // Release returns the Tomcat startup command
 // Uses $CATALINA_HOME which is set by profile.d/tomcat.sh at runtime
 func (t *TomcatContainer) Release() (string, error) {

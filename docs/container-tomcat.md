@@ -97,19 +97,19 @@ The buildpack will fetch `https://your-repository.example.com/tomcat-config/inde
 
 **Archive Format Requirements:**
 
-The configuration archives must be in TAR.GZ format and must follow the Tomcat archive structure:
+The configuration archives must be in TAR.GZ format and must follow this structure:
 
 ```
 tomcat-external-configuration-1.4.0.tar.gz
-└── tomcat/
-    └── conf/
-        ├── context.xml
-        ├── server.xml
-        ├── web.xml
-        └── ...
+└── conf/
+    ├── context.xml
+    ├── server.xml
+    ├── web.xml
+    ├── logging.properties
+    └── ...
 ```
 
-The buildpack will extract the contents of the `tomcat/` directory (using `--strip-components=1`) and overlay them onto the Tomcat installation directory.
+The buildpack will extract the archive directly into the Tomcat installation directory, overlaying the configuration files.
 
 **Configuration Options:**
 
