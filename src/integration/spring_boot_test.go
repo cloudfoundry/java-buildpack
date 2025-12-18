@@ -99,8 +99,9 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 			it("applies configured JAVA_OPTS with from_environment=false and verifies at runtime", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION":      "17",
-						"JBP_CONFIG_JAVA_OPTS": `[from_environment: false, java_opts: '-Xmx512M -Xms256M -Xss1M -XX:MetaspaceSize=157286K -XX:MaxMetaspaceSize=314572K -DoptionKey=optionValue']`,
+						"BP_JAVA_VERSION": "17",
+						// Reduce memory settings to fit within 1G limit (v4 calculator)
+						"JBP_CONFIG_JAVA_OPTS": `[from_environment: false, java_opts: '-Xmx256M -Xms128M -Xss512k -XX:ReservedCodeCacheSize=120M -XX:MetaspaceSize=78643K -XX:MaxMetaspaceSize=157286K -DoptionKey=optionValue']`,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -108,18 +109,19 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 				// Verify buildpack detected and configured Java Opts
 				Expect(logs.String()).To(ContainSubstring("Java Opts"))
 				Expect(logs.String()).To(ContainSubstring("Adding configured JAVA_OPTS"))
-				Expect(logs.String()).To(ContainSubstring("-Xmx512M"))
+				Expect(logs.String()).To(ContainSubstring("-Xmx256M"))
 
 				// Verify Container Security Provider is configured (should add its opts)
 				Expect(logs.String()).To(ContainSubstring("Container Security Provider"))
 
 				// Verify configured opts are actually applied at runtime
 				Eventually(deployment).Should(matchers.Serve(And(
-					ContainSubstring("-Xmx512M"),
-					ContainSubstring("-Xms256M"),
-					ContainSubstring("-Xss1M"),
-					ContainSubstring("-XX:MetaspaceSize=157286K"),
-					ContainSubstring("-XX:MaxMetaspaceSize=314572K"),
+					ContainSubstring("-Xmx256M"),
+					ContainSubstring("-Xms128M"),
+					ContainSubstring("-Xss512k"),
+					ContainSubstring("-XX:ReservedCodeCacheSize=120M"),
+					ContainSubstring("-XX:MetaspaceSize=78643K"),
+					ContainSubstring("-XX:MaxMetaspaceSize=157286K"),
 					ContainSubstring("optionKey=optionValue"), // Custom system property
 				)).WithEndpoint("/jvm-args"))
 
@@ -134,8 +136,9 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 			it("applies configured JAVA_OPTS with from_environment=true and preserves user opts", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION":      "17",
-						"JBP_CONFIG_JAVA_OPTS": `{from_environment: true, java_opts: ["-Xmx512M", "-DconfiguredProperty=fromConfig"]}`,
+						"BP_JAVA_VERSION": "17",
+						// Reduce memory settings to fit within 1G limit (v4 calculator)
+						"JBP_CONFIG_JAVA_OPTS": `{from_environment: true, java_opts: ["-Xmx384M", "-XX:ReservedCodeCacheSize=120M", "-Xss512k", "-DconfiguredProperty=fromConfig"]}`,
 						"JAVA_OPTS":            "-DuserProperty=fromUser",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
@@ -152,8 +155,9 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 			it("applies only configured JAVA_OPTS with from_environment=false and ignores user opts", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION":      "17",
-						"JBP_CONFIG_JAVA_OPTS": `{from_environment: false, java_opts: ["-Xmx512M", "-DconfiguredProperty=fromConfig"]}`,
+						"BP_JAVA_VERSION": "17",
+						// Reduce memory settings to fit within 1G limit (v4 calculator)
+						"JBP_CONFIG_JAVA_OPTS": `{from_environment: false, java_opts: ["-Xmx384M", "-XX:ReservedCodeCacheSize=120M", "-Xss512k", "-DconfiguredProperty=fromConfig"]}`,
 						"JAVA_OPTS":            "-DuserProperty=shouldBeIgnored",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
@@ -184,8 +188,9 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 			it("verifies multiple frameworks (4) append JAVA_OPTS without overwriting each other", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION":      "17",
-						"JBP_CONFIG_JAVA_OPTS": `{from_environment: false, java_opts: ["-Xmx768M", "-DcustomProp=testValue"]}`,
+						"BP_JAVA_VERSION": "17",
+						// Reduce memory settings to fit within 1G limit (v4 calculator)
+						"JBP_CONFIG_JAVA_OPTS": `{from_environment: false, java_opts: ["-Xmx384M", "-XX:ReservedCodeCacheSize=120M", "-Xss512k", "-DcustomProp=testValue"]}`,
 						"JBP_CONFIG_DEBUG":     `{enabled: true}`,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_multi_framework"))
@@ -204,7 +209,7 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 				// Verify ALL opts from ALL frameworks are present at runtime (none were overwritten)
 				Eventually(deployment).Should(matchers.Serve(And(
 					// Framework 1: User-configured opts from JBP_CONFIG_JAVA_OPTS
-					ContainSubstring("-Xmx768M"),
+					ContainSubstring("-Xmx384M"),
 					ContainSubstring("customProp=testValue"),
 					// Framework 2: Container Security Provider opts
 					ContainSubstring("-Xbootclasspath/a:"),
@@ -224,8 +229,9 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 			it("verifies from_environment=true preserves user JAVA_OPTS with 4 frameworks", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION":      "17",
-						"JBP_CONFIG_JAVA_OPTS": `{from_environment: true, java_opts: ["-DconfigProp=fromBuildpack"]}`,
+						"BP_JAVA_VERSION": "17",
+						// Reduce memory settings to fit within 1G limit (v4 calculator)
+						"JBP_CONFIG_JAVA_OPTS": `{from_environment: true, java_opts: ["-XX:ReservedCodeCacheSize=120M", "-Xss512k", "-DconfigProp=fromBuildpack"]}`,
 						"JAVA_OPTS":            "-DuserProp=fromEnvironment -Xmx256M",
 						"JBP_CONFIG_DEBUG":     `{enabled: true}`,
 					}).

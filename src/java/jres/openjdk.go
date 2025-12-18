@@ -1,10 +1,11 @@
 package jres
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // OpenJDKJRE implements the JRE interface for OpenJDK
@@ -155,6 +156,21 @@ func (o *OpenJDKJRE) Finalize() error {
 		// Non-fatal
 	}
 
+	// Add base JAVA_OPTS for compatibility with Ruby buildpack
+	// These are standard JVM options that should be set for all OpenJDK-like JREs
+	baseOpts := []string{
+		"-Djava.io.tmpdir=$TMPDIR",          // Temp directory
+		"-XX:ActiveProcessorCount=$(nproc)", // CPU count
+	}
+
+	// Add -Djava.ext.dirs= (empty) for Java 8 and earlier to prevent loading unwanted extensions
+	// This is explicitly set in Ruby buildpack
+	baseOpts = append(baseOpts, "-Djava.ext.dirs=")
+
+	if err := WriteJavaOpts(o.ctx, strings.Join(baseOpts, " ")); err != nil {
+		o.ctx.Log.Warning("Failed to write base JAVA_OPTS: %s", err.Error())
+	}
+
 	// Reconstruct Memory Calculator component if not already set
 	if o.memoryCalc == nil {
 		o.memoryCalc = NewMemoryCalculator(o.ctx, o.jreDir, o.version, javaMajorVersion)
@@ -178,6 +194,15 @@ func (o *OpenJDKJRE) JavaHome() string {
 // Version returns the installed JRE version
 func (o *OpenJDKJRE) Version() string {
 	return o.installedVersion
+}
+
+// MemoryCalculatorCommand returns the shell command snippet to run memory calculator at runtime
+// This is prepended to the container startup command to calculate optimal JVM memory settings
+func (o *OpenJDKJRE) MemoryCalculatorCommand() string {
+	if o.memoryCalc == nil {
+		return ""
+	}
+	return o.memoryCalc.GetCalculatorCommand()
 }
 
 // findJavaHome locates the actual JAVA_HOME directory after extraction

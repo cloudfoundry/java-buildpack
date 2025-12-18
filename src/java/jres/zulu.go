@@ -1,8 +1,8 @@
 package jres
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 )
@@ -176,6 +176,14 @@ func (z *ZuluJRE) JavaHome() string {
 // Version returns the installed JRE version
 func (z *ZuluJRE) Version() string {
 	return z.installedVersion
+}
+
+// MemoryCalculatorCommand returns the shell command snippet to run memory calculator at runtime
+func (z *ZuluJRE) MemoryCalculatorCommand() string {
+	if z.memoryCalc == nil {
+		return ""
+	}
+	return z.memoryCalc.GetCalculatorCommand()
 }
 
 // findJavaHome locates the actual JAVA_HOME directory after extraction

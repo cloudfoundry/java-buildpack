@@ -1,8 +1,8 @@
 package jres
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 )
@@ -133,6 +133,12 @@ func (z *ZingJRE) JavaHome() string {
 // Version returns the installed JRE version
 func (z *ZingJRE) Version() string {
 	return z.installedVersion
+}
+
+// MemoryCalculatorCommand returns the shell command snippet to run memory calculator at runtime
+// Zing JRE does not use memory calculator (uses -XX:+ExitOnOutOfMemoryError instead)
+func (z *ZingJRE) MemoryCalculatorCommand() string {
+	return "" // Zing does not use memory calculator
 }
 
 // findJavaHome locates the actual JAVA_HOME directory after extraction

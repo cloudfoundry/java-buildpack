@@ -685,7 +685,8 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					deployment, logs, err := platform.Deploy.
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION": "11",
-							"JAVA_OPTS":       "-Xmx512m -Dcustom.property=test",
+							// Reduce code cache and thread stack to fit within 1G memory limit (v4 calculator)
+							"JAVA_OPTS": "-Xmx384m -XX:ReservedCodeCacheSize=120M -Xss512k -Dcustom.property=test",
 						}).
 						Execute(name, filepath.Join(fixtures, "apps", "integration_valid"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -698,8 +699,9 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 				it("applies custom JAVA_OPTS from configuration file", func() {
 					deployment, logs, err := platform.Deploy.
 						WithEnv(map[string]string{
-							"BP_JAVA_VERSION":      "11",
-							"JBP_CONFIG_JAVA_OPTS": "'{java_opts: [\"-Xms256m\", \"-Xmx1024m\"]}'",
+							"BP_JAVA_VERSION": "11",
+							// Reduce heap and code cache to fit within 1G memory limit (v4 calculator)
+							"JBP_CONFIG_JAVA_OPTS": "'{java_opts: [\"-Xms256m\", \"-Xmx384m\", \"-XX:ReservedCodeCacheSize=120M\", \"-Xss512k\"]}'",
 						}).
 						Execute(name, filepath.Join(fixtures, "apps", "integration_valid"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)

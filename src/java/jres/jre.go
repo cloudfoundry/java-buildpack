@@ -1,8 +1,8 @@
 package jres
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,6 +29,11 @@ type JRE interface {
 
 	// Version returns the installed JRE version
 	Version() string
+
+	// MemoryCalculatorCommand returns the shell command snippet to run memory calculator
+	// This command is prepended to the container startup command
+	// Returns empty string if memory calculator is not installed
+	MemoryCalculatorCommand() string
 }
 
 // Context holds shared dependencies for JRE providers
@@ -149,6 +154,7 @@ type BaseComponent struct {
 const (
 	DefaultStackThreads = 250
 	DefaultHeadroom     = 0
+	DefaultClassCount   = 18000 // Default class count when counting fails (after 35% factor: ~6300)
 	Java9ClassCount     = 42215 // Classes in Java 9+ JRE
 )
 
@@ -218,7 +224,6 @@ func normalizeVersionPattern(version string) string {
 	// Otherwise append ".*" to match any patch version
 	return version + ".*"
 }
-
 
 // WriteJavaOpts writes JAVA_OPTS to a .opts file for centralized assembly
 // JRE components use priority 05 to run early (before frameworks)

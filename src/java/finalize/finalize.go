@@ -1,8 +1,8 @@
 package finalize
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 
@@ -19,6 +19,7 @@ type Finalizer struct {
 	Log       *libbuildpack.Logger
 	Command   *libbuildpack.Command
 	Container containers.Container
+	JRE       jres.JRE
 }
 
 // Run performs the finalize phase
@@ -53,10 +54,12 @@ func Run(f *Finalizer) error {
 	f.Container = container
 
 	// Finalize JRE (memory calculator, jvmkill, etc.)
-	if err := f.finalizeJRE(); err != nil {
+	jre, err := f.finalizeJRE()
+	if err != nil {
 		f.Log.Error("Failed to finalize JRE: %s", err.Error())
 		return err
 	}
+	f.JRE = jre
 
 	// Finalize frameworks (APM agents, etc.)
 	if err := f.finalizeFrameworks(); err != nil {
@@ -81,7 +84,8 @@ func Run(f *Finalizer) error {
 }
 
 // finalizeJRE finalizes the JRE configuration (memory calculator, jvmkill, etc.)
-func (f *Finalizer) finalizeJRE() error {
+// Returns the finalized JRE instance for use in command generation
+func (f *Finalizer) finalizeJRE() (jres.JRE, error) {
 	f.Log.BeginStep("Finalizing JRE")
 
 	// Create JRE context
@@ -108,7 +112,7 @@ func (f *Finalizer) finalizeJRE() error {
 	jre, jreName, err := registry.Detect()
 	if err != nil {
 		f.Log.Error("Failed to detect JRE: %s", err.Error())
-		return err
+		return nil, err
 	}
 
 	f.Log.Info("Finalizing JRE: %s", jreName)
@@ -117,11 +121,11 @@ func (f *Finalizer) finalizeJRE() error {
 	if err := jre.Finalize(); err != nil {
 		f.Log.Warning("Failed to finalize JRE: %s (continuing)", err.Error())
 		// Don't fail the build if JRE finalization fails
-		return nil
+		return jre, nil
 	}
 
 	f.Log.Info("JRE finalization complete")
-	return nil
+	return jre, nil
 }
 
 // finalizeFrameworks finalizes framework components (APM agents, etc.)
@@ -186,6 +190,22 @@ func (f *Finalizer) writeReleaseYaml(container containers.Container) error {
 		return fmt.Errorf("failed to get container command: %w", err)
 	}
 
+	// Prepend memory calculator command if available (Ruby buildpack parity)
+	// The memory calculator must run before the Java command to set JAVA_OPTS
+	var fullCommand string
+	if f.JRE != nil {
+		memCalcCmd := f.JRE.MemoryCalculatorCommand()
+		if memCalcCmd != "" {
+			// Join with && to ensure memory calculator runs before container command
+			fullCommand = memCalcCmd + " && " + containerCommand
+			f.Log.Debug("Prepended memory calculator command to startup")
+		} else {
+			fullCommand = containerCommand
+		}
+	} else {
+		fullCommand = containerCommand
+	}
+
 	// Create tmp directory in build dir
 	tmpDir := filepath.Join(f.Stager.BuildDir(), "tmp")
 	if err := os.MkdirAll(tmpDir, 0755); err != nil {
@@ -193,17 +213,18 @@ func (f *Finalizer) writeReleaseYaml(container containers.Container) error {
 	}
 
 	// Write YAML file with release information
+	// The command must be properly escaped for YAML - use single quotes to preserve special characters
 	releaseYamlPath := filepath.Join(tmpDir, "java-buildpack-release-step.yml")
 	yamlContent := fmt.Sprintf(`---
 default_process_types:
-  web: %s
-`, containerCommand)
+  web: '%s'
+`, fullCommand)
 
 	if err := os.WriteFile(releaseYamlPath, []byte(yamlContent), 0644); err != nil {
 		return fmt.Errorf("failed to write release YAML: %w", err)
 	}
 
 	f.Log.Info("Release YAML written: %s", releaseYamlPath)
-	f.Log.Info("Web process command: %s", containerCommand)
+	f.Log.Info("Web process command: %s", fullCommand)
 	return nil
 }

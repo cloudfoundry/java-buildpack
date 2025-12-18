@@ -1,10 +1,10 @@
 package jres
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"archive/zip"
 	"bytes"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -175,14 +175,8 @@ func (m *MemoryCalculator) Finalize() error {
 		return fmt.Errorf("failed to create bin directory: %w", err)
 	}
 
-	// Build calculator command
-	poolType := "metaspace"
-	if m.javaMajorVersion < 8 {
-		poolType = "permgen"
-	}
-
-	// Calculate relative path from build dir
-	calculatorCmd := m.buildCalculatorCommand(poolType)
+	// Build calculator command (v4.x format)
+	calculatorCmd := m.buildCalculatorCommand()
 
 	scriptContent := fmt.Sprintf(`#!/bin/bash
 # Memory Calculator - calculates optimal JVM memory settings
@@ -205,22 +199,27 @@ export MALLOC_ARENA_MAX=2
 	return nil
 }
 
-// buildCalculatorCommand builds the memory calculator command with all arguments
-func (m *MemoryCalculator) buildCalculatorCommand(poolType string) string {
+// buildCalculatorCommand builds the memory calculator command with all arguments (v4.x format)
+func (m *MemoryCalculator) buildCalculatorCommand() string {
 	args := []string{
 		m.calculatorPath,
-		"-totMemory=$MEMORY_LIMIT",
+		"--total-memory=$MEMORY_LIMIT",
 	}
 
 	if m.headroom > 0 {
-		args = append(args, fmt.Sprintf("-headRoom=%d", m.headroom))
+		args = append(args, fmt.Sprintf("--head-room=%d", m.headroom))
+	}
+
+	// Use default class count if counting failed (v4 calculator requires this parameter)
+	classCount := m.classCount
+	if classCount == 0 {
+		classCount = int(float64(DefaultClassCount) * 0.35) // Apply same 35% factor
 	}
 
 	args = append(args,
-		fmt.Sprintf("-loadedClasses=%d", m.classCount),
-		fmt.Sprintf("-poolType=%s", poolType),
-		fmt.Sprintf("-stackThreads=%d", m.stackThreads),
-		`-vmOptions="$JAVA_OPTS"`,
+		fmt.Sprintf("--loaded-class-count=%d", classCount),
+		fmt.Sprintf("--thread-count=%d", m.stackThreads),
+		`--jvm-options="$JAVA_OPTS"`,
 	)
 
 	return strings.Join(args, " ")
@@ -307,18 +306,64 @@ func (m *MemoryCalculator) countClassesInJar(jarPath string) (int, error) {
 
 // GetCalculatorCommand returns the memory calculator command for use in startup scripts
 // This is called by containers when building their start commands
+// Returns a shell command snippet that:
+// 1. Runs the memory calculator with runtime $MEMORY_LIMIT
+// 2. Echoes the calculated memory settings
+// 3. Appends the settings to $JAVA_OPTS
+// 4. Sets MALLOC_ARENA_MAX to reduce memory overhead
 func (m *MemoryCalculator) GetCalculatorCommand() string {
 	if m.calculatorPath == "" {
 		return ""
 	}
 
-	poolType := "metaspace"
-	if m.javaMajorVersion < 8 {
-		poolType = "permgen"
+	// Convert staging path to runtime path
+	runtimePath := m.convertToRuntimePath(m.calculatorPath)
+
+	// Build calculator args (v4.x uses double-dash long flags)
+	args := []string{
+		runtimePath,
+		"--total-memory=$MEMORY_LIMIT",
 	}
 
-	return fmt.Sprintf(`CALCULATED_MEMORY=$(%s) && echo JVM Memory Configuration: $CALCULATED_MEMORY && JAVA_OPTS="$JAVA_OPTS $CALCULATED_MEMORY"`,
-		m.buildCalculatorCommand(poolType))
+	if m.headroom > 0 {
+		args = append(args, fmt.Sprintf("--head-room=%d", m.headroom))
+	}
+
+	// Use default class count if counting failed (v4 calculator requires this parameter)
+	classCount := m.classCount
+	if classCount == 0 {
+		classCount = int(float64(DefaultClassCount) * 0.35) // Apply same 35% factor
+	}
+
+	args = append(args,
+		fmt.Sprintf("--loaded-class-count=%d", classCount),
+		fmt.Sprintf("--thread-count=%d", m.stackThreads),
+		`--jvm-options="$JAVA_OPTS"`,
+	)
+
+	calcCmd := strings.Join(args, " ")
+
+	return fmt.Sprintf(`CALCULATED_MEMORY=$(%s) && echo JVM Memory Configuration: $CALCULATED_MEMORY && JAVA_OPTS="$JAVA_OPTS $CALCULATED_MEMORY" && MALLOC_ARENA_MAX=2`, calcCmd)
+}
+
+// convertToRuntimePath converts a staging path to a runtime path
+// Example: /tmp/staging/deps/0/jre/bin/calculator -> /home/vcap/deps/0/jre/bin/calculator
+func (m *MemoryCalculator) convertToRuntimePath(stagingPath string) string {
+	depsIdx := m.ctx.Stager.DepsIdx()
+
+	// Extract the relative path from deps/X/ onwards
+	// stagingPath: /tmp/.../deps/0/jre/bin/java-buildpack-memory-calculator-X.X.X
+	// We want: /home/vcap/deps/0/jre/bin/java-buildpack-memory-calculator-X.X.X
+
+	// Find "jre/bin/" in the path
+	if idx := strings.Index(stagingPath, "jre/bin/"); idx != -1 {
+		relativePath := stagingPath[idx:]
+		return fmt.Sprintf("/home/vcap/deps/%s/%s", depsIdx, relativePath)
+	}
+
+	// Fallback: just use the filename
+	filename := filepath.Base(stagingPath)
+	return fmt.Sprintf("/home/vcap/deps/%s/jre/bin/%s", depsIdx, filename)
 }
 
 // LoadConfig loads memory calculator configuration from environment/config
@@ -359,21 +404,15 @@ func (m *MemoryCalculator) RunMemoryCalculator(memoryLimit string) (string, erro
 		return "", fmt.Errorf("memory calculator not installed")
 	}
 
-	poolType := "metaspace"
-	if m.javaMajorVersion < 8 {
-		poolType = "permgen"
-	}
-
 	args := []string{
-		"-totMemory=" + memoryLimit,
-		fmt.Sprintf("-loadedClasses=%d", m.classCount),
-		fmt.Sprintf("-poolType=%s", poolType),
-		fmt.Sprintf("-stackThreads=%d", m.stackThreads),
-		`-vmOptions=""`,
+		"--total-memory=" + memoryLimit,
+		fmt.Sprintf("--loaded-class-count=%d", m.classCount),
+		fmt.Sprintf("--thread-count=%d", m.stackThreads),
+		`--jvm-options=""`,
 	}
 
 	if m.headroom > 0 {
-		args = append(args, fmt.Sprintf("-headRoom=%d", m.headroom))
+		args = append(args, fmt.Sprintf("--head-room=%d", m.headroom))
 	}
 
 	cmd := exec.Command(m.calculatorPath, args...)

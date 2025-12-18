@@ -1,8 +1,8 @@
 package jres
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 )
@@ -176,6 +176,14 @@ func (s *SapMachineJRE) JavaHome() string {
 // Version returns the installed JRE version
 func (s *SapMachineJRE) Version() string {
 	return s.installedVersion
+}
+
+// MemoryCalculatorCommand returns the shell command snippet to run memory calculator at runtime
+func (s *SapMachineJRE) MemoryCalculatorCommand() string {
+	if s.memoryCalc == nil {
+		return ""
+	}
+	return s.memoryCalc.GetCalculatorCommand()
 }
 
 // findJavaHome locates the actual JAVA_HOME directory after extraction

@@ -89,7 +89,8 @@ func testJavaMain(platform switchblade.Platform, fixtures string) func(*testing.
 				_, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
 						"BP_JAVA_VERSION": "11",
-						"JAVA_OPTS":       "-Xmx512m -XX:+UseG1GC",
+						// Reduce memory settings to fit within 1G limit (v4 calculator)
+						"JAVA_OPTS": "-Xmx384m -XX:ReservedCodeCacheSize=120M -Xss512k -XX:+UseG1GC",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "main"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
