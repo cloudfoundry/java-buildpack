@@ -85,7 +85,7 @@ func (z *ZuluJRE) Supply() error {
 	}
 
 	// Determine Java major version
-	javaMajorVersion, err := DetermineJavaVersion(javaHome)
+	javaMajorVersion, err := common.DetermineJavaVersion(javaHome)
 	if err != nil {
 		z.ctx.Log.Warning("Could not determine Java version: %s", err.Error())
 		javaMajorVersion = 11 // default for Zulu
@@ -137,7 +137,7 @@ func (z *ZuluJRE) Finalize() error {
 	// Determine Java major version for memory calculator
 	javaMajorVersion := 11 // default
 	if z.javaHome != "" {
-		if ver, err := DetermineJavaVersion(z.javaHome); err == nil {
+		if ver, err := common.DetermineJavaVersion(z.javaHome); err == nil {
 			javaMajorVersion = ver
 		}
 	}

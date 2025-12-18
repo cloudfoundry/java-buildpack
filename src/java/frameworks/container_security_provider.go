@@ -63,7 +63,7 @@ func (c *ContainerSecurityProviderFramework) Finalize() error {
 
 	// Detect Java version to determine extension mechanism
 	// Java 9+ uses root libraries (-Xbootclasspath/a), Java 8 uses extension directories
-	javaVersion, err := GetJavaMajorVersion()
+	javaVersion, err := common.GetJavaMajorVersion()
 	if err != nil {
 		c.context.Log.Warning("Unable to detect Java version, assuming Java 8: %s", err.Error())
 		javaVersion = 8

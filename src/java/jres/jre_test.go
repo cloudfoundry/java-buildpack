@@ -299,7 +299,7 @@ IMPLEMENTOR="Eclipse Adoptium"`
 			releaseFile := javaHome + "/release"
 			Expect(os.WriteFile(releaseFile, []byte(releaseContent), 0644)).To(Succeed())
 
-			version, err := jres.DetermineJavaVersion(javaHome)
+			version, err := common.DetermineJavaVersion(javaHome)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(version).To(Equal(8))
 		})
@@ -310,7 +310,7 @@ IMPLEMENTOR="Eclipse Adoptium"`
 			releaseFile := javaHome + "/release"
 			Expect(os.WriteFile(releaseFile, []byte(releaseContent), 0644)).To(Succeed())
 
-			version, err := jres.DetermineJavaVersion(javaHome)
+			version, err := common.DetermineJavaVersion(javaHome)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(version).To(Equal(11))
 		})
@@ -321,7 +321,7 @@ IMPLEMENTOR="Eclipse Adoptium"`
 			releaseFile := javaHome + "/release"
 			Expect(os.WriteFile(releaseFile, []byte(releaseContent), 0644)).To(Succeed())
 
-			version, err := jres.DetermineJavaVersion(javaHome)
+			version, err := common.DetermineJavaVersion(javaHome)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(version).To(Equal(17))
 		})
@@ -332,13 +332,13 @@ IMPLEMENTOR="Eclipse Adoptium"`
 			releaseFile := javaHome + "/release"
 			Expect(os.WriteFile(releaseFile, []byte(releaseContent), 0644)).To(Succeed())
 
-			version, err := jres.DetermineJavaVersion(javaHome)
+			version, err := common.DetermineJavaVersion(javaHome)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(version).To(Equal(21))
 		})
 
 		It("defaults to 17 when release file is missing", func() {
-			version, err := jres.DetermineJavaVersion(javaHome)
+			version, err := common.DetermineJavaVersion(javaHome)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(version).To(Equal(17))
 		})

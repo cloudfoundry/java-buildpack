@@ -85,7 +85,7 @@ func (s *SapMachineJRE) Supply() error {
 	}
 
 	// Determine Java major version
-	javaMajorVersion, err := DetermineJavaVersion(javaHome)
+	javaMajorVersion, err := common.DetermineJavaVersion(javaHome)
 	if err != nil {
 		s.ctx.Log.Warning("Could not determine Java version: %s", err.Error())
 		javaMajorVersion = 17 // default for SAP Machine
@@ -137,7 +137,7 @@ func (s *SapMachineJRE) Finalize() error {
 	// Determine Java major version for memory calculator
 	javaMajorVersion := 17 // default
 	if s.javaHome != "" {
-		if ver, err := DetermineJavaVersion(s.javaHome); err == nil {
+		if ver, err := common.DetermineJavaVersion(s.javaHome); err == nil {
 			javaMajorVersion = ver
 		}
 	}

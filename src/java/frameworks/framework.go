@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
 
 )
 
@@ -330,56 +328,6 @@ func GetApplicationName(includeSpace bool) string {
 	return appName
 }
 
-// GetJavaMajorVersion returns the Java major version (e.g., 8, 11, 17)
-// from the JAVA_HOME/release file
-func GetJavaMajorVersion() (int, error) {
-	javaHome := os.Getenv("JAVA_HOME")
-	if javaHome == "" {
-		return 0, fmt.Errorf("JAVA_HOME not set")
-	}
-
-	releaseFile := filepath.Join(javaHome, "release")
-	content, err := os.ReadFile(releaseFile)
-	if err != nil {
-		return 0, fmt.Errorf("failed to read release file: %w", err)
-	}
-
-	// Parse JAVA_VERSION from release file
-	lines := strings.Split(string(content), "\n")
-	for _, line := range lines {
-		if strings.Contains(line, "JAVA_VERSION=") {
-			// Extract version string from JAVA_VERSION="..."
-			start := strings.Index(line, "\"")
-			if start == -1 {
-				continue
-			}
-			end := strings.Index(line[start+1:], "\"")
-			if end == -1 {
-				continue
-			}
-			version := line[start+1 : start+1+end]
-
-			// Parse major version
-			if strings.HasPrefix(version, "1.8") {
-				return 8, nil
-			}
-			if strings.HasPrefix(version, "1.7") {
-				return 7, nil
-			}
-
-			// Java 9+ format: "11.0.1" or "17.0.1"
-			dotIndex := strings.Index(version, ".")
-			if dotIndex > 0 {
-				major := version[:dotIndex]
-				if majorVersion, err := strconv.Atoi(major); err == nil {
-					return majorVersion, nil
-				}
-			}
-		}
-	}
-
-	return 0, fmt.Errorf("unable to parse Java version from release file")
-}
 
 // FindFileInDirectory searches for a file by name in a directory, checking common
 // locations first and then recursively searching if not found.

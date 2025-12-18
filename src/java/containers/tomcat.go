@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cloudfoundry/java-buildpack/src/java/jres"
 	"github.com/cloudfoundry/libbuildpack"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -58,7 +57,7 @@ func (t *TomcatContainer) Supply() error {
 	var err error
 
 	if javaHome != "" {
-		javaMajorVersion, versionErr := jres.DetermineJavaVersion(javaHome)
+		javaMajorVersion, versionErr := common.DetermineJavaVersion(javaHome)
 		if versionErr == nil {
 			t.context.Log.Debug("Detected Java major version: %d", javaMajorVersion)
 

@@ -219,34 +219,6 @@ func normalizeVersionPattern(version string) string {
 	return version + ".*"
 }
 
-// DetermineJavaVersion determines the major Java version from the installed JRE
-func DetermineJavaVersion(javaHome string) (int, error) {
-	// Try to read release file
-	releaseFile := filepath.Join(javaHome, "release")
-	if data, err := os.ReadFile(releaseFile); err == nil {
-		// Parse JAVA_VERSION="1.8.0_422" or JAVA_VERSION="17.0.13"
-		content := string(data)
-		for _, line := range strings.Split(content, "\n") {
-			if strings.HasPrefix(line, "JAVA_VERSION=") {
-				version := strings.Trim(strings.TrimPrefix(line, "JAVA_VERSION="), "\"")
-				// Parse major version
-				if strings.HasPrefix(version, "1.8") {
-					return 8, nil
-				}
-				// For Java 9+, major version is the first number
-				parts := strings.Split(version, ".")
-				if len(parts) > 0 {
-					var major int
-					fmt.Sscanf(parts[0], "%d", &major)
-					return major, nil
-				}
-			}
-		}
-	}
-
-	// Default to 17 if we can't determine
-	return 17, nil
-}
 
 // WriteJavaOpts writes JAVA_OPTS to a .opts file for centralized assembly
 // JRE components use priority 05 to run early (before frameworks)

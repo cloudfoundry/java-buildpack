@@ -87,7 +87,7 @@ func (i *IBMJRE) Supply() error {
 	}
 
 	// Determine Java major version
-	javaMajorVersion, err := DetermineJavaVersion(javaHome)
+	javaMajorVersion, err := common.DetermineJavaVersion(javaHome)
 	if err != nil {
 		i.ctx.Log.Warning("Could not determine Java version: %s", err.Error())
 		javaMajorVersion = 8 // IBM JRE default
@@ -140,7 +140,7 @@ func (i *IBMJRE) Finalize() error {
 	// Determine Java major version for memory calculator
 	javaMajorVersion := 8 // IBM JRE default
 	if i.javaHome != "" {
-		if ver, err := DetermineJavaVersion(i.javaHome); err == nil {
+		if ver, err := common.DetermineJavaVersion(i.javaHome); err == nil {
 			javaMajorVersion = ver
 		}
 	}

@@ -89,7 +89,7 @@ func (l *LunaSecurityProviderFramework) Finalize() error {
 	}
 
 	// Detect Java version to determine extension mechanism
-	javaVersion, err := GetJavaMajorVersion()
+	javaVersion, err := common.GetJavaMajorVersion()
 	if err != nil {
 		l.context.Log.Warning("Unable to detect Java version, assuming Java 8: %s", err.Error())
 		javaVersion = 8

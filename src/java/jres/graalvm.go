@@ -85,7 +85,7 @@ func (g *GraalVMJRE) Supply() error {
 	}
 
 	// Determine Java major version
-	javaMajorVersion, err := DetermineJavaVersion(javaHome)
+	javaMajorVersion, err := common.DetermineJavaVersion(javaHome)
 	if err != nil {
 		g.ctx.Log.Warning("Could not determine Java version: %s", err.Error())
 		javaMajorVersion = 17 // default for GraalVM
@@ -137,7 +137,7 @@ func (g *GraalVMJRE) Finalize() error {
 	// Determine Java major version for memory calculator
 	javaMajorVersion := 17 // default
 	if g.javaHome != "" {
-		if ver, err := DetermineJavaVersion(g.javaHome); err == nil {
+		if ver, err := common.DetermineJavaVersion(g.javaHome); err == nil {
 			javaMajorVersion = ver
 		}
 	}

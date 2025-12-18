@@ -86,7 +86,7 @@ func (o *OracleJRE) Supply() error {
 	}
 
 	// Determine Java major version
-	javaMajorVersion, err := DetermineJavaVersion(javaHome)
+	javaMajorVersion, err := common.DetermineJavaVersion(javaHome)
 	if err != nil {
 		o.ctx.Log.Warning("Could not determine Java version: %s", err.Error())
 		javaMajorVersion = 17 // default
@@ -138,7 +138,7 @@ func (o *OracleJRE) Finalize() error {
 	// Determine Java major version for memory calculator
 	javaMajorVersion := 17 // default
 	if o.javaHome != "" {
-		if ver, err := DetermineJavaVersion(o.javaHome); err == nil {
+		if ver, err := common.DetermineJavaVersion(o.javaHome); err == nil {
 			javaMajorVersion = ver
 		}
 	}
