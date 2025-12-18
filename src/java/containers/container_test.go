@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"github.com/cloudfoundry/java-buildpack/src/java/containers"
 	"github.com/cloudfoundry/libbuildpack"
 	. "github.com/onsi/ginkgo/v2"
@@ -18,7 +19,7 @@ func TestContainers(t *testing.T) {
 
 var _ = Describe("Container Registry", func() {
 	var (
-		ctx      *containers.Context
+		ctx      *common.Context
 		registry *containers.Registry
 		buildDir string
 		depsDir  string
@@ -46,7 +47,7 @@ var _ = Describe("Container Registry", func() {
 		stager := libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, "0"}, logger, manifest)
 		command := &libbuildpack.Command{}
 
-		ctx = &containers.Context{
+		ctx = &common.Context{
 			Stager:    stager,
 			Manifest:  manifest,
 			Installer: installer,

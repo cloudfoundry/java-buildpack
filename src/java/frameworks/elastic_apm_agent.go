@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -26,13 +27,13 @@ import (
 
 // ElasticApmAgentFramework represents the Elastic APM Java agent framework
 type ElasticApmAgentFramework struct {
-	context *Context
+	context *common.Context
 	jarPath string
 	service *VCAPService
 }
 
 // NewElasticApmAgentFramework creates a new Elastic APM agent framework instance
-func NewElasticApmAgentFramework(ctx *Context) *ElasticApmAgentFramework {
+func NewElasticApmAgentFramework(ctx *common.Context) *ElasticApmAgentFramework {
 	return &ElasticApmAgentFramework{context: ctx}
 }
 

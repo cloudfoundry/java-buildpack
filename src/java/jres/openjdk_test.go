@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"github.com/cloudfoundry/java-buildpack/src/java/jres"
 	"github.com/cloudfoundry/libbuildpack"
 	. "github.com/onsi/ginkgo/v2"
@@ -12,7 +13,7 @@ import (
 
 var _ = Describe("OpenJDK JRE", func() {
 	var (
-		ctx      *jres.Context
+		ctx      *common.Context
 		openJDK  jres.JRE
 		buildDir string
 		depsDir  string
@@ -40,7 +41,7 @@ var _ = Describe("OpenJDK JRE", func() {
 		stager := libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, "0"}, logger, manifest)
 		command := &libbuildpack.Command{}
 
-		ctx = &jres.Context{
+		ctx = &common.Context{
 			Stager:    stager,
 			Manifest:  manifest,
 			Installer: installer,

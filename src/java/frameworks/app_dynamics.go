@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"path/filepath"
 
@@ -9,11 +10,11 @@ import (
 
 // AppDynamicsFramework implements AppDynamics APM agent support
 type AppDynamicsFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewAppDynamicsFramework creates a new AppDynamics framework instance
-func NewAppDynamicsFramework(ctx *Context) *AppDynamicsFramework {
+func NewAppDynamicsFramework(ctx *common.Context) *AppDynamicsFramework {
 	return &AppDynamicsFramework{context: ctx}
 }
 

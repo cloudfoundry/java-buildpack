@@ -1,6 +1,7 @@
 package containers
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,7 +11,7 @@ import (
 
 // PlayContainer represents a Play Framework application container
 type PlayContainer struct {
-	context     *Context
+	context     *common.Context
 	playType    string // "pre22_dist", "pre22_staged", "post22_dist", "post22_staged"
 	playVersion string
 	startScript string
@@ -18,7 +19,7 @@ type PlayContainer struct {
 }
 
 // NewPlayContainer creates a new Play Framework container
-func NewPlayContainer(ctx *Context) *PlayContainer {
+func NewPlayContainer(ctx *common.Context) *PlayContainer {
 	return &PlayContainer{
 		context: ctx,
 	}

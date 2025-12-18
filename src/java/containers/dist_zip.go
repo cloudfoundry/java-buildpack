@@ -1,6 +1,7 @@
 package containers
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,12 +11,12 @@ import (
 // DistZipContainer handles distribution ZIP applications
 // (applications with bin/ and lib/ structure, typically from Gradle's distZip)
 type DistZipContainer struct {
-	context     *Context
+	context     *common.Context
 	startScript string
 }
 
 // NewDistZipContainer creates a new Dist ZIP container
-func NewDistZipContainer(ctx *Context) *DistZipContainer {
+func NewDistZipContainer(ctx *common.Context) *DistZipContainer {
 	return &DistZipContainer{
 		context: ctx,
 	}

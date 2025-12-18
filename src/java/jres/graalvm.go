@@ -1,6 +1,7 @@
 package jres
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,7 +9,7 @@ import (
 
 // GraalVMJRE implements the JRE interface for GraalVM
 type GraalVMJRE struct {
-	ctx              *Context
+	ctx              *common.Context
 	jreDir           string
 	version          string
 	javaHome         string
@@ -18,7 +19,7 @@ type GraalVMJRE struct {
 }
 
 // NewGraalVMJRE creates a new GraalVM JRE provider
-func NewGraalVMJRE(ctx *Context) *GraalVMJRE {
+func NewGraalVMJRE(ctx *common.Context) *GraalVMJRE {
 	jreDir := filepath.Join(ctx.Stager.DepDir(), "jre")
 
 	return &GraalVMJRE{

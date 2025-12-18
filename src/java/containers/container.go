@@ -1,7 +1,7 @@
 package containers
 
 import (
-	"github.com/cloudfoundry/libbuildpack"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 )
 
 // Container represents a Java application container (Tomcat, Spring Boot, etc.)
@@ -20,23 +20,15 @@ type Container interface {
 	Release() (string, error)
 }
 
-// Context holds common dependencies for containers
-type Context struct {
-	Stager    *libbuildpack.Stager
-	Manifest  *libbuildpack.Manifest
-	Installer *libbuildpack.Installer
-	Log       *libbuildpack.Logger
-	Command   *libbuildpack.Command
-}
 
 // Registry manages available containers
 type Registry struct {
 	containers []Container
-	context    *Context
+	context    *common.Context
 }
 
 // NewRegistry creates a new container registry
-func NewRegistry(ctx *Context) *Registry {
+func NewRegistry(ctx *common.Context) *Registry {
 	return &Registry{
 		containers: []Container{},
 		context:    ctx,

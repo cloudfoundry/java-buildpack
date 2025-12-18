@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"archive/zip"
 	"encoding/json"
 	"fmt"
@@ -27,12 +28,12 @@ import (
 
 // DatadogJavaagentFramework represents the Datadog APM Java agent framework
 type DatadogJavaagentFramework struct {
-	context *Context
+	context *common.Context
 	jarPath string
 }
 
 // NewDatadogJavaagentFramework creates a new Datadog Javaagent framework instance
-func NewDatadogJavaagentFramework(ctx *Context) *DatadogJavaagentFramework {
+func NewDatadogJavaagentFramework(ctx *common.Context) *DatadogJavaagentFramework {
 	return &DatadogJavaagentFramework{context: ctx}
 }
 

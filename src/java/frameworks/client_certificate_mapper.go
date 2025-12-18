@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,11 +11,11 @@ import (
 // This framework provides automatic mapping of Cloud Foundry client certificates
 // for mutual TLS (mTLS) authentication in Java applications
 type ClientCertificateMapperFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewClientCertificateMapperFramework creates a new client certificate mapper framework instance
-func NewClientCertificateMapperFramework(ctx *Context) *ClientCertificateMapperFramework {
+func NewClientCertificateMapperFramework(ctx *common.Context) *ClientCertificateMapperFramework {
 	return &ClientCertificateMapperFramework{context: ctx}
 }
 

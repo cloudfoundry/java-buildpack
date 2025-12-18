@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -25,12 +26,12 @@ import (
 
 // SkyWalkingAgentFramework represents the Apache SkyWalking agent framework
 type SkyWalkingAgentFramework struct {
-	context *Context
+	context *common.Context
 	jarPath string
 }
 
 // NewSkyWalkingAgentFramework creates a new SkyWalking agent framework instance
-func NewSkyWalkingAgentFramework(ctx *Context) *SkyWalkingAgentFramework {
+func NewSkyWalkingAgentFramework(ctx *common.Context) *SkyWalkingAgentFramework {
 	return &SkyWalkingAgentFramework{context: ctx}
 }
 

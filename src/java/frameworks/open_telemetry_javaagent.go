@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"path/filepath"
 
@@ -9,11 +10,11 @@ import (
 
 // OpenTelemetryJavaagentFramework implements OpenTelemetry instrumentation support
 type OpenTelemetryJavaagentFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewOpenTelemetryJavaagentFramework creates a new OpenTelemetry Javaagent framework instance
-func NewOpenTelemetryJavaagentFramework(ctx *Context) *OpenTelemetryJavaagentFramework {
+func NewOpenTelemetryJavaagentFramework(ctx *common.Context) *OpenTelemetryJavaagentFramework {
 	return &OpenTelemetryJavaagentFramework{context: ctx}
 }
 

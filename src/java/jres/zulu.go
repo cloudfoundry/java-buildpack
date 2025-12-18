@@ -1,6 +1,7 @@
 package jres
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,7 +9,7 @@ import (
 
 // ZuluJRE implements the JRE interface for Azul Zulu OpenJDK
 type ZuluJRE struct {
-	ctx              *Context
+	ctx              *common.Context
 	jreDir           string
 	version          string
 	javaHome         string
@@ -18,7 +19,7 @@ type ZuluJRE struct {
 }
 
 // NewZuluJRE creates a new Zulu JRE provider
-func NewZuluJRE(ctx *Context) *ZuluJRE {
+func NewZuluJRE(ctx *common.Context) *ZuluJRE {
 	jreDir := filepath.Join(ctx.Stager.DepDir(), "jre")
 
 	return &ZuluJRE{

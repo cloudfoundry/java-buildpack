@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"path/filepath"
 
@@ -9,11 +10,11 @@ import (
 
 // NewRelicFramework implements New Relic APM agent support
 type NewRelicFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewNewRelicFramework creates a new New Relic framework instance
-func NewNewRelicFramework(ctx *Context) *NewRelicFramework {
+func NewNewRelicFramework(ctx *common.Context) *NewRelicFramework {
 	return &NewRelicFramework{context: ctx}
 }
 

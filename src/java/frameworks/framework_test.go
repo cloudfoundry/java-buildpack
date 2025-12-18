@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"github.com/cloudfoundry/java-buildpack/src/java/frameworks"
 	"github.com/cloudfoundry/libbuildpack"
 )
@@ -139,7 +140,7 @@ func TestFrameworkRegistry(t *testing.T) {
 	logger := &libbuildpack.Logger{}
 	command := &libbuildpack.Command{}
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager:    stager,
 		Manifest:  manifest,
 		Installer: installer,
@@ -177,7 +178,7 @@ func TestNewRelicFrameworkDetect(t *testing.T) {
 	logger := libbuildpack.NewLogger(os.Stdout)
 	stager := libbuildpack.NewStager([]string{tmpDir, "", "0"}, logger, &libbuildpack.Manifest{})
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager: stager,
 		Log:    logger,
 	}
@@ -227,7 +228,7 @@ func TestAppDynamicsFrameworkDetect(t *testing.T) {
 	logger := libbuildpack.NewLogger(os.Stdout)
 	stager := libbuildpack.NewStager([]string{tmpDir, "", "0"}, logger, &libbuildpack.Manifest{})
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager: stager,
 		Log:    logger,
 	}
@@ -279,7 +280,7 @@ func TestDynatraceFrameworkDetect(t *testing.T) {
 	logger := libbuildpack.NewLogger(os.Stdout)
 	stager := libbuildpack.NewStager([]string{tmpDir, "", "0"}, logger, &libbuildpack.Manifest{})
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager: stager,
 		Log:    logger,
 	}
@@ -422,7 +423,7 @@ func TestFrameworkDetectAllWithMultipleFrameworks(t *testing.T) {
 	logger := libbuildpack.NewLogger(os.Stdout)
 	stager := libbuildpack.NewStager([]string{tmpDir, "", "0"}, logger, &libbuildpack.Manifest{})
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager: stager,
 		Log:    logger,
 	}
@@ -556,7 +557,7 @@ func TestJavaOptsFrameworkDetect(t *testing.T) {
 	manifest := &libbuildpack.Manifest{}
 	stager := libbuildpack.NewStager([]string{tmpDir, "", "0"}, logger, manifest)
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager:   stager,
 		Manifest: manifest,
 		Log:      logger,
@@ -599,7 +600,7 @@ func TestJavaOptsFrameworkSupply(t *testing.T) {
 	manifest := &libbuildpack.Manifest{}
 	stager := libbuildpack.NewStager([]string{tmpDir, "", "0"}, logger, manifest)
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager:   stager,
 		Manifest: manifest,
 		Log:      logger,
@@ -630,7 +631,7 @@ func TestJavaOptsConfigParsing(t *testing.T) {
 	manifest := &libbuildpack.Manifest{}
 	stager := libbuildpack.NewStager([]string{tmpDir, "", "0"}, logger, manifest)
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager:   stager,
 		Manifest: manifest,
 		Log:      logger,
@@ -664,7 +665,7 @@ func TestJavaOptsFromEnvironmentDisabled(t *testing.T) {
 	manifest := &libbuildpack.Manifest{}
 	stager := libbuildpack.NewStager([]string{tmpDir, "", "0"}, logger, manifest)
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager:   stager,
 		Manifest: manifest,
 		Log:      logger,
@@ -710,7 +711,7 @@ func TestSpringAutoReconfigurationDetect(t *testing.T) {
 	os.Setenv("JBP_CONFIG_SPRING_AUTO_RECONFIGURATION", "{enabled: true}")
 	defer os.Unsetenv("JBP_CONFIG_SPRING_AUTO_RECONFIGURATION")
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager:   stager,
 		Manifest: manifest,
 		Log:      logger,
@@ -740,7 +741,7 @@ func TestSpringAutoReconfigurationNoSpring(t *testing.T) {
 	manifest := &libbuildpack.Manifest{}
 	stager := libbuildpack.NewStager([]string{tmpDir, "", "0"}, logger, manifest)
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager:   stager,
 		Manifest: manifest,
 		Log:      logger,
@@ -787,7 +788,7 @@ func TestSpringAutoReconfigurationSkipWithJavaCfEnv(t *testing.T) {
 	manifest := &libbuildpack.Manifest{}
 	stager := libbuildpack.NewStager([]string{tmpDir, "", "0"}, logger, manifest)
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager:   stager,
 		Manifest: manifest,
 		Log:      logger,
@@ -833,7 +834,7 @@ func TestSpringAutoReconfigurationDisabled(t *testing.T) {
 	manifest := &libbuildpack.Manifest{}
 	stager := libbuildpack.NewStager([]string{tmpDir, "", "0"}, logger, manifest)
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager:   stager,
 		Manifest: manifest,
 		Log:      logger,
@@ -875,7 +876,7 @@ func TestJavaOptsLegacyFormat(t *testing.T) {
 	manifest := &libbuildpack.Manifest{}
 	stager := libbuildpack.NewStager([]string{tmpDir, "", depsDir, "0"}, logger, manifest)
 
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager:   stager,
 		Manifest: manifest,
 		Log:      logger,

@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -8,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // Framework represents a cross-cutting concern (APM agents, security providers, etc.)
@@ -24,23 +24,15 @@ type Framework interface {
 	Finalize() error
 }
 
-// Context holds common dependencies for frameworks
-type Context struct {
-	Stager    *libbuildpack.Stager
-	Manifest  *libbuildpack.Manifest
-	Installer *libbuildpack.Installer
-	Log       *libbuildpack.Logger
-	Command   *libbuildpack.Command
-}
 
 // Registry manages available frameworks
 type Registry struct {
 	frameworks []Framework
-	context    *Context
+	context    *common.Context
 }
 
 // NewRegistry creates a new framework registry
-func NewRegistry(ctx *Context) *Registry {
+func NewRegistry(ctx *common.Context) *Registry {
 	return &Registry{
 		frameworks: []Framework{},
 		context:    ctx,
@@ -282,7 +274,7 @@ func stringContains(s, substr string) bool {
 //	if err := AppendToJavaOpts(ctx, "-javaagent:/deps/0/agent.jar"); err != nil {
 //	    return fmt.Errorf("failed to set JAVA_OPTS: %w", err)
 //	}
-func AppendToJavaOpts(ctx *Context, value string) error {
+func AppendToJavaOpts(ctx *common.Context, value string) error {
 	if value == "" {
 		return nil // Nothing to append
 	}

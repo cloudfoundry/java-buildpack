@@ -1,6 +1,7 @@
 package jres
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -41,13 +42,13 @@ type Context struct {
 
 // Registry manages multiple JRE providers
 type Registry struct {
-	ctx        *Context
+	ctx        *common.Context
 	providers  []JRE
 	defaultJRE JRE
 }
 
 // NewRegistry creates a new JRE registry
-func NewRegistry(ctx *Context) *Registry {
+func NewRegistry(ctx *common.Context) *Registry {
 	return &Registry{
 		ctx:       ctx,
 		providers: []JRE{},
@@ -138,7 +139,7 @@ type Component interface {
 
 // BaseComponent provides common functionality for JRE components
 type BaseComponent struct {
-	Ctx         *Context
+	Ctx         *common.Context
 	JREDir      string
 	JREVersion  string
 	ComponentID string
@@ -162,7 +163,7 @@ func DetectJREByEnv(jreName string) bool {
 
 // GetJREVersion gets the desired JRE version from environment or uses default
 // Supports BP_JAVA_VERSION (simple version) and JBP_CONFIG_<JRE_NAME> (complex config)
-func GetJREVersion(ctx *Context, jreName string) (libbuildpack.Dependency, error) {
+func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency, error) {
 	// Check for simple BP_JAVA_VERSION environment variable first
 	// Format: "8", "11", "17", "21", etc. or version patterns like "11.+", "17.*"
 	if bpVersion := os.Getenv("BP_JAVA_VERSION"); bpVersion != "" {
@@ -249,14 +250,14 @@ func DetermineJavaVersion(javaHome string) (int, error) {
 
 // WriteJavaOpts writes JAVA_OPTS to a .opts file for centralized assembly
 // JRE components use priority 05 to run early (before frameworks)
-func WriteJavaOpts(ctx *Context, opts string) error {
+func WriteJavaOpts(ctx *common.Context, opts string) error {
 	return WriteJavaOptsWithPriority(ctx, 05, "jre", opts)
 }
 
 // WriteJavaOptsWithPriority writes JAVA_OPTS to a numbered .opts file for centralized assembly
 // Priority determines execution order (lower numbers run first)
 // Multiple calls with the same priority/name will append to the same file
-func WriteJavaOptsWithPriority(ctx *Context, priority int, name string, opts string) error {
+func WriteJavaOptsWithPriority(ctx *common.Context, priority int, name string, opts string) error {
 	// Create java_opts directory in deps
 	optsDir := filepath.Join(ctx.Stager.DepDir(), "java_opts")
 	if err := os.MkdirAll(optsDir, 0755); err != nil {
@@ -297,7 +298,7 @@ func WriteJavaOptsWithPriority(ctx *Context, priority int, name string, opts str
 //  3. Prepends $JAVA_HOME/bin to PATH
 //
 // It also sets these environment variables during staging for use by frameworks.
-func WriteJavaHomeProfileD(ctx *Context, jreDir, javaHome string) error {
+func WriteJavaHomeProfileD(ctx *common.Context, jreDir, javaHome string) error {
 	// Compute relative path from jreDir to javaHome
 	relPath, err := filepath.Rel(jreDir, javaHome)
 	if err != nil {

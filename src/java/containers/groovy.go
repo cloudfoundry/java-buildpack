@@ -1,6 +1,7 @@
 package containers
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,12 +9,12 @@ import (
 
 // GroovyContainer handles Groovy script applications
 type GroovyContainer struct {
-	context       *Context
+	context       *common.Context
 	groovyScripts []string
 }
 
 // NewGroovyContainer creates a new Groovy container
-func NewGroovyContainer(ctx *Context) *GroovyContainer {
+func NewGroovyContainer(ctx *common.Context) *GroovyContainer {
 	return &GroovyContainer{
 		context: ctx,
 	}

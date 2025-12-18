@@ -1,6 +1,7 @@
 package finalize
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -25,7 +26,7 @@ func Run(f *Finalizer) error {
 	f.Log.BeginStep("Finalizing Java")
 
 	// Create container context
-	ctx := &containers.Context{
+	ctx := &common.Context{
 		Stager:    f.Stager,
 		Manifest:  f.Manifest,
 		Installer: f.Installer,
@@ -84,7 +85,7 @@ func (f *Finalizer) finalizeJRE() error {
 	f.Log.BeginStep("Finalizing JRE")
 
 	// Create JRE context
-	ctx := &jres.Context{
+	ctx := &common.Context{
 		Stager:    f.Stager,
 		Manifest:  f.Manifest,
 		Installer: f.Installer,
@@ -128,7 +129,7 @@ func (f *Finalizer) finalizeFrameworks() error {
 	f.Log.BeginStep("Finalizing frameworks")
 
 	// Create framework context
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager:    f.Stager,
 		Manifest:  f.Manifest,
 		Installer: f.Installer,

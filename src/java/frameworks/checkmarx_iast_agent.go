@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"io"
 	"net/http"
@@ -26,12 +27,12 @@ import (
 
 // CheckmarxIASTAgentFramework represents the Checkmarx IAST agent framework
 type CheckmarxIASTAgentFramework struct {
-	context *Context
+	context *common.Context
 	jarPath string
 }
 
 // NewCheckmarxIASTAgentFramework creates a new Checkmarx IAST agent framework instance
-func NewCheckmarxIASTAgentFramework(ctx *Context) *CheckmarxIASTAgentFramework {
+func NewCheckmarxIASTAgentFramework(ctx *common.Context) *CheckmarxIASTAgentFramework {
 	return &CheckmarxIASTAgentFramework{context: ctx}
 }
 

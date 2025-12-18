@@ -1,6 +1,7 @@
 package containers
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,13 +10,13 @@ import (
 
 // SpringBootCLIContainer handles Spring Boot CLI applications
 type SpringBootCLIContainer struct {
-	context     *Context
+	context     *common.Context
 	groovyFiles []string
 	groovyUtils *GroovyUtils
 }
 
 // NewSpringBootCLIContainer creates a new Spring Boot CLI container
-func NewSpringBootCLIContainer(ctx *Context) *SpringBootCLIContainer {
+func NewSpringBootCLIContainer(ctx *common.Context) *SpringBootCLIContainer {
 	return &SpringBootCLIContainer{
 		context:     ctx,
 		groovyUtils: &GroovyUtils{},

@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -25,12 +26,12 @@ import (
 
 // SplunkOtelJavaAgentFramework represents the Splunk Distribution of OpenTelemetry Java agent framework
 type SplunkOtelJavaAgentFramework struct {
-	context *Context
+	context *common.Context
 	jarPath string
 }
 
 // NewSplunkOtelJavaAgentFramework creates a new Splunk OTEL Java agent framework instance
-func NewSplunkOtelJavaAgentFramework(ctx *Context) *SplunkOtelJavaAgentFramework {
+func NewSplunkOtelJavaAgentFramework(ctx *common.Context) *SplunkOtelJavaAgentFramework {
 	return &SplunkOtelJavaAgentFramework{context: ctx}
 }
 

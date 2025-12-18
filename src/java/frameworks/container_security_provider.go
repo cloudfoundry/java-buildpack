@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,11 +11,11 @@ import (
 // ContainerSecurityProviderFramework implements container-based security provider support
 // This framework provides CloudFoundryContainerProvider for Java security integration
 type ContainerSecurityProviderFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewContainerSecurityProviderFramework creates a new container security provider framework instance
-func NewContainerSecurityProviderFramework(ctx *Context) *ContainerSecurityProviderFramework {
+func NewContainerSecurityProviderFramework(ctx *common.Context) *ContainerSecurityProviderFramework {
 	return &ContainerSecurityProviderFramework{context: ctx}
 }
 

@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"strconv"
@@ -9,11 +10,11 @@ import (
 // DebugFramework implements Java remote debugging support
 // Enables JDWP (Java Debug Wire Protocol) for remote debugging
 type DebugFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewDebugFramework creates a new Debug framework instance
-func NewDebugFramework(ctx *Context) *DebugFramework {
+func NewDebugFramework(ctx *common.Context) *DebugFramework {
 	return &DebugFramework{context: ctx}
 }
 

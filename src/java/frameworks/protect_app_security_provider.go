@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -12,11 +13,11 @@ import (
 // ProtectAppSecurityProviderFramework implements Safenet ProtectApp security provider support
 // This framework provides integration with Safenet ProtectApp (now Gemalto/Thales) for key management
 type ProtectAppSecurityProviderFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewProtectAppSecurityProviderFramework creates a new ProtectApp security provider framework instance
-func NewProtectAppSecurityProviderFramework(ctx *Context) *ProtectAppSecurityProviderFramework {
+func NewProtectAppSecurityProviderFramework(ctx *common.Context) *ProtectAppSecurityProviderFramework {
 	return &ProtectAppSecurityProviderFramework{context: ctx}
 }
 

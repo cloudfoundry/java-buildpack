@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -25,12 +26,12 @@ import (
 
 // GoogleStackdriverDebuggerFramework represents the Google Stackdriver Debugger framework
 type GoogleStackdriverDebuggerFramework struct {
-	context   *Context
+	context   *common.Context
 	agentPath string
 }
 
 // NewGoogleStackdriverDebuggerFramework creates a new Google Stackdriver Debugger framework instance
-func NewGoogleStackdriverDebuggerFramework(ctx *Context) *GoogleStackdriverDebuggerFramework {
+func NewGoogleStackdriverDebuggerFramework(ctx *common.Context) *GoogleStackdriverDebuggerFramework {
 	return &GoogleStackdriverDebuggerFramework{context: ctx}
 }
 

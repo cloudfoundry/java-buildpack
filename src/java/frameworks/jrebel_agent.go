@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,12 +9,12 @@ import (
 
 // JRebelAgentFramework represents the JRebel Agent framework
 type JRebelAgentFramework struct {
-	context      *Context
+	context      *common.Context
 	agentLibPath string
 }
 
 // NewJRebelAgentFramework creates a new instance of JRebelAgentFramework
-func NewJRebelAgentFramework(ctx *Context) *JRebelAgentFramework {
+func NewJRebelAgentFramework(ctx *common.Context) *JRebelAgentFramework {
 	return &JRebelAgentFramework{context: ctx}
 }
 

@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -25,11 +26,11 @@ import (
 
 // YourKitProfilerFramework represents the YourKit profiler framework
 type YourKitProfilerFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewYourKitProfilerFramework creates a new YourKitProfilerFramework instance
-func NewYourKitProfilerFramework(ctx *Context) *YourKitProfilerFramework {
+func NewYourKitProfilerFramework(ctx *common.Context) *YourKitProfilerFramework {
 	return &YourKitProfilerFramework{context: ctx}
 }
 

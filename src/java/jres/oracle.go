@@ -1,6 +1,7 @@
 package jres
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,7 +10,7 @@ import (
 // OracleJRE implements the JRE interface for Oracle JRE
 // Oracle JRE requires a user-provided repository via JBP_CONFIG_ORACLE_JRE environment variable
 type OracleJRE struct {
-	ctx              *Context
+	ctx              *common.Context
 	jreDir           string
 	version          string
 	javaHome         string
@@ -19,7 +20,7 @@ type OracleJRE struct {
 }
 
 // NewOracleJRE creates a new Oracle JRE provider
-func NewOracleJRE(ctx *Context) *OracleJRE {
+func NewOracleJRE(ctx *common.Context) *OracleJRE {
 	jreDir := filepath.Join(ctx.Stager.DepDir(), "jre")
 
 	return &OracleJRE{

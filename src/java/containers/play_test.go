@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"github.com/cloudfoundry/java-buildpack/src/java/containers"
 	"github.com/cloudfoundry/libbuildpack"
 	. "github.com/onsi/ginkgo/v2"
@@ -12,7 +13,7 @@ import (
 
 var _ = Describe("Play Container", func() {
 	var (
-		ctx       *containers.Context
+		ctx       *common.Context
 		container *containers.PlayContainer
 		buildDir  string
 		depsDir   string
@@ -40,7 +41,7 @@ var _ = Describe("Play Container", func() {
 		stager := libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, "0"}, logger, manifest)
 		command := &libbuildpack.Command{}
 
-		ctx = &containers.Context{
+		ctx = &common.Context{
 			Stager:    stager,
 			Manifest:  manifest,
 			Installer: installer,

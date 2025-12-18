@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -25,12 +26,12 @@ import (
 
 // IntroscopeAgentFramework represents the CA APM Introscope agent framework
 type IntroscopeAgentFramework struct {
-	context   *Context
+	context   *common.Context
 	agentPath string
 }
 
 // NewIntroscopeAgentFramework creates a new Introscope agent framework instance
-func NewIntroscopeAgentFramework(ctx *Context) *IntroscopeAgentFramework {
+func NewIntroscopeAgentFramework(ctx *common.Context) *IntroscopeAgentFramework {
 	return &IntroscopeAgentFramework{context: ctx}
 }
 

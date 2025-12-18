@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,11 +11,11 @@ import (
 // JavaMemoryAssistantFramework implements Java Memory Assistant agent support
 // This framework provides automatic heap dump generation based on memory usage thresholds
 type JavaMemoryAssistantFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewJavaMemoryAssistantFramework creates a new Java Memory Assistant framework instance
-func NewJavaMemoryAssistantFramework(ctx *Context) *JavaMemoryAssistantFramework {
+func NewJavaMemoryAssistantFramework(ctx *common.Context) *JavaMemoryAssistantFramework {
 	return &JavaMemoryAssistantFramework{context: ctx}
 }
 

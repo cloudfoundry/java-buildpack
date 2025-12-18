@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -15,11 +16,11 @@ import (
 // SeekerSecurityProviderFramework implements Synopsys Seeker IAST agent support
 // This framework provides integration with Synopsys Seeker for interactive application security testing
 type SeekerSecurityProviderFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewSeekerSecurityProviderFramework creates a new Seeker security provider framework instance
-func NewSeekerSecurityProviderFramework(ctx *Context) *SeekerSecurityProviderFramework {
+func NewSeekerSecurityProviderFramework(ctx *common.Context) *SeekerSecurityProviderFramework {
 	return &SeekerSecurityProviderFramework{context: ctx}
 }
 

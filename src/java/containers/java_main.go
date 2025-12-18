@@ -1,6 +1,7 @@
 package containers
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,13 +10,13 @@ import (
 
 // JavaMainContainer handles standalone JAR applications with a main class
 type JavaMainContainer struct {
-	context   *Context
+	context   *common.Context
 	mainClass string
 	jarFile   string
 }
 
 // NewJavaMainContainer creates a new Java Main container
-func NewJavaMainContainer(ctx *Context) *JavaMainContainer {
+func NewJavaMainContainer(ctx *common.Context) *JavaMainContainer {
 	return &JavaMainContainer{
 		context: ctx,
 	}

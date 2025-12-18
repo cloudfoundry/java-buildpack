@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"path/filepath"
 
@@ -9,11 +10,11 @@ import (
 
 // JacocoAgentFramework implements JaCoCo code coverage agent support
 type JacocoAgentFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewJacocoAgentFramework creates a new JaCoCo agent framework instance
-func NewJacocoAgentFramework(ctx *Context) *JacocoAgentFramework {
+func NewJacocoAgentFramework(ctx *common.Context) *JacocoAgentFramework {
 	return &JacocoAgentFramework{context: ctx}
 }
 

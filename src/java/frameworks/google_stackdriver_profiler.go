@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -25,12 +26,12 @@ import (
 
 // GoogleStackdriverProfilerFramework represents the Google Stackdriver Profiler framework
 type GoogleStackdriverProfilerFramework struct {
-	context   *Context
+	context   *common.Context
 	agentPath string
 }
 
 // NewGoogleStackdriverProfilerFramework creates a new Google Stackdriver Profiler framework instance
-func NewGoogleStackdriverProfilerFramework(ctx *Context) *GoogleStackdriverProfilerFramework {
+func NewGoogleStackdriverProfilerFramework(ctx *common.Context) *GoogleStackdriverProfilerFramework {
 	return &GoogleStackdriverProfilerFramework{context: ctx}
 }
 

@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -25,11 +26,11 @@ import (
 
 // SealightsAgentFramework represents the Sealights agent framework
 type SealightsAgentFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewSealightsAgentFramework creates a new SealightsAgentFramework instance
-func NewSealightsAgentFramework(ctx *Context) *SealightsAgentFramework {
+func NewSealightsAgentFramework(ctx *common.Context) *SealightsAgentFramework {
 	return &SealightsAgentFramework{context: ctx}
 }
 

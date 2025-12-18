@@ -1,6 +1,7 @@
 package jres
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,7 +9,7 @@ import (
 
 // OpenJDKJRE implements the JRE interface for OpenJDK
 type OpenJDKJRE struct {
-	ctx              *Context
+	ctx              *common.Context
 	jreDir           string
 	version          string
 	javaHome         string
@@ -18,7 +19,7 @@ type OpenJDKJRE struct {
 }
 
 // NewOpenJDKJRE creates a new OpenJDK JRE provider
-func NewOpenJDKJRE(ctx *Context) *OpenJDKJRE {
+func NewOpenJDKJRE(ctx *common.Context) *OpenJDKJRE {
 	jreDir := filepath.Join(ctx.Stager.DepDir(), "jre")
 
 	return &OpenJDKJRE{

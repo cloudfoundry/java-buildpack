@@ -1,6 +1,7 @@
 package containers
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,13 +10,13 @@ import (
 
 // SpringBootContainer handles Spring Boot JAR applications
 type SpringBootContainer struct {
-	context     *Context
+	context     *common.Context
 	jarFile     string
 	startScript string // For staged Spring Boot apps (bin/application)
 }
 
 // NewSpringBootContainer creates a new Spring Boot container
-func NewSpringBootContainer(ctx *Context) *SpringBootContainer {
+func NewSpringBootContainer(ctx *common.Context) *SpringBootContainer {
 	return &SpringBootContainer{
 		context: ctx,
 	}

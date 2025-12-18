@@ -1,6 +1,7 @@
 package containers
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"io"
 	"net/http"
@@ -15,11 +16,11 @@ import (
 
 // TomcatContainer handles servlet/WAR applications
 type TomcatContainer struct {
-	context *Context
+	context *common.Context
 }
 
 // NewTomcatContainer creates a new Tomcat container
-func NewTomcatContainer(ctx *Context) *TomcatContainer {
+func NewTomcatContainer(ctx *common.Context) *TomcatContainer {
 	return &TomcatContainer{
 		context: ctx,
 	}

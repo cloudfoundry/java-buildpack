@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,11 +15,11 @@ import (
 // This is the modern replacement for Spring Auto-reconfiguration
 // It provides auto-configuration for Spring Boot 3.x applications
 type JavaCfEnvFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewJavaCfEnvFramework creates a new java-cfenv framework instance
-func NewJavaCfEnvFramework(ctx *Context) *JavaCfEnvFramework {
+func NewJavaCfEnvFramework(ctx *common.Context) *JavaCfEnvFramework {
 	return &JavaCfEnvFramework{context: ctx}
 }
 

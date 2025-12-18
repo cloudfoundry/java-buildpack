@@ -1,6 +1,7 @@
 package jres
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"archive/zip"
 	"bytes"
 	"fmt"
@@ -14,7 +15,7 @@ import (
 // MemoryCalculator manages the Java memory calculator
 // The memory calculator determines optimal JVM memory settings based on available container memory
 type MemoryCalculator struct {
-	ctx              *Context
+	ctx              *common.Context
 	jreDir           string
 	jreVersion       string
 	javaMajorVersion int
@@ -26,7 +27,7 @@ type MemoryCalculator struct {
 }
 
 // NewMemoryCalculator creates a new memory calculator
-func NewMemoryCalculator(ctx *Context, jreDir, jreVersion string, javaMajorVersion int) *MemoryCalculator {
+func NewMemoryCalculator(ctx *common.Context, jreDir, jreVersion string, javaMajorVersion int) *MemoryCalculator {
 	return &MemoryCalculator{
 		ctx:              ctx,
 		jreDir:           jreDir,

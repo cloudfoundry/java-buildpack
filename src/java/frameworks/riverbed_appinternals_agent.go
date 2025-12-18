@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -25,12 +26,12 @@ import (
 
 // RiverbedAppInternalsAgentFramework represents the Riverbed AppInternals agent framework
 type RiverbedAppInternalsAgentFramework struct {
-	context   *Context
+	context   *common.Context
 	agentPath string
 }
 
 // NewRiverbedAppInternalsAgentFramework creates a new Riverbed AppInternals agent framework instance
-func NewRiverbedAppInternalsAgentFramework(ctx *Context) *RiverbedAppInternalsAgentFramework {
+func NewRiverbedAppInternalsAgentFramework(ctx *common.Context) *RiverbedAppInternalsAgentFramework {
 	return &RiverbedAppInternalsAgentFramework{context: ctx}
 }
 

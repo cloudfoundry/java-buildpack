@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,14 +9,14 @@ import (
 
 // ContrastSecurityAgentFramework represents the Contrast Security Agent framework
 type ContrastSecurityAgentFramework struct {
-	context      *Context
+	context      *common.Context
 	agentJarPath string
 	configPath   string
 	credentials  map[string]interface{}
 }
 
 // NewContrastSecurityAgentFramework creates a new instance of ContrastSecurityAgentFramework
-func NewContrastSecurityAgentFramework(ctx *Context) *ContrastSecurityAgentFramework {
+func NewContrastSecurityAgentFramework(ctx *common.Context) *ContrastSecurityAgentFramework {
 	return &ContrastSecurityAgentFramework{context: ctx}
 }
 

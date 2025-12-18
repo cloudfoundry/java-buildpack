@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -25,11 +26,11 @@ import (
 
 // TakipiAgentFramework represents the OverOps (formerly Takipi) agent framework
 type TakipiAgentFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewTakipiAgentFramework creates a new TakipiAgentFramework instance
-func NewTakipiAgentFramework(ctx *Context) *TakipiAgentFramework {
+func NewTakipiAgentFramework(ctx *common.Context) *TakipiAgentFramework {
 	return &TakipiAgentFramework{context: ctx}
 }
 

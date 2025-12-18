@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,11 +12,11 @@ import (
 // PostgresqlJdbcFramework implements PostgreSQL JDBC driver support
 // Automatically installs PostgreSQL JDBC driver if a PostgreSQL service is bound
 type PostgresqlJdbcFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewPostgresqlJdbcFramework creates a new PostgreSQL JDBC framework instance
-func NewPostgresqlJdbcFramework(ctx *Context) *PostgresqlJdbcFramework {
+func NewPostgresqlJdbcFramework(ctx *common.Context) *PostgresqlJdbcFramework {
 	return &PostgresqlJdbcFramework{context: ctx}
 }
 

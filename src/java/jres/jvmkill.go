@@ -1,6 +1,7 @@
 package jres
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,7 +11,7 @@ import (
 // JVMKill is an agent that forcibly terminates the JVM when it is unable to allocate memory or
 // throws an OutOfMemoryError.
 type JVMKillAgent struct {
-	ctx        *Context
+	ctx        *common.Context
 	jreDir     string
 	jreVersion string
 	agentPath  string
@@ -18,7 +19,7 @@ type JVMKillAgent struct {
 }
 
 // NewJVMKillAgent creates a new JVMKill agent
-func NewJVMKillAgent(ctx *Context, jreDir, jreVersion string) *JVMKillAgent {
+func NewJVMKillAgent(ctx *common.Context, jreDir, jreVersion string) *JVMKillAgent {
 	return &JVMKillAgent{
 		ctx:        ctx,
 		jreDir:     jreDir,
@@ -248,7 +249,7 @@ func (j *JVMKillAgent) getAppDetails() appDetails {
 // GetVCAPServices is a helper function to get VCAP_SERVICES
 // We need to import this from frameworks package or duplicate here
 // For now, duplicating to avoid circular dependency
-func GetVCAPServices(ctx *Context) (map[string][]Service, error) {
+func GetVCAPServices(ctx *common.Context) (map[string][]Service, error) {
 	vcapServices := os.Getenv("VCAP_SERVICES")
 	if vcapServices == "" {
 		return make(map[string][]Service), nil

@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -23,12 +24,12 @@ import (
 
 // MariaDBJDBCFramework represents the MariaDB JDBC framework
 type MariaDBJDBCFramework struct {
-	context *Context
+	context *common.Context
 	jarPath string
 }
 
 // NewMariaDBJDBCFramework creates a new MariaDB JDBC framework instance
-func NewMariaDBJDBCFramework(ctx *Context) *MariaDBJDBCFramework {
+func NewMariaDBJDBCFramework(ctx *common.Context) *MariaDBJDBCFramework {
 	return &MariaDBJDBCFramework{context: ctx}
 }
 

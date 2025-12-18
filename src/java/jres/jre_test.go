@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"github.com/cloudfoundry/java-buildpack/src/java/jres"
 	"github.com/cloudfoundry/libbuildpack"
 	. "github.com/onsi/ginkgo/v2"
@@ -19,7 +20,7 @@ func TestJREs(t *testing.T) {
 
 var _ = Describe("JRE Registry", func() {
 	var (
-		ctx      *jres.Context
+		ctx      *common.Context
 		registry *jres.Registry
 		buildDir string
 		depsDir  string
@@ -47,7 +48,7 @@ var _ = Describe("JRE Registry", func() {
 		stager := libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, "0"}, logger, manifest)
 		command := &libbuildpack.Command{}
 
-		ctx = &jres.Context{
+		ctx = &common.Context{
 			Stager:    stager,
 			Manifest:  manifest,
 			Installer: installer,
@@ -126,7 +127,7 @@ var _ = Describe("JRE Registry", func() {
 
 var _ = Describe("JRE Helper Functions", func() {
 	var (
-		ctx      *jres.Context
+		ctx      *common.Context
 		buildDir string
 		depsDir  string
 		cacheDir string
@@ -194,7 +195,7 @@ dependencies:
 
 		stager := libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, "0"}, logger, manifest)
 
-		ctx = &jres.Context{
+		ctx = &common.Context{
 			Stager:    stager,
 			Manifest:  manifest,
 			Installer: &libbuildpack.Installer{},

@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"strings"
@@ -11,7 +12,7 @@ import (
 
 // JavaOptsFramework implements custom JAVA_OPTS configuration
 type JavaOptsFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // JavaOptsConfig represents the java_opts.yml configuration
@@ -21,7 +22,7 @@ type JavaOptsConfig struct {
 }
 
 // NewJavaOptsFramework creates a new Java Opts framework instance
-func NewJavaOptsFramework(ctx *Context) *JavaOptsFramework {
+func NewJavaOptsFramework(ctx *common.Context) *JavaOptsFramework {
 	return &JavaOptsFramework{context: ctx}
 }
 

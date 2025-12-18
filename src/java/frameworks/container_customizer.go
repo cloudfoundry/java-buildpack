@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,11 +10,11 @@ import (
 // ContainerCustomizerFramework implements Tomcat configuration customization
 // for Spring Boot WAR applications
 type ContainerCustomizerFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewContainerCustomizerFramework creates a new Container Customizer framework instance
-func NewContainerCustomizerFramework(ctx *Context) *ContainerCustomizerFramework {
+func NewContainerCustomizerFramework(ctx *common.Context) *ContainerCustomizerFramework {
 	return &ContainerCustomizerFramework{context: ctx}
 }
 

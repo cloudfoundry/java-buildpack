@@ -16,6 +16,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -25,12 +26,12 @@ import (
 
 // AzureApplicationInsightsAgentFramework represents the Azure Application Insights Java agent framework
 type AzureApplicationInsightsAgentFramework struct {
-	context *Context
+	context *common.Context
 	jarPath string
 }
 
 // NewAzureApplicationInsightsAgentFramework creates a new Azure Application Insights agent framework instance
-func NewAzureApplicationInsightsAgentFramework(ctx *Context) *AzureApplicationInsightsAgentFramework {
+func NewAzureApplicationInsightsAgentFramework(ctx *common.Context) *AzureApplicationInsightsAgentFramework {
 	return &AzureApplicationInsightsAgentFramework{context: ctx}
 }
 

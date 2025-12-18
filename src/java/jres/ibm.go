@@ -1,6 +1,7 @@
 package jres
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,7 +11,7 @@ import (
 // IBM JRE requires a user-provided repository via JBP_CONFIG_IBM_JRE environment variable
 // IBM JRE adds specific JVM options: -Xtune:virtualized -Xshareclasses:none
 type IBMJRE struct {
-	ctx              *Context
+	ctx              *common.Context
 	jreDir           string
 	version          string
 	javaHome         string
@@ -20,7 +21,7 @@ type IBMJRE struct {
 }
 
 // NewIBMJRE creates a new IBM JRE provider
-func NewIBMJRE(ctx *Context) *IBMJRE {
+func NewIBMJRE(ctx *common.Context) *IBMJRE {
 	jreDir := filepath.Join(ctx.Stager.DepDir(), "jre")
 
 	return &IBMJRE{

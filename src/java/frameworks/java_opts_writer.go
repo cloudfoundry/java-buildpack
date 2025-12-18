@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -39,7 +40,7 @@ import (
 //   - 99: User JAVA_OPTS (always last)
 //
 // At runtime, profile.d/00_java_opts.sh reads all .opts files in order and assembles JAVA_OPTS
-func writeJavaOptsFile(ctx *Context, priority int, name string, javaOpts string) error {
+func writeJavaOptsFile(ctx *common.Context, priority int, name string, javaOpts string) error {
 	// Create java_opts directory in deps
 	optsDir := filepath.Join(ctx.Stager.DepDir(), "java_opts")
 	if err := os.MkdirAll(optsDir, 0755); err != nil {
@@ -60,7 +61,7 @@ func writeJavaOptsFile(ctx *Context, priority int, name string, javaOpts string)
 
 // CreateJavaOptsAssemblyScript creates the centralized profile.d script that assembles all JAVA_OPTS
 // This should be called ONCE during finalization (by the finalize coordinator)
-func CreateJavaOptsAssemblyScript(ctx *Context) error {
+func CreateJavaOptsAssemblyScript(ctx *common.Context) error {
 	assemblyScript := `#!/bin/bash
 # Centralized JAVA_OPTS Assembly
 # Reads all .opts files from $DEPS_DIR/0/java_opts/ in numerical order

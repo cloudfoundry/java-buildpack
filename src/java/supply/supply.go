@@ -1,6 +1,7 @@
 package supply
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 
 	"github.com/cloudfoundry/java-buildpack/src/java/containers"
@@ -23,7 +24,7 @@ func Run(s *Supplier) error {
 	s.Log.BeginStep("Supplying Java")
 
 	// Create container context
-	ctx := &containers.Context{
+	ctx := &common.Context{
 		Stager:    s.Stager,
 		Manifest:  s.Manifest,
 		Installer: s.Installer,
@@ -80,7 +81,7 @@ func Run(s *Supplier) error {
 // installJRE installs the Java Runtime Environment
 func (s *Supplier) installJRE() error {
 	// Create JRE context
-	ctx := &jres.Context{
+	ctx := &common.Context{
 		Stager:    s.Stager,
 		Manifest:  s.Manifest,
 		Installer: s.Installer,
@@ -127,7 +128,7 @@ func (s *Supplier) installFrameworks() error {
 	s.Log.BeginStep("Installing frameworks")
 
 	// Create framework context
-	ctx := &frameworks.Context{
+	ctx := &common.Context{
 		Stager:    s.Stager,
 		Manifest:  s.Manifest,
 		Installer: s.Installer,

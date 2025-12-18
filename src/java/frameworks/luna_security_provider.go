@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,11 +11,11 @@ import (
 // LunaSecurityProviderFramework implements Safenet Luna HSM Java Security Provider support
 // This framework enables zero-touch integration with Gemalto Luna HSM for cryptographic operations
 type LunaSecurityProviderFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewLunaSecurityProviderFramework creates a new Luna security provider framework instance
-func NewLunaSecurityProviderFramework(ctx *Context) *LunaSecurityProviderFramework {
+func NewLunaSecurityProviderFramework(ctx *common.Context) *LunaSecurityProviderFramework {
 	return &LunaSecurityProviderFramework{context: ctx}
 }
 

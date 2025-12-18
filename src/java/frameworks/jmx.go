@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"strconv"
@@ -9,11 +10,11 @@ import (
 // JmxFramework implements JMX (Java Management Extensions) support
 // Enables remote JMX monitoring and management
 type JmxFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewJmxFramework creates a new JMX framework instance
-func NewJmxFramework(ctx *Context) *JmxFramework {
+func NewJmxFramework(ctx *common.Context) *JmxFramework {
 	return &JmxFramework{context: ctx}
 }
 

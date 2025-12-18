@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,11 +11,11 @@ import (
 // MetricWriterFramework implements Micrometer metrics enhancement
 // This framework adds CloudFoundry-specific tags to Micrometer metrics
 type MetricWriterFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewMetricWriterFramework creates a new Metric Writer framework instance
-func NewMetricWriterFramework(ctx *Context) *MetricWriterFramework {
+func NewMetricWriterFramework(ctx *common.Context) *MetricWriterFramework {
 	return &MetricWriterFramework{context: ctx}
 }
 

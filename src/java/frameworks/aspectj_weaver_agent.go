@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,13 +10,13 @@ import (
 
 // AspectJWeaverAgentFramework represents the AspectJ Weaver Agent framework
 type AspectJWeaverAgentFramework struct {
-	context      *Context
+	context      *common.Context
 	aspectjJar   string
 	hasAopConfig bool
 }
 
 // NewAspectJWeaverAgentFramework creates a new AspectJ Weaver Agent framework instance
-func NewAspectJWeaverAgentFramework(ctx *Context) *AspectJWeaverAgentFramework {
+func NewAspectJWeaverAgentFramework(ctx *common.Context) *AspectJWeaverAgentFramework {
 	return &AspectJWeaverAgentFramework{context: ctx}
 }
 

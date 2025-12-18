@@ -1,6 +1,7 @@
 package jres
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,7 +11,7 @@ import (
 // Zing JRE requires a user-provided repository via JBP_CONFIG_ZING_JRE environment variable
 // Unlike other JREs, Zing does NOT use jvmkill or memory calculator - only adds -XX:+ExitOnOutOfMemoryError
 type ZingJRE struct {
-	ctx              *Context
+	ctx              *common.Context
 	jreDir           string
 	version          string
 	javaHome         string
@@ -18,7 +19,7 @@ type ZingJRE struct {
 }
 
 // NewZingJRE creates a new Zing JRE provider
-func NewZingJRE(ctx *Context) *ZingJRE {
+func NewZingJRE(ctx *common.Context) *ZingJRE {
 	jreDir := filepath.Join(ctx.Stager.DepDir(), "jre")
 
 	return &ZingJRE{

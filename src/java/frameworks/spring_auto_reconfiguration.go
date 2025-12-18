@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,11 +15,11 @@ import (
 // DEPRECATED: This framework is disabled by default as of Dec 2025. Please migrate to java-cfenv.
 // Can be re-enabled with: JBP_CONFIG_SPRING_AUTO_RECONFIGURATION='{enabled: true}'
 type SpringAutoReconfigurationFramework struct {
-	context *Context
+	context *common.Context
 }
 
 // NewSpringAutoReconfigurationFramework creates a new Spring Auto-reconfiguration framework instance
-func NewSpringAutoReconfigurationFramework(ctx *Context) *SpringAutoReconfigurationFramework {
+func NewSpringAutoReconfigurationFramework(ctx *common.Context) *SpringAutoReconfigurationFramework {
 	return &SpringAutoReconfigurationFramework{context: ctx}
 }
 

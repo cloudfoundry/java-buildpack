@@ -1,6 +1,7 @@
 package jres
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,7 +9,7 @@ import (
 
 // SapMachineJRE implements the JRE interface for SAP Machine OpenJDK
 type SapMachineJRE struct {
-	ctx              *Context
+	ctx              *common.Context
 	jreDir           string
 	version          string
 	javaHome         string
@@ -18,7 +19,7 @@ type SapMachineJRE struct {
 }
 
 // NewSapMachineJRE creates a new SAP Machine JRE provider
-func NewSapMachineJRE(ctx *Context) *SapMachineJRE {
+func NewSapMachineJRE(ctx *common.Context) *SapMachineJRE {
 	jreDir := filepath.Join(ctx.Stager.DepDir(), "jre")
 
 	return &SapMachineJRE{

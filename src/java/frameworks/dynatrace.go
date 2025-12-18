@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,7 +15,7 @@ import (
 
 // DynatraceFramework implements Dynatrace OneAgent support
 type DynatraceFramework struct {
-	context   *Context
+	context   *common.Context
 	agentDir  string
 	errorFile string
 }
@@ -27,7 +28,7 @@ type DynatraceManifest struct {
 }
 
 // NewDynatraceFramework creates a new Dynatrace framework instance
-func NewDynatraceFramework(ctx *Context) *DynatraceFramework {
+func NewDynatraceFramework(ctx *common.Context) *DynatraceFramework {
 	return &DynatraceFramework{
 		context:   ctx,
 		agentDir:  filepath.Join(ctx.Stager.DepDir(), "dynatrace_one_agent"),
