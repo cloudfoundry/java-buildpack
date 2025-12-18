@@ -16,8 +16,8 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 
@@ -40,8 +40,9 @@ func (f *JProfilerProfilerFramework) Detect() (string, error) {
 	// Check for JBP_CONFIG_JPROFILER_PROFILER='{enabled: true}'
 	enabled := os.Getenv("JBP_CONFIG_JPROFILER_PROFILER")
 	if enabled != "" {
-		// Simple check - if env var contains "enabled" and "true"
-		if containsIgnoreCase(enabled, "enabled") && containsIgnoreCase(enabled, "true") {
+		// Check if "enabled:true" in the agent options
+		// We need case-insensitive check due to inconsistent casing
+		if common.ContainsIgnoreCase(enabled, "enabled") && common.ContainsIgnoreCase(enabled, "true") {
 			return "JProfiler Profiler", nil
 		}
 	}
@@ -111,14 +112,14 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 	// Default options: port=8849, nowait (don't wait for profiler UI to connect)
 	port := "8849"
 	portConfig := os.Getenv("JBP_CONFIG_JPROFILER_PROFILER")
-	if portConfig != "" && containsIgnoreCase(portConfig, "port") {
+	if portConfig != "" && common.ContainsIgnoreCase(portConfig, "port") {
 		// Simple extraction (would need proper YAML parsing in production)
 		// For now, use default
 	}
 
 	// Check for nowait option (default: true)
 	nowait := "nowait"
-	if portConfig != "" && containsIgnoreCase(portConfig, "nowait") && containsIgnoreCase(portConfig, "false") {
+	if portConfig != "" && common.ContainsIgnoreCase(portConfig, "nowait") && common.ContainsIgnoreCase(portConfig, "false") {
 		nowait = ""
 	}
 

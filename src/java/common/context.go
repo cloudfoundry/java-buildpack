@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -87,4 +88,105 @@ func GetJavaMajorVersion() (int, error) {
 		return 0, fmt.Errorf("JAVA_HOME not set")
 	}
 	return DetermineJavaVersion(javaHome)
+}
+
+// VCAPServices represents the VCAP_SERVICES environment variable structure
+// This is a map of service labels to arrays of service instances
+type VCAPServices map[string][]VCAPService
+
+// VCAPService represents a single Cloud Foundry service binding
+type VCAPService struct {
+	Name        string                 `json:"name"`
+	Label       string                 `json:"label"`
+	Tags        []string               `json:"tags"`
+	Credentials map[string]interface{} `json:"credentials"`
+}
+
+// GetVCAPServices parses the VCAP_SERVICES environment variable
+// Returns an empty VCAPServices map if VCAP_SERVICES is not set
+func GetVCAPServices() (VCAPServices, error) {
+	vcapServicesStr := os.Getenv("VCAP_SERVICES")
+	if vcapServicesStr == "" {
+		return VCAPServices{}, nil
+	}
+
+	var services VCAPServices
+	if err := json.Unmarshal([]byte(vcapServicesStr), &services); err != nil {
+		return nil, err
+	}
+
+	return services, nil
+}
+
+// HasService checks if a service with the given label exists
+func (v VCAPServices) HasService(label string) bool {
+	_, exists := v[label]
+	return exists
+}
+
+// GetService returns the first service with the given label
+// Returns nil if no service with the label exists
+func (v VCAPServices) GetService(label string) *VCAPService {
+	services, exists := v[label]
+	if !exists || len(services) == 0 {
+		return nil
+	}
+	return &services[0]
+}
+
+// HasTag checks if any service has the given tag
+func (v VCAPServices) HasTag(tag string) bool {
+	for _, serviceList := range v {
+		for _, service := range serviceList {
+			for _, t := range service.Tags {
+				if t == tag {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+// HasServiceByNamePattern checks if any service in "user-provided" matches the pattern
+// This is needed for Docker platform where services are under "user-provided" label
+// Pattern matching is case-insensitive substring matching
+func (v VCAPServices) HasServiceByNamePattern(pattern string) bool {
+	return v.GetServiceByNamePattern(pattern) != nil
+}
+
+// GetServiceByNamePattern returns the first service in "user-provided" that matches the pattern
+// Returns nil if no matching service is found
+// Pattern matching is case-insensitive substring matching (e.g., "newrelic" matches "my-newrelic-service")
+func (v VCAPServices) GetServiceByNamePattern(pattern string) *VCAPService {
+	userProvided, exists := v["user-provided"]
+	if !exists {
+		return nil
+	}
+
+	// Case-insensitive substring matching
+	patternLower := strings.ToLower(pattern)
+	for _, service := range userProvided {
+		if strings.Contains(strings.ToLower(service.Name), patternLower) {
+			return &service
+		}
+	}
+
+	return nil
+}
+
+// HasTag checks if this service has the specified tag
+func (s *VCAPService) HasTag(tag string) bool {
+	for _, t := range s.Tags {
+		if t == tag {
+			return true
+		}
+	}
+	return false
+}
+
+// ContainsIgnoreCase checks if string s contains substr (case-insensitive)
+// This is a utility function used by frameworks for flexible matching
+func ContainsIgnoreCase(s, substr string) bool {
+	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }

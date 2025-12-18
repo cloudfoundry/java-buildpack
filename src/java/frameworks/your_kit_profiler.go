@@ -16,8 +16,8 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 
@@ -41,7 +41,7 @@ func (f *YourKitProfilerFramework) Detect() (string, error) {
 	enabled := os.Getenv("JBP_CONFIG_YOUR_KIT_PROFILER")
 	if enabled != "" {
 		// Simple check - if env var contains "enabled" and "true"
-		if containsIgnoreCase(enabled, "enabled") && containsIgnoreCase(enabled, "true") {
+		if common.ContainsIgnoreCase(enabled, "enabled") && common.ContainsIgnoreCase(enabled, "true") {
 			return "YourKit Profiler", nil
 		}
 	}
@@ -123,7 +123,7 @@ func (f *YourKitProfilerFramework) Finalize() error {
 	// Get port from config (default: 10001)
 	port := "10001"
 	portConfig := os.Getenv("JBP_CONFIG_YOUR_KIT_PROFILER")
-	if portConfig != "" && containsIgnoreCase(portConfig, "port") {
+	if portConfig != "" && common.ContainsIgnoreCase(portConfig, "port") {
 		// Simple extraction (would need proper YAML parsing in production)
 		// For now, use default
 	}

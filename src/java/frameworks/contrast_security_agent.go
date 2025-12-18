@@ -1,8 +1,8 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 )
@@ -169,7 +169,7 @@ func (c *ContrastSecurityAgentFramework) findContrastService(vcapServices VCAPSe
 	// Try user-provided services with pattern matching
 	if services, ok := vcapServices["user-provided"]; ok {
 		for _, svc := range services {
-			if containsIgnoreCase(svc.Name, "contrast-security") || containsIgnoreCase(svc.Name, "contrast") {
+			if common.ContainsIgnoreCase(svc.Name, "contrast-security") || common.ContainsIgnoreCase(svc.Name, "contrast") {
 				return &svc
 			}
 		}
@@ -179,7 +179,7 @@ func (c *ContrastSecurityAgentFramework) findContrastService(vcapServices VCAPSe
 	for _, serviceList := range vcapServices {
 		for _, svc := range serviceList {
 			for _, tag := range svc.Tags {
-				if containsIgnoreCase(tag, "contrast-security") || containsIgnoreCase(tag, "contrast") {
+				if common.ContainsIgnoreCase(tag, "contrast-security") || common.ContainsIgnoreCase(tag, "contrast") {
 					return &svc
 				}
 			}

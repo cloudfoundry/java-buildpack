@@ -1,8 +1,8 @@
 package jres
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 )
@@ -197,7 +197,7 @@ func (j *JVMKillAgent) convertToRuntimePath(stagingPath string) string {
 // getHeapDumpPath checks for volume service with heap-dump tag and returns path
 func (j *JVMKillAgent) getHeapDumpPath() string {
 	// Check VCAP_SERVICES for volume service with heap-dump tag
-	vcapServices, err := GetVCAPServices(j.ctx)
+	vcapServices, err := common.GetVCAPServices()
 	if err != nil {
 		return ""
 	}
@@ -244,37 +244,4 @@ func (j *JVMKillAgent) getAppDetails() appDetails {
 		spaceName: os.Getenv("VCAP_APPLICATION_SPACE_NAME"),
 		spaceID:   os.Getenv("VCAP_APPLICATION_SPACE_ID"),
 	}
-}
-
-// GetVCAPServices is a helper function to get VCAP_SERVICES
-// We need to import this from frameworks package or duplicate here
-// For now, duplicating to avoid circular dependency
-func GetVCAPServices(ctx *common.Context) (map[string][]Service, error) {
-	vcapServices := os.Getenv("VCAP_SERVICES")
-	if vcapServices == "" {
-		return make(map[string][]Service), nil
-	}
-
-	// Note: We'd need to import encoding/json and parse here
-	// For simplicity, returning empty for now
-	// This will be properly implemented when we integrate with frameworks
-	return make(map[string][]Service), nil
-}
-
-// Service represents a Cloud Foundry service
-type Service struct {
-	Name        string                 `json:"name"`
-	Label       string                 `json:"label"`
-	Tags        []string               `json:"tags"`
-	Credentials map[string]interface{} `json:"credentials"`
-}
-
-// HasTag checks if service has a specific tag
-func (s Service) HasTag(tag string) bool {
-	for _, t := range s.Tags {
-		if t == tag {
-			return true
-		}
-	}
-	return false
 }
