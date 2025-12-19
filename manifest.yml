@@ -78,6 +78,8 @@ default_versions:
   version: 1.x
 - name: luna-security-provider
   version: 7.x
+- name: newrelic
+  version: 8.x
 
 url_to_dependency_map:
 - match: openjdk-jre-(\d+\.\d+\.\d+)
@@ -102,10 +104,10 @@ url_to_dependency_map:
   name: memory-calculator
   version: $1
 - match: new-relic-(\d+\.\d+\.\d+)
-  name: new-relic
+  name: newrelic
   version: $1
 - match: app-dynamics-(\d+\.\d+\.\d+\.\d+)
-  name: app-dynamics
+  name: appdynamics
   version: $1
 - match: dynatrace-(\d+\.\d+\.\d+)
   name: dynatrace
@@ -367,7 +369,7 @@ dependencies:
 
 # APM Agents
 # New Relic
-- name: new-relic
+- name: newrelic
   version: 8.15.0
   uri: https://download.newrelic.com/newrelic/java-agent/newrelic-agent/8.15.0/newrelic-java-8.15.0.zip
   sha256: 7be360e4ce20eadad06cc30d2917c258a97b9710725a35774537e88fada8f113
@@ -378,7 +380,7 @@ dependencies:
 # These should be configured at runtime via buildpack.yml or service bindings
 # Uncomment and update URLs when available:
 #
-# - name: app-dynamics
+# - name: appdynamics
 #   version: 24.11.0.36457
 #   uri: https://download-files.appdynamics.com/download-file/java/24.11.0.36457/AppServerAgent-24.11.0.36457.zip
 #   sha256: TBD
