@@ -74,7 +74,7 @@ func TestIntegration(t *testing.T) {
 	}
 
 	// Core container tests
-	suite.Focus("Tomcat", testTomcat(platform, fixtures))
+	suite("Tomcat", testTomcat(platform, fixtures))
 	suite("SpringBoot", testSpringBoot(platform, fixtures))
 	suite("JavaMain", testJavaMain(platform, fixtures))
 	suite("DistZip", testDistZip(platform, fixtures))

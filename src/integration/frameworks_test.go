@@ -50,7 +50,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 						Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
 
-					// Verify New Relic agent was detected and installed
+					// Verify New Relic agent was detected
 					Expect(logs.String()).To(ContainSubstring("New Relic Agent"))
 					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
 				})
@@ -91,7 +91,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 						Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
 
-					// Verify AppDynamics agent was detected and installed
+					// Verify AppDynamics agent was detected
 					Expect(logs.String()).To(ContainSubstring("AppDynamics Agent"))
 					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
 				})
