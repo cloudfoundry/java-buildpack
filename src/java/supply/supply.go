@@ -1,8 +1,8 @@
 package supply
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 
 	"github.com/cloudfoundry/java-buildpack/src/java/containers"
 	"github.com/cloudfoundry/java-buildpack/src/java/frameworks"
@@ -155,12 +155,12 @@ func (s *Supplier) installFrameworks() error {
 	s.Log.Info("Detected frameworks: %v", frameworkNames)
 
 	// Install all detected frameworks
+	// Framework installation errors are fatal and will abort the build,
+	// matching the behavior of the Ruby buildpack
 	for i, framework := range detectedFrameworks {
 		s.Log.Info("Installing framework: %s", frameworkNames[i])
 		if err := framework.Supply(); err != nil {
-			s.Log.Warning("Failed to install framework %s: %s", frameworkNames[i], err.Error())
-			// Continue with other frameworks even if one fails
-			continue
+			return fmt.Errorf("failed to install framework %s: %w", frameworkNames[i], err)
 		}
 	}
 
