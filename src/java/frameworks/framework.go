@@ -83,7 +83,8 @@ func (r *Registry) RegisterStandardFrameworks() {
 	// APM Agents (Priority 2)
 	r.Register(NewAzureApplicationInsightsAgentFramework(r.context))
 	r.Register(NewCheckmarxIASTAgentFramework(r.context))
-	r.Register(NewGoogleStackdriverDebuggerFramework(r.context))
+	// NOTE: Google Stackdriver Debugger has been removed - it's deprecated by Google
+	// and shares the same binary as Profiler. Use Profiler instead.
 	r.Register(NewGoogleStackdriverProfilerFramework(r.context))
 	r.Register(NewIntroscopeAgentFramework(r.context))
 	r.Register(NewOpenTelemetryJavaagentFramework(r.context))
