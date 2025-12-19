@@ -1,8 +1,8 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 	"strings"
@@ -85,6 +85,18 @@ func (j *JavaMemoryAssistantFramework) Finalize() error {
 
 	// Construct javaagent argument
 	javaagentArg := fmt.Sprintf("-javaagent:%s=%s", runtimeAgentPath, agentConfig)
+
+	// For Java 9+, add --add-opens to allow access to internal management APIs
+	// This is required for Java Memory Assistant to access com.sun.management.HotSpotDiagnosticMXBean
+	// See: https://github.com/SAP/java-memory-assistant#running-the-java-memory-assistant-on-java-11
+	javaVersion, err := common.GetJavaMajorVersion()
+	if err == nil && javaVersion >= 9 {
+		addOpensFlag := "--add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED"
+		javaagentArg = javaagentArg + " " + addOpensFlag
+		j.context.Log.Info("Added --add-opens flag for Java %d to allow JMA access to internal management APIs", javaVersion)
+	} else if err != nil {
+		j.context.Log.Warning("Could not determine Java version: %s (skipping --add-opens)", err.Error())
+	}
 
 	// Write to .opts file using priority 28
 	if err := writeJavaOptsFile(j.context, 28, "java_memory_assistant", javaagentArg); err != nil {
