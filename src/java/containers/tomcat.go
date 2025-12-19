@@ -113,13 +113,17 @@ func (t *TomcatContainer) Supply() error {
 	depsIdx := t.context.Stager.DepsIdx()
 	tomcatPath := fmt.Sprintf("$DEPS_DIR/%s/tomcat", depsIdx)
 
+	// Determine access logging configuration (default: disabled, matching Ruby buildpack)
+	// Can be enabled via: JBP_CONFIG_TOMCAT='{access_logging_support: {access_logging: enabled}}'
+	accessLoggingEnabled := t.isAccessLoggingEnabled()
+
 	// Add http.port system property to JAVA_OPTS so Tomcat uses $PORT for the HTTP connector
-	// Add access.logging.enabled to enable CloudFoundryAccessLoggingValve
+	// Add access.logging.enabled to control CloudFoundryAccessLoggingValve
 	// These are required for Cloud Foundry where the platform assigns a dynamic port
 	envContent := fmt.Sprintf(`export CATALINA_HOME=%s
 export CATALINA_BASE=%s
-export JAVA_OPTS="${JAVA_OPTS:+$JAVA_OPTS }-Dhttp.port=$PORT -Daccess.logging.enabled=true"
-`, tomcatPath, tomcatPath)
+export JAVA_OPTS="${JAVA_OPTS:+$JAVA_OPTS }-Dhttp.port=$PORT -Daccess.logging.enabled=%s"
+`, tomcatPath, tomcatPath, accessLoggingEnabled)
 
 	if err := t.context.Stager.WriteProfileD("tomcat.sh", envContent); err != nil {
 		t.context.Log.Warning("Could not write tomcat.sh profile.d script: %s", err.Error())
@@ -447,6 +451,39 @@ func getKeys(m map[string]string) []string {
 		keys = append(keys, k)
 	}
 	return keys
+}
+
+// isAccessLoggingEnabled checks if access logging is enabled in configuration
+// Returns: "true" or "false" as a string (for use in JAVA_OPTS)
+// Default: "false" (disabled, matching Ruby buildpack behavior)
+// Can be enabled via: JBP_CONFIG_TOMCAT='{access_logging_support: {access_logging: enabled}}'
+func (t *TomcatContainer) isAccessLoggingEnabled() string {
+	// Check for JBP_CONFIG_TOMCAT environment variable
+	configEnv := os.Getenv("JBP_CONFIG_TOMCAT")
+	if configEnv != "" {
+		t.context.Log.Debug("Checking access logging configuration in JBP_CONFIG_TOMCAT")
+
+		// Look for access_logging_support section with access_logging: enabled
+		// Format: {access_logging_support: {access_logging: enabled}}
+		if strings.Contains(configEnv, "access_logging_support") {
+			// Check if access_logging is set to enabled
+			if strings.Contains(configEnv, "access_logging") &&
+				(strings.Contains(configEnv, "enabled") || strings.Contains(configEnv, "true")) {
+				t.context.Log.Info("Access logging enabled via JBP_CONFIG_TOMCAT")
+				return "true"
+			}
+			// Check if explicitly disabled
+			if strings.Contains(configEnv, "access_logging") &&
+				(strings.Contains(configEnv, "disabled") || strings.Contains(configEnv, "false")) {
+				t.context.Log.Debug("Access logging explicitly disabled via JBP_CONFIG_TOMCAT")
+				return "false"
+			}
+		}
+	}
+
+	// Default to disabled (matches Ruby buildpack default)
+	t.context.Log.Info("Access logging disabled by default (use JBP_CONFIG_TOMCAT to enable)")
+	return "false"
 }
 
 // isExternalConfigurationEnabled checks if external configuration is enabled in config

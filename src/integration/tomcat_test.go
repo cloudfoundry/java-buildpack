@@ -39,7 +39,8 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 			it("successfully deploys and runs with Java 11 (Jakarta EE)", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION":   "11",
+						"JBP_CONFIG_TOMCAT": "{access_logging_support: {access_logging: enabled}}",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
 
@@ -68,13 +69,56 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 					ContainSubstring("Starting ProtocolHandler"),
 					ContainSubstring("HTTP/1.1"),
 				))
+			})
+		})
 
-				// Check for CloudFoundry access logging valve
-				// Access logs may take longer to flush, so we poll with Eventually
-				// The request above with matchers.Serve should have generated an access log entry
+		context("with access logging configuration", func() {
+			it("disables access logging by default (Ruby buildpack parity)", func() {
+				deployment, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"BP_JAVA_VERSION": "11",
+					}).
+					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
+
+				Expect(err).NotTo(HaveOccurred(), logs.String)
+
+				// Verify buildpack mentions access logging configuration
+				// Should see message during Tomcat supply phase
+				Expect(logs.String()).To(Or(
+					ContainSubstring("Access logging disabled by default"),
+					ContainSubstring("Access logging"),
+				))
+
+				// Application should still work without access logs
+				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
+
+				// Verify NO access logs are generated (default: disabled)
+				// Wait a bit for any potential logs to be generated
 				Eventually(func() string {
-					logs, _ := deployment.RuntimeLogs()
-					return logs
+					runtimeLogs, _ := deployment.RuntimeLogs()
+					return runtimeLogs
+				}, "5s", "1s").ShouldNot(ContainSubstring("[ACCESS]"))
+			})
+
+			it("enables access logging when configured via JBP_CONFIG_TOMCAT", func() {
+				deployment, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"BP_JAVA_VERSION":   "11",
+						"JBP_CONFIG_TOMCAT": "{access_logging_support: {access_logging: enabled}}",
+					}).
+					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
+
+				Expect(err).NotTo(HaveOccurred(), logs.String)
+
+				// Verify buildpack detected the configuration
+				Expect(logs.String()).To(ContainSubstring("Access logging enabled via JBP_CONFIG_TOMCAT"))
+
+				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
+
+				// Verify access logs ARE generated when enabled
+				Eventually(func() string {
+					runtimeLogs, _ := deployment.RuntimeLogs()
+					return runtimeLogs
 				}, "10s", "1s").Should(Or(
 					ContainSubstring("[ACCESS]"),
 					ContainSubstring("vcap_request_id:"),
