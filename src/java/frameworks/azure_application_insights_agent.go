@@ -85,7 +85,7 @@ func (a *AzureApplicationInsightsAgentFramework) Supply() error {
 	a.context.Log.BeginStep("Installing Azure Application Insights agent")
 
 	// Get dependency from manifest
-	dep, err := a.context.Manifest.DefaultVersion("azure-application-insights-agent")
+	dep, err := a.context.Manifest.DefaultVersion("azure-application-insights")
 	if err != nil {
 		return fmt.Errorf("unable to find Azure Application Insights agent in manifest: %w", err)
 	}

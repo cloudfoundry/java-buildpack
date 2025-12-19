@@ -16,9 +16,9 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 	"strings"
@@ -70,7 +70,7 @@ func (s *SkyWalkingAgentFramework) Supply() error {
 	s.context.Log.BeginStep("Installing SkyWalking agent")
 
 	// Get dependency from manifest
-	dep, err := s.context.Manifest.DefaultVersion("sky-walking-agent")
+	dep, err := s.context.Manifest.DefaultVersion("skywalking-agent")
 	if err != nil {
 		return fmt.Errorf("unable to find SkyWalking agent in manifest: %w", err)
 	}
@@ -81,8 +81,8 @@ func (s *SkyWalkingAgentFramework) Supply() error {
 		return fmt.Errorf("failed to install SkyWalking agent: %w", err)
 	}
 
-	// Find the installed agent JAR
-	jarPattern := filepath.Join(agentDir, "skywalking-agent.jar")
+	// Find the installed agent JAR (in skywalking-agent subdirectory)
+	jarPattern := filepath.Join(agentDir, "skywalking-agent", "skywalking-agent.jar")
 	if _, err := os.Stat(jarPattern); err != nil {
 		return fmt.Errorf("SkyWalking agent JAR not found after installation: %w", err)
 	}

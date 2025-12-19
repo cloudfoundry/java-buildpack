@@ -16,9 +16,9 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 	"strings"
@@ -79,7 +79,7 @@ func (s *SplunkOtelJavaAgentFramework) Supply() error {
 	s.context.Log.BeginStep("Installing Splunk OTEL Java agent")
 
 	// Get dependency from manifest
-	dep, err := s.context.Manifest.DefaultVersion("splunk-otel-java-agent")
+	dep, err := s.context.Manifest.DefaultVersion("splunk-otel-javaagent")
 	if err != nil {
 		return fmt.Errorf("unable to find Splunk OTEL Java agent in manifest: %w", err)
 	}
@@ -251,4 +251,3 @@ func (s *SplunkOtelJavaAgentFramework) getApplicationName() string {
 
 	return ""
 }
-
