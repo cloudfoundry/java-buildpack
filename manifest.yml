@@ -202,7 +202,6 @@ dependency_deprecation_dates:
 
 dependencies:
 # OpenJDK JRE versions
-# Version 8
 - name: openjdk
   version: 8.0.422
   uri: https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u422-b05/OpenJDK8U-jre_x64_linux_hotspot_8u422b05.tar.gz
@@ -210,7 +209,6 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# Version 11
 - name: openjdk
   version: 11.0.25
   uri: https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.25%2B9/OpenJDK11U-jre_x64_linux_hotspot_11.0.25_9.tar.gz
@@ -218,7 +216,6 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# Version 17
 - name: openjdk
   version: 17.0.13
   uri: https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.13%2B11/OpenJDK17U-jre_x64_linux_hotspot_17.0.13_11.tar.gz
@@ -226,7 +223,6 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# Version 21
 - name: openjdk
   version: 21.0.5
   uri: https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.5%2B11/OpenJDK21U-jre_x64_linux_hotspot_21.0.5_11.tar.gz
@@ -234,7 +230,6 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# Version 23
 - name: openjdk
   version: 23.0.1
   uri: https://github.com/adoptium/temurin23-binaries/releases/download/jdk-23.0.1%2B11/OpenJDK23U-jre_x64_linux_hotspot_23.0.1_11.tar.gz
@@ -243,9 +238,7 @@ dependencies:
   - cflinuxfs4
 
 # Zulu JRE versions (Azul Zulu OpenJDK)
-# Note: These are placeholder entries. Actual downloads require proper repository setup.
-# Repository: https://cdn.azul.com/zulu/bin
-# Version 8
+
 - name: zulu
   version: 8.0.422
   uri: https://cdn.azul.com/zulu/bin/zulu8.80.0.17-ca-jre8.0.422-linux_x64.tar.gz
@@ -253,7 +246,6 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# Version 11
 - name: zulu
   version: 11.0.25
   uri: https://cdn.azul.com/zulu/bin/zulu11.76.21-ca-jre11.0.25-linux_x64.tar.gz
@@ -261,7 +253,6 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# Version 17
 - name: zulu
   version: 17.0.13
   uri: https://cdn.azul.com/zulu/bin/zulu17.54.21-ca-jre17.0.13-linux_x64.tar.gz
@@ -271,7 +262,6 @@ dependencies:
 
 # SAP Machine JRE versions
 # Repository: https://github.com/SAP/SapMachine/releases
-# Version 11
 - name: sapmachine
   version: 11.0.25
   uri: https://github.com/SAP/SapMachine/releases/download/sapmachine-11.0.25/sapmachine-jre-11.0.25_linux-x64_bin.tar.gz
@@ -279,7 +269,6 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# Version 17
 - name: sapmachine
   version: 17.0.13
   uri: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.13/sapmachine-jre-17.0.13_linux-x64_bin.tar.gz
@@ -342,7 +331,6 @@ dependencies:
   - cflinuxfs4
 
 # NOTE: Tomcat support JARs are available from Maven Central (org.cloudfoundry group)
-# Source: https://repo1.maven.org/maven2/org/cloudfoundry/
 - name: tomcat-lifecycle-support
   version: 3.4.0
   uri: https://repo1.maven.org/maven2/org/cloudfoundry/tomcat-lifecycle-support/3.4.0.RELEASE/tomcat-lifecycle-support-3.4.0.RELEASE.jar
@@ -376,23 +364,6 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# NOTE: AppDynamics and Dynatrace require authentication or environment-specific URLs
-# These should be configured at runtime via buildpack.yml or service bindings
-# Uncomment and update URLs when available:
-#
-# - name: appdynamics
-#   version: 24.11.0.36457
-#   uri: https://download-files.appdynamics.com/download-file/java/24.11.0.36457/AppServerAgent-24.11.0.36457.zip
-#   sha256: TBD
-#   cf_stacks:
-#   - cflinuxfs4
-#
-# - name: dynatrace
-#   version: 1.303.0
-#   uri: https://your-dynatrace-environment.com/api/v1/deployment/installer/agent/unix/paas/latest
-#   sha256: TBD
-#   cf_stacks:
-#   - cflinuxfs4
 
 # Datadog Javaagent
 - name: datadog-javaagent
@@ -490,11 +461,7 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-
-# ========================================
 # JaCoCo Code Coverage Agent
-# ========================================
-# Repository: https://repo1.maven.org/maven2/org/jacoco/jacoco/
 - name: jacoco
   version: 0.8.12
   uri: https://repo1.maven.org/maven2/org/jacoco/jacoco/0.8.12/jacoco-0.8.12.zip
@@ -502,10 +469,7 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# ========================================
 # Contrast Security Agent
-# ========================================
-# Repository: https://download.run.pivotal.io/contrast-security/
 - name: contrast-security
   version: 6.23.0
   uri: https://download.run.pivotal.io/contrast-security/contrast-agent-6.23.0.jar
@@ -513,10 +477,7 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# ========================================
 # JRebel Agent
-# ========================================
-# Repository: https://dl.zeroturnaround.com/jrebel/
 - name: jrebel
   version: 2025.4.1
   uri: https://dl.zeroturnaround.com/jrebel/releases/jrebel-2025.4.1-nosetup.zip
@@ -524,10 +485,7 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# ========================================
 # YourKit Java Profiler
-# ========================================
-# Repository: https://download.yourkit.com/yjp/
 - name: your-kit-profiler
   version: 2025.9
   uri: https://download.yourkit.com/yjp/2025.9/YourKit-JavaProfiler-2025.9-b175-x64.zip
@@ -535,10 +493,7 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# ========================================
 # JProfiler Profiler
-# ========================================
-# Repository: https://download.run.pivotal.io/jprofiler/
 - name: jprofiler-profiler
   version: 14.0.5
   uri: https://download.run.pivotal.io/jprofiler/jprofiler-14.0.5.tar.gz
@@ -546,10 +501,7 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# ========================================
 # Sealights Agent
-# ========================================
-# Repository: https://agents.sealights.co/sealights-java/
 - name: sealights-agent
   version: 4.0.2570
   uri: https://agents.sealights.co/sealights-java/sealights-java-4.0.2570.zip
@@ -557,10 +509,7 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# ========================================
 # Container Security Provider
-# ========================================
-# Repository: https://java-buildpack.cloudfoundry.org/container-security-provider/
 # Note: Always enabled by default, provides container-specific security context
 - name: container-security-provider
   version: 1.20.0
@@ -569,15 +518,54 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 
-# ========================================
 # Luna Security Provider
-# ========================================
-# Repository: https://java-buildpack.cloudfoundry.org/luna-security-provider/
-# Note: Requires Luna HSM service binding in VCAP_SERVICES
-# Contains native libraries (libLunaAPI.so) and JARs for SafeNet Luna HSM integration
 - name: luna-security-provider
   version: 7.4.0
   uri: https://java-buildpack.cloudfoundry.org/luna-security-provider/LunaClient-Minimal-v7.4.0-226.x86_64.tar
   sha256: e024103719ffa99a011607942ecddfd91c5681113e6cea27f5514bc9fa172875
   cf_stacks:
   - cflinuxfs4
+
+  # ========================================
+# AppDynamics Agent
+# ========================================
+# NOTE: AppDynamics requires authentication. Agent must be downloaded from service binding.
+# The framework will attempt to download from the manifest, but will fail if not configured.
+# See docs/framework-app_dynamics_agent.md for configuration details.
+
+# ========================================
+# Dynatrace OneAgent
+# ========================================
+# NOTE: Dynatrace downloads from environment-specific API endpoints at runtime
+# Agent is downloaded via Dynatrace API using service binding credentials
+# No manifest entry needed - download is fully dynamic
+# See docs/framework-dynatrace_one_agent.md for configuration details.
+
+# ========================================
+# CA APM Introscope Agent
+# ========================================
+# NOTE: Introscope agent requires authentication. Agent must be downloaded from service binding.
+# The framework will attempt to download from the manifest, but will fail if not configured.
+# See docs/framework-introscope_agent.md for configuration details.
+
+# ========================================
+# Riverbed AppInternals Agent
+# ========================================
+# NOTE: Riverbed agent downloads from service broker at runtime (v10.20+)
+# For older versions, agent must be provided via service binding
+# See docs/framework-riverbed_appinternals_agent.md for configuration details.
+
+# ========================================
+# Takipi/OverOps Agent
+# ========================================
+# NOTE: Takipi agent downloads from takipi.com at deployment time
+# Repository: https://get.takipi.com/cloudfoundry
+# TODO: Add actual dependency entry with valid version and SHA256
+# See docs/framework-takipi_agent.md for configuration details.
+
+# ========================================
+# Checkmarx IAST Agent
+# ========================================
+# NOTE: Checkmarx agent is downloaded via API using authentication from service binding
+# The framework will download directly from the Checkmarx API at runtime
+# No manifest entry needed - download is fully dynamic
