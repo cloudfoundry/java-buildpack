@@ -141,7 +141,6 @@ For historical analysis documents from development sessions, see [`docs/archive/
   * [Debug](docs/framework-debug.md) ([Configuration](docs/framework-debug.md#configuration))
   * [Elastic APM Agent](docs/framework-elastic_apm_agent.md) ([Configuration](docs/framework-elastic_apm_agent.md#configuration))
   * [Dynatrace SaaS/Managed OneAgent](docs/framework-dynatrace_one_agent.md) ([Configuration](docs/framework-dynatrace_one_agent.md#configuration))
-  * [Google Stackdriver Debugger](docs/framework-google_stackdriver_debugger.md) ([Configuration](docs/framework-google_stackdriver_debugger.md#configuration))
   * [Google Stackdriver Profiler](docs/framework-google_stackdriver_profiler.md) ([Configuration](docs/framework-google_stackdriver_profiler.md#configuration))
   * [Introscope Agent](docs/framework-introscope_agent.md) ([Configuration](docs/framework-introscope_agent.md#configuration))
   * [JaCoCo Agent](docs/framework-jacoco_agent.md) ([Configuration](docs/framework-jacoco_agent.md#configuration))

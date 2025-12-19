@@ -93,8 +93,8 @@ Spring Boot → Tomcat → Spring Boot CLI → Groovy → Play → DistZip → J
 | Contrast Security | `contrast_security_agent.rb` | `contrast_security_agent.go` | 0 | ✅ Complete |
 | Introscope (CA APM) | `introscope_agent.rb` | `introscope_agent.go` | 0 | ✅ Complete |
 | Riverbed AppInternals | `riverbed_appinternals_agent.rb` | `riverbed_appinternals_agent.go` | 0 | ✅ Complete |
-| Google Stackdriver Debugger | `google_stackdriver_debugger.rb` | `google_stackdriver_debugger.go` | 0 | ✅ Complete |
 | Google Stackdriver Profiler | `google_stackdriver_profiler.rb` | `google_stackdriver_profiler.go` | 1 | ✅ Complete |
+| ~~Google Stackdriver Debugger~~ | `google_stackdriver_debugger.rb` | ~~`google_stackdriver_debugger.go`~~ | 0 | ❌ Removed (deprecated by Google) |
 
 #### Profiling & Code Coverage (6 frameworks) ✅
 
@@ -584,8 +584,8 @@ Recent additions (December 2025):
 
 ### A.3 Frameworks by Category
 
-**APM & Monitoring (15)**:
-New Relic, AppDynamics, Dynatrace, Azure App Insights, Datadog, Elastic APM, SkyWalking, Splunk OTEL, OpenTelemetry, Checkmarx IAST, Contrast Security, Introscope, Riverbed AppInternals, Google Stackdriver Debugger, Google Stackdriver Profiler
+**APM & Monitoring (14)**:
+New Relic, AppDynamics, Dynatrace, Azure App Insights, Datadog, Elastic APM, SkyWalking, Splunk OTEL, OpenTelemetry, Checkmarx IAST, Contrast Security, Introscope, Riverbed AppInternals, Google Stackdriver Profiler
 
 **Profiling (6)**:
 JProfiler, YourKit, JaCoCo, JRebel, AspectJ Weaver, Sealights
