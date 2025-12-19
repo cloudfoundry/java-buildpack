@@ -530,8 +530,8 @@ dependencies:
 # Repository: https://download.yourkit.com/yjp/
 - name: your-kit-profiler
   version: 2025.9
-  uri: https://download.yourkit.com/yjp/2025.9/YourKit-JavaProfiler-2025.9-b171-x64.zip
-  sha256: f5b852cb419da2ca5ddfb389a112b6ca7813ed8435627346da34b83dfeb32260
+  uri: https://download.yourkit.com/yjp/2025.9/YourKit-JavaProfiler-2025.9-b175-x64.zip
+  sha256: 3c1e7600e76067cfc446666101db515a9a247d69333b7cba5dfb05cf40e5e1d9
   cf_stacks:
   - cflinuxfs4
 
