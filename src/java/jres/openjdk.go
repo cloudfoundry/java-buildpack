@@ -163,9 +163,9 @@ func (o *OpenJDKJRE) Finalize() error {
 		"-XX:ActiveProcessorCount=$(nproc)", // CPU count
 	}
 
-	// Add -Djava.ext.dirs= (empty) for Java 8 and earlier to prevent loading unwanted extensions
-	// This is explicitly set in Ruby buildpack
-	baseOpts = append(baseOpts, "-Djava.ext.dirs=")
+	// Note: We do NOT set -Djava.ext.dirs= here because frameworks like Container Security Provider
+	// need to set their own java.ext.dirs values. The Ruby buildpack delegates this to the
+	// JavaSecurity framework which collects all extension directories from contributing frameworks.
 
 	if err := WriteJavaOpts(o.ctx, strings.Join(baseOpts, " ")); err != nil {
 		o.ctx.Log.Warning("Failed to write base JAVA_OPTS: %s", err.Error())
