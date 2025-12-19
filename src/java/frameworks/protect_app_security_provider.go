@@ -1,9 +1,10 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
+	"github.com/cloudfoundry/java-buildpack/src/java/resources"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -69,7 +70,39 @@ func (p *ProtectAppSecurityProviderFramework) Supply() error {
 		return fmt.Errorf("failed to install ProtectApp Security Provider: %w", err)
 	}
 
+	// Install default configuration from embedded resources
+	if err := p.installDefaultConfiguration(protectAppDir); err != nil {
+		p.context.Log.Warning("Could not install default ProtectApp configuration: %s", err.Error())
+	}
+
 	p.context.Log.Info("Installed ProtectApp Security Provider version %s", dep.Version)
+	return nil
+}
+
+// installDefaultConfiguration installs the default IngrianNAE.properties from embedded resources
+func (p *ProtectAppSecurityProviderFramework) installDefaultConfiguration(protectAppDir string) error {
+	configPath := filepath.Join(protectAppDir, "IngrianNAE.properties")
+
+	// Check if configuration already exists (user-provided or from external config)
+	if _, err := os.Stat(configPath); err == nil {
+		p.context.Log.Debug("IngrianNAE.properties already exists, skipping default configuration")
+		return nil
+	}
+
+	// Read embedded IngrianNAE.properties
+	embeddedPath := "protect_app_security_provider/IngrianNAE.properties"
+	configData, err := resources.GetResource(embeddedPath)
+	if err != nil {
+		return fmt.Errorf("failed to read embedded IngrianNAE.properties: %w", err)
+	}
+
+	// Write configuration file (no template processing needed)
+	if err := os.WriteFile(configPath, configData, 0644); err != nil {
+		return fmt.Errorf("failed to write IngrianNAE.properties: %w", err)
+	}
+
+	p.context.Log.Info("Installed default ProtectApp configuration")
+	p.context.Log.Debug("  - IngrianNAE.properties (connection and cache settings)")
 	return nil
 }
 

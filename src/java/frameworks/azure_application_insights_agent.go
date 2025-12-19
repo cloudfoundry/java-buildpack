@@ -16,9 +16,10 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"encoding/json"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
+	"github.com/cloudfoundry/java-buildpack/src/java/resources"
 	"os"
 	"path/filepath"
 	"strings"
@@ -95,6 +96,11 @@ func (a *AzureApplicationInsightsAgentFramework) Supply() error {
 		return fmt.Errorf("failed to install Azure Application Insights agent: %w", err)
 	}
 
+	// Install default configuration from embedded resources
+	if err := a.installDefaultConfiguration(agentDir); err != nil {
+		a.context.Log.Warning("Could not install default Azure Application Insights configuration: %s", err.Error())
+	}
+
 	// Find the installed JAR
 	jarPattern := filepath.Join(agentDir, "applicationinsights-agent-*.jar")
 	matches, err := filepath.Glob(jarPattern)
@@ -107,6 +113,33 @@ func (a *AzureApplicationInsightsAgentFramework) Supply() error {
 	a.jarPath = matches[0]
 
 	a.context.Log.Info("Azure Application Insights agent %s installed", dep.Version)
+	return nil
+}
+
+// installDefaultConfiguration installs the default AI-Agent.xml from embedded resources
+func (a *AzureApplicationInsightsAgentFramework) installDefaultConfiguration(agentDir string) error {
+	configPath := filepath.Join(agentDir, "AI-Agent.xml")
+
+	// Check if configuration already exists (user-provided or from external config)
+	if _, err := os.Stat(configPath); err == nil {
+		a.context.Log.Debug("AI-Agent.xml already exists, skipping default configuration")
+		return nil
+	}
+
+	// Read embedded AI-Agent.xml
+	embeddedPath := "azure_application_insights_agent/AI-Agent.xml"
+	configData, err := resources.GetResource(embeddedPath)
+	if err != nil {
+		return fmt.Errorf("failed to read embedded AI-Agent.xml: %w", err)
+	}
+
+	// Write configuration file (no template processing needed)
+	if err := os.WriteFile(configPath, configData, 0644); err != nil {
+		return fmt.Errorf("failed to write AI-Agent.xml: %w", err)
+	}
+
+	a.context.Log.Info("Installed default Azure Application Insights configuration")
+	a.context.Log.Debug("  - AI-Agent.xml (instrumentation settings)")
 	return nil
 }
 

@@ -1,8 +1,9 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
+	"github.com/cloudfoundry/java-buildpack/src/java/resources"
 	"os"
 	"path/filepath"
 	"strings"
@@ -72,12 +73,44 @@ func (l *LunaSecurityProviderFramework) Supply() error {
 		l.context.Log.Warning("Failed to create libLunaAPI.so symlink: %s", err.Error())
 	}
 
+	// Install default configuration from embedded resources
+	if err := l.installDefaultConfiguration(lunaDir); err != nil {
+		l.context.Log.Warning("Could not install default Luna configuration: %s", err.Error())
+	}
+
 	// Write credentials from VCAP_SERVICES
 	if err := l.writeCredentials(); err != nil {
 		return fmt.Errorf("failed to write Luna credentials: %w", err)
 	}
 
 	l.context.Log.Info("Installed Luna Security Provider version %s", dep.Version)
+	return nil
+}
+
+// installDefaultConfiguration installs the default Chrystoki.conf from embedded resources
+func (l *LunaSecurityProviderFramework) installDefaultConfiguration(lunaDir string) error {
+	configPath := filepath.Join(lunaDir, "Chrystoki.conf")
+
+	// Check if configuration already exists (user-provided or from external config)
+	if _, err := os.Stat(configPath); err == nil {
+		l.context.Log.Debug("Chrystoki.conf already exists, skipping default configuration")
+		return nil
+	}
+
+	// Read embedded Chrystoki.conf
+	embeddedPath := "luna_security_provider/Chrystoki.conf"
+	configData, err := resources.GetResource(embeddedPath)
+	if err != nil {
+		return fmt.Errorf("failed to read embedded Chrystoki.conf: %w", err)
+	}
+
+	// Write configuration file (no template processing needed)
+	if err := os.WriteFile(configPath, configData, 0644); err != nil {
+		return fmt.Errorf("failed to write Chrystoki.conf: %w", err)
+	}
+
+	l.context.Log.Info("Installed default Luna configuration")
+	l.context.Log.Debug("  - Chrystoki.conf (timeout and connection settings)")
 	return nil
 }
 

@@ -1,8 +1,10 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
+	"github.com/cloudfoundry/java-buildpack/src/java/resources"
+	"os"
 	"path/filepath"
 
 	"github.com/cloudfoundry/libbuildpack"
@@ -63,7 +65,45 @@ func (a *AppDynamicsFramework) Supply() error {
 		return fmt.Errorf("failed to install AppDynamics agent: %w", err)
 	}
 
+	// Install default configuration from embedded resources
+	if err := a.installDefaultConfiguration(agentDir); err != nil {
+		a.context.Log.Warning("Could not install default AppDynamics configuration: %s", err.Error())
+	}
+
 	a.context.Log.Info("Installed AppDynamics Agent version %s", dep.Version)
+	return nil
+}
+
+// installDefaultConfiguration installs the default app-agent-config.xml from embedded resources
+func (a *AppDynamicsFramework) installDefaultConfiguration(agentDir string) error {
+	// Create defaults/conf directory structure
+	confDir := filepath.Join(agentDir, "defaults", "conf")
+	if err := os.MkdirAll(confDir, 0755); err != nil {
+		return fmt.Errorf("failed to create conf directory: %w", err)
+	}
+
+	configPath := filepath.Join(confDir, "app-agent-config.xml")
+
+	// Check if configuration already exists (user-provided or from external config)
+	if _, err := os.Stat(configPath); err == nil {
+		a.context.Log.Debug("app-agent-config.xml already exists, skipping default configuration")
+		return nil
+	}
+
+	// Read embedded app-agent-config.xml
+	embeddedPath := "app_dynamics_agent/defaults/conf/app-agent-config.xml"
+	configData, err := resources.GetResource(embeddedPath)
+	if err != nil {
+		return fmt.Errorf("failed to read embedded app-agent-config.xml: %w", err)
+	}
+
+	// Write configuration file (no template processing needed for AppDynamics)
+	if err := os.WriteFile(configPath, configData, 0644); err != nil {
+		return fmt.Errorf("failed to write app-agent-config.xml: %w", err)
+	}
+
+	a.context.Log.Info("Installed default AppDynamics configuration")
+	a.context.Log.Debug("  - app-agent-config.xml (agent settings and filters)")
 	return nil
 }
 
