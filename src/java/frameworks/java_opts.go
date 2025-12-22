@@ -26,12 +26,13 @@ func NewJavaOptsFramework(ctx *common.Context) *JavaOptsFramework {
 	return &JavaOptsFramework{context: ctx}
 }
 
-// Detect always returns true (universal framework for JAVA_OPTS configuration)
+// Detect returns a positive result if loadConfig() finds settings (universal framework for JAVA_OPTS configuration)
 func (j *JavaOptsFramework) Detect() (string, error) {
 	// Check if there's any configuration to apply
 	config, err := j.loadConfig()
 	if err != nil {
-		j.context.Log.Debug("Failed to load java_opts config: %s", err.Error())
+		// if detect "fails" Finalize() is not called so log parse failures as warning
+		j.context.Log.Warning("Failed to load java_opts config: %s", err.Error())
 		return "", nil
 	}
 
