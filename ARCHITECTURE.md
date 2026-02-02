@@ -43,30 +43,24 @@ java-buildpack/
 ├── bin/
 │   ├── compile           # Legacy V2 API entrypoint
 │   ├── detect            # Detection phase entrypoint
+│   ├── release           # Release phase entrypoint
 │   ├── finalize          # Finalize phase entrypoint (V3)
 │   └── supply            # Supply phase entrypoint (V3)
 │
-├── config/               # Component configurations
-│   ├── components.yml    # Component registry
-│   ├── cache.yml         # Caching configuration
-│   ├── repository.yml    # Dependency repository config
-│   └── *.yml             # Individual component configs
-│
-├── resources/            # Static resources for components
-│   ├── tomcat/           # Tomcat configuration templates
-│   ├── protect_app_security_provider/
-│   └── ...
-│
+├── src/integration/      # Integraion tests
 ├── src/java/             # Go source code
+|   ├── common/           # Common libbuildpack integrations
 │   ├── containers/       # Container implementations
 │   ├── frameworks/       # Framework implementations
 │   ├── jres/             # JRE implementations
+|   ├── resources/        # Resource configuration files
 │   ├── supply/           # Supply phase orchestration
 │   │   └── cli/          # Supply CLI entrypoint
 │   └── finalize/         # Finalize phase orchestration
 │       └── cli/          # Finalize CLI entrypoint
 │
 ├── docs/                 # Documentation
+├── ci/                   # CI scripts
 └── scripts/              # Build and test scripts
 ```
 
@@ -139,7 +133,7 @@ The buildpack uses three main component types:
 
 ## Buildpack Lifecycle
 
-The buildpack follows Cloud Foundry's V3 lifecycle with three phases:
+The buildpack follows Cloud Foundry's V3 lifecycle with four phases:
 
 ### 1. Detect Phase
 
@@ -171,7 +165,7 @@ The buildpack follows Cloud Foundry's V3 lifecycle with three phases:
 
 **Flow**:
 ```
-1. Load component registry (config/components.yml)
+1. Load component registries for containers, jres and frameworks
 2. For each component type (JRE, Frameworks):
    a. Run Detect() method
    b. If detected, run Supply() method
@@ -222,6 +216,20 @@ The buildpack follows Cloud Foundry's V3 lifecycle with three phases:
 - Generates runtime configuration
 - Profile.d scripts run before app launch
 
+### 4. Release Phase
+
+**Purpose**: Assemble the start command that the Cloud Controller wil use to start 
+the running java process of the application.
+
+**Entry Point**: `bin/release`
+
+**Flow**:
+```
+Output the launch command written previouly in the finalize phase to $BUILD_DIR/tmp/java-buildpack-release-step.yml
+
+Note that the java-buildpack-release-step.yml follows strict predefined structure which is expected from CC.
+If anything except this yaml appears in release output, the staged application will fail to start.
+```
 ---
 
 ## Key Architectural Patterns
@@ -436,44 +444,6 @@ export JAVA_OPTS="${JAVA_OPTS} -Dnewrelic.config.license_key=%s"
 
 ---
 
-## Configuration System
-
-### Component Registry
-
-**File**: `config/components.yml`
-
-**Purpose**: Declare available components
-
-**Structure**:
-```yaml
-containers:
-  - "JavaBuildpack::Container::SpringBoot"
-  - "JavaBuildpack::Container::Tomcat"
-  # ...
-
-jres:
-  - "JavaBuildpack::Jre::OpenJdkJRE"
-  # ...
-
-frameworks:
-  - "JavaBuildpack::Framework::NewRelicAgent"
-  - "JavaBuildpack::Framework::JavaOpts"
-  # ...
-```
-
-### Component Configuration
-
-**Pattern**: `config/<component_name>.yml`
-
-**Purpose**: Configure individual components
-
-**Example** (`config/new_relic_agent.yml`):
-```yaml
-version: 8.7.+
-repository_root: https://download.run.pivotal.io/new-relic
-enabled: true
-```
-
 ### Environment Variable Overrides
 
 Users can override configuration via environment variables:
@@ -573,12 +543,12 @@ Scripts in `<app>/.profile.d/` run before app launch:
 ### Supply Phase Order
 
 1. **JREs** - Install Java runtime first
-2. **Frameworks** - Process in `components.yml` order
+2. **Frameworks** - Process in `registry.RegisterStandardFrameworks()` order
 
 ### Finalize Phase Order
 
 1. **JRE** - Configure Java runtime
-2. **Frameworks** - Process in `components.yml` order  
+2. **Frameworks** - Process in `registry.RegisterStandardFrameworks()` order  
 3. **Container** - Generate launch command (last)
 
 **Important**: `JavaOpts` framework must be last to allow user overrides
