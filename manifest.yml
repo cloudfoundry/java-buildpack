@@ -68,6 +68,10 @@ default_versions:
   version: 6.x
 - name: jrebel
   version: 2025.x
+- name: java-memory-assistant
+  version: 0.x
+- name: java-memory-assistant-cleanup
+  version: 0.x
 - name: your-kit-profiler
   version: 2025.x
 - name: jprofiler-profiler
@@ -158,6 +162,12 @@ url_to_dependency_map:
   version: $1
 - match: jrebel-(\d+\.\d+\.\d+)
   name: jrebel
+  version: $1
+- match: java-memory-assistant-(\d+\.\d+\.\d+)
+  name: java-memory-assistant
+  version: $1
+- match: java-memory-assistant-cleanup-(\d+\.\d+\.\d+)
+  name: java-memory-assistant-cleanup
   version: $1
 - match: YourKit-JavaProfiler-(\d+\.\d+)
   name: your-kit-profiler
@@ -521,6 +531,22 @@ dependencies:
   sha256: f5f8dc137b349350745b2dde316e2e629d924f784b7bec1ef8144ee8a9d6f1eb
   cf_stacks:
   - cflinuxfs4
+
+# Java Memory Assistant
+- name: java-memory-assistant
+  version: 0.5.0
+  uri: https://github.com/SAP/java-memory-assistant/releases/download/0.5.0/java-memory-assistant-0.5.0.jar
+  sha256: 9c5ffb4bdeec5ed6b4f1d734469500754a857d1452c3d253d89e2315addb04c5
+  cf_stacks:
+    - cflinuxfs4
+
+# Java Memory Assistant Clean-up
+- name: java-memory-assistant-cleanup
+  version: 0.1.0
+  uri: https://github.com/SAP/java-memory-assistant-tools/releases/download/0.1.0/cleanup-linux-amd64-0.1.0.zip
+  sha256: f6a0348f70981ad3b7bc84d53f5964e5f60070ef75ca1ddac9184a4ab1639f75
+  cf_stacks:
+    - cflinuxfs4
 
 # YourKit Java Profiler
 - name: your-kit-profiler
