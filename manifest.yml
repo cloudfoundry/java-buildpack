@@ -235,6 +235,15 @@ dependencies:
   source: https://bell-sw.com/pages/downloads/#jdk-21-lts
   source_sha256: e4b75fc9f3d82f09eb29b2d9a8bd2aac2e0b5cf6dd335d4632ffadc4f298f419
 
+- name: openjdk
+  version: 25.0.2
+  uri: https://download.bell-sw.com/java/25.0.2+12/bellsoft-jre25.0.2+12-linux-amd64.tar.gz
+  sha256: c6c8e022cd19be8b872b62261d75d50afe5427795a2401976631cc713c818402
+  cf_stacks:
+  - cflinuxfs4
+  source: https://bell-sw.com/pages/downloads/#jdk-25-lts
+  source_sha256: c6c8e022cd19be8b872b62261d75d50afe5427795a2401976631cc713c818402
+
 # Zulu JRE versions (Azul Zulu OpenJDK)
 
 - name: zulu
