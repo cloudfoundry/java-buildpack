@@ -75,7 +75,7 @@ func (e *ElasticApmAgentFramework) Supply() error {
 
 	err = e.constructJarPath(elasticDir)
 	if err != nil {
-		return err
+		return fmt.Errorf("elastic apm agent jar not found during supply: %w", err)
 	}
 
 	e.context.Log.Info("Elastic APM agent %s installed", dep.Version)
@@ -87,7 +87,7 @@ func (e *ElasticApmAgentFramework) Finalize() error {
 	elasticDir := filepath.Join(e.context.Stager.DepDir(), "elastic_apm_agent")
 	err := e.constructJarPath(elasticDir)
 	if err != nil {
-		return err
+		return fmt.Errorf("elastic apm agent jar not found during finalize: %w", err)
 	}
 	service := e.findElasticApmService()
 	// service should not be nil as detect has already passed
@@ -268,7 +268,7 @@ func (e *ElasticApmAgentFramework) constructJarPath(elasticDir string) error {
 		return fmt.Errorf("failed to search for Elastic APM agent JAR: %w", err)
 	}
 	if len(matches) == 0 {
-		return fmt.Errorf("Elastic APM agent JAR not found after installation in %s", elasticDir)
+		return fmt.Errorf("agent jar not found after installation in %s", elasticDir)
 	}
 	e.jarPath = matches[0]
 	return nil

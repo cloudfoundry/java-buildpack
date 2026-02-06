@@ -71,7 +71,7 @@ func (f *MariaDBJDBCFramework) Supply() error {
 	// if jar path exists after the dependency install
 	err = f.constructJarPath(mariadbDir)
 	if err != nil {
-		return fmt.Errorf("MariaDB JDBC JAR not found during supply: %w", err)
+		return fmt.Errorf("jdbc jar not found during supply: %w", err)
 	}
 
 	f.context.Log.Info("MariaDB JDBC %s installed", dep.Version)
@@ -83,7 +83,7 @@ func (f *MariaDBJDBCFramework) Finalize() error {
 	mariadbDir := filepath.Join(f.context.Stager.DepDir(), "mariadb_jdbc")
 	err := f.constructJarPath(mariadbDir)
 	if err != nil {
-		return fmt.Errorf("MariaDB JDBC JAR not found during finalize: %w", err)
+		return fmt.Errorf("jdbc jar not found during finalize: %w", err)
 	}
 
 	f.context.Log.BeginStep("Configuring MariaDB JDBC driver")

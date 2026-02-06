@@ -79,7 +79,7 @@ func (i *IntroscopeAgentFramework) Finalize() error {
 	agentDir := filepath.Join(i.context.Stager.DepDir(), "introscope_agent")
 	err := i.constructAgentPath(agentDir)
 	if err != nil {
-		return fmt.Errorf("ontroscope Agent.jar not found during finalize: %w", err)
+		return fmt.Errorf("introscope Agent.jar not found during finalize: %w", err)
 	}
 
 	i.context.Log.BeginStep("Configuring Introscope agent")
