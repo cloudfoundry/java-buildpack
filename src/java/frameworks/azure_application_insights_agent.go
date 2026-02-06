@@ -101,6 +101,8 @@ func (a *AzureApplicationInsightsAgentFramework) Supply() error {
 		a.context.Log.Warning("Could not install default Azure Application Insights configuration: %s", err.Error())
 	}
 
+	// constructJarPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
 	err = a.constructJarPath(agentDir)
 	if err != nil {
 		return fmt.Errorf("azure application insights agent not found during supply: %w", err)

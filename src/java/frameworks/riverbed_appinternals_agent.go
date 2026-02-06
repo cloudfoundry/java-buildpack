@@ -63,7 +63,8 @@ func (r *RiverbedAppInternalsAgentFramework) Supply() error {
 		return fmt.Errorf("failed to install Riverbed AppInternals agent: %w", err)
 	}
 
-	// Find the installed agent directory (contains lib/rvbd-agent.jar)
+	// constructAgentJarPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
 	err = r.constructAgentJarPath(agentDir)
 	if err != nil {
 		return fmt.Errorf("riverbed appinternals agent JAR not found during supply: %w", err)
@@ -217,6 +218,7 @@ func (r *RiverbedAppInternalsAgentFramework) getApplicationName() string {
 }
 
 func (r *RiverbedAppInternalsAgentFramework) constructAgentJarPath(agentDir string) error {
+	// Find the installed agent directory (contains lib/rvbd-agent.jar)
 	agentJarPath := filepath.Join(agentDir, "lib", "rvbd-agent.jar")
 	if _, err := os.Stat(agentJarPath); err != nil {
 		return fmt.Errorf("agent jar not found after installation: %w", err)

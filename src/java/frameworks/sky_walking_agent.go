@@ -81,6 +81,8 @@ func (s *SkyWalkingAgentFramework) Supply() error {
 		return fmt.Errorf("failed to install SkyWalking agent: %w", err)
 	}
 
+	// constructJarPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
 	err = s.constructJarPath(agentDir)
 	if err != nil {
 		return fmt.Errorf("SkyWalking agent JAR path not found during supply: %w", err)

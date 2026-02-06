@@ -96,6 +96,8 @@ func (d *DatadogJavaagentFramework) Supply() error {
 		return fmt.Errorf("failed to install Datadog Javaagent: %w", err)
 	}
 
+	// constructJarPathAndFixClassCount can be skipped here and do it only in finalize, but it can be left
+	// as a double check if jar path exists after the dependency install
 	err = d.constructJarPathAndFixClassCount(datadogDir)
 	if err != nil {
 		return fmt.Errorf("datadog Java agent JAR path not found during supply: %w", err)

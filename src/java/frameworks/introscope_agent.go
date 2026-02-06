@@ -63,6 +63,8 @@ func (i *IntroscopeAgentFramework) Supply() error {
 		return fmt.Errorf("failed to install Introscope agent: %w", err)
 	}
 
+	// constructAgentPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
 	err = i.constructAgentPath(agentDir)
 	if err != nil {
 		return fmt.Errorf("introscope Agent.jar not found during supply: %w", err)

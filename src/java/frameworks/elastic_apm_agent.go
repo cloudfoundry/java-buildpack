@@ -73,16 +73,10 @@ func (e *ElasticApmAgentFramework) Supply() error {
 		return fmt.Errorf("failed to install Elastic APM agent: %w", err)
 	}
 
-	// Find the installed JAR
-	jarPattern := filepath.Join(elasticDir, "elastic-apm-agent*.jar")
-	matches, err := filepath.Glob(jarPattern)
+	err = e.constructJarPath(elasticDir)
 	if err != nil {
-		return fmt.Errorf("failed to search for Elastic APM agent JAR: %w", err)
+		return err
 	}
-	if len(matches) == 0 {
-		return fmt.Errorf("Elastic APM agent JAR not found after installation in %s", elasticDir)
-	}
-	e.jarPath = matches[0]
 
 	e.context.Log.Info("Elastic APM agent %s installed", dep.Version)
 	return nil
@@ -90,9 +84,17 @@ func (e *ElasticApmAgentFramework) Supply() error {
 
 // Finalize configures the Elastic APM agent
 func (e *ElasticApmAgentFramework) Finalize() error {
-	if e.jarPath == "" || e.service == nil {
-		return nil
+	elasticDir := filepath.Join(e.context.Stager.DepDir(), "elastic_apm_agent")
+	err := e.constructJarPath(elasticDir)
+	if err != nil {
+		return err
 	}
+	service := e.findElasticApmService()
+	// service should not be nil as detect has already passed
+	if service == nil {
+		e.context.Log.Debug("Elastic APM Agent: No elastic-apm service found")
+	}
+	e.service = service
 
 	e.context.Log.BeginStep("Configuring Elastic APM agent")
 
@@ -256,4 +258,18 @@ func (e *ElasticApmAgentFramework) getApplicationName() string {
 	}
 
 	return ""
+}
+
+func (e *ElasticApmAgentFramework) constructJarPath(elasticDir string) error {
+	// Find the installed JAR
+	jarPattern := filepath.Join(elasticDir, "elastic-apm-agent*.jar")
+	matches, err := filepath.Glob(jarPattern)
+	if err != nil {
+		return fmt.Errorf("failed to search for Elastic APM agent JAR: %w", err)
+	}
+	if len(matches) == 0 {
+		return fmt.Errorf("Elastic APM agent JAR not found after installation in %s", elasticDir)
+	}
+	e.jarPath = matches[0]
+	return nil
 }

@@ -83,6 +83,8 @@ func (g *GoogleStackdriverProfilerFramework) Supply() error {
 		return fmt.Errorf("failed to install Google Stackdriver Profiler: %w", err)
 	}
 
+	// constructAgentPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
 	err = g.constructAgentPath(profilerDir)
 	if err != nil {
 		return fmt.Errorf("google stackdriver profiler agent not found during supply: %w", err)

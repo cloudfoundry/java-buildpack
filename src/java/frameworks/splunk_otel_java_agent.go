@@ -90,7 +90,8 @@ func (s *SplunkOtelJavaAgentFramework) Supply() error {
 		return fmt.Errorf("failed to install Splunk OTEL Java agent: %w", err)
 	}
 
-	// Find the installed agent JAR
+	// constructJarPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
 	err = s.constructJarPath(agentDir)
 	if err != nil {
 		return fmt.Errorf("splunk OTEL Java agent JAR path not found during supply: %w", err)

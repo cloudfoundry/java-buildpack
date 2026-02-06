@@ -67,7 +67,8 @@ func (f *MariaDBJDBCFramework) Supply() error {
 		return fmt.Errorf("failed to install MariaDB JDBC: %w", err)
 	}
 
-	// Find the installed JAR
+	// constructJarPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
 	err = f.constructJarPath(mariadbDir)
 	if err != nil {
 		return fmt.Errorf("MariaDB JDBC JAR not found during supply: %w", err)
