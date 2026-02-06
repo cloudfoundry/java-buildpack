@@ -101,16 +101,10 @@ func (a *AzureApplicationInsightsAgentFramework) Supply() error {
 		a.context.Log.Warning("Could not install default Azure Application Insights configuration: %s", err.Error())
 	}
 
-	// Find the installed JAR
-	jarPattern := filepath.Join(agentDir, "applicationinsights-agent-*.jar")
-	matches, err := filepath.Glob(jarPattern)
+	err = a.constructJarPath(agentDir)
 	if err != nil {
-		return fmt.Errorf("failed to search for Azure Application Insights agent JAR: %w", err)
+		return fmt.Errorf("azure application insights agent not found during supply: %w", err)
 	}
-	if len(matches) == 0 {
-		return fmt.Errorf("Azure Application Insights agent JAR not found after installation in %s", agentDir)
-	}
-	a.jarPath = matches[0]
 
 	a.context.Log.Info("Azure Application Insights agent %s installed", dep.Version)
 	return nil
@@ -145,8 +139,10 @@ func (a *AzureApplicationInsightsAgentFramework) installDefaultConfiguration(age
 
 // Finalize configures the Azure Application Insights agent
 func (a *AzureApplicationInsightsAgentFramework) Finalize() error {
-	if a.jarPath == "" {
-		return nil
+	agentDir := filepath.Join(a.context.Stager.DepDir(), "azure_application_insights_agent")
+	err := a.constructJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("azure application insights agent not found during finalize: %w", err)
 	}
 
 	a.context.Log.BeginStep("Configuring Azure Application Insights agent")
@@ -276,4 +272,18 @@ func (a *AzureApplicationInsightsAgentFramework) getApplicationName() string {
 	}
 
 	return ""
+}
+
+func (a *AzureApplicationInsightsAgentFramework) constructJarPath(agentDir string) error {
+	// Find the installed JAR
+	jarPattern := filepath.Join(agentDir, "applicationinsights-agent-*.jar")
+	matches, err := filepath.Glob(jarPattern)
+	if err != nil {
+		return fmt.Errorf("failed to search for Azure Application Insights agent JAR: %w", err)
+	}
+	if len(matches) == 0 {
+		return fmt.Errorf("agent jar not found after installation in %s", agentDir)
+	}
+	a.jarPath = matches[0]
+	return nil
 }

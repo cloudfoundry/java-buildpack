@@ -83,12 +83,10 @@ func (g *GoogleStackdriverProfilerFramework) Supply() error {
 		return fmt.Errorf("failed to install Google Stackdriver Profiler: %w", err)
 	}
 
-	// Find the installed agent (native library)
-	agentPattern := filepath.Join(profilerDir, "profiler_java_agent.so")
-	if _, err := os.Stat(agentPattern); err != nil {
-		return fmt.Errorf("Google Stackdriver Profiler agent not found after installation: %w", err)
+	err = g.constructAgentPath(profilerDir)
+	if err != nil {
+		return fmt.Errorf("google stackdriver profiler agent not found during supply: %w", err)
 	}
-	g.agentPath = agentPattern
 
 	g.context.Log.Info("Google Stackdriver Profiler %s installed", dep.Version)
 	return nil
@@ -96,8 +94,10 @@ func (g *GoogleStackdriverProfilerFramework) Supply() error {
 
 // Finalize configures the Google Stackdriver Profiler
 func (g *GoogleStackdriverProfilerFramework) Finalize() error {
-	if g.agentPath == "" {
-		return nil
+	profilerDir := filepath.Join(g.context.Stager.DepDir(), "google_stackdriver_profiler")
+	err := g.constructAgentPath(profilerDir)
+	if err != nil {
+		return fmt.Errorf("google stackdriver profiler agent not found during finalize: %w", err)
 	}
 
 	g.context.Log.BeginStep("Configuring Google Stackdriver Profiler")
@@ -232,4 +232,14 @@ func (g *GoogleStackdriverProfilerFramework) getApplicationVersion() string {
 	}
 
 	return ""
+}
+
+func (g *GoogleStackdriverProfilerFramework) constructAgentPath(profilerDir string) error {
+	// Find the installed agent (native library)
+	agentPattern := filepath.Join(profilerDir, "profiler_java_agent.so")
+	if _, err := os.Stat(agentPattern); err != nil {
+		return fmt.Errorf("agent not found after installation: %w", err)
+	}
+	g.agentPath = agentPattern
+	return nil
 }

@@ -91,15 +91,10 @@ func (s *SplunkOtelJavaAgentFramework) Supply() error {
 	}
 
 	// Find the installed agent JAR
-	jarPattern := filepath.Join(agentDir, "splunk-otel-javaagent.jar")
-	if _, err := os.Stat(jarPattern); err != nil {
-		// Try alternative name
-		jarPattern = filepath.Join(agentDir, "splunk-otel-javaagent-all.jar")
-		if _, err := os.Stat(jarPattern); err != nil {
-			return fmt.Errorf("Splunk OTEL Java agent JAR not found after installation in %s (tried both splunk-otel-javaagent.jar and splunk-otel-javaagent-all.jar)", agentDir)
-		}
+	err = s.constructJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("splunk OTEL Java agent JAR path not found during supply: %w", err)
 	}
-	s.jarPath = jarPattern
 
 	s.context.Log.Info("Splunk OTEL Java agent %s installed", dep.Version)
 	return nil
@@ -107,8 +102,10 @@ func (s *SplunkOtelJavaAgentFramework) Supply() error {
 
 // Finalize configures the Splunk OTEL Java agent
 func (s *SplunkOtelJavaAgentFramework) Finalize() error {
-	if s.jarPath == "" {
-		return nil
+	agentDir := filepath.Join(s.context.Stager.DepDir(), "splunk_otel_java_agent")
+	err := s.constructJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("splunk OTEL Java agent JAR path not found during finalize: %w", err)
 	}
 
 	s.context.Log.BeginStep("Configuring Splunk OTEL Java agent")
@@ -253,4 +250,17 @@ func (s *SplunkOtelJavaAgentFramework) getApplicationName() string {
 	}
 
 	return ""
+}
+
+func (s *SplunkOtelJavaAgentFramework) constructJarPath(agentDir string) error {
+	jarPattern := filepath.Join(agentDir, "splunk-otel-javaagent.jar")
+	if _, err := os.Stat(jarPattern); err != nil {
+		// Try alternative name
+		jarPattern = filepath.Join(agentDir, "splunk-otel-javaagent-all.jar")
+		if _, err := os.Stat(jarPattern); err != nil {
+			return fmt.Errorf("javaagent jar not found after installation in %s (tried both splunk-otel-javaagent.jar and splunk-otel-javaagent-all.jar)", agentDir)
+		}
+	}
+	s.jarPath = jarPattern
+	return nil
 }

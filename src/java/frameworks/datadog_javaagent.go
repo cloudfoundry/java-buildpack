@@ -96,21 +96,9 @@ func (d *DatadogJavaagentFramework) Supply() error {
 		return fmt.Errorf("failed to install Datadog Javaagent: %w", err)
 	}
 
-	// Find the installed JAR
-	jarPattern := filepath.Join(datadogDir, "dd-java-agent*.jar")
-	matches, err := filepath.Glob(jarPattern)
+	err = d.constructJarPathAndFixClassCount(datadogDir)
 	if err != nil {
-		return fmt.Errorf("failed to search for Datadog agent JAR: %w", err)
-	}
-	if len(matches) == 0 {
-		return fmt.Errorf("Datadog agent JAR not found after installation in %s", datadogDir)
-	}
-	d.jarPath = matches[0]
-
-	// Fix class count (critical for Datadog agent)
-	if err := d.fixClassCount(); err != nil {
-		d.context.Log.Warning("Failed to fix class count: %s", err)
-		// Continue anyway
+		return fmt.Errorf("datadog Java agent JAR path not found during supply: %w", err)
 	}
 
 	d.context.Log.Info("Datadog Java agent %s installed", dep.Version)
@@ -119,8 +107,10 @@ func (d *DatadogJavaagentFramework) Supply() error {
 
 // Finalize configures the Datadog Java agent
 func (d *DatadogJavaagentFramework) Finalize() error {
-	if d.jarPath == "" {
-		return nil
+	datadogDir := filepath.Join(d.context.Stager.DepDir(), "datadog_javaagent")
+	err := d.constructJarPathAndFixClassCount(datadogDir)
+	if err != nil {
+		return fmt.Errorf("datadog Java agent JAR path not found during finalize: %w", err)
 	}
 
 	d.context.Log.BeginStep("Configuring Datadog Java agent")
@@ -309,4 +299,24 @@ func (d *DatadogJavaagentFramework) getApplicationVersion() string {
 	}
 
 	return ""
+}
+
+func (d *DatadogJavaagentFramework) constructJarPathAndFixClassCount(datadogDir string) error {
+	// Find the installed JAR
+	jarPattern := filepath.Join(datadogDir, "dd-java-agent*.jar")
+	matches, err := filepath.Glob(jarPattern)
+	if err != nil {
+		return fmt.Errorf("failed to search for Datadog agent JAR: %w", err)
+	}
+	if len(matches) == 0 {
+		return fmt.Errorf("agent jar not found after installation in %s", datadogDir)
+	}
+	d.jarPath = matches[0]
+
+	// Fix class count (critical for Datadog agent)
+	if err := d.fixClassCount(); err != nil {
+		d.context.Log.Warning("Failed to fix class count: %s", err)
+		// Continue anyway
+	}
+	return nil
 }

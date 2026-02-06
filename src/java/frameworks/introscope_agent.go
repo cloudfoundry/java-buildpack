@@ -63,12 +63,10 @@ func (i *IntroscopeAgentFramework) Supply() error {
 		return fmt.Errorf("failed to install Introscope agent: %w", err)
 	}
 
-	// Find the installed agent JAR
-	agentPattern := filepath.Join(agentDir, "Agent.jar")
-	if _, err := os.Stat(agentPattern); err != nil {
-		return fmt.Errorf("Introscope Agent.jar not found after installation: %w", err)
+	err = i.constructAgentPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("introscope Agent.jar not found during supply: %w", err)
 	}
-	i.agentPath = agentPattern
 
 	i.context.Log.Info("Introscope agent %s installed", dep.Version)
 	return nil
@@ -76,8 +74,10 @@ func (i *IntroscopeAgentFramework) Supply() error {
 
 // Finalize configures the Introscope agent
 func (i *IntroscopeAgentFramework) Finalize() error {
-	if i.agentPath == "" {
-		return nil
+	agentDir := filepath.Join(i.context.Stager.DepDir(), "introscope_agent")
+	err := i.constructAgentPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("ontroscope Agent.jar not found during finalize: %w", err)
 	}
 
 	i.context.Log.BeginStep("Configuring Introscope agent")
@@ -240,4 +240,14 @@ func (i *IntroscopeAgentFramework) getApplicationName() string {
 	}
 
 	return ""
+}
+
+func (i *IntroscopeAgentFramework) constructAgentPath(agentDir string) error {
+	// Find the installed agent JAR
+	agentPattern := filepath.Join(agentDir, "Agent.jar")
+	if _, err := os.Stat(agentPattern); err != nil {
+		return fmt.Errorf("agent jar not found after installation: %w", err)
+	}
+	i.agentPath = agentPattern
+	return nil
 }
