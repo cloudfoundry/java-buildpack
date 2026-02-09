@@ -178,7 +178,7 @@ applications:
       - my-custom-java-buildpack
     env:
       BP_JAVA_VERSION: 17
-      JBP_CONFIG_COMPONENTS: '{"jres": ["OracleJRE"]}'
+      JBP_CONFIG_ORACLE_JRE: '{ jre: { version: 17.+ }}'
 ```
 
 **Option B: Specify buildpack on command line**
@@ -191,7 +191,7 @@ cf push my-app -b my-custom-java-buildpack
 cf set-env my-app BP_JAVA_VERSION 17
 
 # Select JRE vendor (if multiple JREs available)
-cf set-env my-app JBP_CONFIG_COMPONENTS '{"jres": ["GraalVMJRE"]}'
+cf set-env my-app JBP_CONFIG_GRAAL_VM_JRE '{ jre: { version: 21.+ }}'
 
 # Restage to apply changes
 cf restage my-app
@@ -235,7 +235,7 @@ dependencies:
 # Push application with Oracle JRE 17
 cf push my-app -b my-custom-java-buildpack
 cf set-env my-app BP_JAVA_VERSION 17
-cf set-env my-app JBP_CONFIG_COMPONENTS '{"jres": ["OracleJRE"]}'
+cf set-env my-app JBP_CONFIG_ORACLE_JRE '{ jre: { version: 17.+ }}'
 cf restage my-app
 ```
 

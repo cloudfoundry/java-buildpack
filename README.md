@@ -123,8 +123,7 @@ The buildpack supports extension through the use of Git repository forking. The 
 
 This Go-based buildpack is a migration from the original Ruby-based Cloud Foundry Java Buildpack. For comprehensive information about the migration status, component parity, and architectural differences:
 
-* **[Ruby vs Go Buildpack Comparison](comparison.md)** - Comprehensive comparison of components, features, and production readiness assessment (92.9% component parity, production-ready for 98%+ of Java applications)
-* **[Dependency Installation Comparison](ruby_vs_go_buildpack_comparison.md)** - Technical deep-dive into how dependency extraction differs between Ruby and Go implementations
+* **[Ruby vs Go Buildpack Comparison](ruby_vs_go_buildpack_comparison.md)** - Technical deep-dive into how dependency extraction differs between Ruby and Go implementations
 
 **⚠️ Important Migration Note:** The Go buildpack does **NOT** support the Ruby buildpack's `repository_root` configuration approach for custom JREs (via `JBP_CONFIG_*` environment variables). Custom JREs now require forking the buildpack and modifying `manifest.yml`. See [Custom JRE Usage](docs/custom-jre-usage.md) for details.
 
@@ -197,16 +196,6 @@ For historical analysis documents from development sessions, see [`docs/archive/
   * [GraalVM](docs/jre-graal_vm_jre.md) ([Configuration](docs/jre-graal_vm_jre.md#configuration))
   * [IBM Semeru](docs/jre-ibm_jre.md) ([Configuration](docs/jre-ibm_jre.md#configuration))
   * [Oracle](docs/jre-oracle_jre.md) ([Configuration](docs/jre-oracle_jre.md#configuration))
-* [Extending](docs/extending.md)
-  * [Application](docs/extending-application.md)
-  * [Droplet](docs/extending-droplet.md)
-  * [BaseComponent](docs/extending-base_component.md)
-  * [VersionedDependencyComponent](docs/extending-versioned_dependency_component.md)
-  * [ModularComponent](docs/extending-modular_component.md)
-  * [Caches](docs/extending-caches.md) ([Configuration](docs/extending-caches.md#configuration))
-  * [Logging](docs/extending-logging.md) ([Configuration](docs/extending-logging.md#configuration))
-  * [Repositories](docs/extending-repositories.md) ([Configuration](docs/extending-repositories.md#configuration))
-  * [Utilities](docs/extending-utilities.md)
 * [Debugging the Buildpack](docs/debugging-the-buildpack.md)
 * [Buildpack Modes](docs/buildpack-modes.md)
 * Related Projects
@@ -320,6 +309,7 @@ $ ./scripts/unit.sh
 $ BUILDPACK_FILE="$(pwd)/build/buildpack.zip" \
 ./scripts/integration.sh --platform docker --parallel true  --github-token MYTOKEN
 ```
+For detailed guidelines about setting up and running tests please check this [Testing Guide](docs/TESTING.md)
 
 [Running Cloud Foundry locally][] is useful for privately testing new features.
 
