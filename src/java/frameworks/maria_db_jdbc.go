@@ -67,16 +67,12 @@ func (f *MariaDBJDBCFramework) Supply() error {
 		return fmt.Errorf("failed to install MariaDB JDBC: %w", err)
 	}
 
-	// Find the installed JAR
-	jarPattern := filepath.Join(mariadbDir, "mariadb-jdbc-*.jar")
-	matches, err := filepath.Glob(jarPattern)
+	// constructJarPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
+	err = f.constructJarPath(mariadbDir)
 	if err != nil {
-		return fmt.Errorf("failed to search for MariaDB JDBC JAR: %w", err)
+		return fmt.Errorf("jdbc jar not found during supply: %w", err)
 	}
-	if len(matches) == 0 {
-		return fmt.Errorf("MariaDB JDBC JAR not found after installation in %s", mariadbDir)
-	}
-	f.jarPath = matches[0]
 
 	f.context.Log.Info("MariaDB JDBC %s installed", dep.Version)
 	return nil
@@ -84,9 +80,10 @@ func (f *MariaDBJDBCFramework) Supply() error {
 
 // Finalize adds the MariaDB JDBC driver to the classpath
 func (f *MariaDBJDBCFramework) Finalize() error {
-	if f.jarPath == "" {
-		// Not installed, skip
-		return nil
+	mariadbDir := filepath.Join(f.context.Stager.DepDir(), "mariadb_jdbc")
+	err := f.constructJarPath(mariadbDir)
+	if err != nil {
+		return fmt.Errorf("jdbc jar not found during finalize: %w", err)
 	}
 
 	f.context.Log.BeginStep("Configuring MariaDB JDBC driver")
@@ -191,4 +188,17 @@ func (f *MariaDBJDBCFramework) hasExistingDriver() bool {
 	}
 
 	return false
+}
+
+func (f *MariaDBJDBCFramework) constructJarPath(mariadbDir string) error {
+	jarPattern := filepath.Join(mariadbDir, "mariadb-jdbc-*.jar")
+	matches, err := filepath.Glob(jarPattern)
+	if err != nil {
+		return fmt.Errorf("failed to search for MariaDB JDBC JAR: %w", err)
+	}
+	if len(matches) == 0 {
+		return fmt.Errorf("jdbc jar not found after installation in %s", mariadbDir)
+	}
+	f.jarPath = matches[0]
+	return nil
 }

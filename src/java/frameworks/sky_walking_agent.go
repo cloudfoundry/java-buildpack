@@ -81,12 +81,12 @@ func (s *SkyWalkingAgentFramework) Supply() error {
 		return fmt.Errorf("failed to install SkyWalking agent: %w", err)
 	}
 
-	// Find the installed agent JAR (in skywalking-agent subdirectory)
-	jarPattern := filepath.Join(agentDir, "skywalking-agent", "skywalking-agent.jar")
-	if _, err := os.Stat(jarPattern); err != nil {
-		return fmt.Errorf("SkyWalking agent JAR not found after installation: %w", err)
+	// constructJarPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
+	err = s.constructJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("agent jar path not found during supply: %w", err)
 	}
-	s.jarPath = jarPattern
 
 	s.context.Log.Info("SkyWalking agent %s installed", dep.Version)
 	return nil
@@ -94,8 +94,10 @@ func (s *SkyWalkingAgentFramework) Supply() error {
 
 // Finalize configures the SkyWalking agent
 func (s *SkyWalkingAgentFramework) Finalize() error {
-	if s.jarPath == "" {
-		return nil
+	agentDir := filepath.Join(s.context.Stager.DepDir(), "sky_walking_agent")
+	err := s.constructJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("agent jar path not found during finalize: %w", err)
 	}
 
 	s.context.Log.BeginStep("Configuring SkyWalking agent")
@@ -196,4 +198,14 @@ func (s *SkyWalkingAgentFramework) getCredentials() SkyWalkingCredentials {
 	}
 
 	return creds
+}
+
+func (s *SkyWalkingAgentFramework) constructJarPath(agentDir string) error {
+	// Find the installed agent JAR (in skywalking-agent subdirectory)
+	jarPattern := filepath.Join(agentDir, "skywalking-agent", "skywalking-agent.jar")
+	if _, err := os.Stat(jarPattern); err != nil {
+		return fmt.Errorf("agent jar not found after installation: %w", err)
+	}
+	s.jarPath = jarPattern
+	return nil
 }
