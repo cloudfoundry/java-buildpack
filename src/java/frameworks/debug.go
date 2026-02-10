@@ -3,7 +3,6 @@ package frameworks
 import (
 	"fmt"
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
-	"github.com/cloudfoundry/libbuildpack"
 	"os"
 	"strconv"
 )
@@ -136,7 +135,8 @@ func (d *DebugFramework) loadConfig() (*debugConfig, error) {
 	config := os.Getenv("JBP_CONFIG_DEBUG")
 	if config != "" {
 		var jbpConfig debugConfig
-		if err := libbuildpack.NewYAML().Load(config, &jbpConfig); err != nil {
+		yamlHandler := common.YamlHandler{}
+		if err := yamlHandler.Unmarshal([]byte(config), &jbpConfig); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_DEBUG: %w", err)
 		}
 		return &jbpConfig, nil
