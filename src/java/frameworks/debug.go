@@ -125,23 +125,22 @@ type debugConfig struct {
 	Suspend bool `yaml:"suspend"`
 }
 
-var defaultConfig = debugConfig{
-	Enabled: false,
-	Port:    8000,
-	Suspend: false,
-}
-
 func (d *DebugFramework) loadConfig() (*debugConfig, error) {
+	// initialize default values
+	dbgConfig := &debugConfig{
+		Enabled: false,
+		Port:    8000,
+		Suspend: false,
+	}
 	config := os.Getenv("JBP_CONFIG_DEBUG")
 	if config != "" {
-		var jbpConfig debugConfig
 		yamlHandler := common.YamlHandler{}
-		if err := yamlHandler.Unmarshal([]byte(config), &jbpConfig); err != nil {
+		// overlay JBP_CONFIG_DEBUG over default values
+		if err := yamlHandler.Unmarshal([]byte(config), &dbgConfig); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_DEBUG: %w", err)
 		}
-		return &jbpConfig, nil
 	}
-	return &defaultConfig, nil
+	return dbgConfig, nil
 }
 
 // Helper function to check if string contains substring
