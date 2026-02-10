@@ -135,7 +135,10 @@ func (d *DebugFramework) loadConfig() (*debugConfig, error) {
 		Suspend: false,
 	}
 	config := os.Getenv("JBP_CONFIG_DEBUG")
-	validateFields(config, dbgConfig)
+	err := validateFields(config, dbgConfig)
+	if err != nil {
+		d.context.Log.Warning("Unknown user config values: %w", err)
+	}
 	if config != "" {
 		yamlHandler := common.YamlHandler{}
 		// overlay JBP_CONFIG_DEBUG over default values
@@ -146,14 +149,15 @@ func (d *DebugFramework) loadConfig() (*debugConfig, error) {
 	return dbgConfig, nil
 }
 
-func validateFields(data string, cfg interface{}) {
+func validateFields(data string, cfg *debugConfig) error {
 	dec := yaml.NewDecoder(strings.NewReader(data))
 	dec.KnownFields(true)
 
 	if err := dec.Decode(&cfg); err != nil {
-		fmt.Println("YAML error:", err)
-		return
+		return err
 	}
+
+	return nil
 }
 
 // Helper function to check if string contains substring
