@@ -3,8 +3,10 @@ package frameworks
 import (
 	"fmt"
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
+	"go.yaml.in/yaml/v3"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // DebugFramework implements Java remote debugging support
@@ -133,6 +135,7 @@ func (d *DebugFramework) loadConfig() (*debugConfig, error) {
 		Suspend: false,
 	}
 	config := os.Getenv("JBP_CONFIG_DEBUG")
+	validateFields(config, dbgConfig)
 	if config != "" {
 		yamlHandler := common.YamlHandler{}
 		// overlay JBP_CONFIG_DEBUG over default values
@@ -141,6 +144,16 @@ func (d *DebugFramework) loadConfig() (*debugConfig, error) {
 		}
 	}
 	return dbgConfig, nil
+}
+
+func validateFields(data string, cfg interface{}) {
+	dec := yaml.NewDecoder(strings.NewReader(data))
+	dec.KnownFields(true)
+
+	if err := dec.Decode(&cfg); err != nil {
+		fmt.Println("YAML error:", err)
+		return
+	}
 }
 
 // Helper function to check if string contains substring
