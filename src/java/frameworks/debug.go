@@ -3,6 +3,7 @@ package frameworks
 import (
 	"fmt"
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
+	"github.com/cloudfoundry/libbuildpack"
 	"os"
 	"strconv"
 )
@@ -21,23 +22,32 @@ func NewDebugFramework(ctx *common.Context) *DebugFramework {
 // Detect checks if debugging should be enabled
 func (d *DebugFramework) Detect() (string, error) {
 	// Check if debug is enabled in configuration
-	enabled := d.isEnabled()
-	if !enabled {
+	config, err := d.loadConfig()
+	if err != nil {
+		d.context.Log.Warning("Failed to load debug config: %s", err.Error())
+		return "", nil // Don't fail the build
+	}
+	if !config.isEnabled() {
 		return "", nil
 	}
 
-	port := d.getPort()
+	port := config.getPort()
 	return fmt.Sprintf("debug=%d", port), nil
 }
 
 // Supply performs debug setup during supply phase
 func (d *DebugFramework) Supply() error {
-	if !d.isEnabled() {
+	config, err := d.loadConfig()
+	if err != nil {
+		d.context.Log.Warning("Failed to load debug config: %s", err.Error())
+		return nil // Don't fail the build
+	}
+	if !config.isEnabled() {
 		return nil
 	}
 
-	port := d.getPort()
-	suspend := d.getSuspend()
+	port := config.getPort()
+	suspend := config.getSuspend()
 
 	suspendMsg := ""
 	if suspend {
@@ -50,12 +60,17 @@ func (d *DebugFramework) Supply() error {
 
 // Finalize adds debug options to JAVA_OPTS
 func (d *DebugFramework) Finalize() error {
-	if !d.isEnabled() {
+	config, err := d.loadConfig()
+	if err != nil {
+		d.context.Log.Warning("Failed to load debug config: %s", err.Error())
+		return nil // Don't fail the build
+	}
+	if !config.isEnabled() {
 		return nil
 	}
 
-	port := d.getPort()
-	suspend := d.getSuspend()
+	port := config.getPort()
+	suspend := config.getSuspend()
 
 	// Build JDWP agent string
 	suspendValue := "n"
@@ -74,7 +89,7 @@ func (d *DebugFramework) Finalize() error {
 }
 
 // isEnabled checks if debugging is enabled
-func (d *DebugFramework) isEnabled() bool {
+func (d *debugConfig) isEnabled() bool {
 	// Check BPL_DEBUG_ENABLED first (Cloud Native Buildpacks convention)
 	bplEnabled := os.Getenv("BPL_DEBUG_ENABLED")
 	if bplEnabled == "true" || bplEnabled == "1" {
@@ -84,28 +99,11 @@ func (d *DebugFramework) isEnabled() bool {
 		return false
 	}
 
-	// Check JBP_CONFIG_DEBUG environment variable (Java Buildpack convention)
-	config := os.Getenv("JBP_CONFIG_DEBUG")
-
-	// Parse the config to check for enabled: true
-	// For simplicity, if JBP_CONFIG_DEBUG is set and contains "enabled", check its value
-	// A more robust implementation would parse YAML
-	if config != "" {
-		// Simple check: if it contains "enabled: true" or just "true"
-		if contains(config, "enabled: true") || contains(config, "'enabled': true") {
-			return true
-		}
-		if contains(config, "enabled: false") || contains(config, "'enabled': false") {
-			return false
-		}
-	}
-
-	// Default to disabled (matches Ruby buildpack default)
-	return false
+	return d.Enabled
 }
 
 // getPort returns the debug port
-func (d *DebugFramework) getPort() int {
+func (d *debugConfig) getPort() int {
 	// Check BPL_DEBUG_PORT first (Cloud Native Buildpacks convention)
 	bplPort := os.Getenv("BPL_DEBUG_PORT")
 	if bplPort != "" {
@@ -114,35 +112,36 @@ func (d *DebugFramework) getPort() int {
 		}
 	}
 
-	// Check JBP_CONFIG_DEBUG for port setting (Java Buildpack convention)
-	config := os.Getenv("JBP_CONFIG_DEBUG")
-	if config != "" {
-		// Simple parsing - look for port: XXXX
-		// A more robust implementation would parse YAML
-		if idx := findInString(config, "port:"); idx != -1 {
-			portStr := extractNumber(config[idx:])
-			if port, err := strconv.Atoi(portStr); err == nil && port > 0 {
-				return port
-			}
-		}
-	}
-
-	// Default port
-	return 8000
+	return d.Port
 }
 
 // getSuspend returns whether to suspend on start
-func (d *DebugFramework) getSuspend() bool {
-	// Check JBP_CONFIG_DEBUG for suspend setting
+func (d *debugConfig) getSuspend() bool {
+	return d.Suspend
+}
+
+type debugConfig struct {
+	Enabled bool `yaml:"enabled"`
+	Port    int  `yaml:"port"`
+	Suspend bool `yaml:"suspend"`
+}
+
+var defaultConfig = debugConfig{
+	Enabled: false,
+	Port:    8000,
+	Suspend: false,
+}
+
+func (d *DebugFramework) loadConfig() (*debugConfig, error) {
 	config := os.Getenv("JBP_CONFIG_DEBUG")
 	if config != "" {
-		if contains(config, "suspend: true") || contains(config, "'suspend': true") {
-			return true
+		var jbpConfig debugConfig
+		if err := libbuildpack.NewYAML().Load(config, &jbpConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_DEBUG: %w", err)
 		}
+		return &jbpConfig, nil
 	}
-
-	// Default to false
-	return false
+	return &defaultConfig, nil
 }
 
 // Helper function to check if string contains substring
