@@ -137,7 +137,7 @@ func (d *DebugFramework) loadConfig() (*debugConfig, error) {
 	config := os.Getenv("JBP_CONFIG_DEBUG")
 	err := validateFields(config, dbgConfig)
 	if err != nil {
-		d.context.Log.Warning("Unknown user config values: %w", err)
+		d.context.Log.Warning("Unknown user config values: %w", err.Error())
 	}
 	if config != "" {
 		yamlHandler := common.YamlHandler{}
