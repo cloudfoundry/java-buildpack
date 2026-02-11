@@ -21,33 +21,41 @@ func NewJmxFramework(ctx *common.Context) *JmxFramework {
 // Detect checks if JMX should be enabled
 func (j *JmxFramework) Detect() (string, error) {
 	// Check if JMX is enabled in configuration
-	enabled := j.isEnabled()
-	if !enabled {
+	config, err := j.loadConfig()
+	if err != nil {
+		j.context.Log.Warning("Failed to load debug config: %s", err.Error())
+		return "", nil // Don't fail the build
+	}
+	if !config.isEnabled() {
 		return "", nil
 	}
 
-	port := j.getPort()
+	port := config.getPort()
 	return fmt.Sprintf("jmx=%d", port), nil
 }
 
 // Supply performs JMX setup during supply phase
 func (j *JmxFramework) Supply() error {
-	if !j.isEnabled() {
-		return nil
+	config, err := j.loadConfig()
+	if err != nil {
+		j.context.Log.Warning("Failed to load debug config: %s", err.Error())
+		return nil // Don't fail the build
 	}
 
-	port := j.getPort()
+	port := config.getPort()
 	j.context.Log.BeginStep("JMX enabled on port %d", port)
 	return nil
 }
 
 // Finalize adds JMX options to JAVA_OPTS via profile.d script
 func (j *JmxFramework) Finalize() error {
-	if !j.isEnabled() {
-		return nil
+	config, err := j.loadConfig()
+	if err != nil {
+		j.context.Log.Warning("Failed to load debug config: %s", err.Error())
+		return nil // Don't fail the build
 	}
 
-	port := j.getPort()
+	port := config.getPort()
 
 	// Build JMX system properties
 	jmxOpts := fmt.Sprintf(
@@ -67,8 +75,26 @@ func (j *JmxFramework) Finalize() error {
 	return nil
 }
 
+func (j *JmxFramework) loadConfig() (*jmxConfig, error) {
+	// initialize default values
+	jConfig := &jmxConfig{
+		Enabled: false,
+		Port:    5000,
+	}
+	config := os.Getenv("JBP_CONFIG_JMX")
+
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		// overlay JBP_CONFIG_JMX over default values
+		if err := yamlHandler.Unmarshal([]byte(config), &jConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_JMX: %w", err)
+		}
+	}
+	return jConfig, nil
+}
+
 // isEnabled checks if JMX is enabled
-func (j *JmxFramework) isEnabled() bool {
+func (j *jmxConfig) isEnabled() bool {
 	// Check BPL_JMX_ENABLED first (Cloud Native Buildpacks convention)
 	bplEnabled := os.Getenv("BPL_JMX_ENABLED")
 	if bplEnabled == "true" || bplEnabled == "1" {
@@ -79,24 +105,11 @@ func (j *JmxFramework) isEnabled() bool {
 	}
 
 	// Check JBP_CONFIG_JMX environment variable (Java Buildpack convention)
-	config := os.Getenv("JBP_CONFIG_JMX")
-
-	// Parse the config to check for enabled: true
-	if config != "" {
-		if contains(config, "enabled: true") || contains(config, "'enabled': true") {
-			return true
-		}
-		if contains(config, "enabled: false") || contains(config, "'enabled': false") {
-			return false
-		}
-	}
-
-	// Default to disabled (matches Ruby buildpack default)
-	return false
+	return j.Enabled
 }
 
 // getPort returns the JMX port
-func (j *JmxFramework) getPort() int {
+func (j *jmxConfig) getPort() int {
 	// Check BPL_JMX_PORT first (Cloud Native Buildpacks convention)
 	bplPort := os.Getenv("BPL_JMX_PORT")
 	if bplPort != "" {
@@ -105,18 +118,10 @@ func (j *JmxFramework) getPort() int {
 		}
 	}
 
-	// Check JBP_CONFIG_JMX for port setting (Java Buildpack convention)
-	config := os.Getenv("JBP_CONFIG_JMX")
-	if config != "" {
-		// Simple parsing - look for port: XXXX
-		if idx := findInString(config, "port:"); idx != -1 {
-			portStr := extractNumber(config[idx:])
-			if port, err := strconv.Atoi(portStr); err == nil && port > 0 {
-				return port
-			}
-		}
-	}
+	return j.Port
+}
 
-	// Default port
-	return 5000
+type jmxConfig struct {
+	Enabled bool `yaml:"enabled"`
+	Port    int  `yaml:"port"`
 }
