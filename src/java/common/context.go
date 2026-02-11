@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/cloudfoundry/libbuildpack"
-	"go.yaml.in/yaml/v3"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -198,17 +197,4 @@ func (s *VCAPService) HasTag(tag string) bool {
 // This is a utility function used by frameworks for flexible matching
 func ContainsIgnoreCase(s, substr string) bool {
 	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
-}
-
-// YamlHandler provides a thin wrapper around yaml.v3's Marshal and Unmarshal.
-type YamlHandler struct{}
-
-// Unmarshal decodes the YAML data into the provided destination.
-func (h YamlHandler) Unmarshal(data []byte, out any) error {
-	return yaml.Unmarshal(data, out)
-}
-
-// Marshal encodes the given value into YAML.
-func (h YamlHandler) Marshal(in any) ([]byte, error) {
-	return yaml.Marshal(in)
 }

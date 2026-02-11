@@ -3,10 +3,8 @@ package frameworks
 import (
 	"fmt"
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
-	"go.yaml.in/yaml/v3"
 	"os"
 	"strconv"
-	"strings"
 )
 
 // DebugFramework implements Java remote debugging support
@@ -129,35 +127,24 @@ type debugConfig struct {
 
 func (d *DebugFramework) loadConfig() (*debugConfig, error) {
 	// initialize default values
-	dbgConfig := &debugConfig{
+	dbgConfig := debugConfig{
 		Enabled: false,
 		Port:    8000,
 		Suspend: false,
 	}
 	config := os.Getenv("JBP_CONFIG_DEBUG")
-	err := validateFields(config, dbgConfig)
+	yamlHandler := common.YamlHandler{}
+	err := yamlHandler.ValidateFields([]byte(config), dbgConfig)
 	if err != nil {
 		d.context.Log.Warning("Unknown user config values: %s", err.Error())
 	}
 	if config != "" {
-		yamlHandler := common.YamlHandler{}
 		// overlay JBP_CONFIG_DEBUG over default values
 		if err := yamlHandler.Unmarshal([]byte(config), &dbgConfig); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_DEBUG: %w", err)
 		}
 	}
-	return dbgConfig, nil
-}
-
-func validateFields(data string, cfg *debugConfig) error {
-	dec := yaml.NewDecoder(strings.NewReader(data))
-	dec.KnownFields(true)
-
-	if err := dec.Decode(&cfg); err != nil {
-		return err
-	}
-
-	return nil
+	return &dbgConfig, nil
 }
 
 // Helper function to check if string contains substring
