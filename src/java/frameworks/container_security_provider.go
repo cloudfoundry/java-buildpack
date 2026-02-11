@@ -225,14 +225,14 @@ func (c *ContainerSecurityProviderFramework) loadConfig() (*cspConfig, error) {
 		TrustManagerEnabled: "",
 	}
 	config := os.Getenv("JBP_CONFIG_CONTAINER_SECURITY_PROVIDER")
-	yamlHandler := common.YamlHandler{}
-	err := yamlHandler.ValidateFields([]byte(config), &secConfig)
-	if err != nil {
-		c.context.Log.Warning("Unknown user config values: %s", err.Error())
-	}
 	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &secConfig)
+		if err != nil {
+			c.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
 		// overlay JBP_CONFIG_CONTAINER_SECURITY_PROVIDER over default values
-		if err := yamlHandler.Unmarshal([]byte(config), &secConfig); err != nil {
+		if err = yamlHandler.Unmarshal([]byte(config), &secConfig); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_CONTAINER_SECURITY_PROVIDER: %w", err)
 		}
 	}

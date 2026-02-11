@@ -89,14 +89,14 @@ func (c *ClientCertificateMapperFramework) loadConfig() (*ccmConfig, error) {
 		Enabled: true,
 	}
 	config := os.Getenv("JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER")
-	yamlHandler := common.YamlHandler{}
-	err := yamlHandler.ValidateFields([]byte(config), &mapperConfig)
-	if err != nil {
-		c.context.Log.Warning("Unknown user config values: %s", err.Error())
-	}
 	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &mapperConfig)
+		if err != nil {
+			c.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
 		// overlay JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER over default values
-		if err := yamlHandler.Unmarshal([]byte(config), &mapperConfig); err != nil {
+		if err = yamlHandler.Unmarshal([]byte(config), &mapperConfig); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER: %w", err)
 		}
 	}

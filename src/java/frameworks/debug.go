@@ -133,14 +133,14 @@ func (d *DebugFramework) loadConfig() (*debugConfig, error) {
 		Suspend: false,
 	}
 	config := os.Getenv("JBP_CONFIG_DEBUG")
-	yamlHandler := common.YamlHandler{}
-	err := yamlHandler.ValidateFields([]byte(config), &dbgConfig)
-	if err != nil {
-		d.context.Log.Warning("Unknown user config values: %s", err.Error())
-	}
 	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &dbgConfig)
+		if err != nil {
+			d.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
 		// overlay JBP_CONFIG_DEBUG over default values
-		if err := yamlHandler.Unmarshal([]byte(config), &dbgConfig); err != nil {
+		if err = yamlHandler.Unmarshal([]byte(config), &dbgConfig); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_DEBUG: %w", err)
 		}
 	}
