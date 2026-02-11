@@ -77,20 +77,23 @@ func (j *JmxFramework) Finalize() error {
 
 func (j *JmxFramework) loadConfig() (*jmxConfig, error) {
 	// initialize default values
-	jConfig := &jmxConfig{
+	jConfig := jmxConfig{
 		Enabled: false,
 		Port:    5000,
 	}
 	config := os.Getenv("JBP_CONFIG_JMX")
-
+	yamlHandler := common.YamlHandler{}
+	err := yamlHandler.ValidateFields([]byte(config), &jConfig)
+	if err != nil {
+		j.context.Log.Warning("Unknown user config values: %s", err.Error())
+	}
 	if config != "" {
-		yamlHandler := common.YamlHandler{}
 		// overlay JBP_CONFIG_JMX over default values
 		if err := yamlHandler.Unmarshal([]byte(config), &jConfig); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_JMX: %w", err)
 		}
 	}
-	return jConfig, nil
+	return &jConfig, nil
 }
 
 // isEnabled checks if JMX is enabled

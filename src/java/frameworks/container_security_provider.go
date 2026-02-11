@@ -220,20 +220,23 @@ func (c *ContainerSecurityProviderFramework) getDefaultSecurityProviders() []str
 
 func (c *ContainerSecurityProviderFramework) loadConfig() (*cspConfig, error) {
 	// initialize default values
-	secConfig := &cspConfig{
+	secConfig := cspConfig{
 		KeyManagerEnabled:   "",
 		TrustManagerEnabled: "",
 	}
 	config := os.Getenv("JBP_CONFIG_CONTAINER_SECURITY_PROVIDER")
-
+	yamlHandler := common.YamlHandler{}
+	err := yamlHandler.ValidateFields([]byte(config), &secConfig)
+	if err != nil {
+		c.context.Log.Warning("Unknown user config values: %s", err.Error())
+	}
 	if config != "" {
-		yamlHandler := common.YamlHandler{}
 		// overlay JBP_CONFIG_CONTAINER_SECURITY_PROVIDER over default values
 		if err := yamlHandler.Unmarshal([]byte(config), &secConfig); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_CONTAINER_SECURITY_PROVIDER: %w", err)
 		}
 	}
-	return secConfig, nil
+	return &secConfig, nil
 }
 
 // getKeyManagerEnabled returns the key_manager_enabled configuration value

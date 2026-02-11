@@ -451,21 +451,24 @@ func (l *LunaSecurityProviderFramework) createSymlink(target, link string) error
 
 func (l *LunaSecurityProviderFramework) loadConfig() (*lunaSecurityProviderConfig, error) {
 	// initialize default values
-	lspConfig := &lunaSecurityProviderConfig{
+	lspConfig := lunaSecurityProviderConfig{
 		HALoggingEnabled:    true,
 		LoggingEnabled:      false,
 		TCPKeepAliveEnabled: false,
 	}
 	config := os.Getenv("JBP_CONFIG_LUNA_SECURITY_PROVIDER")
-
+	yamlHandler := common.YamlHandler{}
+	err := yamlHandler.ValidateFields([]byte(config), &lspConfig)
+	if err != nil {
+		l.context.Log.Warning("Unknown user config values: %s", err.Error())
+	}
 	if config != "" {
-		yamlHandler := common.YamlHandler{}
 		// overlay JBP_CONFIG_LUNA_SECURITY_PROVIDER over default values
 		if err := yamlHandler.Unmarshal([]byte(config), &lspConfig); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_LUNA_SECURITY_PROVIDER: %w", err)
 		}
 	}
-	return lspConfig, nil
+	return &lspConfig, nil
 }
 
 // paddedIndex returns a zero-padded two-digit index string

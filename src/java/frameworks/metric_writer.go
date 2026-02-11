@@ -174,19 +174,22 @@ func (m *MetricWriterFramework) buildCFTagEnvVars() string {
 
 func (m *MetricWriterFramework) loadConfig() (*metricWriterConfig, error) {
 	// initialize default values
-	mwConfig := &metricWriterConfig{
+	mwConfig := metricWriterConfig{
 		Enabled: true,
 	}
 	config := os.Getenv("JBP_CONFIG_METRIC_WRITER")
-
+	yamlHandler := common.YamlHandler{}
+	err := yamlHandler.ValidateFields([]byte(config), &mwConfig)
+	if err != nil {
+		m.context.Log.Warning("Unknown user config values: %s", err.Error())
+	}
 	if config != "" {
-		yamlHandler := common.YamlHandler{}
 		// overlay JBP_CONFIG_METRIC_WRITER over default values
 		if err := yamlHandler.Unmarshal([]byte(config), &mwConfig); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_METRIC_WRITER: %w", err)
 		}
 	}
-	return mwConfig, nil
+	return &mwConfig, nil
 }
 
 type metricWriterConfig struct {
