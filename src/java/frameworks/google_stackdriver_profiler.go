@@ -28,6 +28,7 @@ import (
 type GoogleStackdriverProfilerFramework struct {
 	context   *common.Context
 	agentPath string
+	config    *googleStackDriveConfig
 }
 
 // NewGoogleStackdriverProfilerFramework creates a new Google Stackdriver Profiler framework instance
@@ -125,6 +126,12 @@ func (g *GoogleStackdriverProfilerFramework) Finalize() error {
 		agentArgs = append(agentArgs, fmt.Sprintf("-cprof_service=%s", appName))
 	}
 
+	err = g.loadConfig()
+	if err != nil {
+		g.context.Log.Warning("Failed to load google stack driver profiler config: %s", err.Error())
+		return nil // Do not fail the build
+	}
+
 	// Add service version
 	if appVersion := g.getApplicationVersion(); appVersion != "" {
 		agentArgs = append(agentArgs, fmt.Sprintf("-cprof_service_version=%s", appVersion))
@@ -200,6 +207,9 @@ func (g *GoogleStackdriverProfilerFramework) getCredentials() GoogleProfilerCred
 
 // getApplicationName returns the application name
 func (g *GoogleStackdriverProfilerFramework) getApplicationName() string {
+	if g.config.ApplicationName != "" {
+		return g.config.ApplicationName
+	}
 	vcapApp := os.Getenv("VCAP_APPLICATION")
 	if vcapApp == "" {
 		return ""
@@ -219,6 +229,9 @@ func (g *GoogleStackdriverProfilerFramework) getApplicationName() string {
 
 // getApplicationVersion returns the application version
 func (g *GoogleStackdriverProfilerFramework) getApplicationVersion() string {
+	if g.config.ApplicationVersion != "" {
+		return g.config.ApplicationVersion
+	}
 	vcapApp := os.Getenv("VCAP_APPLICATION")
 	if vcapApp == "" {
 		return ""
@@ -244,4 +257,31 @@ func (g *GoogleStackdriverProfilerFramework) constructAgentPath(profilerDir stri
 	}
 	g.agentPath = agentPattern
 	return nil
+}
+
+func (g *GoogleStackdriverProfilerFramework) loadConfig() error {
+	// initialize default values
+	gsdConfig := googleStackDriveConfig{
+		ApplicationName:    "",
+		ApplicationVersion: "",
+	}
+	config := os.Getenv("JBP_CONFIG_GOOGLE_STACK_DRIVE_PROFILER")
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &gsdConfig)
+		if err != nil {
+			g.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
+		// overlay JBP_CONFIG_GOOGLE_STACK_DRIVE_PROFILER over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &gsdConfig); err != nil {
+			return fmt.Errorf("failed to parse JBP_CONFIG_GOOGLE_STACK_DRIVE_PROFILER: %w", err)
+		}
+	}
+	g.config = &gsdConfig
+	return nil
+}
+
+type googleStackDriveConfig struct {
+	ApplicationName    string `yaml:"application_name"`
+	ApplicationVersion string `yaml:"application_version"`
 }
