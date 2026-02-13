@@ -121,15 +121,15 @@ func (g *GoogleStackdriverProfilerFramework) Finalize() error {
 	// Build agentpath option with arguments
 	var agentArgs []string
 
-	// Add service name (application name)
-	if appName := g.getApplicationName(); appName != "" {
-		agentArgs = append(agentArgs, fmt.Sprintf("-cprof_service=%s", appName))
-	}
-
 	err = g.loadConfig()
 	if err != nil {
 		g.context.Log.Warning("Failed to load google stack driver profiler config: %s", err.Error())
 		return nil // Do not fail the build
+	}
+
+	// Add service name (application name)
+	if appName := g.getApplicationName(); appName != "" {
+		agentArgs = append(agentArgs, fmt.Sprintf("-cprof_service=%s", appName))
 	}
 
 	// Add service version
