@@ -121,11 +121,11 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 	// Default options: port=8849, nowait (don't wait for profiler UI to connect)
 	port := config.Port
 	nowait := config.NoWait
-	
+
 	// Build agent path with options
 	var agentOptions string
 	if nowait {
-		agentOptions = fmt.Sprintf("port=%v,%v", port, nowait)
+		agentOptions = fmt.Sprintf("port=%v,nowait=%v", port, nowait)
 	} else {
 		agentOptions = fmt.Sprintf("port=%v", port)
 	}
