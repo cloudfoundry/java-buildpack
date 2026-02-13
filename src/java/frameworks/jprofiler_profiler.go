@@ -38,13 +38,13 @@ func NewJProfilerProfilerFramework(ctx *common.Context) *JProfilerProfilerFramew
 func (f *JProfilerProfilerFramework) Detect() (string, error) {
 	// JProfiler is disabled by default
 	// Check for JBP_CONFIG_JPROFILER_PROFILER='{enabled: true}'
-	enabled := os.Getenv("JBP_CONFIG_JPROFILER_PROFILER")
-	if enabled != "" {
-		// Check if "enabled:true" in the agent options
-		// We need case-insensitive check due to inconsistent casing
-		if common.ContainsIgnoreCase(enabled, "enabled") && common.ContainsIgnoreCase(enabled, "true") {
-			return "JProfiler Profiler", nil
-		}
+	config, err := f.loadConfig()
+	if err != nil {
+		f.context.Log.Warning("Failed to load jprofile profiler config: %s", err.Error())
+		return "", nil // Don't fail the build
+	}
+	if config.isEnabled() {
+		return "JProfiler Profiler", nil
 	}
 
 	return "", nil
@@ -111,24 +111,20 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 	}
 	runtimeAgentPath := filepath.Join(fmt.Sprintf("$DEPS_DIR/%s", depsIdx), relPath)
 
-	// Build agent options
-	// Default options: port=8849, nowait (don't wait for profiler UI to connect)
-	port := "8849"
-	portConfig := os.Getenv("JBP_CONFIG_JPROFILER_PROFILER")
-	if portConfig != "" && common.ContainsIgnoreCase(portConfig, "port") {
-		// Simple extraction (would need proper YAML parsing in production)
-		// For now, use default
+	config, err := f.loadConfig()
+	if err != nil {
+		f.context.Log.Warning("Failed to load jprofile profiler config: %s", err.Error())
+		return nil // Don't fail the build
 	}
 
-	// Check for nowait option (default: true)
-	nowait := "nowait"
-	if portConfig != "" && common.ContainsIgnoreCase(portConfig, "nowait") && common.ContainsIgnoreCase(portConfig, "false") {
-		nowait = ""
-	}
+	// Build agent options
+	// Default options: port=8849, nowait (don't wait for profiler UI to connect)
+	port := config.Port
+	nowait := config.NoWait
 
 	// Build agent path with options
 	var agentOptions string
-	if nowait != "" {
+	if nowait {
 		agentOptions = fmt.Sprintf("port=%s,%s", port, nowait)
 	} else {
 		agentOptions = fmt.Sprintf("port=%s", port)
@@ -142,4 +138,36 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 
 	f.context.Log.Info("JProfiler Profiler configured (priority 30)")
 	return nil
+}
+
+func (f *JProfilerProfilerFramework) loadConfig() (*jProfilerConfig, error) {
+	// initialize default values
+	jpConfig := jProfilerConfig{
+		Enabled: false,
+		NoWait:  true,
+		Port:    8849,
+	}
+	config := os.Getenv("JBP_CONFIG_JPROFILER_PROFILER")
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &jpConfig)
+		if err != nil {
+			f.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
+		// overlay JBP_CONFIG_JPROFILER_PROFILER over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &jpConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_JPROFILER_PROFILER: %w", err)
+		}
+	}
+	return &jpConfig, nil
+}
+
+type jProfilerConfig struct {
+	Enabled bool `yaml:"enabled"`
+	NoWait  bool `yaml:"nowait"`
+	Port    int  `yaml:"port"`
+}
+
+func (j *jProfilerConfig) isEnabled() bool {
+	return j.Enabled
 }

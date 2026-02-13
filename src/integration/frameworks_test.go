@@ -536,7 +536,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					deployment, logs, err := platform.Deploy.
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION":                      "11",
-							"JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER": "'{ enabled: true }'",
+							"JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER": "{ enabled: true }",
 						}).
 						Execute(name, filepath.Join(fixtures, "containers", "tomcat"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -550,7 +550,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					deployment, logs, err := platform.Deploy.
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION":                      "11",
-							"JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER": "'{ enabled: false }'",
+							"JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER": "{ enabled: false }",
 						}).
 						Execute(name, filepath.Join(fixtures, "containers", "tomcat"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -851,7 +851,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					deployment, logs, err := platform.Deploy.
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION":               "11",
-							"JBP_CONFIG_JPROFILER_PROFILER": "'{enabled: true}'",
+							"JBP_CONFIG_JPROFILER_PROFILER": "{ enabled: true }",
 						}).
 						Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
