@@ -152,7 +152,7 @@ func (j *JavaMemoryAssistantFramework) buildAgentConfig() string {
 
 	// Max dump count (default: 1)
 	maxDumpCount := config.CleanUp.MaxDumpCount
-	configParts = append(configParts, fmt.Sprintf("max-dump-count=%s", maxDumpCount))
+	configParts = append(configParts, fmt.Sprintf("max-dump-count=%v", maxDumpCount))
 
 	return strings.Join(configParts, ",")
 }
