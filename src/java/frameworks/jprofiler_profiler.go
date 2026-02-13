@@ -125,9 +125,9 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 	// Build agent path with options
 	var agentOptions string
 	if nowait {
-		agentOptions = fmt.Sprintf("port=%s,%s", port, nowait)
+		agentOptions = fmt.Sprintf("port=%v,%v", port, nowait)
 	} else {
-		agentOptions = fmt.Sprintf("port=%s", port)
+		agentOptions = fmt.Sprintf("port=%v", port)
 	}
 	javaAgent := fmt.Sprintf("-agentpath:%s=%s", runtimeAgentPath, agentOptions)
 
