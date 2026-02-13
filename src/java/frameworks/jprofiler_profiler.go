@@ -121,9 +121,7 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 	// Default options: port=8849, nowait (don't wait for profiler UI to connect)
 	port := config.Port
 	nowait := config.NoWait
-
-	opts := fmt.Sprintf("port=%v,%v", port, nowait)
-	f.context.Log.Warning("jprofile profiler %s", opts)
+	
 	// Build agent path with options
 	var agentOptions string
 	if nowait {
@@ -133,6 +131,7 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 	}
 	javaAgent := fmt.Sprintf("-agentpath:%s=%s", runtimeAgentPath, agentOptions)
 
+	f.context.Log.Info("JProfiler Profiler java agent options: %s", javaAgent)
 	// Write to .opts file using priority 30
 	if err := writeJavaOptsFile(f.context, 30, "jprofiler_profiler", javaAgent); err != nil {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
