@@ -219,6 +219,14 @@ dependencies:
   - cflinuxfs4
   source: https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.6.2/applicationinsights-agent-3.6.2.jar
   source_sha256: e81ef99fd30444f6f1da70cd31db5e47f8e6906acbbc9199cac3b390dc6cfedf
+- name: bellsoft-liberica
+  version: 25.0.2+12
+  uri: https://buildpacks.cloudfoundry.org/dependencies/bellsoft-liberica/bellsoft-liberica_25.0.2+12_linux_x64_cflinuxfs4_c6c8e022.tgz
+  sha256: c6c8e022cd19be8b872b62261d75d50afe5427795a2401976631cc713c818402
+  cf_stacks:
+  - cflinuxfs4
+  source: https://github.com/bell-sw/Liberica/releases/download/25.0.2+12/bellsoft-jre25.0.2+12-linux-amd64.tar.gz
+  source_sha256: 
 - name: cf-metrics-exporter
   version: 0.7.1
   uri: https://repo1.maven.org/maven2/io/github/rabobank/cf-metrics-exporter/0.7.1/cf-metrics-exporter-0.7.1.jar
