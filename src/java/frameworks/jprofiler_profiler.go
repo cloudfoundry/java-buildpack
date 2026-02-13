@@ -122,6 +122,8 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 	port := config.Port
 	nowait := config.NoWait
 
+	opts := fmt.Sprintf("port=%v,%v", port, nowait)
+	f.context.Log.Warning("jprofile profiler %s", opts)
 	// Build agent path with options
 	var agentOptions string
 	if nowait {
