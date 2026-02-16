@@ -215,9 +215,9 @@ func (f *SealightsAgentFramework) Finalize() error {
 	return nil
 }
 
-func (f *SealightsAgentFramework) loadConfig() (*sealightConfig, error) {
+func (f *SealightsAgentFramework) loadConfig() (*sealightsAgentConfig, error) {
 	// initialize default values
-	sConfig := sealightConfig{
+	sConfig := sealightsAgentConfig{
 		BuildSessionId: "",
 		LabId:          "",
 		Proxy:          "",
@@ -238,7 +238,7 @@ func (f *SealightsAgentFramework) loadConfig() (*sealightConfig, error) {
 	return &sConfig, nil
 }
 
-type sealightConfig struct {
+type sealightsAgentConfig struct {
 	BuildSessionId string `yaml:"build_session_id"`
 	LabId          string `yaml:"lab_id"`
 	Proxy          string `yaml:"proxy"`

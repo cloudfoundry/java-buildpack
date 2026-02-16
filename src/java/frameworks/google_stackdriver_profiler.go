@@ -265,16 +265,16 @@ func (g *GoogleStackdriverProfilerFramework) loadConfig() error {
 		ApplicationName:    "",
 		ApplicationVersion: "",
 	}
-	config := os.Getenv("JBP_CONFIG_GOOGLE_STACK_DRIVE_PROFILER")
+	config := os.Getenv("JBP_CONFIG_GOOGLE_STACKDRIVER_PROFILER")
 	if config != "" {
 		yamlHandler := common.YamlHandler{}
 		err := yamlHandler.ValidateFields([]byte(config), &gsdConfig)
 		if err != nil {
 			g.context.Log.Warning("Unknown user config values: %s", err.Error())
 		}
-		// overlay JBP_CONFIG_GOOGLE_STACK_DRIVE_PROFILER over default values
+		// overlay JBP_CONFIG_GOOGLE_STACKDRIVER_PROFILER over default values
 		if err = yamlHandler.Unmarshal([]byte(config), &gsdConfig); err != nil {
-			return fmt.Errorf("failed to parse JBP_CONFIG_GOOGLE_STACK_DRIVE_PROFILER: %w", err)
+			return fmt.Errorf("failed to parse JBP_CONFIG_GOOGLE_STACKDRIVER_PROFILER: %w", err)
 		}
 	}
 	g.config = &gsdConfig

@@ -83,9 +83,9 @@ func (c *ClientCertificateMapperFramework) Finalize() error {
 	return nil
 }
 
-func (c *ClientCertificateMapperFramework) loadConfig() (*ccmConfig, error) {
+func (c *ClientCertificateMapperFramework) loadConfig() (*clientCertificateMapperConfig, error) {
 	// initialize default values
-	mapperConfig := ccmConfig{
+	mapperConfig := clientCertificateMapperConfig{
 		Enabled: true,
 	}
 	config := os.Getenv("JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER")
@@ -103,11 +103,11 @@ func (c *ClientCertificateMapperFramework) loadConfig() (*ccmConfig, error) {
 	return &mapperConfig, nil
 }
 
-type ccmConfig struct {
+type clientCertificateMapperConfig struct {
 	Enabled bool `yaml:"enabled"`
 }
 
 // isEnabled checks if client certificate mapper is enabled
-func (c *ccmConfig) isEnabled() bool {
+func (c *clientCertificateMapperConfig) isEnabled() bool {
 	return c.Enabled
 }

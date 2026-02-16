@@ -190,9 +190,9 @@ func (j *JavaMemoryAssistantFramework) getConfigValue(config, key, defaultValue 
 	return defaultValue
 }
 
-func (j *JavaMemoryAssistantFramework) loadConfig() (*jmaConfig, error) {
+func (j *JavaMemoryAssistantFramework) loadConfig() (*javaMemoryAssistantConfig, error) {
 	// initialize default values
-	jConfig := jmaConfig{
+	jConfig := javaMemoryAssistantConfig{
 		Enabled: false,
 		Agent: Agent{
 			HeapDumpFolder: "",
@@ -234,7 +234,7 @@ func (j *JavaMemoryAssistantFramework) loadConfig() (*jmaConfig, error) {
 }
 
 // getThresholds extracts memory threshold configuration
-func (j *jmaConfig) getThresholds() map[string]string {
+func (j *javaMemoryAssistantConfig) getThresholds() map[string]string {
 	yamlHandler := common.YamlHandler{}
 	data, _ := yamlHandler.Marshal(j.Agent.Thresholds)
 
@@ -246,11 +246,11 @@ func (j *jmaConfig) getThresholds() map[string]string {
 
 // isEnabled checks if Java Memory Assistant is enabled
 // Default is false (disabled) unless explicitly enabled via configuration
-func (j *jmaConfig) isEnabled() bool {
+func (j *javaMemoryAssistantConfig) isEnabled() bool {
 	return j.Enabled
 }
 
-type jmaConfig struct {
+type javaMemoryAssistantConfig struct {
 	Enabled bool    `yaml:"enabled"`
 	Agent   Agent   `yaml:"agent"`
 	CleanUp CleanUp `yaml:"clean_up"`

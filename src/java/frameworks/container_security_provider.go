@@ -218,9 +218,9 @@ func (c *ContainerSecurityProviderFramework) getDefaultSecurityProviders() []str
 	}
 }
 
-func (c *ContainerSecurityProviderFramework) loadConfig() (*cspConfig, error) {
+func (c *ContainerSecurityProviderFramework) loadConfig() (*containerSecurityProviderConfig, error) {
 	// initialize default values
-	secConfig := cspConfig{
+	secConfig := containerSecurityProviderConfig{
 		KeyManagerEnabled:   "",
 		TrustManagerEnabled: "",
 	}
@@ -240,16 +240,16 @@ func (c *ContainerSecurityProviderFramework) loadConfig() (*cspConfig, error) {
 }
 
 // getKeyManagerEnabled returns the key_manager_enabled configuration value
-func (c *cspConfig) getKeyManagerEnabled() string {
+func (c *containerSecurityProviderConfig) getKeyManagerEnabled() string {
 	return c.KeyManagerEnabled
 }
 
 // getTrustManagerEnabled returns the trust_manager_enabled configuration value
-func (c *cspConfig) getTrustManagerEnabled() string {
+func (c *containerSecurityProviderConfig) getTrustManagerEnabled() string {
 	return c.TrustManagerEnabled
 }
 
-type cspConfig struct {
+type containerSecurityProviderConfig struct {
 	KeyManagerEnabled   string `yaml:"key_manager_enabled"`
 	TrustManagerEnabled string `yaml:"trust_manager_enabled"`
 }
