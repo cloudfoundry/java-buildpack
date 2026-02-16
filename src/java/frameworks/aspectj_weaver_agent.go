@@ -1,8 +1,8 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 	"strings"
@@ -22,6 +22,15 @@ func NewAspectJWeaverAgentFramework(ctx *common.Context) *AspectJWeaverAgentFram
 
 // Detect determines if AspectJ Weaver JAR and configuration exist in the application
 func (a *AspectJWeaverAgentFramework) Detect() (string, error) {
+	config, err := a.loadConfig()
+	if err != nil {
+		a.context.Log.Warning("Failed to load aspectj weaver agent config: %s", err.Error())
+		return "", nil // Don't fail the build
+	}
+
+	if !config.isEnabled() {
+		return "", nil
+	}
 	// Look for aspectjweaver-*.jar in the application
 	aspectjJar, err := a.findAspectJWeaver()
 	if err != nil || aspectjJar == "" {
@@ -126,4 +135,33 @@ func (a *AspectJWeaverAgentFramework) findAspectJWeaver() (string, error) {
 	}
 
 	return "", nil
+}
+
+func (a *AspectJWeaverAgentFramework) loadConfig() (*aspectjWeaverConfig, error) {
+	// initialize default values
+	ajwConfig := aspectjWeaverConfig{
+		Enabled: true,
+	}
+	config := os.Getenv("JBP_CONFIG_ASPECTJ_WEAVER_AGENT")
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &ajwConfig)
+		if err != nil {
+			a.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
+		// overlay JBP_CONFIG_ASPECTJ_WEAVER_AGENT over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &ajwConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_ASPECTJ_WEAVER_AGENT: %w", err)
+		}
+	}
+	return &ajwConfig, nil
+}
+
+type aspectjWeaverConfig struct {
+	Enabled bool `yaml:"enabled"`
+}
+
+// isEnabled checks if client certificate mapper is enabled
+func (a *aspectjWeaverConfig) isEnabled() bool {
+	return a.Enabled
 }
