@@ -23,7 +23,7 @@ func (j *JmxFramework) Detect() (string, error) {
 	// Check if JMX is enabled in configuration
 	config, err := j.loadConfig()
 	if err != nil {
-		j.context.Log.Warning("Failed to load debug config: %s", err.Error())
+		j.context.Log.Warning("Failed to load jmx config: %s", err.Error())
 		return "", nil // Don't fail the build
 	}
 	if !config.isEnabled() {
