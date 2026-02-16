@@ -147,7 +147,9 @@ func (j *JavaMemoryAssistantFramework) buildAgentConfig() string {
 	// Thresholds (default: old_gen >600MB)
 	thresholds := config.getThresholds()
 	for memArea, threshold := range thresholds {
-		configParts = append(configParts, fmt.Sprintf("-Djma.threshold.%s=%s", memArea, threshold))
+		if threshold != "" {
+			configParts = append(configParts, fmt.Sprintf("-Djma.threshold.%s=%s", memArea, threshold))
+		}
 	}
 
 	return strings.Join(configParts, " ")
