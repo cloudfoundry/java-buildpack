@@ -92,7 +92,7 @@ func (j *JavaMemoryAssistantFramework) Finalize() error {
 	agentConfig := j.buildAgentConfig()
 
 	// Construct javaagent argument
-	javaagentArg := fmt.Sprintf("-javaagent:%s=%s", runtimeAgentPath, agentConfig)
+	javaagentArg := fmt.Sprintf("-javaagent:%s %s", runtimeAgentPath, agentConfig)
 
 	// For Java 9+, add --add-opens to allow access to internal management APIs
 	// This is required for Java Memory Assistant to access com.sun.management.HotSpotDiagnosticMXBean
@@ -129,32 +129,28 @@ func (j *JavaMemoryAssistantFramework) buildAgentConfig() string {
 	// Heap dump folder (default: $PWD or volume service mount point)
 	heapDumpFolder := j.getHeapDumpFolder()
 	if heapDumpFolder != "" {
-		configParts = append(configParts, fmt.Sprintf("heap-dump-folder=%s", heapDumpFolder))
+		configParts = append(configParts, fmt.Sprintf("-Djma.heap-dump-folder=%s", heapDumpFolder))
 	}
 
 	// Check interval (default: 5s)
 	checkInterval := config.Agent.CheckInterval
-	configParts = append(configParts, fmt.Sprintf("check-interval=%s", checkInterval))
+	configParts = append(configParts, fmt.Sprintf("-Djma.check-interval=%s", checkInterval))
 
 	// Max frequency (default: 1/1m)
 	maxFrequency := config.Agent.MaxFrequency
-	configParts = append(configParts, fmt.Sprintf("max-frequency=%s", maxFrequency))
+	configParts = append(configParts, fmt.Sprintf("-Djma.max-frequency=%s", maxFrequency))
 
 	// Log level (use buildpack log level if not specified)
 	logLevel := config.Agent.LogLevel
-	configParts = append(configParts, fmt.Sprintf("log-level=%s", logLevel))
+	configParts = append(configParts, fmt.Sprintf("-Djma.log-level=%s", logLevel))
 
 	// Thresholds (default: old_gen >600MB)
 	thresholds := config.getThresholds()
 	for memArea, threshold := range thresholds {
-		configParts = append(configParts, fmt.Sprintf("threshold.%s=%s", memArea, threshold))
+		configParts = append(configParts, fmt.Sprintf("-Djma.threshold.%s=%s", memArea, threshold))
 	}
 
-	// Max dump count (default: 1)
-	maxDumpCount := config.CleanUp.MaxDumpCount
-	configParts = append(configParts, fmt.Sprintf("max-dump-count=%v", maxDumpCount))
-
-	return strings.Join(configParts, ",")
+	return strings.Join(configParts, " ")
 }
 
 // getHeapDumpFolder determines the heap dump folder location
