@@ -153,7 +153,7 @@ type jrebelConfig struct {
 	Enabled bool `yaml:"enabled"`
 }
 
-// isEnabled checks if client certificate mapper is enabled
+// isEnabled checks if jrebel is enabled
 func (j *jrebelConfig) isEnabled() bool {
 	return j.Enabled
 }

@@ -161,7 +161,7 @@ type aspectjWeaverConfig struct {
 	Enabled bool `yaml:"enabled"`
 }
 
-// isEnabled checks if client certificate mapper is enabled
+// isEnabled checks if aspectj weaver agent is enabled
 func (a *aspectjWeaverConfig) isEnabled() bool {
 	return a.Enabled
 }

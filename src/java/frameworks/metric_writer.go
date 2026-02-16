@@ -196,7 +196,7 @@ type metricWriterConfig struct {
 	Enabled bool `yaml:"enabled"`
 }
 
-// isEnabled checks if client certificate mapper is enabled
+// isEnabled checks if metric writer is enabled
 func (m *metricWriterConfig) isEnabled() bool {
 	return m.Enabled
 }
