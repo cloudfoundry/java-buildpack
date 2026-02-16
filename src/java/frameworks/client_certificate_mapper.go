@@ -25,7 +25,7 @@ func (c *ClientCertificateMapperFramework) Detect() (string, error) {
 	// Check if explicitly disabled via configuration
 	config, err := c.loadConfig()
 	if err != nil {
-		c.context.Log.Warning("Failed to load ccm config: %s", err.Error())
+		c.context.Log.Warning("Failed to load client certificate mapper config: %s", err.Error())
 		return "", nil // Don't fail the build
 	}
 

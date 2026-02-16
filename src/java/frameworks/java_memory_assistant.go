@@ -237,15 +237,13 @@ func (j *JavaMemoryAssistantFramework) loadConfig() (*jmaConfig, error) {
 
 // getThresholds extracts memory threshold configuration
 func (j *jmaConfig) getThresholds() map[string]string {
-	thresholds := make(map[string]string)
-
 	yamlHandler := common.YamlHandler{}
 	data, _ := yamlHandler.Marshal(j.Agent.Thresholds)
 
 	var result map[string]string
 	yamlHandler.Unmarshal(data, &result)
 
-	return thresholds
+	return result
 }
 
 // isEnabled checks if Java Memory Assistant is enabled

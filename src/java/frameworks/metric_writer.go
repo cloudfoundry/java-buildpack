@@ -25,7 +25,7 @@ func (m *MetricWriterFramework) Detect() (string, error) {
 	// Check if explicitly enabled via configuration
 	config, err := m.loadConfig()
 	if err != nil {
-		m.context.Log.Warning("Failed to load debug config: %s", err.Error())
+		m.context.Log.Warning("Failed to load metric writer config: %s", err.Error())
 		return "", nil // Don't fail the build
 	}
 	if !config.isEnabled() {
