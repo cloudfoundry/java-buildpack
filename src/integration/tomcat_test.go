@@ -36,6 +36,42 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 		})
 
 		context("with a simple servlet app", func() {
+
+			it("successfully deploys and runs with Java 11 (Javax)", func() {
+				deployment, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"BP_JAVA_VERSION":   "11",
+						"JBP_CONFIG_TOMCAT": "{tomcat: { version: \"9.+\" }, access_logging_support: {access_logging: enabled}}",
+					}).
+					Execute(name, filepath.Join(fixtures, "containers", "tomcat_javax"))
+
+				Expect(err).NotTo(HaveOccurred(), logs.String)
+
+				// Verify embedded Cloud Foundry-optimized Tomcat configuration was installed
+				Expect(logs.String()).To(ContainSubstring("Installing Cloud Foundry-optimized Tomcat configuration defaults"))
+				Expect(logs.String()).To(ContainSubstring("Dynamic port binding (${http.port} from $PORT)"))
+				Expect(logs.String()).To(ContainSubstring("HTTP/2 support enabled"))
+				Expect(logs.String()).To(ContainSubstring("RemoteIpValve for X-Forwarded-* headers"))
+				Expect(logs.String()).To(ContainSubstring("CloudFoundryAccessLoggingValve with vcap_request_id"))
+				Expect(logs.String()).To(ContainSubstring("Stdout logging via CloudFoundryConsoleHandler"))
+
+				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
+
+				// Verify runtime logs contain CloudFoundry-specific Tomcat features
+				// Use Eventually to wait for logs to be flushed, as they may not appear immediately
+
+				// Check for HTTP/2 support in runtime logs (Tomcat startup messages)
+				// These should appear quickly during Tomcat startup
+				Eventually(func() string {
+					logs, _ := deployment.RuntimeLogs()
+					return logs
+				}, "10s", "1s").Should(Or(
+					ContainSubstring("Http11NioProtocol"),
+					ContainSubstring("Starting ProtocolHandler"),
+					ContainSubstring("HTTP/1.1"),
+				))
+			})
+
 			it("successfully deploys and runs with Java 11 (Jakarta EE)", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
@@ -136,6 +172,33 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK 8."))
+				Expect(logs.String()).To(ContainSubstring("Tomcat 9"))
+				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
+			})
+
+			it("deploys with Java 11 (Tomcat 9 + javax.servlet)", func() {
+				deployment, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"BP_JAVA_VERSION":   "11",
+						"JBP_CONFIG_TOMCAT": "{tomcat: { version: \"9.+\" }",
+					}).
+					Execute(name, filepath.Join(fixtures, "containers", "tomcat_javax"))
+				Expect(err).NotTo(HaveOccurred(), logs.String)
+
+				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK 11."))
+				Expect(logs.String()).To(ContainSubstring("Tomcat 9"))
+				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
+			})
+
+			it("deploys with default Java (Tomcat 9 + javax.servlet)", func() {
+				deployment, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"JBP_CONFIG_TOMCAT": "{ tomcat: { version: 9.+ } }",
+					}).
+					Execute(name, filepath.Join(fixtures, "containers", "tomcat_javax"))
+				Expect(err).NotTo(HaveOccurred(), logs.String)
+
+				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK 17."))
 				Expect(logs.String()).To(ContainSubstring("Tomcat 9"))
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
