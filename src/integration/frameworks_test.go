@@ -957,7 +957,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					deployment, logs, err := platform.Deploy.
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION":                 "11",
-							"JBP_CONFIG_ASPECTJ_WEAVER_AGENT": "'{enabled: true}'",
+							"JBP_CONFIG_ASPECTJ_WEAVER_AGENT": "{ enabled: true }",
 						}).
 						Execute(name, filepath.Join(fixtures, "frameworks", "aspectj_weaver_meta_inf"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
