@@ -1,8 +1,8 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 )
@@ -23,7 +23,13 @@ func NewClientCertificateMapperFramework(ctx *common.Context) *ClientCertificate
 // Enabled by default to support mTLS scenarios, can be disabled via configuration
 func (c *ClientCertificateMapperFramework) Detect() (string, error) {
 	// Check if explicitly disabled via configuration
-	if !c.isEnabled() {
+	config, err := c.loadConfig()
+	if err != nil {
+		c.context.Log.Warning("Failed to load client certificate mapper config: %s", err.Error())
+		return "", nil // Don't fail the build
+	}
+
+	if !config.isEnabled() {
 		return "", nil
 	}
 
@@ -77,25 +83,31 @@ func (c *ClientCertificateMapperFramework) Finalize() error {
 	return nil
 }
 
-// isEnabled checks if client certificate mapper is enabled
-// Default is true (enabled) to support mTLS scenarios unless explicitly disabled
-func (c *ClientCertificateMapperFramework) isEnabled() bool {
-	// Check JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER environment variable
+func (c *ClientCertificateMapperFramework) loadConfig() (*clientCertificateMapperConfig, error) {
+	// initialize default values
+	mapperConfig := clientCertificateMapperConfig{
+		Enabled: true,
+	}
 	config := os.Getenv("JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER")
-
-	// Parse the config to check for enabled: false
-	// For simplicity, if JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER is set and contains "enabled", check its value
-	// A more robust implementation would parse YAML
 	if config != "" {
-		// Simple check: if it contains "enabled: false" or "'enabled': false"
-		if contains(config, "enabled: false") || contains(config, "'enabled': false") {
-			return false
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &mapperConfig)
+		if err != nil {
+			c.context.Log.Warning("Unknown user config values: %s", err.Error())
 		}
-		if contains(config, "enabled: true") || contains(config, "'enabled': true") {
-			return true
+		// overlay JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &mapperConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER: %w", err)
 		}
 	}
+	return &mapperConfig, nil
+}
 
-	// Default to enabled (to support mTLS client certificate authentication)
-	return true
+type clientCertificateMapperConfig struct {
+	Enabled bool `yaml:"enabled"`
+}
+
+// isEnabled checks if client certificate mapper is enabled
+func (c *clientCertificateMapperConfig) isEnabled() bool {
+	return c.Enabled
 }

@@ -95,13 +95,17 @@ func (c *ContainerSecurityProviderFramework) Finalize() error {
 		return fmt.Errorf("failed to write security properties: %w", err)
 	}
 
+	config, err := c.loadConfig()
+	if err != nil {
+		c.context.Log.Warning("Failed to load container security provider config: %s", err.Error())
+	}
 	// Add key manager and trust manager configuration if specified
-	keyManagerEnabled := c.getKeyManagerEnabled()
+	keyManagerEnabled := config.getKeyManagerEnabled()
 	if keyManagerEnabled != "" {
 		javaOpts += fmt.Sprintf(" -Dorg.cloudfoundry.security.keymanager.enabled=%s", keyManagerEnabled)
 	}
 
-	trustManagerEnabled := c.getTrustManagerEnabled()
+	trustManagerEnabled := config.getTrustManagerEnabled()
 	if trustManagerEnabled != "" {
 		javaOpts += fmt.Sprintf(" -Dorg.cloudfoundry.security.trustmanager.enabled=%s", trustManagerEnabled)
 	}
@@ -214,44 +218,38 @@ func (c *ContainerSecurityProviderFramework) getDefaultSecurityProviders() []str
 	}
 }
 
-// getKeyManagerEnabled returns the key_manager_enabled configuration value
-func (c *ContainerSecurityProviderFramework) getKeyManagerEnabled() string {
+func (c *ContainerSecurityProviderFramework) loadConfig() (*containerSecurityProviderConfig, error) {
+	// initialize default values
+	secConfig := containerSecurityProviderConfig{
+		KeyManagerEnabled:   "",
+		TrustManagerEnabled: "",
+	}
 	config := os.Getenv("JBP_CONFIG_CONTAINER_SECURITY_PROVIDER")
-	if config == "" {
-		return ""
-	}
-
-	// Parse configuration for key_manager_enabled
-	// Format: {key_manager_enabled: true} or {'key_manager_enabled': 'true'}
-	if contains(config, "key_manager_enabled") {
-		if contains(config, "true") {
-			return "true"
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &secConfig)
+		if err != nil {
+			c.context.Log.Warning("Unknown user config values: %s", err.Error())
 		}
-		if contains(config, "false") {
-			return "false"
+		// overlay JBP_CONFIG_CONTAINER_SECURITY_PROVIDER over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &secConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_CONTAINER_SECURITY_PROVIDER: %w", err)
 		}
 	}
+	return &secConfig, nil
+}
 
-	return ""
+// getKeyManagerEnabled returns the key_manager_enabled configuration value
+func (c *containerSecurityProviderConfig) getKeyManagerEnabled() string {
+	return c.KeyManagerEnabled
 }
 
 // getTrustManagerEnabled returns the trust_manager_enabled configuration value
-func (c *ContainerSecurityProviderFramework) getTrustManagerEnabled() string {
-	config := os.Getenv("JBP_CONFIG_CONTAINER_SECURITY_PROVIDER")
-	if config == "" {
-		return ""
-	}
+func (c *containerSecurityProviderConfig) getTrustManagerEnabled() string {
+	return c.TrustManagerEnabled
+}
 
-	// Parse configuration for trust_manager_enabled
-	// Format: {trust_manager_enabled: true} or {'trust_manager_enabled': 'true'}
-	if contains(config, "trust_manager_enabled") {
-		if contains(config, "true") {
-			return "true"
-		}
-		if contains(config, "false") {
-			return "false"
-		}
-	}
-
-	return ""
+type containerSecurityProviderConfig struct {
+	KeyManagerEnabled   string `yaml:"key_manager_enabled"`
+	TrustManagerEnabled string `yaml:"trust_manager_enabled"`
 }

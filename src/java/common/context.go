@@ -3,12 +3,11 @@ package common
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/cloudfoundry/libbuildpack"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // Context holds shared dependencies for buildpack components

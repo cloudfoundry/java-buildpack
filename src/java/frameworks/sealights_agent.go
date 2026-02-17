@@ -173,6 +173,30 @@ func (f *SealightsAgentFramework) Finalize() error {
 	// Build javaagent argument
 	javaAgent := fmt.Sprintf("-javaagent:%s", runtimeAgentPath)
 
+	// Add if custom config is at place
+	config, err := f.loadConfig()
+	if err != nil {
+		f.context.Log.Warning("Failed to load sealight config: %s", err.Error())
+		return nil // Don't fail the build
+	}
+	if config.BuildSessionId != "" {
+		systemProps += fmt.Sprintf(" -Dsl.buildSessionId=%s", config.BuildSessionId)
+	}
+	if slProxy, ok := service.Credentials["sl.proxy"].(string); ok && slProxy != "" {
+		systemProps += fmt.Sprintf(" -Dsl.proxy=%s", slProxy)
+	} else {
+		if config.Proxy != "" {
+			systemProps += fmt.Sprintf(" -Dsl.proxy=%s", config.Proxy)
+		}
+	}
+	if slLabId, ok := service.Credentials["sl.labId"].(string); ok && slLabId != "" {
+		systemProps += fmt.Sprintf(" -Dsl.labId=%s", slLabId)
+	} else {
+		if config.LabId != "" {
+			systemProps += fmt.Sprintf(" -Dsl.labId=%s", config.LabId)
+		}
+	}
+
 	// Combine javaagent and system properties
 	javaOpts := fmt.Sprintf("%s %s", javaAgent, systemProps)
 
@@ -189,4 +213,34 @@ func (f *SealightsAgentFramework) Finalize() error {
 
 	f.context.Log.Info("Sealights Agent configured (priority 39)")
 	return nil
+}
+
+func (f *SealightsAgentFramework) loadConfig() (*sealightsAgentConfig, error) {
+	// initialize default values
+	sConfig := sealightsAgentConfig{
+		BuildSessionId: "",
+		LabId:          "",
+		Proxy:          "",
+		AutoUpgrade:    false,
+	}
+	config := os.Getenv("JBP_CONFIG_SEALIGHTS")
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &sConfig)
+		if err != nil {
+			f.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
+		// overlay JBP_CONFIG_SEALIGHTS over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &sConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_SEALIGHTS: %w", err)
+		}
+	}
+	return &sConfig, nil
+}
+
+type sealightsAgentConfig struct {
+	BuildSessionId string `yaml:"build_session_id"`
+	LabId          string `yaml:"lab_id"`
+	Proxy          string `yaml:"proxy"`
+	AutoUpgrade    bool   `yaml:"auto_upgrade"`
 }

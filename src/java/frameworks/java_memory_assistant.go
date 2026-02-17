@@ -23,7 +23,12 @@ func NewJavaMemoryAssistantFramework(ctx *common.Context) *JavaMemoryAssistantFr
 // Must be explicitly enabled via configuration (disabled by default)
 func (j *JavaMemoryAssistantFramework) Detect() (string, error) {
 	// Check if explicitly enabled via configuration
-	if !j.isEnabled() {
+	config, err := j.loadConfig()
+	if err != nil {
+		j.context.Log.Warning("Failed to load java memory assistant config: %s", err.Error())
+		return "", nil // Don't fail the build
+	}
+	if !config.isEnabled() {
 		j.context.Log.Debug("Java Memory Assistant is disabled (default)")
 		return "", nil
 	}
@@ -87,7 +92,7 @@ func (j *JavaMemoryAssistantFramework) Finalize() error {
 	agentConfig := j.buildAgentConfig()
 
 	// Construct javaagent argument
-	javaagentArg := fmt.Sprintf("-javaagent:%s=%s", runtimeAgentPath, agentConfig)
+	javaagentArg := fmt.Sprintf("-javaagent:%s %s", runtimeAgentPath, agentConfig)
 
 	// For Java 9+, add --add-opens to allow access to internal management APIs
 	// This is required for Java Memory Assistant to access com.sun.management.HotSpotDiagnosticMXBean
@@ -115,40 +120,39 @@ func (j *JavaMemoryAssistantFramework) buildAgentConfig() string {
 	var configParts []string
 
 	// Get configuration from JBP_CONFIG_JAVA_MEMORY_ASSISTANT environment variable
-	config := os.Getenv("JBP_CONFIG_JAVA_MEMORY_ASSISTANT")
-
-	// Parse configuration (simplified - in production, parse YAML properly)
-	// For now, we'll use default values that can be overridden
+	config, err := j.loadConfig()
+	if err != nil {
+		j.context.Log.Warning("Failed to load java memory assistant config: %s", err.Error())
+		return "" // Don't fail the build
+	}
 
 	// Heap dump folder (default: $PWD or volume service mount point)
 	heapDumpFolder := j.getHeapDumpFolder()
 	if heapDumpFolder != "" {
-		configParts = append(configParts, fmt.Sprintf("heap-dump-folder=%s", heapDumpFolder))
+		configParts = append(configParts, fmt.Sprintf("-Djma.heap-dump-folder=%s", heapDumpFolder))
 	}
 
 	// Check interval (default: 5s)
-	checkInterval := j.getConfigValue(config, "check_interval", "5s")
-	configParts = append(configParts, fmt.Sprintf("check-interval=%s", checkInterval))
+	checkInterval := config.Agent.CheckInterval
+	configParts = append(configParts, fmt.Sprintf("-Djma.check-interval=%s", checkInterval))
 
 	// Max frequency (default: 1/1m)
-	maxFrequency := j.getConfigValue(config, "max_frequency", "1/1m")
-	configParts = append(configParts, fmt.Sprintf("max-frequency=%s", maxFrequency))
+	maxFrequency := config.Agent.MaxFrequency
+	configParts = append(configParts, fmt.Sprintf("-Djma.max-frequency=%s", maxFrequency))
 
 	// Log level (use buildpack log level if not specified)
-	logLevel := j.getConfigValue(config, "log_level", "INFO")
-	configParts = append(configParts, fmt.Sprintf("log-level=%s", logLevel))
+	logLevel := config.Agent.LogLevel
+	configParts = append(configParts, fmt.Sprintf("-Djma.log-level=%s", logLevel))
 
 	// Thresholds (default: old_gen >600MB)
-	thresholds := j.getThresholds(config)
+	thresholds := config.getThresholds()
 	for memArea, threshold := range thresholds {
-		configParts = append(configParts, fmt.Sprintf("threshold.%s=%s", memArea, threshold))
+		if threshold != "" {
+			configParts = append(configParts, fmt.Sprintf("-Djma.threshold.%s=%s", memArea, threshold))
+		}
 	}
 
-	// Max dump count (default: 1)
-	maxDumpCount := j.getConfigValue(config, "max_dump_count", "1")
-	configParts = append(configParts, fmt.Sprintf("max-dump-count=%s", maxDumpCount))
-
-	return strings.Join(configParts, ",")
+	return strings.Join(configParts, " ")
 }
 
 // getHeapDumpFolder determines the heap dump folder location
@@ -186,33 +190,95 @@ func (j *JavaMemoryAssistantFramework) getConfigValue(config, key, defaultValue 
 	return defaultValue
 }
 
+func (j *JavaMemoryAssistantFramework) loadConfig() (*javaMemoryAssistantConfig, error) {
+	// initialize default values
+	jConfig := javaMemoryAssistantConfig{
+		Enabled: false,
+		Agent: Agent{
+			HeapDumpFolder: "",
+			CheckInterval:  "5s",
+			MaxFrequency:   "1/1m",
+			LogLevel:       "",
+			Thresholds: Thresholds{
+				Heap:                     "",
+				CodeCache:                "",
+				Metaspace:                "",
+				PermGen:                  "",
+				CompressedClass:          "",
+				Eden:                     "",
+				Survivor:                 "",
+				OldGen:                   ">600MB",
+				TenuredGen:               "",
+				CodeHeapNonNMethods:      "",
+				CodeHeapNonProfiled:      "",
+				CodeHeapProfiledNMethods: "",
+			},
+		},
+		CleanUp: CleanUp{
+			MaxDumpCount: 1,
+		},
+	}
+	config := os.Getenv("JBP_CONFIG_JAVA_MEMORY_ASSISTANT")
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &jConfig)
+		if err != nil {
+			j.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
+		// overlay JBP_CONFIG_JAVA_MEMORY_ASSISTANT over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &jConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_JAVA_MEMORY_ASSISTANT: %w", err)
+		}
+	}
+	return &jConfig, nil
+}
+
 // getThresholds extracts memory threshold configuration
-func (j *JavaMemoryAssistantFramework) getThresholds(config string) map[string]string {
-	thresholds := make(map[string]string)
+func (j *javaMemoryAssistantConfig) getThresholds() map[string]string {
+	yamlHandler := common.YamlHandler{}
+	data, _ := yamlHandler.Marshal(j.Agent.Thresholds)
 
-	// Default threshold: old_gen >600MB
-	thresholds["old_gen"] = ">600MB"
+	var result map[string]string
+	yamlHandler.Unmarshal(data, &result)
 
-	// In production, parse thresholds from config
-	// For now, use default
-	return thresholds
+	return result
 }
 
 // isEnabled checks if Java Memory Assistant is enabled
 // Default is false (disabled) unless explicitly enabled via configuration
-func (j *JavaMemoryAssistantFramework) isEnabled() bool {
-	// Check JBP_CONFIG_JAVA_MEMORY_ASSISTANT environment variable
-	config := os.Getenv("JBP_CONFIG_JAVA_MEMORY_ASSISTANT")
+func (j *javaMemoryAssistantConfig) isEnabled() bool {
+	return j.Enabled
+}
 
-	// Parse the config to check for enabled: true
-	if config != "" {
-		// Simple check: if it contains "enabled: true" or "'enabled': true"
-		if contains(config, "enabled: true") || contains(config, "'enabled': true") ||
-			contains(config, "enabled : true") || contains(config, "'enabled' : true") {
-			return true
-		}
-	}
+type javaMemoryAssistantConfig struct {
+	Enabled bool    `yaml:"enabled"`
+	Agent   Agent   `yaml:"agent"`
+	CleanUp CleanUp `yaml:"clean_up"`
+}
 
-	// Default to disabled
-	return false
+type Agent struct {
+	HeapDumpFolder string     `yaml:"heap_dump_folder"`
+	CheckInterval  string     `yaml:"check_interval"`
+	MaxFrequency   string     `yaml:"max_frequency"`
+	LogLevel       string     `yaml:"log_level"`
+	Thresholds     Thresholds `yaml:"thresholds"`
+}
+
+type Thresholds struct {
+	Heap                     string `yaml:"heap"`
+	CodeCache                string `yaml:"code_cache"`
+	Metaspace                string `yaml:"metaspace"`
+	PermGen                  string `yaml:"perm_gen"`
+	CompressedClass          string `yaml:"compressed_class"`
+	Eden                     string `yaml:"eden"`
+	Survivor                 string `yaml:"survivor"`
+	OldGen                   string `yaml:"old_gen"`
+	TenuredGen               string `yaml:"tenured_gen"`
+	CodeHeapNonNMethods      string `yaml:"code_heap.non_nmethods"`
+	CodeHeapNonProfiled      string `yaml:"code_heap.non_profiled_nmethods"`
+	CodeHeapProfiledNMethods string `yaml:"code_heap.profiled_nmethods"`
+}
+
+type CleanUp struct {
+	MaxDumpCount int `yaml:"max_dump_count"`
 }
