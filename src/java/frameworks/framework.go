@@ -101,7 +101,6 @@ func (r *Registry) RegisterStandardFrameworks() {
 	r.Register(NewJRebelAgentFramework(r.context))
 	r.Register(NewContrastSecurityAgentFramework(r.context))
 	r.Register(NewAspectJWeaverAgentFramework(r.context))
-	r.Register(NewTakipiAgentFramework(r.context))
 	r.Register(NewYourKitProfilerFramework(r.context))
 	r.Register(NewJProfilerProfilerFramework(r.context))
 	r.Register(NewSealightsAgentFramework(r.context))

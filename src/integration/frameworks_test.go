@@ -908,27 +908,6 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 				})
 			})
 
-			context("with Takipi service binding", func() {
-				it("detects and installs Takipi agent", func() {
-					t.Skip("SKIPPED: Takipi agent requires valid download URL and SHA256 in manifest.yml")
-					deployment, logs, err := platform.Deploy.
-						WithServices(map[string]switchblade.Service{
-							"takipi": {
-								"secret_key": "test-secret-key",
-								"server":     "https://takipi.example.com",
-							},
-						}).
-						WithEnv(map[string]string{
-							"BP_JAVA_VERSION": "11",
-						}).
-						Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
-					Expect(err).NotTo(HaveOccurred(), logs.String)
-
-					Expect(logs.String()).To(ContainSubstring("Takipi"))
-					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
-				})
-			})
-
 			context("with Introscope service binding", func() {
 				it("detects and installs Introscope agent", func() {
 					t.Skip("SKIPPED: Introscope agent requires authentication and is not in manifest.yml")
@@ -978,7 +957,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					deployment, logs, err := platform.Deploy.
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION":                 "11",
-							"JBP_CONFIG_ASPECTJ_WEAVER_AGENT": "'{enabled: true}'",
+							"JBP_CONFIG_ASPECTJ_WEAVER_AGENT": "{ enabled: true }",
 						}).
 						Execute(name, filepath.Join(fixtures, "frameworks", "aspectj_weaver_meta_inf"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
