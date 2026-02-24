@@ -151,8 +151,7 @@ func (f *Finalizer) finalizeJRE() error {
 	f.Log.BeginStep("Finalizing JRE: %s", f.JREName)
 
 	if err := f.JRE.Finalize(); err != nil {
-		f.Log.Warning("Failed to finalize JRE: %s (continuing)", err.Error())
-		// Don't fail the build if JRE finalization fails
+		return fmt.Errorf("failed to finalize JRE %s: %w", f.JREName, err)
 	}
 
 	f.Log.Info("JRE finalization complete")

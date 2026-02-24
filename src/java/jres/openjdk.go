@@ -74,6 +74,29 @@ func (o *OpenJDKJRE) Supply() error {
 		o.ctx.Log.Debug("Created profile.d script: java.sh")
 	}
 
+	// Write JAVA_HOME to the deps env dir so subsequent buildpacks can use it.
+	// This is the multi-buildpack pattern used by go-buildpack (WriteEnvFile for GOROOT)
+	// and dotnet-core-buildpack.
+	if err := o.ctx.Stager.WriteEnvFile("JAVA_HOME", javaHome); err != nil {
+		o.ctx.Log.Warning("Could not write JAVA_HOME env file: %s", err.Error())
+	}
+
+	// Symlink the java binary into the shared bin directory so it is on PATH
+	// for subsequent buildpacks — mirrors go-buildpack's AddBinDependencyLink for "go".
+	javaBin := filepath.Join(javaHome, "bin", "java")
+	if err := o.ctx.Stager.AddBinDependencyLink(javaBin, "java"); err != nil {
+		o.ctx.Log.Warning("Could not add java bin dependency link: %s", err.Error())
+	}
+
+	// Link the JRE lib directory into the deps dir so native libraries (.so files)
+	// are included on LD_LIBRARY_PATH — mirrors dotnet-core-buildpack's LinkDirectoryInDepDir.
+	libDir := filepath.Join(javaHome, "lib")
+	if _, err := os.Stat(libDir); err == nil {
+		if err := o.ctx.Stager.LinkDirectoryInDepDir(libDir, "lib"); err != nil {
+			o.ctx.Log.Warning("Could not link JRE lib directory: %s", err.Error())
+		}
+	}
+
 	// Determine Java major version
 	javaMajorVersion, err := common.DetermineJavaVersion(javaHome)
 	if err != nil {

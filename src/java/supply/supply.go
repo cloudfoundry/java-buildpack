@@ -77,7 +77,8 @@ func Run(s *Supplier) error {
 		"jre_version": jre.Version(),
 		"java_home":   jre.JavaHome(),
 	}); err != nil {
-		s.Log.Warning("Could not write config: %s", err.Error())
+		s.Log.Error("Could not write config: %s", err.Error())
+		return err
 	}
 
 	return nil

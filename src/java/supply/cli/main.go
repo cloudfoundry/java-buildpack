@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
+	_ "github.com/cloudfoundry/java-buildpack/src/java/hooks" // Register hooks (Dynatrace)
 	"github.com/cloudfoundry/java-buildpack/src/java/supply"
 	"github.com/cloudfoundry/libbuildpack"
 )
