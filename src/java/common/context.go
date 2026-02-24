@@ -4,20 +4,46 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/cloudfoundry/libbuildpack"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 )
 
+type Command interface {
+	Execute(string, io.Writer, io.Writer, string, ...string) error
+}
+
+type Stager interface {
+	LinkDirectoryInDepDir(string, string) error
+	BuildDir() string
+	DepDir() string
+	DepsIdx() string
+	WriteConfigYml(interface{}) error
+	WriteEnvFile(string, string) error
+	WriteProfileD(string, string) error
+}
+
+type Manifest interface {
+	AllDependencyVersions(string) []string
+	DefaultVersion(string) (libbuildpack.Dependency, error)
+	GetEntry(libbuildpack.Dependency) (*libbuildpack.ManifestEntry, error)
+}
+
+type Installer interface {
+	InstallDependency(libbuildpack.Dependency, string) error
+	InstallDependencyWithStrip(libbuildpack.Dependency, string, int) error
+}
+
 // Context holds shared dependencies for buildpack components
 // Used by containers, frameworks, and JREs to access buildpack infrastructure
 type Context struct {
-	Stager    *libbuildpack.Stager
-	Manifest  *libbuildpack.Manifest
-	Installer *libbuildpack.Installer
+	Stager    Stager
+	Manifest  Manifest
+	Installer Installer
 	Log       *libbuildpack.Logger
-	Command   *libbuildpack.Command
+	Command   Command
 }
 
 // DetermineJavaVersion determines the major Java version from a Java installation
