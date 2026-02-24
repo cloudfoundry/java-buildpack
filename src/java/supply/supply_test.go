@@ -148,17 +148,32 @@ dependencies: []
 	})
 
 	Describe("WriteConfigYml", func() {
-		It("writes config.yml to deps directory", func() {
+		It("persists all supply phase keys in a single write", func() {
+			// Verify that writing all keys at once means none are lost.
+			// (WriteConfigYml always overwrites the file — writing twice drops the first set.)
 			config := map[string]string{
-				"container": "spring-boot",
-				"jre":       "OpenJDK",
+				"container":   "spring-boot",
+				"jre":         "OpenJDK",
+				"jre_version": "17.0.9",
+				"java_home":   "/deps/0/jre",
 			}
 
 			err := stager.WriteConfigYml(config)
 			Expect(err).NotTo(HaveOccurred())
 
+			// Read back and verify all keys are present
+			raw := struct {
+				Config map[string]string `yaml:"config"`
+			}{}
 			configPath := filepath.Join(stager.DepDir(), "config.yml")
 			Expect(configPath).To(BeAnExistingFile())
+
+			err = libbuildpack.NewYAML().Load(configPath, &raw)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(raw.Config["container"]).To(Equal("spring-boot"))
+			Expect(raw.Config["jre"]).To(Equal("OpenJDK"))
+			Expect(raw.Config["jre_version"]).To(Equal("17.0.9"))
+			Expect(raw.Config["java_home"]).To(Equal("/deps/0/jre"))
 		})
 
 		It("handles empty config gracefully", func() {

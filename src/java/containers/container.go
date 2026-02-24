@@ -20,7 +20,6 @@ type Container interface {
 	Release() (string, error)
 }
 
-
 // Registry manages available containers
 type Registry struct {
 	containers []Container
@@ -73,6 +72,18 @@ func (r *Registry) DetectAll() ([]Container, []string, error) {
 	}
 
 	return matched, names, nil
+}
+
+// Get returns the container whose Detect() returns the given name, or nil if not found.
+// Used by the finalize phase to resolve a container by the name stored in config.yml.
+func (r *Registry) Get(name string) Container {
+	for _, container := range r.containers {
+		detected, err := container.Detect()
+		if err == nil && detected == name {
+			return container
+		}
+	}
+	return nil
 }
 
 // RegisterStandardContainers registers all standard containers in the correct priority order.

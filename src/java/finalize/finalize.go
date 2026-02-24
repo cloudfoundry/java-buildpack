@@ -15,20 +15,61 @@ import (
 )
 
 type Finalizer struct {
-	Stager    *libbuildpack.Stager
-	Manifest  *libbuildpack.Manifest
-	Installer *libbuildpack.Installer
-	Log       *libbuildpack.Logger
-	Command   *libbuildpack.Command
-	Container containers.Container
-	JRE       jres.JRE
+	Stager        *libbuildpack.Stager
+	Manifest      *libbuildpack.Manifest
+	Installer     *libbuildpack.Installer
+	Log           *libbuildpack.Logger
+	Command       *libbuildpack.Command
+	Container     containers.Container
+	JRE           jres.JRE
+	ContainerName string
+	JREName       string
+}
+
+// SupplyConfig holds the values written to config.yml by the supply phase.
+type SupplyConfig struct {
+	Container  string `yaml:"container"`
+	JRE        string `yaml:"jre"`
+	JREVersion string `yaml:"jre_version"`
+	JavaHome   string `yaml:"java_home"`
+}
+
+// NewFinalizer creates a Finalizer by reading the config.yml written by the supply phase.
+// This follows the pattern established by go-buildpack and dotnet-core-buildpack.
+func NewFinalizer(stager *libbuildpack.Stager, manifest *libbuildpack.Manifest,
+	installer *libbuildpack.Installer, logger *libbuildpack.Logger,
+	command *libbuildpack.Command) (*Finalizer, error) {
+
+	raw := struct {
+		Config SupplyConfig `yaml:"config"`
+	}{}
+	if err := libbuildpack.NewYAML().Load(filepath.Join(stager.DepDir(), "config.yml"), &raw); err != nil {
+		logger.Error("Unable to read supply phase config.yml: %s", err)
+		return nil, err
+	}
+
+	cfg := raw.Config
+	if cfg.Container == "" || cfg.JRE == "" {
+		return nil, fmt.Errorf("config.yml is missing required keys: container=%q jre=%q", cfg.Container, cfg.JRE)
+	}
+
+	logger.Info("Loaded supply config: container=%s jre=%s version=%s", cfg.Container, cfg.JRE, cfg.JREVersion)
+
+	return &Finalizer{
+		Stager:        stager,
+		Manifest:      manifest,
+		Installer:     installer,
+		Log:           logger,
+		Command:       command,
+		ContainerName: cfg.Container,
+		JREName:       cfg.JRE,
+	}, nil
 }
 
 // Run performs the finalize phase
 func Run(f *Finalizer) error {
 	f.Log.BeginStep("Finalizing Java")
 
-	// Create container context
 	ctx := &common.Context{
 		Stager:    f.Stager,
 		Manifest:  f.Manifest,
@@ -37,31 +78,29 @@ func Run(f *Finalizer) error {
 		Command:   f.Command,
 	}
 
-	// Create and populate container registry with standard containers
-	registry := containers.NewRegistry(ctx)
-	registry.RegisterStandardContainers()
-
-	// Detect which container was used (should match supply phase)
-	container, containerName, err := registry.Detect()
+	// Resolve container using the name stored by supply — no re-detection needed.
+	container, err := resolveContainer(ctx, f.ContainerName)
 	if err != nil {
-		f.Log.Error("Failed to detect container: %s", err.Error())
+		f.Log.Error("Failed to resolve container %q: %s", f.ContainerName, err.Error())
 		return err
 	}
-	if container == nil {
-		f.Log.Error("No suitable container found for this application")
-		return fmt.Errorf("no suitable container found")
-	}
-
-	f.Log.Info("Finalizing container: %s", containerName)
 	f.Container = container
 
-	// Finalize JRE (memory calculator, jvmkill, etc.)
-	jre, err := f.finalizeJRE()
+	f.Log.Info("Finalizing container: %s", f.ContainerName)
+
+	// Resolve JRE using the name stored by supply — no re-detection needed.
+	jre, err := resolveJRE(ctx, f.JREName)
 	if err != nil {
-		f.Log.Error("Failed to finalize JRE: %s", err.Error())
+		f.Log.Error("Failed to resolve JRE %q: %s", f.JREName, err.Error())
 		return err
 	}
 	f.JRE = jre
+
+	// Finalize JRE (memory calculator, jvmkill, etc.)
+	if err := f.finalizeJRE(); err != nil {
+		f.Log.Error("Failed to finalize JRE: %s", err.Error())
+		return err
+	}
 
 	// Finalize frameworks (APM agents, etc.)
 	if err := f.finalizeFrameworks(); err != nil {
@@ -85,56 +124,45 @@ func Run(f *Finalizer) error {
 	return nil
 }
 
-// finalizeJRE finalizes the JRE configuration (memory calculator, jvmkill, etc.)
-// Returns the finalized JRE instance for use in command generation
-func (f *Finalizer) finalizeJRE() (jres.JRE, error) {
-	f.Log.BeginStep("Finalizing JRE")
-
-	// Create JRE context
-	ctx := &common.Context{
-		Stager:    f.Stager,
-		Manifest:  f.Manifest,
-		Installer: f.Installer,
-		Log:       f.Log,
-		Command:   f.Command,
+// resolveContainer finds the container registered under the given name.
+func resolveContainer(ctx *common.Context, name string) (containers.Container, error) {
+	registry := containers.NewRegistry(ctx)
+	registry.RegisterStandardContainers()
+	container := registry.Get(name)
+	if container == nil {
+		return nil, fmt.Errorf("no container registered with name %q", name)
 	}
+	return container, nil
+}
 
-	// Create and populate JRE registry
-	// This MUST match the behavior in the supply phase to ensure consistent detection.
-	// The finalize phase re-detects the JRE (rather than reading stored config) to support:
-	// 1. Multi-buildpack scenarios where supply and finalize may run in different contexts
-	// 2. Environment variable overrides that occur between phases
-	// 3. Detection of JREs installed by other buildpacks
+// resolveJRE finds the JRE registered under the given name.
+func resolveJRE(ctx *common.Context, name string) (jres.JRE, error) {
 	registry := jres.NewRegistry(ctx)
 	registry.RegisterStandardJREs()
-
-	// Detect which JRE was installed (should match supply phase)
-	// With SetDefault(openJDK) configured, this will always return a JRE unless
-	// an explicitly configured JRE fails detection
-	jre, jreName, err := registry.Detect()
-	if err != nil {
-		f.Log.Error("Failed to detect JRE: %s", err.Error())
-		return nil, err
+	jre := registry.Get(name)
+	if jre == nil {
+		return nil, fmt.Errorf("no JRE registered with name %q", name)
 	}
+	return jre, nil
+}
 
-	f.Log.Info("Finalizing JRE: %s", jreName)
+// finalizeJRE finalizes the JRE configuration (memory calculator, jvmkill, etc.)
+func (f *Finalizer) finalizeJRE() error {
+	f.Log.BeginStep("Finalizing JRE: %s", f.JREName)
 
-	// Call JRE finalize (this will finalize memory calculator, jvmkill, etc.)
-	if err := jre.Finalize(); err != nil {
+	if err := f.JRE.Finalize(); err != nil {
 		f.Log.Warning("Failed to finalize JRE: %s (continuing)", err.Error())
 		// Don't fail the build if JRE finalization fails
-		return jre, nil
 	}
 
 	f.Log.Info("JRE finalization complete")
-	return jre, nil
+	return nil
 }
 
 // finalizeFrameworks finalizes framework components (APM agents, etc.)
 func (f *Finalizer) finalizeFrameworks() error {
 	f.Log.BeginStep("Finalizing frameworks")
 
-	// Create framework context
 	ctx := &common.Context{
 		Stager:    f.Stager,
 		Manifest:  f.Manifest,
@@ -143,11 +171,9 @@ func (f *Finalizer) finalizeFrameworks() error {
 		Command:   f.Command,
 	}
 
-	// Create and populate framework registry
 	registry := frameworks.NewRegistry(ctx)
 	registry.RegisterStandardFrameworks()
 
-	// Detect all frameworks that were installed
 	detectedFrameworks, frameworkNames, err := registry.DetectAll()
 	if err != nil {
 		f.Log.Warning("Failed to detect frameworks: %s", err.Error())
@@ -161,44 +187,35 @@ func (f *Finalizer) finalizeFrameworks() error {
 
 	f.Log.Info("Finalizing frameworks: %v", strings.Join(frameworkNames, ","))
 
-	// Finalize all detected frameworks
 	for i, framework := range detectedFrameworks {
 		f.Log.Info("Finalizing framework: %s", frameworkNames[i])
 		if err := framework.Finalize(); err != nil {
 			f.Log.Warning("Failed to finalize framework %s: %s", frameworkNames[i], err.Error())
 			// Continue with other frameworks even if one fails
-			continue
 		}
 	}
 
 	// After all frameworks have written their .opts files, create the centralized assembly script
-	// This script reads all .opts files in priority order and assembles JAVA_OPTS at runtime
 	if err := frameworks.CreateJavaOptsAssemblyScript(ctx); err != nil {
 		f.Log.Warning("Failed to create JAVA_OPTS assembly script: %s", err.Error())
-		// Don't fail the build, but this means JAVA_OPTS won't be assembled
 	}
 
 	return nil
 }
 
 // writeReleaseYaml writes the release configuration to a YAML file
-// This follows the pattern used by Ruby, Go, and Node.js buildpacks
 func (f *Finalizer) writeReleaseYaml(container containers.Container) error {
 	f.Log.BeginStep("Writing release configuration")
 
-	// Get the container's startup command
 	containerCommand, err := container.Release()
 	if err != nil {
 		return fmt.Errorf("failed to get container command: %w", err)
 	}
 
-	// Prepend memory calculator command if available (Ruby buildpack parity)
-	// The memory calculator must run before the Java command to set JAVA_OPTS
 	var fullCommand string
 	if f.JRE != nil {
 		memCalcCmd := f.JRE.MemoryCalculatorCommand()
 		if memCalcCmd != "" {
-			// Join with && to ensure memory calculator runs before container command
 			fullCommand = memCalcCmd + " && " + containerCommand
 			f.Log.Debug("Prepended memory calculator command to startup")
 		} else {
@@ -208,14 +225,11 @@ func (f *Finalizer) writeReleaseYaml(container containers.Container) error {
 		fullCommand = containerCommand
 	}
 
-	// Create tmp directory in build dir
 	tmpDir := filepath.Join(f.Stager.BuildDir(), "tmp")
 	if err := os.MkdirAll(tmpDir, 0755); err != nil {
 		return fmt.Errorf("failed to create tmp directory: %w", err)
 	}
 
-	// Write YAML file with release information
-	// The command must be properly escaped for YAML - use single quotes to preserve special characters
 	releaseYamlPath := filepath.Join(tmpDir, "java-buildpack-release-step.yml")
 	yamlContent := fmt.Sprintf(`---
 default_process_types:

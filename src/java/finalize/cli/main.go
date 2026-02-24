@@ -47,15 +47,13 @@ func main() {
 		os.Exit(10)
 	}
 
-	f := finalize.Finalizer{
-		Stager:    stager,
-		Manifest:  manifest,
-		Installer: installer,
-		Log:       logger,
-		Command:   &libbuildpack.Command{},
+	f, err := finalize.NewFinalizer(stager, manifest, installer, logger, &libbuildpack.Command{})
+	if err != nil {
+		logger.Error("Unable to initialize finalizer from supply config: %s", err.Error())
+		os.Exit(11)
 	}
 
-	if err = finalize.Run(&f); err != nil {
+	if err = finalize.Run(f); err != nil {
 		os.Exit(12)
 	}
 

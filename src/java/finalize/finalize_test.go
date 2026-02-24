@@ -17,15 +17,15 @@ var _ = Describe("Finalize", func() {
 		cacheDir  string
 		depsDir   string
 		depsIdx   string
-		finalizer *finalize.Finalizer
 		stager    *libbuildpack.Stager
+		manifest  *libbuildpack.Manifest
+		installer *libbuildpack.Installer
 		logger    *libbuildpack.Logger
 	)
 
 	BeforeEach(func() {
 		var err error
 
-		// Create temp directories
 		buildDir, err = os.MkdirTemp("", "finalize-build")
 		Expect(err).NotTo(HaveOccurred())
 
@@ -37,7 +37,6 @@ var _ = Describe("Finalize", func() {
 
 		depsIdx = "0"
 
-		// Create a mock buildpack directory with VERSION and manifest.yml files
 		buildpackDir, err := os.MkdirTemp("", "finalize-buildpack")
 		Expect(err).NotTo(HaveOccurred())
 
@@ -52,22 +51,14 @@ dependencies: []
 `
 		Expect(os.WriteFile(manifestFile, []byte(manifestContent), 0644)).To(Succeed())
 
-		// Create logger
 		logger = libbuildpack.NewLogger(GinkgoWriter)
 
-		// Create manifest with buildpack dir
-		manifest, err := libbuildpack.NewManifest(buildpackDir, logger, time.Now())
+		manifest, err = libbuildpack.NewManifest(buildpackDir, logger, time.Now())
 		Expect(err).NotTo(HaveOccurred())
 
-		// Create stager
-		stager = libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, depsIdx}, logger, manifest)
+		installer = libbuildpack.NewInstaller(manifest)
 
-		finalizer = &finalize.Finalizer{
-			Stager:   stager,
-			Manifest: manifest,
-			Log:      logger,
-			Command:  &libbuildpack.Command{},
-		}
+		stager = libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, depsIdx}, logger, manifest)
 	})
 
 	AfterEach(func() {
@@ -76,30 +67,28 @@ dependencies: []
 		os.RemoveAll(depsDir)
 	})
 
-	Describe("Container Re-detection", func() {
+	Describe("Container Lookup", func() {
 		Context("when a Spring Boot application is present", func() {
 			BeforeEach(func() {
-				// Create a Spring Boot JAR with BOOT-INF
 				bootInfDir := filepath.Join(buildDir, "BOOT-INF")
 				Expect(os.MkdirAll(bootInfDir, 0755)).To(Succeed())
 			})
 
-			It("re-detects Spring Boot container", func() {
-				Expect(finalizer).NotTo(BeNil())
-				Expect(finalizer.Stager).NotTo(BeNil())
+			It("has a valid stager pointing to the build directory", func() {
+				Expect(stager).NotTo(BeNil())
+				Expect(stager.BuildDir()).To(Equal(buildDir))
 			})
 		})
 
 		Context("when a Tomcat application is present", func() {
 			BeforeEach(func() {
-				// Create WEB-INF directory
 				webInfDir := filepath.Join(buildDir, "WEB-INF")
 				Expect(os.MkdirAll(webInfDir, 0755)).To(Succeed())
 			})
 
-			It("re-detects Tomcat container", func() {
-				Expect(finalizer).NotTo(BeNil())
-				Expect(finalizer.Stager).NotTo(BeNil())
+			It("has a valid stager pointing to the build directory", func() {
+				Expect(stager).NotTo(BeNil())
+				Expect(stager.BuildDir()).To(Equal(buildDir))
 			})
 		})
 	})
@@ -116,8 +105,6 @@ dependencies: []
 			Expect(os.MkdirAll(javaBuildpackDir, 0755)).To(Succeed())
 
 			startScript := filepath.Join(javaBuildpackDir, "start.sh")
-			// In a real scenario, the finalize phase would create this
-			// For now, we just verify the path is correct
 			Expect(filepath.Dir(startScript)).To(Equal(javaBuildpackDir))
 		})
 	})
@@ -160,18 +147,37 @@ dependencies: []
 	})
 
 	Describe("Config Persistence", func() {
-		It("reads config.yml from supply phase", func() {
-			// Write a config.yml that would have been created by supply
+		It("NewFinalizer reads all keys written by the supply phase", func() {
+			// Simulate what supply phase writes: all keys in a single call
 			config := map[string]string{
-				"container": "spring-boot",
-				"jre":       "OpenJDK",
+				"container":   "spring-boot",
+				"jre":         "OpenJDK",
+				"jre_version": "17.0.9",
+				"java_home":   "/deps/0/jre",
 			}
-
 			err := stager.WriteConfigYml(config)
 			Expect(err).NotTo(HaveOccurred())
 
-			configPath := filepath.Join(stager.DepDir(), "config.yml")
-			Expect(configPath).To(BeAnExistingFile())
+			// NewFinalizer must successfully read the config.yml written above
+			f, err := finalize.NewFinalizer(stager, manifest, installer, logger, &libbuildpack.Command{})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(f.ContainerName).To(Equal("spring-boot"))
+			Expect(f.JREName).To(Equal("OpenJDK"))
+		})
+
+		It("NewFinalizer fails when config.yml is missing", func() {
+			// No config.yml written — NewFinalizer must return an error
+			_, err := finalize.NewFinalizer(stager, manifest, installer, logger, &libbuildpack.Command{})
+			Expect(err).To(HaveOccurred())
+		})
+
+		It("NewFinalizer fails when required keys are absent", func() {
+			// Write config with empty map — container and jre keys missing
+			err := stager.WriteConfigYml(map[string]string{})
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = finalize.NewFinalizer(stager, manifest, installer, logger, &libbuildpack.Command{})
+			Expect(err).To(HaveOccurred())
 		})
 	})
 

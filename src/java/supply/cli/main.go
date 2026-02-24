@@ -81,11 +81,6 @@ func main() {
 		os.Exit(14)
 	}
 
-	if err := stager.WriteConfigYml(nil); err != nil {
-		logger.Error("Error writing config.yml: %s", err.Error())
-		os.Exit(15)
-	}
-
 	if err = installer.CleanupAppCache(); err != nil {
 		logger.Error("Unable to clean up app cache: %s", err)
 		os.Exit(19)
