@@ -21,13 +21,11 @@ type Installer interface {
 }
 
 type CfMetricsExporterFramework struct {
-	context   *common.Context
-	installer Installer
+	context *common.Context
 }
 
 func NewCfMetricsExporterFramework(ctx *common.Context) *CfMetricsExporterFramework {
-	installer := ctx.Installer
-	return &CfMetricsExporterFramework{context: ctx, installer: installer}
+	return &CfMetricsExporterFramework{context: ctx}
 }
 
 func (f *CfMetricsExporterFramework) Detect() (string, error) {
@@ -76,7 +74,7 @@ func (f *CfMetricsExporterFramework) Supply() error {
 
 	// Download the JAR if not present
 	if _, err := os.Stat(jarPath); os.IsNotExist(err) {
-		if err := f.installer.InstallDependency(dep, agentDir); err != nil {
+		if err := f.context.Installer.InstallDependency(dep, agentDir); err != nil {
 			return fmt.Errorf("failed to download cf-metrics-exporter: %w", err)
 		}
 		if _, err := os.Stat(jarPath); err != nil {
