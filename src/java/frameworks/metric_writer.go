@@ -175,7 +175,7 @@ func (m *MetricWriterFramework) buildCFTagEnvVars() string {
 func (m *MetricWriterFramework) loadConfig() (*metricWriterConfig, error) {
 	// initialize default values
 	mwConfig := metricWriterConfig{
-		Enabled: true,
+		Enabled: false,
 	}
 	config := os.Getenv("JBP_CONFIG_METRIC_WRITER")
 	if config != "" {
