@@ -27,9 +27,6 @@ type CfMetricsExporterFramework struct {
 
 func NewCfMetricsExporterFramework(ctx *common.Context) *CfMetricsExporterFramework {
 	installer := ctx.Installer
-	if installer == nil {
-		installer = libbuildpack.NewInstaller(ctx.Manifest)
-	}
 	return &CfMetricsExporterFramework{context: ctx, installer: installer}
 }
 

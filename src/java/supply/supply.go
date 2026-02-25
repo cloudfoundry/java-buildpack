@@ -11,11 +11,11 @@ import (
 )
 
 type Supplier struct {
-	Stager    *libbuildpack.Stager
-	Manifest  *libbuildpack.Manifest
-	Installer *libbuildpack.Installer
+	Stager    common.Stager
+	Manifest  common.Manifest
+	Installer common.Installer
 	Log       *libbuildpack.Logger
-	Command   *libbuildpack.Command
+	Command   common.Command
 	Container containers.Container
 }
 
@@ -51,13 +51,13 @@ func Run(s *Supplier) error {
 	s.Container = container
 
 	// Install JRE - returns installed JRE for config persistence
-	jre, jreName, err := s.installJRE()
+	jre, jreName, err := s.InstallJRE()
 	if err != nil {
 		return err
 	}
 
 	// Install frameworks (APM agents, etc.)
-	if err := s.installFrameworks(); err != nil {
+	if err := s.InstallFrameworks(); err != nil {
 		s.Log.Error("Failed to install frameworks: %s", err.Error())
 		return err
 	}
@@ -83,9 +83,9 @@ func Run(s *Supplier) error {
 	return nil
 }
 
-// installJRE installs the Java Runtime Environment.
+// InstallJRE installs the Java Runtime Environment.
 // Returns the installed JRE instance and its name so the caller can persist them to config.yml.
-func (s *Supplier) installJRE() (jres.JRE, string, error) {
+func (s *Supplier) InstallJRE() (jres.JRE, string, error) {
 	// Create JRE context
 	ctx := &common.Context{
 		Stager:    s.Stager,
@@ -120,8 +120,8 @@ func (s *Supplier) installJRE() (jres.JRE, string, error) {
 	return jre, jreName, nil
 }
 
-// installFrameworks installs framework components (APM agents, etc.)
-func (s *Supplier) installFrameworks() error {
+// InstallFrameworks installs framework components (APM agents, etc.)
+func (s *Supplier) InstallFrameworks() error {
 	s.Log.BeginStep("Installing frameworks")
 
 	// Create framework context
