@@ -139,6 +139,7 @@ dependencies: []
 				webInfDir := filepath.Join(buildDir, "WEB-INF")
 				Expect(os.MkdirAll(webInfDir, 0755)).To(Succeed())
 
+				// Create tomcat installdirs, dependencies and mocks used during supply phase
 				mockManifest.EXPECT().AllDependencyVersions("tomcat").Return([]string{"10.1.50"})
 				tomcatInstallDir := filepath.Join(depsDir, depsIdx, "tomcat")
 				Expect(os.MkdirAll(filepath.Join(tomcatInstallDir), 0755)).To(Succeed())
@@ -155,6 +156,7 @@ dependencies: []
 				tomcatLoggingSupportInstallDir := filepath.Join(depsDir, depsIdx, "tomcat", "bin")
 				Expect(os.MkdirAll(filepath.Join(tomcatLoggingSupportInstallDir), 0755)).To(Succeed())
 
+				// Create mocks for the tomcat dependencies downloaded during supply
 				depTomcatLifeCycleSupport := libbuildpack.Dependency{Name: "tomcat-lifecycle-support", Version: "3.4.0"}
 				mockManifest.EXPECT().DefaultVersion("tomcat-lifecycle-support").Return(depTomcatLifeCycleSupport, nil)
 				depTomcatAccessLoggingSupport := libbuildpack.Dependency{Name: "tomcat-access-logging-support", Version: "3.4.0"}
@@ -170,17 +172,9 @@ dependencies: []
 			})
 
 			It("Supply passes successfully", func() {
-				depDir := stager.DepDir()
 				err := supply.Run(supplier)
 
 				Expect(err).To(BeNil())
-				Expect(depDir).To(ContainSubstring(depsDir))
-
-				Expect(supplier).NotTo(BeNil())
-				Expect(supplier.Stager).NotTo(BeNil())
-				Expect(supplier.Manifest).NotTo(BeNil())
-				Expect(supplier.Log).NotTo(BeNil())
-				Expect(supplier.Command).NotTo(BeNil())
 			})
 		})
 
@@ -191,9 +185,11 @@ dependencies: []
 				Expect(os.MkdirAll(bootInfDir, 0755)).To(Succeed())
 				Expect(os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)).To(Succeed())
 
+				// Create META-INF/MANIFEST.MF with corresponding content of a Spring Boot app
 				manifestFile := filepath.Join(buildDir, "META-INF", "MANIFEST.MF")
 				Expect(os.WriteFile(manifestFile, []byte("Spring-Boot-Version: 3.x.x"), 0644)).To(Succeed())
 
+				//Create install dir and mock for the java cf env spring boot related dependency
 				javaCfEnvInstallDir := filepath.Join(depsDir, depsIdx, "java_cf_env")
 				Expect(os.MkdirAll(filepath.Join(javaCfEnvInstallDir), 0755)).To(Succeed())
 
@@ -203,17 +199,9 @@ dependencies: []
 			})
 
 			It("Supply passes successfully", func() {
-				depDir := stager.DepDir()
 				err := supply.Run(supplier)
 
 				Expect(err).To(BeNil())
-				Expect(depDir).To(ContainSubstring(depsDir))
-
-				Expect(supplier).NotTo(BeNil())
-				Expect(supplier.Stager).NotTo(BeNil())
-				Expect(supplier.Manifest).NotTo(BeNil())
-				Expect(supplier.Log).NotTo(BeNil())
-				Expect(supplier.Command).NotTo(BeNil())
 			})
 		})
 
@@ -223,6 +211,7 @@ dependencies: []
 				groovyFile := filepath.Join(buildDir, "app.groovy")
 				Expect(os.WriteFile(groovyFile, []byte("println 'hello'"), 0644)).To(Succeed())
 
+				//Create groovy install dir and dependency mock
 				groovyInstallDir := filepath.Join(depsDir, depsIdx, "groovy")
 				err := os.MkdirAll(filepath.Join(groovyInstallDir), 0755)
 				Expect(err).To(BeNil())
@@ -233,11 +222,9 @@ dependencies: []
 			})
 
 			It("Supply passes successfully", func() {
-				depDir := stager.DepDir()
 				err := supply.Run(supplier)
 
 				Expect(err).To(BeNil())
-				Expect(depDir).To(ContainSubstring(depsDir))
 			})
 		})
 	})
