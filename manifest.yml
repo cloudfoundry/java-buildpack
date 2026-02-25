@@ -84,6 +84,8 @@ default_versions:
   version: 8.x
 - name: cf-metrics-exporter
   version: 0.7.x
+- name: metric-writer
+  version: 3.x
 url_to_dependency_map:
 - match: openjdk-jre-(\d+\.\d+\.\d+)
   name: openjdk
@@ -223,6 +225,12 @@ dependencies:
   version: 0.7.1
   uri: https://repo1.maven.org/maven2/io/github/rabobank/cf-metrics-exporter/0.7.1/cf-metrics-exporter-0.7.1.jar
   sha256: 7ebabd3ffd812082cf92a513c8d2ac52906f5b42cd952cbe740bd5d5b086e79b
+  cf_stacks:
+  - cflinuxfs4
+- name: metric-writer
+  version: 3.5.0
+  uri: https://java-buildpack.cloudfoundry.org/metric-writer/metric-writer-3.5.0-RELEASE.jar
+  sha256: 0f8b092a6c02035b29e9af6d0f025efe5f8ce95e0cc655b30e93d1c436d5d137
   cf_stacks:
   - cflinuxfs4
 - name: client-certificate-mapper
