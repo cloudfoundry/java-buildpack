@@ -36,9 +36,9 @@ type SupplyConfig struct {
 
 // NewFinalizer creates a Finalizer by reading the config.yml written by the supply phase.
 // This follows the pattern established by go-buildpack and dotnet-core-buildpack.
-func NewFinalizer(stager *libbuildpack.Stager, manifest *libbuildpack.Manifest,
-	installer *libbuildpack.Installer, logger *libbuildpack.Logger,
-	command *libbuildpack.Command) (*Finalizer, error) {
+func NewFinalizer(stager common.Stager, manifest common.Manifest,
+	installer common.Installer, logger *libbuildpack.Logger,
+	command common.Command) (*Finalizer, error) {
 
 	raw := struct {
 		Config SupplyConfig `yaml:"config"`
@@ -87,7 +87,6 @@ func Run(f *Finalizer) error {
 	f.Container = container
 
 	f.Log.Info("Finalizing container: %s", f.ContainerName)
-
 	// Resolve JRE using the name stored by supply — no re-detection needed.
 	jre, err := resolveJRE(ctx, f.JREName)
 	if err != nil {

@@ -133,7 +133,7 @@ dependencies: []
 			mockInstaller.EXPECT().InstallDependency(depContainerSecProvider, cspInstallDir).Return(nil)
 		})
 
-		Context("when a Tomcat application is present", func() {
+		Context("When a Tomcat application is present", func() {
 			BeforeEach(func() {
 				// Create WEB-INF directory
 				webInfDir := filepath.Join(buildDir, "WEB-INF")
@@ -172,13 +172,11 @@ dependencies: []
 			})
 
 			It("Supply passes successfully", func() {
-				err := supply.Run(supplier)
-
-				Expect(err).To(BeNil())
+				Expect(supply.Run(supplier)).To(Succeed())
 			})
 		})
 
-		Context("when a Spring-boot application is present", func() {
+		Context("When a Spring-boot application is present", func() {
 			BeforeEach(func() {
 				// Create a Spring Boot JAR with BOOT-INF
 				bootInfDir := filepath.Join(buildDir, "BOOT-INF")
@@ -199,13 +197,11 @@ dependencies: []
 			})
 
 			It("Supply passes successfully", func() {
-				err := supply.Run(supplier)
-
-				Expect(err).To(BeNil())
+				Expect(supply.Run(supplier)).To(Succeed())
 			})
 		})
 
-		Context("when a Groovy application is present", func() {
+		Context("When a Groovy application is present", func() {
 			BeforeEach(func() {
 				// Create a .groovy file
 				groovyFile := filepath.Join(buildDir, "app.groovy")
@@ -213,8 +209,7 @@ dependencies: []
 
 				//Create groovy install dir and dependency mock
 				groovyInstallDir := filepath.Join(depsDir, depsIdx, "groovy")
-				err := os.MkdirAll(filepath.Join(groovyInstallDir), 0755)
-				Expect(err).To(BeNil())
+				Expect(os.MkdirAll(filepath.Join(groovyInstallDir), 0755)).To(Succeed())
 
 				depGroovy := libbuildpack.Dependency{Name: "groovy", Version: "4.0.29"}
 				mockManifest.EXPECT().DefaultVersion("groovy").Return(depGroovy, nil)
@@ -222,9 +217,7 @@ dependencies: []
 			})
 
 			It("Supply passes successfully", func() {
-				err := supply.Run(supplier)
-
-				Expect(err).To(BeNil())
+				Expect(supply.Run(supplier)).To(Succeed())
 			})
 		})
 	})
@@ -274,8 +267,7 @@ dependencies: []
 		})
 
 		It("handles empty config gracefully", func() {
-			err := stager.WriteConfigYml(nil)
-			Expect(err).NotTo(HaveOccurred())
+			Expect(stager.WriteConfigYml(nil)).To(Succeed())
 		})
 	})
 })

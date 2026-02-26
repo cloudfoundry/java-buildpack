@@ -1,6 +1,8 @@
 package finalize_test
 
 import (
+	"github.com/cloudfoundry/java-buildpack/src/internal/mocks"
+	"github.com/golang/mock/gomock"
 	"os"
 	"path/filepath"
 	"time"
@@ -13,14 +15,16 @@ import (
 
 var _ = Describe("Finalize", func() {
 	var (
-		buildDir  string
-		cacheDir  string
-		depsDir   string
-		depsIdx   string
-		stager    *libbuildpack.Stager
-		manifest  *libbuildpack.Manifest
-		installer *libbuildpack.Installer
-		logger    *libbuildpack.Logger
+		buildDir      string
+		cacheDir      string
+		depsDir       string
+		depsIdx       string
+		stager        *libbuildpack.Stager
+		mockCtrl      *gomock.Controller
+		mockManifest  *mocks.MockManifest
+		mockInstaller *mocks.MockInstaller
+		finalizer     *finalize.Finalizer
+		logger        *libbuildpack.Logger
 	)
 
 	BeforeEach(func() {
@@ -53,42 +57,79 @@ dependencies: []
 
 		logger = libbuildpack.NewLogger(GinkgoWriter)
 
-		manifest, err = libbuildpack.NewManifest(buildpackDir, logger, time.Now())
+		mockCtrl = gomock.NewController(GinkgoT())
+		mockManifest = mocks.NewMockManifest(mockCtrl)
+		mockInstaller = mocks.NewMockInstaller(mockCtrl)
+
+		manifest, err := libbuildpack.NewManifest(buildpackDir, logger, time.Now())
 		Expect(err).NotTo(HaveOccurred())
 
-		installer = libbuildpack.NewInstaller(manifest)
-
 		stager = libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, depsIdx}, logger, manifest)
+
+		finalizer = &finalize.Finalizer{
+			Stager:    stager,
+			Manifest:  mockManifest,
+			Installer: mockInstaller,
+			Log:       logger,
+			Command:   &libbuildpack.Command{},
+		}
 	})
 
 	AfterEach(func() {
+		mockCtrl.Finish()
+
 		os.RemoveAll(buildDir)
 		os.RemoveAll(cacheDir)
 		os.RemoveAll(depsDir)
 	})
 
-	Describe("Container Lookup", func() {
-		Context("when a Spring Boot application is present", func() {
+	Describe("Various Container Finalize", func() {
+		Context("When a Spring Boot application is present", func() {
 			BeforeEach(func() {
+				// Create a Spring Boot JAR with BOOT-INF
 				bootInfDir := filepath.Join(buildDir, "BOOT-INF")
 				Expect(os.MkdirAll(bootInfDir, 0755)).To(Succeed())
+				Expect(os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)).To(Succeed())
+
+				// Create META-INF/MANIFEST.MF with corresponding content of a Spring Boot app
+				manifestFile := filepath.Join(buildDir, "META-INF", "MANIFEST.MF")
+				Expect(os.WriteFile(manifestFile, []byte("Spring-Boot-Version: 3.x.x"), 0644)).To(Succeed())
+
+				finalizer.JREName = "OpenJDK"
+				finalizer.ContainerName = "Spring Boot"
 			})
 
-			It("has a valid stager pointing to the build directory", func() {
-				Expect(stager).NotTo(BeNil())
-				Expect(stager.BuildDir()).To(Equal(buildDir))
+			It("Finalize passes successfully", func() {
+				Expect(finalize.Run(finalizer)).To(Succeed())
 			})
 		})
 
-		Context("when a Tomcat application is present", func() {
+		Context("When a Tomcat application is present", func() {
 			BeforeEach(func() {
 				webInfDir := filepath.Join(buildDir, "WEB-INF")
 				Expect(os.MkdirAll(webInfDir, 0755)).To(Succeed())
+
+				finalizer.JREName = "OpenJDK"
+				finalizer.ContainerName = "Tomcat"
 			})
 
-			It("has a valid stager pointing to the build directory", func() {
-				Expect(stager).NotTo(BeNil())
-				Expect(stager.BuildDir()).To(Equal(buildDir))
+			It("Finalize passes successfully", func() {
+				Expect(finalize.Run(finalizer)).To(Succeed())
+			})
+		})
+
+		Context("When a Groovy application is present", func() {
+			BeforeEach(func() {
+				// Create a .groovy file
+				groovyFile := filepath.Join(buildDir, "app.groovy")
+				Expect(os.WriteFile(groovyFile, []byte("println 'hello'"), 0644)).To(Succeed())
+
+				finalizer.JREName = "OpenJDK"
+				finalizer.ContainerName = "Groovy"
+			})
+
+			It("Finalize passes successfully", func() {
+				Expect(finalize.Run(finalizer)).To(Succeed())
 			})
 		})
 	})
@@ -159,7 +200,7 @@ dependencies: []
 			Expect(err).NotTo(HaveOccurred())
 
 			// NewFinalizer must successfully read the config.yml written above
-			f, err := finalize.NewFinalizer(stager, manifest, installer, logger, &libbuildpack.Command{})
+			f, err := finalize.NewFinalizer(stager, mockManifest, mockInstaller, logger, &libbuildpack.Command{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(f.ContainerName).To(Equal("spring-boot"))
 			Expect(f.JREName).To(Equal("OpenJDK"))
@@ -167,7 +208,7 @@ dependencies: []
 
 		It("NewFinalizer fails when config.yml is missing", func() {
 			// No config.yml written — NewFinalizer must return an error
-			_, err := finalize.NewFinalizer(stager, manifest, installer, logger, &libbuildpack.Command{})
+			_, err := finalize.NewFinalizer(stager, mockManifest, mockInstaller, logger, &libbuildpack.Command{})
 			Expect(err).To(HaveOccurred())
 		})
 
@@ -176,7 +217,7 @@ dependencies: []
 			err := stager.WriteConfigYml(map[string]string{})
 			Expect(err).NotTo(HaveOccurred())
 
-			_, err = finalize.NewFinalizer(stager, manifest, installer, logger, &libbuildpack.Command{})
+			_, err = finalize.NewFinalizer(stager, mockManifest, mockInstaller, logger, &libbuildpack.Command{})
 			Expect(err).To(HaveOccurred())
 		})
 	})
