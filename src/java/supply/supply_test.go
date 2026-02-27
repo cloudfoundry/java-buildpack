@@ -119,6 +119,7 @@ dependencies: []
 			mockInstaller.EXPECT().InstallDependency(depJVMKill, jvmkillInstallDir).Return(nil)
 			mockInstaller.EXPECT().InstallDependency(depMemCalc, memCalcInstallDir).Return(nil)
 
+			// adjust mocks for the mandatory frameworks used during staging
 			ccmInstallDir := filepath.Join(depsDir, depsIdx, "client_certificate_mapper")
 			Expect(os.MkdirAll(filepath.Join(ccmInstallDir), 0755)).To(Succeed())
 			cspInstallDir := filepath.Join(depsDir, depsIdx, "container_security_provider")

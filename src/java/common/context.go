@@ -11,6 +11,8 @@ import (
 	"strings"
 )
 
+//go:generate mockgen -source=context.go --destination=../../internal/mocks/mocks.go --package=mocks
+
 type Command interface {
 	Execute(string, io.Writer, io.Writer, string, ...string) error
 }
