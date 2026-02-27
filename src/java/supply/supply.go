@@ -11,11 +11,11 @@ import (
 )
 
 type Supplier struct {
-	Stager    *libbuildpack.Stager
-	Manifest  *libbuildpack.Manifest
-	Installer *libbuildpack.Installer
+	Stager    common.Stager
+	Manifest  common.Manifest
+	Installer common.Installer
 	Log       *libbuildpack.Logger
-	Command   *libbuildpack.Command
+	Command   common.Command
 	Container containers.Container
 }
 
