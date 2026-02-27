@@ -100,7 +100,7 @@ dependencies: []
 
 			// create memory calculator install dir
 			memCalcInstallDir := filepath.Join(depsDir, depsIdx, "tmp", "memory-calculator")
-			Expect(os.MkdirAll(filepath.Join(jvmkillInstallDir), 0755)).To(Succeed())
+			Expect(os.MkdirAll(filepath.Join(memCalcInstallDir), 0755)).To(Succeed())
 
 			// create bin/java used to locate JAVA_HOME directory after JRE extraction
 			Expect(os.MkdirAll(filepath.Join(jdkInstallDir, "jre-17.0.15", "bin"), 0755)).To(Succeed())
@@ -219,6 +219,16 @@ dependencies: []
 
 			It("Supply passes successfully", func() {
 				Expect(supply.Run(supplier)).To(Succeed())
+			})
+		})
+	})
+
+	Describe("No Container Supply", func() {
+		Context("when no recognized application type is present", func() {
+			It("fails to detect a container", func() {
+				err := supply.Run(supplier)
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(ContainSubstring("no suitable container found"))
 			})
 		})
 	})

@@ -22,6 +22,7 @@ type Stager interface {
 	BuildDir() string
 	DepDir() string
 	DepsIdx() string
+	CacheDir() string
 	WriteConfigYml(interface{}) error
 	WriteEnvFile(string, string) error
 	WriteProfileD(string, string) error

@@ -12,14 +12,6 @@ import (
 const cfMetricsExporterDependencyName = "cf-metrics-exporter"
 const cfMetricsExporterDirName = "cf_metrics_exporter"
 
-// Installer interface for dependency installation
-// Allows for mocking in tests
-// Only the InstallDependency method is needed for this framework
-// (matches the signature of libbuildpack.Installer)
-type Installer interface {
-	InstallDependency(dep libbuildpack.Dependency, outputDir string) error
-}
-
 type CfMetricsExporterFramework struct {
 	context *common.Context
 }
