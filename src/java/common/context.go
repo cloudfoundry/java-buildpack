@@ -19,6 +19,7 @@ type Command interface {
 
 type Stager interface {
 	LinkDirectoryInDepDir(string, string) error
+	AddBinDependencyLink(string, string) error
 	BuildDir() string
 	DepDir() string
 	DepsIdx() string
