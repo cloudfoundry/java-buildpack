@@ -1,12 +1,12 @@
 package frameworks
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"github.com/cloudfoundry/libbuildpack"
 	"gopkg.in/yaml.v2"
 )
@@ -81,17 +81,15 @@ func (j *JavaCfEnvFramework) Finalize() error {
 		return nil
 	}
 
-	// Add to classpath via CLASSPATH environment variable
-	classpath := os.Getenv("CLASSPATH")
-	if classpath != "" {
-		classpath += ":"
-	}
-	classpath += matches[0]
+	depsIdx := j.context.Stager.DepsIdx()
+	runtimePath := fmt.Sprintf("$DEPS_DIR/%s/java_cf_env/%s", depsIdx, filepath.Base(matches[0]))
 
-	if err := j.context.Stager.WriteEnvFile("CLASSPATH", classpath); err != nil {
-		return fmt.Errorf("failed to set CLASSPATH for Java CF Env: %w", err)
+	profileScript := fmt.Sprintf("export CLASSPATH=\"%s:${CLASSPATH:-}\"\n", runtimePath)
+	if err := j.context.Stager.WriteProfileD("java_cf_env.sh", profileScript); err != nil {
+		return fmt.Errorf("failed to write java_cf_env.sh profile.d script: %w", err)
 	}
 
+	j.context.Log.Debug("Java CF Env JAR will be added to classpath at runtime: %s", runtimePath)
 	return nil
 }
 
