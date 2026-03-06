@@ -227,12 +227,6 @@ dependencies:
   sha256: 7ebabd3ffd812082cf92a513c8d2ac52906f5b42cd952cbe740bd5d5b086e79b
   cf_stacks:
   - cflinuxfs4
-- name: metric-writer
-  version: 3.5.0
-  uri: https://java-buildpack.cloudfoundry.org/metric-writer/metric-writer-3.5.0-RELEASE.jar
-  sha256: 0f8b092a6c02035b29e9af6d0f025efe5f8ce95e0cc655b30e93d1c436d5d137
-  cf_stacks:
-  - cflinuxfs4
 - name: client-certificate-mapper
   version: 2.0.1
   uri: https://java-buildpack.cloudfoundry.org/client-certificate-mapper/client-certificate-mapper-2.0.1.jar
@@ -311,10 +305,20 @@ dependencies:
   - cflinuxfs4
 - name: jprofiler-profiler
   version: 15.0.4
-  uri: https://download.run.pivotal.io/jprofiler/jprofiler-15.0.4.tar.gz
-  sha256: 57c81d964a8fefd868f7c3559fbf64301165cdef55ce6c5cbfa23f1fa8790ddb
+  uri: https://buildpacks.cloudfoundry.org/dependencies/jprofiler-profiler/jprofiler-profiler_15.0.4_linux_x64_cflinuxfs4_fec74171.tgz
+  sha256: fec741718854a11b2383bb278ca7103984e0ae659268ed53ea5a8b32077b86c9
   cf_stacks:
   - cflinuxfs4
+  source: https://download-gcdn.ej-technologies.com/jprofiler/jprofiler_linux_15_0_4.tar.gz
+  source_sha256: fec741718854a11b2383bb278ca7103984e0ae659268ed53ea5a8b32077b86c9
+- name: jprofiler-profiler
+  version: 15.0.4
+  uri: https://buildpacks.cloudfoundry.org/dependencies/jprofiler-profiler/jprofiler-profiler_15.0.4_linux_x64_cflinuxfs5_fec74171.tgz
+  sha256: fec741718854a11b2383bb278ca7103984e0ae659268ed53ea5a8b32077b86c9
+  cf_stacks:
+  - cflinuxfs5
+  source: https://download-gcdn.ej-technologies.com/jprofiler/jprofiler_linux_15_0_4.tar.gz
+  source_sha256: fec741718854a11b2383bb278ca7103984e0ae659268ed53ea5a8b32077b86c9
 - name: jrebel
   version: 2025.4.1
   uri: https://dl.zeroturnaround.com/jrebel/releases/jrebel-2025.4.1-nosetup.zip
@@ -353,6 +357,12 @@ dependencies:
   version: 4.2.0
   uri: https://java-buildpack.cloudfoundry.org/memory-calculator/jammy/x86_64/memory-calculator-4.2.0.tgz
   sha256: a0689a655312fc4d1b71673d3edbfde61c4db48801e9d35fe3f31ecd49783d47
+  cf_stacks:
+  - cflinuxfs4
+- name: metric-writer
+  version: 3.5.0
+  uri: https://java-buildpack.cloudfoundry.org/metric-writer/metric-writer-3.5.0-RELEASE.jar
+  sha256: 0f8b092a6c02035b29e9af6d0f025efe5f8ce95e0cc655b30e93d1c436d5d137
   cf_stacks:
   - cflinuxfs4
 - name: newrelic
