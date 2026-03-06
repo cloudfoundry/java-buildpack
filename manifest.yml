@@ -482,13 +482,14 @@ dependencies:
   source: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.113/bin/apache-tomcat-9.0.113.tar.gz
   source_sha256: 790db2b8092b7954dec2afc6af71a7bbb6c67998198516dd6a9f865661b5d2a7
 - name: tomcat
-  version: 10.1.50
-  uri: https://java-buildpack.cloudfoundry.org/tomcat/tomcat-10.1.50.tar.gz
-  sha256: f74f9f1a7ac2cf6eeede2c50f45088d9c3e55f77d5777f9f7033ed3d43ef529c
+  version: 10.1.52
+  uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_10.1.52_linux_noarch_any-stack_5d358306.tgz
+  sha256: 5d3583061085d412d5132a36c5422ad96adc8d5bd5869013d707a920696c9457
   cf_stacks:
   - cflinuxfs4
-  source: https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.50/bin/apache-tomcat-10.1.50.tar.gz
-  source_sha256: f74f9f1a7ac2cf6eeede2c50f45088d9c3e55f77d5777f9f7033ed3d43ef529c
+  - cflinuxfs5
+  source: https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.52/bin/apache-tomcat-10.1.52.tar.gz
+  source_sha256: 5d3583061085d412d5132a36c5422ad96adc8d5bd5869013d707a920696c9457
 - name: tomcat
   version: 11.0.18
   uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_11.0.18_linux_noarch_any-stack_f4fe6b73.tgz
