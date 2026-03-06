@@ -4,7 +4,7 @@ go 1.25.4
 
 require (
 	github.com/Dynatrace/libbuildpack-dynatrace v1.8.0
-	github.com/cloudfoundry/libbuildpack v0.0.0-20251203175254-7be530ec9fef
+	github.com/cloudfoundry/libbuildpack v0.0.0-20260306121953-8ab9253c8181
 	github.com/cloudfoundry/switchblade v0.9.4
 	github.com/golang/mock v1.6.0
 	github.com/onsi/ginkgo/v2 v2.27.2
