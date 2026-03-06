@@ -522,6 +522,22 @@ dependencies:
   sha256: 3c1e7600e76067cfc446666101db515a9a247d69333b7cba5dfb05cf40e5e1d9
   cf_stacks:
   - cflinuxfs4
+- name: your-kit-profiler
+  version: 2025.9.191
+  uri: https://buildpacks.cloudfoundry.org/dependencies/your-kit-profiler/your-kit-profiler_2025.9.191_linux_x64_cflinuxfs4_5e79eab6.zip
+  sha256: 5e79eab6bc02c70b30600c3d2c390147dd458d8f5488aa2abebb67525af7f26e
+  cf_stacks:
+  - cflinuxfs4
+  source: https://download.yourkit.com/yjp/2025.9/YourKit-JavaProfiler-2025.9-b191-x64.zip
+  source_sha256: 5e79eab6bc02c70b30600c3d2c390147dd458d8f5488aa2abebb67525af7f26e
+- name: your-kit-profiler
+  version: 2025.9.191
+  uri: https://buildpacks.cloudfoundry.org/dependencies/your-kit-profiler/your-kit-profiler_2025.9.191_linux_x64_cflinuxfs5_5e79eab6.zip
+  sha256: 5e79eab6bc02c70b30600c3d2c390147dd458d8f5488aa2abebb67525af7f26e
+  cf_stacks:
+  - cflinuxfs5
+  source: https://download.yourkit.com/yjp/2025.9/YourKit-JavaProfiler-2025.9-b191-x64.zip
+  source_sha256: 5e79eab6bc02c70b30600c3d2c390147dd458d8f5488aa2abebb67525af7f26e
 - name: zulu
   version: 8.0.422
   uri: https://cdn.azul.com/zulu/bin/zulu8.80.0.17-ca-jre8.0.422-linux_x64.tar.gz
