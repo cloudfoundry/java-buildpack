@@ -60,18 +60,24 @@ func (t *TomcatContainer) Supply() error {
 	if javaHome != "" {
 		javaMajorVersion, versionErr := common.DetermineJavaVersion(javaHome)
 		if versionErr == nil {
+			tomcatVersion, err := common.DetermineTomcatVersion(os.Getenv("JBP_CONFIG_TOMCAT"))
 			t.context.Log.Debug("Detected Java major version: %d", javaMajorVersion)
 
 			// Select Tomcat version pattern based on Java version
 			var versionPattern string
-			if javaMajorVersion >= 11 {
-				// Java 11+: Use Tomcat 10.x (Jakarta EE 9+)
-				versionPattern = "10.x"
-				t.context.Log.Info("Using Tomcat 10.x for Java %d", javaMajorVersion)
+			if tomcatVersion == "" {
+				if javaMajorVersion >= 11 {
+					// Java 11+: Use Tomcat 10.x (Jakarta EE 9+)
+					versionPattern = "10.x"
+					t.context.Log.Info("Using Tomcat 10.x for Java %d", javaMajorVersion)
+				} else {
+					// Java 8-10: Use Tomcat 9.x (Java EE 8)
+					versionPattern = "9.x"
+					t.context.Log.Info("Using Tomcat 9.x for Java %d", javaMajorVersion)
+				}
 			} else {
-				// Java 8-10: Use Tomcat 9.x (Java EE 8)
-				versionPattern = "9.x"
-				t.context.Log.Info("Using Tomcat 9.x for Java %d", javaMajorVersion)
+				versionPattern = tomcatVersion
+				t.context.Log.Info("Using Tomcat %s for Java %d", versionPattern, javaMajorVersion)
 			}
 
 			// Resolve the version pattern to actual version using libbuildpack

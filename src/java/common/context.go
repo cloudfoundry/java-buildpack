@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -48,6 +49,17 @@ type Context struct {
 	Installer Installer
 	Log       *libbuildpack.Logger
 	Command   Command
+}
+
+// DetermineTomcatVersion determines the version of the tomcat
+// based on the JBP_CONFIG_TOMCAT field from manifest
+func DetermineTomcatVersion(raw string) (string, error) {
+	re := regexp.MustCompile(`(\d+)`)
+	match := re.FindStringSubmatch(raw)
+	if len(match) < 2 {
+		return "", fmt.Errorf("unable to extract Tomcat version from %q", raw)
+	}
+	return match[1] + ".x", nil
 }
 
 // DetermineJavaVersion determines the major Java version from a Java installation
