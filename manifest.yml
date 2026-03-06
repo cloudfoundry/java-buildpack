@@ -489,6 +489,15 @@ dependencies:
   - cflinuxfs4
   source: https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.50/bin/apache-tomcat-10.1.50.tar.gz
   source_sha256: f74f9f1a7ac2cf6eeede2c50f45088d9c3e55f77d5777f9f7033ed3d43ef529c
+- name: tomcat
+  version: 11.0.18
+  uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_11.0.18_linux_noarch_any-stack_f4fe6b73.tgz
+  sha256: f4fe6b73b2e41178a708332e3dec9ab2ae213500c1895754611bda2945db29ab
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://archive.apache.org/dist/tomcat/tomcat-11/v11.0.18/bin/apache-tomcat-11.0.18.tar.gz
+  source_sha256: f4fe6b73b2e41178a708332e3dec9ab2ae213500c1895754611bda2945db29ab
 - name: tomcat-access-logging-support
   version: 3.4.0
   uri: https://java-buildpack.cloudfoundry.org/tomcat-access-logging-support/tomcat-access-logging-support-3.4.0-RELEASE.jar
