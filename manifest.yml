@@ -550,8 +550,11 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 - name: zulu
-  version: 17.0.13
-  uri: https://cdn.azul.com/zulu/bin/zulu17.54.21-ca-jre17.0.13-linux_x64.tar.gz
-  sha256: 2d74f026d0d184075ad99de343c6a24bd702eb25d87ce6de5e3ab8df1cd3ef25
+  version: 17.0.18
+  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_17.0.18_linux_x64_any-stack_297117b4.tgz
+  sha256: 297117b4073d2eaaafafe372596ba8f915a2d35a9af71ff268cd999ae00ac799
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
+  source: https://cdn.azul.com/zulu/bin/zulu17.64.17-ca-crac-jre17.0.18-linux_x64.tar.gz
+  source_sha256: 297117b4073d2eaaafafe372596ba8f915a2d35a9af71ff268cd999ae00ac799
