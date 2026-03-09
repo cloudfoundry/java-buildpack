@@ -440,10 +440,11 @@ dependencies:
   source_sha256: 6ee8043a21cc27494307cedcee6f76689af7be2a33f89ca60ef89cd7df2ab9bc
 - name: sapmachine
   version: 25.0.2
-  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_25.0.2_linux_x64_cflinuxfs4_1255fbaf.tgz
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_25.0.2_linux_x64_any-stack_1255fbaf.tgz
   sha256: 1255fbafedfb983e8310321c9af205a825a2fe28b437320d66d8a635c6e4fb60
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
   source: https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.2/sapmachine-jre-25.0.2_linux-x64_bin.tar.gz
   source_sha256: 1255fbafedfb983e8310321c9af205a825a2fe28b437320d66d8a635c6e4fb60
 - name: sealights-agent
