@@ -396,13 +396,14 @@ dependencies:
   source: https://bell-sw.com/pages/downloads/#jdk-17-lts
   source_sha256: 2205b5d8dc26250303faa38dd501333e03056b4f9b645473cee42c5e79b6c212
 - name: openjdk
-  version: 21.0.7
-  uri: https://java-buildpack.cloudfoundry.org/openjdk/jammy/x86_64/bellsoft-jre21.0.7%2B9-linux-amd64.tar.gz
-  sha256: e4b75fc9f3d82f09eb29b2d9a8bd2aac2e0b5cf6dd335d4632ffadc4f298f419
+  version: 21.0.10+10
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_21.0.10%2B10_linux_x64_any-stack_093103d2.tgz
+  sha256: '093103d28af566cc3097e152e415c8c937dbc288cb31aebdef2f69ffc5996e2d'
   cf_stacks:
   - cflinuxfs4
-  source: https://bell-sw.com/pages/downloads/#jdk-21-lts
-  source_sha256: e4b75fc9f3d82f09eb29b2d9a8bd2aac2e0b5cf6dd335d4632ffadc4f298f419
+  - cflinuxfs5
+  source: https://github.com/bell-sw/Liberica/releases/download/21.0.10+10/bellsoft-jre21.0.10+10-linux-amd64.tar.gz
+  source_sha256: '093103d28af566cc3097e152e415c8c937dbc288cb31aebdef2f69ffc5996e2d'
 - name: openjdk
   version: 25.0.2+12
   uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_25.0.2%2B12_linux_x64_cflinuxfs4_c6c8e022.tgz
