@@ -305,17 +305,10 @@ dependencies:
   - cflinuxfs4
 - name: jprofiler-profiler
   version: 15.0.4
-  uri: https://buildpacks.cloudfoundry.org/dependencies/jprofiler-profiler/jprofiler-profiler_15.0.4_linux_x64_cflinuxfs4_fec74171.tgz
+  uri: https://buildpacks.cloudfoundry.org/dependencies/jprofiler-profiler/jprofiler-profiler_15.0.4_linux_x64_any-stack_fec74171.tgz
   sha256: fec741718854a11b2383bb278ca7103984e0ae659268ed53ea5a8b32077b86c9
   cf_stacks:
   - cflinuxfs4
-  source: https://download-gcdn.ej-technologies.com/jprofiler/jprofiler_linux_15_0_4.tar.gz
-  source_sha256: fec741718854a11b2383bb278ca7103984e0ae659268ed53ea5a8b32077b86c9
-- name: jprofiler-profiler
-  version: 15.0.4
-  uri: https://buildpacks.cloudfoundry.org/dependencies/jprofiler-profiler/jprofiler-profiler_15.0.4_linux_x64_cflinuxfs5_fec74171.tgz
-  sha256: fec741718854a11b2383bb278ca7103984e0ae659268ed53ea5a8b32077b86c9
-  cf_stacks:
   - cflinuxfs5
   source: https://download-gcdn.ej-technologies.com/jprofiler/jprofiler_linux_15_0_4.tar.gz
   source_sha256: fec741718854a11b2383bb278ca7103984e0ae659268ed53ea5a8b32077b86c9
