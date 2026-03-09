@@ -405,12 +405,13 @@ dependencies:
   source_sha256: e4b75fc9f3d82f09eb29b2d9a8bd2aac2e0b5cf6dd335d4632ffadc4f298f419
 - name: openjdk
   version: 25.0.2+12
-  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_25.0.2%2B12_linux_x64_cflinuxfs4_c6c8e022.tgz
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_25.0.2%2B12_linux_x64_any-stack_c6c8e022.tgz
   sha256: c6c8e022cd19be8b872b62261d75d50afe5427795a2401976631cc713c818402
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
   source: https://github.com/bell-sw/Liberica/releases/download/25.0.2+12/bellsoft-jre25.0.2+12-linux-amd64.tar.gz
-  source_sha256: 
+  source_sha256: c6c8e022cd19be8b872b62261d75d50afe5427795a2401976631cc713c818402
 - name: postgresql-jdbc
   version: 42.7.8
   uri: https://java-buildpack.cloudfoundry.org/postgresql-jdbc/postgresql-jdbc-42.7.8.jar
