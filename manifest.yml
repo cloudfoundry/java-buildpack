@@ -452,13 +452,14 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 - name: skywalking-agent
-  version: 9.5.0
-  uri: https://java-buildpack.cloudfoundry.org/sky-walking/sky-walking-9.5.0.tar.gz
-  sha256: 5ce3d3a97e4403ac3c0c386c211521d0e39237ae1ce662427d1fe8a9bbc20735
+  version: 9.6.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/skywalking-agent/skywalking-agent_9.6.0_linux_noarch_any-stack_e17d512d.tgz
+  sha256: e17d512d4ee5575ebb7d705b3b9760f1cc2f0df7f6f4061beecaa352c94a43ad
   cf_stacks:
   - cflinuxfs4
-  source: https://archive.apache.org/dist/skywalking/java-agent/9.5.0/apache-skywalking-java-agent-9.5.0.tgz
-  source_sha256: 5ce3d3a97e4403ac3c0c386c211521d0e39237ae1ce662427d1fe8a9bbc20735
+  - cflinuxfs5
+  source: https://dlcdn.apache.org/skywalking/java-agent/9.6.0/apache-skywalking-java-agent-9.6.0.tgz
+  source_sha256: e17d512d4ee5575ebb7d705b3b9760f1cc2f0df7f6f4061beecaa352c94a43ad
 - name: splunk-otel-javaagent
   version: 2.22.0
   uri: https://github.com/signalfx/splunk-otel-java/releases/download/v2.22.0/splunk-otel-javaagent.jar
