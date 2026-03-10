@@ -196,4 +196,35 @@ var _ = Describe("Tomcat Container", func() {
 			Expect(contentStr).To(ContainSubstring("org.apache.catalina.realm.UserDatabaseRealm"))
 		})
 	})
+
+	Describe("determineTomcatVersion", func() {
+		It("returns empty string when JBP_CONFIG_TOMCAT is empty", func() {
+			v := containers.DetermineTomcatVersion("")
+			Expect(v).To(Equal(""))
+		})
+
+		It("returns 9.x for tomcat version 9.+", func() {
+			raw := `{ tomcat: { version: "9.+" } }`
+			v := containers.DetermineTomcatVersion(raw)
+			Expect(v).To(Equal("9.x"))
+		})
+
+		It("returns 10.x for tomcat version 10.+", func() {
+			raw := `{ tomcat: { version: "10.+" } }`
+			v := containers.DetermineTomcatVersion(raw)
+			Expect(v).To(Equal("10.x"))
+		})
+
+		It("returns 10.23.+ for tomcat version 10.23.+", func() {
+			raw := `{ tomcat: { version: "10.23.+" } }`
+			v := containers.DetermineTomcatVersion(raw)
+			Expect(v).To(Equal("10.23.+"))
+		})
+
+		It("returns empty string when only access logging is configured", func() {
+			raw := `{access_logging_support: {access_logging: enabled}}`
+			v := containers.DetermineTomcatVersion(raw)
+			Expect(v).To(Equal(""))
+		})
+	})
 })

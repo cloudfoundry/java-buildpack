@@ -202,6 +202,23 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 
+			it("fails staging with a compatibility error for Tomcat 10 with Java 8 (javax)", func() {
+				if settings.Platform == "docker" {
+					t.Skip("Tomcat 10 + Java 8 compatibility enforcement is only guaranteed on CF platform")
+				}
+
+				_, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"BP_JAVA_VERSION":   "8",
+						"JBP_CONFIG_TOMCAT": "{ tomcat: { version: \"10.+\" } }",
+					}).
+					Execute(name, filepath.Join(fixtures, "containers", "tomcat_javax"))
+
+				// Now we expect staging to fail
+				Expect(err).To(HaveOccurred())
+				Expect(logs.String()).To(ContainSubstring("Tomcat 10.x requires Java 11+, but Java 8 detected"))
+			})
+
 			it("deploys with Java 11 (Tomcat 10 + jakarta.servlet)", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
