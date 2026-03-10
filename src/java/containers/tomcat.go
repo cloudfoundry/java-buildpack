@@ -604,8 +604,8 @@ func (t *TomcatContainer) Finalize() error {
 
 	webInf := filepath.Join(buildDir, "WEB-INF")
 	if _, err := os.Stat(webInf); err == nil {
-		// the fix name is prefixed with 'zzz' as it is important to be the last script sourced from profile.d
-		// so that the previous scripts assembling the CLASSPATH variable were sourced previous to it.
+		// the script name is prefixed with 'zzz' as it is important to be the last script sourced from profile.d
+		// so that the previous scripts assembling the CLASSPATH variable(left from frameworks) are sourced previous to it.
 		if err := t.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("WEB-INF", "lib"))); err != nil {
 			return fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
 		}

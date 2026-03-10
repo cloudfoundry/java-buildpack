@@ -234,6 +234,9 @@ func (s *SpringBootContainer) Release() (string, error) {
 	bootInf := filepath.Join(buildDir, "BOOT-INF")
 	if _, err := os.Stat(bootInf); err == nil {
 		// Verify this is actually a Spring Boot application
+
+		// the script name is prefixed with 'zzz' as it is important to be the last script sourced from profile.d
+		// so that the previous scripts assembling the CLASSPATH variable(left from frameworks) are sourced previous to it.
 		if err := s.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("BOOT-INF", "lib"))); err != nil {
 			return "", fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
 		}
