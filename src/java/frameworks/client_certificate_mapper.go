@@ -69,17 +69,17 @@ func (c *ClientCertificateMapperFramework) Finalize() error {
 		return nil
 	}
 
-	// Add to classpath via CLASSPATH environment variable
-	classpath := os.Getenv("CLASSPATH")
-	if classpath != "" {
-		classpath += ":"
-	}
-	classpath += matches[0]
+	depsIdx := c.context.Stager.DepsIdx()
+	runtimePath := fmt.Sprintf("$DEPS_DIR/%s/client_certificate_mapper/%s", depsIdx, filepath.Base(matches[0]))
+	
+	profileScript := fmt.Sprintf("export CLASSPATH=\"%s${CLASSPATH:+:$CLASSPATH}\"\n", runtimePath)
 
-	if err := c.context.Stager.WriteEnvFile("CLASSPATH", classpath); err != nil {
-		return fmt.Errorf("failed to set CLASSPATH for Client Certificate Mapper: %w", err)
+	if err := c.context.Stager.WriteProfileD("client_certificate_mapper.sh", profileScript); err != nil {
+		return fmt.Errorf("failed to write client_certificate_mapper.sh profile.d script: %w", err)
 	}
-
+	
+	c.context.Log.Debug("Client Certificate Mapper JAR will be added to classpath at runtime: %s", runtimePath)
+	
 	return nil
 }
 
