@@ -604,6 +604,12 @@ func (t *TomcatContainer) Finalize() error {
 
 	webInf := filepath.Join(buildDir, "WEB-INF")
 	if _, err := os.Stat(webInf); err == nil {
+		// the fix name is prefixed with 'zzz' as it is important to be the last script sourced from profile.d
+		// so that the previous scripts assembling the CLASSPATH variable were sourced previous to it.
+		if err := t.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", symlinkScript); err != nil {
+			return fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
+		}
+
 		contextXMLDir := filepath.Dir(contextXMLPath)
 		if err := os.MkdirAll(contextXMLDir, 0755); err != nil {
 			return fmt.Errorf("failed to create context directory: %w", err)
@@ -644,3 +650,20 @@ func (t *TomcatContainer) Release() (string, error) {
 
 	return cmd, nil
 }
+
+var symlinkScript = fmt.Sprintf(`#!/bin/bash
+set -uo pipefail
+TARGET_DIR="$PWD/%s"
+CLASSPATH=${CLASSPATH:-}
+mkdir -p "$TARGET_DIR"
+# Split CLASSPATH on :
+IFS=':' read -ra PATHS <<< "$CLASSPATH"
+for p in "${PATHS[@]}"; do
+    # Skip empty entries
+    [[ -z "$p" ]] && continue
+    name=$(basename "$p")
+    link="$TARGET_DIR/$name"
+    ln -s "$p" "$link"
+    echo "Created symlink: $link -> $p"
+done
+`, filepath.Join("WEB-INF", "lib"))
