@@ -1,8 +1,8 @@
 package containers
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 	"strings"
@@ -234,6 +234,9 @@ func (s *SpringBootContainer) Release() (string, error) {
 	bootInf := filepath.Join(buildDir, "BOOT-INF")
 	if _, err := os.Stat(bootInf); err == nil {
 		// Verify this is actually a Spring Boot application
+		if err := s.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("BOOT-INF", "lib"))); err != nil {
+			return "", fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
+		}
 		if s.isSpringBootExplodedJar(buildDir) {
 			// True Spring Boot exploded JAR - use JarLauncher
 			// Determine the correct JarLauncher class name based on Spring Boot version

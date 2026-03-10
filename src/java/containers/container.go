@@ -107,3 +107,20 @@ func (r *Registry) RegisterStandardContainers() {
 	r.Register(NewDistZipContainer(r.context))
 	r.Register(NewJavaMainContainer(r.context))
 }
+
+var symlinkScript = `#!/bin/bash
+set -uo pipefail
+TARGET_DIR="$PWD/%s"
+CLASSPATH=${CLASSPATH:-}
+mkdir -p "$TARGET_DIR"
+# Split CLASSPATH on :
+IFS=':' read -ra PATHS <<< "$CLASSPATH"
+for p in "${PATHS[@]}"; do
+    # Skip empty entries
+    [[ -z "$p" ]] && continue
+    name=$(basename "$p")
+    link="$TARGET_DIR/$name"
+    ln -s "$p" "$link"
+    echo "Created symlink: $link -> $p"
+done
+`
