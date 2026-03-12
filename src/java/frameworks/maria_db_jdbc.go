@@ -97,7 +97,7 @@ func (f *MariaDBJDBCFramework) Finalize() error {
 		return nil // Non-blocking
 	}
 
-	f.context.Log.Info("MariaDB JDBC driver added to CLASSPATH")
+	f.context.Log.Debug("Maria JDBC will be added to classpath at runtime: %s", runtimePath)
 	return nil
 }
 

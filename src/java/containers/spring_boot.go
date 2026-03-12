@@ -276,7 +276,7 @@ func (s *SpringBootContainer) Release() (string, error) {
 	}
 
 	// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-	cmd := fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -jar %s", jarFile)
+	cmd := fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS ${CONTAINER_SECURITY_PROVIDER:+-Dloader.path=$CONTAINER_SECURITY_PROVIDER} -jar %s", jarFile)
 	return cmd, nil
 }
 
