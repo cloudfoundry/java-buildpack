@@ -17,4 +17,5 @@
   -->
 
 <Context>
+    <Resources allowLinking='true'/>
 </Context>

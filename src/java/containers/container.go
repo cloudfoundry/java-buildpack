@@ -107,3 +107,23 @@ func (r *Registry) RegisterStandardContainers() {
 	r.Register(NewDistZipContainer(r.context))
 	r.Register(NewJavaMainContainer(r.context))
 }
+
+// This script is used to process the CLASSPATH assembled from various framework scripts sourced from profile.d
+// to further create symlinks to the corresponding framework dependencies in WEB-INF/lib, BOOT-INF/lib and where ever
+// needed thus they are available for application classloading
+var symlinkScript = `#!/bin/bash
+set -euo pipefail
+TARGET_DIR="$PWD/%s"
+CLASSPATH=${CLASSPATH:-}
+mkdir -p "$TARGET_DIR"
+# Split CLASSPATH on :
+IFS=':' read -ra PATHS <<< "$CLASSPATH"
+for p in "${PATHS[@]}"; do
+    # Skip empty entries
+    [[ -z "$p" ]] && continue
+    name=$(basename "$p")
+    link="$TARGET_DIR/$name"
+    ln -sf "$p" "$link"
+    echo "Created symlink: $link -> $p"
+done
+`

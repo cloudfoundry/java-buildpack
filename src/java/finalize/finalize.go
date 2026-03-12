@@ -102,7 +102,7 @@ func Run(f *Finalizer) error {
 	}
 
 	// Finalize frameworks (APM agents, etc.)
-	if err := f.finalizeFrameworks(); err != nil {
+	if err := f.finalizeFrameworks(ctx); err != nil {
 		f.Log.Error("Failed to finalize frameworks: %s", err.Error())
 		return err
 	}
@@ -158,16 +158,8 @@ func (f *Finalizer) finalizeJRE() error {
 }
 
 // finalizeFrameworks finalizes framework components (APM agents, etc.)
-func (f *Finalizer) finalizeFrameworks() error {
+func (f *Finalizer) finalizeFrameworks(ctx *common.Context) error {
 	f.Log.BeginStep("Finalizing frameworks")
-
-	ctx := &common.Context{
-		Stager:    f.Stager,
-		Manifest:  f.Manifest,
-		Installer: f.Installer,
-		Log:       f.Log,
-		Command:   f.Command,
-	}
 
 	registry := frameworks.NewRegistry(ctx)
 	registry.RegisterStandardFrameworks()

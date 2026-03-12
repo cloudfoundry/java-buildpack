@@ -88,13 +88,16 @@ func (f *MariaDBJDBCFramework) Finalize() error {
 
 	f.context.Log.BeginStep("Configuring MariaDB JDBC driver")
 
-	// Add to CLASSPATH environment variable
-	if err := f.context.Stager.WriteEnvFile("CLASSPATH", f.jarPath); err != nil {
+	depsIdx := f.context.Stager.DepsIdx()
+	runtimePath := fmt.Sprintf("$DEPS_DIR/%s/mariadb_jdbc/%s", depsIdx, filepath.Base(f.jarPath))
+
+	profileScript := fmt.Sprintf("export CLASSPATH=\"%s${CLASSPATH:+:$CLASSPATH}\"\n", runtimePath)
+	if err := f.context.Stager.WriteProfileD("mariadb_jdbc.sh", profileScript); err != nil {
 		f.context.Log.Warning("Failed to add MariaDB JDBC to CLASSPATH: %s", err)
 		return nil // Non-blocking
 	}
 
-	f.context.Log.Info("MariaDB JDBC driver added to CLASSPATH")
+	f.context.Log.Debug("Maria JDBC will be added to classpath at runtime: %s", runtimePath)
 	return nil
 }
 

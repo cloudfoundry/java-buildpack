@@ -1,8 +1,8 @@
 package containers
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 	"strings"
@@ -218,6 +218,16 @@ func (s *SpringBootContainer) Finalize() error {
 		finalOpts = strings.Join(additionalOpts, " ")
 	}
 
+	buildDir := s.context.Stager.BuildDir()
+	bootInf := filepath.Join(buildDir, "BOOT-INF")
+	if _, err := os.Stat(bootInf); err == nil {
+		// the script name is prefixed with 'zzz' as it is important to be the last script sourced from profile.d
+		// so that the previous scripts assembling the CLASSPATH variable(left from frameworks) are sourced previous to it.
+		if err := s.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("BOOT-INF", "lib"))); err != nil {
+			return fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
+		}
+	}
+
 	// Write combined JAVA_OPTS
 	if err := s.context.Stager.WriteEnvFile("JAVA_OPTS", finalOpts); err != nil {
 		return fmt.Errorf("failed to write JAVA_OPTS: %w", err)
@@ -234,12 +244,13 @@ func (s *SpringBootContainer) Release() (string, error) {
 	bootInf := filepath.Join(buildDir, "BOOT-INF")
 	if _, err := os.Stat(bootInf); err == nil {
 		// Verify this is actually a Spring Boot application
+
 		if s.isSpringBootExplodedJar(buildDir) {
 			// True Spring Boot exploded JAR - use JarLauncher
 			// Determine the correct JarLauncher class name based on Spring Boot version
 			jarLauncherClass := s.getJarLauncherClass(buildDir)
 			// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp . %s", jarLauncherClass), nil
+			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp $PWD/.${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s", jarLauncherClass), nil
 		}
 
 		// Exploded JAR but NOT Spring Boot - use Main-Class from MANIFEST.MF
@@ -247,7 +258,7 @@ func (s *SpringBootContainer) Release() (string, error) {
 		if mainClass != "" {
 			// Use classpath from BOOT-INF/classes and BOOT-INF/lib
 			// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp $HOME:$HOME/BOOT-INF/classes:$HOME/BOOT-INF/lib/* %s", mainClass), nil
+			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp $HOME${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}:$HOME/BOOT-INF/classes:$HOME/BOOT-INF/lib/* %s", mainClass), nil
 		}
 
 		return "", fmt.Errorf("exploded JAR found but no Main-Class in MANIFEST.MF")
@@ -270,7 +281,7 @@ func (s *SpringBootContainer) Release() (string, error) {
 	}
 
 	// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-	cmd := fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -jar %s", jarFile)
+	cmd := fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS ${CONTAINER_SECURITY_PROVIDER:+-Dloader.path=$CONTAINER_SECURITY_PROVIDER} -jar %s", jarFile)
 	return cmd, nil
 }
 

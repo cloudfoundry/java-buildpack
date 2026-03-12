@@ -256,9 +256,12 @@ func (t *TomcatContainer) createSetenvScript(tomcatDir, loggingSupportJar string
 	setenvPath := filepath.Join(binDir, "setenv.sh")
 
 	jarPath := "$CATALINA_HOME/bin/" + loggingSupportJar
-
+	// Note that Tomcat builds its own CLASSPATH env before starting. It ensures that any user defined CLASSPATH variables
+	// are not used on startup, as can be seen in the catalina.sh script. That is why even we have something already
+	// sourced in CLASSPATH env from profile.d scripts it is disregarded on Tomcat startup and fresh CLASSPATH env is
+	// built here in the setenv.sh script.
 	setenvContent := fmt.Sprintf(`#!/bin/sh
-JAVA_OPTS="$JAVA_OPTS -Xbootclasspath/a:%s"
+CLASSPATH="%s${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
 `, jarPath)
 
 	if err := os.WriteFile(setenvPath, []byte(setenvContent), 0755); err != nil {
@@ -604,6 +607,12 @@ func (t *TomcatContainer) Finalize() error {
 
 	webInf := filepath.Join(buildDir, "WEB-INF")
 	if _, err := os.Stat(webInf); err == nil {
+		// the script name is prefixed with 'zzz' as it is important to be the last script sourced from profile.d
+		// so that the previous scripts assembling the CLASSPATH variable(left from frameworks) are sourced previous to it.
+		if err := t.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("WEB-INF", "lib"))); err != nil {
+			return fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
+		}
+
 		contextXMLDir := filepath.Dir(contextXMLPath)
 		if err := os.MkdirAll(contextXMLDir, 0755); err != nil {
 			return fmt.Errorf("failed to create context directory: %w", err)

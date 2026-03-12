@@ -101,16 +101,15 @@ func (s *SpringAutoReconfigurationFramework) Finalize() error {
 		return nil
 	}
 
-	// Add to classpath via CLASSPATH environment variable
-	classpath := os.Getenv("CLASSPATH")
-	if classpath != "" {
-		classpath += ":"
-	}
-	classpath += matches[0]
+	depsIdx := s.context.Stager.DepsIdx()
+	runtimePath := fmt.Sprintf("$DEPS_DIR/%s/spring_auto_reconfiguration/%s", depsIdx, filepath.Base(matches[0]))
 
-	if err := s.context.Stager.WriteEnvFile("CLASSPATH", classpath); err != nil {
-		return fmt.Errorf("failed to set CLASSPATH for Spring Auto-reconfiguration: %w", err)
+	profileScript := fmt.Sprintf("export CLASSPATH=\"%s${CLASSPATH:+:$CLASSPATH}\"\n", runtimePath)
+	if err := s.context.Stager.WriteProfileD("spring_auto_reconfiguration.sh", profileScript); err != nil {
+		return fmt.Errorf("failed to write spring_auto_reconfiguration.sh profile.d script: %w", err)
 	}
+
+	s.context.Log.Debug("Spring Auto-reconfiguration JAR will be added to classpath at runtime: %s", runtimePath)
 
 	return nil
 }
