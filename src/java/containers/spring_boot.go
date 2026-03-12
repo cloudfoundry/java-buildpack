@@ -245,7 +245,7 @@ func (s *SpringBootContainer) Release() (string, error) {
 			// Determine the correct JarLauncher class name based on Spring Boot version
 			jarLauncherClass := s.getJarLauncherClass(buildDir)
 			// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp . %s", jarLauncherClass), nil
+			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp $PWD/.${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s", jarLauncherClass), nil
 		}
 
 		// Exploded JAR but NOT Spring Boot - use Main-Class from MANIFEST.MF
@@ -253,7 +253,7 @@ func (s *SpringBootContainer) Release() (string, error) {
 		if mainClass != "" {
 			// Use classpath from BOOT-INF/classes and BOOT-INF/lib
 			// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp $HOME:$HOME/BOOT-INF/classes:$HOME/BOOT-INF/lib/* %s", mainClass), nil
+			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp $HOME${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}:$HOME/BOOT-INF/classes:$HOME/BOOT-INF/lib/* %s", mainClass), nil
 		}
 
 		return "", fmt.Errorf("exploded JAR found but no Main-Class in MANIFEST.MF")

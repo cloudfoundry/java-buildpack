@@ -75,9 +75,13 @@ func (c *ContainerSecurityProviderFramework) Finalize() error {
 	// Build JAVA_OPTS with runtime paths using $DEPS_DIR
 	var javaOpts string
 	if javaVersion >= 9 {
-		// Java 9+: Add to bootstrap classpath via -Xbootclasspath/a
 		runtimeJarPath := fmt.Sprintf("$DEPS_DIR/%s/container_security_provider/%s", depsIdx, jarFilename)
-		javaOpts = fmt.Sprintf("-Xbootclasspath/a:%s", runtimeJarPath)
+
+		profileScript := fmt.Sprintf("export CONTAINER_SECURITY_PROVIDER=\"%s\"\n", runtimeJarPath)
+
+		if err := c.context.Stager.WriteProfileD("container_security_provider.sh", profileScript); err != nil {
+			return fmt.Errorf("failed to write container_security_provider.sh profile.d script: %w", err)
+		}
 	} else {
 		// Java 8: Use extension directory
 		runtimeProviderDir := fmt.Sprintf("$DEPS_DIR/%s/container_security_provider", depsIdx)

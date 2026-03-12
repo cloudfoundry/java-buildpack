@@ -258,7 +258,7 @@ func (t *TomcatContainer) createSetenvScript(tomcatDir, loggingSupportJar string
 	jarPath := "$CATALINA_HOME/bin/" + loggingSupportJar
 
 	setenvContent := fmt.Sprintf(`#!/bin/sh
-JAVA_OPTS="$JAVA_OPTS -Xbootclasspath/a:%s"
+CLASSPATH="%s${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
 `, jarPath)
 
 	if err := os.WriteFile(setenvPath, []byte(setenvContent), 0755); err != nil {
