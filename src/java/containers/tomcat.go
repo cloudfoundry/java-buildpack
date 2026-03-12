@@ -256,7 +256,10 @@ func (t *TomcatContainer) createSetenvScript(tomcatDir, loggingSupportJar string
 	setenvPath := filepath.Join(binDir, "setenv.sh")
 
 	jarPath := "$CATALINA_HOME/bin/" + loggingSupportJar
-
+	// Note that Tomcat builds its own CLASSPATH env before starting. It ensures that any user defined CLASSPATH variables
+	// are not used on startup, as can be seen in the catalina.sh script. That is why even we have something already
+	// sourced in CLASSPATH env from profile.d scripts it is disregarded on Tomcat startup and fresh CLASSPATH env is
+	// built here in the setenv.sh script.
 	setenvContent := fmt.Sprintf(`#!/bin/sh
 CLASSPATH="%s${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
 `, jarPath)
