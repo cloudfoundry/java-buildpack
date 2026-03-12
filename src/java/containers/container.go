@@ -112,7 +112,7 @@ func (r *Registry) RegisterStandardContainers() {
 // to further create symlinks to the corresponding framework dependencies in WEB-INF/lib, BOOT-INF/lib and where ever
 // needed thus they are available for application classloading
 var symlinkScript = `#!/bin/bash
-set -uo pipefail
+set -euo pipefail
 TARGET_DIR="$PWD/%s"
 CLASSPATH=${CLASSPATH:-}
 mkdir -p "$TARGET_DIR"
@@ -123,7 +123,7 @@ for p in "${PATHS[@]}"; do
     [[ -z "$p" ]] && continue
     name=$(basename "$p")
     link="$TARGET_DIR/$name"
-    ln -s "$p" "$link"
+    ln -sf "$p" "$link"
     echo "Created symlink: $link -> $p"
 done
 `
