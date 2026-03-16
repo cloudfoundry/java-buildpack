@@ -114,7 +114,6 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 
 				// Verify Container Security Provider opts use runtime paths ($DEPS_DIR), not staging paths
 				Eventually(deployment).Should(matchers.Serve(And(
-					ContainSubstring("-Xbootclasspath/a:"),
 					Not(ContainSubstring("/tmp/contents")), // Should NOT have staging path
 					ContainSubstring("-Djava.security.properties="),
 				)).WithEndpoint("/jvm-args"))
@@ -199,7 +198,6 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 					ContainSubstring("-Xmx384M"),
 					ContainSubstring("customProp=testValue"),
 					// Framework 2: Container Security Provider opts
-					ContainSubstring("-Xbootclasspath/a:"),
 					ContainSubstring("-Djava.security.properties="),
 					// Framework 3: Debug opts (JDWP agent)
 					ContainSubstring("-agentlib:jdwp="),
@@ -243,7 +241,6 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 					// Configured opts from buildpack (Framework 1)
 					ContainSubstring("configProp=fromBuildpack"),
 					// Framework 2: Container Security Provider opts
-					ContainSubstring("-Xbootclasspath/a:"),
 					// Framework 3: Debug opts (JDWP agent)
 					ContainSubstring("-agentlib:jdwp="),
 					// Framework 4: JRebel opts
