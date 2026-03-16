@@ -216,25 +216,21 @@ func (o *OpenJDKJRE) MemoryCalculatorCommand() string {
 	return o.memoryCalc.GetCalculatorCommand()
 }
 
-// findJavaHome locates the actual JAVA_HOME directory after extraction
-// OpenJDK tarballs usually extract to jdk-* or jre-* subdirectories
+// findJavaHome locates the actual JAVA_HOME directory after extraction.
+// It searches for any subdirectory containing bin/java, which handles tarballs
+// that extract to jdk-*, jre-*, or other directory structures.
 func (o *OpenJDKJRE) findJavaHome() (string, error) {
 	entries, err := os.ReadDir(o.jreDir)
 	if err != nil {
 		return "", fmt.Errorf("failed to read JRE directory: %w", err)
 	}
 
-	// Look for jdk-* or jre-* subdirectory
+	// Find any subdirectory that contains bin/java
 	for _, entry := range entries {
 		if entry.IsDir() {
-			name := entry.Name()
-			// Check for common OpenJDK directory patterns
-			if len(name) > 3 && (name[:3] == "jdk" || name[:3] == "jre") {
-				path := filepath.Join(o.jreDir, name)
-				// Verify it has a bin directory with java
-				if _, err := os.Stat(filepath.Join(path, "bin", "java")); err == nil {
-					return path, nil
-				}
+			path := filepath.Join(o.jreDir, entry.Name())
+			if _, err := os.Stat(filepath.Join(path, "bin", "java")); err == nil {
+				return path, nil
 			}
 		}
 	}

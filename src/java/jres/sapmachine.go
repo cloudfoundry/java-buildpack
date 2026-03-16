@@ -174,32 +174,21 @@ func (s *SapMachineJRE) MemoryCalculatorCommand() string {
 	return s.memoryCalc.GetCalculatorCommand()
 }
 
-// findJavaHome locates the actual JAVA_HOME directory after extraction
-// SAP Machine tarballs usually extract to sapmachine-* or jdk-* subdirectories
+// findJavaHome locates the actual JAVA_HOME directory after extraction.
+// It searches for any subdirectory containing bin/java, which handles tarballs
+// that extract to sapmachine-jre-*, jdk-*, jre-*, or other directory structures.
 func (s *SapMachineJRE) findJavaHome() (string, error) {
 	entries, err := os.ReadDir(s.jreDir)
 	if err != nil {
 		return "", fmt.Errorf("failed to read JRE directory: %w", err)
 	}
 
-	// Look for sapmachine-*, jdk-*, or jre-* subdirectory
+	// Find any subdirectory that contains bin/java
 	for _, entry := range entries {
 		if entry.IsDir() {
-			name := entry.Name()
-			// Check for SAP Machine directory patterns
-			if len(name) > 10 && name[:10] == "sapmachine" {
-				path := filepath.Join(s.jreDir, name)
-				// Verify it has a bin directory with java
-				if _, err := os.Stat(filepath.Join(path, "bin", "java")); err == nil {
-					return path, nil
-				}
-			}
-			// Also check for standard jdk/jre patterns
-			if len(name) > 3 && (name[:3] == "jdk" || name[:3] == "jre") {
-				path := filepath.Join(s.jreDir, name)
-				if _, err := os.Stat(filepath.Join(path, "bin", "java")); err == nil {
-					return path, nil
-				}
+			path := filepath.Join(s.jreDir, entry.Name())
+			if _, err := os.Stat(filepath.Join(path, "bin", "java")); err == nil {
+				return path, nil
 			}
 		}
 	}
