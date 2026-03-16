@@ -376,7 +376,7 @@ func WriteJavaOptsWithPriority(ctx *common.Context, priority int, name string, o
 //  3. Prepends $JAVA_HOME/bin to PATH
 //
 // It also sets these environment variables during staging for use by frameworks.
-func WriteJavaHomeProfileD(ctx *common.Context, jreDir, javaHome string) error {
+func WriteJavaHomeProfileD(ctx *common.Context, jreDir, javaHome, jreName string) error {
 	// Compute relative path from jreDir to javaHome
 	relPath, err := filepath.Rel(jreDir, javaHome)
 	if err != nil {
@@ -396,12 +396,34 @@ func WriteJavaHomeProfileD(ctx *common.Context, jreDir, javaHome string) error {
 		javaHomePath = fmt.Sprintf("$DEPS_DIR/%s/jre/%s", depsIdx, relPath)
 	}
 
+	var jreFolder string
+	switch jreName {
+	case "OpenJDK":
+		jreFolder = "open_jdk_jre"
+	case "SapMachine":
+		jreFolder = "sap_machine_jre"
+	case "Oracle JRE":
+		jreFolder = "oracle_jre"
+	case "Zing JRE":
+		jreFolder = "zing_jre"
+	case "Zulu":
+		jreFolder = "zulu_jre"
+	case "GraalVM":
+		jreFolder = "graal_vm_jre"
+	case "IBM JRE":
+		jreFolder = "ibm_jre"
+	default:
+		jreFolder = "open_jdk_jre"
+	}
+
 	// Create the profile.d script content with JAVA_HOME, JRE_HOME, and PATH
 	// Following the pattern from reference buildpacks (Ruby, Python, Go)
 	envContent := fmt.Sprintf(`export JAVA_HOME=%s
 export JRE_HOME=%s
 export PATH=$JAVA_HOME/bin:$PATH
-`, javaHomePath, javaHomePath)
+mkdir -p /home/vcap/app/.java-buildpack
+ln -sf $JAVA_HOME /home/vcap/app/.java-buildpack/%s
+`, javaHomePath, javaHomePath, jreFolder)
 
 	// Write the profile.d script using libbuildpack API
 	if err := ctx.Stager.WriteProfileD("java.sh", envContent); err != nil {
