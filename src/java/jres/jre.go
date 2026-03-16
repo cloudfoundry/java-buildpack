@@ -374,6 +374,7 @@ func WriteJavaOptsWithPriority(ctx *common.Context, priority int, name string, o
 //  1. Exports JAVA_HOME using $DEPS_DIR runtime variable
 //  2. Exports JRE_HOME (same as JAVA_HOME)
 //  3. Prepends $JAVA_HOME/bin to PATH
+//  4. Create symlink with old ruby based jre path to JAVA_HOME. See https://github.com/cloudfoundry/java-buildpack/issues/1151
 //
 // It also sets these environment variables during staging for use by frameworks.
 func WriteJavaHomeProfileD(ctx *common.Context, jreDir, javaHome, jreName string) error {
@@ -418,6 +419,10 @@ func WriteJavaHomeProfileD(ctx *common.Context, jreDir, javaHome, jreName string
 
 	// Create the profile.d script content with JAVA_HOME, JRE_HOME, and PATH
 	// Following the pattern from reference buildpacks (Ruby, Python, Go)
+	// Symlink to JAVA_HOME is added following the old ruby based buidpack jre path due to possible compatibility issues
+	// because ruby based bp apps relied on hardcoded paths to jre home. Thus providing the same path giving them possibility
+	// to migrate without breaking them when migrating to the go-based version.
+	// For more info check https://github.com/cloudfoundry/java-buildpack/issues/1151
 	envContent := fmt.Sprintf(`export JAVA_HOME=%s
 export JRE_HOME=%s
 export PATH=$JAVA_HOME/bin:$PATH
