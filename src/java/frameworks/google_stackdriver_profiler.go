@@ -28,6 +28,7 @@ import (
 type GoogleStackdriverProfilerFramework struct {
 	context   *common.Context
 	agentPath string
+	config    *googleStackDriveConfig
 }
 
 // NewGoogleStackdriverProfilerFramework creates a new Google Stackdriver Profiler framework instance
@@ -83,12 +84,12 @@ func (g *GoogleStackdriverProfilerFramework) Supply() error {
 		return fmt.Errorf("failed to install Google Stackdriver Profiler: %w", err)
 	}
 
-	// Find the installed agent (native library)
-	agentPattern := filepath.Join(profilerDir, "profiler_java_agent.so")
-	if _, err := os.Stat(agentPattern); err != nil {
-		return fmt.Errorf("Google Stackdriver Profiler agent not found after installation: %w", err)
+	// constructAgentPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
+	err = g.constructAgentPath(profilerDir)
+	if err != nil {
+		return fmt.Errorf("google stackdriver profiler agent not found during supply: %w", err)
 	}
-	g.agentPath = agentPattern
 
 	g.context.Log.Info("Google Stackdriver Profiler %s installed", dep.Version)
 	return nil
@@ -96,8 +97,10 @@ func (g *GoogleStackdriverProfilerFramework) Supply() error {
 
 // Finalize configures the Google Stackdriver Profiler
 func (g *GoogleStackdriverProfilerFramework) Finalize() error {
-	if g.agentPath == "" {
-		return nil
+	profilerDir := filepath.Join(g.context.Stager.DepDir(), "google_stackdriver_profiler")
+	err := g.constructAgentPath(profilerDir)
+	if err != nil {
+		return fmt.Errorf("google stackdriver profiler agent not found during finalize: %w", err)
 	}
 
 	g.context.Log.BeginStep("Configuring Google Stackdriver Profiler")
@@ -117,6 +120,12 @@ func (g *GoogleStackdriverProfilerFramework) Finalize() error {
 
 	// Build agentpath option with arguments
 	var agentArgs []string
+
+	err = g.loadConfig()
+	if err != nil {
+		g.context.Log.Warning("Failed to load google stack driver profiler config: %s", err.Error())
+		return nil // Do not fail the build
+	}
 
 	// Add service name (application name)
 	if appName := g.getApplicationName(); appName != "" {
@@ -198,6 +207,9 @@ func (g *GoogleStackdriverProfilerFramework) getCredentials() GoogleProfilerCred
 
 // getApplicationName returns the application name
 func (g *GoogleStackdriverProfilerFramework) getApplicationName() string {
+	if g.config.ApplicationName != "" {
+		return g.config.ApplicationName
+	}
 	vcapApp := os.Getenv("VCAP_APPLICATION")
 	if vcapApp == "" {
 		return ""
@@ -217,6 +229,9 @@ func (g *GoogleStackdriverProfilerFramework) getApplicationName() string {
 
 // getApplicationVersion returns the application version
 func (g *GoogleStackdriverProfilerFramework) getApplicationVersion() string {
+	if g.config.ApplicationVersion != "" {
+		return g.config.ApplicationVersion
+	}
 	vcapApp := os.Getenv("VCAP_APPLICATION")
 	if vcapApp == "" {
 		return ""
@@ -232,4 +247,41 @@ func (g *GoogleStackdriverProfilerFramework) getApplicationVersion() string {
 	}
 
 	return ""
+}
+
+func (g *GoogleStackdriverProfilerFramework) constructAgentPath(profilerDir string) error {
+	// Find the installed agent (native library)
+	agentPattern := filepath.Join(profilerDir, "profiler_java_agent.so")
+	if _, err := os.Stat(agentPattern); err != nil {
+		return fmt.Errorf("agent not found after installation: %w", err)
+	}
+	g.agentPath = agentPattern
+	return nil
+}
+
+func (g *GoogleStackdriverProfilerFramework) loadConfig() error {
+	// initialize default values
+	gsdConfig := googleStackDriveConfig{
+		ApplicationName:    "",
+		ApplicationVersion: "",
+	}
+	config := os.Getenv("JBP_CONFIG_GOOGLE_STACKDRIVER_PROFILER")
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &gsdConfig)
+		if err != nil {
+			g.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
+		// overlay JBP_CONFIG_GOOGLE_STACKDRIVER_PROFILER over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &gsdConfig); err != nil {
+			return fmt.Errorf("failed to parse JBP_CONFIG_GOOGLE_STACKDRIVER_PROFILER: %w", err)
+		}
+	}
+	g.config = &gsdConfig
+	return nil
+}
+
+type googleStackDriveConfig struct {
+	ApplicationName    string `yaml:"application_name"`
+	ApplicationVersion string `yaml:"application_version"`
 }

@@ -1,8 +1,8 @@
 package containers
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 	"strings"
@@ -218,6 +218,16 @@ func (s *SpringBootContainer) Finalize() error {
 		finalOpts = strings.Join(additionalOpts, " ")
 	}
 
+	buildDir := s.context.Stager.BuildDir()
+	bootInf := filepath.Join(buildDir, "BOOT-INF")
+	if _, err := os.Stat(bootInf); err == nil {
+		// the script name is prefixed with 'zzz' as it is important to be the last script sourced from profile.d
+		// so that the previous scripts assembling the CLASSPATH variable(left from frameworks) are sourced previous to it.
+		if err := s.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("BOOT-INF", "lib"))); err != nil {
+			return fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
+		}
+	}
+
 	// Write combined JAVA_OPTS
 	if err := s.context.Stager.WriteEnvFile("JAVA_OPTS", finalOpts); err != nil {
 		return fmt.Errorf("failed to write JAVA_OPTS: %w", err)
@@ -234,20 +244,23 @@ func (s *SpringBootContainer) Release() (string, error) {
 	bootInf := filepath.Join(buildDir, "BOOT-INF")
 	if _, err := os.Stat(bootInf); err == nil {
 		// Verify this is actually a Spring Boot application
+
 		if s.isSpringBootExplodedJar(buildDir) {
-			// True Spring Boot exploded JAR - use JarLauncher
-			// Determine the correct JarLauncher class name based on Spring Boot version
-			jarLauncherClass := s.getJarLauncherClass(buildDir)
+			// True Spring Boot exploded JAR - use main class from manifest or fallback to JarLauncher based on spring-boot version
+			launcherClass := s.getLauncherClass(buildDir)
 			// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp . %s", jarLauncherClass), nil
+			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp $PWD/.${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s", launcherClass), nil
 		}
 
 		// Exploded JAR but NOT Spring Boot - use Main-Class from MANIFEST.MF
-		mainClass := s.readMainClassFromManifest(buildDir)
+		mainClass, err := s.readMainClassFromManifest(buildDir)
+		if err != nil {
+			s.context.Log.Debug("Could not read MANIFEST.MF: %s", err.Error())
+		}
 		if mainClass != "" {
 			// Use classpath from BOOT-INF/classes and BOOT-INF/lib
 			// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp $HOME:$HOME/BOOT-INF/classes:$HOME/BOOT-INF/lib/* %s", mainClass), nil
+			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp $HOME${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}:$HOME/BOOT-INF/classes:$HOME/BOOT-INF/lib/* %s", mainClass), nil
 		}
 
 		return "", fmt.Errorf("exploded JAR found but no Main-Class in MANIFEST.MF")
@@ -270,22 +283,21 @@ func (s *SpringBootContainer) Release() (string, error) {
 	}
 
 	// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-	cmd := fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -jar %s", jarFile)
+	cmd := fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS ${CONTAINER_SECURITY_PROVIDER:+-Dloader.path=$CONTAINER_SECURITY_PROVIDER} -jar %s", jarFile)
 	return cmd, nil
 }
 
 // isSpringBootExplodedJar checks if an exploded JAR is actually a Spring Boot application
 // by looking for Spring Boot-specific markers in MANIFEST.MF
 func (s *SpringBootContainer) isSpringBootExplodedJar(buildDir string) bool {
-	manifestPath := filepath.Join(buildDir, "META-INF", "MANIFEST.MF")
-	data, err := os.ReadFile(manifestPath)
+	manifestData, err := s.readManifestFile(buildDir)
 	if err != nil {
 		s.context.Log.Debug("Could not read MANIFEST.MF: %s", err.Error())
 		return false
 	}
 
 	// Parse MANIFEST.MF and look for Spring Boot markers
-	lines := strings.Split(string(data), "\n")
+	lines := strings.Split(manifestData, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 
@@ -307,70 +319,66 @@ func (s *SpringBootContainer) isSpringBootExplodedJar(buildDir string) bool {
 	return false
 }
 
-// readMainClassFromManifest reads the Main-Class entry from MANIFEST.MF
-func (s *SpringBootContainer) readMainClassFromManifest(buildDir string) string {
+func (s *SpringBootContainer) readManifestFile(buildDir string) (string, error) {
 	manifestPath := filepath.Join(buildDir, "META-INF", "MANIFEST.MF")
 	data, err := os.ReadFile(manifestPath)
 	if err != nil {
 		s.context.Log.Debug("Could not read MANIFEST.MF: %s", err.Error())
-		return ""
+		return "", err
 	}
+	return string(data), nil
+}
 
+func (s *SpringBootContainer) readManifestField(manifest, field string) string {
 	// Parse MANIFEST.MF file (simple line-by-line parsing)
-	lines := strings.Split(string(data), "\n")
+	lines := strings.Split(manifest, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Main-Class:") {
-			mainClass := strings.TrimSpace(strings.TrimPrefix(line, "Main-Class:"))
-			s.context.Log.Debug("Found Main-Class in MANIFEST.MF: %s", mainClass)
-			return mainClass
+		if strings.HasPrefix(line, field) {
+			fieldValue := strings.TrimSpace(strings.TrimPrefix(line, field))
+			s.context.Log.Debug("Found %s in MANIFEST.MF with value: %s", field, fieldValue)
+			return fieldValue
 		}
 	}
 
 	return ""
 }
 
-// getJarLauncherClass returns the correct JarLauncher class name based on Spring Boot version
+// readMainClassFromManifest reads the Main-Class entry from MANIFEST.MF
+func (s *SpringBootContainer) readMainClassFromManifest(buildDir string) (string, error) {
+	manifestData, err := s.readManifestFile(buildDir)
+	if err != nil {
+		return "", err
+	}
+
+	return s.readManifestField(manifestData, "Main-Class:"), nil
+}
+
+// getLauncherClass returns the launcher class from manifest. If missing tries to determine correct JarLauncher class name
+// based on Spring Boot version
 // Spring Boot 2.x uses: org.springframework.boot.loader.JarLauncher
 // Spring Boot 3.x uses: org.springframework.boot.loader.launch.JarLauncher
-func (s *SpringBootContainer) getJarLauncherClass(buildDir string) string {
-	manifestPath := filepath.Join(buildDir, "META-INF", "MANIFEST.MF")
-	data, err := os.ReadFile(manifestPath)
+func (s *SpringBootContainer) getLauncherClass(buildDir string) string {
+	manifestData, err := s.readManifestFile(buildDir)
 	if err != nil {
 		s.context.Log.Debug("Could not read MANIFEST.MF for version detection: %s", err.Error())
 		// Default to Spring Boot 3.x (newer) launcher
 		return "org.springframework.boot.loader.launch.JarLauncher"
 	}
 
-	// Parse MANIFEST.MF to get Main-Class which tells us the actual launcher class
-	lines := strings.Split(string(data), "\n")
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Main-Class:") {
-			mainClass := strings.TrimSpace(strings.TrimPrefix(line, "Main-Class:"))
-			s.context.Log.Debug("Found Main-Class in MANIFEST.MF: %s", mainClass)
-
-			// If Main-Class is set to JarLauncher, use that exact class
-			if strings.Contains(mainClass, "JarLauncher") {
-				return mainClass
-			}
-		}
+	// Return launcher class from manifest. If missing try using JarLauncher based on Spring-Boot-Version
+	mainClass := s.readManifestField(manifestData, "Main-Class:")
+	if mainClass != "" {
+		return mainClass
 	}
 
-	// If we couldn't determine from Main-Class, check Spring Boot version
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Spring-Boot-Version:") {
-			version := strings.TrimSpace(strings.TrimPrefix(line, "Spring-Boot-Version:"))
-			s.context.Log.Debug("Found Spring-Boot-Version: %s", version)
-
-			// Spring Boot 3.x changed the loader package structure
-			if strings.HasPrefix(version, "3.") {
-				return "org.springframework.boot.loader.launch.JarLauncher"
-			}
-			// Spring Boot 2.x uses the old loader package
-			return "org.springframework.boot.loader.JarLauncher"
-		}
+	springBootVersion := s.readManifestField(manifestData, "Spring-Boot-Version:")
+	if strings.HasPrefix(springBootVersion, "3.") {
+		return "org.springframework.boot.loader.launch.JarLauncher"
+	}
+	// Spring Boot 2.x uses the old loader package
+	if strings.HasPrefix(springBootVersion, "2.") {
+		return "org.springframework.boot.loader.JarLauncher"
 	}
 
 	// Default to Spring Boot 3.x (newer) launcher if version couldn't be determined

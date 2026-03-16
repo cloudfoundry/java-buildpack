@@ -102,30 +102,37 @@ This creates executables in the `bin/` directory:
 
 ```
 java-buildpack/
-├── bin/                      # Compiled binaries (generated)
-│   ├── supply               # Supply phase executable
-│   └── finalize             # Finalize phase executable
-├── src/java/                # Go source code
-│   ├── containers/          # Container implementations (8 types)
-│   ├── frameworks/          # Framework implementations (38 types)
-│   ├── jres/                # JRE implementations (7 providers)
-│   ├── supply/cli/          # Supply phase entrypoint
-│   ├── finalize/cli/        # Finalize phase entrypoint
-│   └── integration/         # Integration tests
-├── config/                  # YAML configuration files
-│   ├── components.yml       # Component registry
-│   ├── open_jdk_jre.yml    # Example: OpenJDK configuration
-│   └── ...                  # Component-specific configs
-├── scripts/                 # Build and test scripts
-│   ├── build.sh            # Build binaries
-│   ├── unit.sh             # Run unit tests
-│   ├── integration.sh      # Run integration tests
-│   └── package.sh          # Package buildpack for deployment
-├── vendor/                  # Vendored Go dependencies
-├── go.mod                   # Go module definition
-├── go.sum                   # Dependency checksums
-├── manifest.yml             # Buildpack manifest
-└── VERSION                  # Version number
+├── bin/                                # Phase scripts
+│   ├── compile                         # Compile phase script
+│   ├── detect                          # Detect phase script
+│   ├── supply                          # Supply phase script
+│   ├── release                         # Release phase script
+│   └── finalize                        # Finalize phase script
+├── ci/                                 # ci scripts
+├── docs/                               # Detailes docs about frameworks, development and testing
+├── src/java/                           # Go source code
+|   ├── common/                         # Common code and libbuildpack context
+│   ├── containers/                     # Container implementations (8 types)
+│   ├── frameworks/                     # Framework implementations (38 types)
+│   ├── hooks/                          # libbuildpack hooks
+│   ├── jres/                           # JRE implementations (7 providers)
+│   ├── supply/cli/                     # Supply phase entrypoint
+│   ├── finalize/cli/                   # Finalize phase entrypoint
+│   ├── resources/                      # Resource configuration files
+│   └── integration/                    # Integration tests
+├── scripts/                            # Build and test scripts
+│   ├── build.sh                        # Build binaries
+│   ├── unit.sh                         # Run unit tests
+│   ├── integration.sh                  # Run integration tests
+│   └── package.sh                      # Package buildpack for deployment
+├── vendor/                             # Vendored Go dependencies
+├── ARCHITECTURE.md                     # Detailed architecture guide
+├── RUBY_VS_GO_BUILDPACK_COMPARISON.md  # Ruby vs Go buildpack implementations comparison info
+├── CONTRIBUTING.md                     # Contribution guide
+├── go.mod                              # Go module definition
+├── go.sum                              # Dependency checksums
+├── manifest.yml                        # Buildpack manifest
+└── VERSION                             # Version number
 
 Key Go Packages:
 - containers/   - Application container implementations (Tomcat, Spring Boot, etc.)
@@ -309,6 +316,8 @@ Watch for changes and re-run tests:
 cd src/java
 ginkgo watch -r frameworks/
 ```
+
+For detailed guidelines about setting up and running tests you can also check [Testing Guide](docs/TESTING.md)
 
 ## Development Workflow
 

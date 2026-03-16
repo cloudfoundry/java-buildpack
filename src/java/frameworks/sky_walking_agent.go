@@ -81,12 +81,12 @@ func (s *SkyWalkingAgentFramework) Supply() error {
 		return fmt.Errorf("failed to install SkyWalking agent: %w", err)
 	}
 
-	// Find the installed agent JAR (in skywalking-agent subdirectory)
-	jarPattern := filepath.Join(agentDir, "skywalking-agent", "skywalking-agent.jar")
-	if _, err := os.Stat(jarPattern); err != nil {
-		return fmt.Errorf("SkyWalking agent JAR not found after installation: %w", err)
+	// constructJarPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
+	err = s.constructJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("agent jar path not found during supply: %w", err)
 	}
-	s.jarPath = jarPattern
 
 	s.context.Log.Info("SkyWalking agent %s installed", dep.Version)
 	return nil
@@ -94,8 +94,10 @@ func (s *SkyWalkingAgentFramework) Supply() error {
 
 // Finalize configures the SkyWalking agent
 func (s *SkyWalkingAgentFramework) Finalize() error {
-	if s.jarPath == "" {
-		return nil
+	agentDir := filepath.Join(s.context.Stager.DepDir(), "sky_walking_agent")
+	err := s.constructJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("agent jar path not found during finalize: %w", err)
 	}
 
 	s.context.Log.BeginStep("Configuring SkyWalking agent")
@@ -118,7 +120,7 @@ func (s *SkyWalkingAgentFramework) Finalize() error {
 	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
 
 	// Configure application name (default to space:application_name)
-	appName := GetApplicationName(true)
+	appName := s.getAppName()
 	if appName != "" {
 		opts = append(opts, fmt.Sprintf("-Dskywalking.agent.service_name=%s", appName))
 	}
@@ -196,4 +198,51 @@ func (s *SkyWalkingAgentFramework) getCredentials() SkyWalkingCredentials {
 	}
 
 	return creds
+}
+
+func (s *SkyWalkingAgentFramework) getAppName() string {
+	appName := GetApplicationName(true)
+	if appName != "" {
+		return appName
+	}
+	config, err := s.loadConfig()
+	if err != nil {
+		s.context.Log.Warning("Failed to load sky walking agent config: %s", err.Error())
+		return ""
+	}
+	return config.DefaultApplicationName
+}
+
+func (s *SkyWalkingAgentFramework) constructJarPath(agentDir string) error {
+	// Find the installed agent JAR (in skywalking-agent subdirectory)
+	jarPattern := filepath.Join(agentDir, "skywalking-agent", "skywalking-agent.jar")
+	if _, err := os.Stat(jarPattern); err != nil {
+		return fmt.Errorf("agent jar not found after installation: %w", err)
+	}
+	s.jarPath = jarPattern
+	return nil
+}
+
+func (s *SkyWalkingAgentFramework) loadConfig() (*skyWalkingAgentConfig, error) {
+	// initialize default values
+	swaConfig := skyWalkingAgentConfig{
+		DefaultApplicationName: "",
+	}
+	config := os.Getenv("JBP_CONFIG_SKY_WALKING_AGENT")
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &swaConfig)
+		if err != nil {
+			s.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
+		// overlay JBP_CONFIG_SKY_WALKING_AGENT over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &swaConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_SKY_WALKING_AGENT: %w", err)
+		}
+	}
+	return &swaConfig, nil
+}
+
+type skyWalkingAgentConfig struct {
+	DefaultApplicationName string `yaml:"default_application_name"`
 }

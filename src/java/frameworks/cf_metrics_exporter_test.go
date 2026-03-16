@@ -98,6 +98,7 @@ func TestSupplyPlacesJarCorrectly(t *testing.T) {
 	ctx := &common.Context{Manifest: manifest}
 	ctx.Stager = libbuildpack.NewStager(args, libbuildpack.NewLogger(os.Stdout), manifest)
 	ctx.Log = libbuildpack.NewLogger(os.Stdout)
+	ctx.Installer = libbuildpack.NewInstaller(manifest)
 
 	// Pre-create the expected JAR file
 	jarName := "cf-metrics-exporter-0.7.1.jar" // adjust if version changes in manifest
@@ -146,6 +147,7 @@ func TestSupplyLogsProps(t *testing.T) {
 	args := []string{"", "", tmpDepDir, "0"}
 	ctx := &common.Context{Manifest: manifest}
 	ctx.Stager = libbuildpack.NewStager(args, libbuildpack.NewLogger(os.Stdout), manifest)
+	ctx.Installer = libbuildpack.NewInstaller(manifest)
 
 	// Pre-create the expected JAR file
 	jarName := "cf-metrics-exporter-0.7.1.jar"

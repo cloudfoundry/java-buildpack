@@ -63,12 +63,12 @@ func (r *RiverbedAppInternalsAgentFramework) Supply() error {
 		return fmt.Errorf("failed to install Riverbed AppInternals agent: %w", err)
 	}
 
-	// Find the installed agent directory (contains lib/rvbd-agent.jar)
-	agentJarPath := filepath.Join(agentDir, "lib", "rvbd-agent.jar")
-	if _, err := os.Stat(agentJarPath); err != nil {
-		return fmt.Errorf("Riverbed AppInternals agent JAR not found after installation: %w", err)
+	// constructAgentJarPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
+	err = r.constructAgentJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("riverbed appinternals agent JAR not found during supply: %w", err)
 	}
-	r.agentPath = agentJarPath
 
 	r.context.Log.Info("Riverbed AppInternals agent %s installed", dep.Version)
 	return nil
@@ -76,8 +76,10 @@ func (r *RiverbedAppInternalsAgentFramework) Supply() error {
 
 // Finalize configures the Riverbed AppInternals agent
 func (r *RiverbedAppInternalsAgentFramework) Finalize() error {
-	if r.agentPath == "" {
-		return nil
+	agentDir := filepath.Join(r.context.Stager.DepDir(), "riverbed_appinternals_agent")
+	err := r.constructAgentJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("riverbed appinternals agent JAR not found during finalize: %w", err)
 	}
 
 	r.context.Log.BeginStep("Configuring Riverbed AppInternals agent")
@@ -213,4 +215,14 @@ func (r *RiverbedAppInternalsAgentFramework) getApplicationName() string {
 	}
 
 	return ""
+}
+
+func (r *RiverbedAppInternalsAgentFramework) constructAgentJarPath(agentDir string) error {
+	// Find the installed agent directory (contains lib/rvbd-agent.jar)
+	agentJarPath := filepath.Join(agentDir, "lib", "rvbd-agent.jar")
+	if _, err := os.Stat(agentJarPath); err != nil {
+		return fmt.Errorf("agent jar not found after installation: %w", err)
+	}
+	r.agentPath = agentJarPath
+	return nil
 }

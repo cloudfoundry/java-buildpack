@@ -23,7 +23,12 @@ func NewMetricWriterFramework(ctx *common.Context) *MetricWriterFramework {
 // Detects Micrometer presence and checks if enabled
 func (m *MetricWriterFramework) Detect() (string, error) {
 	// Check if explicitly enabled via configuration
-	if !m.isEnabled() {
+	config, err := m.loadConfig()
+	if err != nil {
+		m.context.Log.Warning("Failed to load metric writer config: %s", err.Error())
+		return "", nil // Don't fail the build
+	}
+	if !config.isEnabled() {
 		m.context.Log.Debug("Metric Writer is disabled (default)")
 		return "", nil
 	}
@@ -167,24 +172,31 @@ func (m *MetricWriterFramework) buildCFTagEnvVars() string {
 	return strings.Join(envVars, "\n")
 }
 
-// isEnabled checks if Metric Writer is enabled
-// Default is false (disabled) unless explicitly enabled via configuration
-func (m *MetricWriterFramework) isEnabled() bool {
-	// Check JBP_CONFIG_METRIC_WRITER environment variable
+func (m *MetricWriterFramework) loadConfig() (*metricWriterConfig, error) {
+	// initialize default values
+	mwConfig := metricWriterConfig{
+		Enabled: false,
+	}
 	config := os.Getenv("JBP_CONFIG_METRIC_WRITER")
-
-	// Parse the config to check for enabled: true
 	if config != "" {
-		// Simple check: if it contains "enabled: true" or "'enabled': true"
-		if contains(config, "enabled: true") || contains(config, "'enabled': true") ||
-			contains(config, "enabled : true") || contains(config, "'enabled' : true") {
-			return true
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &mwConfig)
+		if err != nil {
+			m.context.Log.Warning("Unknown user config values: %s", err.Error())
 		}
-		if contains(config, "enabled: false") || contains(config, "'enabled': false") {
-			return false
+		// overlay JBP_CONFIG_METRIC_WRITER over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &mwConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_METRIC_WRITER: %w", err)
 		}
 	}
+	return &mwConfig, nil
+}
 
-	// Default to disabled
-	return false
+type metricWriterConfig struct {
+	Enabled bool `yaml:"enabled"`
+}
+
+// isEnabled checks if metric writer is enabled
+func (m *metricWriterConfig) isEnabled() bool {
+	return m.Enabled
 }

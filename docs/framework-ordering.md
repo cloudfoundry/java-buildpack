@@ -52,9 +52,8 @@ Line | Framework Name                          | Priority | Notes
 77   | SpringInsight                          | 43       | Spring monitoring
 78   | SkyWalkingAgent                        | 44       | APM agent
 79   | YourKitProfiler                        | 45       | Profiler
-80   | TakipiAgent                            | 46       | APM agent
-81   | JavaSecurity                           | 47       | Security configuration
-82   | JavaOpts                               | 99       | ⚠️ USER-DEFINED OPTS (ALWAYS LAST)
+80   | JavaSecurity                           | 47       | Security configuration
+81   | JavaOpts                               | 99       | ⚠️ USER-DEFINED OPTS (ALWAYS LAST)
 ```
 
 ## Go Buildpack Implementation

@@ -104,6 +104,17 @@ func (r *Registry) RegisterStandardJREs() {
 	}
 }
 
+// Get returns the JRE whose Name() matches the given name, or nil if not found.
+// Used by the finalize phase to resolve a JRE by the name stored in config.yml.
+func (r *Registry) Get(name string) JRE {
+	for _, jre := range r.providers {
+		if jre.Name() == name {
+			return jre
+		}
+	}
+	return nil
+}
+
 // Detect finds the JRE provider that should be used
 // If a JRE is explicitly configured, it uses that JRE and fails if detection errors
 // If no JRE is explicitly configured, it uses the configured default JRE

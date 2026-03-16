@@ -3,7 +3,6 @@ package frameworks
 import (
 	"fmt"
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -73,16 +72,15 @@ func (p *PostgresqlJdbcFramework) Finalize() error {
 		return nil
 	}
 
-	// Add to classpath via CLASSPATH environment variable
-	classpath := os.Getenv("CLASSPATH")
-	if classpath != "" {
-		classpath += ":"
-	}
-	classpath += matches[0]
+	depsIdx := p.context.Stager.DepsIdx()
+	runtimePath := fmt.Sprintf("$DEPS_DIR/%s/postgresql_jdbc/%s", depsIdx, filepath.Base(matches[0]))
 
-	if err := p.context.Stager.WriteEnvFile("CLASSPATH", classpath); err != nil {
-		return fmt.Errorf("failed to set CLASSPATH for PostgreSQL JDBC: %w", err)
+	profileScript := fmt.Sprintf("export CLASSPATH=\"%s${CLASSPATH:+:$CLASSPATH}\"\n", runtimePath)
+	if err := p.context.Stager.WriteProfileD("postgresql_jdbc.sh", profileScript); err != nil {
+		return fmt.Errorf("failed to write postgresql_jdbc.sh profile.d script: %w", err)
 	}
+
+	p.context.Log.Debug("PostgreSQL JDBC JAR will be added to classpath at runtime: %s", runtimePath)
 
 	return nil
 }

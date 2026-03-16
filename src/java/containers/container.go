@@ -20,7 +20,6 @@ type Container interface {
 	Release() (string, error)
 }
 
-
 // Registry manages available containers
 type Registry struct {
 	containers []Container
@@ -75,6 +74,18 @@ func (r *Registry) DetectAll() ([]Container, []string, error) {
 	return matched, names, nil
 }
 
+// Get returns the container whose Detect() returns the given name, or nil if not found.
+// Used by the finalize phase to resolve a container by the name stored in config.yml.
+func (r *Registry) Get(name string) Container {
+	for _, container := range r.containers {
+		detected, err := container.Detect()
+		if err == nil && detected == name {
+			return container
+		}
+	}
+	return nil
+}
+
 // RegisterStandardContainers registers all standard containers in the correct priority order.
 // This ensures Supply and Finalize phases use the same detection order.
 // IMPORTANT: The order matters! Containers are checked in registration order.
@@ -96,3 +107,23 @@ func (r *Registry) RegisterStandardContainers() {
 	r.Register(NewDistZipContainer(r.context))
 	r.Register(NewJavaMainContainer(r.context))
 }
+
+// This script is used to process the CLASSPATH assembled from various framework scripts sourced from profile.d
+// to further create symlinks to the corresponding framework dependencies in WEB-INF/lib, BOOT-INF/lib and where ever
+// needed thus they are available for application classloading
+var symlinkScript = `#!/bin/bash
+set -euo pipefail
+TARGET_DIR="$PWD/%s"
+CLASSPATH=${CLASSPATH:-}
+mkdir -p "$TARGET_DIR"
+# Split CLASSPATH on :
+IFS=':' read -ra PATHS <<< "$CLASSPATH"
+for p in "${PATHS[@]}"; do
+    # Skip empty entries
+    [[ -z "$p" ]] && continue
+    name=$(basename "$p")
+    link="$TARGET_DIR/$name"
+    ln -sf "$p" "$link"
+    echo "Created symlink: $link -> $p"
+done
+`

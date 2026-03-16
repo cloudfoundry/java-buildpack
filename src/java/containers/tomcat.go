@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
@@ -60,30 +61,40 @@ func (t *TomcatContainer) Supply() error {
 	if javaHome != "" {
 		javaMajorVersion, versionErr := common.DetermineJavaVersion(javaHome)
 		if versionErr == nil {
+			tomcatVersion := determineTomcatVersion(os.Getenv("JBP_CONFIG_TOMCAT"))
 			t.context.Log.Debug("Detected Java major version: %d", javaMajorVersion)
 
 			// Select Tomcat version pattern based on Java version
 			var versionPattern string
-			if javaMajorVersion >= 11 {
-				// Java 11+: Use Tomcat 10.x (Jakarta EE 9+)
-				versionPattern = "10.x"
-				t.context.Log.Info("Using Tomcat 10.x for Java %d", javaMajorVersion)
+			if tomcatVersion == "" {
+				if javaMajorVersion >= 11 {
+					// Java 11+: Use Tomcat 10.x (Jakarta EE 9+)
+					versionPattern = "10.x"
+					t.context.Log.Info("Using Tomcat 10.x for Java %d", javaMajorVersion)
+				} else {
+					// Java 8-10: Use Tomcat 9.x (Java EE 8)
+					versionPattern = "9.x"
+					t.context.Log.Info("Using Tomcat 9.x for Java %d", javaMajorVersion)
+				}
 			} else {
-				// Java 8-10: Use Tomcat 9.x (Java EE 8)
-				versionPattern = "9.x"
-				t.context.Log.Info("Using Tomcat 9.x for Java %d", javaMajorVersion)
+				versionPattern = tomcatVersion
+				t.context.Log.Info("Using Tomcat %s for Java %d", versionPattern, javaMajorVersion)
+			}
+
+			if strings.HasPrefix(versionPattern, "10.") && javaMajorVersion < 11 {
+				return fmt.Errorf("Tomcat 10.x requires Java 11+, but Java %d detected", javaMajorVersion)
 			}
 
 			// Resolve the version pattern to actual version using libbuildpack
 			allVersions := t.context.Manifest.AllDependencyVersions("tomcat")
 			resolvedVersion, err := libbuildpack.FindMatchingVersion(versionPattern, allVersions)
-			if err == nil {
-				dep.Name = "tomcat"
-				dep.Version = resolvedVersion
-				t.context.Log.Debug("Resolved Tomcat version pattern '%s' to %s", versionPattern, resolvedVersion)
-			} else {
-				t.context.Log.Warning("Unable to resolve Tomcat version pattern '%s': %s", versionPattern, err.Error())
+			if err != nil {
+				return fmt.Errorf("tomcat version resolution error for pattern %q: %w", versionPattern, err)
 			}
+
+			dep.Name = "tomcat"
+			dep.Version = resolvedVersion
+			t.context.Log.Debug("Resolved Tomcat version pattern '%s' to %s", versionPattern, resolvedVersion)
 		} else {
 			t.context.Log.Warning("Unable to determine Java version: %s", versionErr.Error())
 		}
@@ -256,9 +267,12 @@ func (t *TomcatContainer) createSetenvScript(tomcatDir, loggingSupportJar string
 	setenvPath := filepath.Join(binDir, "setenv.sh")
 
 	jarPath := "$CATALINA_HOME/bin/" + loggingSupportJar
-
+	// Note that Tomcat builds its own CLASSPATH env before starting. It ensures that any user defined CLASSPATH variables
+	// are not used on startup, as can be seen in the catalina.sh script. That is why even we have something already
+	// sourced in CLASSPATH env from profile.d scripts it is disregarded on Tomcat startup and fresh CLASSPATH env is
+	// built here in the setenv.sh script.
 	setenvContent := fmt.Sprintf(`#!/bin/sh
-JAVA_OPTS="$JAVA_OPTS -Xbootclasspath/a:%s"
+CLASSPATH="%s${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
 `, jarPath)
 
 	if err := os.WriteFile(setenvPath, []byte(setenvContent), 0755); err != nil {
@@ -442,6 +456,42 @@ func getKeys(m map[string]string) []string {
 	return keys
 }
 
+// DetermineTomcatVersion is an exported wrapper around determineTomcatVersion.
+// It exists primarily to allow unit tests in the containers_test package to
+// verify Tomcat version parsing behavior without changing production semantics.
+func DetermineTomcatVersion(raw string) string {
+	return determineTomcatVersion(raw)
+}
+
+// determineTomcatVersion determines the version of the tomcat
+// based on the JBP_CONFIG_TOMCAT field from manifest.
+// It looks for a tomcat block with a version of the form "<major>.+" (e.g. "9.+", "10.+").
+// Returns "<major>.x" (e.g. "9.x", "10.x") so libbuildpack can resolve it,
+func determineTomcatVersion(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+
+	re := regexp.MustCompile(`(?i)tomcat\s*:\s*\{[\s\S]*?version\s*:\s*["']?([\d.]+\.\+)`)
+	match := re.FindStringSubmatch(raw)
+	if len(match) < 2 {
+		return ""
+	}
+
+	pattern := match[1] // e.g. "9.+", "10.+", "10.23.+"
+
+	// If it's just "<major>.+" (no additional dot), convert to "<major>.x"
+	if !strings.Contains(strings.TrimSuffix(pattern, ".+"), ".") {
+		// "9.+" -> "9.x"
+		major := strings.TrimSuffix(pattern, ".+")
+		return major + ".x"
+	}
+
+	// Otherwise, it's something like "10.23.+": pass it through unchanged
+	return pattern
+}
+
 // isAccessLoggingEnabled checks if access logging is enabled in configuration
 // Returns: "true" or "false" as a string (for use in JAVA_OPTS)
 // Default: "false" (disabled, matching Ruby buildpack behavior)
@@ -604,6 +654,12 @@ func (t *TomcatContainer) Finalize() error {
 
 	webInf := filepath.Join(buildDir, "WEB-INF")
 	if _, err := os.Stat(webInf); err == nil {
+		// the script name is prefixed with 'zzz' as it is important to be the last script sourced from profile.d
+		// so that the previous scripts assembling the CLASSPATH variable(left from frameworks) are sourced previous to it.
+		if err := t.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("WEB-INF", "lib"))); err != nil {
+			return fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
+		}
+
 		contextXMLDir := filepath.Dir(contextXMLPath)
 		if err := os.MkdirAll(contextXMLDir, 0755); err != nil {
 			return fmt.Errorf("failed to create context directory: %w", err)

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
+	_ "github.com/cloudfoundry/java-buildpack/src/java/hooks" // Register hooks (Dynatrace)
 	"github.com/cloudfoundry/java-buildpack/src/java/supply"
 	"github.com/cloudfoundry/libbuildpack"
 )
@@ -79,11 +80,6 @@ func main() {
 
 	if err = supply.Run(&s); err != nil {
 		os.Exit(14)
-	}
-
-	if err := stager.WriteConfigYml(nil); err != nil {
-		logger.Error("Error writing config.yml: %s", err.Error())
-		os.Exit(15)
 	}
 
 	if err = installer.CleanupAppCache(); err != nil {

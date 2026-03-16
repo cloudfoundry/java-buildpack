@@ -51,8 +51,9 @@ func (r *Registry) RegisterStandardFrameworks() {
 	r.Register(NewElasticApmAgentFramework(r.context))
 
 	// Spring Service Bindings (Priority 1)
-	r.Register(NewSpringAutoReconfigurationFramework(r.context))
+	// Note: order matters, Java Cf Env should be registered before StringAutoReconfiguration
 	r.Register(NewJavaCfEnvFramework(r.context))
+	r.Register(NewSpringAutoReconfigurationFramework(r.context))
 
 	// JDBC Drivers (Priority 1)
 	r.Register(NewPostgresqlJdbcFramework(r.context))
@@ -100,7 +101,6 @@ func (r *Registry) RegisterStandardFrameworks() {
 	r.Register(NewJRebelAgentFramework(r.context))
 	r.Register(NewContrastSecurityAgentFramework(r.context))
 	r.Register(NewAspectJWeaverAgentFramework(r.context))
-	r.Register(NewTakipiAgentFramework(r.context))
 	r.Register(NewYourKitProfilerFramework(r.context))
 	r.Register(NewJProfilerProfilerFramework(r.context))
 	r.Register(NewSealightsAgentFramework(r.context))

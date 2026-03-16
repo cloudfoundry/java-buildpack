@@ -536,7 +536,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					deployment, logs, err := platform.Deploy.
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION":                      "11",
-							"JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER": "'{enabled: true}'",
+							"JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER": "{ enabled: true }",
 						}).
 						Execute(name, filepath.Join(fixtures, "containers", "tomcat"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -550,7 +550,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					deployment, logs, err := platform.Deploy.
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION":                      "11",
-							"JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER": "'{enabled: false}'",
+							"JBP_CONFIG_CLIENT_CERTIFICATE_MAPPER": "{ enabled: false }",
 						}).
 						Execute(name, filepath.Join(fixtures, "containers", "tomcat"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -671,6 +671,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 						}).
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION":                        "11",
+							"JBP_CONFIG_JAVA_CF_ENV":                 "'{enabled: false}'",
 							"JBP_CONFIG_SPRING_AUTO_RECONFIGURATION": "'{enabled: true}'",
 						}).
 						Execute(name, filepath.Join(fixtures, "frameworks", "auto_reconfiguration_servlet_3"))
@@ -678,6 +679,8 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 
 					// Spring Auto-reconfiguration should be detected for Spring apps with services
 					Expect(logs.String()).To(ContainSubstring("Spring Auto-reconfiguration"))
+					// Spring Auto-reconfiguration should only be provided in the absence of Java Cf Env
+					Expect(logs.String()).NotTo(ContainSubstring("Java CF Env"))
 					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
 				})
 
@@ -695,6 +698,8 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 						Execute(name, filepath.Join(fixtures, "frameworks", "auto_reconfiguration_servlet_3"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
 
+					// Java Cf Env should be provided as it is enabled by default for Spring3 apps
+					Expect(logs.String()).To(ContainSubstring("Java CF Env"))
 					// Should not install when explicitly disabled
 					Expect(logs.String()).NotTo(ContainSubstring("Spring Auto-reconfiguration"))
 					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
@@ -846,7 +851,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					deployment, logs, err := platform.Deploy.
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION":               "11",
-							"JBP_CONFIG_JPROFILER_PROFILER": "'{enabled: true}'",
+							"JBP_CONFIG_JPROFILER_PROFILER": "{ enabled: true }",
 						}).
 						Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -903,27 +908,6 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 				})
 			})
 
-			context("with Takipi service binding", func() {
-				it("detects and installs Takipi agent", func() {
-					t.Skip("SKIPPED: Takipi agent requires valid download URL and SHA256 in manifest.yml")
-					deployment, logs, err := platform.Deploy.
-						WithServices(map[string]switchblade.Service{
-							"takipi": {
-								"secret_key": "test-secret-key",
-								"server":     "https://takipi.example.com",
-							},
-						}).
-						WithEnv(map[string]string{
-							"BP_JAVA_VERSION": "11",
-						}).
-						Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
-					Expect(err).NotTo(HaveOccurred(), logs.String)
-
-					Expect(logs.String()).To(ContainSubstring("Takipi"))
-					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
-				})
-			})
-
 			context("with Introscope service binding", func() {
 				it("detects and installs Introscope agent", func() {
 					t.Skip("SKIPPED: Introscope agent requires authentication and is not in manifest.yml")
@@ -973,7 +957,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					deployment, logs, err := platform.Deploy.
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION":                 "11",
-							"JBP_CONFIG_ASPECTJ_WEAVER_AGENT": "'{enabled: true}'",
+							"JBP_CONFIG_ASPECTJ_WEAVER_AGENT": "{ enabled: true }",
 						}).
 						Execute(name, filepath.Join(fixtures, "frameworks", "aspectj_weaver_meta_inf"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)

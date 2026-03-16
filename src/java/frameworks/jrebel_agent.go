@@ -20,6 +20,16 @@ func NewJRebelAgentFramework(ctx *common.Context) *JRebelAgentFramework {
 
 // Detect determines if JRebel configuration exists in the application
 func (j *JRebelAgentFramework) Detect() (string, error) {
+	// Check if explicitly disabled via configuration
+	config, err := j.loadConfig()
+	if err != nil {
+		j.context.Log.Warning("Failed to load jrebel config: %s", err.Error())
+		return "", nil // Don't fail the build
+	}
+
+	if !config.isEnabled() {
+		return "", nil
+	}
 	// Check for rebel-remote.xml configuration file in the app
 	rebelRemoteXML := filepath.Join(j.context.Stager.BuildDir(), "rebel-remote.xml")
 	if _, err := os.Stat(rebelRemoteXML); err == nil {
@@ -117,4 +127,33 @@ func (j *JRebelAgentFramework) Finalize() error {
 
 	j.context.Log.Info("JRebel Agent configured successfully (priority 31)")
 	return nil
+}
+
+func (j *JRebelAgentFramework) loadConfig() (*jrebelConfig, error) {
+	// initialize default values
+	jrConfig := jrebelConfig{
+		Enabled: true,
+	}
+	config := os.Getenv("JBP_CONFIG_JREBEL")
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &jrConfig)
+		if err != nil {
+			j.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
+		// overlay JBP_CONFIG_JREBEL over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &jrConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_JREBEL: %w", err)
+		}
+	}
+	return &jrConfig, nil
+}
+
+type jrebelConfig struct {
+	Enabled bool `yaml:"enabled"`
+}
+
+// isEnabled checks if jrebel is enabled
+func (j *jrebelConfig) isEnabled() bool {
+	return j.Enabled
 }

@@ -274,8 +274,14 @@ func (l *LunaSecurityProviderFramework) writeConfiguration(servers []interface{}
 	}
 	defer file.Close()
 
+	config, err := l.loadConfig()
+	if err != nil {
+		l.context.Log.Warning("Failed to load luna security provider config: %s", err.Error())
+		return err
+	}
+
 	// Write prologue (library configuration and client settings)
-	if err := l.writePrologue(file); err != nil {
+	if err := l.writePrologue(file, config); err != nil {
 		return err
 	}
 
@@ -298,7 +304,7 @@ func (l *LunaSecurityProviderFramework) writeConfiguration(servers []interface{}
 	}
 
 	// Write epilogue (HA configuration)
-	if err := l.writeEpilogue(file, groups); err != nil {
+	if err := l.writeEpilogue(file, groups, config); err != nil {
 		return err
 	}
 
@@ -306,13 +312,13 @@ func (l *LunaSecurityProviderFramework) writeConfiguration(servers []interface{}
 }
 
 // writePrologue writes library configuration and client settings
-func (l *LunaSecurityProviderFramework) writePrologue(file *os.File) error {
+func (l *LunaSecurityProviderFramework) writePrologue(file *os.File, config *lunaSecurityProviderConfig) error {
 	lunaDir := filepath.Join(l.context.Stager.DepDir(), "luna_security_provider")
 
 	// Get configuration values
-	loggingEnabled := l.getConfigBool("logging_enabled", false)
+	loggingEnabled := config.getLoggingEnabled()
 	tcpKeepAlive := 0
-	if l.getConfigBool("tcp_keep_alive_enabled", false) {
+	if config.getTCPKeepAliveEnabled() {
 		tcpKeepAlive = 1
 	}
 
@@ -396,8 +402,8 @@ func (l *LunaSecurityProviderFramework) writeGroup(file *os.File, index int, gro
 }
 
 // writeEpilogue writes HA configuration and HASynchronize sections
-func (l *LunaSecurityProviderFramework) writeEpilogue(file *os.File, groups []interface{}) error {
-	haLoggingEnabled := l.getConfigBool("ha_logging_enabled", true)
+func (l *LunaSecurityProviderFramework) writeEpilogue(file *os.File, groups []interface{}, config *lunaSecurityProviderConfig) error {
+	haLoggingEnabled := config.getHALoggingEnabled()
 
 	file.WriteString("}\n\n")
 	file.WriteString("HAConfiguration = {\n")
@@ -443,27 +449,47 @@ func (l *LunaSecurityProviderFramework) createSymlink(target, link string) error
 	return os.Symlink(relTarget, link)
 }
 
-// getConfigBool retrieves a boolean configuration value from JBP_CONFIG_LUNA_SECURITY_PROVIDER
-func (l *LunaSecurityProviderFramework) getConfigBool(key string, defaultValue bool) bool {
+func (l *LunaSecurityProviderFramework) loadConfig() (*lunaSecurityProviderConfig, error) {
+	// initialize default values
+	lspConfig := lunaSecurityProviderConfig{
+		HALoggingEnabled:    true,
+		LoggingEnabled:      false,
+		TCPKeepAliveEnabled: false,
+	}
 	config := os.Getenv("JBP_CONFIG_LUNA_SECURITY_PROVIDER")
-	if config == "" {
-		return defaultValue
-	}
-
-	// Parse configuration for key
-	if contains(config, key) {
-		if contains(config, "true") {
-			return true
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &lspConfig)
+		if err != nil {
+			l.context.Log.Warning("Unknown user config values: %s", err.Error())
 		}
-		if contains(config, "false") {
-			return false
+		// overlay JBP_CONFIG_LUNA_SECURITY_PROVIDER over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &lspConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_LUNA_SECURITY_PROVIDER: %w", err)
 		}
 	}
-
-	return defaultValue
+	return &lspConfig, nil
 }
 
 // paddedIndex returns a zero-padded two-digit index string
 func (l *LunaSecurityProviderFramework) paddedIndex(index int) string {
 	return fmt.Sprintf("%02d", index)
+}
+
+func (l *lunaSecurityProviderConfig) getHALoggingEnabled() bool {
+	return l.HALoggingEnabled
+}
+
+func (l *lunaSecurityProviderConfig) getLoggingEnabled() bool {
+	return l.LoggingEnabled
+}
+
+func (l *lunaSecurityProviderConfig) getTCPKeepAliveEnabled() bool {
+	return l.TCPKeepAliveEnabled
+}
+
+type lunaSecurityProviderConfig struct {
+	HALoggingEnabled    bool `yaml:"ha_logging_enabled"`
+	LoggingEnabled      bool `yaml:"logging_enabled"`
+	TCPKeepAliveEnabled bool `yaml:"tcp_keep_alive_enabled"`
 }

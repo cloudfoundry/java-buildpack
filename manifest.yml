@@ -1,6 +1,5 @@
 ---
 language: java
-
 include_files:
 - CONTRIBUTING.md
 - LICENSE
@@ -14,7 +13,6 @@ include_files:
 - bin/supply
 - manifest.yml
 pre_package: scripts/build.sh
-
 default_versions:
 - name: openjdk
   version: 17.x
@@ -68,6 +66,10 @@ default_versions:
   version: 6.x
 - name: jrebel
   version: 2025.x
+- name: java-memory-assistant
+  version: 0.x
+- name: java-memory-assistant-cleanup
+  version: 0.x
 - name: your-kit-profiler
   version: 2025.x
 - name: jprofiler-profiler
@@ -82,99 +84,105 @@ default_versions:
   version: 8.x
 - name: cf-metrics-exporter
   version: 0.7.x
-
+- name: metric-writer
+  version: 3.x
 url_to_dependency_map:
 - match: openjdk-jre-(\d+\.\d+\.\d+)
   name: openjdk
-  version: $1
+  version: "$1"
 - match: zulu(\d+\.\d+\.\d+)-.*-jre(\d+\.\d+\.\d+)
   name: zulu
-  version: $2
+  version: "$2"
 - match: sapmachine-jre-(\d+\.\d+\.\d+)
   name: sapmachine
-  version: $1
+  version: "$1"
 - match: tomcat-(\d+\.\d+\.\d+)
   name: tomcat
-  version: $1
+  version: "$1"
 - match: spring-boot-cli-(\d+\.\d+\.\d+)
   name: spring-boot-cli
-  version: $1
+  version: "$1"
 - match: jvmkill-(\d+\.\d+\.\d+)
   name: jvmkill
-  version: $1
+  version: "$1"
 - match: memory-calculator-(\d+\.\d+\.\d+)
   name: memory-calculator
-  version: $1
+  version: "$1"
 - match: new-relic-(\d+\.\d+\.\d+)
   name: newrelic
-  version: $1
+  version: "$1"
 - match: app-dynamics-(\d+\.\d+\.\d+\.\d+)
   name: appdynamics
-  version: $1
+  version: "$1"
 - match: dynatrace-(\d+\.\d+\.\d+)
   name: dynatrace
-  version: $1
+  version: "$1"
 - match: auto-reconfiguration-(\d+\.\d+\.\d+)
   name: auto-reconfiguration
-  version: $1
+  version: "$1"
 - match: java-cfenv-(\d+\.\d+\.\d+)
   name: java-cfenv
-  version: $1
+  version: "$1"
 - match: client-certificate-mapper-(\d+\.\d+\.\d+)
   name: client-certificate-mapper
-  version: $1
+  version: "$1"
 - match: postgresql-(\d+\.\d+\.\d+)
   name: postgresql-jdbc
-  version: $1
+  version: "$1"
 - match: mariadb-java-client-(\d+\.\d+\.\d+)
   name: mariadb-jdbc
-  version: $1
+  version: "$1"
 - match: dd-java-agent-(\d+\.\d+\.\d+)
   name: datadog-javaagent
-  version: $1
+  version: "$1"
 - match: elastic-apm-agent-(\d+\.\d+\.\d+)
   name: elastic-apm-agent
-  version: $1
+  version: "$1"
 - match: applicationinsights-agent-(\d+\.\d+\.\d+)
   name: azure-application-insights
-  version: $1
+  version: "$1"
 - match: apache-skywalking-java-agent-(\d+\.\d+\.\d+)
   name: skywalking-agent
-  version: $1
+  version: "$1"
 - match: splunk-otel-javaagent-(\d+\.\d+\.\d+)
   name: splunk-otel-javaagent
-  version: $1
+  version: "$1"
 - match: profiler_java_agent-(\d+\.\d+\.\d+)
   name: google-stackdriver-profiler
-  version: $1
+  version: "$1"
 - match: opentelemetry-javaagent-(\d+\.\d+\.\d+)\.jar
   name: open-telemetry-javaagent
-  version: $1
+  version: "$1"
 - match: jacoco-(\d+\.\d+\.\d+)
   name: jacoco
-  version: $1
+  version: "$1"
 - match: contrast-agent-(\d+\.\d+\.\d+)
   name: contrast-security
-  version: $1
+  version: "$1"
 - match: jrebel-(\d+\.\d+\.\d+)
   name: jrebel
-  version: $1
+  version: "$1"
+- match: java-memory-assistant-(\d+\.\d+\.\d+)
+  name: java-memory-assistant
+  version: "$1"
+- match: java-memory-assistant-cleanup-(\d+\.\d+\.\d+)
+  name: java-memory-assistant-cleanup
+  version: "$1"
 - match: YourKit-JavaProfiler-(\d+\.\d+)
   name: your-kit-profiler
-  version: $1
+  version: "$1"
 - match: jprofiler-(\d+\.\d+\.\d+)
   name: jprofiler-profiler
-  version: $1
+  version: "$1"
 - match: sealights-java-(\d+\.\d+\.\d+)
   name: sealights-agent
-  version: $1
+  version: "$1"
 - match: container-security-provider-(\d+\.\d+\.\d+)
   name: container-security-provider
-  version: $1
+  version: "$1"
 - match: luna-security-provider-(\d+\.\d+\.\d+)
   name: luna-security-provider
-  version: $1
-
+  version: "$1"
 dependency_deprecation_dates:
 - version_line: 8.x
   name: openjdk
@@ -196,120 +204,69 @@ dependency_deprecation_dates:
   date: 2031-09-30
   link: https://bell-sw.com/pages/downloads/#jdk-21-lts
   match: 21\.\d+\.\d+
-
 dependencies:
-# OpenJDK JRE versions (BellSoft Liberica from CF Mirror)
-- name: openjdk
-  version: 8.0.452
-  uri: https://java-buildpack.cloudfoundry.org/openjdk/jammy/x86_64/bellsoft-jre8u452%2B11-linux-amd64.tar.gz
-  sha256: 0a041f8d935fbe2f002116f702656235f91f9b2611785833926444da8d922e44
+- name: auto-reconfiguration
+  version: 2.12.0
+  uri: https://java-buildpack.cloudfoundry.org/auto-reconfiguration/auto-reconfiguration-2.12.0-RELEASE.jar
+  sha256: 78dc1c2b3d3b6fb4ab94f38004ad1fbeb81992d942bd564127ca5d3da3cd2010
   cf_stacks:
   - cflinuxfs4
-  source: https://bell-sw.com/pages/downloads/#jdk-8-lts
-  source_sha256: 0a041f8d935fbe2f002116f702656235f91f9b2611785833926444da8d922e44
-
-- name: openjdk
-  version: 11.0.27
-  uri: https://java-buildpack.cloudfoundry.org/openjdk/jammy/x86_64/bellsoft-jre11.0.27%2B9-linux-amd64.tar.gz
-  sha256: e5b7968a0f2f1c9fb197fc7df8a2b231d339bff4bcd0cc65deccffd42ab8f0f5
+  source: https://repo1.maven.org/maven2/org/cloudfoundry/auto-reconfiguration/2.12.0/auto-reconfiguration-2.12.0-RELEASE.jar
+  source_sha256: e791ccfcfee9c0d299d07474d9bfcbfcbebf1181323be601220c8a823062ab99
+- name: azure-application-insights
+  version: 3.6.2
+  uri: https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.6.2/applicationinsights-agent-3.6.2.jar
+  sha256: e81ef99fd30444f6f1da70cd31db5e47f8e6906acbbc9199cac3b390dc6cfedf
   cf_stacks:
   - cflinuxfs4
-  source: https://bell-sw.com/pages/downloads/#jdk-11-lts
-  source_sha256: e5b7968a0f2f1c9fb197fc7df8a2b231d339bff4bcd0cc65deccffd42ab8f0f5
-
-- name: openjdk
-  version: 17.0.15
-  uri: https://java-buildpack.cloudfoundry.org/openjdk/jammy/x86_64/bellsoft-jre17.0.15%2B10-linux-amd64.tar.gz
-  sha256: 2205b5d8dc26250303faa38dd501333e03056b4f9b645473cee42c5e79b6c212
+  source: https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.6.2/applicationinsights-agent-3.6.2.jar
+  source_sha256: e81ef99fd30444f6f1da70cd31db5e47f8e6906acbbc9199cac3b390dc6cfedf
+- name: cf-metrics-exporter
+  version: 0.7.1
+  uri: https://repo1.maven.org/maven2/io/github/rabobank/cf-metrics-exporter/0.7.1/cf-metrics-exporter-0.7.1.jar
+  sha256: 7ebabd3ffd812082cf92a513c8d2ac52906f5b42cd952cbe740bd5d5b086e79b
   cf_stacks:
   - cflinuxfs4
-  source: https://bell-sw.com/pages/downloads/#jdk-17-lts
-  source_sha256: 2205b5d8dc26250303faa38dd501333e03056b4f9b645473cee42c5e79b6c212
-
-- name: openjdk
-  version: 21.0.7
-  uri: https://java-buildpack.cloudfoundry.org/openjdk/jammy/x86_64/bellsoft-jre21.0.7%2B9-linux-amd64.tar.gz
-  sha256: e4b75fc9f3d82f09eb29b2d9a8bd2aac2e0b5cf6dd335d4632ffadc4f298f419
+- name: client-certificate-mapper
+  version: 2.0.1
+  uri: https://java-buildpack.cloudfoundry.org/client-certificate-mapper/client-certificate-mapper-2.0.1.jar
+  sha256: f7f53a460bcd4b0cead4da99dcb251bd283bd5fa4e421eeb52b86986d266cde9
   cf_stacks:
   - cflinuxfs4
-  source: https://bell-sw.com/pages/downloads/#jdk-21-lts
-  source_sha256: e4b75fc9f3d82f09eb29b2d9a8bd2aac2e0b5cf6dd335d4632ffadc4f298f419
-
-- name: openjdk
-  version: 25.0.2
-  uri: https://download.bell-sw.com/java/25.0.2+12/bellsoft-jre25.0.2+12-linux-amd64.tar.gz
-  sha256: c6c8e022cd19be8b872b62261d75d50afe5427795a2401976631cc713c818402
+  source: https://repo1.maven.org/maven2/org/cloudfoundry/client-certificate-mapper/2.0.1/client-certificate-mapper-2.0.1.jar
+  source_sha256: e791ccfcfee9c0d299d07474d9bfcbfcbebf1181323be601220c8a823062ab99
+- name: container-security-provider
+  version: 1.20.0
+  uri: https://java-buildpack.cloudfoundry.org/container-security-provider/container-security-provider-1.20.0-RELEASE.jar
+  sha256: fef33f4ffec1451b97253887026ec65ad99df0d2e8f8412e50e2afe5a4f6c62d
   cf_stacks:
   - cflinuxfs4
-  source: https://bell-sw.com/pages/downloads/#jdk-25-lts
-  source_sha256: c6c8e022cd19be8b872b62261d75d50afe5427795a2401976631cc713c818402
-
-# Zulu JRE versions (Azul Zulu OpenJDK)
-
-- name: zulu
-  version: 8.0.422
-  uri: https://cdn.azul.com/zulu/bin/zulu8.80.0.17-ca-jre8.0.422-linux_x64.tar.gz
-  sha256: 7ff2e01766fe9b1f55cd441a0b14f3889f479b5d963bfbf5df9d1b7d82ac5c87
+  source: https://repo1.maven.org/maven2/org/cloudfoundry/container-security-provider/1.20.0/container-security-provider-1.20.0-RELEASE.jar
+  source_sha256: e791ccfcfee9c0d299d07474d9bfcbfcbebf1181323be601220c8a823062ab99
+- name: contrast-security
+  version: 6.23.0
+  uri: https://download.run.pivotal.io/contrast-security/contrast-agent-6.23.0.jar
+  sha256: 4e08e9a3d503e6e1b17a26db8d8451ee6365d3f1b11258873c34ec7e6d09a1df
   cf_stacks:
   - cflinuxfs4
-
-- name: zulu
-  version: 11.0.25
-  uri: https://cdn.azul.com/zulu/bin/zulu11.76.21-ca-jre11.0.25-linux_x64.tar.gz
-  sha256: 2696d23e20a7e6cc22d36a27c3d917b6b390d0e6ac1819e791d99a1fc159317c
+- name: datadog-javaagent
+  version: 1.42.1
+  uri: https://repo1.maven.org/maven2/com/datadoghq/dd-java-agent/1.42.1/dd-java-agent-1.42.1.jar
+  sha256: e703547f69695d2b3dbfcfa7e920bfa6e86decebe015e7047c313736d2268928
   cf_stacks:
   - cflinuxfs4
-
-- name: zulu
-  version: 17.0.13
-  uri: https://cdn.azul.com/zulu/bin/zulu17.54.21-ca-jre17.0.13-linux_x64.tar.gz
-  sha256: 2d74f026d0d184075ad99de343c6a24bd702eb25d87ce6de5e3ab8df1cd3ef25
+- name: elastic-apm-agent
+  version: 1.52.0
+  uri: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.52.0/elastic-apm-agent-1.52.0.jar
+  sha256: ef6c8f75bd6181e717cdd172864441580708c7ee8543175621a3f404f4ba6429
   cf_stacks:
   - cflinuxfs4
-
-# SAP Machine JRE versions
-# Repository: https://github.com/SAP/SapMachine/releases
-- name: sapmachine
-  version: 17.0.17
-  uri: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.17/sapmachine-jre-17.0.17_linux-x64_bin.tar.gz
-  sha256: c45d572629c722b18a6254f7503a397dbfe474223afb3ac96ef462d27074f7a0
+- name: google-stackdriver-profiler
+  version: 0.4.0
+  uri: https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz
+  sha256: 509b87c406b59424cb101d561567cadad97d3fd1c235224bca2a114d4a7bde0c
   cf_stacks:
   - cflinuxfs4
-
-- name: sapmachine
-  version: 21.0.9
-  uri: https://github.com/SAP/SapMachine/releases/download/sapmachine-21.0.9/sapmachine-jre-21.0.9_linux-x64_bin.tar.gz
-  sha256: 4cc6b1501a2fe8ae0f106342b3c00eec00b7886ce9215760b611cc9975bd339b
-  cf_stacks:
-  - cflinuxfs4
-
-- name: sapmachine
-  version: 25.0.1
-  uri: https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.1/sapmachine-jre-25.0.1_linux-x64_bin.tar.gz
-  sha256: 6bc007201b97214a3883e2da92dc80b2e5ae29378a7a77ab4077d74ccbfdfdbd
-  cf_stacks:
-  - cflinuxfs4
-
-# Tomcat versions
-- name: tomcat
-  version: 9.0.113
-  uri: https://java-buildpack.cloudfoundry.org/tomcat/tomcat-9.0.113.tar.gz
-  sha256: 790db2b8092b7954dec2afc6af71a7bbb6c67998198516dd6a9f865661b5d2a7
-  cf_stacks:
-  - cflinuxfs4
-  source: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.113/bin/apache-tomcat-9.0.113.tar.gz
-  source_sha256: 790db2b8092b7954dec2afc6af71a7bbb6c67998198516dd6a9f865661b5d2a7
-
-- name: tomcat
-  version: 10.1.50
-  uri: https://java-buildpack.cloudfoundry.org/tomcat/tomcat-10.1.50.tar.gz
-  sha256: f74f9f1a7ac2cf6eeede2c50f45088d9c3e55f77d5777f9f7033ed3d43ef529c
-  cf_stacks:
-  - cflinuxfs4
-  source: https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.50/bin/apache-tomcat-10.1.50.tar.gz
-  source_sha256: f74f9f1a7ac2cf6eeede2c50f45088d9c3e55f77d5777f9f7033ed3d43ef529c
-
-# Groovy versions
 - name: groovy
   version: 4.0.29
   uri: https://java-buildpack.cloudfoundry.org/groovy/groovy-4.0.29.zip
@@ -318,18 +275,49 @@ dependencies:
   - cflinuxfs4
   source: https://groovy.jfrog.io/artifactory/dist-release-local/groovy-zips/apache-groovy-binary-4.0.29.zip
   source_sha256: 4a42d976370c6ab373a35ec602440a8a780a7715d55e4117b3028864a247878a
-
-# Spring Boot CLI versions
-- name: spring-boot-cli
-  version: 2.7.18
-  uri: https://java-buildpack.cloudfoundry.org/spring-boot-cli/spring-boot-cli-2.7.18.tar.gz
-  sha256: e35d1ee2c6ddc5c97a3eb305297d0e8aad328c3d87ab3c62b7cfb42de04d8720
+- name: jacoco
+  version: 0.8.14
+  uri: https://java-buildpack.cloudfoundry.org/jacoco/jacoco-0.8.14.jar
+  sha256: 20be9853385bdfc65a5929643412d09243d14514304b89ba23a265158cc8792b
   cf_stacks:
   - cflinuxfs4
-  source: https://repo1.maven.org/maven2/org/springframework/boot/spring-boot-cli/2.7.18/spring-boot-cli-2.7.18-bin.tar.gz
-  source_sha256: e35d1ee2c6ddc5c97a3eb305297d0e8aad328c3d87ab3c62b7cfb42de04d8720
-
-# JVM Kill Agent
+  source: https://repo1.maven.org/maven2/org/jacoco/jacoco/0.8.14/jacoco-0.8.14.zip
+  source_sha256: 0372447f54900b4e77bcb216985b7d31cf5318fc599f8f9346ee35830448c125
+- name: java-cfenv
+  version: 3.5.0
+  uri: https://java-buildpack.cloudfoundry.org/java-cfenv/java-cfenv-3.5.0.jar
+  sha256: 6a761fe530783c0ec9e6d1713ef54f6504803bf1ad02856d3ee7b46211f905c5
+  cf_stacks:
+  - cflinuxfs4
+  source: https://repo1.maven.org/maven2/io/pivotal/cfenv/java-cfenv/3.5.0/java-cfenv-3.5.0.jar
+  source_sha256: 9cc8d4c368bc90eafb7b6b14bc34c57ef5523f3ec8546e3fbd91326cdfc13500
+- name: java-memory-assistant
+  version: 0.5.0
+  uri: https://github.com/SAP/java-memory-assistant/releases/download/0.5.0/java-memory-assistant-0.5.0.jar
+  sha256: 9c5ffb4bdeec5ed6b4f1d734469500754a857d1452c3d253d89e2315addb04c5
+  cf_stacks:
+  - cflinuxfs4
+- name: java-memory-assistant-cleanup
+  version: 0.1.0
+  uri: https://github.com/SAP/java-memory-assistant-tools/releases/download/0.1.0/cleanup-linux-amd64-0.1.0.zip
+  sha256: f6a0348f70981ad3b7bc84d53f5964e5f60070ef75ca1ddac9184a4ab1639f75
+  cf_stacks:
+  - cflinuxfs4
+- name: jprofiler-profiler
+  version: 15.0.4
+  uri: https://buildpacks.cloudfoundry.org/dependencies/jprofiler-profiler/jprofiler-profiler_15.0.4_linux_x64_any-stack_fec74171.tgz
+  sha256: fec741718854a11b2383bb278ca7103984e0ae659268ed53ea5a8b32077b86c9
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://download-gcdn.ej-technologies.com/jprofiler/jprofiler_linux_15_0_4.tar.gz
+  source_sha256: fec741718854a11b2383bb278ca7103984e0ae659268ed53ea5a8b32077b86c9
+- name: jrebel
+  version: 2025.4.1
+  uri: https://dl.zeroturnaround.com/jrebel/releases/jrebel-2025.4.1-nosetup.zip
+  sha256: f5f8dc137b349350745b2dde316e2e629d924f784b7bec1ef8144ee8a9d6f1eb
+  cf_stacks:
+  - cflinuxfs4
 - name: jvmkill
   version: 1.17.0
   uri: https://java-buildpack.cloudfoundry.org/jvmkill/jammy/x86_64/jvmkill-1.17.0-RELEASE.so
@@ -338,43 +326,185 @@ dependencies:
   - cflinuxfs4
   source: https://github.com/cloudfoundry/jvmkill/releases/download/v1.17.0-RELEASE/jvmkill-1.17.0-RELEASE.so
   source_sha256: fb3fbbf6a242f0bcc4721c1c7b3c2f29ec08c4247c81f118e0870aeea8387dbc
-
-# Memory Calculator
+- name: luna-security-provider
+  version: 7.4.0
+  uri: https://java-buildpack.cloudfoundry.org/luna-security-provider/LunaClient-Minimal-v7.4.0-226.x86_64.tar
+  sha256: e024103719ffa99a011607942ecddfd91c5681113e6cea27f5514bc9fa172875
+  cf_stacks:
+  - cflinuxfs4
+- name: mariadb-jdbc
+  version: 3.5.7
+  uri: https://java-buildpack.cloudfoundry.org/mariadb-jdbc/mariadb-jdbc-3.5.7.jar
+  sha256: 07bb1229dc184f3313a5aef4c5a6b3207c8dbaa09db4a26814c936f004b4c526
+  cf_stacks:
+  - cflinuxfs4
+  source: https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.5.7/mariadb-java-client-3.5.7.jar
+  source_sha256: 07bb1229dc184f3313a5aef4c5a6b3207c8dbaa09db4a26814c936f004b4c526
 - name: memory-calculator
   version: 4.1.0
   uri: https://github.com/cloudfoundry/java-buildpack-memory-calculator/releases/download/v4.1.0/memory-calculator-4.1.0.tgz
   sha256: 0ba6fa26b32e4b906ab460a7cdb70ebded95ea353fdda93bd7f5792300b9cd43
   cf_stacks:
   - cflinuxfs4
-
 - name: memory-calculator
   version: 4.2.0
   uri: https://java-buildpack.cloudfoundry.org/memory-calculator/jammy/x86_64/memory-calculator-4.2.0.tgz
   sha256: a0689a655312fc4d1b71673d3edbfde61c4db48801e9d35fe3f31ecd49783d47
   cf_stacks:
   - cflinuxfs4
-
-# Tomcat Support JARs
-- name: tomcat-lifecycle-support
-  version: 3.4.0
-  uri: https://java-buildpack.cloudfoundry.org/tomcat-lifecycle-support/tomcat-lifecycle-support-3.4.0-RELEASE.jar
-  sha256: 3861d32a91b58302fa936d6f84354e1874f71e59dd97b003efcc992a5a6f3c47
+- name: metric-writer
+  version: 3.5.0
+  uri: https://java-buildpack.cloudfoundry.org/metric-writer/metric-writer-3.5.0-RELEASE.jar
+  sha256: 0f8b092a6c02035b29e9af6d0f025efe5f8ce95e0cc655b30e93d1c436d5d137
   cf_stacks:
   - cflinuxfs4
-  - cflinuxfs3
-  source: https://repo1.maven.org/maven2/org/cloudfoundry/tomcat-lifecycle-support/3.4.0.RELEASE/tomcat-lifecycle-support-3.4.0.RELEASE.jar
-  source_sha256: 3861d32a91b58302fa936d6f84354e1874f71e59dd97b003efcc992a5a6f3c47
-
-- name: tomcat-logging-support
-  version: 3.4.0
-  uri: https://java-buildpack.cloudfoundry.org/tomcat-logging-support/tomcat-logging-support-3.4.0-RELEASE.jar
-  sha256: 07de9efe8dda4c67dec6183ec1d59953abf1372cd71fe276fc4598739bd70667
+- name: newrelic
+  version: 8.15.0
+  uri: https://download.newrelic.com/newrelic/java-agent/newrelic-agent/8.15.0/newrelic-java-8.15.0.zip
+  sha256: 7be360e4ce20eadad06cc30d2917c258a97b9710725a35774537e88fada8f113
   cf_stacks:
   - cflinuxfs4
-  - cflinuxfs3
-  source: https://repo1.maven.org/maven2/org/cloudfoundry/tomcat-logging-support/3.4.0.RELEASE/tomcat-logging-support-3.4.0.RELEASE.jar
-  source_sha256: 07de9efe8dda4c67dec6183ec1d59953abf1372cd71fe276fc4598739bd70667
-
+- name: open-telemetry-javaagent
+  version: 2.22.0
+  uri: https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.22.0/opentelemetry-javaagent.jar
+  sha256: 53b34ae7a9ac9497ac16607fc6c74f10bb3cf818dc241789a067c47b0bdc2ea0
+  cf_stacks:
+  - cflinuxfs4
+- name: openjdk
+  version: 8.0.482+10
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_8.0.482%2B10_linux_x64_any-stack_f05d0dba.tgz
+  sha256: f05d0dba908ad283f8f62d7a0f8c999363d725f2001d67eae84554ac2cc52dda
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://github.com/bell-sw/Liberica/releases/download/8u482+10/bellsoft-jre8u482+10-linux-amd64.tar.gz
+  source_sha256: f05d0dba908ad283f8f62d7a0f8c999363d725f2001d67eae84554ac2cc52dda
+- name: openjdk
+  version: 11.0.30+9
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_11.0.30%2B9_linux_x64_any-stack_ab0da59e.tgz
+  sha256: ab0da59e1e94928cca33c492d360eb780280ac5f00b414ca73ee41dd199dc564
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://github.com/bell-sw/Liberica/releases/download/11.0.30+9/bellsoft-jre11.0.30+9-linux-amd64.tar.gz
+  source_sha256: ab0da59e1e94928cca33c492d360eb780280ac5f00b414ca73ee41dd199dc564
+- name: openjdk
+  version: 17.0.18+10
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_17.0.18%2B10_linux_x64_any-stack_5c495a4f.tgz
+  sha256: 5c495a4f8653f5368bc795a4ad33135ea7ce4612b3a44bc70494ea0c87a6956d
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://github.com/bell-sw/Liberica/releases/download/17.0.18+10/bellsoft-jre17.0.18+10-linux-amd64.tar.gz
+  source_sha256: 5c495a4f8653f5368bc795a4ad33135ea7ce4612b3a44bc70494ea0c87a6956d
+- name: openjdk
+  version: 21.0.10+10
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_21.0.10%2B10_linux_x64_any-stack_093103d2.tgz
+  sha256: '093103d28af566cc3097e152e415c8c937dbc288cb31aebdef2f69ffc5996e2d'
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://github.com/bell-sw/Liberica/releases/download/21.0.10+10/bellsoft-jre21.0.10+10-linux-amd64.tar.gz
+  source_sha256: '093103d28af566cc3097e152e415c8c937dbc288cb31aebdef2f69ffc5996e2d'
+- name: openjdk
+  version: 25.0.2+12
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_25.0.2%2B12_linux_x64_any-stack_c6c8e022.tgz
+  sha256: c6c8e022cd19be8b872b62261d75d50afe5427795a2401976631cc713c818402
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://github.com/bell-sw/Liberica/releases/download/25.0.2+12/bellsoft-jre25.0.2+12-linux-amd64.tar.gz
+  source_sha256: c6c8e022cd19be8b872b62261d75d50afe5427795a2401976631cc713c818402
+- name: postgresql-jdbc
+  version: 42.7.8
+  uri: https://java-buildpack.cloudfoundry.org/postgresql-jdbc/postgresql-jdbc-42.7.8.jar
+  sha256: 2a32a9dcbc42d67a50ad3a0de5efd102c8d2be46720045f2cbd6689f160ab7c7
+  cf_stacks:
+  - cflinuxfs4
+  source: https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.8/postgresql-42.7.8.jar
+  source_sha256: 2a32a9dcbc42d67a50ad3a0de5efd102c8d2be46720045f2cbd6689f160ab7c7
+- name: sapmachine
+  version: 17.0.18
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_17.0.18_linux_x64_any-stack_a7a52661.tgz
+  sha256: a7a5266183ece6d4ed3febb0a474e9985cdb7c185c57899b2ab3dc202180f971
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.18/sapmachine-jre-17.0.18_linux-x64_bin.tar.gz
+  source_sha256: a7a5266183ece6d4ed3febb0a474e9985cdb7c185c57899b2ab3dc202180f971
+- name: sapmachine
+  version: 21.0.10
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_21.0.10_linux_x64_any-stack_6ee8043a.tgz
+  sha256: 6ee8043a21cc27494307cedcee6f76689af7be2a33f89ca60ef89cd7df2ab9bc
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-21.0.10/sapmachine-jre-21.0.10_linux-x64_bin.tar.gz
+  source_sha256: 6ee8043a21cc27494307cedcee6f76689af7be2a33f89ca60ef89cd7df2ab9bc
+- name: sapmachine
+  version: 25.0.2
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_25.0.2_linux_x64_any-stack_1255fbaf.tgz
+  sha256: 1255fbafedfb983e8310321c9af205a825a2fe28b437320d66d8a635c6e4fb60
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.2/sapmachine-jre-25.0.2_linux-x64_bin.tar.gz
+  source_sha256: 1255fbafedfb983e8310321c9af205a825a2fe28b437320d66d8a635c6e4fb60
+- name: sealights-agent
+  version: 4.0.2570
+  uri: https://agents.sealights.co/sealights-java/sealights-java-4.0.2570.zip
+  sha256: 0ed3e0bc83a45d5ae082fb1a2f6df47544c8c51d8dfa249b1fdb4b15c5a0ddea
+  cf_stacks:
+  - cflinuxfs4
+- name: skywalking-agent
+  version: 9.6.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/skywalking-agent/skywalking-agent_9.6.0_linux_noarch_any-stack_e17d512d.tgz
+  sha256: e17d512d4ee5575ebb7d705b3b9760f1cc2f0df7f6f4061beecaa352c94a43ad
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://dlcdn.apache.org/skywalking/java-agent/9.6.0/apache-skywalking-java-agent-9.6.0.tgz
+  source_sha256: e17d512d4ee5575ebb7d705b3b9760f1cc2f0df7f6f4061beecaa352c94a43ad
+- name: splunk-otel-javaagent
+  version: 2.22.0
+  uri: https://github.com/signalfx/splunk-otel-java/releases/download/v2.22.0/splunk-otel-javaagent.jar
+  sha256: 070b98db6eaffe6705465706b187d4a6abb50505a1abe80600498b4ebca46bc3
+  cf_stacks:
+  - cflinuxfs4
+- name: spring-boot-cli
+  version: 2.7.18
+  uri: https://java-buildpack.cloudfoundry.org/spring-boot-cli/spring-boot-cli-2.7.18.tar.gz
+  sha256: e35d1ee2c6ddc5c97a3eb305297d0e8aad328c3d87ab3c62b7cfb42de04d8720
+  cf_stacks:
+  - cflinuxfs4
+  source: https://repo1.maven.org/maven2/org/springframework/boot/spring-boot-cli/2.7.18/spring-boot-cli-2.7.18-bin.tar.gz
+  source_sha256: e35d1ee2c6ddc5c97a3eb305297d0e8aad328c3d87ab3c62b7cfb42de04d8720
+- name: tomcat
+  version: 9.0.113
+  uri: https://java-buildpack.cloudfoundry.org/tomcat/tomcat-9.0.113.tar.gz
+  sha256: 790db2b8092b7954dec2afc6af71a7bbb6c67998198516dd6a9f865661b5d2a7
+  cf_stacks:
+  - cflinuxfs4
+  source: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.113/bin/apache-tomcat-9.0.113.tar.gz
+  source_sha256: 790db2b8092b7954dec2afc6af71a7bbb6c67998198516dd6a9f865661b5d2a7
+- name: tomcat
+  version: 10.1.52
+  uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_10.1.52_linux_noarch_any-stack_5d358306.tgz
+  sha256: 5d3583061085d412d5132a36c5422ad96adc8d5bd5869013d707a920696c9457
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.52/bin/apache-tomcat-10.1.52.tar.gz
+  source_sha256: 5d3583061085d412d5132a36c5422ad96adc8d5bd5869013d707a920696c9457
+- name: tomcat
+  version: 11.0.18
+  uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_11.0.18_linux_noarch_any-stack_f4fe6b73.tgz
+  sha256: f4fe6b73b2e41178a708332e3dec9ab2ae213500c1895754611bda2945db29ab
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://archive.apache.org/dist/tomcat/tomcat-11/v11.0.18/bin/apache-tomcat-11.0.18.tar.gz
+  source_sha256: f4fe6b73b2e41178a708332e3dec9ab2ae213500c1895754611bda2945db29ab
 - name: tomcat-access-logging-support
   version: 3.4.0
   uri: https://java-buildpack.cloudfoundry.org/tomcat-access-logging-support/tomcat-access-logging-support-3.4.0-RELEASE.jar
@@ -384,244 +514,57 @@ dependencies:
   - cflinuxfs3
   source: https://repo1.maven.org/maven2/org/cloudfoundry/tomcat-access-logging-support/3.4.0.RELEASE/tomcat-access-logging-support-3.4.0.RELEASE.jar
   source_sha256: b3452d5ffbf0652e0f44958a5cb306a961906280102e5fa1a15840d2ddb6bcc1
-
-# APM Agents
-# New Relic
-- name: newrelic
-  version: 8.15.0
-  uri: https://download.newrelic.com/newrelic/java-agent/newrelic-agent/8.15.0/newrelic-java-8.15.0.zip
-  sha256: 7be360e4ce20eadad06cc30d2917c258a97b9710725a35774537e88fada8f113
+- name: tomcat-lifecycle-support
+  version: 3.4.0
+  uri: https://java-buildpack.cloudfoundry.org/tomcat-lifecycle-support/tomcat-lifecycle-support-3.4.0-RELEASE.jar
+  sha256: 3861d32a91b58302fa936d6f84354e1874f71e59dd97b003efcc992a5a6f3c47
   cf_stacks:
   - cflinuxfs4
-
-
-# Datadog Javaagent
-- name: datadog-javaagent
-  version: 1.42.1
-  uri: https://repo1.maven.org/maven2/com/datadoghq/dd-java-agent/1.42.1/dd-java-agent-1.42.1.jar
-  sha256: e703547f69695d2b3dbfcfa7e920bfa6e86decebe015e7047c313736d2268928
+  - cflinuxfs3
+  source: https://repo1.maven.org/maven2/org/cloudfoundry/tomcat-lifecycle-support/3.4.0.RELEASE/tomcat-lifecycle-support-3.4.0.RELEASE.jar
+  source_sha256: 3861d32a91b58302fa936d6f84354e1874f71e59dd97b003efcc992a5a6f3c47
+- name: tomcat-logging-support
+  version: 3.4.0
+  uri: https://java-buildpack.cloudfoundry.org/tomcat-logging-support/tomcat-logging-support-3.4.0-RELEASE.jar
+  sha256: 07de9efe8dda4c67dec6183ec1d59953abf1372cd71fe276fc4598739bd70667
   cf_stacks:
   - cflinuxfs4
-
-# Elastic APM Agent
-- name: elastic-apm-agent
-  version: 1.52.0
-  uri: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.52.0/elastic-apm-agent-1.52.0.jar
-  sha256: ef6c8f75bd6181e717cdd172864441580708c7ee8543175621a3f404f4ba6429
-  cf_stacks:
-  - cflinuxfs4
-
-# Azure Application Insights Agent
-- name: azure-application-insights
-  version: 3.6.2
-  uri: https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.6.2/applicationinsights-agent-3.6.2.jar
-  sha256: e81ef99fd30444f6f1da70cd31db5e47f8e6906acbbc9199cac3b390dc6cfedf
-  cf_stacks:
-  - cflinuxfs4
-  source: https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.6.2/applicationinsights-agent-3.6.2.jar
-  source_sha256: e81ef99fd30444f6f1da70cd31db5e47f8e6906acbbc9199cac3b390dc6cfedf
-
-# SkyWalking Agent
-- name: skywalking-agent
-  version: 9.5.0
-  uri: https://java-buildpack.cloudfoundry.org/sky-walking/sky-walking-9.5.0.tar.gz
-  sha256: 5ce3d3a97e4403ac3c0c386c211521d0e39237ae1ce662427d1fe8a9bbc20735
-  cf_stacks:
-  - cflinuxfs4
-  source: https://archive.apache.org/dist/skywalking/java-agent/9.5.0/apache-skywalking-java-agent-9.5.0.tgz
-  source_sha256: 5ce3d3a97e4403ac3c0c386c211521d0e39237ae1ce662427d1fe8a9bbc20735
-
-# Splunk OpenTelemetry Java Agent
-- name: splunk-otel-javaagent
-  version: 2.22.0
-  uri: https://github.com/signalfx/splunk-otel-java/releases/download/v2.22.0/splunk-otel-javaagent.jar
-  sha256: 070b98db6eaffe6705465706b187d4a6abb50505a1abe80600498b4ebca46bc3
-  cf_stacks:
-  - cflinuxfs4
-
-# Google Stackdriver Profiler
-- name: google-stackdriver-profiler
-  version: 0.4.0
-  uri: https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz
-  sha256: 509b87c406b59424cb101d561567cadad97d3fd1c235224bca2a114d4a7bde0c
-  cf_stacks:
-  - cflinuxfs4
-
-# OpenTelemetry Javaagent
-- name: open-telemetry-javaagent
-  version: 2.22.0
-  uri: https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.22.0/opentelemetry-javaagent.jar
-  sha256: 53b34ae7a9ac9497ac16607fc6c74f10bb3cf818dc241789a067c47b0bdc2ea0
-  cf_stacks:
-  - cflinuxfs4
-
-# Spring Auto-reconfiguration
-- name: auto-reconfiguration
-  version: 2.12.0
-  uri: https://java-buildpack.cloudfoundry.org/auto-reconfiguration/auto-reconfiguration-2.12.0-RELEASE.jar
-  sha256: 78dc1c2b3d3b6fb4ab94f38004ad1fbeb81992d942bd564127ca5d3da3cd2010
-  cf_stacks:
-  - cflinuxfs4
-  source: https://repo1.maven.org/maven2/org/cloudfoundry/auto-reconfiguration/2.12.0/auto-reconfiguration-2.12.0-RELEASE.jar
-  source_sha256: e791ccfcfee9c0d299d07474d9bfcbfcbebf1181323be601220c8a823062ab99
-
-# Java CF Env
-- name: java-cfenv
-  version: 3.5.0
-  uri: https://java-buildpack.cloudfoundry.org/java-cfenv/java-cfenv-3.5.0.jar
-  sha256: 6a761fe530783c0ec9e6d1713ef54f6504803bf1ad02856d3ee7b46211f905c5
-  cf_stacks:
-  - cflinuxfs4
-  source: https://repo1.maven.org/maven2/io/pivotal/cfenv/java-cfenv/3.5.0/java-cfenv-3.5.0.jar
-  source_sha256: 9cc8d4c368bc90eafb7b6b14bc34c57ef5523f3ec8546e3fbd91326cdfc13500
-
-# Client Certificate Mapper (mTLS support)
-- name: client-certificate-mapper
-  version: 2.0.1
-  uri: https://java-buildpack.cloudfoundry.org/client-certificate-mapper/client-certificate-mapper-2.0.1.jar
-  sha256: f7f53a460bcd4b0cead4da99dcb251bd283bd5fa4e421eeb52b86986d266cde9
-  cf_stacks:
-  - cflinuxfs4
-  source: https://repo1.maven.org/maven2/org/cloudfoundry/client-certificate-mapper/2.0.1/client-certificate-mapper-2.0.1.jar
-  source_sha256: e791ccfcfee9c0d299d07474d9bfcbfcbebf1181323be601220c8a823062ab99
-
-# PostgreSQL JDBC Driver
-- name: postgresql-jdbc
-  version: 42.7.8
-  uri: https://java-buildpack.cloudfoundry.org/postgresql-jdbc/postgresql-jdbc-42.7.8.jar
-  sha256: 2a32a9dcbc42d67a50ad3a0de5efd102c8d2be46720045f2cbd6689f160ab7c7
-  cf_stacks:
-  - cflinuxfs4
-  source: https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.8/postgresql-42.7.8.jar
-  source_sha256: 2a32a9dcbc42d67a50ad3a0de5efd102c8d2be46720045f2cbd6689f160ab7c7
-
-# MariaDB JDBC Driver
-- name: mariadb-jdbc
-  version: 3.5.7
-  uri: https://java-buildpack.cloudfoundry.org/mariadb-jdbc/mariadb-jdbc-3.5.7.jar
-  sha256: 07bb1229dc184f3313a5aef4c5a6b3207c8dbaa09db4a26814c936f004b4c526
-  cf_stacks:
-  - cflinuxfs4
-  source: https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.5.7/mariadb-java-client-3.5.7.jar
-  source_sha256: 07bb1229dc184f3313a5aef4c5a6b3207c8dbaa09db4a26814c936f004b4c526
-
-# JaCoCo Code Coverage Agent
-- name: jacoco
-  version: 0.8.14
-  uri: https://java-buildpack.cloudfoundry.org/jacoco/jacoco-0.8.14.jar
-  sha256: 20be9853385bdfc65a5929643412d09243d14514304b89ba23a265158cc8792b
-  cf_stacks:
-  - cflinuxfs4
-  source: https://repo1.maven.org/maven2/org/jacoco/jacoco/0.8.14/jacoco-0.8.14.zip
-  source_sha256: 0372447f54900b4e77bcb216985b7d31cf5318fc599f8f9346ee35830448c125
-
-# Contrast Security Agent
-- name: contrast-security
-  version: 6.23.0
-  uri: https://download.run.pivotal.io/contrast-security/contrast-agent-6.23.0.jar
-  sha256: 4e08e9a3d503e6e1b17a26db8d8451ee6365d3f1b11258873c34ec7e6d09a1df
-  cf_stacks:
-  - cflinuxfs4
-
-# JRebel Agent
-- name: jrebel
-  version: 2025.4.1
-  uri: https://dl.zeroturnaround.com/jrebel/releases/jrebel-2025.4.1-nosetup.zip
-  sha256: f5f8dc137b349350745b2dde316e2e629d924f784b7bec1ef8144ee8a9d6f1eb
-  cf_stacks:
-  - cflinuxfs4
-
-# YourKit Java Profiler
+  - cflinuxfs3
+  source: https://repo1.maven.org/maven2/org/cloudfoundry/tomcat-logging-support/3.4.0.RELEASE/tomcat-logging-support-3.4.0.RELEASE.jar
+  source_sha256: 07de9efe8dda4c67dec6183ec1d59953abf1372cd71fe276fc4598739bd70667
 - name: your-kit-profiler
-  version: 2025.9
-  uri: https://download.yourkit.com/yjp/2025.9/YourKit-JavaProfiler-2025.9-b175-x64.zip
-  sha256: 3c1e7600e76067cfc446666101db515a9a247d69333b7cba5dfb05cf40e5e1d9
+  version: 2025.9.191
+  uri: https://buildpacks.cloudfoundry.org/dependencies/your-kit-profiler/your-kit-profiler_2025.9.191_linux_x64_any-stack_5e79eab6.zip
+  sha256: 5e79eab6bc02c70b30600c3d2c390147dd458d8f5488aa2abebb67525af7f26e
   cf_stacks:
   - cflinuxfs4
-
-# JProfiler Profiler
-- name: jprofiler-profiler
-  version: 15.0.4
-  uri: https://download.run.pivotal.io/jprofiler/jprofiler-15.0.4.tar.gz
-  sha256: 57c81d964a8fefd868f7c3559fbf64301165cdef55ce6c5cbfa23f1fa8790ddb
+  - cflinuxfs5
+  source: https://download.yourkit.com/yjp/2025.9/YourKit-JavaProfiler-2025.9-b191-x64.zip
+  source_sha256: 5e79eab6bc02c70b30600c3d2c390147dd458d8f5488aa2abebb67525af7f26e
+- name: zulu
+  version: 8.0.482
+  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_8.0.482_linux_x64_any-stack_359544c3.tgz
+  sha256: 359544c33f80d1c24ebfa5a72355b9f828bbc91d13d9886adc56b3b5cf3926db
   cf_stacks:
   - cflinuxfs4
-
-# Sealights Agent
-- name: sealights-agent
-  version: 4.0.2570
-  uri: https://agents.sealights.co/sealights-java/sealights-java-4.0.2570.zip
-  sha256: 0ed3e0bc83a45d5ae082fb1a2f6df47544c8c51d8dfa249b1fdb4b15c5a0ddea
+  - cflinuxfs5
+  source: https://cdn.azul.com/zulu/bin/zulu8.92.0.21-ca-jre8.0.482-linux_x64.tar.gz
+  source_sha256: 359544c33f80d1c24ebfa5a72355b9f828bbc91d13d9886adc56b3b5cf3926db
+- name: zulu
+  version: 11.0.30
+  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_11.0.30_linux_x64_any-stack_4767f5e6.tgz
+  sha256: 4767f5e6453a4b087ca3591190652e2cd22b89f0820df08ad4970003de1e7c4f
   cf_stacks:
   - cflinuxfs4
-
-# cf-metrics-exporter Agent
-- name: cf-metrics-exporter
-  version: 0.7.1
-  uri: https://repo1.maven.org/maven2/io/github/rabobank/cf-metrics-exporter/0.7.1/cf-metrics-exporter-0.7.1.jar
-  sha256: 7ebabd3ffd812082cf92a513c8d2ac52906f5b42cd952cbe740bd5d5b086e79b
+  - cflinuxfs5
+  source: https://cdn.azul.com/zulu/bin/zulu11.86.21-ca-jre11.0.30-linux_x64.tar.gz
+  source_sha256: 4767f5e6453a4b087ca3591190652e2cd22b89f0820df08ad4970003de1e7c4f
+- name: zulu
+  version: 17.0.18
+  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_17.0.18_linux_x64_any-stack_297117b4.tgz
+  sha256: 297117b4073d2eaaafafe372596ba8f915a2d35a9af71ff268cd999ae00ac799
   cf_stacks:
   - cflinuxfs4
-
-# Container Security Provider
-# Note: Always enabled by default, provides container-specific security context
-- name: container-security-provider
-  version: 1.20.0
-  uri: https://java-buildpack.cloudfoundry.org/container-security-provider/container-security-provider-1.20.0-RELEASE.jar
-  sha256: fef33f4ffec1451b97253887026ec65ad99df0d2e8f8412e50e2afe5a4f6c62d
-  cf_stacks:
-  - cflinuxfs4
-  source: https://repo1.maven.org/maven2/org/cloudfoundry/container-security-provider/1.20.0/container-security-provider-1.20.0-RELEASE.jar
-  source_sha256: e791ccfcfee9c0d299d07474d9bfcbfcbebf1181323be601220c8a823062ab99
-
-# Luna Security Provider
-- name: luna-security-provider
-  version: 7.4.0
-  uri: https://java-buildpack.cloudfoundry.org/luna-security-provider/LunaClient-Minimal-v7.4.0-226.x86_64.tar
-  sha256: e024103719ffa99a011607942ecddfd91c5681113e6cea27f5514bc9fa172875
-  cf_stacks:
-  - cflinuxfs4
-
-  # ========================================
-# AppDynamics Agent
-# ========================================
-# NOTE: AppDynamics requires authentication. Agent must be downloaded from service binding.
-# The framework will attempt to download from the manifest, but will fail if not configured.
-# See docs/framework-app_dynamics_agent.md for configuration details.
-
-# ========================================
-# Dynatrace OneAgent
-# ========================================
-# NOTE: Dynatrace downloads from environment-specific API endpoints at runtime
-# Agent is downloaded via Dynatrace API using service binding credentials
-# No manifest entry needed - download is fully dynamic
-# See docs/framework-dynatrace_one_agent.md for configuration details.
-
-# ========================================
-# CA APM Introscope Agent
-# ========================================
-# NOTE: Introscope agent requires authentication. Agent must be downloaded from service binding.
-# The framework will attempt to download from the manifest, but will fail if not configured.
-# See docs/framework-introscope_agent.md for configuration details.
-
-# ========================================
-# Riverbed AppInternals Agent
-# ========================================
-# NOTE: Riverbed agent downloads from service broker at runtime (v10.20+)
-# For older versions, agent must be provided via service binding
-# See docs/framework-riverbed_appinternals_agent.md for configuration details.
-
-# ========================================
-# Takipi/OverOps Agent
-# ========================================
-# NOTE: Takipi agent downloads from takipi.com at deployment time
-# Repository: https://get.takipi.com/cloudfoundry
-# TODO: Add actual dependency entry with valid version and SHA256
-# See docs/framework-takipi_agent.md for configuration details.
-
-# ========================================
-# Checkmarx IAST Agent
-# ========================================
-# NOTE: Checkmarx agent is downloaded via API using authentication from service binding
-# The framework will download directly from the Checkmarx API at runtime
-# No manifest entry needed - download is fully dynamic
+  - cflinuxfs5
+  source: https://cdn.azul.com/zulu/bin/zulu17.64.17-ca-crac-jre17.0.18-linux_x64.tar.gz
+  source_sha256: 297117b4073d2eaaafafe372596ba8f915a2d35a9af71ff268cd999ae00ac799

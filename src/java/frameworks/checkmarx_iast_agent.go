@@ -88,9 +88,8 @@ func (c *CheckmarxIASTAgentFramework) Supply() error {
 
 // Finalize configures the Checkmarx IAST agent
 func (c *CheckmarxIASTAgentFramework) Finalize() error {
-	if c.jarPath == "" {
-		return nil
-	}
+	agentDir := filepath.Join(c.context.Stager.DepDir(), "checkmarx_iast_agent")
+	c.jarPath = filepath.Join(agentDir, "cx-agent.jar")
 
 	c.context.Log.BeginStep("Configuring Checkmarx IAST agent")
 

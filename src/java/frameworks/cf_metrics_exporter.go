@@ -12,25 +12,12 @@ import (
 const cfMetricsExporterDependencyName = "cf-metrics-exporter"
 const cfMetricsExporterDirName = "cf_metrics_exporter"
 
-// Installer interface for dependency installation
-// Allows for mocking in tests
-// Only the InstallDependency method is needed for this framework
-// (matches the signature of libbuildpack.Installer)
-type Installer interface {
-	InstallDependency(dep libbuildpack.Dependency, outputDir string) error
-}
-
 type CfMetricsExporterFramework struct {
-	context   *common.Context
-	installer Installer
+	context *common.Context
 }
 
 func NewCfMetricsExporterFramework(ctx *common.Context) *CfMetricsExporterFramework {
-	installer := ctx.Installer
-	if installer == nil {
-		installer = libbuildpack.NewInstaller(ctx.Manifest)
-	}
-	return &CfMetricsExporterFramework{context: ctx, installer: installer}
+	return &CfMetricsExporterFramework{context: ctx}
 }
 
 func (f *CfMetricsExporterFramework) Detect() (string, error) {
@@ -79,7 +66,7 @@ func (f *CfMetricsExporterFramework) Supply() error {
 
 	// Download the JAR if not present
 	if _, err := os.Stat(jarPath); os.IsNotExist(err) {
-		if err := f.installer.InstallDependency(dep, agentDir); err != nil {
+		if err := f.context.Installer.InstallDependency(dep, agentDir); err != nil {
 			return fmt.Errorf("failed to download cf-metrics-exporter: %w", err)
 		}
 		if _, err := os.Stat(jarPath); err != nil {
