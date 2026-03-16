@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
@@ -60,30 +61,40 @@ func (t *TomcatContainer) Supply() error {
 	if javaHome != "" {
 		javaMajorVersion, versionErr := common.DetermineJavaVersion(javaHome)
 		if versionErr == nil {
+			tomcatVersion := determineTomcatVersion(os.Getenv("JBP_CONFIG_TOMCAT"))
 			t.context.Log.Debug("Detected Java major version: %d", javaMajorVersion)
 
 			// Select Tomcat version pattern based on Java version
 			var versionPattern string
-			if javaMajorVersion >= 11 {
-				// Java 11+: Use Tomcat 10.x (Jakarta EE 9+)
-				versionPattern = "10.x"
-				t.context.Log.Info("Using Tomcat 10.x for Java %d", javaMajorVersion)
+			if tomcatVersion == "" {
+				if javaMajorVersion >= 11 {
+					// Java 11+: Use Tomcat 10.x (Jakarta EE 9+)
+					versionPattern = "10.x"
+					t.context.Log.Info("Using Tomcat 10.x for Java %d", javaMajorVersion)
+				} else {
+					// Java 8-10: Use Tomcat 9.x (Java EE 8)
+					versionPattern = "9.x"
+					t.context.Log.Info("Using Tomcat 9.x for Java %d", javaMajorVersion)
+				}
 			} else {
-				// Java 8-10: Use Tomcat 9.x (Java EE 8)
-				versionPattern = "9.x"
-				t.context.Log.Info("Using Tomcat 9.x for Java %d", javaMajorVersion)
+				versionPattern = tomcatVersion
+				t.context.Log.Info("Using Tomcat %s for Java %d", versionPattern, javaMajorVersion)
+			}
+
+			if strings.HasPrefix(versionPattern, "10.") && javaMajorVersion < 11 {
+				return fmt.Errorf("Tomcat 10.x requires Java 11+, but Java %d detected", javaMajorVersion)
 			}
 
 			// Resolve the version pattern to actual version using libbuildpack
 			allVersions := t.context.Manifest.AllDependencyVersions("tomcat")
 			resolvedVersion, err := libbuildpack.FindMatchingVersion(versionPattern, allVersions)
-			if err == nil {
-				dep.Name = "tomcat"
-				dep.Version = resolvedVersion
-				t.context.Log.Debug("Resolved Tomcat version pattern '%s' to %s", versionPattern, resolvedVersion)
-			} else {
-				t.context.Log.Warning("Unable to resolve Tomcat version pattern '%s': %s", versionPattern, err.Error())
+			if err != nil {
+				return fmt.Errorf("tomcat version resolution error for pattern %q: %w", versionPattern, err)
 			}
+
+			dep.Name = "tomcat"
+			dep.Version = resolvedVersion
+			t.context.Log.Debug("Resolved Tomcat version pattern '%s' to %s", versionPattern, resolvedVersion)
 		} else {
 			t.context.Log.Warning("Unable to determine Java version: %s", versionErr.Error())
 		}
@@ -443,6 +454,42 @@ func getKeys(m map[string]string) []string {
 		keys = append(keys, k)
 	}
 	return keys
+}
+
+// DetermineTomcatVersion is an exported wrapper around determineTomcatVersion.
+// It exists primarily to allow unit tests in the containers_test package to
+// verify Tomcat version parsing behavior without changing production semantics.
+func DetermineTomcatVersion(raw string) string {
+	return determineTomcatVersion(raw)
+}
+
+// determineTomcatVersion determines the version of the tomcat
+// based on the JBP_CONFIG_TOMCAT field from manifest.
+// It looks for a tomcat block with a version of the form "<major>.+" (e.g. "9.+", "10.+").
+// Returns "<major>.x" (e.g. "9.x", "10.x") so libbuildpack can resolve it,
+func determineTomcatVersion(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+
+	re := regexp.MustCompile(`(?i)tomcat\s*:\s*\{[\s\S]*?version\s*:\s*["']?([\d.]+\.\+)`)
+	match := re.FindStringSubmatch(raw)
+	if len(match) < 2 {
+		return ""
+	}
+
+	pattern := match[1] // e.g. "9.+", "10.+", "10.23.+"
+
+	// If it's just "<major>.+" (no additional dot), convert to "<major>.x"
+	if !strings.Contains(strings.TrimSuffix(pattern, ".+"), ".") {
+		// "9.+" -> "9.x"
+		major := strings.TrimSuffix(pattern, ".+")
+		return major + ".x"
+	}
+
+	// Otherwise, it's something like "10.23.+": pass it through unchanged
+	return pattern
 }
 
 // isAccessLoggingEnabled checks if access logging is enabled in configuration
