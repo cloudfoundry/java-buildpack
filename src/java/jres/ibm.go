@@ -219,5 +219,5 @@ func (i *IBMJRE) findJavaHome() (string, error) {
 
 // writeProfileDScript creates the profile.d script for setting JAVA_HOME, JRE_HOME, and PATH at runtime
 func (i *IBMJRE) writeProfileDScript() error {
-	return WriteJavaHomeProfileD(i.ctx, i.jreDir, i.javaHome)
+	return WriteJavaHomeProfileD(i.ctx, i.jreDir, i.javaHome, i.Name())
 }

@@ -215,5 +215,5 @@ func (g *GraalVMJRE) findJavaHome() (string, error) {
 // writeProfileDScript creates a profile.d script that exports JAVA_HOME, JRE_HOME, and PATH at runtime
 // Delegates to the shared helper function in jre.go
 func (g *GraalVMJRE) writeProfileDScript() error {
-	return WriteJavaHomeProfileD(g.ctx, g.jreDir, g.javaHome)
+	return WriteJavaHomeProfileD(g.ctx, g.jreDir, g.javaHome, g.Name())
 }

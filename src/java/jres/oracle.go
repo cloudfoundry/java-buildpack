@@ -208,5 +208,5 @@ func (o *OracleJRE) findJavaHome() (string, error) {
 
 // writeProfileDScript creates the profile.d script for setting JAVA_HOME, JRE_HOME, and PATH at runtime
 func (o *OracleJRE) writeProfileDScript() error {
-	return WriteJavaHomeProfileD(o.ctx, o.jreDir, o.javaHome)
+	return WriteJavaHomeProfileD(o.ctx, o.jreDir, o.javaHome, o.Name())
 }

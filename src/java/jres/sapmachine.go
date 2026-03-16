@@ -215,5 +215,5 @@ func (s *SapMachineJRE) findJavaHome() (string, error) {
 // writeProfileDScript creates a profile.d script that exports JAVA_HOME, JRE_HOME, and PATH at runtime
 // Delegates to the shared helper function in jre.go
 func (s *SapMachineJRE) writeProfileDScript() error {
-	return WriteJavaHomeProfileD(s.ctx, s.jreDir, s.javaHome)
+	return WriteJavaHomeProfileD(s.ctx, s.jreDir, s.javaHome, s.Name())
 }

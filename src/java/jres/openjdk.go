@@ -250,5 +250,5 @@ func (o *OpenJDKJRE) findJavaHome() (string, error) {
 // writeProfileDScript creates a profile.d script that exports JAVA_HOME, JRE_HOME, and PATH at runtime
 // Delegates to the shared helper function in jre.go
 func (o *OpenJDKJRE) writeProfileDScript() error {
-	return WriteJavaHomeProfileD(o.ctx, o.jreDir, o.javaHome)
+	return WriteJavaHomeProfileD(o.ctx, o.jreDir, o.javaHome, o.Name())
 }
