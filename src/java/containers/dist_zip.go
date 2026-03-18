@@ -24,65 +24,97 @@ func NewDistZipContainer(ctx *common.Context) *DistZipContainer {
 
 // Detect checks if this is a Dist ZIP application
 func (d *DistZipContainer) Detect() (string, error) {
+	matches, err := d.findDistZipMatches()
+	if err != nil {
+		return "", err
+	}
+
+	if len(matches) == 0 {
+		return "", nil
+	}
+
+	if len(matches) > 1 {
+		d.context.Log.Debug("Rejecting Dist ZIP detection - multiple bin/lib structures detected")
+		return "", nil
+	}
+
+	d.startScript = matches[0]
+	d.context.Log.Debug("Detected Dist ZIP application with start script: %s", d.startScript)
+	return "Dist ZIP", nil
+}
+
+func (d *DistZipContainer) findDistZipMatches() ([]string, error) {
 	buildDir := d.context.Stager.BuildDir()
+	type candidate struct {
+		abs string
+		rel string
+	}
 
-	// Check for bin/ and lib/ directories at root (typical distZip structure)
-	binDir := filepath.Join(buildDir, "bin")
-	libDir := filepath.Join(buildDir, "lib")
+	candidates := []candidate{{abs: buildDir}}
 
-	binStat, binErr := os.Stat(binDir)
-	libStat, libErr := os.Stat(libDir)
+	entries, err := os.ReadDir(buildDir)
+	if err != nil {
+		d.context.Log.Debug("Unable to list build dir for Dist ZIP detection: %s", err.Error())
+	} else {
+		for _, entry := range entries {
+			if entry.IsDir() {
+				candidates = append(candidates, candidate{
+					abs: filepath.Join(buildDir, entry.Name()),
+					rel: entry.Name(),
+				})
+			}
+		}
+	}
 
-	if binErr == nil && libErr == nil && binStat.IsDir() && libStat.IsDir() {
-		// Exclude Play Framework applications
+	var matches []string
+	for _, c := range candidates {
+		binDir := filepath.Join(c.abs, "bin")
+		libDir := filepath.Join(c.abs, "lib")
+
+		if !isDir(binDir) || !isDir(libDir) {
+			continue
+		}
+
 		if d.isPlayFramework(libDir) {
-			d.context.Log.Debug("Rejecting Dist ZIP detection - Play Framework JAR found")
-			return "", nil
+			d.context.Log.Debug("Rejecting Dist ZIP detection - Play Framework JAR found in %s", libDir)
+			continue
 		}
 
-		// Check for startup scripts in bin/
-		entries, err := os.ReadDir(binDir)
-		if err == nil && len(entries) > 0 {
-			// Find a non-.bat script (Unix startup script)
-			for _, entry := range entries {
-				if !entry.IsDir() && filepath.Ext(entry.Name()) != ".bat" {
-					d.startScript = entry.Name()
-					d.context.Log.Debug("Detected Dist ZIP application with start script: %s", d.startScript)
-					return "Dist ZIP", nil
-				}
-			}
+		script := findUnixStartScript(binDir)
+		if script == "" {
+			continue
 		}
+
+		relPath := filepath.Join(c.rel, "bin", script)
+		relPath = strings.TrimPrefix(relPath, string(filepath.Separator))
+		matches = append(matches, relPath)
 	}
 
-	// Check for bin/ and lib/ directories in application-root (alternative structure)
-	binDirApp := filepath.Join(buildDir, "application-root", "bin")
-	libDirApp := filepath.Join(buildDir, "application-root", "lib")
+	return matches, nil
+}
 
-	binStatApp, binErrApp := os.Stat(binDirApp)
-	libStatApp, libErrApp := os.Stat(libDirApp)
+func isDir(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return info.IsDir()
+}
 
-	if binErrApp == nil && libErrApp == nil && binStatApp.IsDir() && libStatApp.IsDir() {
-		// Exclude Play Framework applications
-		if d.isPlayFramework(libDirApp) {
-			d.context.Log.Debug("Rejecting Dist ZIP detection - Play Framework JAR found in application-root")
-			return "", nil
-		}
-
-		// Check for startup scripts in bin/
-		entriesApp, errApp := os.ReadDir(binDirApp)
-		if errApp == nil && len(entriesApp) > 0 {
-			// Find a non-.bat script (Unix startup script)
-			for _, entry := range entriesApp {
-				if !entry.IsDir() && filepath.Ext(entry.Name()) != ".bat" {
-					d.startScript = filepath.Join("application-root", "bin", entry.Name())
-					d.context.Log.Debug("Detected Dist ZIP application (application-root) with start script: %s", d.startScript)
-					return "Dist ZIP", nil
-				}
-			}
-		}
+func findUnixStartScript(binDir string) string {
+	entries, err := os.ReadDir(binDir)
+	if err != nil {
+		return ""
 	}
 
-	return "", nil
+	for _, entry := range entries {
+		if entry.IsDir() || filepath.Ext(entry.Name()) == ".bat" {
+			continue
+		}
+		return entry.Name()
+	}
+
+	return ""
 }
 
 // isPlayFramework checks if a lib directory contains Play Framework JARs
@@ -132,30 +164,30 @@ func (d *DistZipContainer) Supply() error {
 func (d *DistZipContainer) makeScriptsExecutable() error {
 	buildDir := d.context.Stager.BuildDir()
 
-	// Try root bin/ directory
-	binDir := filepath.Join(buildDir, "bin")
-	entries, err := os.ReadDir(binDir)
-	if err == nil {
-		for _, entry := range entries {
-			if !entry.IsDir() && filepath.Ext(entry.Name()) != ".bat" {
-				scriptPath := filepath.Join(binDir, entry.Name())
-				if err := os.Chmod(scriptPath, 0755); err != nil {
-					d.context.Log.Warning("Could not make %s executable: %s", entry.Name(), err.Error())
-				}
-			}
+	binDirs := map[string]struct{}{
+		filepath.Join(buildDir, "bin"):                     {},
+		filepath.Join(buildDir, "application-root", "bin"): {},
+	}
+
+	if d.startScript != "" {
+		scriptDir := filepath.Dir(d.startScript)
+		if scriptDir != "" && scriptDir != "." {
+			binDirs[filepath.Join(buildDir, scriptDir)] = struct{}{}
 		}
 	}
 
-	// Try application-root/bin/ directory
-	binDirApp := filepath.Join(buildDir, "application-root", "bin")
-	entriesApp, errApp := os.ReadDir(binDirApp)
-	if errApp == nil {
-		for _, entry := range entriesApp {
-			if !entry.IsDir() && filepath.Ext(entry.Name()) != ".bat" {
-				scriptPath := filepath.Join(binDirApp, entry.Name())
-				if err := os.Chmod(scriptPath, 0755); err != nil {
-					d.context.Log.Warning("Could not make %s executable: %s", entry.Name(), err.Error())
-				}
+	for dir := range binDirs {
+		entries, err := os.ReadDir(dir)
+		if err != nil {
+			continue
+		}
+		for _, entry := range entries {
+			if entry.IsDir() || filepath.Ext(entry.Name()) == ".bat" {
+				continue
+			}
+			scriptPath := filepath.Join(dir, entry.Name())
+			if err := os.Chmod(scriptPath, 0755); err != nil {
+				d.context.Log.Warning("Could not make %s executable: %s", scriptPath, err.Error())
 			}
 		}
 	}
@@ -168,15 +200,11 @@ func (d *DistZipContainer) Finalize() error {
 	d.context.Log.BeginStep("Finalizing Dist ZIP")
 	d.context.Log.Info("DistZip Finalize: Starting (startScript=%s)", d.startScript)
 
-	// Determine the script directory based on start script location
-	var scriptDir string
-	if strings.Contains(d.startScript, "/") {
-		// application-root case: extract directory from script path
-		scriptDir = filepath.Dir(d.startScript)
-	} else {
-		// root structure case: script in bin/
+	scriptDir := filepath.Dir(d.startScript)
+	if scriptDir == "" || scriptDir == "." {
 		scriptDir = "bin"
 	}
+	scriptDir = filepath.ToSlash(scriptDir)
 
 	// Collect additional libraries (JVMKill agent, frameworks, etc.)
 	additionalLibs := d.collectAdditionalLibraries()
@@ -323,23 +351,8 @@ func (d *DistZipContainer) Release() (string, error) {
 		}
 	}
 
-	// Determine the script directory based on start script location
-	var scriptDir string
-	if strings.Contains(d.startScript, "/") {
-		// application-root case: extract directory from script path
-		scriptDir = filepath.Dir(d.startScript)
-	} else {
-		// root structure case: script in bin/
-		scriptDir = "bin"
-	}
-
-	// Extract just the script name (remove any directory path)
-	scriptName := filepath.Base(d.startScript)
-
-	// Use absolute path $HOME/<scriptDir>/<scriptName>
-	// This eliminates dependency on profile.d script execution order
-	// At runtime, CF makes the application available at $HOME
-	cmd := fmt.Sprintf("$HOME/%s/%s", scriptDir, scriptName)
+	scriptPath := filepath.ToSlash(d.startScript)
+	cmd := fmt.Sprintf("$HOME/%s", scriptPath)
 
 	return cmd, nil
 }

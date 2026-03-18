@@ -97,6 +97,40 @@ var _ = Describe("Dist ZIP Container", func() {
 				Expect(name).To(BeEmpty())
 			})
 		})
+
+		Context("with bin/ and lib/ inside an immediate subdirectory", func() {
+			BeforeEach(func() {
+				nested := filepath.Join(buildDir, "my-app-1.0")
+				os.MkdirAll(filepath.Join(nested, "bin"), 0755)
+				os.MkdirAll(filepath.Join(nested, "lib"), 0755)
+				os.WriteFile(filepath.Join(nested, "bin", "launcher"), []byte("#!/bin/sh"), 0755)
+			})
+
+			It("detects as Dist ZIP", func() {
+				name, err := container.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(Equal("Dist ZIP"))
+			})
+		})
+
+		Context("with multiple bin/lib structures", func() {
+			BeforeEach(func() {
+				os.MkdirAll(filepath.Join(buildDir, "bin"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "lib"), 0755)
+				os.WriteFile(filepath.Join(buildDir, "bin", "start"), []byte("#!/bin/sh"), 0755)
+
+				nested := filepath.Join(buildDir, "second")
+				os.MkdirAll(filepath.Join(nested, "bin"), 0755)
+				os.MkdirAll(filepath.Join(nested, "lib"), 0755)
+				os.WriteFile(filepath.Join(nested, "bin", "launcher"), []byte("#!/bin/sh"), 0755)
+			})
+
+			It("does not detect", func() {
+				name, err := container.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(BeEmpty())
+			})
+		})
 	})
 
 	Describe("Release", func() {
@@ -127,6 +161,22 @@ var _ = Describe("Dist ZIP Container", func() {
 				cmd, err := container.Release()
 				Expect(err).NotTo(HaveOccurred())
 				Expect(cmd).To(Equal("$HOME/application-root/bin/launcher"))
+			})
+		})
+
+		Context("with start script in immediate subdirectory", func() {
+			BeforeEach(func() {
+				nested := filepath.Join(buildDir, "custom")
+				os.MkdirAll(filepath.Join(nested, "bin"), 0755)
+				os.MkdirAll(filepath.Join(nested, "lib"), 0755)
+				os.WriteFile(filepath.Join(nested, "bin", "run"), []byte("#!/bin/sh"), 0755)
+				container.Detect()
+			})
+
+			It("uses absolute path with $HOME prefix", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(cmd).To(Equal("$HOME/custom/bin/run"))
 			})
 		})
 
