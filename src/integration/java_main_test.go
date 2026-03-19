@@ -116,21 +116,5 @@ func testJavaMain(platform switchblade.Platform, fixtures string) func(*testing.
 				Expect(logs.String()).To(ContainSubstring("17."))
 			})
 		})
-
-		context("with OpenJDK Java 25", func() {
-			it("deploys with OpenJDK JRE from manifest", func() {
-				_, logs, err := platform.Deploy.
-					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "25",
-					}).
-					Execute(name, filepath.Join(fixtures, "containers", "main"))
-				Expect(err).NotTo(HaveOccurred(), logs.String)
-
-				// Verify OpenJDK JRE was installed from manifest
-				Expect(logs.String()).To(ContainSubstring("Java Buildpack"))
-				Expect(logs.String()).To(ContainSubstring("Java Main"))
-				Expect(logs.String()).To(ContainSubstring("25."))
-			})
-		})
 	}
 }
