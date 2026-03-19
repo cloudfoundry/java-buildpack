@@ -85,6 +85,21 @@ func testGroovy(platform switchblade.Platform, fixtures string) func(*testing.T,
 				Expect(logs.String()).To(ContainSubstring("Java Buildpack"))
 				Eventually(deployment).Should(matchers.Serve(Not(BeEmpty())))
 			})
+
+			it("includes lib/ JARs in the start command classpath", func() {
+				_, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"BP_JAVA_VERSION": "11",
+					}).
+					Execute(name, filepath.Join(fixtures, "containers", "groovy_with_lib_jars"))
+				Expect(err).NotTo(HaveOccurred(), logs.String)
+
+				// The finalizer logs "Web process command: <cmd>" during staging.
+				// Assert the lib JAR appears in the -cp flag of that command.
+				Expect(logs.String()).To(ContainSubstring("Web process command:"))
+				Expect(logs.String()).To(ContainSubstring("-cp "))
+				Expect(logs.String()).To(ContainSubstring("mylib.jar"))
+			})
 		})
 
 		context("with edge cases", func() {
