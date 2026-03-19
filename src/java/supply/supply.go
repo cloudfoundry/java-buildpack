@@ -2,6 +2,8 @@ package supply
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
 
 	"github.com/cloudfoundry/java-buildpack/src/java/containers"
@@ -150,7 +152,7 @@ func (s *Supplier) installFrameworks() error {
 		return nil
 	}
 
-	s.Log.Info("Detected frameworks: %v", frameworkNames)
+	s.Log.Info("Detected frameworks: [%v]", strings.Join(frameworkNames, ","))
 
 	// Install all detected frameworks
 	// Framework installation errors are fatal and will abort the build,

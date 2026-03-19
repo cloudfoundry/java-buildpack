@@ -175,7 +175,7 @@ func (f *Finalizer) finalizeFrameworks(ctx *common.Context) error {
 		return nil
 	}
 
-	f.Log.Info("Finalizing frameworks: %v", strings.Join(frameworkNames, ","))
+	f.Log.Info("Finalizing frameworks: [%v]", strings.Join(frameworkNames, ","))
 
 	for i, framework := range detectedFrameworks {
 		f.Log.Info("Finalizing framework: %s", frameworkNames[i])
