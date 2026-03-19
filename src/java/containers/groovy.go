@@ -85,12 +85,6 @@ func (g *GroovyContainer) Finalize() error {
 
 	// Note: JAVA_OPTS (including JVMKill agent) is configured by the JRE component
 	// via profile.d/java_opts.sh. No need to configure it here to avoid duplication.
-	
-	// the script name is prefixed with 'zzz' as it is important to be the last script sourced from profile.d
-	// so that the previous scripts assembling the CLASSPATH variable(left from frameworks) are sourced previous to it.
-	if err := g.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("lib"))); err != nil {
-		return fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
-	}
 
 	return nil
 }
@@ -166,5 +160,5 @@ func (g *GroovyContainer) buildClasspathFlag() string {
 	if len(jarPaths) == 0 {
 		return ""
 	}
-	return "-cp " + strings.Join(jarPaths, ":") + "${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
+	return "-cp " + strings.Join(jarPaths, ":") + "${CLASSPATH:+:$CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
 }
