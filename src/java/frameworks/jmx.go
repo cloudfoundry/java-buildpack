@@ -2,9 +2,10 @@ package frameworks
 
 import (
 	"fmt"
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"strconv"
+
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 )
 
 // JmxFramework implements JMX (Java Management Extensions) support
@@ -30,8 +31,7 @@ func (j *JmxFramework) Detect() (string, error) {
 		return "", nil
 	}
 
-	port := config.getPort()
-	return fmt.Sprintf("jmx=%d", port), nil
+	return "JMX", nil
 }
 
 // Supply performs JMX setup during supply phase
