@@ -122,7 +122,7 @@ func (g *GroovyContainer) Release() (string, error) {
 	}
 
 	// Build classpath from all JARs under the app root (mirrors Ruby buildpack's add_libs + as_classpath)
-	cpFlag := g.buildClasspathFlag()
+	cpFlag := g.buildClasspath()
 
 	// Note: JAVA_OPTS is set via environment variables (profile.d/java_opts.sh)
 	// The groovy command reads JAVA_OPTS from the environment, not command-line args
@@ -135,9 +135,9 @@ func (g *GroovyContainer) Release() (string, error) {
 	return cmd, nil
 }
 
-// buildClasspathFlag globs all JARs under the build dir and returns a "-cp <...>" flag string
+// buildClasspath globs all JARs under the build dir and returns a "-cp <...>" flag string
 // with runtime-relative paths (using $HOME), mirroring the Ruby buildpack's add_libs behaviour.
-func (g *GroovyContainer) buildClasspathFlag() string {
+func (g *GroovyContainer) buildClasspath() string {
 	buildDir := g.context.Stager.BuildDir()
 
 	var jarPaths []string
@@ -160,5 +160,6 @@ func (g *GroovyContainer) buildClasspathFlag() string {
 	if len(jarPaths) == 0 {
 		return ""
 	}
+	// Adding also container security provider and the additional CLASSPATH env built when profile.d scripts are sourced
 	return "-cp " + strings.Join(jarPaths, ":") + "${CLASSPATH:+:$CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
 }
