@@ -158,7 +158,7 @@ func (g *GroovyContainer) buildClasspath() string {
 	}
 
 	if len(jarPaths) == 0 {
-		return ""
+		return "-cp ${CLASSPATH:+:$CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
 	}
 	// Adding also container security provider and the additional CLASSPATH env built when profile.d scripts are sourced
 	return "-cp " + strings.Join(jarPaths, ":") + "${CLASSPATH:+:$CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
