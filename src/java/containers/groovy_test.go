@@ -140,6 +140,44 @@ var _ = Describe("Groovy Container", func() {
 				Expect(err.Error()).To(ContainSubstring("no Groovy script specified"))
 			})
 		})
+
+		Context("with lib JARs in the build directory", func() {
+			BeforeEach(func() {
+				os.WriteFile(filepath.Join(buildDir, "app.groovy"), []byte("println 'app'"), 0644)
+				os.MkdirAll(filepath.Join(buildDir, "lib"), 0755)
+				os.WriteFile(filepath.Join(buildDir, "lib", "mylib.jar"), []byte(""), 0644)
+				os.WriteFile(filepath.Join(buildDir, "lib", "other.jar"), []byte(""), 0644)
+				container.Detect()
+			})
+
+			It("includes lib JARs in the classpath via -cp flag", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(cmd).To(ContainSubstring("-cp "))
+				Expect(cmd).To(ContainSubstring("$HOME/lib/mylib.jar"))
+				Expect(cmd).To(ContainSubstring("$HOME/lib/other.jar"))
+				Expect(cmd).To(ContainSubstring("${CLASSPATH:+:$CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"))
+			})
+
+			It("places the -cp flag before the script name", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(cmd).To(MatchRegexp(`-cp .+ app\.groovy$`))
+			})
+		})
+
+		Context("with no JARs anywhere", func() {
+			BeforeEach(func() {
+				os.WriteFile(filepath.Join(buildDir, "app.groovy"), []byte("println 'app'"), 0644)
+				container.Detect()
+			})
+
+			It("omits the -cp flag", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(cmd).To(Equal("$GROOVY_HOME/bin/groovy -cp ${CLASSPATH:+:$CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} app.groovy"))
+			})
+		})
 	})
 
 	Describe("Finalize", func() {
