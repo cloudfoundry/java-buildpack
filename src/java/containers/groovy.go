@@ -1,8 +1,8 @@
 package containers
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 	"strings"
@@ -160,5 +160,5 @@ func (g *GroovyContainer) buildClasspathFlag() string {
 	if len(jarPaths) == 0 {
 		return ""
 	}
-	return "-cp " + strings.Join(jarPaths, ":")
+	return "-cp " + strings.Join(jarPaths, ":") + "${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
 }
