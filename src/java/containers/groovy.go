@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // GroovyContainer handles Groovy script applications
@@ -120,8 +121,44 @@ func (g *GroovyContainer) Release() (string, error) {
 		return "", fmt.Errorf("no Groovy script specified (set GROOVY_SCRIPT)")
 	}
 
+	// Build classpath from all JARs under the app root (mirrors Ruby buildpack's add_libs + as_classpath)
+	cpFlag := g.buildClasspathFlag()
+
 	// Note: JAVA_OPTS is set via environment variables (profile.d/java_opts.sh)
 	// The groovy command reads JAVA_OPTS from the environment, not command-line args
-	cmd := fmt.Sprintf("$GROOVY_HOME/bin/groovy %s", mainScript)
+	var cmd string
+	if cpFlag != "" {
+		cmd = fmt.Sprintf("$GROOVY_HOME/bin/groovy %s %s", cpFlag, mainScript)
+	} else {
+		cmd = fmt.Sprintf("$GROOVY_HOME/bin/groovy %s", mainScript)
+	}
 	return cmd, nil
+}
+
+// buildClasspathFlag globs all JARs under the build dir and returns a "-cp <...>" flag string
+// with runtime-relative paths (using $HOME), mirroring the Ruby buildpack's add_libs behaviour.
+func (g *GroovyContainer) buildClasspathFlag() string {
+	buildDir := g.context.Stager.BuildDir()
+
+	var jarPaths []string
+	err := filepath.Walk(buildDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() {
+			return err
+		}
+		if strings.HasSuffix(info.Name(), ".jar") {
+			rel, relErr := filepath.Rel(buildDir, path)
+			if relErr == nil {
+				jarPaths = append(jarPaths, "$HOME/"+filepath.ToSlash(rel))
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		g.context.Log.Debug("Error walking build dir for JARs: %s", err.Error())
+	}
+
+	if len(jarPaths) == 0 {
+		return ""
+	}
+	return "-cp " + strings.Join(jarPaths, ":")
 }
