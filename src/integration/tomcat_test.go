@@ -282,13 +282,16 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				// directly to `cf push -b <url>`). Switchblade's Docker platform only supports
 				// HTTP downloads via buildpacks_cache.go:64 http.Get(), not git clone.
 				// The test must run on CF platform to properly test git URL buildpack deployment.
+				//
+				// NOTE: The original test used #feature/go-migration but that branch was merged
+				// into main, so we now use the default branch (main).
 
 				if settings.Platform == "docker" {
 					t.Skip("Git URL buildpacks require CF platform - Docker platform cannot clone git repos")
 				}
 
 				deployment, logs, err := platform.Deploy.
-					WithBuildpacks("https://github.com/cloudfoundry/java-buildpack.git#feature/go-migration").
+					WithBuildpacks("https://github.com/cloudfoundry/java-buildpack.git").
 					WithEnv(map[string]string{
 						"BP_JAVA_VERSION": "21",
 					}).
