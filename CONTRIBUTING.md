@@ -28,52 +28,169 @@ Branches used when submitting pull requests should preferably using succinct, lo
 
 [fork-and-edit]: https://github.com/blog/844-forking-with-the-edit-button
 
-## Mind the whitespace
-Please carefully follow the whitespace and formatting conventions already present in the code.
+## Follow Go Code Standards
 
-1. Space, not tabs
-1. Unix (LF), not DOS (CRLF) line endings
-1. Eliminate all trailing whitespace
-1. Wrap RubyDoc at 120 characters
-1. Aim to wrap code at 120 characters, but favor readability over wrapping
-1. Preserve existing formatting; i.e. do not reformat code for its own sake
-1. Search the codebase using `git grep` and other tools to discover common naming conventions, etc.
-1. Latin-1 (ISO-8859-1) encoding for sources; use `native2ascii` to convert if necessary
+This buildpack is implemented in Go. Please follow Go conventions and best practices:
 
-## Add Apache license header to all new classes
-```ruby
-# Cloud Foundry Java Buildpack
-# Copyright 2013-2020 the original author or authors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+### Formatting
 
-require ...;
+1. **Use `gofmt`** - All Go code must be formatted with `gofmt` before submission
+   ```bash
+   gofmt -w src/java/
+   ```
+1. **Use `goimports`** - Organize imports properly
+   ```bash
+   go install golang.org/x/tools/cmd/goimports@latest
+   goimports -w src/java/
+   ```
+1. **Tabs for indentation** - Go standard (gofmt will handle this)
+1. **Unix (LF) line endings** - Not DOS (CRLF)
+1. **Eliminate trailing whitespace**
+1. **Line length** - Aim for 120 characters, but favor readability
+1. **Preserve existing formatting** - Do not reformat code for its own sake
+
+### Naming Conventions
+
+1. **Exported names** - Start with capital letter (e.g., `NewFramework`, `Detect`)
+1. **Unexported names** - Start with lowercase letter (e.g., `parseConfig`, `isEnabled`)
+1. **Acronyms** - Use all caps (e.g., `HTTP`, `URL`, `JRE`, `JVM`)
+1. **Interface names** - Single method interfaces end in "-er" (e.g., `Reader`, `Writer`)
+1. **File names** - Use snake_case (e.g., `new_relic_agent.go`, `spring_boot.go`)
+1. **Test files** - Name with `_test.go` suffix (e.g., `new_relic_agent_test.go`)
+
+### Code Quality
+
+1. **Run `go vet`** - Check for common mistakes
+   ```bash
+   go vet ./src/java/...
+   ```
+1. **Run `golint`** - Check for style issues (optional but recommended)
+   ```bash
+   go install golang.org/x/lint/golint@latest
+   golint ./src/java/...
+   ```
+1. **Error handling** - Always check errors; wrap with context using `fmt.Errorf`
+   ```go
+   if err != nil {
+       return fmt.Errorf("failed to install framework: %w", err)
+   }
+   ```
+1. **Comments** - Use complete sentences; start with the name being documented
+   ```go
+   // NewFramework creates a new framework instance.
+   // The context provides access to buildpack services.
+   func NewFramework(ctx *Context) *Framework {
+   ```
+
+### UTF-8 Encoding
+
+Use UTF-8 encoding for all source files (Go standard)
+
+## Add Apache license header to all new Go files
+
+```go
+// Cloud Foundry Java Buildpack
+// Copyright 2013-2025 the original author or authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package frameworks
+
+import (
+    "fmt"
+    // ...
+)
 ```
+
 ## Update Apache license header to modified files as necessary
-Always check the date range in the license header. For example, if you've modified a file in 2016 whose header still reads
 
-```ruby
- # Copyright 2013 the original author or authors.
+Always check the date range in the license header. For example, if you've modified a file in 2020 whose header still reads:
+
+```go
+ // Copyright 2013-2020 the original author or authors.
 ```
 
-then be sure to update it to 2020 appropriately
+then be sure to update it to 2025 appropriately:
 
-```ruby
- # Copyright 2013-2020 the original author or authors.
+```go
+ // Copyright 2013-2025 the original author or authors.
 ```
 
-## Submit RSpec test cases for all behavior changes
+## Submit test cases for all behavior changes
+
+### Unit Tests
+
+All new features and bug fixes must include unit tests. The buildpack uses:
+- **Standard Go testing** for simple tests
+- **Ginkgo v2** for BDD-style tests
+- **Gomega** for assertions
+
 Search the codebase to find related unit tests and add additional test specs within.
+
+**Example test structure:**
+
+```go
+package frameworks_test
+
+import (
+    "testing"
+    "github.com/cloudfoundry/java-buildpack/src/java/frameworks"
+    . "github.com/onsi/ginkgo/v2"
+    . "github.com/onsi/gomega"
+)
+
+func TestFrameworks(t *testing.T) {
+    RegisterFailHandler(Fail)
+    RunSpecs(t, "Frameworks Suite")
+}
+
+var _ = Describe("MyFramework", func() {
+    Context("when service is bound", func() {
+        It("detects the framework", func() {
+            // Test logic
+            Expect(result).To(Equal("my-framework"))
+        })
+    })
+})
+```
+
+### Running Tests
+
+Before submitting your pull request:
+
+```bash
+# Run unit tests
+./scripts/unit.sh
+
+# Run specific package tests
+cd src/java
+ginkgo frameworks/
+
+# Check code formatting
+gofmt -d src/java/
+
+# Check for common issues
+go vet ./src/java/...
+```
+
+### Test Requirements
+
+1. **Unit tests are required** for all new code
+2. **Integration tests** should be added for new containers or significant framework changes
+3. **Test coverage** should not decrease - aim for >85% coverage
+4. **All tests must pass** before submission
+
+See [docs/TESTING.md](docs/TESTING.md) for comprehensive testing guidelines.
 
 ## Squash commits
 Use `git rebase --interactive`, `git add --patch` and other tools to "squash"multiple commits into atomic changes. In addition to the man pages for git, there are many resources online to help you understand how these tools work. Here is one: <http://book.git-scm.com/4_interactive_rebasing.html>.
@@ -133,7 +250,7 @@ Further paragraphs come after blank lines.
 Issue: #10, #11
 ```
 
-1. Use imperative statements in the subject line, e.g. "Fix broken RubyDoc link"
+1. Use imperative statements in the subject line, e.g. "Fix broken documentation link"
 1. Begin the subject line sentence with a capitalized verb, e.g. "Add, Prune, Fix, Introduce, Avoid, etc."
 1. Do not end the subject line with a period
 1. Keep the subject line to 50 characters or less if possible
@@ -143,10 +260,63 @@ Issue: #10, #11
 
 [commit guidelines section of Pro Git]: http://progit.org/book/ch5-2.html#commit_guidelines
 
-## Run all tests prior to submission
-See the [Running Tests][] section of the README for instructions. Make sure that all tests pass prior to submitting your pull request.
+## Run all checks prior to submission
 
-[Running Tests]: README.md#running-tests
+Before submitting your pull request, ensure all checks pass:
+
+### 1. Format Code
+
+```bash
+# Format Go code
+gofmt -w src/java/
+
+# Organize imports (optional but recommended)
+goimports -w src/java/
+```
+
+### 2. Run Tests
+
+```bash
+# Run all unit tests
+./scripts/unit.sh
+
+# Run specific tests
+cd src/java
+ginkgo frameworks/
+ginkgo containers/
+```
+
+### 3. Static Analysis
+
+```bash
+# Check for common mistakes
+go vet ./src/java/...
+
+# Check for style issues (optional)
+golint ./src/java/...
+```
+
+### 4. Build Buildpack
+
+```bash
+# Ensure buildpack compiles
+./scripts/build.sh
+```
+
+### 5. Integration Tests (for significant changes)
+
+```bash
+# Package buildpack
+./scripts/package.sh --version dev
+
+# Run integration tests
+export BUILDPACK_FILE="${PWD}/build/buildpack.zip"
+./scripts/integration.sh --platform docker
+```
+
+Make sure that all tests pass and the buildpack builds successfully prior to submitting your pull request.
+
+See [docs/DEVELOPING.md](docs/DEVELOPING.md) for detailed development workflow.
 
 # Submit your pull request
 Subject line:
@@ -165,3 +335,118 @@ Note that for pull requests containing a single commit, GitHub will default the 
 The Cloud Foundry Java Experience team takes a very conservative approach to accepting contributions to the buildpack. This is to keep code quality and stability as high as possible, and to keep complexity at a minimum. Your changes, if accepted, may be heavily modified prior to merging. You will retain "Author:" attribution for your Git commits granted that the bulk of your changes remain intact. You may be asked to rework the submission for style (as explained above) and/or substance. Again, we strongly recommend discussing any serious submissions with the Cloud Foundry Java Experience team _prior_ to engaging in serious development work.
 
 Note that you can always force push (`git push -f`) reworked / rebased commits against the branch used to submit your pull request. i.e. you do not need to issue a new pull request when asked to make changes.
+
+## Go-Specific Contribution Guidelines
+
+### Project Structure
+
+```
+src/java/
+├── containers/       # Container implementations (Tomcat, Spring Boot, etc.)
+├── frameworks/       # Framework integrations (APM agents, security, etc.)
+├── jres/            # JRE providers (OpenJDK, Zulu, GraalVM, etc.)
+├── supply/          # Supply phase entrypoint
+├── finalize/        # Finalize phase entrypoint
+└── integration/     # Integration tests
+```
+
+### Implementing New Components
+
+When adding new frameworks, containers, or JREs:
+
+1. **Read the implementation guides:**
+   - [Implementing Frameworks](docs/IMPLEMENTING_FRAMEWORKS.md)
+   - [Implementing Containers](docs/IMPLEMENTING_CONTAINERS.md)
+   - [Implementing JREs](docs/IMPLEMENTING_JRES.md)
+
+2. **Follow the component interface pattern:**
+   ```go
+   type Component interface {
+       Detect() (string, error)  // Returns detection tag
+       Supply() error            // Install dependencies
+       Finalize() error          // Configure runtime
+   }
+   ```
+
+3. **Required files:**
+   - Implementation: `src/java/{type}/my_component.go`
+   - Tests: `src/java/{type}/my_component_test.go`
+   - Config: `config/my_component.yml`
+   - Documentation: `docs/{type}-my_component.md`
+   - Registration: Update `config/components.yml`
+
+### Go Best Practices for This Project
+
+1. **Use context struct for dependencies**
+   ```go
+   type Context struct {
+       Stager    *libbuildpack.Stager
+       Manifest  *libbuildpack.Manifest
+       Installer *libbuildpack.Installer
+       Log       *libbuildpack.Logger
+       Command   *libbuildpack.Command
+   }
+   ```
+
+2. **Error handling with context**
+   ```go
+   if err != nil {
+       return fmt.Errorf("failed to install framework: %w", err)
+   }
+   ```
+
+3. **Logging at appropriate levels**
+   ```go
+   ctx.Log.BeginStep("Installing Framework")  // Major steps
+   ctx.Log.Info("Installed version %s", ver)  // Important info
+   ctx.Log.Warning("Feature disabled")        // Warnings
+   ctx.Log.Debug("Config: %+v", config)       // Debug details
+   ```
+
+4. **Use filepath.Join for paths**
+   ```go
+   // GOOD
+   path := filepath.Join(baseDir, "subdir", "file.txt")
+   
+   // BAD
+   path := baseDir + "/subdir/file.txt"
+   ```
+
+5. **Table-driven tests**
+   ```go
+   tests := []struct {
+       name     string
+       input    string
+       expected string
+   }{
+       {"case 1", "input1", "output1"},
+       {"case 2", "input2", "output2"},
+   }
+   
+   for _, tt := range tests {
+       t.Run(tt.name, func(t *testing.T) {
+           // Test logic
+       })
+   }
+   ```
+
+### Common Patterns
+
+- **Service-bound detection**: Parse `VCAP_SERVICES` to find bound services
+- **File-based detection**: Check for specific files/directories in build directory
+- **Configuration-based**: Read from `JBP_CONFIG_*` environment variables
+- **Profile.d scripts**: Write runtime configuration to `.profile.d/` directory
+- **Java agents**: Add `-javaagent:path/to/agent.jar` to `JAVA_OPTS`
+
+### Resources for Contributors
+
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Buildpack architecture overview
+- **[docs/DEVELOPING.md](docs/DEVELOPING.md)** - Development workflow and setup
+- **[docs/TESTING.md](docs/TESTING.md)** - Testing guidelines and patterns
+- **[docs/design.md](docs/design.md)** - High-level design concepts
+
+### Getting Help
+
+- **GitHub Issues**: [java-buildpack/issues](https://github.com/cloudfoundry/java-buildpack/issues)
+- **Slack**: [Cloud Foundry Slack](https://slack.cloudfoundry.org) - #buildpacks channel
+- **Mailing List**: [cf-dev](https://lists.cloudfoundry.org/g/cf-dev)

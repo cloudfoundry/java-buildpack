@@ -55,7 +55,7 @@ end
 | Variable | Description |
 | -------- | ----------- |
 | `{default.repository.root}` | The common root for all repositories.  Currently defaults to `https://java-buildpack.cloudfoundry.org`.
-| `{platform}` | The platform that the application is running on.  Currently detects `jammy`, `noble`, etc.
+| `{platform}` | The platform that the application is running on.  Currently detects `jammy`, etc.
 | `{architecture}` | The architecture of the system as returned by Ruby.  The value is typically one of `x86_64` or `x86`.
 
 ## Configuration

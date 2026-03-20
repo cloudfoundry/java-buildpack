@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: io.pivotal.SimpleHttpServer
+Created-By: 25.0.1 (Oracle Corporation)
+

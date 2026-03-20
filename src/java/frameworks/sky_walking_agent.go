@@ -1,0 +1,248 @@
+// Cloud Foundry Java Buildpack
+// Copyright 2013-2021 the original author or authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package frameworks
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
+	"os"
+	"path/filepath"
+	"strings"
+)
+
+// SkyWalkingAgentFramework represents the Apache SkyWalking agent framework
+type SkyWalkingAgentFramework struct {
+	context *common.Context
+	jarPath string
+}
+
+// NewSkyWalkingAgentFramework creates a new SkyWalking agent framework instance
+func NewSkyWalkingAgentFramework(ctx *common.Context) *SkyWalkingAgentFramework {
+	return &SkyWalkingAgentFramework{context: ctx}
+}
+
+// Detect checks if SkyWalking agent should be enabled
+func (s *SkyWalkingAgentFramework) Detect() (string, error) {
+	// Check for SW_AGENT_COLLECTOR_BACKEND_SERVICES environment variable
+	if os.Getenv("SW_AGENT_COLLECTOR_BACKEND_SERVICES") != "" {
+		s.context.Log.Debug("SkyWalking agent framework detected via SW_AGENT_COLLECTOR_BACKEND_SERVICES")
+		return "SkyWalking", nil
+	}
+
+	// Check for SkyWalking service binding
+	vcapServices, err := GetVCAPServices()
+	if err != nil {
+		s.context.Log.Warning("Failed to parse VCAP_SERVICES: %s", err.Error())
+		return "", nil
+	}
+
+	// SkyWalking can be bound as:
+	// - "skywalking" service (marketplace or label)
+	// - Services with "skywalking" tag
+	// - User-provided services with "skywalking" in the name (Docker platform)
+	if vcapServices.HasService("skywalking") ||
+		vcapServices.HasTag("skywalking") ||
+		vcapServices.HasServiceByNamePattern("skywalking") {
+		s.context.Log.Info("SkyWalking service detected!")
+		return "SkyWalking", nil
+	}
+
+	s.context.Log.Debug("SkyWalking agent: no service binding or environment variables found")
+	return "", nil
+}
+
+// Supply downloads and installs the SkyWalking agent
+func (s *SkyWalkingAgentFramework) Supply() error {
+	s.context.Log.BeginStep("Installing SkyWalking agent")
+
+	// Get dependency from manifest
+	dep, err := s.context.Manifest.DefaultVersion("skywalking-agent")
+	if err != nil {
+		return fmt.Errorf("unable to find SkyWalking agent in manifest: %w", err)
+	}
+
+	// Install the agent
+	agentDir := filepath.Join(s.context.Stager.DepDir(), "sky_walking_agent")
+	if err := s.context.Installer.InstallDependency(dep, agentDir); err != nil {
+		return fmt.Errorf("failed to install SkyWalking agent: %w", err)
+	}
+
+	// constructJarPath can be skipped here and do it only in finalize, but it can be left as a double check
+	// if jar path exists after the dependency install
+	err = s.constructJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("agent jar path not found during supply: %w", err)
+	}
+
+	s.context.Log.Info("SkyWalking agent %s installed", dep.Version)
+	return nil
+}
+
+// Finalize configures the SkyWalking agent
+func (s *SkyWalkingAgentFramework) Finalize() error {
+	agentDir := filepath.Join(s.context.Stager.DepDir(), "sky_walking_agent")
+	err := s.constructJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("agent jar path not found during finalize: %w", err)
+	}
+
+	s.context.Log.BeginStep("Configuring SkyWalking agent")
+
+	// Get buildpack index for multi-buildpack support
+	depsIdx := s.context.Stager.DepsIdx()
+
+	// Convert staging path to runtime path
+	relPath, err := filepath.Rel(s.context.Stager.DepDir(), s.jarPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for SkyWalking agent: %w", err)
+	}
+	runtimeJarPath := filepath.Join(fmt.Sprintf("$DEPS_DIR/%s", depsIdx), relPath)
+
+	// Get credentials from service binding
+	credentials := s.getCredentials()
+
+	// Build all JAVA_OPTS options
+	var opts []string
+	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
+
+	// Configure application name (default to space:application_name)
+	appName := s.getAppName()
+	if appName != "" {
+		opts = append(opts, fmt.Sprintf("-Dskywalking.agent.service_name=%s", appName))
+	}
+
+	// Configure collector backend services
+	if credentials.CollectorBackendServices != "" {
+		opts = append(opts, fmt.Sprintf("-Dskywalking.collector.backend_service=%s", credentials.CollectorBackendServices))
+	}
+
+	// Write all options to .opts file
+	javaOpts := strings.Join(opts, " ")
+	if err := writeJavaOptsFile(s.context, 41, "sky_walking_agent", javaOpts); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS for SkyWalking: %w", err)
+	}
+
+	s.context.Log.Info("SkyWalking agent configured")
+	return nil
+}
+
+// hasServiceBinding checks if there's a skywalking service binding
+
+// SkyWalkingCredentials holds SkyWalking agent credentials
+type SkyWalkingCredentials struct {
+	CollectorBackendServices string
+}
+
+// getCredentials retrieves SkyWalking credentials
+func (s *SkyWalkingAgentFramework) getCredentials() SkyWalkingCredentials {
+	creds := SkyWalkingCredentials{}
+
+	// Check environment variable first
+	creds.CollectorBackendServices = os.Getenv("SW_AGENT_COLLECTOR_BACKEND_SERVICES")
+	if creds.CollectorBackendServices != "" {
+		return creds
+	}
+
+	// Check service binding
+	vcapServices := os.Getenv("VCAP_SERVICES")
+	if vcapServices == "" {
+		return creds
+	}
+
+	var services map[string][]map[string]interface{}
+	if err := json.Unmarshal([]byte(vcapServices), &services); err != nil {
+		return creds
+	}
+
+	// Look for skywalking service
+	serviceNames := []string{
+		"skywalking",
+		"sky-walking",
+		"user-provided",
+	}
+
+	for _, serviceName := range serviceNames {
+		if serviceList, ok := services[serviceName]; ok {
+			for _, service := range serviceList {
+				if credentials, ok := service["credentials"].(map[string]interface{}); ok {
+					// Get collector backend services
+					if backend, ok := credentials["collector_backend_services"].(string); ok {
+						creds.CollectorBackendServices = backend
+						return creds
+					}
+					if backend, ok := credentials["collectorBackendServices"].(string); ok {
+						creds.CollectorBackendServices = backend
+						return creds
+					}
+					if backend, ok := credentials["backend_service"].(string); ok {
+						creds.CollectorBackendServices = backend
+						return creds
+					}
+				}
+			}
+		}
+	}
+
+	return creds
+}
+
+func (s *SkyWalkingAgentFramework) getAppName() string {
+	appName := GetApplicationName(true)
+	if appName != "" {
+		return appName
+	}
+	config, err := s.loadConfig()
+	if err != nil {
+		s.context.Log.Warning("Failed to load sky walking agent config: %s", err.Error())
+		return ""
+	}
+	return config.DefaultApplicationName
+}
+
+func (s *SkyWalkingAgentFramework) constructJarPath(agentDir string) error {
+	// Find the installed agent JAR (in skywalking-agent subdirectory)
+	jarPattern := filepath.Join(agentDir, "skywalking-agent", "skywalking-agent.jar")
+	if _, err := os.Stat(jarPattern); err != nil {
+		return fmt.Errorf("agent jar not found after installation: %w", err)
+	}
+	s.jarPath = jarPattern
+	return nil
+}
+
+func (s *SkyWalkingAgentFramework) loadConfig() (*skyWalkingAgentConfig, error) {
+	// initialize default values
+	swaConfig := skyWalkingAgentConfig{
+		DefaultApplicationName: "",
+	}
+	config := os.Getenv("JBP_CONFIG_SKY_WALKING_AGENT")
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &swaConfig)
+		if err != nil {
+			s.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
+		// overlay JBP_CONFIG_SKY_WALKING_AGENT over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &swaConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_SKY_WALKING_AGENT: %w", err)
+		}
+	}
+	return &swaConfig, nil
+}
+
+type skyWalkingAgentConfig struct {
+	DefaultApplicationName string `yaml:"default_application_name"`
+}

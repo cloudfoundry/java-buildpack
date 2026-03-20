@@ -44,18 +44,28 @@ The framework can be configured by modifying the [`config/app_dynamics_agent.yml
 | `version` | The version of AppDynamics to use. Candidate versions can be found in [this listing][].
 
 ### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution.  To do this follow one of the options below.
+The framework can be configured by providing custom configuration files.
 
-Configuration files are created in this order:
+#### Default Configuration
+The buildpack includes a default `app-agent-config.xml` configuration file that is embedded at compile time. This default configuration provides sensible defaults for Cloud Foundry deployments, including sensitive data filtering for passwords and keys.
 
-1. Default AppDynamics configuration
-2. Buildpack default configuration is taken from `resources/app_dynamics_agent/default`
-3. External Configuration if configured
-4. Local Configuration if configured
-5. Buildpack Fork if it exists
+The default configuration file is located in `src/java/resources/files/app_dynamics_agent/defaults/conf/app-agent-config.xml`.
 
-#### Buildpack Fork
-Add files to the `resources/app_dynamics_agent` directory in the buildpack fork.  For example, to override the default `app-agent-config.xml` add your custom file to `resources/app_dynamics_agent/<version>/conf/app-agent-config.xml`.
+##### Customizing Default Configuration via Fork
+To customize the default AppDynamics configuration across all applications using your buildpack:
+
+1. Fork the java-buildpack repository
+2. Modify the configuration file in `src/java/resources/files/app_dynamics_agent/defaults/conf/`
+3. Build and package your custom buildpack
+4. Upload the custom buildpack to your Cloud Foundry foundation
+
+This approach is useful for operators who want to enforce organization-wide AppDynamics settings.
+
+Configuration files are applied in this order:
+
+1. Default AppDynamics configuration (embedded in buildpack)
+2. External Configuration (if configured via `APPD_CONF_HTTP_URL`)
+3. Local Configuration (if configured via `APPD_CONF_DIR`)
 
 #### External Configuration
 Set `APPD_CONF_HTTP_URL` to an HTTP or HTTPS URL which points to the directory where your configuration files exist. You may also include a user and password in the URL, like `https://user:pass@example.com`.

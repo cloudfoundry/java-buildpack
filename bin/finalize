@@ -1,1 +1,19 @@
-./run
+#!/bin/bash
+set -euo pipefail
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+DEPS_DIR=$3
+DEPS_IDX=$4
+PROFILE_DIR=${5:-}
+
+export BUILDPACK_DIR=$(dirname $(readlink -f ${BASH_SOURCE%/*}))
+source "$BUILDPACK_DIR/scripts/install_go.sh"
+output_dir=$(mktemp -d -t finalizeXXX)
+
+pushd $BUILDPACK_DIR > /dev/null
+echo "-----> Running go build finalize"
+GOROOT=$GoInstallDir $GoInstallDir/bin/go build -mod=vendor -o $output_dir/finalize ./src/java/finalize/cli
+popd > /dev/null
+
+$output_dir/finalize "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" "$DEPS_IDX" "$PROFILE_DIR"

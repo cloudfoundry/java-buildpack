@@ -1,1 +1,5 @@
-./run
+#!/bin/bash
+set -euo pipefail
+
+BUILD_DIR=$1
+cat $BUILD_DIR/tmp/java-buildpack-release-step.yml

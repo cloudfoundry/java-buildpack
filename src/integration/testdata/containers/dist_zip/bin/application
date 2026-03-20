@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+##############################################################################
+##
+##  application start up script for UN*X
+##
+##############################################################################
+
+# Determine the app home
+APP_HOME="$(cd "$(dirname "$0")/.." && pwd)"
+
+# Add default JVM options here
+DEFAULT_JVM_OPTS=""
+
+# Use JAVA_OPTS if set
+JAVA_OPTS="${JAVA_OPTS:-$DEFAULT_JVM_OPTS}"
+
+# Construct the classpath
+CLASSPATH=$APP_HOME/lib/simple-http-server.jar
+
+# Determine the Java command to use
+if [ -n "$JAVA_HOME" ] ; then
+    JAVA_CMD="$JAVA_HOME/bin/java"
+else
+    JAVA_CMD="java"
+fi
+
+# Debug output to stderr
+echo "===== DistZip Startup Debug =====" >&2
+echo "DEPS_DIR=$DEPS_DIR" >&2
+echo "APP_HOME=$APP_HOME" >&2
+echo "HOME=$HOME" >&2
+echo "CLASSPATH=$CLASSPATH" >&2
+echo "JAVA_CMD=$JAVA_CMD" >&2
+echo "JAVA_OPTS=$JAVA_OPTS" >&2
+echo "PORT=$PORT" >&2
+echo "=================================" >&2
+
+# Test if Java is executable
+if [ ! -x "$JAVA_CMD" ]; then
+    echo "ERROR: Java command not executable: $JAVA_CMD" >&2
+    ls -la "$JAVA_CMD" >&2 || echo "Java command does not exist" >&2
+    exit 1
+fi
+
+# Test Java version
+echo "Testing Java executable..." >&2
+
+# Debug: Check if JVMKill agent files exist
+echo "Checking for JVMKill agent..." >&2
+if ls /home/vcap/deps/*/jre/bin/jvmkill-*.so 2>/dev/null; then
+    echo "JVMKill agent files found:" >&2
+    ls -la /home/vcap/deps/*/jre/bin/jvmkill-*.so >&2
+else
+    echo "No JVMKill agent files found in /home/vcap/deps/*/jre/bin/" >&2
+fi
+
+# Debug: Parse JAVA_OPTS to see what agents are configured
+echo "Parsing JAVA_OPTS for agent paths..." >&2
+echo "$JAVA_OPTS" | grep -o '\-agentpath:[^ ]*' | while read -r agent; do
+    agentPath="${agent#-agentpath:}"
+    agentPath="${agentPath%%=*}"  # Remove =options part
+    echo "  Agent configured: $agentPath" >&2
+    if [ -f "$agentPath" ]; then
+        echo "    ✓ File exists" >&2
+    else
+        echo "    ✗ FILE NOT FOUND" >&2
+    fi
+done
+
+"$JAVA_CMD" -version 2>&1 | head -3 >&2
+
+# Show the full command we're about to execute
+echo "Executing: $JAVA_CMD $JAVA_OPTS -classpath \"$CLASSPATH\" io.pivotal.SimpleHttpServer" >&2
+
+# Execute the application (redirect both stdout and stderr so we can see Java errors)
+exec "$JAVA_CMD" $JAVA_OPTS -classpath "$CLASSPATH" io.pivotal.SimpleHttpServer "$@" 2>&1

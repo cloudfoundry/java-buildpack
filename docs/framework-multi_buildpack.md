@@ -1,7 +1,18 @@
 # Multiple Buildpack Framework
-The Multiple Buildpack Framework enables the Java Buildpack to act as the final buildpack in a multiple buildpack deployment.  It reads the contributions of other, earlier buildpacks and incorporates them into its standard staging.
 
-The Java Options Framework contributes arbitrary Java options to the application at runtime.
+## ⚠️ IMPORTANT NOTE - NO LONGER NEEDED
+
+**This framework is NOT implemented in the Go-based Java Buildpack** because multi-buildpack support is now **built-in natively** to Cloud Foundry's buildpack lifecycle.
+
+The Go-based Java Buildpack uses the [cloudfoundry/libbuildpack](https://github.com/cloudfoundry/libbuildpack) library which automatically handles multi-buildpack scenarios without requiring a separate framework.
+
+**For Ruby Buildpack Users**: This framework was needed in the original Ruby-based Java Buildpack (pre-v4.x) to support multi-buildpack deployments. If you're using the Go-based buildpack, **you don't need to configure anything** - multi-buildpack support works automatically.
+
+---
+
+## Background (Historical)
+
+The Multiple Buildpack Framework (in the Ruby buildpack) enabled the Java Buildpack to act as the final buildpack in a multiple buildpack deployment. It read the contributions of other, earlier buildpacks and incorporated them into its standard staging.
 
 <table>
   <tr>

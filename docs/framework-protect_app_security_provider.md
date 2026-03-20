@@ -86,8 +86,26 @@ The framework can be configured by modifying the [`config/protect_app_security_p
 | `repository_root` | The URL of the ProtectApp Security Provider repository index ([details][repositories]).
 | `version` | Version of the ProtectApp Security Provider to use.
 
-### Additional Resources
-The framework can also be configured by overlaying a set of resources on the default distribution.  To do this, add files to the `resources/protect_app_security_provider` directory in the buildpack fork.
+### Additional Configuration
+
+#### Default Configuration
+The buildpack includes a default `IngrianNAE.properties` configuration file that is embedded at compile time. This provides sensible defaults for Cloud Foundry deployments.
+
+The default configuration file is located in `src/java/resources/files/protect_app_security_provider/IngrianNAE.properties`.
+
+##### Customizing Default Configuration via Fork
+To customize the default ProtectApp Security Provider configuration across all applications using your buildpack:
+
+1. Fork the java-buildpack repository
+2. Modify the configuration file in `src/java/resources/files/protect_app_security_provider/`
+3. Build and package your custom buildpack
+4. Upload the custom buildpack to your Cloud Foundry foundation
+
+This approach is useful for operators who want to enforce organization-wide ProtectApp Security Provider settings.
+
+All ProtectApp configuration can also be provided via:
+- System properties passed through VCAP_SERVICES credentials (using the `-Dcom.ingrian.security.nae.*` prefix)
+- The credentials payload as documented above
 
 [`config/protect_app_security_provider.yml`]: ../config/protect_app_security_provider.yml
 [ProtectApp Security Service]: https://safenet.gemalto.com/data-encryption/protectapp-application-protection/

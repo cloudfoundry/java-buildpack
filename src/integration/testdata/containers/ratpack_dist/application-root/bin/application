@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+##############################################################################
+##
+##  Ratpack application start up script for UN*X
+##
+##############################################################################
+
+# Determine the app home (application-root)
+APP_HOME="$(cd "$(dirname "$0")/.." && pwd)"
+
+# Add default JVM options here
+DEFAULT_JVM_OPTS=""
+
+# Use JAVA_OPTS if set
+JAVA_OPTS="${JAVA_OPTS:-$DEFAULT_JVM_OPTS}"
+
+# Construct the classpath
+CLASSPATH=$APP_HOME/lib/ratpack-test-app.jar
+
+# Determine the Java command to use
+if [ -n "$JAVA_HOME" ] ; then
+    JAVA_CMD="$JAVA_HOME/bin/java"
+else
+    JAVA_CMD="java"
+fi
+
+# Debug output to stderr
+echo "===== Ratpack Startup Debug =====" >&2
+echo "APP_HOME=$APP_HOME" >&2
+echo "PORT=$PORT" >&2
+echo "=================================" >&2
+
+# Execute the Ratpack test application
+exec "$JAVA_CMD" $JAVA_OPTS -classpath "$CLASSPATH" io.pivotal.RatpackTestApp "$@" 2>&1

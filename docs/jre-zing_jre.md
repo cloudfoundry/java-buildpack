@@ -1,55 +1,130 @@
 # Azul Platform Prime JRE
-Azul Platform Prime JRE provides Java runtimes developed by Azul. No versions of the JRE are available by default due to licensing restrictions. Instead you will need to create a repository with the Prime JREs in it and configure the buildpack to use that repository. Unless otherwise configured, the version of Java that will be used is specified in [`config/zing_jre.yml`][].
+
+Azul Platform Prime (formerly Zing) provides high-performance Java runtimes from [Azul][]. No versions of the JRE are available by default due to licensing restrictions. You must add Azul Platform Prime JRE entries to the buildpack's `manifest.yml` file.
 
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td>Unconditional.  Existence of a single bound Volume Service will result in Terminal heap dumps being written.
+    <td>Configured via <code>JBP_CONFIG_ZING_JRE</code> environment variable.
       <ul>
-        <li>Existence of a Volume Service service is defined as the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service who's name, label or tag has <code>heap-dump</code> as a substring.</li>
+        <li>Existence of a Volume Service service is defined as the <a href="http://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES"><code>VCAP_SERVICES</code></a> payload containing a service whose name, label or tag has <code>heap-dump</code> as a substring.</li>
       </ul>
     </td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
-    <td><tt>open-jdk-like-jre=&lang;version&rang;, open-jdk-like-memory-calculator=&lang;version&rang;, jvmkill=&lang;version&rang;</tt></td>
+    <td><tt>zing=&lang;version&rang;, open-jdk-like-memory-calculator=&lang;version&rang;</tt></td>
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script.
 
+## Setup Requirements
 
-## Configuration
-For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
+To use Azul Platform Prime JRE, you must:
 
-The JRE can be configured by modifying the [`config/zing_jre.yml`][] file in the buildpack fork.  The JRE uses the [`Repository` utility support][repositories] and so, it supports the [version syntax][]  defined there.
+1. **Fork the buildpack** and add Azul Platform Prime JRE entries to `manifest.yml`
+2. **Package and upload** your custom buildpack to Cloud Foundry
+3. **Configure your application** to use the Azul Platform Prime JRE
 
-To use Azul Platform Prime JRE instead of OpenJDK without forking java-buildpack, set environment variable and restage:
+For complete step-by-step instructions, see the [Custom JRE Usage Guide](custom-jre-usage.md).
 
-```bash
-cf set-env <app_name> JBP_CONFIG_COMPONENTS '{jres: ["JavaBuildpack::Jre::ZingJRE"]}'
-cf set-env <app_name> JBP_CONFIG_ZING_JRE '{ jre: { repository_root: "<INTERNAL_REPOSITORY_URI>" } }'
-cf restage <app_name>
+## Adding Azul Platform Prime JRE to manifest.yml
+
+Add the following to your forked buildpack's `manifest.yml`:
+
+```yaml
+# Add to url_to_dependency_map section:
+url_to_dependency_map:
+  - match: zing(\d+\.\d+\.\d+\.\d+)-\d+-ca-jdk(\d+\.\d+\.\d+)-linux_x64\.tar\.gz
+    name: zing
+    version: $2
+
+# Add to default_versions section:
+default_versions:
+  - name: zing
+    version: 21.x
+
+# Add to dependencies section:
+dependencies:
+  # Azul Platform Prime JDK 17
+  - name: zing
+    version: 17.0.13
+    uri: https://cdn.azul.com/zing-zvm/feature-preview/zing24.10.0.0-3-ca-jdk17.0.13-linux_x64.tar.gz
+    sha256: <calculate-sha256-of-downloaded-file>
+    cf_stacks:
+      - cflinuxfs4
+
+  # Azul Platform Prime JDK 21
+  - name: zing
+    version: 21.0.5
+    uri: https://cdn.azul.com/zing-zvm/feature-preview/zing24.10.0.0-3-ca-jdk21.0.5-linux_x64.tar.gz
+    sha256: <calculate-sha256-of-downloaded-file>
+    cf_stacks:
+      - cflinuxfs4
 ```
 
-| Name | Description
-| ---- | -----------
-| `jre.repository_root` | The URL of the Azul Platform Prime repository index ([details][repositories]).
-| `jre.version` | The version of Java runtime to use. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
-| `jvmkill.repository_root` | The URL of the `jvmkill` repository index ([details][repositories]).
-| `jvmkill.version` | The version of `jvmkill` to use.  Candidate versions can be found in the listings for [jammy][jvmkill-jammy].
-| `memory_calculator` | Memory calculator defaults, described below under "Memory".
+### Calculating SHA256
 
-### Additional Resources
-The JRE can also be configured by overlaying a set of resources on the default distribution. To do this, add files to the `resources/zing_jre` directory in the buildpack fork.
+```bash
+# Download the JDK
+curl -LO https://cdn.azul.com/zing-zvm/feature-preview/zing24.10.0.0-3-ca-jdk17.0.13-linux_x64.tar.gz
 
-#### JCE Unlimited Strength
-To add the JCE Unlimited Strength `local_policy.jar`, add your file to `resources/zing_jre/lib/security/local_policy.jar`.  This file will be overlayed onto the Azul Platform Prime distribution.
+# Calculate SHA256
+sha256sum zing24.10.0.0-3-ca-jdk17.0.13-linux_x64.tar.gz
+```
 
-#### Custom CA Certificates
-To add custom SSL certificates, add your `cacerts` file to `resources/zing_jre/lib/security/cacerts`.  This file will be overlayed onto the Azul Platform Prime distribution.
+### Azul Platform Prime Download URLs
 
-### `jvmkill`
-Azul Platform Prime JRE does not use the jvmkill agent instead by default uses the -XX:ExitOnOutOfMemoryError flag which terminates the JVM process when an out-of-memory error occurs.
+Azul Platform Prime downloads require an Azul account and license. Contact Azul for access:
+- **Azul Platform Prime Downloads**: [https://www.azul.com/downloads/prime/](https://www.azul.com/downloads/prime/)
+- **Contact Azul**: [https://www.azul.com/contact-us/](https://www.azul.com/contact-us/)
+
+The URL patterns typically follow:
+- `https://cdn.azul.com/zing-zvm/feature-preview/zing<zing-version>-ca-jdk<jdk-version>-linux_x64.tar.gz`
+
+## Configuration
+
+After adding Azul Platform Prime JRE to your buildpack's manifest, configure your application:
+
+```bash
+# Push with your custom buildpack
+cf push my-app -b my-custom-java-buildpack
+
+# Select Azul Platform Prime JRE
+cf set-env my-app JBP_CONFIG_ZING_JRE '{jre: {version: 21.+}}'
+
+# Restage to apply
+cf restage my-app
+```
+
+Or in your application's `manifest.yml`:
+
+```yaml
+applications:
+  - name: my-app
+    buildpacks:
+      - my-custom-java-buildpack
+    env:
+      JBP_CONFIG_ZING_JRE: '{jre: {version: 21.+}}'
+```
+
+## Configuration Options
+
+| Name | Description |
+| ---- | ----------- |
+| `JBP_CONFIG_ZING_JRE` | Configuration for Azul Platform Prime JRE, including version selection (e.g., `'{jre: {version: 21.+}}'`). |
+
+### Memory Configuration
+
+Memory settings are configured via the memory calculator. See [Memory Configuration](#memory) below.
+
+### Custom CA Certificates
+
+**Recommended approach:** Use [Cloud Foundry Trusted System Certificates](https://docs.cloudfoundry.org/devguide/deploy-apps/trusted-system-certificates.html). Operators deploy trusted certificates that are automatically available in `/etc/cf-system-certificates` and `/etc/ssl/certs`.
+
+## JVMKill / Out of Memory Handling
+
+Azul Platform Prime JRE does not use the jvmkill agent. Instead, it uses the `-XX:ExitOnOutOfMemoryError` flag by default, which terminates the JVM process when an out-of-memory error occurs.
 
 If a [Volume Service][] with the string `heap-dump` in its name or tag is bound to the application, terminal heap dumps will be written with the pattern `<CONTAINER_DIR>/<SPACE_NAME>-<SPACE_ID[0,8]>/<APPLICATION_NAME>-<APPLICATION_ID[0,8]>/<INSTANCE_INDEX>-<TIMESTAMP>-<INSTANCE_ID[0,8]>.hprof`
 
@@ -57,90 +132,72 @@ If a [Volume Service][] with the string `heap-dump` in its name or tag is bound 
 Heapdump written to /var/vcap/data/9ae0b817-1446-4915-9990-74c1bb26f147/pcfdev-space-e91c5c39/java-main-application-892f20ab/0-2017-06-13T18:31:29+0000-7b23124e.hprof
 ```
 
-### Memory
-The total available memory for the application's container is specified when an application is pushed.
-The Java buildpack uses this value to control the JRE's use of various
-regions of memory and logs the JRE memory settings when the application starts or restarts.
-These settings can be influenced by configuring
-the `stack_threads` and/or `class_count` mappings (both part of the `memory_calculator` mapping),
-and/or Java options relating to memory.
+## Memory
+
+The total available memory for the application's container is specified when an application is pushed. The Java buildpack uses this value to control the JRE's use of various regions of memory and logs the JRE memory settings when the application starts or restarts.
 
 Note: If the total available memory is scaled up or down, the Java buildpack will re-calculate the JRE memory settings the next time the application is started.
 
-#### Total Memory
+### Total Memory
 
-The user can change the container's total memory available to influence the JRE memory settings.
-Unless the user specifies the heap size Java option (`-Xmx`), increasing or decreasing the total memory
-available results in the heap size setting increasing or decreasing by a corresponding amount.
+The user can change the container's total memory available to influence the JRE memory settings. Unless the user specifies the heap size Java option (`-Xmx`), increasing or decreasing the total memory available results in the heap size setting increasing or decreasing by a corresponding amount.
 
-#### Loaded Classes
+### Loaded Classes
 
-The amount of memory that is allocated to metaspace and compressed class space (or, on Java 7, the permanent generation) is calculated from an estimate of the number of classes that will be loaded. The default behaviour is to estimate the number of loaded classes as a fraction of the number of class files in the application.
-If a specific number of loaded classes should be used for calculations, then it should be specified as in the following example:
+The amount of memory allocated to metaspace and compressed class space is calculated from an estimate of the number of classes that will be loaded. The default behavior is to estimate the number of loaded classes as a fraction of the number of class files in the application. To specify a specific number:
 
 ```yaml
 class_count: 500
 ```
 
-#### Headroom
+### Headroom
 
-A percentage of the total memory allocated to the container to be left as headroom and excluded from the memory calculation.
+A percentage of total memory to leave as headroom:
 
 ```yaml
 headroom: 10
 ```
 
-#### Stack Threads
+### Stack Threads
 
-The amount of memory that should be allocated to stacks is given as an amount of memory per thread with the Java option `-Xss`. If an explicit number of threads should be used for the calculation of stack memory, then it should be specified as in the following example:
+The amount of memory for stacks is given as memory per thread with `-Xss`. To specify an explicit thread count:
 
 ```yaml
 stack_threads: 500
 ```
 
-Note that the default value of 250 threads is optimized for a default Tomcat configuration.  If you are using another container, especially something non-blocking like Netty, it's more appropriate to use a significantly smaller value.  Typically 25 threads would cover the needs of both the server (Netty) and the threads started by the JVM itself.
+Note: The default of 250 threads is optimized for Tomcat. For non-blocking servers like Netty, use a smaller value (typically 25).
 
-#### Java Options
+### Memory Calculation
 
-If the JRE memory settings need to be fine-tuned, the user can set one or more Java memory options to
-specific values. The heap size can be set explicitly, but changing the value of options other
-than the heap size can also affect the heap size. For example, if the user increases
-the maximum direct memory size from its default value of 10 Mb to 20 Mb, then this will
-reduce the calculated heap size by 10 Mb.
+Memory calculation happens before every `start` of an application and is performed by the [Java Buildpack Memory Calculator][]. No need to `restage` after scaling memory—restarting recalculates the settings.
 
-#### Memory Calculation
-Memory calculation happens before every `start` of an application and is performed by an external program, the [Java Buildpack Memory Calculator]. There is no need to `restage` an application after scaling the memory as restarting will cause the memory settings to be recalculated.
+The JRE memory settings are logged when the application starts:
 
-The container's total available memory is allocated into heap, metaspace and compressed class space (or permanent generation for Java 7),
-direct memory, and stack memory settings.
-
-The memory calculation is described in more detail in the [Memory Calculator's README].
-
-The inputs to the memory calculation, except the container's total memory (which is unknown at staging time), are logged during staging, for example:
-```
-Loaded Classes: 13974, Threads: 300, JAVA_OPTS: ''
-```
-
-The container's total memory is logged during `cf push` and `cf scale`, for example:
-```
-     state     since                    cpu    memory       disk         details
-#0   running   2017-04-10 02:20:03 PM   0.0%   896K of 1G   1.3M of 1G
-```
-
-The JRE memory settings are logged when the application is started or re-started, for example:
 ```
 JVM Memory Configuration: -XX:MaxDirectMemorySize=10M -XX:MaxMetaspaceSize=99199K \
     -XX:ReservedCodeCacheSize=240M -XX:CompressedClassSpaceSize=18134K -Xss1M -Xmx368042K
 ```
 
-[`config/components.yml`]: ../config/components.yml
-[`config/zing_jre.yml`]: ../config/zing_jre.yml
-[Azul Platform Prime]: https://www.azul.com/products/prime/
+## Azul Platform Prime Features
+
+Azul Platform Prime includes advanced features beyond standard OpenJDK:
+
+- **ReadyNow!**: Eliminates JVM warm-up time through persistent compilation profiles
+- **Falcon JIT Compiler**: LLVM-based JIT compiler for better peak performance
+- **C4 Garbage Collector**: Pauseless garbage collection for low-latency applications
+- **Optimizer Hub**: Cloud-based compilation optimization (requires separate configuration)
+
+Refer to [Azul Platform Prime documentation](https://docs.azul.com/prime/) for feature configuration.
+
+## See Also
+
+- [Custom JRE Usage Guide](custom-jre-usage.md) - Complete instructions for adding BYOL JREs
+- [OpenJDK JRE](jre-open_jdk_jre.md) - Default JRE (no configuration required)
+- [Azul Zulu JRE](jre-zulu_jre.md) - Azul's OpenJDK-based offering (included in manifest)
+
+[Azul]: https://www.azul.com/products/prime/
 [Configuration and Extension]: ../README.md#configuration-and-extension
+[Custom JRE Usage Guide]: custom-jre-usage.md
 [Java Buildpack Memory Calculator]: https://github.com/cloudfoundry/java-buildpack-memory-calculator
-[jvmkill-jammy]: https://java-buildpack.cloudfoundry.org/jvmkill/jammy/x86_64/index.yml
-[Memory Calculator's README]: https://github.com/cloudfoundry/java-buildpack-memory-calculator
-[repositories]: extending-repositories.md
-[version syntax]: extending-repositories.md#version-syntax-and-ordering
 [Volume Service]: https://docs.cloudfoundry.org/devguide/services/using-vol-services.html
-[Azul Platform Prime JRE]: jre-zing_jre.md

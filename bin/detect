@@ -1,1 +1,81 @@
-./run
+#!/bin/bash
+# Cloud Foundry Java Buildpack - Detect Script
+# Pure bash implementation matching Ruby/Python/Go buildpack pattern
+
+set -e
+
+BUILD_DIR=$1
+BUILDPACK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+VERSION=$(cat "$BUILDPACK_DIR/VERSION" 2>/dev/null || echo "unknown")
+
+# Quick checks for common Java indicators (ordered by frequency for performance)
+
+# 1. Maven project (most common)
+[ -f "$BUILD_DIR/pom.xml" ] && echo "java $VERSION" && exit 0
+
+# 2. Gradle project (very common)
+[ -f "$BUILD_DIR/build.gradle" ] && echo "java $VERSION" && exit 0
+[ -f "$BUILD_DIR/build.gradle.kts" ] && echo "java $VERSION" && exit 0
+
+# 3. Spring Boot exploded (common in CF)
+[ -d "$BUILD_DIR/BOOT-INF" ] && echo "java $VERSION" && exit 0
+
+# 4. WAR/Servlet applications
+[ -d "$BUILD_DIR/WEB-INF" ] && echo "java $VERSION" && exit 0
+compgen -G "$BUILD_DIR/*.war" > /dev/null 2>&1 && echo "java $VERSION" && exit 0
+
+# 5. Executable JARs
+compgen -G "$BUILD_DIR/*.jar" > /dev/null 2>&1 && echo "java $VERSION" && exit 0
+
+# 6. Java manifest
+[ -f "$BUILD_DIR/META-INF/MANIFEST.MF" ] && echo "java $VERSION" && exit 0
+
+# 7. Groovy scripts
+compgen -G "$BUILD_DIR/*.groovy" > /dev/null 2>&1 && echo "java $VERSION" && exit 0
+
+# 8. Play Framework (multiple possible locations)
+[ -f "$BUILD_DIR/start" ] && echo "java $VERSION" && exit 0
+[ -f "$BUILD_DIR/application-root/start" ] && echo "java $VERSION" && exit 0
+[ -f "$BUILD_DIR/staged-app/start" ] && echo "java $VERSION" && exit 0
+
+# 9. Ratpack (check for ratpack-core JAR)
+compgen -G "$BUILD_DIR/application-root/lib/ratpack-core-*.jar" > /dev/null 2>&1 && echo "java $VERSION" && exit 0
+
+# 10. Generic Java app structure (lib dir with JARs)
+if [ -d "$BUILD_DIR/application-root/lib" ]; then
+  compgen -G "$BUILD_DIR/application-root/lib/*.jar" > /dev/null 2>&1 && echo "java $VERSION" && exit 0
+fi
+
+# 11. Dist-zip structure at root (bin/ and lib/ directories)
+if [ -d "$BUILD_DIR/bin" ] && [ -d "$BUILD_DIR/lib" ]; then
+  # Check for non-.bat files in bin (Linux startup scripts)
+  if ls "$BUILD_DIR/bin"/* 2>/dev/null | grep -v '\.bat$' > /dev/null; then
+    echo "java $VERSION"
+    exit 0
+  fi
+fi
+
+# 12. Dist-zip structure in application-root
+if [ -d "$BUILD_DIR/application-root/bin" ] && [ -d "$BUILD_DIR/application-root/lib" ]; then
+  if ls "$BUILD_DIR/application-root/bin"/* 2>/dev/null | grep -v '\.bat$' > /dev/null; then
+    echo "java $VERSION"
+    exit 0
+  fi
+fi
+
+# 13. Find .class files (slower check, limited depth to avoid long scans)
+if find "$BUILD_DIR" -maxdepth 3 -name "*.class" -type f 2>/dev/null | head -1 | grep -q .; then
+  echo "java $VERSION"
+  exit 0
+fi
+
+# 14. Check for Procfile with java command (last resort)
+if [ -f "$BUILD_DIR/Procfile" ]; then
+  if grep -q "java" "$BUILD_DIR/Procfile" 2>/dev/null; then
+    echo "java $VERSION"
+    exit 0
+  fi
+fi
+
+# Not a Java app
+exit 1

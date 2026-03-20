@@ -57,36 +57,97 @@ $ cf set-env my-application JBP_CONFIG_TOMCAT '{tomcat: { context_path: /first-s
 ```
 
 
-### Additional Resources
-The container can also be configured by overlaying a set of resources on the default distribution.  To do this follow one of the options below.
+### Default Configuration
+The buildpack includes default Tomcat configuration files that are embedded at compile time. These defaults provide Cloud Foundry-optimized settings including:
 
-#### Buildpack Fork
-Add files to the `resources/tomcat` directory in the buildpack fork.  For example, to override the default `logging.properties` add your custom file to `resources/tomcat/conf/logging.properties`.
+- HTTP/2 support
+- Access logging valve configuration
+- Remote IP valve for proper `x-forwarded-proto` handling
+- Application startup failure detection
+- Error report valve with disabled server info disclosure
+
+The default configuration files are located in `src/java/resources/files/tomcat/conf/`:
+- `server.xml` - Main Tomcat server configuration
+- `context.xml` - Default context configuration
+- `logging.properties` - Logging configuration
+
+These defaults are automatically applied and can be overridden using external configuration (see below).
+
+#### Customizing Default Configuration via Fork
+To customize the default Tomcat configuration across all applications using your buildpack:
+
+1. Fork the java-buildpack repository
+2. Modify the configuration files in `src/java/resources/files/tomcat/conf/`
+3. Build and package your custom buildpack
+4. Upload the custom buildpack to your Cloud Foundry foundation
+
+This approach is useful for operators who want to enforce organization-wide Tomcat settings.
+
+### Additional Resources
+The container can also be configured using external Tomcat configuration as described below.
 
 #### External Tomcat Configuration
-Supply a repository with an external Tomcat configuration.
+Supply a repository with an external Tomcat configuration that will be downloaded during staging.
 
-Example in a manifest.yml
+The buildpack will automatically download the configuration from the specified `repository_root` URL without requiring any changes to the buildpack's manifest.yml.
+
+Example in a manifest.yml:
 
 ```yaml
 env:
-  JBP_CONFIG_TOMCAT: '{ tomcat: { external_configuration_enabled: true }, external_configuration: { repository_root: "http://repository..." } }'
+  JBP_CONFIG_TOMCAT: '{ tomcat: { external_configuration_enabled: true }, external_configuration: { repository_root: "https://your-repository.example.com/tomcat-config", version: "1.4.0" } }'
 ```
 
-The artifacts that the repository provides must be in TAR format and must follow the Tomcat archive structure:
+**How it works:**
+
+1. The buildpack downloads `{repository_root}/index.yml` which contains a mapping of versions to download URLs
+2. It looks up the URL for the requested version in the index
+3. It downloads the configuration archive from that URL
+4. It extracts and overlays the configuration onto the Tomcat installation
+
+**Repository Structure:**
+
+Your repository must contain an `index.yml` file at the root with the following format:
+
+```yaml
+1.0.0: https://your-repository.example.com/tomcat-config/tomcat-config-1.0.0.tar.gz
+1.1.0: https://your-repository.example.com/tomcat-config/tomcat-config-1.1.0.tar.gz
+1.2.0: https://your-repository.example.com/tomcat-config/tomcat-config-1.2.0.tar.gz
+1.3.0: https://your-repository.example.com/tomcat-config/tomcat-config-1.3.0.tar.gz
+1.4.0: https://your-repository.example.com/tomcat-config/tomcat-config-1.4.0.tar.gz
+```
+
+The buildpack will fetch `https://your-repository.example.com/tomcat-config/index.yml`, look up version `1.4.0`, and download the corresponding tar.gz file.
+
+**Archive Format Requirements:**
+
+The configuration archives must be in TAR.GZ format and must follow this structure:
 
 ```
-tomcat
-|- conf
-   |- context.xml
-   |- server.xml
-   |- web.xml
-   |...
+tomcat-external-configuration-1.4.0.tar.gz
+└── conf/
+    ├── context.xml
+    ├── server.xml
+    ├── web.xml
+    ├── logging.properties
+    └── ...
 ```
 
-Notes:
-* It is required the external configuration to allow symlinks. For more information check [Tomcat 7 configuration] or [Tomcat 8 configuration].
+The buildpack will extract the archive directly into the Tomcat installation directory, overlaying the configuration files.
+
+**Configuration Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `external_configuration_enabled` | Enable external configuration | `false` |
+| `repository_root` | Base URL of the configuration repository (required when enabled) | none |
+| `version` | Version of the external configuration to download | `1.0.0` |
+
+**Notes:**
+* The external configuration must allow symlinks. For more information check [Tomcat 7 configuration] or [Tomcat 8 configuration].
 * `JasperListener` is removed in Tomcat 8 so you should not add it to the server.xml.
+* The buildpack first checks if `tomcat-external-configuration` is defined in the buildpack's manifest.yml (for forked buildpacks). If not found, it downloads from the `repository_root` using the index.yml approach.
+* If the download fails or the version is not found in index.yml, the build will fail. Ensure your repository URL is accessible and the version exists in the index.
 
 ## Session Replication
 By default, the Tomcat instance is configured to store all Sessions and their data in memory.  Under certain circumstances it my be appropriate to persist the Sessions and their data to a repository.  When this is the case (small amounts of data that should survive the failure of any individual instance), the buildpack can automatically configure Tomcat to do so by binding an appropriate service.

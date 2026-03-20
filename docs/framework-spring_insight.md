@@ -1,4 +1,7 @@
 # Spring Insight Framework
+
+> **DEPRECATED**: Spring Insight is an obsolete monitoring tool that has been replaced by modern APM solutions (New Relic, AppDynamics, Dynatrace, etc.). This framework is no longer actively maintained and is not recommended for new deployments.
+
 The Spring Insight Framework causes an application to be automatically configured to work with a bound [Spring Insight Service][]. This feature will only work with Spring Insight versions of 2.0.0.x or above.
 
 <table>

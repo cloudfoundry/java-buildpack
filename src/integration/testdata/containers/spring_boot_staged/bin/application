@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Simplified Spring Boot staged application launcher
+# This is a test fixture - only includes the minimal JAR needed for testing
+
+APP_HOME="$(cd "$(dirname "$0")/.." && pwd)"
+CLASSPATH=$APP_HOME/lib/spring-boot-1.0.0.RELEASE.jar
+
+# Launch the application
+exec $JAVA_HOME/bin/java $JAVA_OPTS -cp "$CLASSPATH" io.pivotal.SimpleSpringBootApp "$@"

@@ -1,0 +1,259 @@
+package frameworks
+
+import (
+	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
+	"os"
+	"path/filepath"
+	"strings"
+)
+
+// ContainerSecurityProviderFramework implements container-based security provider support
+// This framework provides CloudFoundryContainerProvider for Java security integration
+type ContainerSecurityProviderFramework struct {
+	context *common.Context
+}
+
+// NewContainerSecurityProviderFramework creates a new container security provider framework instance
+func NewContainerSecurityProviderFramework(ctx *common.Context) *ContainerSecurityProviderFramework {
+	return &ContainerSecurityProviderFramework{context: ctx}
+}
+
+// Detect checks if container security provider should be included
+// Enabled by default, can be disabled via configuration
+func (c *ContainerSecurityProviderFramework) Detect() (string, error) {
+	// Enabled by default to provide container-based security
+	return "Container Security Provider", nil
+}
+
+// Supply installs the container security provider JAR
+func (c *ContainerSecurityProviderFramework) Supply() error {
+	c.context.Log.BeginStep("Installing Container Security Provider")
+
+	// Get container-security-provider dependency from manifest
+	dep, err := c.context.Manifest.DefaultVersion("container-security-provider")
+	if err != nil {
+		return fmt.Errorf("unable to determine Container Security Provider version: %w", err)
+	}
+
+	// Install container security provider JAR
+	providerDir := filepath.Join(c.context.Stager.DepDir(), "container_security_provider")
+	if err := c.context.Installer.InstallDependency(dep, providerDir); err != nil {
+		return fmt.Errorf("failed to install Container Security Provider: %w", err)
+	}
+
+	c.context.Log.Info("Installed Container Security Provider version %s", dep.Version)
+	return nil
+}
+
+// Finalize configures the container security provider for runtime
+func (c *ContainerSecurityProviderFramework) Finalize() error {
+	// Find the installed JAR
+	providerDir := filepath.Join(c.context.Stager.DepDir(), "container_security_provider")
+	jarPattern := filepath.Join(providerDir, "container-security-provider-*.jar")
+
+	matches, err := filepath.Glob(jarPattern)
+	if err != nil || len(matches) == 0 {
+		// JAR not found, might not have been installed
+		return nil
+	}
+
+	// Get just the filename for runtime path construction
+	jarFilename := filepath.Base(matches[0])
+
+	// Detect Java version to determine extension mechanism
+	// Java 9+ uses root libraries (-Xbootclasspath/a), Java 8 uses extension directories
+	javaVersion, err := common.GetJavaMajorVersion()
+	if err != nil {
+		c.context.Log.Warning("Unable to detect Java version, assuming Java 8: %s", err.Error())
+		javaVersion = 8
+	}
+
+	// Get buildpack index for multi-buildpack support
+	depsIdx := c.context.Stager.DepsIdx()
+
+	// Build JAVA_OPTS with runtime paths using $DEPS_DIR
+	var javaOpts string
+	if javaVersion >= 9 {
+		runtimeJarPath := fmt.Sprintf("$DEPS_DIR/%s/container_security_provider/%s", depsIdx, jarFilename)
+
+		profileScript := fmt.Sprintf("export CONTAINER_SECURITY_PROVIDER=\"%s\"\n", runtimeJarPath)
+
+		if err := c.context.Stager.WriteProfileD("container_security_provider.sh", profileScript); err != nil {
+			return fmt.Errorf("failed to write container_security_provider.sh profile.d script: %w", err)
+		}
+	} else {
+		// Java 8: Use extension directory
+		runtimeProviderDir := fmt.Sprintf("$DEPS_DIR/%s/container_security_provider", depsIdx)
+		javaOpts = fmt.Sprintf("-Djava.ext.dirs=%s:$JAVA_HOME/jre/lib/ext:$JAVA_HOME/lib/ext", runtimeProviderDir)
+	}
+
+	// Add security provider to java.security.properties
+	// Insert at position 1 (after default providers)
+	runtimeSecurityFile := fmt.Sprintf("$DEPS_DIR/%s/container_security_provider/java.security", depsIdx)
+	securityProvider := fmt.Sprintf("-Djava.security.properties=%s", runtimeSecurityFile)
+	javaOpts += " " + securityProvider
+
+	// Write security properties file
+	if err := c.writeSecurityProperties(); err != nil {
+		return fmt.Errorf("failed to write security properties: %w", err)
+	}
+
+	config, err := c.loadConfig()
+	if err != nil {
+		c.context.Log.Warning("Failed to load container security provider config: %s", err.Error())
+	}
+	// Add key manager and trust manager configuration if specified
+	keyManagerEnabled := config.getKeyManagerEnabled()
+	if keyManagerEnabled != "" {
+		javaOpts += fmt.Sprintf(" -Dorg.cloudfoundry.security.keymanager.enabled=%s", keyManagerEnabled)
+	}
+
+	trustManagerEnabled := config.getTrustManagerEnabled()
+	if trustManagerEnabled != "" {
+		javaOpts += fmt.Sprintf(" -Dorg.cloudfoundry.security.trustmanager.enabled=%s", trustManagerEnabled)
+	}
+
+	// Write JAVA_OPTS to .opts file with priority 17 (Ruby buildpack line 51)
+	// This ensures Container Security Provider runs BEFORE JRebel (priority 31)
+	if err := writeJavaOptsFile(c.context, 17, "container_security", javaOpts); err != nil {
+		return fmt.Errorf("failed to write java_opts file: %w", err)
+	}
+
+	c.context.Log.Info("Configured Container Security Provider for runtime (priority 17)")
+	return nil
+}
+
+// writeSecurityProperties writes the java.security properties file with CloudFoundryContainerProvider
+// It reads existing security providers from the JRE and inserts CloudFoundryContainerProvider at position 1
+func (c *ContainerSecurityProviderFramework) writeSecurityProperties() error {
+	providerDir := filepath.Join(c.context.Stager.DepDir(), "container_security_provider")
+	securityFile := filepath.Join(providerDir, "java.security")
+
+	// Read existing security providers from JRE's java.security file
+	existingProviders, err := c.readExistingSecurityProviders()
+	if err != nil {
+		c.context.Log.Warning("Unable to read existing security providers, using defaults: %s", err)
+		existingProviders = c.getDefaultSecurityProviders()
+	}
+
+	// Build security provider configuration
+	// Insert CloudFoundryContainerProvider at position 1, followed by existing providers
+	var content string
+	content += "security.provider.1=org.cloudfoundry.security.CloudFoundryContainerProvider\n"
+
+	// Add existing providers starting at position 2
+	for i, provider := range existingProviders {
+		content += fmt.Sprintf("security.provider.%d=%s\n", i+2, provider)
+	}
+
+	// Disable JVM DNS caching in lieu of BOSH DNS caching
+	// BOSH DNS is always present in Cloud Foundry and provides its own caching layer
+	// Setting TTL to 0 ensures the JVM always queries BOSH DNS for fresh results
+	content += "\n# Disable JVM DNS caching (BOSH DNS provides caching)\n"
+	content += "networkaddress.cache.ttl=0\n"
+	content += "networkaddress.cache.negative.ttl=0\n"
+
+	if err := os.WriteFile(securityFile, []byte(content), 0644); err != nil {
+		return fmt.Errorf("failed to write security properties file: %w", err)
+	}
+
+	return nil
+}
+
+// readExistingSecurityProviders reads security providers from the JRE's java.security file
+func (c *ContainerSecurityProviderFramework) readExistingSecurityProviders() ([]string, error) {
+	javaHome := os.Getenv("JAVA_HOME")
+	if javaHome == "" {
+		return nil, fmt.Errorf("JAVA_HOME not set")
+	}
+
+	// Try Java 9+ location first (conf/security/java.security)
+	javaSecurityPath := filepath.Join(javaHome, "conf", "security", "java.security")
+	if _, err := os.Stat(javaSecurityPath); os.IsNotExist(err) {
+		// Fall back to Java 8 location (jre/lib/security/java.security or lib/security/java.security)
+		javaSecurityPath = filepath.Join(javaHome, "lib", "security", "java.security")
+		if _, err := os.Stat(javaSecurityPath); os.IsNotExist(err) {
+			javaSecurityPath = filepath.Join(javaHome, "jre", "lib", "security", "java.security")
+		}
+	}
+
+	content, err := os.ReadFile(javaSecurityPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read %s: %w", javaSecurityPath, err)
+	}
+
+	return c.parseSecurityProviders(string(content)), nil
+}
+
+// parseSecurityProviders extracts security.provider.N entries from java.security content
+func (c *ContainerSecurityProviderFramework) parseSecurityProviders(content string) []string {
+	var providers []string
+	lines := strings.Split(content, "\n")
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "security.provider.") && strings.Contains(line, "=") {
+			parts := strings.SplitN(line, "=", 2)
+			if len(parts) == 2 {
+				provider := strings.TrimSpace(parts[1])
+				if provider != "" {
+					providers = append(providers, provider)
+				}
+			}
+		}
+	}
+
+	return providers
+}
+
+// getDefaultSecurityProviders returns default security providers for OpenJDK/HotSpot
+func (c *ContainerSecurityProviderFramework) getDefaultSecurityProviders() []string {
+	return []string{
+		"sun.security.provider.Sun",
+		"sun.security.rsa.SunRsaSign",
+		"sun.security.ec.SunEC",
+		"com.sun.net.ssl.internal.ssl.Provider",
+		"com.sun.crypto.provider.SunJCE",
+		"sun.security.jgss.SunProvider",
+		"com.sun.security.sasl.Provider",
+		"org.jcp.xml.dsig.internal.dom.XMLDSigRI",
+		"sun.security.smartcardio.SunPCSC",
+	}
+}
+
+func (c *ContainerSecurityProviderFramework) loadConfig() (*containerSecurityProviderConfig, error) {
+	// initialize default values
+	secConfig := containerSecurityProviderConfig{
+		KeyManagerEnabled:   "",
+		TrustManagerEnabled: "",
+	}
+	config := os.Getenv("JBP_CONFIG_CONTAINER_SECURITY_PROVIDER")
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		err := yamlHandler.ValidateFields([]byte(config), &secConfig)
+		if err != nil {
+			c.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
+		// overlay JBP_CONFIG_CONTAINER_SECURITY_PROVIDER over default values
+		if err = yamlHandler.Unmarshal([]byte(config), &secConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_CONTAINER_SECURITY_PROVIDER: %w", err)
+		}
+	}
+	return &secConfig, nil
+}
+
+// getKeyManagerEnabled returns the key_manager_enabled configuration value
+func (c *containerSecurityProviderConfig) getKeyManagerEnabled() string {
+	return c.KeyManagerEnabled
+}
+
+// getTrustManagerEnabled returns the trust_manager_enabled configuration value
+func (c *containerSecurityProviderConfig) getTrustManagerEnabled() string {
+	return c.TrustManagerEnabled
+}
+
+type containerSecurityProviderConfig struct {
+	KeyManagerEnabled   string `yaml:"key_manager_enabled"`
+	TrustManagerEnabled string `yaml:"trust_manager_enabled"`
+}

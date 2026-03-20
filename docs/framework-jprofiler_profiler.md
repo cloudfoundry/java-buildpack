@@ -27,7 +27,7 @@ The framework can be configured by creating or modifying the [`config/jprofiler_
 | `version` | The version of the JProfiler Profiler to use. Candidate versions can be found in [this listing][].
 
 ## Creating SSH Tunnel
-After starting an application with the JPorfiler Profiler enabled, an SSH tunnel must be created to the container.  To create that SSH container, execute the following command:
+After starting an application with the JProfiler Profiler enabled, an SSH tunnel must be created to the container.  To create that SSH container, execute the following command:
 
 ```bash
 $ cf ssh -N -T -L <LOCAL_PORT>:localhost:<REMOTE_PORT> <APPLICATION_NAME>

@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Created-By: 25.0.1 (Oracle Corporation)
+Main-Class: io.pivotal.SimpleJava
+

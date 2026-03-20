@@ -21,13 +21,47 @@ Users must provide their own Azure Application Insights service. A user-provided
 
 The credential payload of the service has to contain one of the following entries:
 
-| Name | Description
-| ---- | -----------
-| `connection_string` | With agent version 3.x the connection string is required. You can find your connection string in your Application Insights resource.
-| `instrumentation_key` | With agent version 2.x the instrumentation key is required. With version 3.x this configuration is deprecated an it is recommended to switch to a connection string. You can find your instrumentation key in your Application Insights resource.
+| Name | Description | Status |
+| ---- | ----------- | ------ |
+| `connection_string` | **REQUIRED** for agent version 3.x+. You can find your connection string in your Application Insights resource. | ✅ **Recommended** |
+| `instrumentation_key` | Required for agent version 2.x. **⚠️ DEPRECATED in version 3.x** - switch to `connection_string` instead. | ⚠️ **Deprecated** |
+
+### ⚠️ Deprecation Warning: instrumentation_key
+
+**The `instrumentation_key` credential is deprecated** in Azure Application Insights agent version 3.x and later.
+
+**Action Required**:
+- **New deployments**: Use `connection_string` instead of `instrumentation_key`
+- **Existing deployments**: Migrate to `connection_string` before upgrading to agent v3.x
+
+**How to migrate**:
+1. Get your connection string from your Application Insights resource in Azure Portal
+2. Update your user-provided service credentials:
+   ```bash
+   cf update-user-provided-service my-app-insights -p '{"connection_string": "InstrumentationKey=xxx;IngestionEndpoint=https://..."}'
+   ```
+3. Restage your application:
+   ```bash
+   cf restage my-app
+   ```
 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
+
+### Default Configuration
+The buildpack includes a default `AI-Agent.xml` configuration file that is embedded at compile time. This provides sensible defaults for Cloud Foundry deployments.
+
+The default configuration file is located in `src/java/resources/files/azure_application_insights_agent/AI-Agent.xml`.
+
+#### Customizing Default Configuration via Fork
+To customize the default Azure Application Insights configuration across all applications using your buildpack:
+
+1. Fork the java-buildpack repository
+2. Modify the configuration file in `src/java/resources/files/azure_application_insights_agent/`
+3. Build and package your custom buildpack
+4. Upload the custom buildpack to your Cloud Foundry foundation
+
+This approach is useful for operators who want to enforce organization-wide Azure Application Insights settings.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [Azure Application Insights Service]: https://learn.microsoft.com/en-us/azure/azure-monitor/app/java-in-process-agent
