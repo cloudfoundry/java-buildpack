@@ -497,14 +497,14 @@ dependencies:
   source: https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.52/bin/apache-tomcat-10.1.52.tar.gz
   source_sha256: 5d3583061085d412d5132a36c5422ad96adc8d5bd5869013d707a920696c9457
 - name: tomcat
-  version: 11.0.18
-  uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_11.0.18_linux_noarch_any-stack_f4fe6b73.tgz
-  sha256: f4fe6b73b2e41178a708332e3dec9ab2ae213500c1895754611bda2945db29ab
+  version: 11.0.20
+  uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_11.0.20_linux_noarch_any-stack_8864fd68.tgz
+  sha256: 8864fd683723d62c6a50aafa2c72ab8d3cde9346b5993574df80cf337938aac4
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://archive.apache.org/dist/tomcat/tomcat-11/v11.0.18/bin/apache-tomcat-11.0.18.tar.gz
-  source_sha256: f4fe6b73b2e41178a708332e3dec9ab2ae213500c1895754611bda2945db29ab
+  source: https://archive.apache.org/dist/tomcat/tomcat-11/v11.0.20/bin/apache-tomcat-11.0.20.tar.gz
+  source_sha256: 8864fd683723d62c6a50aafa2c72ab8d3cde9346b5993574df80cf337938aac4
 - name: tomcat-access-logging-support
   version: 3.4.0
   uri: https://java-buildpack.cloudfoundry.org/tomcat-access-logging-support/tomcat-access-logging-support-3.4.0-RELEASE.jar
