@@ -242,6 +242,27 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 			})
 		})
 
+		// Regression test for https://github.com/cloudfoundry/java-buildpack/issues/1219
+		// Staging failed with "improper constraint: 10.1.+" when using a two-segment
+		// minor version wildcard (e.g. 10.1.+) in JBP_CONFIG_TOMCAT. The fix normalises
+		// "10.1.+" → "10.1.*" before passing it to libbuildpack's FindMatchingVersion.
+		context("with a two-segment minor version wildcard in JBP_CONFIG_TOMCAT (issue #1219)", func() {
+			it("successfully stages with version: 10.1.+ and JBP_CONFIG_OPEN_JDK_JRE 17.+", func() {
+				deployment, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"JBP_CONFIG_OPEN_JDK_JRE": "{ jre: { version: 17.+ } }",
+						"JBP_CONFIG_TOMCAT":       "{tomcat: { version: 10.1.+ }}",
+					}).
+					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
+
+				Expect(err).NotTo(HaveOccurred(), logs.String)
+
+				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK 17."))
+				Expect(logs.String()).To(ContainSubstring("Tomcat 10.1."))
+				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
+			})
+		})
+
 		context("with memory limits", func() {
 			it("respects memory calculator settings with JAVA_OPTS", func() {
 				deployment, logs, err := platform.Deploy.

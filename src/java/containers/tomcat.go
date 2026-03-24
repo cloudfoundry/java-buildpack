@@ -465,8 +465,9 @@ func DetermineTomcatVersion(raw string) string {
 
 // determineTomcatVersion determines the version of the tomcat
 // based on the JBP_CONFIG_TOMCAT field from manifest.
-// It looks for a tomcat block with a version of the form "<major>.+" (e.g. "9.+", "10.+").
-// Returns "<major>.x" (e.g. "9.x", "10.x") so libbuildpack can resolve it,
+// It looks for a tomcat block with a version of the form "<major>.+" (e.g. "9.+", "10.+", "10.1.+").
+// Returns the pattern with "+" replaced by "*" (e.g. "9.*", "10.*", "10.1.*") so libbuildpack can resolve it.
+// Masterminds/semver treats x, X, and * as equivalent wildcards.
 func determineTomcatVersion(raw string) string {
 	raw = strings.TrimSpace(raw)
 	if raw == "" {
@@ -479,17 +480,9 @@ func determineTomcatVersion(raw string) string {
 		return ""
 	}
 
-	pattern := match[1] // e.g. "9.+", "10.+", "10.23.+"
-
-	// If it's just "<major>.+" (no additional dot), convert to "<major>.x"
-	if !strings.Contains(strings.TrimSuffix(pattern, ".+"), ".") {
-		// "9.+" -> "9.x"
-		major := strings.TrimSuffix(pattern, ".+")
-		return major + ".x"
-	}
-
-	// Otherwise, it's something like "10.23.+": pass it through unchanged
-	return pattern
+	// Replace "+" with "*" so libbuildpack's FindMatchingVersion can resolve it.
+	// e.g. "9.+" -> "9.*", "10.+" -> "10.*", "10.1.+" -> "10.1.*"
+	return strings.ReplaceAll(match[1], "+", "*")
 }
 
 // isAccessLoggingEnabled checks if access logging is enabled in configuration
