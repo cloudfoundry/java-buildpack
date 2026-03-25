@@ -618,7 +618,7 @@ func (t *TomcatContainer) loadConfig() (*tomcatConfig, error) {
 			ExternalConfigurationEnabled: false,
 		},
 		ExternalConfiguration: ExternalConfiguration{
-			Version:        "1.*",
+			Version:        "",
 			RepositoryRoot: "",
 		},
 		AccessLoggingSupport: AccessLoggingSupport{
