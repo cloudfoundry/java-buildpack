@@ -693,3 +693,41 @@ func (t *TomcatContainer) Release() (string, error) {
 
 	return cmd, nil
 }
+
+type tomcatConfig struct {
+	Tomcat struct {
+		Version                    string   `yaml:"version"`
+		VersionLines               []string `yaml:"version_lines"`
+		RepositoryRoot             string   `yaml:"repository_root"`
+		ContextPath                string   `yaml:"context_path"`
+		ExternalConfigurationEnabled bool   `yaml:"external_configuration_enabled"`
+	} `yaml:"tomcat"`
+	ExternalConfiguration struct {
+		Version        string `yaml:"version"`
+		RepositoryRoot string `yaml:"repository_root"`
+	} `yaml:"external_configuration"`
+	LifecycleSupport struct {
+		Version        string `yaml:"version"`
+		RepositoryRoot string `yaml:"repository_root"`
+	} `yaml:"lifecycle_support"`
+	LoggingSupport struct {
+		Version        string `yaml:"version"`
+		RepositoryRoot string `yaml:"repository_root"`
+	} `yaml:"logging_support"`
+	AccessLoggingSupport struct {
+		Version        string `yaml:"version"`
+		RepositoryRoot string `yaml:"repository_root"`
+		AccessLogging  string `yaml:"access_logging"`
+	} `yaml:"access_logging_support"`
+	RedisStore struct {
+		Version            string `yaml:"version"`
+		RepositoryRoot     string `yaml:"repository_root"`
+		Database           int    `yaml:"database"`
+		Timeout            int    `yaml:"timeout"`
+		ConnectionPoolSize int    `yaml:"connection_pool_size"`
+	} `yaml:"redis_store"`
+	GeodeStore struct {
+		Version        string `yaml:"version"`
+		RepositoryRoot string `yaml:"repository_root"`
+	} `yaml:"geode_store"`
+}
