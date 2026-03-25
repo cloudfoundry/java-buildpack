@@ -640,7 +640,7 @@ func (t *TomcatContainer) loadConfig() (*tomcatConfig, error) {
 type tomcatConfig struct {
 	Tomcat                Tomcat                `yaml:"tomcat"`
 	ExternalConfiguration ExternalConfiguration `yaml:"external_configuration"`
-	AccessLoggingSupport  AccessLoggingSupport  `yaml:"access_logging"`
+	AccessLoggingSupport  AccessLoggingSupport  `yaml:"access_logging_support"`
 }
 
 type Tomcat struct {
