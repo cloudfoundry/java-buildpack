@@ -11,7 +11,6 @@ import (
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"github.com/cloudfoundry/java-buildpack/src/java/resources"
 	"github.com/cloudfoundry/libbuildpack"
-	yaml "gopkg.in/yaml.v2"
 )
 
 // TomcatContainer handles servlet/WAR applications
@@ -361,7 +360,8 @@ func (t *TomcatContainer) downloadExternalConfiguration(repositoryRoot, version,
 
 	// Parse YAML as map[string]string (version -> URL)
 	var index map[string]string
-	if err := yaml.Unmarshal(indexData, &index); err != nil {
+	yamlHandler := common.YamlHandler{}
+	if err := yamlHandler.Unmarshal(indexData, &index); err != nil {
 		return fmt.Errorf("failed to parse index.yml: %w", err)
 	}
 
