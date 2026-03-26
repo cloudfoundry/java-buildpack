@@ -66,7 +66,7 @@ func (t *TomcatContainer) Supply() error {
 	if javaHome != "" {
 		javaMajorVersion, versionErr := common.DetermineJavaVersion(javaHome)
 		if versionErr == nil {
-			tomcatVersion := determineTomcatVersion(t.config.Tomcat.Version)
+			tomcatVersion := DetermineTomcatVersion(t.config.Tomcat.Version)
 			t.context.Log.Debug("Detected Java major version: %d", javaMajorVersion)
 
 			// Select Tomcat version pattern based on Java version
@@ -115,7 +115,7 @@ func (t *TomcatContainer) Supply() error {
 
 	// Install Tomcat with strip components to remove the top-level directory
 	// Apache Tomcat tarballs extract to apache-tomcat-X.Y.Z/ subdirectory
-	tomcatDir := filepath.Join(t.context.Stager.DepDir(), "tomcat")
+	tomcatDir := t.tomcatDir()
 	if err := t.context.Installer.InstallDependencyWithStrip(dep, tomcatDir, 1); err != nil {
 		return fmt.Errorf("failed to install Tomcat: %w", err)
 	}
@@ -191,7 +191,7 @@ func (t *TomcatContainer) installTomcatLifecycleSupport() error {
 
 	// InstallDependency for JAR files (non-archives) copies the file to the target directory
 	// The JAR will be placed in tomcat/lib/ as tomcat/lib/tomcat-lifecycle-support-X.Y.Z.RELEASE.jar
-	tomcatDir := filepath.Join(t.context.Stager.DepDir(), "tomcat")
+	tomcatDir := filepath.Join(t.tomcatDir())
 	libDir := filepath.Join(tomcatDir, "lib")
 
 	// Ensure lib directory exists
@@ -216,7 +216,7 @@ func (t *TomcatContainer) installTomcatAccessLoggingSupport() error {
 
 	// InstallDependency for JAR files (non-archives) copies the file to the target directory
 	// The JAR will be placed in tomcat/lib/ as tomcat/lib/tomcat-access-logging-support-X.Y.Z.RELEASE.jar
-	tomcatDir := filepath.Join(t.context.Stager.DepDir(), "tomcat")
+	tomcatDir := filepath.Join(t.tomcatDir())
 	libDir := filepath.Join(tomcatDir, "lib")
 
 	// Ensure lib directory exists
@@ -243,7 +243,7 @@ func (t *TomcatContainer) installTomcatLoggingSupport() (string, error) {
 
 	// InstallDependency for JAR files (non-archives) copies the file to the target directory
 	// The JAR will be placed in tomcat/bin/ as tomcat/bin/tomcat-logging-support-X.Y.Z.RELEASE.jar
-	tomcatDir := filepath.Join(t.context.Stager.DepDir(), "tomcat")
+	tomcatDir := filepath.Join(t.tomcatDir())
 	binDir := filepath.Join(tomcatDir, "bin")
 
 	// Ensure bin directory exists
@@ -461,19 +461,12 @@ func getKeys(m map[string]string) []string {
 	return keys
 }
 
-// DetermineTomcatVersion is an exported wrapper around determineTomcatVersion.
-// It exists primarily to allow unit tests in the containers_test package to
-// verify Tomcat version parsing behavior without changing production semantics.
-func DetermineTomcatVersion(version string) string {
-	return determineTomcatVersion(version)
-}
-
-// determineTomcatVersion determines the version of the tomcat
+// DetermineTomcatVersion determines the version of the tomcat
 // based on the JBP_CONFIG_TOMCAT field from manifest.
 // It looks for a tomcat block with a version of the form "<major>.+" (e.g. "9.+", "10.+", "10.1.+").
 // Returns the pattern with "+" replaced by "*" (e.g. "9.*", "10.*", "10.1.*") so libbuildpack can resolve it.
 // Masterminds/semver treats x, X, and * as equivalent wildcards.
-func determineTomcatVersion(version string) string {
+func DetermineTomcatVersion(version string) string {
 	// Replace "+" with "*" so libbuildpack's FindMatchingVersion can resolve it.
 	// e.g. "9.+" -> "9.*", "10.+" -> "10.*", "10.1.+" -> "10.1.*"
 	return strings.ReplaceAll(version, "+", "*")
@@ -498,9 +491,6 @@ func (t *TomcatContainer) isAccessLoggingEnabled() string {
 // isExternalConfigurationEnabled checks if external configuration is enabled in config
 // Returns: (enabled bool, repositoryRoot string, version string)
 func (t *TomcatContainer) isExternalConfigurationEnabled() (bool, string, string) {
-	// Read buildpack configuration from environment or config file
-	// The libbuildpack Stager provides access to buildpack config
-
 	if t.config.Tomcat.ExternalConfigurationEnabled {
 		repositoryRoot := t.config.ExternalConfiguration.RepositoryRoot
 		version := t.config.ExternalConfiguration.Version
@@ -561,7 +551,7 @@ func (t *TomcatContainer) Finalize() error {
 	t.context.Log.BeginStep("Finalizing Tomcat")
 
 	buildDir := t.context.Stager.BuildDir()
-	contextXMLPath := filepath.Join(t.context.Stager.DepDir(), "tomcat", "conf", "Catalina", "localhost", "ROOT.xml")
+	contextXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
 
 	webInf := filepath.Join(buildDir, "WEB-INF")
 	if _, err := os.Stat(webInf); err == nil {
@@ -610,6 +600,10 @@ func (t *TomcatContainer) Release() (string, error) {
 	cmd := "$CATALINA_HOME/bin/catalina.sh run"
 
 	return cmd, nil
+}
+
+func (t *TomcatContainer) tomcatDir() string {
+	return filepath.Join(t.context.Stager.DepDir(), "tomcat")
 }
 
 func (t *TomcatContainer) loadConfig() (*tomcatConfig, error) {
