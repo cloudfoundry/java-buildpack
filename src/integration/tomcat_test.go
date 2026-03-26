@@ -179,7 +179,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
 						"BP_JAVA_VERSION":   "11",
-						"JBP_CONFIG_TOMCAT": "{ tomcat: { version: \"9.+\" }",
+						"JBP_CONFIG_TOMCAT": "{ tomcat: { version: \"9.+\" } }",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_javax"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
