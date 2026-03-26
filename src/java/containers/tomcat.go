@@ -87,7 +87,7 @@ func (t *TomcatContainer) Supply() error {
 			}
 
 			if strings.HasPrefix(versionPattern, "10.") && javaMajorVersion < 11 {
-				return fmt.Errorf("Tomcat 10.x requires Java 11+, but Java %d detected", javaMajorVersion)
+				return fmt.Errorf("tomcat 10.x requires Java 11+, but Java %d detected", javaMajorVersion)
 			}
 
 			// Resolve the version pattern to actual version using libbuildpack
@@ -615,7 +615,7 @@ func (t *TomcatContainer) Release() (string, error) {
 func (t *TomcatContainer) loadConfig() (*tomcatConfig, error) {
 	tConfig := tomcatConfig{
 		Tomcat: Tomcat{
-			Version:                      "10.1.+",
+			Version:                      "",
 			ExternalConfigurationEnabled: false,
 		},
 		ExternalConfiguration: ExternalConfiguration{
