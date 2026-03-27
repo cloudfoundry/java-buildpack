@@ -6,8 +6,6 @@ import (
 	"os"
 	"strings"
 	"unicode"
-
-	"gopkg.in/yaml.v2"
 )
 
 // JavaOptsFramework implements custom JAVA_OPTS configuration
@@ -249,13 +247,14 @@ func (j *JavaOptsFramework) loadConfig() (*JavaOptsConfig, error) {
 		FromEnvironment: true, // Default to true (matches config file)
 		JavaOpts:        []string{},
 	}
+	yamlHandler := common.YamlHandler{}
 
 	// Check for JBP_CONFIG_JAVA_OPTS override
 	configOverride := os.Getenv("JBP_CONFIG_JAVA_OPTS")
 	if configOverride != "" {
 		// First, parse the outer YAML string (handles single-quoted format like '{...}')
 		var yamlContent interface{}
-		if err := yaml.Unmarshal([]byte(configOverride), &yamlContent); err != nil {
+		if err := yamlHandler.Unmarshal([]byte(configOverride), &yamlContent); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_JAVA_OPTS: %w", err)
 		}
 
@@ -268,7 +267,7 @@ func (j *JavaOptsFramework) loadConfig() (*JavaOptsConfig, error) {
 		case map[interface{}]interface{}:
 			// It's already a parsed YAML structure - marshal it back to bytes
 			var err error
-			configData, err = yaml.Marshal(v)
+			configData, err = yamlHandler.Marshal(v)
 			if err != nil {
 				return nil, fmt.Errorf("failed to marshal config map: %w", err)
 			}
@@ -284,7 +283,7 @@ func (j *JavaOptsFramework) loadConfig() (*JavaOptsConfig, error) {
 				}
 			}
 			var err error
-			configData, err = yaml.Marshal(mergedMap)
+			configData, err = yamlHandler.Marshal(mergedMap)
 			if err != nil {
 				return nil, fmt.Errorf("failed to marshal merged config map: %w", err)
 			}
@@ -294,7 +293,7 @@ func (j *JavaOptsFramework) loadConfig() (*JavaOptsConfig, error) {
 
 		// Parse into a generic map first to handle both string and array formats for java_opts
 		var rawConfig map[string]interface{}
-		if err := yaml.Unmarshal(configData, &rawConfig); err != nil {
+		if err := yamlHandler.Unmarshal(configData, &rawConfig); err != nil {
 			return nil, fmt.Errorf("failed to parse JBP_CONFIG_JAVA_OPTS structure: %w", err)
 		}
 
