@@ -111,7 +111,7 @@ func (j *JavaCfEnvFramework) isEnabled() bool {
 		switch v := yamlContent.(type) {
 		case string:
 			configData = []byte(v)
-		case map[interface{}]interface{}:
+		case map[string]interface{}:
 			var err error
 			configData, err = yamlHandler.Marshal(v)
 			if err != nil {

@@ -478,7 +478,6 @@ func DetermineTomcatVersion(version string) string {
 // Can be enabled via: JBP_CONFIG_TOMCAT='{access_logging_support: {access_logging: enabled}}'
 func (t *TomcatContainer) isAccessLoggingEnabled() string {
 	// Check for JBP_CONFIG_TOMCAT environment variable
-	t.context.Log.Info("Access logging: " + t.config.AccessLoggingSupport.AccessLogging)
 	if t.config.AccessLoggingSupport.AccessLogging == "enabled" || t.config.AccessLoggingSupport.AccessLogging == "true" {
 		t.context.Log.Info("Access logging enabled via JBP_CONFIG_TOMCAT")
 		return "true"

@@ -264,7 +264,7 @@ func (j *JavaOptsFramework) loadConfig() (*JavaOptsConfig, error) {
 		case string:
 			// It's a YAML string literal - parse the content
 			configData = []byte(v)
-		case map[interface{}]interface{}:
+		case map[string]interface{}:
 			// It's already a parsed YAML structure - marshal it back to bytes
 			var err error
 			configData, err = yamlHandler.Marshal(v)
@@ -274,9 +274,9 @@ func (j *JavaOptsFramework) loadConfig() (*JavaOptsConfig, error) {
 		case []interface{}:
 			// Handle legacy format: [from_environment: false, java_opts: ...]
 			// This parses as an array of maps, so we need to merge them
-			mergedMap := make(map[interface{}]interface{})
+			mergedMap := make(map[string]interface{})
 			for _, item := range v {
-				if m, ok := item.(map[interface{}]interface{}); ok {
+				if m, ok := item.(map[string]interface{}); ok {
 					for k, val := range m {
 						mergedMap[k] = val
 					}
