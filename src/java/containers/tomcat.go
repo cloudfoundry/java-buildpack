@@ -71,6 +71,7 @@ func (t *TomcatContainer) Supply() error {
 			// Select Tomcat version pattern based on Java version
 			var versionPattern string
 			if tomcatVersion == "" {
+				t.context.Log.Info("Tomcat version not specified")
 				if javaMajorVersion >= 11 {
 					// Java 11+: Use Tomcat 10.x (Jakarta EE 9+)
 					versionPattern = "10.x"
