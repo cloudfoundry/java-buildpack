@@ -1,6 +1,7 @@
 package frameworks
 
 import (
+	"os"
 	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -86,5 +87,51 @@ var _ = Describe("JavaOpts", func() {
 				`-DtestJBPConfig1='test test' -DtestJBPConfig2="$PATH"`,
 				"-DtestJBPConfig1=test test -DtestJBPConfig2=$PATH"),
 		)
+	})
+
+	Describe("loadConfig", func() {
+		framework := &JavaOptsFramework{context: nil}
+
+		AfterEach(func() {
+			os.Unsetenv("JBP_CONFIG_JAVA_OPTS")
+		})
+
+		It("returns default config when env var is not set", func() {
+			config, err := framework.loadConfig()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(config.FromEnvironment).To(BeTrue())
+			Expect(config.JavaOpts).To(BeEmpty())
+		})
+
+		It("parses a plain YAML map (map[string]interface{} from yaml.v3)", func() {
+			os.Setenv("JBP_CONFIG_JAVA_OPTS", "{from_environment: false, java_opts: [\"-Xmx512m\", \"-Xms256m\"]}")
+			config, err := framework.loadConfig()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(config.FromEnvironment).To(BeFalse())
+			Expect(config.JavaOpts).To(Equal([]string{"-Xmx512m", "-Xms256m"}))
+		})
+
+		It("parses from_environment: true with java_opts array", func() {
+			os.Setenv("JBP_CONFIG_JAVA_OPTS", "{from_environment: true, java_opts: [\"-Xmx1g\"]}")
+			config, err := framework.loadConfig()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(config.FromEnvironment).To(BeTrue())
+			Expect(config.JavaOpts).To(Equal([]string{"-Xmx1g"}))
+		})
+
+		It("parses legacy space-separated string java_opts", func() {
+			os.Setenv("JBP_CONFIG_JAVA_OPTS", "{from_environment: false, java_opts: \"-Xmx512m -Xms256m\"}")
+			config, err := framework.loadConfig()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(config.JavaOpts).To(Equal([]string{"-Xmx512m", "-Xms256m"}))
+		})
+
+		It("parses legacy array-of-maps format ([]interface{} from yaml.v3)", func() {
+			os.Setenv("JBP_CONFIG_JAVA_OPTS", "[{from_environment: false}, {java_opts: [\"-Xmx256m\"]}]")
+			config, err := framework.loadConfig()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(config.FromEnvironment).To(BeFalse())
+			Expect(config.JavaOpts).To(Equal([]string{"-Xmx256m"}))
+		})
 	})
 })

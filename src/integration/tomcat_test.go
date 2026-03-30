@@ -40,7 +40,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
 						"BP_JAVA_VERSION":   "11",
-						"JBP_CONFIG_TOMCAT": "{tomcat: { version: \"9.+\" }, access_logging_support: {access_logging: enabled}}",
+						"JBP_CONFIG_TOMCAT": "{ tomcat: { version: \"9.+\" }, access_logging_support: { access_logging: enabled } }",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_javax"))
 
@@ -75,7 +75,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
 						"BP_JAVA_VERSION":   "11",
-						"JBP_CONFIG_TOMCAT": "{access_logging_support: {access_logging: enabled}}",
+						"JBP_CONFIG_TOMCAT": "{ access_logging_support: { access_logging: enabled } }",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
 
@@ -139,7 +139,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
 						"BP_JAVA_VERSION":   "11",
-						"JBP_CONFIG_TOMCAT": "{access_logging_support: {access_logging: enabled}}",
+						"JBP_CONFIG_TOMCAT": "{ access_logging_support: { access_logging: enabled } }",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
 
@@ -179,7 +179,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
 						"BP_JAVA_VERSION":   "11",
-						"JBP_CONFIG_TOMCAT": "{tomcat: { version: \"9.+\" }",
+						"JBP_CONFIG_TOMCAT": "{ tomcat: { version: \"9.+\" } }",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_javax"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -192,7 +192,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 			it("deploys with default Java (Tomcat 9 + javax.servlet)", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"JBP_CONFIG_TOMCAT": "{ tomcat: { version: 9.+ } }",
+						"JBP_CONFIG_TOMCAT": "{ tomcat: { version: \"9.+\" } }",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_javax"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -251,7 +251,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
 						"JBP_CONFIG_OPEN_JDK_JRE": "{ jre: { version: 17.+ } }",
-						"JBP_CONFIG_TOMCAT":       "{tomcat: { version: 10.1.+ }}",
+						"JBP_CONFIG_TOMCAT":       "{ tomcat: { version: 10.1.+ } }",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
 

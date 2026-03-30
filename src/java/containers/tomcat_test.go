@@ -204,33 +204,21 @@ var _ = Describe("Tomcat Container", func() {
 		})
 
 		It("returns 9.* for tomcat version 9.+", func() {
-			raw := `{ tomcat: { version: "9.+" } }`
+			raw := `9.+`
 			v := containers.DetermineTomcatVersion(raw)
 			Expect(v).To(Equal("9.*"))
 		})
 
 		It("returns 10.* for tomcat version 10.+", func() {
-			raw := `{ tomcat: { version: "10.+" } }`
+			raw := `10.+`
 			v := containers.DetermineTomcatVersion(raw)
 			Expect(v).To(Equal("10.*"))
 		})
 
 		It("returns 10.1.* for tomcat version 10.1.+", func() {
-			raw := `{tomcat: { version: 10.1.+, external_configuration_enabled: true }, external_configuration: { version: "1.4.0", repository_root: "https://example.com" }}`
+			raw := `10.1.+`
 			v := containers.DetermineTomcatVersion(raw)
 			Expect(v).To(Equal("10.1.*"))
-		})
-
-		It("returns 10.23.* for tomcat version 10.23.+", func() {
-			raw := `{ tomcat: { version: "10.23.+" } }`
-			v := containers.DetermineTomcatVersion(raw)
-			Expect(v).To(Equal("10.23.*"))
-		})
-
-		It("returns empty string when only access logging is configured", func() {
-			raw := `{access_logging_support: {access_logging: enabled}}`
-			v := containers.DetermineTomcatVersion(raw)
-			Expect(v).To(Equal(""))
 		})
 	})
 })

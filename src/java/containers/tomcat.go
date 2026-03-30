@@ -6,18 +6,17 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"github.com/cloudfoundry/java-buildpack/src/java/resources"
 	"github.com/cloudfoundry/libbuildpack"
-	yaml "gopkg.in/yaml.v2"
 )
 
 // TomcatContainer handles servlet/WAR applications
 type TomcatContainer struct {
 	context *common.Context
+	config  *tomcatConfig
 }
 
 // NewTomcatContainer creates a new Tomcat container
@@ -58,15 +57,21 @@ func (t *TomcatContainer) Supply() error {
 	var dep libbuildpack.Dependency
 	var err error
 
+	t.config, err = t.loadConfig()
+	if err != nil {
+		return fmt.Errorf("failed to load tomcat config: %w", err)
+	}
+
 	if javaHome != "" {
 		javaMajorVersion, versionErr := common.DetermineJavaVersion(javaHome)
 		if versionErr == nil {
-			tomcatVersion := determineTomcatVersion(os.Getenv("JBP_CONFIG_TOMCAT"))
+			tomcatVersion := DetermineTomcatVersion(t.config.Tomcat.Version)
 			t.context.Log.Debug("Detected Java major version: %d", javaMajorVersion)
 
 			// Select Tomcat version pattern based on Java version
 			var versionPattern string
 			if tomcatVersion == "" {
+				t.context.Log.Info("Tomcat version not specified")
 				if javaMajorVersion >= 11 {
 					// Java 11+: Use Tomcat 10.x (Jakarta EE 9+)
 					versionPattern = "10.x"
@@ -110,7 +115,7 @@ func (t *TomcatContainer) Supply() error {
 
 	// Install Tomcat with strip components to remove the top-level directory
 	// Apache Tomcat tarballs extract to apache-tomcat-X.Y.Z/ subdirectory
-	tomcatDir := filepath.Join(t.context.Stager.DepDir(), "tomcat")
+	tomcatDir := t.tomcatDir()
 	if err := t.context.Installer.InstallDependencyWithStrip(dep, tomcatDir, 1); err != nil {
 		return fmt.Errorf("failed to install Tomcat: %w", err)
 	}
@@ -186,7 +191,7 @@ func (t *TomcatContainer) installTomcatLifecycleSupport() error {
 
 	// InstallDependency for JAR files (non-archives) copies the file to the target directory
 	// The JAR will be placed in tomcat/lib/ as tomcat/lib/tomcat-lifecycle-support-X.Y.Z.RELEASE.jar
-	tomcatDir := filepath.Join(t.context.Stager.DepDir(), "tomcat")
+	tomcatDir := filepath.Join(t.tomcatDir())
 	libDir := filepath.Join(tomcatDir, "lib")
 
 	// Ensure lib directory exists
@@ -211,7 +216,7 @@ func (t *TomcatContainer) installTomcatAccessLoggingSupport() error {
 
 	// InstallDependency for JAR files (non-archives) copies the file to the target directory
 	// The JAR will be placed in tomcat/lib/ as tomcat/lib/tomcat-access-logging-support-X.Y.Z.RELEASE.jar
-	tomcatDir := filepath.Join(t.context.Stager.DepDir(), "tomcat")
+	tomcatDir := filepath.Join(t.tomcatDir())
 	libDir := filepath.Join(tomcatDir, "lib")
 
 	// Ensure lib directory exists
@@ -238,7 +243,7 @@ func (t *TomcatContainer) installTomcatLoggingSupport() (string, error) {
 
 	// InstallDependency for JAR files (non-archives) copies the file to the target directory
 	// The JAR will be placed in tomcat/bin/ as tomcat/bin/tomcat-logging-support-X.Y.Z.RELEASE.jar
-	tomcatDir := filepath.Join(t.context.Stager.DepDir(), "tomcat")
+	tomcatDir := filepath.Join(t.tomcatDir())
 	binDir := filepath.Join(tomcatDir, "bin")
 
 	// Ensure bin directory exists
@@ -356,7 +361,8 @@ func (t *TomcatContainer) downloadExternalConfiguration(repositoryRoot, version,
 
 	// Parse YAML as map[string]string (version -> URL)
 	var index map[string]string
-	if err := yaml.Unmarshal(indexData, &index); err != nil {
+	yamlHandler := common.YamlHandler{}
+	if err := yamlHandler.Unmarshal(indexData, &index); err != nil {
 		return fmt.Errorf("failed to parse index.yml: %w", err)
 	}
 
@@ -456,33 +462,15 @@ func getKeys(m map[string]string) []string {
 	return keys
 }
 
-// DetermineTomcatVersion is an exported wrapper around determineTomcatVersion.
-// It exists primarily to allow unit tests in the containers_test package to
-// verify Tomcat version parsing behavior without changing production semantics.
-func DetermineTomcatVersion(raw string) string {
-	return determineTomcatVersion(raw)
-}
-
-// determineTomcatVersion determines the version of the tomcat
+// DetermineTomcatVersion determines the version of the tomcat
 // based on the JBP_CONFIG_TOMCAT field from manifest.
 // It looks for a tomcat block with a version of the form "<major>.+" (e.g. "9.+", "10.+", "10.1.+").
 // Returns the pattern with "+" replaced by "*" (e.g. "9.*", "10.*", "10.1.*") so libbuildpack can resolve it.
 // Masterminds/semver treats x, X, and * as equivalent wildcards.
-func determineTomcatVersion(raw string) string {
-	raw = strings.TrimSpace(raw)
-	if raw == "" {
-		return ""
-	}
-
-	re := regexp.MustCompile(`(?i)tomcat\s*:\s*\{[\s\S]*?version\s*:\s*["']?([\d.]+\.\+)`)
-	match := re.FindStringSubmatch(raw)
-	if len(match) < 2 {
-		return ""
-	}
-
+func DetermineTomcatVersion(version string) string {
 	// Replace "+" with "*" so libbuildpack's FindMatchingVersion can resolve it.
 	// e.g. "9.+" -> "9.*", "10.+" -> "10.*", "10.1.+" -> "10.1.*"
-	return strings.ReplaceAll(match[1], "+", "*")
+	return strings.ReplaceAll(version, "+", "*")
 }
 
 // isAccessLoggingEnabled checks if access logging is enabled in configuration
@@ -491,29 +479,11 @@ func determineTomcatVersion(raw string) string {
 // Can be enabled via: JBP_CONFIG_TOMCAT='{access_logging_support: {access_logging: enabled}}'
 func (t *TomcatContainer) isAccessLoggingEnabled() string {
 	// Check for JBP_CONFIG_TOMCAT environment variable
-	configEnv := os.Getenv("JBP_CONFIG_TOMCAT")
-	if configEnv != "" {
-		t.context.Log.Debug("Checking access logging configuration in JBP_CONFIG_TOMCAT")
-
-		// Look for access_logging_support section with access_logging: enabled
-		// Format: {access_logging_support: {access_logging: enabled}}
-		if strings.Contains(configEnv, "access_logging_support") {
-			// Check if access_logging is set to enabled
-			if strings.Contains(configEnv, "access_logging") &&
-				(strings.Contains(configEnv, "enabled") || strings.Contains(configEnv, "true")) {
-				t.context.Log.Info("Access logging enabled via JBP_CONFIG_TOMCAT")
-				return "true"
-			}
-			// Check if explicitly disabled
-			if strings.Contains(configEnv, "access_logging") &&
-				(strings.Contains(configEnv, "disabled") || strings.Contains(configEnv, "false")) {
-				t.context.Log.Debug("Access logging explicitly disabled via JBP_CONFIG_TOMCAT")
-				return "false"
-			}
-		}
+	if t.config.AccessLoggingSupport.AccessLogging == "enabled" || t.config.AccessLoggingSupport.AccessLogging == "true" {
+		t.context.Log.Info("Access logging enabled via JBP_CONFIG_TOMCAT")
+		return "true"
 	}
 
-	// Default to disabled (matches Ruby buildpack default)
 	t.context.Log.Info("Access logging disabled by default (use JBP_CONFIG_TOMCAT to enable)")
 	return "false"
 }
@@ -521,76 +491,14 @@ func (t *TomcatContainer) isAccessLoggingEnabled() string {
 // isExternalConfigurationEnabled checks if external configuration is enabled in config
 // Returns: (enabled bool, repositoryRoot string, version string)
 func (t *TomcatContainer) isExternalConfigurationEnabled() (bool, string, string) {
-	// Read buildpack configuration from environment or config file
-	// The libbuildpack Stager provides access to buildpack config
-
-	// Check for JBP_CONFIG_TOMCAT environment variable
-	configEnv := os.Getenv("JBP_CONFIG_TOMCAT")
-	if configEnv != "" {
-		// Parse the configuration to check external_configuration_enabled
-		// For now, we'll do a simple string check
-		// A full implementation would parse the YAML/JSON
-		t.context.Log.Debug("JBP_CONFIG_TOMCAT: %s", configEnv)
-
-		// Simple check for external_configuration_enabled: true
-		if strings.Contains(configEnv, "external_configuration_enabled") &&
-			(strings.Contains(configEnv, "true") || strings.Contains(configEnv, "True")) {
-
-			// Extract repository_root and version if present
-			repositoryRoot := extractRepositoryRoot(configEnv)
-			version := extractVersion(configEnv)
-			return true, repositoryRoot, version
-		}
+	if t.config.Tomcat.ExternalConfigurationEnabled {
+		repositoryRoot := t.config.ExternalConfiguration.RepositoryRoot
+		version := t.config.ExternalConfiguration.Version
+		return true, repositoryRoot, version
 	}
 
 	// Default to false (disabled)
 	return false, "", ""
-}
-
-// extractRepositoryRoot extracts the repository_root value from config string
-func extractRepositoryRoot(config string) string {
-	// Simple extraction - look for repository_root: "value"
-	// This is a basic implementation; a full parser would use YAML/JSON libraries
-
-	// Look for repository_root: "..."
-	if idx := strings.Index(config, "repository_root"); idx != -1 {
-		remaining := config[idx:]
-		// Find the opening quote
-		if startQuote := strings.Index(remaining, "\""); startQuote != -1 {
-			remaining = remaining[startQuote+1:]
-			// Find the closing quote
-			if endQuote := strings.Index(remaining, "\""); endQuote != -1 {
-				return remaining[:endQuote]
-			}
-		}
-	}
-
-	return ""
-}
-
-// extractVersion extracts the version value from config string
-func extractVersion(config string) string {
-	// Look for version: "value" in the external_configuration section
-	// This is a basic implementation; a full parser would use YAML/JSON libraries
-
-	// Find external_configuration section first
-	if idx := strings.Index(config, "external_configuration"); idx != -1 {
-		remaining := config[idx:]
-		// Look for version: "..."
-		if versionIdx := strings.Index(remaining, "version"); versionIdx != -1 {
-			remaining = remaining[versionIdx:]
-			// Find the opening quote
-			if startQuote := strings.Index(remaining, "\""); startQuote != -1 {
-				remaining = remaining[startQuote+1:]
-				// Find the closing quote
-				if endQuote := strings.Index(remaining, "\""); endQuote != -1 {
-					return remaining[:endQuote]
-				}
-			}
-		}
-	}
-
-	return ""
 }
 
 func injectDocBase(xmlContent string, docBase string) string {
@@ -643,7 +551,7 @@ func (t *TomcatContainer) Finalize() error {
 	t.context.Log.BeginStep("Finalizing Tomcat")
 
 	buildDir := t.context.Stager.BuildDir()
-	contextXMLPath := filepath.Join(t.context.Stager.DepDir(), "tomcat", "conf", "Catalina", "localhost", "ROOT.xml")
+	contextXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
 
 	webInf := filepath.Join(buildDir, "WEB-INF")
 	if _, err := os.Stat(webInf); err == nil {
@@ -692,4 +600,53 @@ func (t *TomcatContainer) Release() (string, error) {
 	cmd := "$CATALINA_HOME/bin/catalina.sh run"
 
 	return cmd, nil
+}
+
+func (t *TomcatContainer) tomcatDir() string {
+	return filepath.Join(t.context.Stager.DepDir(), "tomcat")
+}
+
+func (t *TomcatContainer) loadConfig() (*tomcatConfig, error) {
+	tConfig := tomcatConfig{
+		Tomcat: Tomcat{
+			Version:                      "",
+			ExternalConfigurationEnabled: false,
+		},
+		ExternalConfiguration: ExternalConfiguration{
+			Version:        "",
+			RepositoryRoot: "",
+		},
+		AccessLoggingSupport: AccessLoggingSupport{
+			AccessLogging: "disabled",
+		},
+	}
+	config := os.Getenv("JBP_CONFIG_TOMCAT")
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		// overlay JBP_CONFIG_TOMCAT over default values
+		if err := yamlHandler.Unmarshal([]byte(config), &tConfig); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_TOMCAT: %w", err)
+		}
+	}
+	return &tConfig, nil
+}
+
+type tomcatConfig struct {
+	Tomcat                Tomcat                `yaml:"tomcat"`
+	ExternalConfiguration ExternalConfiguration `yaml:"external_configuration"`
+	AccessLoggingSupport  AccessLoggingSupport  `yaml:"access_logging_support"`
+}
+
+type Tomcat struct {
+	Version                      string `yaml:"version"`
+	ExternalConfigurationEnabled bool   `yaml:"external_configuration_enabled"`
+}
+
+type ExternalConfiguration struct {
+	Version        string `yaml:"version"`
+	RepositoryRoot string `yaml:"repository_root"`
+}
+
+type AccessLoggingSupport struct {
+	AccessLogging string `yaml:"access_logging"`
 }
