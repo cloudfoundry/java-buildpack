@@ -2,9 +2,10 @@ package frameworks
 
 import (
 	"fmt"
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"strconv"
+
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 )
 
 // DebugFramework implements Java remote debugging support
@@ -30,8 +31,7 @@ func (d *DebugFramework) Detect() (string, error) {
 		return "", nil
 	}
 
-	port := config.getPort()
-	return fmt.Sprintf("debug=%d", port), nil
+	return "Remote Debug", nil
 }
 
 // Supply performs debug setup during supply phase
