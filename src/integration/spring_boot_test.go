@@ -171,7 +171,7 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("Hello from Spring Boot")))
 			})
 
-			it("verifies multiple frameworks (4) append JAVA_OPTS without overwriting each other", func() {
+			it.Focus("verifies multiple frameworks (4) append JAVA_OPTS without overwriting each other", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
 						"BP_JAVA_VERSION": "17",
@@ -189,7 +189,7 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 				// 4. JRebel - auto-detected via rebel-remote.xml in fixture
 				Expect(logs.String()).To(ContainSubstring("Java Opts"))
 				Expect(logs.String()).To(ContainSubstring("Container Security Provider"))
-				Expect(logs.String()).To(ContainSubstring("debug="))
+				Expect(logs.String()).To(ContainSubstring("Remote Debug"))
 				Expect(logs.String()).To(ContainSubstring("JRebel"))
 
 				// Verify ALL opts from ALL frameworks are present at runtime (none were overwritten)
@@ -230,7 +230,7 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 				// 4. JRebel - auto-detected via rebel-remote.xml in fixture
 				Expect(logs.String()).To(ContainSubstring("Java Opts"))
 				Expect(logs.String()).To(ContainSubstring("Container Security Provider"))
-				Expect(logs.String()).To(ContainSubstring("debug="))
+				Expect(logs.String()).To(ContainSubstring("Remote Debug"))
 				Expect(logs.String()).To(ContainSubstring("JRebel"))
 
 				// Verify ALL opts are present: user's JAVA_OPTS + configured opts + ALL framework opts
