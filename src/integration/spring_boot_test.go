@@ -171,7 +171,7 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("Hello from Spring Boot")))
 			})
 
-			it.Focus("verifies multiple frameworks (4) append JAVA_OPTS without overwriting each other", func() {
+			it("verifies multiple frameworks (4) append JAVA_OPTS without overwriting each other", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
 						"BP_JAVA_VERSION": "17",
