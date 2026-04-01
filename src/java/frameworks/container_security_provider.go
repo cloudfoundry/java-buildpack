@@ -257,3 +257,7 @@ type containerSecurityProviderConfig struct {
 	KeyManagerEnabled   string `yaml:"key_manager_enabled"`
 	TrustManagerEnabled string `yaml:"trust_manager_enabled"`
 }
+
+func (c *ContainerSecurityProviderFramework) DependencyIdentifier() string {
+	return "container-security-provider"
+}

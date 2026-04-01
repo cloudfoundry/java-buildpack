@@ -285,3 +285,7 @@ type googleStackDriveConfig struct {
 	ApplicationName    string `yaml:"application_name"`
 	ApplicationVersion string `yaml:"application_version"`
 }
+
+func (g *GoogleStackdriverProfilerFramework) DependencyIdentifier() string {
+	return "google-stackdriver-profiler"
+}

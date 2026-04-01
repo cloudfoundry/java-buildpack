@@ -188,3 +188,7 @@ func (j *JavaCfEnvFramework) hasJavaCfEnv() bool {
 
 	return false
 }
+
+func (j *JavaCfEnvFramework) DependencyIdentifier() string {
+	return "java-cfenv"
+}

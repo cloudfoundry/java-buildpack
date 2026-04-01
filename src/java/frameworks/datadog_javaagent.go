@@ -322,3 +322,7 @@ func (d *DatadogJavaagentFramework) constructJarPathAndFixClassCount(datadogDir 
 	}
 	return nil
 }
+
+func (d *DatadogJavaagentFramework) DependencyIdentifier() string {
+	return "datadog-javaagent"
+}

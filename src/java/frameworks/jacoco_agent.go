@@ -172,3 +172,7 @@ func (j *JacocoAgentFramework) Finalize() error {
 	j.context.Log.Info("JaCoCo Agent configured (priority 26)")
 	return nil
 }
+
+func (j *JacocoAgentFramework) DependencyIdentifier() string {
+	return "jacoco"
+}

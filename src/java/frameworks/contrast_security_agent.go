@@ -237,3 +237,7 @@ func (c *ContrastSecurityAgentFramework) getCredential(key string) string {
 	}
 	return ""
 }
+
+func (c *ContrastSecurityAgentFramework) DependencyIdentifier() string {
+	return "contrast-security"
+}

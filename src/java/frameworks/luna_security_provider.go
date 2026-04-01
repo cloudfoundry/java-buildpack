@@ -493,3 +493,7 @@ type lunaSecurityProviderConfig struct {
 	LoggingEnabled      bool `yaml:"logging_enabled"`
 	TCPKeepAliveEnabled bool `yaml:"tcp_keep_alive_enabled"`
 }
+
+func (l *LunaSecurityProviderFramework) DependencyIdentifier() string {
+	return "luna-security-provider"
+}

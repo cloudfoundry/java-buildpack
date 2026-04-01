@@ -205,3 +205,7 @@ func (s *SpringAutoReconfigurationFramework) hasSpringCloudConnectors() bool {
 
 	return false
 }
+
+func (s *SpringAutoReconfigurationFramework) DependencyIdentifier() string {
+	return "auto-reconfiguration"
+}

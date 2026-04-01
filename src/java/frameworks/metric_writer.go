@@ -200,3 +200,7 @@ type metricWriterConfig struct {
 func (m *metricWriterConfig) isEnabled() bool {
 	return m.Enabled
 }
+
+func (m *MetricWriterFramework) DependencyIdentifier() string {
+	return "metric-writer"
+}

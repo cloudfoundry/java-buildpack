@@ -282,3 +282,7 @@ type Thresholds struct {
 type CleanUp struct {
 	MaxDumpCount int `yaml:"max_dump_count"`
 }
+
+func (j *JavaMemoryAssistantFramework) DependencyIdentifier() string {
+	return "java-memory-assistant"
+}

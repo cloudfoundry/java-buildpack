@@ -134,3 +134,7 @@ export CLASSPATH="%s:${CLASSPATH:-}"
 
 	return nil
 }
+
+func (c *ContainerCustomizerFramework) DependencyIdentifier() string {
+	return "container-customizer"
+}

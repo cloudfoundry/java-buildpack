@@ -226,3 +226,7 @@ func (r *RiverbedAppInternalsAgentFramework) constructAgentJarPath(agentDir stri
 	r.agentPath = agentJarPath
 	return nil
 }
+
+func (r *RiverbedAppInternalsAgentFramework) DependencyIdentifier() string {
+	return "riverbed-appinternals-agent"
+}

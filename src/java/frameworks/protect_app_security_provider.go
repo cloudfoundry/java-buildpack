@@ -342,3 +342,7 @@ func (p *ProtectAppSecurityProviderFramework) findProtectAppService() (map[strin
 
 	return nil, fmt.Errorf("no ProtectApp service found")
 }
+
+func (p *ProtectAppSecurityProviderFramework) DependencyIdentifier() string {
+	return "protect-app-security-provider"
+}

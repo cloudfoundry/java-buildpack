@@ -205,3 +205,7 @@ func (f *MariaDBJDBCFramework) constructJarPath(mariadbDir string) error {
 	f.jarPath = matches[0]
 	return nil
 }
+
+func (m *MariaDBJDBCFramework) DependencyIdentifier() string {
+	return "mariadb-jdbc"
+}

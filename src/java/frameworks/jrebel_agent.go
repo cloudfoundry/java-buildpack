@@ -157,3 +157,7 @@ type jrebelConfig struct {
 func (j *jrebelConfig) isEnabled() bool {
 	return j.Enabled
 }
+
+func (j *JRebelAgentFramework) DependencyIdentifier() string {
+	return "jrebel"
+}

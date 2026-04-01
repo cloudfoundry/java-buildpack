@@ -273,3 +273,7 @@ func (e *ElasticApmAgentFramework) constructJarPath(elasticDir string) error {
 	e.jarPath = matches[0]
 	return nil
 }
+
+func (e *ElasticApmAgentFramework) DependencyIdentifier() string {
+	return "elastic-apm-agent"
+}

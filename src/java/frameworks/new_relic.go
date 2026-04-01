@@ -171,3 +171,7 @@ func (n *NewRelicFramework) Finalize() error {
 	n.context.Log.Info("New Relic Agent configured (priority 35)")
 	return nil
 }
+
+func (n *NewRelicFramework) DependencyIdentifier() string {
+	return "newrelic"
+}

@@ -289,3 +289,7 @@ func (a *AzureApplicationInsightsAgentFramework) constructJarPath(agentDir strin
 	a.jarPath = matches[0]
 	return nil
 }
+
+func (a *AzureApplicationInsightsAgentFramework) DependencyIdentifier() string {
+	return "azure-application-insights"
+}

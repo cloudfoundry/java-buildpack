@@ -146,3 +146,7 @@ func (p *PostgresqlJdbcFramework) hasPostgresDriver() bool {
 
 	return false
 }
+
+func (p *PostgresqlJdbcFramework) DependencyIdentifier() string {
+	return "postgresql-jdbc"
+}

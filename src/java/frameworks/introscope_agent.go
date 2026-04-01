@@ -253,3 +253,7 @@ func (i *IntroscopeAgentFramework) constructAgentPath(agentDir string) error {
 	i.agentPath = agentPattern
 	return nil
 }
+
+func (i *IntroscopeAgentFramework) DependencyIdentifier() string {
+	return "introscope-agent"
+}

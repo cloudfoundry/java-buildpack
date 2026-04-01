@@ -124,3 +124,7 @@ func (o *OpenTelemetryJavaagentFramework) Finalize() error {
 	o.context.Log.Info("OpenTelemetry Javaagent configured (priority 36)")
 	return nil
 }
+
+func (o *OpenTelemetryJavaagentFramework) DependencyIdentifier() string {
+	return "open-telemetry-javaagent"
+}

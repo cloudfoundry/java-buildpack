@@ -156,7 +156,7 @@ func (s *Supplier) installFrameworks() error {
 	// Framework installation errors are fatal and will abort the build,
 	// matching the behavior of the Ruby buildpack
 	for i, framework := range detectedFrameworks {
-		s.Log.Info("Installing %s%s", frameworkNames[i], s.frameworkVersionSuffix(frameworkNames[i]))
+		s.Log.Info("Installing %s%s", frameworkNames[i], s.frameworkVersionSuffix(framework))
 		if err := framework.Supply(); err != nil {
 			return fmt.Errorf("failed to install framework %s: %w", frameworkNames[i], err)
 		}
@@ -165,44 +165,14 @@ func (s *Supplier) installFrameworks() error {
 	return nil
 }
 
-func (s *Supplier) frameworkVersionSuffix(frameworkName string) string {
-	dependencyNames := map[string]string{
-		"Client Certificate Mapper":     "client-certificate-mapper",
-		"Container Security Provider":   "container-security-provider",
-		"YourKit Profiler":              "your-kit-profiler",
-		"Java CF Env":                   "java-cfenv",
-		"Spring Auto-reconfiguration":   "spring-auto-reconfiguration",
-		"New Relic Agent":               "new-relic",
-		"AppDynamics Agent":             "app-dynamics",
-		"Azure Application Insights":    "azure-application-insights-agent",
-		"SkyWalking":                    "sky-walking-agent",
-		"OpenTelemetry Javaagent":       "open-telemetry-javaagent",
-		"Splunk OTEL":                   "splunk-otel-java-agent",
-		"JProfiler Profiler":            "jprofiler-profiler",
-		"JaCoCo Agent":                  "jacoco-agent",
-		"Java Memory Assistant":         "java-memory-assistant",
-		"PostgreSQL JDBC":               "postgresql-jdbc",
-		"maria-db-jdbc":                 "mariadb-jdbc",
-		"Metric Writer":                 "metric-writer",
-		"CF Metrics Exporter":           "cf-metrics-exporter",
-		"Luna Security Provider":        "luna-security-provider",
-		"seeker-security-provider":      "seeker-security-provider",
-		"checkmarx-iast-agent":          "checkmarx-iast-agent",
-		"google-stackdriver-profiler":   "google-stackdriver-profiler",
-		"riverbed-appinternals-agent":   "riverbed-appinternals-agent",
-		"elastic-apm-agent":             "elastic-apm-agent",
-		"datadog-javaagent":             "datadog-javaagent",
-		"jrebel":                        "jrebel-agent",
-		"contrast-security":             "contrast-security-agent",
-		"aspectj-weaver":                "aspectj-weaver",
-		"Sealights Agent":               "sealights-java",
-		"introscope-agent":              "introscope-agent",
-		"ProtectApp Security Provider":  "protectapp-security-provider",
-		"Container Customizer":          "container-customizer",
+func (s *Supplier) frameworkVersionSuffix(framework frameworks.Framework) string {
+	provider, ok := framework.(frameworks.DependencyIdentifierProvider)
+	if !ok {
+		return ""
 	}
 
-	dependencyName, ok := dependencyNames[frameworkName]
-	if !ok {
+	dependencyName := strings.TrimSpace(provider.DependencyIdentifier())
+	if dependencyName == "" {
 		return ""
 	}
 

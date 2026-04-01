@@ -189,3 +189,7 @@ func (a *AppDynamicsFramework) Finalize() error {
 	a.context.Log.Info("Configured AppDynamics Agent for runtime (priority 11)")
 	return nil
 }
+
+func (a *AppDynamicsFramework) DependencyIdentifier() string {
+	return "appdynamics"
+}

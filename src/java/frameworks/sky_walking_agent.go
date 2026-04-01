@@ -246,3 +246,7 @@ func (s *SkyWalkingAgentFramework) loadConfig() (*skyWalkingAgentConfig, error) 
 type skyWalkingAgentConfig struct {
 	DefaultApplicationName string `yaml:"default_application_name"`
 }
+
+func (s *SkyWalkingAgentFramework) DependencyIdentifier() string {
+	return "skywalking-agent"
+}

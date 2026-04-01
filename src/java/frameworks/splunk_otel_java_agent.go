@@ -265,3 +265,7 @@ func (s *SplunkOtelJavaAgentFramework) constructJarPath(agentDir string) error {
 	s.jarPath = jarPattern
 	return nil
 }
+
+func (s *SplunkOtelJavaAgentFramework) DependencyIdentifier() string {
+	return "splunk-otel-javaagent"
+}
