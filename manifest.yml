@@ -13,6 +13,47 @@ include_files:
 - bin/supply
 - manifest.yml
 pre_package: scripts/build.sh
+packaging_profiles:
+  minimal:
+    description: "JDKs, CF utilities, Tomcat, and common frameworks only. No APM agents, profilers, or JDBC drivers."
+    exclude:
+    - datadog-javaagent
+    - elastic-apm-agent
+    - azure-application-insights
+    - skywalking-agent
+    - splunk-otel-javaagent
+    - google-stackdriver-profiler
+    - open-telemetry-javaagent
+    - contrast-security
+    - newrelic
+    - sealights-agent
+    - jacoco
+    - jrebel
+    - your-kit-profiler
+    - jprofiler-profiler
+    - java-memory-assistant
+    - java-memory-assistant-cleanup
+    - luna-security-provider
+    - postgresql-jdbc
+    - mariadb-jdbc
+  standard:
+    description: "Core + open-source APM, OTel, and JDBC drivers. No commercial agents or profilers."
+    exclude:
+    - datadog-javaagent
+    - elastic-apm-agent
+    - azure-application-insights
+    - skywalking-agent
+    - splunk-otel-javaagent
+    - google-stackdriver-profiler
+    - contrast-security
+    - newrelic
+    - sealights-agent
+    - jrebel
+    - your-kit-profiler
+    - jprofiler-profiler
+    - java-memory-assistant
+    - java-memory-assistant-cleanup
+    - luna-security-provider
 default_versions:
 - name: openjdk
   version: 17.x

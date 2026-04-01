@@ -233,6 +233,48 @@ Building buildpack (version: 0.0.0, stack: cflinuxfs4, cached: true, output: bui
 
 The offline package will be significantly larger (1.0-1.2 GB depending on cached dependencies) as it includes all JRE versions and framework agents specified in `manifest.yml`.
 
+#### Selective Dependency Packaging
+
+For air-gapped environments or security-conscious deployments, you can build a smaller offline package that contains only a named subset of dependencies using packaging profiles or explicit exclusions.
+
+**Using a profile** (defined in `manifest.yml`):
+
+```bash
+# Minimal: JDKs, CF utilities, Tomcat, and common frameworks only (~28 dependencies)
+$ ./scripts/package.sh --cached --profile minimal
+
+# Standard: core + open-source APM, OTel, and JDBC drivers (~32 dependencies)
+$ ./scripts/package.sh --cached --profile standard
+```
+
+**Ad-hoc exclusions** (no profile required):
+
+```bash
+# Exclude specific agents you don't have licences for
+$ ./scripts/package.sh --cached --exclude jrebel,your-kit-profiler,jprofiler-profiler
+```
+
+**Combining a profile with overrides**:
+
+```bash
+# Start from standard profile but also drop jacoco
+$ ./scripts/package.sh --cached --profile standard --exclude jacoco
+
+# Start from minimal profile but add back jprofiler for triage builds
+$ ./scripts/package.sh --cached --profile minimal --include jprofiler-profiler
+```
+
+The output zip filename reflects the profile/exclusion applied so that different variants can coexist:
+
+| Invocation | Output filename |
+|---|---|
+| `--cached` | `java_buildpack-cached-cflinuxfs4-v<ver>.zip` |
+| `--cached --profile minimal` | `java_buildpack-cached-minimal-cflinuxfs4-v<ver>.zip` |
+| `--cached --exclude newrelic` | `java_buildpack-cached-custom-cflinuxfs4-v<ver>.zip` |
+| `--cached --profile minimal --include jprofiler-profiler` | `java_buildpack-cached-minimal+custom-cflinuxfs4-v<ver>.zip` |
+
+> **Note**: `--profile`, `--exclude`, and `--include` are only valid with `--cached`. Using them on an uncached build is an error. `--include` requires `--profile` to be set.
+
 ### Package Versioning
 To specify a version number when creating a package, use the `--version` flag:
 
@@ -260,6 +302,9 @@ OPTIONS
   --cached                           cache the buildpack dependencies (default: false)
   --stack  <stack>                   specifies the stack (default: cflinuxfs4)
   --output <file>                    output file path (default: build/buildpack.zip)
+  --profile <name>                   packaging profile from manifest.yml (e.g. minimal, standard)
+  --exclude <dep1,dep2,...>          comma-separated dependency names to exclude (cached only)
+  --include <dep1,dep2,...>          comma-separated dependency names to restore, overriding profile exclusions (cached only)
 ```
 
 ### Customizing Dependencies
@@ -289,7 +334,7 @@ dependencies:
 # Online package with version 5.0.0
 $ ./scripts/package.sh --version 5.0.0
 
-# Offline package with version 5.0.0
+# Offline package with version 5.0.0 (all dependencies)
 $ ./scripts/package.sh --version 5.0.0 --cached
 
 # Package for specific stack
@@ -297,6 +342,18 @@ $ ./scripts/package.sh --stack cflinuxfs4 --cached
 
 # Custom output location
 $ ./scripts/package.sh --version 5.0.0 --cached --output /tmp/my-buildpack.zip
+
+# Offline package with minimal profile (JDKs + CF utilities only)
+$ ./scripts/package.sh --version 5.0.0 --cached --profile minimal
+
+# Offline package with standard profile (core + open-source observability)
+$ ./scripts/package.sh --version 5.0.0 --cached --profile standard
+
+# Exclude specific dependencies without a profile
+$ ./scripts/package.sh --version 5.0.0 --cached --exclude jrebel,your-kit-profiler
+
+# Minimal profile, but add back jprofiler for this specific build
+$ ./scripts/package.sh --version 5.0.0 --cached --profile minimal --include jprofiler-profiler
 ```
 
 ## Running Tests

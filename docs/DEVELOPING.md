@@ -482,6 +482,28 @@ Create a package with all dependencies cached (no internet required at runtime):
 
 **Output:** `build/buildpack.zip` (~500MB, varies based on cached dependencies)
 
+#### Selective Dependency Packaging (Profiles)
+
+For environments that only need a subset of dependencies, use packaging profiles or
+explicit exclusions to reduce the offline package size:
+
+```bash
+# Minimal: JDKs, CF utilities, Tomcat only (~28 deps, much smaller download)
+./scripts/package.sh --version 1.0.0 --cached --profile minimal
+
+# Standard: core + open-source APM, OTel, JDBC (~32 deps)
+./scripts/package.sh --version 1.0.0 --cached --profile standard
+
+# Ad-hoc: exclude specific agents (no profile needed)
+./scripts/package.sh --version 1.0.0 --cached --exclude jrebel,your-kit-profiler
+
+# Restore one dep excluded by a profile
+./scripts/package.sh --version 1.0.0 --cached --profile minimal --include jprofiler-profiler
+```
+
+Profiles are declared in the `packaging_profiles` section of `manifest.yml`. See
+[Selective Dependency Packaging](selective-dependency-packaging.md) for full details.
+
 ### Package Options
 
 ```bash
@@ -496,6 +518,12 @@ Create a package with all dependencies cached (no internet required at runtime):
 
 # Offline with custom stack
 ./scripts/package.sh --version 1.0.0 --cached --stack cflinuxfs4
+
+# Offline with minimal profile
+./scripts/package.sh --version 1.0.0 --cached --profile minimal
+
+# Offline excluding specific dependencies
+./scripts/package.sh --version 1.0.0 --cached --exclude datadog-javaagent,newrelic
 ```
 
 ### Automated Packaging (CI/CD)
