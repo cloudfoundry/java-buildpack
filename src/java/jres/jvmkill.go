@@ -42,7 +42,6 @@ func (j *JVMKillAgent) Supply() error {
 
 	j.version = dep.Version
 	j.ctx.Log.Info("Installing JVMKill Agent (%s)", j.version)
-	j.ctx.Log.Debug("JVMKill version: %s", j.version)
 
 	// Install to bin directory
 	binDir := filepath.Join(j.jreDir, "bin")

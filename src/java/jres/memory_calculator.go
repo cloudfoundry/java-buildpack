@@ -53,7 +53,6 @@ func (m *MemoryCalculator) Supply() error {
 
 	m.version = dep.Version
 	m.ctx.Log.Info("Installing Memory Calculator (%s)", m.version)
-	m.ctx.Log.Debug("Memory Calculator version: %s", m.version)
 
 	// Create bin directory
 	binDir := filepath.Join(m.jreDir, "bin")
