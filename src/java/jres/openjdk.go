@@ -51,7 +51,7 @@ func (o *OpenJDKJRE) Supply() error {
 	}
 
 	o.version = dep.Version
-	o.ctx.Log.Info("Installing OpenJDK %s", o.version)
+	o.ctx.Log.Info("Installing OpenJDK (%s)", o.version)
 
 	// Install JRE
 	if err := o.ctx.Installer.InstallDependency(dep, o.jreDir); err != nil {
@@ -119,7 +119,7 @@ func (o *OpenJDKJRE) Supply() error {
 		// Non-fatal - continue without memory calculator
 	}
 
-	o.ctx.Log.Info("OpenJDK JRE installation complete")
+	o.ctx.Log.Debug("OpenJDK JRE installation complete")
 	return nil
 }
 

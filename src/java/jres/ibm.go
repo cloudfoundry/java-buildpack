@@ -52,7 +52,7 @@ func (i *IBMJRE) Supply() error {
 	}
 
 	i.version = dep.Version
-	i.ctx.Log.Info("Installing IBM JRE %s", i.version)
+	i.ctx.Log.Info("Installing IBM JRE (%s)", i.version)
 
 	// Install JRE
 	if err := i.ctx.Installer.InstallDependency(dep, i.jreDir); err != nil {

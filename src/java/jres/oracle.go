@@ -51,7 +51,7 @@ func (o *OracleJRE) Supply() error {
 	}
 
 	o.version = dep.Version
-	o.ctx.Log.Info("Installing Oracle JRE %s", o.version)
+	o.ctx.Log.Info("Installing Oracle JRE (%s)", o.version)
 
 	// Install JRE
 	if err := o.ctx.Installer.InstallDependency(dep, o.jreDir); err != nil {
