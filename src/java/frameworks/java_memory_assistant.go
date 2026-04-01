@@ -111,7 +111,7 @@ func (j *JavaMemoryAssistantFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	j.context.Log.Info("Java Memory Assistant configured (priority 28)")
+	j.context.Log.Debug("Java Memory Assistant configured (priority 28)")
 	return nil
 }
 

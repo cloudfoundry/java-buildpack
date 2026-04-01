@@ -126,7 +126,7 @@ func (c *CheckmarxIASTAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Checkmarx IAST: %w", err)
 	}
 
-	c.context.Log.Info("Checkmarx IAST agent configured")
+	c.context.Log.Debug("Checkmarx IAST agent configured")
 	return nil
 }
 

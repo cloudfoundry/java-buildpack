@@ -168,7 +168,7 @@ func (n *NewRelicFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	n.context.Log.Info("New Relic Agent configured (priority 35)")
+	n.context.Log.Debug("New Relic Agent configured (priority 35)")
 	return nil
 }
 

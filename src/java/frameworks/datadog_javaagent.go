@@ -152,7 +152,7 @@ func (d *DatadogJavaagentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Datadog: %w", err)
 	}
 
-	d.context.Log.Info("Datadog Java agent configured")
+	d.context.Log.Debug("Datadog Java agent configured")
 	return nil
 }
 

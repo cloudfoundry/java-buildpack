@@ -136,7 +136,7 @@ func (s *SkyWalkingAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for SkyWalking: %w", err)
 	}
 
-	s.context.Log.Info("SkyWalking agent configured")
+	s.context.Log.Debug("SkyWalking agent configured")
 	return nil
 }
 

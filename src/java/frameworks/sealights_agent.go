@@ -211,7 +211,7 @@ func (f *SealightsAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to create log directory: %w", err)
 	}
 
-	f.context.Log.Info("Sealights Agent configured (priority 39)")
+	f.context.Log.Debug("Sealights Agent configured (priority 39)")
 	return nil
 }
 

@@ -137,7 +137,7 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	f.context.Log.Info("JProfiler Profiler configured (priority 30)")
+	f.context.Log.Debug("JProfiler Profiler configured (priority 30)")
 	return nil
 }
 

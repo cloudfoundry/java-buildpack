@@ -154,7 +154,7 @@ func (s *SplunkOtelJavaAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Splunk OTEL: %w", err)
 	}
 
-	s.context.Log.Info("Splunk OTEL Java agent configured")
+	s.context.Log.Debug("Splunk OTEL Java agent configured")
 	return nil
 }
 

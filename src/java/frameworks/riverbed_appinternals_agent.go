@@ -121,7 +121,7 @@ func (r *RiverbedAppInternalsAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Riverbed AppInternals: %w", err)
 	}
 
-	r.context.Log.Info("Riverbed AppInternals agent configured")
+	r.context.Log.Debug("Riverbed AppInternals agent configured")
 	return nil
 }
 

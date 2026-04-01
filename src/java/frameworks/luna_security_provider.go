@@ -161,7 +161,7 @@ func (l *LunaSecurityProviderFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	l.context.Log.Info("Luna Security Provider configured (priority 32)")
+	l.context.Log.Debug("Luna Security Provider configured (priority 32)")
 	return nil
 }
 

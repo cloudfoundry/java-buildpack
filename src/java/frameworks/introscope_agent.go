@@ -126,7 +126,7 @@ func (i *IntroscopeAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Introscope: %w", err)
 	}
 
-	i.context.Log.Info("Introscope agent configured")
+	i.context.Log.Debug("Introscope agent configured")
 	return nil
 }
 

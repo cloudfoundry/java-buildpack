@@ -185,7 +185,7 @@ func (a *AzureApplicationInsightsAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Azure Application Insights: %w", err)
 	}
 
-	a.context.Log.Info("Azure Application Insights agent configured")
+	a.context.Log.Debug("Azure Application Insights agent configured")
 	return nil
 }
 

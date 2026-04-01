@@ -155,7 +155,7 @@ func (g *GoogleStackdriverProfilerFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Google Stackdriver Profiler: %w", err)
 	}
 
-	g.context.Log.Info("Google Stackdriver Profiler configured")
+	g.context.Log.Debug("Google Stackdriver Profiler configured")
 	return nil
 }
 

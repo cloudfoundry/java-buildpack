@@ -157,7 +157,7 @@ func (c *ContrastSecurityAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	c.context.Log.Info("Contrast Security Agent configured successfully (priority 18)")
+	c.context.Log.Debug("Contrast Security Agent configured successfully (priority 18)")
 	return nil
 }
 

@@ -121,7 +121,7 @@ func (o *OpenTelemetryJavaagentFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	o.context.Log.Info("OpenTelemetry Javaagent configured (priority 36)")
+	o.context.Log.Debug("OpenTelemetry Javaagent configured (priority 36)")
 	return nil
 }
 

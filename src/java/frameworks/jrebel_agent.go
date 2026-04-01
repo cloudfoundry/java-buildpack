@@ -125,7 +125,7 @@ func (j *JRebelAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	j.context.Log.Info("JRebel Agent configured successfully (priority 31)")
+	j.context.Log.Debug("JRebel Agent configured successfully (priority 31)")
 	return nil
 }
 

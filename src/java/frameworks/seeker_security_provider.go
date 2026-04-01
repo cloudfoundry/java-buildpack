@@ -169,7 +169,7 @@ export SEEKER_SERVER_URL="%s"
 		return fmt.Errorf("failed to write Seeker profile.d script: %w", err)
 	}
 
-	s.context.Log.Info("Seeker Security Provider configured (priority 40)")
+	s.context.Log.Debug("Seeker Security Provider configured (priority 40)")
 	return nil
 }
 

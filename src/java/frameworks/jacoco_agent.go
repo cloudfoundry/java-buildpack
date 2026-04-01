@@ -169,7 +169,7 @@ func (j *JacocoAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	j.context.Log.Info("JaCoCo Agent configured (priority 26)")
+	j.context.Log.Debug("JaCoCo Agent configured (priority 26)")
 	return nil
 }
 

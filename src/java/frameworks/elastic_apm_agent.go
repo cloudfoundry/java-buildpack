@@ -133,7 +133,7 @@ func (e *ElasticApmAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Elastic APM: %w", err)
 	}
 
-	e.context.Log.Info("Elastic APM agent configured")
+	e.context.Log.Debug("Elastic APM agent configured")
 	return nil
 }
 
