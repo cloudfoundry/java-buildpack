@@ -111,14 +111,15 @@ needs only a trivial one-line change in the shared script template to become ava
 
 ### 4.1 Overview
 
-Two complementary mechanisms are added, both optional:
+Three complementary mechanisms are added, all optional:
 
 | Mechanism | Flag | Where defined | Use case |
 |---|---|---|---|
 | Ad-hoc exclusion | `--exclude dep-a,dep-b` | CLI only | One-off builds, CI overrides |
 | Named profiles | `--profile minimal` | `manifest.yml` | Reusable, versioned subsets |
+| Profile override | `--include dep-a` | CLI only | Restore specific deps excluded by a profile |
 
-Both are purely *packaging-time* filters. At runtime the buildpack behaves identically — components
+All are purely *packaging-time* filters. At runtime the buildpack behaves identically — components
 that rely on a dependency that was excluded simply will not find it and will not activate (the same
 as they would in an uncached buildpack where the network is unavailable).
 
@@ -131,14 +132,30 @@ scripts/package.sh --cached --profile minimal
          --cached=true
          --stack=cflinuxfs4
          --profile=minimal          ← NEW
-       └─ packager.Package(bpDir, cacheDir, version, stack, cached=true,
-                           exclude=["datadog-javaagent","newrelic",...])
-            ├─ resolveExclusions(manifest, profile="minimal", exclude=[])
-            │    └─ returns []string of dep names to skip
+       └─ packager.PackageWithOptions(bpDir, cacheDir, version, stack, cached=true,
+                           PackageOptions{Profile:"minimal", Exclude:[], Include:[]})
+            ├─ resolveExclusions(manifest, profile="minimal", exclude=[], include=[])
+            │    └─ returns map[string]struct{} of dep names to skip
             ├─ for every dependency that matches the stack AND is not excluded:
             │    ├─ downloadDependency()   ← only selected deps
             │    └─ SHA256 verify
-            └─ ZipFiles() → java_buildpack-cached-cflinuxfs4-v<v>.zip
+            └─ ZipFiles() → java_buildpack-cached-cflinuxfs4-minimal-v<v>.zip
+
+scripts/package.sh --cached --profile minimal --include jprofiler-profiler
+  └─ buildpack-packager build
+         --version=<v>
+         --cached=true
+         --stack=cflinuxfs4
+         --profile=minimal
+         --include=jprofiler-profiler ← NEW
+       └─ packager.PackageWithOptions(...)
+            ├─ resolveExclusions(manifest, profile="minimal", exclude=[], include=["jprofiler-profiler"])
+            │    ├─ computes profile exclusions → removes jprofiler-profiler from excluded set
+            │    └─ returns map without jprofiler-profiler
+            ├─ for every dependency that matches the stack AND is not excluded:
+            │    ├─ downloadDependency()   ← minimal deps + jprofiler-profiler
+            │    └─ SHA256 verify
+            └─ ZipFiles() → java_buildpack-cached-cflinuxfs4-minimal+custom-v<v>.zip
 ```
 
 ### 4.3 Zip filename convention
@@ -150,6 +167,8 @@ The output filename gains a profile or exclusion suffix so that different varian
 | `--cached` | `java_buildpack-cached-cflinuxfs4-v1.2.3.zip` |
 | `--cached --profile minimal` | `java_buildpack-cached-cflinuxfs4-minimal-v1.2.3.zip` |
 | `--cached --exclude newrelic` | `java_buildpack-cached-cflinuxfs4-custom-v1.2.3.zip` |
+| `--cached --profile minimal --include jprofiler-profiler` | `java_buildpack-cached-cflinuxfs4-minimal+custom-v1.2.3.zip` |
+| `--cached --profile minimal --exclude groovy` | `java_buildpack-cached-cflinuxfs4-minimal+custom-v1.2.3.zip` |
 
 ---
 
@@ -193,7 +212,22 @@ keep consistent.
 the `--exclude` list is unioned with it. This allows operators to start from a profile and trim
 further for a specific deployment.
 
-### 5.6 Unknown dependency names are errors
+### 5.6 --include overrides profile exclusions (CLI only)
+
+`--profile minimal --include jprofiler-profiler` is valid. The profile's exclusion list is computed
+first, then any names in `--include` are removed from that set — effectively restoring those
+dependencies into the build. This allows operators to start from a profile and selectively add back
+specific deps without defining a new profile.
+
+`--include` and `--exclude` can both be passed alongside `--profile`. Order of resolution:
+1. Profile's `exclude` list is applied.
+2. `--exclude` CLI additions are unioned in.
+3. `--include` CLI overrides are removed from the set.
+
+`--include` without `--profile` is a no-op (nothing was excluded to begin with) but is treated as a
+warning rather than a hard error, since it is not necessarily a mistake in a scripted environment.
+
+### 5.7 Unknown dependency names are errors
 
 If `--exclude datadog-javaagent` is passed but `datadog-javaagent` does not exist in the manifest,
 `buildpack-packager` exits non-zero. This catches typos early rather than silently producing a zip
@@ -295,17 +329,16 @@ New unexported helper `resolveExclusions`:
 
 ```go
 // resolveExclusions returns the set of dependency names that should be skipped
-// during packaging. It merges the profile's exclude list (if a profile is named)
-// with any explicitly passed exclude names. An error is returned if the profile
-// name is unknown or if any exclude name does not exist in the manifest.
-func resolveExclusions(manifest Manifest, profile string, exclude []string) (map[string]struct{}, error) {
-    // 1. Start with explicitly excluded names
+// during packaging. Resolution order:
+//  1. Profile's exclude list (if a profile is named).
+//  2. Explicit --exclude names are unioned in.
+//  3. Explicit --include names are removed (overrides profile exclusions).
+//
+// An error is returned if the profile name is unknown or if any exclude/include
+// name does not exist in the manifest.
+func resolveExclusions(manifest Manifest, profile string, exclude []string, include []string) (map[string]struct{}, error) {
+    // 1. Start with profile exclusions
     result := make(map[string]struct{})
-    for _, name := range exclude {
-        result[name] = struct{}{}
-    }
-
-    // 2. If a profile is named, merge its exclude list
     if profile != "" {
         p, ok := manifest.PackagingProfiles[profile]
         if !ok {
@@ -316,14 +349,24 @@ func resolveExclusions(manifest Manifest, profile string, exclude []string) (map
         }
     }
 
-    // 3. Validate: every name must exist in the manifest
+    // 2. Union with explicitly excluded names
+    for _, name := range exclude {
+        result[name] = struct{}{}
+    }
+
+    // 3. Remove explicitly included names (overrides profile)
+    for _, name := range include {
+        delete(result, name)
+    }
+
+    // 4. Validate: every exclude/include name must exist in the manifest
     depNames := make(map[string]struct{})
     for _, d := range manifest.Dependencies {
         depNames[d.Name] = struct{}{}
     }
-    for name := range result {
+    for _, name := range append(exclude, include...) {
         if _, ok := depNames[name]; !ok {
-            return nil, fmt.Errorf("excluded dependency %q not found in manifest", name)
+            return nil, fmt.Errorf("dependency %q not found in manifest", name)
         }
     }
 
@@ -331,22 +374,28 @@ func resolveExclusions(manifest Manifest, profile string, exclude []string) (map
 }
 ```
 
-Updated `Package` signature:
+`PackageOptions` struct and updated `Package` / `PackageWithOptions` signatures:
 
 ```go
-// Package creates a cached or uncached buildpack zip.
-//
-// New parameters compared to the previous signature:
-//   profile: name of a packaging_profiles entry in manifest.yml (empty = no profile)
-//   exclude: additional dependency names to skip regardless of profile
-func Package(bpDir, cacheDir, version, stack string, cached bool, profile string, exclude []string) (string, error) {
+type PackageOptions struct {
+    Profile string
+    Exclude []string
+    Include []string  // deps to restore after profile exclusions are applied
+}
+
+func PackageWithOptions(bpDir, cacheDir, version, stack string, cached bool, opts PackageOptions) (string, error)
+
+// Package delegates to PackageWithOptions with zero-value opts for backward compat
+func Package(bpDir, cacheDir, version, stack string, cached bool) (string, error) {
+    return PackageWithOptions(bpDir, cacheDir, version, stack, cached, PackageOptions{})
+}
 ```
 
-Updated inner dependency loop (the only logic change inside `Package`):
+Updated inner dependency loop (the only logic change inside `PackageWithOptions`):
 
 ```go
     // Resolve which deps to skip BEFORE the download loop
-    excluded, err := resolveExclusions(manifest, profile, exclude)
+    excluded, err := resolveExclusions(manifest, opts.Profile, opts.Exclude, opts.Include)
     if err != nil {
         return "", err
     }
@@ -383,9 +432,12 @@ Filename suffix logic (appended after the existing `cachedPart` / `stackPart` co
 
 ```go
     profilePart := ""
-    if profile != "" {
-        profilePart = "-" + profile
-    } else if len(exclude) > 0 {
+    if opts.Profile != "" {
+        profilePart = "-" + opts.Profile
+        if len(opts.Exclude) > 0 || len(opts.Include) > 0 {
+            profilePart += "+custom"
+        }
+    } else if len(opts.Exclude) > 0 || len(opts.Include) > 0 {
         profilePart = "-custom"
     }
 
@@ -405,7 +457,8 @@ type buildCmd struct {
     cacheDir string
     stack    string
     profile  string   // NEW
-    exclude  string   // NEW: comma-separated, parsed before calling Package
+    exclude  string   // NEW: comma-separated, parsed before calling PackageWithOptions
+    include  string   // NEW: comma-separated, parsed before calling PackageWithOptions
 }
 
 func (b *buildCmd) SetFlags(f *flag.FlagSet) {
@@ -414,26 +467,33 @@ func (b *buildCmd) SetFlags(f *flag.FlagSet) {
     f.StringVar(&b.cacheDir, "cachedir", packager.CacheDir, "cache dir")
     f.StringVar(&b.stack,    "stack",    "", "stack to package buildpack for")
     f.BoolVar(&b.anyStack,   "any-stack", false, "package buildpack for any stack")
-    f.StringVar(&b.profile,  "profile",  "", "packaging profile defined in manifest.yml")   // NEW
-    f.StringVar(&b.exclude,  "exclude",  "", "comma-separated dependency names to exclude") // NEW
+    f.StringVar(&b.profile,  "profile",  "", "packaging profile defined in manifest.yml")                    // NEW
+    f.StringVar(&b.exclude,  "exclude",  "", "comma-separated dependency names to exclude")                  // NEW
+    f.StringVar(&b.include,  "include",  "", "comma-separated dependency names to include, overriding profile exclusions") // NEW
 }
 
 func (b *buildCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
     // ... existing validation ...
 
-    // Parse exclude list
-    var excludeList []string
-    if b.exclude != "" {
-        for _, name := range strings.Split(b.exclude, ",") {
+    // Parse exclude and include lists
+    parseCSV := func(s string) []string {
+        var out []string
+        for _, name := range strings.Split(s, ",") {
             name = strings.TrimSpace(name)
             if name != "" {
-                excludeList = append(excludeList, name)
+                out = append(out, name)
             }
         }
+        return out
     }
 
-    zipFile, err := packager.Package(".", b.cacheDir, b.version, b.stack, b.cached,
-        b.profile, excludeList) // NEW parameters
+    opts := packager.PackageOptions{
+        Profile: b.profile,
+        Exclude: parseCSV(b.exclude),
+        Include: parseCSV(b.include),
+    }
+
+    zipFile, err := packager.PackageWithOptions(".", b.cacheDir, b.version, b.stack, b.cached, opts)
     // ... rest unchanged ...
 }
 ```
@@ -442,7 +502,8 @@ Updated `Usage()` string:
 
 ```
 build -stack <stack>|-any-stack [-cached] [-version <version>]
-      [-cachedir <path>] [-profile <profile>] [-exclude <dep1,dep2,...>]:
+      [-cachedir <path>] [-profile <profile>] [-exclude <dep1,dep2,...>]
+      [-include <dep1,dep2,...>]:
 
   Creates a zip file from the current buildpack directory.
 
@@ -453,6 +514,11 @@ build -stack <stack>|-any-stack [-cached] [-version <version>]
   -exclude  Comma-separated list of dependency names to exclude, in addition
             to any exclusions implied by -profile. Names must exist in
             manifest.yml. Example: -exclude datadog-javaagent,newrelic
+
+  -include  Comma-separated list of dependency names to force-include,
+            overriding exclusions implied by -profile. Useful for starting
+            from a restrictive profile and adding back a single dep.
+            Example: -profile minimal -include jprofiler-profiler
 ```
 
 ### 7.4 summary.go — list available profiles
@@ -518,19 +584,20 @@ flag day across all consumers.
 
 ## 8. scripts/package.sh Changes
 
-Each buildpack's `scripts/package.sh` needs two additions:
+Each buildpack's `scripts/package.sh` needs three additions:
 
-1. Parse `--profile` and `--exclude` in the `while` loop.
+1. Parse `--profile`, `--exclude`, and `--include` in the `while` loop.
 2. Forward them to `buildpack-packager`.
 
 ```bash
 function main() {
-  local stack version cached output profile exclude
+  local stack version cached output profile exclude include
   stack="cflinuxfs4"
   cached="false"
   output="${ROOTDIR}/build/buildpack.zip"
   profile=""     # NEW
   exclude=""     # NEW
+  include=""     # NEW
 
   while [[ "${#}" != 0 ]]; do
     case "${1}" in
@@ -546,27 +613,34 @@ function main() {
         shift 2
         ;;
 
+      --include)          # NEW
+        include="${2}"
+        shift 2
+        ;;
+
       # ...
     esac
   done
 
-  package::buildpack "${version}" "${cached}" "${stack}" "${output}" "${profile}" "${exclude}"
+  package::buildpack "${version}" "${cached}" "${stack}" "${output}" "${profile}" "${exclude}" "${include}"
 }
 
 function package::buildpack() {
-  local version cached stack output profile exclude
+  local version cached stack output profile exclude include
   version="${1}"
   cached="${2}"
   stack="${3}"
   output="${4}"
   profile="${5}"   # NEW
   exclude="${6}"   # NEW
+  include="${7}"   # NEW
 
   # ... existing setup ...
 
-  local profile_flag="" exclude_flag=""
+  local profile_flag="" exclude_flag="" include_flag=""
   [[ -n "${profile}" ]] && profile_flag="--profile=${profile}"
   [[ -n "${exclude}" ]] && exclude_flag="--exclude=${exclude}"
+  [[ -n "${include}" ]] && include_flag="--include=${include}"
 
   local file
   file="$(
@@ -576,6 +650,7 @@ function package::buildpack() {
       "${stack_flag}" \
       ${profile_flag:+"${profile_flag}"} \
       ${exclude_flag:+"${exclude_flag}"} \
+      ${include_flag:+"${include_flag}"} \
     | xargs -n1 | grep -e '\.zip$'
   )"
 
@@ -596,6 +671,7 @@ OPTIONS
   --output <file>                    output path (default: build/buildpack.zip)
   --profile <name>                   packaging profile from manifest.yml
   --exclude <dep1,dep2,...>          additional dependencies to exclude
+  --include <dep1,dep2,...>          dependencies to restore, overriding profile exclusions
 ```
 
 ---
@@ -685,6 +761,9 @@ Result: 47 → 32 dependencies bundled.
 
 # One-off: full cached buildpack minus the two agents we don't have licences for
 ./scripts/package.sh --cached --exclude jrebel,your-kit-profiler,jprofiler-profiler
+
+# Standard profile, but this foundation also needs jprofiler for triage
+./scripts/package.sh --cached --profile standard --include jprofiler-profiler
 ```
 
 ---
@@ -699,12 +778,12 @@ in `java-buildpack` (and optionally in other buildpacks).
 | # | File | Change | Notes |
 |---|---|---|---|
 | 1.1 | `packager/models.go` | Add `PackagingProfile` struct and `PackagingProfiles` field on `Manifest` | ~15 lines |
-| 1.2 | `packager/packager.go` | Add `resolveExclusions()` helper | ~30 lines |
-| 1.3 | `packager/packager.go` | Add `PackageWithOptions` and update `Package` to delegate | ~20 lines |
+| 1.2 | `packager/packager.go` | Add `resolveExclusions()` helper (profile + exclude + include logic) | ~40 lines |
+| 1.3 | `packager/packager.go` | Add `PackageOptions` struct, `PackageWithOptions`, update `Package` to delegate | ~20 lines |
 | 1.4 | `packager/packager.go` | Apply exclusion filter in dependency loop, update filename logic | ~15 lines |
 | 1.5 | `packager/summary.go` | Print `packaging_profiles` section in `Summary()` | ~20 lines |
-| 1.6 | `packager/packager_test.go` | Test cases for exclude, profile, combined, unknown name errors | ~80 lines |
-| 1.7 | `packager/models_test.go` | Test `resolveExclusions` edge cases | ~40 lines |
+| 1.6 | `packager/packager_test.go` | Test cases for exclude, include, profile, combined, unknown name errors | ~100 lines |
+| 1.7 | `packager/models_test.go` | Test `resolveExclusions` edge cases | ~50 lines |
 
 **Entry criteria**: existing tests pass on `main`.  
 **Exit criteria**: all new tests pass, `packager.Package()` signature unchanged, `PackageWithOptions` works.
@@ -713,9 +792,9 @@ in `java-buildpack` (and optionally in other buildpacks).
 
 | # | File | Change | Notes |
 |---|---|---|---|
-| 2.1 | `packager/buildpack-packager/main.go` | Add `--profile` and `--exclude` flags to `buildCmd` | ~25 lines |
-| 2.2 | `packager/buildpack-packager/main.go` | Parse comma-separated `--exclude` into `[]string` | ~10 lines |
-| 2.3 | `packager/buildpack-packager/main.go` | Update `Usage()` string | ~10 lines |
+| 2.1 | `packager/buildpack-packager/main.go` | Add `--profile`, `--exclude`, and `--include` flags to `buildCmd` | ~30 lines |
+| 2.2 | `packager/buildpack-packager/main.go` | Parse comma-separated `--exclude` and `--include` into `[]string` | ~15 lines |
+| 2.3 | `packager/buildpack-packager/main.go` | Update `Usage()` string | ~15 lines |
 
 **Exit criteria**: `buildpack-packager build --help` shows new flags; manual smoke test against
 java-buildpack `manifest.yml` produces expected zip sizes.
@@ -725,11 +804,12 @@ java-buildpack `manifest.yml` produces expected zip sizes.
 | # | File | Change | Notes |
 |---|---|---|---|
 | 3.1 | `manifest.yml` | Add `packaging_profiles` section with `minimal` and `standard` | ~40 lines |
-| 3.2 | `scripts/package.sh` | Add `--profile` / `--exclude` flag parsing and forwarding | ~15 lines |
+| 3.2 | `scripts/package.sh` | Add `--profile` / `--exclude` / `--include` flag parsing and forwarding | ~20 lines |
 | 3.3 | `scripts/package.sh` | Update `usage()` | ~5 lines |
 
 **Exit criteria**:
 - `./scripts/package.sh --cached --profile minimal` produces a zip with 28 dependencies.
+- `./scripts/package.sh --cached --profile minimal --include jprofiler-profiler` produces a zip with 29 dependencies.
 - `./scripts/package.sh --cached` produces a zip with 47 dependencies (unchanged).
 - `buildpack-packager summary` lists the two profiles.
 
@@ -747,15 +827,20 @@ required.
 
 | Scenario | Expected outcome |
 |---|---|
-| `Package` called with no profile, no exclude | All stack-matching deps bundled (existing behaviour) |
-| `Package` called with `exclude=["dep-a"]` | `dep-a` absent from zip manifest and not downloaded |
-| `Package` called with valid `profile="minimal"` | Profile's exclude list applied correctly |
-| `Package` called with `profile` + extra `exclude` | Union of both exclude lists applied |
-| `Package` called with unknown `profile` name | Returns error containing profile name |
-| `Package` called with `exclude` containing unknown dep name | Returns error containing dep name |
-| `Package` called with excluded dep that is a default version | Excluded dep is absent; other versions of same name unaffected |
-| Zip filename — profile set | Contains `-<profile>` segment |
-| Zip filename — exclude only | Contains `-custom` segment |
+| `PackageWithOptions` called with no profile, no exclude, no include | All stack-matching deps bundled (existing behaviour) |
+| `PackageWithOptions` called with `exclude=["dep-a"]` | `dep-a` absent from zip manifest and not downloaded |
+| `PackageWithOptions` called with valid `profile="minimal"` | Profile's exclude list applied correctly |
+| `PackageWithOptions` called with `profile` + extra `exclude` | Union of both exclude lists applied |
+| `PackageWithOptions` called with `profile` + `include` | Named dep restored; rest of profile exclusions still applied |
+| `PackageWithOptions` called with `profile` + `exclude` + `include` | exclude adds, include removes from profile exclusions |
+| `PackageWithOptions` called with `include` but no `profile` | No-op (nothing was excluded); warning emitted |
+| `PackageWithOptions` called with unknown `profile` name | Returns error containing profile name |
+| `PackageWithOptions` called with `exclude` containing unknown dep name | Returns error containing dep name |
+| `PackageWithOptions` called with `include` containing unknown dep name | Returns error containing dep name |
+| `Package` called (legacy signature) | Delegates to `PackageWithOptions` with zero opts; full behaviour unchanged |
+| Zip filename — profile only | Contains `-<profile>` segment, no `+custom` |
+| Zip filename — profile + include or exclude | Contains `-<profile>+custom` segment |
+| Zip filename — exclude only (no profile) | Contains `-custom` segment |
 | Zip filename — neither | Original filename (backward compat) |
 
 New fixture: `packager/fixtures/with_profiles/manifest.yml` — a minimal manifest with a
@@ -782,11 +867,11 @@ existing packager tests already do via `httpmock`).
 2. **Land Phase 3 in `java-buildpack`** once the `libbuildpack` PR is merged and the binary
    installed at `.bin/buildpack-packager` is refreshed in CI.
 
-3. **Communicate to other buildpack teams** that `--profile` and `--exclude` are now available.
+3. **Communicate to other buildpack teams** that `--profile`, `--exclude`, and `--include` are now available.
    Each team can adopt on their own schedule by adding `packaging_profiles` to their manifest.
 
 4. **No operator action required** for existing deployments. Operators who build the buildpack
-   without `--profile` or `--exclude` get identical output to today.
+   without `--profile`, `--exclude`, or `--include` get identical output to today.
 
 ---
 
@@ -794,8 +879,8 @@ existing packager tests already do via `httpmock`).
 
 | # | Question | Options | Decision |
 |---|---|---|---|
-| Q1 | Should `--exclude` on an uncached buildpack be an error or a no-op? | Error (prevents confusing "I excluded it but the dep is still downloaded at runtime" situation) vs no-op (silently harmless) | Recommend: **no-op with a warning** — exclusion is meaningless for uncached builds but not necessarily a mistake |
+| Q1 | Should `--exclude`/`--include` on an uncached buildpack be an error or a no-op? | Error vs no-op with warning | Recommend: **no-op with a warning** — the flags are meaningless for uncached builds but not necessarily a mistake |
 | Q2 | Should profile names be validated for character set? (e.g., no spaces, no slashes) | Yes (reject invalid names) vs no | Recommend: **yes**, restrict to `[a-z0-9_-]+` to keep filenames safe |
 | Q3 | Should excluded dependencies be completely absent from the packaged `manifest.yml`? | Absent (cleaner, smaller manifest) vs present with a flag | Recommend: **absent** — a smaller manifest also means faster version resolution at staging time |
 | Q4 | Should `packaging_profiles` entries be validated at `buildpack-packager summary` time even when not building? | Yes (catches stale exclusion lists) vs no | Recommend: **yes**, warn if a profile excludes a name not in `dependencies` |
-| Q5 | Should we also support `include` lists in profiles (whitelist model)? | Yes (more explicit) vs no (requires updating all profiles when a new dep is added) | Recommend: **no for now** — the exclude model is simpler and handles all known use cases; can be added later |
+| Q5 | Should we also support `include` lists in profiles (whitelist model in manifest.yml)? | Yes (more explicit) vs no (requires updating all profiles when a new dep is added) | Recommend: **no for now** — the CLI `--include` flag covers the override use case without complicating the manifest schema |
