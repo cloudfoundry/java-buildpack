@@ -125,7 +125,7 @@ func (o *OpenJDKJRE) Supply() error {
 
 // Finalize performs final JRE configuration
 func (o *OpenJDKJRE) Finalize() error {
-	o.ctx.Log.BeginStep("Finalizing OpenJDK JRE configuration")
+	o.ctx.Log.Debug("Finalizing OpenJDK JRE configuration")
 
 	// Find the actual JAVA_HOME (needed if finalize is called on a fresh instance)
 	if o.javaHome == "" {
@@ -193,7 +193,7 @@ func (o *OpenJDKJRE) Finalize() error {
 		// Non-fatal
 	}
 
-	o.ctx.Log.Info("OpenJDK JRE finalization complete")
+	o.ctx.Log.Debug("OpenJDK JRE finalization complete")
 	return nil
 }
 

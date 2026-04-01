@@ -59,7 +59,7 @@ func (c *ContrastSecurityAgentFramework) findContrastAgent(frameworkDir string) 
 
 // Supply downloads and installs the Contrast Security agent
 func (c *ContrastSecurityAgentFramework) Supply() error {
-	c.context.Log.Info("Installing Contrast Security Agent")
+	c.context.Log.Debug("Installing Contrast Security Agent")
 
 	dep, err := c.context.Manifest.DefaultVersion("contrast-security")
 	if err != nil {

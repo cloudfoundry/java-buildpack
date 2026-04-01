@@ -42,7 +42,7 @@ func (l *LunaSecurityProviderFramework) Detect() (string, error) {
 
 // Supply installs the Luna security provider tarball and credentials
 func (l *LunaSecurityProviderFramework) Supply() error {
-	l.context.Log.BeginStep("Installing Luna Security Provider")
+	l.context.Log.Debug("Installing Luna Security Provider")
 
 	// Get luna-security-provider dependency from manifest
 	dep, err := l.context.Manifest.DefaultVersion("luna-security-provider")
@@ -83,7 +83,7 @@ func (l *LunaSecurityProviderFramework) Supply() error {
 		return fmt.Errorf("failed to write Luna credentials: %w", err)
 	}
 
-	l.context.Log.Info("Installed Luna Security Provider version %s", dep.Version)
+	l.context.Log.Debug("Installed Luna Security Provider version %s", dep.Version)
 	return nil
 }
 
@@ -109,7 +109,7 @@ func (l *LunaSecurityProviderFramework) installDefaultConfiguration(lunaDir stri
 		return fmt.Errorf("failed to write Chrystoki.conf: %w", err)
 	}
 
-	l.context.Log.Info("Installed default Luna configuration")
+	l.context.Log.Debug("Installed default Luna configuration")
 	l.context.Log.Debug("  - Chrystoki.conf (timeout and connection settings)")
 	return nil
 }

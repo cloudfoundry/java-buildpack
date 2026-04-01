@@ -79,7 +79,7 @@ func (c *ContainerCustomizerFramework) hasSpringBootJars(buildDir string) bool {
 
 // Supply installs the Container Customizer library
 func (c *ContainerCustomizerFramework) Supply() error {
-	c.context.Log.BeginStep("Installing Container Customizer")
+	c.context.Log.Debug("Installing Container Customizer")
 
 	// Get container-customizer dependency from manifest
 	dep, err := c.context.Manifest.DefaultVersion("container-customizer")
@@ -93,7 +93,7 @@ func (c *ContainerCustomizerFramework) Supply() error {
 		return fmt.Errorf("failed to install Container Customizer: %w", err)
 	}
 
-	c.context.Log.Info("Installed Container Customizer version %s", dep.Version)
+	c.context.Log.Debug("Installed Container Customizer version %s", dep.Version)
 	return nil
 }
 

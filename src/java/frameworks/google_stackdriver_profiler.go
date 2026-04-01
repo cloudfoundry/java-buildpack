@@ -70,7 +70,7 @@ func (g *GoogleStackdriverProfilerFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Google Stackdriver Profiler
 func (g *GoogleStackdriverProfilerFramework) Supply() error {
-	g.context.Log.BeginStep("Installing Google Stackdriver Profiler")
+	g.context.Log.Debug("Installing Google Stackdriver Profiler")
 
 	// Get dependency from manifest
 	dep, err := g.context.Manifest.DefaultVersion("google-stackdriver-profiler")

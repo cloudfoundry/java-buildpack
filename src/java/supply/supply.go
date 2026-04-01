@@ -119,14 +119,12 @@ func (s *Supplier) installJRE() (jres.JRE, string, error) {
 		return nil, "", err
 	}
 
-	s.Log.Info("JRE installation complete: %s %s", jreName, jre.Version())
+	s.Log.Debug("JRE installation complete: %s %s", jreName, jre.Version())
 	return jre, jreName, nil
 }
 
 // installFrameworks installs framework components (APM agents, etc.)
 func (s *Supplier) installFrameworks() error {
-	s.Log.BeginStep("Installing frameworks")
-
 	// Create framework context
 	ctx := &common.Context{
 		Stager:    s.Stager,
@@ -152,17 +150,66 @@ func (s *Supplier) installFrameworks() error {
 		return nil
 	}
 
-	s.Log.Info("Detected frameworks: [%v]", strings.Join(frameworkNames, ","))
+	s.Log.BeginStep("Installing frameworks [%v]", strings.Join(frameworkNames, ", "))
 
 	// Install all detected frameworks
 	// Framework installation errors are fatal and will abort the build,
 	// matching the behavior of the Ruby buildpack
 	for i, framework := range detectedFrameworks {
-		s.Log.Info("Installing framework: %s", frameworkNames[i])
+		s.Log.Info("Installing %s%s", frameworkNames[i], s.frameworkVersionSuffix(frameworkNames[i]))
 		if err := framework.Supply(); err != nil {
 			return fmt.Errorf("failed to install framework %s: %w", frameworkNames[i], err)
 		}
 	}
 
 	return nil
+}
+
+func (s *Supplier) frameworkVersionSuffix(frameworkName string) string {
+	dependencyNames := map[string]string{
+		"Client Certificate Mapper":     "client-certificate-mapper",
+		"Container Security Provider":   "container-security-provider",
+		"YourKit Profiler":              "your-kit-profiler",
+		"Java CF Env":                   "java-cfenv",
+		"Spring Auto-reconfiguration":   "spring-auto-reconfiguration",
+		"New Relic Agent":               "new-relic",
+		"AppDynamics Agent":             "app-dynamics",
+		"Azure Application Insights":    "azure-application-insights-agent",
+		"SkyWalking":                    "sky-walking-agent",
+		"OpenTelemetry Javaagent":       "open-telemetry-javaagent",
+		"Splunk OTEL":                   "splunk-otel-java-agent",
+		"JProfiler Profiler":            "jprofiler-profiler",
+		"JaCoCo Agent":                  "jacoco-agent",
+		"Java Memory Assistant":         "java-memory-assistant",
+		"PostgreSQL JDBC":               "postgresql-jdbc",
+		"maria-db-jdbc":                 "mariadb-jdbc",
+		"Metric Writer":                 "metric-writer",
+		"CF Metrics Exporter":           "cf-metrics-exporter",
+		"Luna Security Provider":        "luna-security-provider",
+		"seeker-security-provider":      "seeker-security-provider",
+		"checkmarx-iast-agent":          "checkmarx-iast-agent",
+		"google-stackdriver-profiler":   "google-stackdriver-profiler",
+		"riverbed-appinternals-agent":   "riverbed-appinternals-agent",
+		"elastic-apm-agent":             "elastic-apm-agent",
+		"datadog-javaagent":             "datadog-javaagent",
+		"jrebel":                        "jrebel-agent",
+		"contrast-security":             "contrast-security-agent",
+		"aspectj-weaver":                "aspectj-weaver",
+		"Sealights Agent":               "sealights-java",
+		"introscope-agent":              "introscope-agent",
+		"ProtectApp Security Provider":  "protectapp-security-provider",
+		"Container Customizer":          "container-customizer",
+	}
+
+	dependencyName, ok := dependencyNames[frameworkName]
+	if !ok {
+		return ""
+	}
+
+	dependency, err := s.Manifest.DefaultVersion(dependencyName)
+	if err != nil || strings.TrimSpace(dependency.Version) == "" {
+		return ""
+	}
+
+	return fmt.Sprintf(" (%s)", dependency.Version)
 }

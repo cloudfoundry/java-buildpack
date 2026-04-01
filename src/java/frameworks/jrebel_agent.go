@@ -49,7 +49,7 @@ func (j *JRebelAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the JRebel agent
 func (j *JRebelAgentFramework) Supply() error {
-	j.context.Log.Info("Installing JRebel Agent")
+	j.context.Log.Debug("Installing JRebel Agent")
 
 	dep, err := j.context.Manifest.DefaultVersion("jrebel")
 	if err != nil {

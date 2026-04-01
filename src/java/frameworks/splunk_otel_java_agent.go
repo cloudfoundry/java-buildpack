@@ -76,7 +76,7 @@ func (s *SplunkOtelJavaAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Splunk OTEL Java agent
 func (s *SplunkOtelJavaAgentFramework) Supply() error {
-	s.context.Log.BeginStep("Installing Splunk OTEL Java agent")
+	s.context.Log.Debug("Installing Splunk OTEL Java agent")
 
 	// Get dependency from manifest
 	dep, err := s.context.Manifest.DefaultVersion("splunk-otel-javaagent")

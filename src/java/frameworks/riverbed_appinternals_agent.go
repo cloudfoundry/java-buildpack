@@ -49,7 +49,7 @@ func (r *RiverbedAppInternalsAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Riverbed AppInternals agent
 func (r *RiverbedAppInternalsAgentFramework) Supply() error {
-	r.context.Log.BeginStep("Installing Riverbed AppInternals agent")
+	r.context.Log.Debug("Installing Riverbed AppInternals agent")
 
 	// Get dependency from manifest
 	dep, err := r.context.Manifest.DefaultVersion("riverbed-appinternals-agent")

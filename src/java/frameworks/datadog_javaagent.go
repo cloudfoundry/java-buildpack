@@ -77,7 +77,7 @@ func (d *DatadogJavaagentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Datadog Java agent
 func (d *DatadogJavaagentFramework) Supply() error {
-	d.context.Log.BeginStep("Installing Datadog Java agent")
+	d.context.Log.Debug("Installing Datadog Java agent")
 
 	// Note: Datadog buildpack is optional but recommended for full functionality
 	if d.hasDatadogBuildpack() {

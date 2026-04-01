@@ -59,7 +59,7 @@ func (e *ElasticApmAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Elastic APM agent
 func (e *ElasticApmAgentFramework) Supply() error {
-	e.context.Log.BeginStep("Installing Elastic APM agent")
+	e.context.Log.Debug("Installing Elastic APM agent")
 
 	// Get dependency from manifest
 	dep, err := e.context.Manifest.DefaultVersion("elastic-apm-agent")

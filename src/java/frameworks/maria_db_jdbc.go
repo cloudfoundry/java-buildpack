@@ -53,7 +53,7 @@ func (f *MariaDBJDBCFramework) Detect() (string, error) {
 
 // Supply downloads and installs the MariaDB JDBC driver
 func (f *MariaDBJDBCFramework) Supply() error {
-	f.context.Log.BeginStep("Installing MariaDB JDBC driver")
+	f.context.Log.Debug("Installing MariaDB JDBC driver")
 
 	// Get dependency from manifest
 	dep, err := f.context.Manifest.DefaultVersion("mariadb-jdbc")

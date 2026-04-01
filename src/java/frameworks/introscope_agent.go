@@ -49,7 +49,7 @@ func (i *IntroscopeAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Introscope agent
 func (i *IntroscopeAgentFramework) Supply() error {
-	i.context.Log.BeginStep("Installing Introscope agent")
+	i.context.Log.Debug("Installing Introscope agent")
 
 	// Get dependency from manifest
 	dep, err := i.context.Manifest.DefaultVersion("introscope-agent")

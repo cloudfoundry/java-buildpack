@@ -65,7 +65,7 @@ func (f *JProfilerProfilerFramework) Supply() error {
 	// Install directory
 	installDir := filepath.Join(f.context.Stager.DepDir(), "jprofiler_profiler")
 
-	f.context.Log.BeginStep("Installing JProfiler Profiler %s", dep.Version)
+	f.context.Log.Debug("Installing JProfiler Profiler %s", dep.Version)
 
 	// Download and extract tarball
 	if err := f.context.Installer.InstallDependency(dep, installDir); err != nil {

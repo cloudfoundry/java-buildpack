@@ -39,7 +39,7 @@ func (c *ClientCertificateMapperFramework) Detect() (string, error) {
 
 // Supply installs the client certificate mapper JAR
 func (c *ClientCertificateMapperFramework) Supply() error {
-	c.context.Log.BeginStep("Installing Client Certificate Mapper")
+	c.context.Log.Debug("Installing Client Certificate Mapper")
 
 	// Get client-certificate-mapper dependency from manifest
 	dep, err := c.context.Manifest.DefaultVersion("client-certificate-mapper")
@@ -53,7 +53,7 @@ func (c *ClientCertificateMapperFramework) Supply() error {
 		return fmt.Errorf("failed to install Client Certificate Mapper: %w", err)
 	}
 
-	c.context.Log.Info("Installed Client Certificate Mapper version %s", dep.Version)
+	c.context.Log.Debug("Installed Client Certificate Mapper version %s", dep.Version)
 	return nil
 }
 

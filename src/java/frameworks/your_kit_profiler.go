@@ -64,7 +64,7 @@ func (f *YourKitProfilerFramework) Supply() error {
 	// Install directory
 	installDir := filepath.Join(f.context.Stager.DepDir(), "your_kit_profiler")
 
-	f.context.Log.BeginStep("Installing YourKit Profiler %s", dep.Version)
+	f.context.Log.Debug("Installing YourKit Profiler %s", dep.Version)
 
 	// Download and extract native library
 	if err := f.context.Installer.InstallDependency(dep, installDir); err != nil {
