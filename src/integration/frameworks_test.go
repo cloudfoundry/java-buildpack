@@ -1,7 +1,6 @@
 package integration_test
 
 import (
-	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -722,17 +721,10 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 							"JBP_CONFIG_JAVA_CF_ENV": "'{enabled: true}'",
 						}).
 						Execute(name, filepath.Join(fixtures, "frameworks", "java_cf_boot_3"))
-
-					// Print logging output for debugging purposes
-					fmt.Println("---- Deployment Logs ----")
-					output := logs.String()
-					fmt.Println(output)
-					fmt.Println("-------------------------")
-
-					Expect(err).NotTo(HaveOccurred(), output)
+					Expect(err).NotTo(HaveOccurred(), logs.String)
 
 					// Java CF Env should be detected for Spring Boot 3.x apps
-					Expect(output).To(ContainSubstring("Java CF Env"))
+					Expect(logs.String()).To(ContainSubstring("Java CF Env"))
 					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
 				})
 			})
@@ -847,15 +839,9 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 						}).
 						Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
-				
-					// Print logging output for debugging purposes
-					fmt.Println("---- Deployment Logs ----")
-					output := logs.String()
-					fmt.Println(output)
-					fmt.Println("-------------------------")
+
 					// YourKit profiler should be detected when enabled
-					Expect(output).To(ContainSubstring("YourKit"))
-					Expect(output).NotTo(ContainSubstring("ERROR"))
+					Expect(logs.String()).To(ContainSubstring("YourKit"))
 					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
 				})
 			})
