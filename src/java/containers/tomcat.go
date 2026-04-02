@@ -120,7 +120,7 @@ func (t *TomcatContainer) Supply() error {
 		return fmt.Errorf("failed to install Tomcat: %w", err)
 	}
 
-	t.context.Log.Info("Installed Tomcat version %s", dep.Version)
+	t.context.Log.Info("Installed Tomcat (%s)", dep.Version)
 
 	// Get buildpack index for multi-buildpack support
 	depsIdx := t.context.Stager.DepsIdx()
