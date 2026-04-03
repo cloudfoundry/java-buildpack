@@ -230,6 +230,7 @@ func (j *JavaMainContainer) buildClasspath() (string, error) {
 
 // Release returns the Java Main startup command
 func (j *JavaMainContainer) Release() (string, error) {
+	j.context.Log.Error("Main Class %s found: ", j.mainClass)
 	mainClass, jarFile := j.findMainClass(j.context.Stager.BuildDir())
 	if mainClass != "" {
 		j.jarFile = jarFile
@@ -249,7 +250,7 @@ func (j *JavaMainContainer) Release() (string, error) {
 		if mainClass == "" {
 			return "", fmt.Errorf("no main class specified (set JAVA_MAIN_CLASS)")
 		}
-		j.context.Log.Error("Main Class %s found in JAVA_MAIN_CLASS", mainClass)
+		j.context.Log.Debug("Main Class %s found in JAVA_MAIN_CLASS", mainClass)
 	}
 
 	// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
