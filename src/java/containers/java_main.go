@@ -178,9 +178,10 @@ func (j *JavaMainContainer) Finalize() error {
 		return fmt.Errorf("failed to build classpath: %w", err)
 	}
 
-	// Write CLASSPATH environment variable
-	if err := j.context.Stager.WriteEnvFile("CLASSPATH", classpath); err != nil {
-		return fmt.Errorf("failed to write CLASSPATH: %w", err)
+	profileScript := fmt.Sprintf("export CLASSPATH=\"%s${CLASSPATH:+:$CLASSPATH}\"\n", classpath)
+
+	if err := j.context.Stager.WriteProfileD("zz_java_main.sh", profileScript); err != nil {
+		return fmt.Errorf("failed to write zz_java_main.sh profile.d script: %w", err)
 	}
 
 	// Note: JAVA_OPTS (including JVMKill agent) is configured by the JRE component
@@ -244,10 +245,6 @@ func (j *JavaMainContainer) Release() (string, error) {
 		}
 	}
 
-	classpath, err := j.buildClasspath()
-	if err != nil {
-		return "", fmt.Errorf("failed to build classpath: %w", err)
-	}
 	// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-	return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp %s %s", classpath, mainClass), nil
+	return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp ${CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s", mainClass), nil
 }
