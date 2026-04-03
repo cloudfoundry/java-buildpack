@@ -203,16 +203,16 @@ func (j *JavaMainContainer) buildClasspath() (string, error) {
 	// Even if it's not a Spring Boot app, we need to include these paths
 	bootInfClasses := filepath.Join(buildDir, "BOOT-INF", "classes")
 	if _, err := os.Stat(bootInfClasses); err == nil {
-		classpathEntries = append(classpathEntries, "BOOT-INF/classes")
+		classpathEntries = append(classpathEntries, "$HOME/app/BOOT-INF/classes")
 	}
 
 	bootInfLib := filepath.Join(buildDir, "BOOT-INF", "lib")
 	if _, err := os.Stat(bootInfLib); err == nil {
-		classpathEntries = append(classpathEntries, "BOOT-INF/lib/*")
+		classpathEntries = append(classpathEntries, "$HOME/app/BOOT-INF/lib/*")
 	}
 
 	// Add all JARs in the build directory
-	jarFiles, err := filepath.Glob(filepath.Join(buildDir, "*.jar"))
+	jarFiles, err := filepath.Glob(filepath.Join(buildDir, "$HOME/app/*.jar"))
 	if err == nil {
 		for _, jar := range jarFiles {
 			classpathEntries = append(classpathEntries, filepath.Base(jar))
@@ -222,7 +222,7 @@ func (j *JavaMainContainer) buildClasspath() (string, error) {
 	// Add lib directory if it exists
 	libDir := filepath.Join(buildDir, "lib")
 	if _, err := os.Stat(libDir); err == nil {
-		classpathEntries = append(classpathEntries, "lib/*")
+		classpathEntries = append(classpathEntries, "$HOME/app/lib/*")
 	}
 
 	return strings.Join(classpathEntries, ":"), nil
