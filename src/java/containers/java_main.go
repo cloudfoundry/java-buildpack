@@ -178,7 +178,8 @@ func (j *JavaMainContainer) Finalize() error {
 		return fmt.Errorf("failed to build classpath: %w", err)
 	}
 
-	profileScript := fmt.Sprintf("export CLASSPATH=\"%s${CLASSPATH:+:$CLASSPATH}\"\n", classpath)
+	profileScript := fmt.Sprintf("export CLASSPATH=\"$HOME/app/%s${CLASSPATH:+:$CLASSPATH}\"\n",
+		strings.ReplaceAll(classpath, ":", ":$HOME/app/"))
 
 	if err := j.context.Stager.WriteProfileD("java_main.sh", profileScript); err != nil {
 		return fmt.Errorf("failed to write java_main.sh profile.d script: %w", err)
