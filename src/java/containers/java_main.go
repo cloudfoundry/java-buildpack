@@ -180,8 +180,8 @@ func (j *JavaMainContainer) Finalize() error {
 
 	profileScript := fmt.Sprintf("export CLASSPATH=\"%s${CLASSPATH:+:$CLASSPATH}\"\n", classpath)
 
-	if err := j.context.Stager.WriteProfileD("zz_java_main.sh", profileScript); err != nil {
-		return fmt.Errorf("failed to write zz_java_main.sh profile.d script: %w", err)
+	if err := j.context.Stager.WriteProfileD("java_main.sh", profileScript); err != nil {
+		return fmt.Errorf("failed to write java_main.sh profile.d script: %w", err)
 	}
 
 	// Note: JAVA_OPTS (including JVMKill agent) is configured by the JRE component
