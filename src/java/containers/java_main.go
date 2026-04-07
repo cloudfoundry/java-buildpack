@@ -1,11 +1,14 @@
 package containers
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
+	"archive/zip"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 )
 
 // JavaMainContainer handles standalone JAR applications with a main class
@@ -56,7 +59,9 @@ func (j *JavaMainContainer) Detect() (string, error) {
 	return "", nil
 }
 
-// findMainClass searches for a JAR with a Main-Class manifest entry
+// findMainClass searches for a JAR in buildDir whose META-INF/MANIFEST.MF
+// contains a Main-Class entry. Returns the main class name and the path to
+// the JAR (relative to $HOME) if found, or empty strings if none qualify.
 func (j *JavaMainContainer) findMainClass(buildDir string) (string, string) {
 	entries, err := os.ReadDir(buildDir)
 	if err != nil {
@@ -69,14 +74,48 @@ func (j *JavaMainContainer) findMainClass(buildDir string) (string, string) {
 		}
 
 		name := entry.Name()
-		if strings.HasSuffix(name, ".jar") {
-			// TODO: In full implementation, extract and read MANIFEST.MF
-			// For now, assume any JAR could be a main JAR
-			return "Main", filepath.Join("$HOME", name)
+		if !strings.HasSuffix(name, ".jar") {
+			continue
+		}
+
+		jarPath := filepath.Join(buildDir, name)
+		if mainClass := readMainClassFromJar(jarPath); mainClass != "" {
+			return mainClass, filepath.Join("$HOME", name)
 		}
 	}
 
 	return "", ""
+}
+
+// readMainClassFromJar opens a JAR (zip) file and reads the Main-Class
+// attribute from META-INF/MANIFEST.MF, returning "" if not present or on error.
+func readMainClassFromJar(jarPath string) string {
+	r, err := zip.OpenReader(jarPath)
+	if err != nil {
+		return ""
+	}
+	defer r.Close()
+
+	for _, f := range r.File {
+		if f.Name != "META-INF/MANIFEST.MF" {
+			continue
+		}
+
+		rc, err := f.Open()
+		if err != nil {
+			return ""
+		}
+
+		data, err := io.ReadAll(rc)
+		rc.Close()
+		if err != nil {
+			return ""
+		}
+
+		return parseMainClass(string(data))
+	}
+
+	return ""
 }
 
 // readMainClassFromManifest reads the Main-Class from a manifest file
@@ -86,13 +125,28 @@ func (j *JavaMainContainer) readMainClassFromManifest(manifestPath string) strin
 		return ""
 	}
 
-	// Parse MANIFEST.MF file (simple line-by-line parsing)
-	lines := strings.Split(string(data), "\n")
-	for _, line := range lines {
+	return parseMainClass(string(data))
+}
+
+// parseMainClass extracts the Main-Class value from MANIFEST.MF content.
+// Handles line continuations (lines starting with a space are folded onto the previous line).
+func parseMainClass(content string) string {
+	// Unfold continuation lines (space at start of line means continuation)
+	content = strings.ReplaceAll(content, "\r\n", "\n")
+	var unfolded strings.Builder
+	for _, line := range strings.Split(content, "\n") {
+		if strings.HasPrefix(line, " ") {
+			unfolded.WriteString(strings.TrimPrefix(line, " "))
+		} else {
+			unfolded.WriteString("\n")
+			unfolded.WriteString(line)
+		}
+	}
+
+	for _, line := range strings.Split(unfolded.String(), "\n") {
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "Main-Class:") {
-			mainClass := strings.TrimSpace(strings.TrimPrefix(line, "Main-Class:"))
-			return mainClass
+			return strings.TrimSpace(strings.TrimPrefix(line, "Main-Class:"))
 		}
 	}
 
@@ -124,9 +178,10 @@ func (j *JavaMainContainer) Finalize() error {
 		return fmt.Errorf("failed to build classpath: %w", err)
 	}
 
-	// Write CLASSPATH environment variable
-	if err := j.context.Stager.WriteEnvFile("CLASSPATH", classpath); err != nil {
-		return fmt.Errorf("failed to write CLASSPATH: %w", err)
+	profileScript := fmt.Sprintf("export CLASSPATH=\"%s${CLASSPATH:+:$CLASSPATH}\"\n", classpath)
+
+	if err := j.context.Stager.WriteProfileD("java_main.sh", profileScript); err != nil {
+		return fmt.Errorf("failed to write java_main.sh profile.d script: %w", err)
 	}
 
 	// Note: JAVA_OPTS (including JVMKill agent) is configured by the JRE component
@@ -148,16 +203,16 @@ func (j *JavaMainContainer) buildClasspath() (string, error) {
 	// Even if it's not a Spring Boot app, we need to include these paths
 	bootInfClasses := filepath.Join(buildDir, "BOOT-INF", "classes")
 	if _, err := os.Stat(bootInfClasses); err == nil {
-		classpathEntries = append(classpathEntries, "BOOT-INF/classes")
+		classpathEntries = append(classpathEntries, "$HOME/BOOT-INF/classes")
 	}
 
 	bootInfLib := filepath.Join(buildDir, "BOOT-INF", "lib")
 	if _, err := os.Stat(bootInfLib); err == nil {
-		classpathEntries = append(classpathEntries, "BOOT-INF/lib/*")
+		classpathEntries = append(classpathEntries, "$HOME/BOOT-INF/lib/*")
 	}
 
 	// Add all JARs in the build directory
-	jarFiles, err := filepath.Glob(filepath.Join(buildDir, "*.jar"))
+	jarFiles, err := filepath.Glob(filepath.Join(buildDir, "$HOME/*.jar"))
 	if err == nil {
 		for _, jar := range jarFiles {
 			classpathEntries = append(classpathEntries, filepath.Base(jar))
@@ -167,7 +222,7 @@ func (j *JavaMainContainer) buildClasspath() (string, error) {
 	// Add lib directory if it exists
 	libDir := filepath.Join(buildDir, "lib")
 	if _, err := os.Stat(libDir); err == nil {
-		classpathEntries = append(classpathEntries, "lib/*")
+		classpathEntries = append(classpathEntries, "$HOME/lib/*")
 	}
 
 	return strings.Join(classpathEntries, ":"), nil
@@ -175,31 +230,22 @@ func (j *JavaMainContainer) buildClasspath() (string, error) {
 
 // Release returns the Java Main startup command
 func (j *JavaMainContainer) Release() (string, error) {
-	// Determine the main class to run
+	if j.jarFile != "" {
+		// JAR has its own Main-Class in the manifest — java -jar handles it
+		// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
+		return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -jar %s", j.jarFile), nil
+	}
+
+	// Classpath mode: need an explicit main class
 	mainClass := j.mainClass
 	if mainClass == "" {
-		// Try to detect from environment or configuration
 		mainClass = os.Getenv("JAVA_MAIN_CLASS")
 		if mainClass == "" {
 			return "", fmt.Errorf("no main class specified (set JAVA_MAIN_CLASS)")
 		}
+		j.context.Log.Debug("Main Class %s found in JAVA_MAIN_CLASS", mainClass)
 	}
 
-	var cmd string
-	if j.jarFile != "" {
-		// Run from JAR
-		// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-		cmd = fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -jar %s", j.jarFile)
-	} else {
-		// Build classpath and embed it directly in the command
-		// (Don't rely on $CLASSPATH environment variable)
-		classpath, err := j.buildClasspath()
-		if err != nil {
-			return "", fmt.Errorf("failed to build classpath: %w", err)
-		}
-		// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-		cmd = fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp %s %s", classpath, mainClass)
-	}
-
-	return cmd, nil
+	// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
+	return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp ${CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s", mainClass), nil
 }

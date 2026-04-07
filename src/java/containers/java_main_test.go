@@ -1,6 +1,8 @@
 package containers_test
 
 import (
+	"archive/zip"
+	"bytes"
 	"os"
 	"path/filepath"
 
@@ -10,6 +12,23 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
+
+// createJar writes a JAR file at jarPath containing META-INF/MANIFEST.MF with the given content.
+func createJar(jarPath, manifestContent string) error {
+	buf := new(bytes.Buffer)
+	w := zip.NewWriter(buf)
+	f, err := w.Create("META-INF/MANIFEST.MF")
+	if err != nil {
+		return err
+	}
+	if _, err := f.Write([]byte(manifestContent)); err != nil {
+		return err
+	}
+	if err := w.Close(); err != nil {
+		return err
+	}
+	return os.WriteFile(jarPath, buf.Bytes(), 0644)
+}
 
 var _ = Describe("Java Main Container", func() {
 	var (
@@ -58,15 +77,33 @@ var _ = Describe("Java Main Container", func() {
 	})
 
 	Describe("Detect", func() {
-		Context("with JAR file", func() {
+		Context("with JAR file containing Main-Class manifest", func() {
 			BeforeEach(func() {
-				os.WriteFile(filepath.Join(buildDir, "app.jar"), []byte{}, 0644)
+				Expect(createJar(
+					filepath.Join(buildDir, "app.jar"),
+					"Manifest-Version: 1.0\nMain-Class: com.example.Main\n",
+				)).To(Succeed())
 			})
 
 			It("detects as Java Main", func() {
 				name, err := container.Detect()
 				Expect(err).NotTo(HaveOccurred())
 				Expect(name).To(Equal("Java Main"))
+			})
+		})
+
+		Context("with JAR file without Main-Class manifest", func() {
+			BeforeEach(func() {
+				Expect(createJar(
+					filepath.Join(buildDir, "lib.jar"),
+					"Manifest-Version: 1.0\nCreated-By: test\n",
+				)).To(Succeed())
+			})
+
+			It("does not detect via JAR alone", func() {
+				name, err := container.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(BeEmpty())
 			})
 		})
 
@@ -119,11 +156,10 @@ var _ = Describe("Java Main Container", func() {
 	Describe("Release", func() {
 		Context("with JAR file", func() {
 			BeforeEach(func() {
-				metaInfDir := filepath.Join(buildDir, "META-INF")
-				os.MkdirAll(metaInfDir, 0755)
-				manifest := "Manifest-Version: 1.0\nMain-Class: com.example.Main\n"
-				os.WriteFile(filepath.Join(metaInfDir, "MANIFEST.MF"), []byte(manifest), 0644)
-				os.WriteFile(filepath.Join(buildDir, "app.jar"), []byte("fake"), 0644)
+				Expect(createJar(
+					filepath.Join(buildDir, "app.jar"),
+					"Manifest-Version: 1.0\nMain-Class: com.example.Main\n",
+				)).To(Succeed())
 				container.Detect()
 			})
 
@@ -133,6 +169,12 @@ var _ = Describe("Java Main Container", func() {
 				Expect(cmd).To(ContainSubstring("java"))
 				Expect(cmd).To(ContainSubstring("-jar"))
 				Expect(cmd).To(ContainSubstring("app.jar"))
+			})
+
+			It("does not require JAVA_MAIN_CLASS", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(cmd).NotTo(ContainSubstring("JAVA_MAIN_CLASS"))
 			})
 		})
 
