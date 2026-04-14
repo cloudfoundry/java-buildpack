@@ -43,7 +43,8 @@ func (i Initialize) Run(buildpacks []Buildpack) error {
 		if err == nil {
 			var payload struct {
 				Resources []struct {
-					Position int `json:"position"`
+					Position int    `json:"position"`
+					Stack    string `json:"stack"`
 				} `json:"resources"`
 			}
 			err = json.NewDecoder(buffer).Decode(&payload)
@@ -55,13 +56,20 @@ func (i Initialize) Run(buildpacks []Buildpack) error {
 				position = strconv.Itoa(payload.Resources[0].Position)
 			}
 
-			err = i.cli.Execute(pexec.Execution{
-				Args:   []string{"delete-buildpack", "-f", buildpack.Name},
-				Stdout: logs,
-				Stderr: logs,
-			})
-			if err != nil {
-				return fmt.Errorf("failed to delete buildpack: %s\n\nOutput:\n%s", err, logs)
+			for _, resource := range payload.Resources {
+				args := []string{"delete-buildpack", "-f", buildpack.Name}
+				if resource.Stack != "" {
+					args = append(args, "-s", resource.Stack)
+				}
+
+				err = i.cli.Execute(pexec.Execution{
+					Args:   args,
+					Stdout: logs,
+					Stderr: logs,
+				})
+				if err != nil {
+					return fmt.Errorf("failed to delete buildpack: %s\n\nOutput:\n%s", err, logs)
+				}
 			}
 		}
 
