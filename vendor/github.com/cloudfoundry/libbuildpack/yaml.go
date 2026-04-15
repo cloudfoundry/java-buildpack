@@ -2,7 +2,7 @@ package libbuildpack
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -15,7 +15,7 @@ func NewYAML() *YAML {
 }
 
 func (y *YAML) Load(file string, obj interface{}) error {
-	data, err := ioutil.ReadFile(file)
+	data, err := os.ReadFile(file)
 	if err != nil {
 		return err
 	}
