@@ -44,6 +44,39 @@ The "Offline Mode" buildpack is a self-contained packaging of either the "Easy M
 
 You can download specific versions of the "Offline Mode" buildpack to use with the `create-buildpack` and `update-buildpack` Cloud Foundry CLI commands.  To find these, navigate to the [Java Buildpack Releases page][v] and download one of the `java-buildpack-offline-v<VERSION>.zip` file.   In order to package a modified "Offline Mode" buildpack, refer to [Building Packages][p].  To add the buildpack to an instance of Cloud Foundry, use the `cf create-buildpack java-buildpack java-buildpack-offline-v<VERSION>.zip` command.  For more details refer to the [Cloud Foundry buildpack documentation][b].
 
+### Selective Offline Packaging
+
+The full offline package bundles every dependency in `manifest.yml` (~47 binaries, 1.0-1.2 GB). For
+air-gapped environments that only need a subset, you can build a smaller offline package using
+**packaging profiles** or explicit exclusions.
+
+**Using a profile** (defined in `manifest.yml`'s `packaging_profiles` section):
+
+```bash
+# Minimal: JDKs, CF utilities, Tomcat, and common frameworks only (~28 deps)
+$ ./scripts/package.sh --cached --profile minimal
+
+# Standard: core + open-source APM, OTel, and JDBC drivers (~32 deps)
+$ ./scripts/package.sh --cached --profile standard
+```
+
+**Ad-hoc exclusions** without a profile:
+
+```bash
+# Remove specific agents you don't have licences for
+$ ./scripts/package.sh --cached --exclude jrebel,your-kit-profiler,jprofiler-profiler
+```
+
+**Overriding a profile** to restore a specific dependency:
+
+```bash
+# Start from minimal but include jprofiler for triage builds
+$ ./scripts/package.sh --cached --profile minimal --include jprofiler-profiler
+```
+
+For full details on profiles, validation rules, and output filename conventions, see
+[Selective Dependency Packaging](selective-dependency-packaging.md).
+
 
 [b]: http://docs.pivotal.io/pivotalcf/adminguide/buildpacks.html
 [c]: ../README.md#configuration-and-extension

@@ -14,10 +14,13 @@ source "${ROOTDIR}/scripts/.util/tools.sh"
 source "${ROOTDIR}/scripts/.util/print.sh"
 
 function main() {
-  local stack version cached output
+  local stack version cached output profile exclude include
   stack="cflinuxfs4"
   cached="false"
   output="${ROOTDIR}/build/buildpack.zip"
+  profile=""
+  exclude=""
+  include=""
 
   while [[ "${#}" != 0 ]]; do
     case "${1}" in
@@ -38,6 +41,21 @@ function main() {
 
       --output)
         output="${2}"
+        shift 2
+        ;;
+
+      --profile)
+        profile="${2}"
+        shift 2
+        ;;
+
+      --exclude)
+        exclude="${2}"
+        shift 2
+        ;;
+
+      --include)
+        include="${2}"
         shift 2
         ;;
 
@@ -62,7 +80,7 @@ function main() {
     echo "No version specified, using VERSION file: ${version}"
   fi
 
-  package::buildpack "${version}" "${cached}" "${stack}" "${output}"
+  package::buildpack "${version}" "${cached}" "${stack}" "${output}" "${profile}" "${exclude}" "${include}"
 }
 
 
@@ -76,15 +94,21 @@ OPTIONS
   --cached                           cache the buildpack dependencies (default: false)
   --stack  <stack>                   specifies the stack (default: cflinuxfs4)
   --output <file>                    output file path (default: build/buildpack.zip)
+  --profile <name>                   packaging profile from manifest.yml (e.g. minimal, standard)
+  --exclude <dep1,dep2,...>          comma-separated dependency names to exclude (cached only)
+  --include <dep1,dep2,...>          comma-separated dependency names to restore, overriding profile exclusions (cached only)
 USAGE
 }
 
 function package::buildpack() {
-  local version cached stack output
+  local version cached stack output profile exclude include
   version="${1}"
   cached="${2}"
   stack="${3}"
   output="${4}"
+  profile="${5:-}"
+  exclude="${6:-}"
+  include="${7:-}"
 
   mkdir -p "$(dirname "${output}")"
 
@@ -98,12 +122,20 @@ function package::buildpack() {
     stack_flag="--stack=${stack}"
   fi
 
+  local profile_flag="" exclude_flag="" include_flag=""
+  [[ -n "${profile}" ]] && profile_flag="--profile=${profile}"
+  [[ -n "${exclude}" ]] && exclude_flag="--exclude=${exclude}"
+  [[ -n "${include}" ]] && include_flag="--include=${include}"
+
   local file
   file="$(
     "${ROOTDIR}/.bin/buildpack-packager" build \
       "--version=${version}" \
       "--cached=${cached}" \
       "${stack_flag}" \
+      ${profile_flag:+"${profile_flag}"} \
+      ${exclude_flag:+"${exclude_flag}"} \
+      ${include_flag:+"${include_flag}"} \
     | xargs -n1 | grep -e '\.zip$'
   )"
 
