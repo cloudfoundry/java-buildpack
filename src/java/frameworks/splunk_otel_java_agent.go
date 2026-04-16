@@ -129,7 +129,7 @@ func (s *SplunkOtelJavaAgentFramework) Finalize() error {
 	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
 
 	// Configure service name
-	if appName := s.getApplicationName(); appName != "" {
+	if appName := GetApplicationName(false); appName != "" {
 		opts = append(opts, fmt.Sprintf("-Dotel.service.name=%s", appName))
 	}
 
@@ -232,25 +232,6 @@ func (s *SplunkOtelJavaAgentFramework) getCredentials() SplunkCredentials {
 	}
 
 	return creds
-}
-
-// getApplicationName returns the application name
-func (s *SplunkOtelJavaAgentFramework) getApplicationName() string {
-	vcapApp := os.Getenv("VCAP_APPLICATION")
-	if vcapApp == "" {
-		return ""
-	}
-
-	var appData map[string]interface{}
-	if err := json.Unmarshal([]byte(vcapApp), &appData); err != nil {
-		return ""
-	}
-
-	if name, ok := appData["application_name"].(string); ok {
-		return name
-	}
-
-	return ""
 }
 
 func (s *SplunkOtelJavaAgentFramework) constructJarPath(agentDir string) error {
