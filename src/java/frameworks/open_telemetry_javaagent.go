@@ -111,8 +111,9 @@ func (o *OpenTelemetryJavaagentFramework) Finalize() error {
 		// Set otel.service.name to the application name if not specified in credentials
 		if _, hasServiceName := service.Credentials["otel.service.name"]; !hasServiceName {
 			// Use the build directory name as the application name
-			appName := filepath.Base(o.context.Stager.BuildDir())
-			javaOpts += fmt.Sprintf(" -Dotel.service.name=%s", appName)
+			if appName := GetApplicationName(false); appName != "" {
+				javaOpts += fmt.Sprintf(" -Dotel.service.name=%s", appName)
+			}
 		}
 	}
 
