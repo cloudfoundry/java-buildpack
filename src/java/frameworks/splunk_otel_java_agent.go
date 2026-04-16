@@ -16,7 +16,6 @@
 package frameworks
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
@@ -179,56 +178,52 @@ func (s *SplunkOtelJavaAgentFramework) getCredentials() SplunkCredentials {
 	}
 
 	// Check service binding
-	vcapServices := os.Getenv("VCAP_SERVICES")
-	if vcapServices == "" {
+	vcapServices, err := GetVCAPServices()
+	if err != nil {
 		return creds
 	}
 
-	var services map[string][]map[string]interface{}
-	if err := json.Unmarshal([]byte(vcapServices), &services); err != nil {
-		return creds
-	}
-
-	// Look for splunk service
-	serviceNames := []string{
-		"splunk",
-		"splunk-otel",
-		"user-provided",
-	}
-
-	for _, serviceName := range serviceNames {
-		if serviceList, ok := services[serviceName]; ok {
-			for _, service := range serviceList {
-				if credentials, ok := service["credentials"].(map[string]interface{}); ok {
-					// Get OTLP endpoint
-					if endpoint, ok := credentials["otlp_endpoint"].(string); ok {
-						creds.OTLPEndpoint = endpoint
-					} else if endpoint, ok := credentials["otlpEndpoint"].(string); ok {
-						creds.OTLPEndpoint = endpoint
-					} else if endpoint, ok := credentials["endpoint"].(string); ok {
-						creds.OTLPEndpoint = endpoint
-					}
-
-					// Get access token
-					if token, ok := credentials["access_token"].(string); ok {
-						creds.AccessToken = token
-					} else if token, ok := credentials["accessToken"].(string); ok {
-						creds.AccessToken = token
-					} else if token, ok := credentials["token"].(string); ok {
-						creds.AccessToken = token
-					}
-
-					// Get realm
-					if realm, ok := credentials["realm"].(string); ok {
-						creds.Realm = realm
-					}
-
-					if creds.OTLPEndpoint != "" {
-						return creds
-					}
-				}
-			}
+	// Find the first matching Splunk service, preferring explicit labels over name pattern matches
+	var service *common.VCAPService
+	for _, label := range []string{"splunk", "splunk-otel"} {
+		if vcapServices.HasService(label) {
+			service = vcapServices.GetService(label)
+			break
 		}
+	}
+	if service == nil {
+		service = vcapServices.GetServiceByNamePattern("splunk")
+	}
+	if service == nil {
+		service = vcapServices.GetServiceByNamePattern("otel")
+	}
+	if service == nil {
+		return creds
+	}
+
+	credentials := service.Credentials
+
+	// Get OTLP endpoint
+	if endpoint, ok := credentials["otlp_endpoint"].(string); ok {
+		creds.OTLPEndpoint = endpoint
+	} else if endpoint, ok := credentials["otlpEndpoint"].(string); ok {
+		creds.OTLPEndpoint = endpoint
+	} else if endpoint, ok := credentials["endpoint"].(string); ok {
+		creds.OTLPEndpoint = endpoint
+	}
+
+	// Get access token
+	if token, ok := credentials["access_token"].(string); ok {
+		creds.AccessToken = token
+	} else if token, ok := credentials["accessToken"].(string); ok {
+		creds.AccessToken = token
+	} else if token, ok := credentials["token"].(string); ok {
+		creds.AccessToken = token
+	}
+
+	// Get realm
+	if realm, ok := credentials["realm"].(string); ok {
+		creds.Realm = realm
 	}
 
 	return creds
