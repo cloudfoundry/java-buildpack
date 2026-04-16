@@ -85,11 +85,8 @@ func (o *OpenTelemetryJavaagentFramework) Finalize() error {
 	vcapServices, _ := GetVCAPServices()
 
 	// Try to find service by various patterns
-	var service *VCAPService
-	if vcapServices.HasService("otel-collector") {
-		service = vcapServices.GetService("otel-collector")
-	}
-	if service == nil && vcapServices.HasService("opentelemetry") {
+	service := vcapServices.GetService("otel-collector")
+	if service == nil {
 		service = vcapServices.GetService("opentelemetry")
 	}
 	if service == nil {

@@ -62,9 +62,8 @@ func (s *SplunkOtelJavaAgentFramework) Detect() (string, error) {
 	if vcapServices.HasService("splunk") ||
 		vcapServices.HasService("splunk-otel") ||
 		vcapServices.HasTag("splunk") ||
-		vcapServices.HasTag("otel") ||
 		vcapServices.HasServiceByNamePattern("splunk") ||
-		vcapServices.HasServiceByNamePattern("otel") {
+		vcapServices.HasServiceByNamePattern("splunk-o11y") {
 		s.context.Log.Info("Splunk OTEL service detected!")
 		return "Splunk OTEL", nil
 	}
@@ -185,7 +184,7 @@ func (s *SplunkOtelJavaAgentFramework) getCredentials() SplunkCredentials {
 
 	// Find the first matching Splunk service, preferring explicit labels over name pattern matches
 	var service *common.VCAPService
-	for _, label := range []string{"splunk", "splunk-otel"} {
+	for _, label := range []string{"splunk", "splunk-otel", "splunk-o11y"} {
 		if vcapServices.HasService(label) {
 			service = vcapServices.GetService(label)
 			break
@@ -195,7 +194,10 @@ func (s *SplunkOtelJavaAgentFramework) getCredentials() SplunkCredentials {
 		service = vcapServices.GetServiceByNamePattern("splunk")
 	}
 	if service == nil {
-		service = vcapServices.GetServiceByNamePattern("otel")
+		service = vcapServices.GetServiceByNamePattern("splunk-otel")
+	}
+	if service == nil {
+		service = vcapServices.GetServiceByNamePattern("splunk-o11y")
 	}
 	if service == nil {
 		return creds
