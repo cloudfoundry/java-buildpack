@@ -52,7 +52,7 @@ func (s *SpringAutoReconfigurationFramework) Supply() error {
 		s.context.Log.Debug("java-cfenv present, skipping Spring Auto-reconfiguration installation")
 		return nil
 	}
-	s.context.Log.BeginStep("Installing Spring Auto-reconfiguration")
+	s.context.Log.Debug("Installing Spring Auto-reconfiguration")
 
 	// Log deprecation warnings
 	if s.hasSpringCloudConnectors() {
@@ -85,7 +85,7 @@ func (s *SpringAutoReconfigurationFramework) Supply() error {
 	s.context.Log.Warning("For migration instructions, see https://via.vmw.com/EiBW. Once you migrate to java-cfenv, " +
 		"these warnings will disappear.")
 
-	s.context.Log.Info("Installed Spring Auto-reconfiguration version %s", dep.Version)
+	s.context.Log.Debug("Installed Spring Auto-reconfiguration version %s", dep.Version)
 	return nil
 }
 
@@ -204,4 +204,8 @@ func (s *SpringAutoReconfigurationFramework) hasSpringCloudConnectors() bool {
 	}
 
 	return false
+}
+
+func (s *SpringAutoReconfigurationFramework) DependencyIdentifier() string {
+	return "auto-reconfiguration"
 }

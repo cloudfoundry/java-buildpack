@@ -77,7 +77,7 @@ func (d *DatadogJavaagentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Datadog Java agent
 func (d *DatadogJavaagentFramework) Supply() error {
-	d.context.Log.BeginStep("Installing Datadog Java agent")
+	d.context.Log.Debug("Installing Datadog Java agent")
 
 	// Note: Datadog buildpack is optional but recommended for full functionality
 	if d.hasDatadogBuildpack() {
@@ -152,7 +152,7 @@ func (d *DatadogJavaagentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Datadog: %w", err)
 	}
 
-	d.context.Log.Info("Datadog Java agent configured")
+	d.context.Log.Debug("Datadog Java agent configured")
 	return nil
 }
 
@@ -321,4 +321,8 @@ func (d *DatadogJavaagentFramework) constructJarPathAndFixClassCount(datadogDir 
 		// Continue anyway
 	}
 	return nil
+}
+
+func (d *DatadogJavaagentFramework) DependencyIdentifier() string {
+	return "datadog-javaagent"
 }

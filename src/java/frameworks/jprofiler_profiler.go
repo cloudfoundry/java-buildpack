@@ -65,7 +65,7 @@ func (f *JProfilerProfilerFramework) Supply() error {
 	// Install directory
 	installDir := filepath.Join(f.context.Stager.DepDir(), "jprofiler_profiler")
 
-	f.context.Log.BeginStep("Installing JProfiler Profiler %s", dep.Version)
+	f.context.Log.Debug("Installing JProfiler Profiler %s", dep.Version)
 
 	// Download and extract tarball
 	if err := f.context.Installer.InstallDependency(dep, installDir); err != nil {
@@ -121,7 +121,7 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 	// Default options: port=8849, nowait (don't wait for profiler UI to connect)
 	port := config.Port
 	nowait := config.NoWait
-	
+
 	// Build agent path with options
 	var agentOptions string
 	if nowait {
@@ -137,7 +137,7 @@ func (f *JProfilerProfilerFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	f.context.Log.Info("JProfiler Profiler configured (priority 30)")
+	f.context.Log.Debug("JProfiler Profiler configured (priority 30)")
 	return nil
 }
 

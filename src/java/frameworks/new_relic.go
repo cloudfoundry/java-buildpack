@@ -55,7 +55,7 @@ func (n *NewRelicFramework) findNewRelicAgent(agentDir string) (string, error) {
 
 // Supply installs the New Relic agent
 func (n *NewRelicFramework) Supply() error {
-	n.context.Log.BeginStep("Installing New Relic Agent")
+	n.context.Log.Debug("Installing New Relic Agent")
 
 	// Get New Relic agent dependency from manifest
 	dep, err := n.context.Manifest.DefaultVersion("newrelic")
@@ -78,7 +78,7 @@ func (n *NewRelicFramework) Supply() error {
 		n.context.Log.Warning("Could not install default New Relic configuration: %s", err.Error())
 	}
 
-	n.context.Log.Info("Installed New Relic Agent version %s", dep.Version)
+	n.context.Log.Debug("Installed New Relic Agent version %s", dep.Version)
 	return nil
 }
 
@@ -115,7 +115,7 @@ func (n *NewRelicFramework) installDefaultConfiguration(agentDir string) error {
 		return fmt.Errorf("failed to write newrelic.yml: %w", err)
 	}
 
-	n.context.Log.Info("Installed default New Relic configuration")
+	n.context.Log.Debug("Installed default New Relic configuration")
 	n.context.Log.Debug("  - newrelic.yml (license key and app name will be configured via JAVA_OPTS)")
 	return nil
 }
@@ -168,6 +168,10 @@ func (n *NewRelicFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	n.context.Log.Info("New Relic Agent configured (priority 35)")
+	n.context.Log.Debug("New Relic Agent configured (priority 35)")
 	return nil
+}
+
+func (n *NewRelicFramework) DependencyIdentifier() string {
+	return "newrelic"
 }

@@ -70,7 +70,7 @@ func (g *GoogleStackdriverProfilerFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Google Stackdriver Profiler
 func (g *GoogleStackdriverProfilerFramework) Supply() error {
-	g.context.Log.BeginStep("Installing Google Stackdriver Profiler")
+	g.context.Log.Debug("Installing Google Stackdriver Profiler")
 
 	// Get dependency from manifest
 	dep, err := g.context.Manifest.DefaultVersion("google-stackdriver-profiler")
@@ -155,7 +155,7 @@ func (g *GoogleStackdriverProfilerFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Google Stackdriver Profiler: %w", err)
 	}
 
-	g.context.Log.Info("Google Stackdriver Profiler configured")
+	g.context.Log.Debug("Google Stackdriver Profiler configured")
 	return nil
 }
 
@@ -284,4 +284,8 @@ func (g *GoogleStackdriverProfilerFramework) loadConfig() error {
 type googleStackDriveConfig struct {
 	ApplicationName    string `yaml:"application_name"`
 	ApplicationVersion string `yaml:"application_version"`
+}
+
+func (g *GoogleStackdriverProfilerFramework) DependencyIdentifier() string {
+	return "google-stackdriver-profiler"
 }

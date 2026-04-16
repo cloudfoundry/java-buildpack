@@ -38,7 +38,7 @@ func (p *PostgresqlJdbcFramework) Detect() (string, error) {
 
 // Supply installs the PostgreSQL JDBC driver
 func (p *PostgresqlJdbcFramework) Supply() error {
-	p.context.Log.BeginStep("Installing PostgreSQL JDBC driver")
+	p.context.Log.Debug("Installing PostgreSQL JDBC driver")
 
 	// Get PostgreSQL JDBC dependency from manifest
 	dep, err := p.context.Manifest.DefaultVersion("postgresql-jdbc")
@@ -56,7 +56,7 @@ func (p *PostgresqlJdbcFramework) Supply() error {
 		return fmt.Errorf("failed to install PostgreSQL JDBC driver: %w", err)
 	}
 
-	p.context.Log.Info("Installed PostgreSQL JDBC driver version %s", dep.Version)
+	p.context.Log.Debug("Installed PostgreSQL JDBC driver version %s", dep.Version)
 	return nil
 }
 
@@ -145,4 +145,8 @@ func (p *PostgresqlJdbcFramework) hasPostgresDriver() bool {
 	}
 
 	return false
+}
+
+func (p *PostgresqlJdbcFramework) DependencyIdentifier() string {
+	return "postgresql-jdbc"
 }

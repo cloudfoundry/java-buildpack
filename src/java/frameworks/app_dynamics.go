@@ -47,7 +47,7 @@ func (a *AppDynamicsFramework) findAppDynamicsAgent(agentDir string) (string, er
 
 // Supply installs the AppDynamics agent
 func (a *AppDynamicsFramework) Supply() error {
-	a.context.Log.BeginStep("Installing AppDynamics Agent")
+	a.context.Log.Debug("Installing AppDynamics Agent")
 
 	// Get AppDynamics agent dependency from manifest
 	dep, err := a.context.Manifest.DefaultVersion("appdynamics")
@@ -70,7 +70,7 @@ func (a *AppDynamicsFramework) Supply() error {
 		a.context.Log.Warning("Could not install default AppDynamics configuration: %s", err.Error())
 	}
 
-	a.context.Log.Info("Installed AppDynamics Agent version %s", dep.Version)
+	a.context.Log.Debug("Installed AppDynamics Agent version %s", dep.Version)
 	return nil
 }
 
@@ -102,7 +102,7 @@ func (a *AppDynamicsFramework) installDefaultConfiguration(agentDir string) erro
 		return fmt.Errorf("failed to write app-agent-config.xml: %w", err)
 	}
 
-	a.context.Log.Info("Installed default AppDynamics configuration")
+	a.context.Log.Debug("Installed default AppDynamics configuration")
 	a.context.Log.Debug("  - app-agent-config.xml (agent settings and filters)")
 	return nil
 }
@@ -188,4 +188,8 @@ func (a *AppDynamicsFramework) Finalize() error {
 
 	a.context.Log.Info("Configured AppDynamics Agent for runtime (priority 11)")
 	return nil
+}
+
+func (a *AppDynamicsFramework) DependencyIdentifier() string {
+	return "appdynamics"
 }

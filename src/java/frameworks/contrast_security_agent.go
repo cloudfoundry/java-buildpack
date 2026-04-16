@@ -59,7 +59,7 @@ func (c *ContrastSecurityAgentFramework) findContrastAgent(frameworkDir string) 
 
 // Supply downloads and installs the Contrast Security agent
 func (c *ContrastSecurityAgentFramework) Supply() error {
-	c.context.Log.Info("Installing Contrast Security Agent")
+	c.context.Log.Debug("Installing Contrast Security Agent")
 
 	dep, err := c.context.Manifest.DefaultVersion("contrast-security")
 	if err != nil {
@@ -157,7 +157,7 @@ func (c *ContrastSecurityAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	c.context.Log.Info("Contrast Security Agent configured successfully (priority 18)")
+	c.context.Log.Debug("Contrast Security Agent configured successfully (priority 18)")
 	return nil
 }
 
@@ -236,4 +236,8 @@ func (c *ContrastSecurityAgentFramework) getCredential(key string) string {
 		return val
 	}
 	return ""
+}
+
+func (c *ContrastSecurityAgentFramework) DependencyIdentifier() string {
+	return "contrast-security"
 }

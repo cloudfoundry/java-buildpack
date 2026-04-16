@@ -51,7 +51,7 @@ func (o *OpenJDKJRE) Supply() error {
 	}
 
 	o.version = dep.Version
-	o.ctx.Log.Info("Installing OpenJDK %s", o.version)
+	o.ctx.Log.Info("Installing OpenJDK (%s)", o.version)
 
 	// Install JRE
 	if err := o.ctx.Installer.InstallDependency(dep, o.jreDir); err != nil {
@@ -119,13 +119,13 @@ func (o *OpenJDKJRE) Supply() error {
 		// Non-fatal - continue without memory calculator
 	}
 
-	o.ctx.Log.Info("OpenJDK JRE installation complete")
+	o.ctx.Log.Debug("OpenJDK JRE installation complete")
 	return nil
 }
 
 // Finalize performs final JRE configuration
 func (o *OpenJDKJRE) Finalize() error {
-	o.ctx.Log.BeginStep("Finalizing OpenJDK JRE configuration")
+	o.ctx.Log.Debug("Finalizing OpenJDK JRE configuration")
 
 	// Find the actual JAVA_HOME (needed if finalize is called on a fresh instance)
 	if o.javaHome == "" {
@@ -193,7 +193,7 @@ func (o *OpenJDKJRE) Finalize() error {
 		// Non-fatal
 	}
 
-	o.ctx.Log.Info("OpenJDK JRE finalization complete")
+	o.ctx.Log.Debug("OpenJDK JRE finalization complete")
 	return nil
 }
 

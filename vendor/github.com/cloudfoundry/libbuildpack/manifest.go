@@ -261,7 +261,7 @@ func fetchCachedBuildpackDependency(entry *ManifestEntry, outputFile, manifestRo
 	if !filepath.IsAbs(source) {
 		source = filepath.Join(manifestRootDir, source)
 	}
-	manifestLog.Info("Copy [%s]", source)
+	manifestLog.Debug("Copy [%s]", source)
 	if err := CopyFile(source, outputFile); err != nil {
 		return err
 	}
@@ -281,7 +281,7 @@ func downloadDependency(entry *ManifestEntry, outputFile string, logger *Logger,
 	if err != nil {
 		return err
 	}
-	logger.Info("Download [%s]", filteredURI)
+	logger.Debug("Download [%s]", filteredURI)
 	err = downloadFile(entry.URI, outputFile, retryTimeLimit, retryTimeInitialInterval, logger)
 	if err != nil {
 		return err

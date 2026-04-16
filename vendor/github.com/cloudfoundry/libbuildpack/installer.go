@@ -44,7 +44,7 @@ func (i *Installer) InstallDependency(dep Dependency, outputDir string) error {
 // This is useful for archives that extract to a top-level directory
 // (e.g., apache-tomcat-9.0.98.tar.gz extracts to apache-tomcat-9.0.98/)
 func (i *Installer) InstallDependencyWithStrip(dep Dependency, outputDir string, stripComponents int) error {
-	i.manifest.log.BeginStep("Installing %s %s", dep.Name, dep.Version)
+	i.manifest.log.Debug("Installing %s %s", dep.Name, dep.Version)
 
 	tmpDir, err := os.MkdirTemp("", "downloads")
 	if err != nil {
@@ -257,7 +257,7 @@ func (i *Installer) fetchAppCachedBuildpackDependency(entry *ManifestEntry, outp
 	}
 
 	if foundCacheFile {
-		i.manifest.log.Info("Copy [%s]", cacheFile)
+		i.manifest.log.Debug("Copy [%s]", cacheFile)
 		if err := CopyFile(cacheFile, outputFile); err != nil {
 			return err
 		}

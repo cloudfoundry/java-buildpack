@@ -51,7 +51,7 @@ func (z *ZingJRE) Supply() error {
 	}
 
 	z.version = dep.Version
-	z.ctx.Log.Info("Installing Zing JRE %s", z.version)
+	z.ctx.Log.Info("Installing Zing JRE (%s)", z.version)
 
 	// Install JRE
 	if err := z.ctx.Installer.InstallDependency(dep, z.jreDir); err != nil {

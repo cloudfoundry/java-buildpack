@@ -28,7 +28,7 @@ func (c *ContainerSecurityProviderFramework) Detect() (string, error) {
 
 // Supply installs the container security provider JAR
 func (c *ContainerSecurityProviderFramework) Supply() error {
-	c.context.Log.BeginStep("Installing Container Security Provider")
+	c.context.Log.Debug("Installing Container Security Provider")
 
 	// Get container-security-provider dependency from manifest
 	dep, err := c.context.Manifest.DefaultVersion("container-security-provider")
@@ -42,7 +42,7 @@ func (c *ContainerSecurityProviderFramework) Supply() error {
 		return fmt.Errorf("failed to install Container Security Provider: %w", err)
 	}
 
-	c.context.Log.Info("Installed Container Security Provider version %s", dep.Version)
+	c.context.Log.Debug("Installed Container Security Provider version %s", dep.Version)
 	return nil
 }
 
@@ -256,4 +256,8 @@ func (c *containerSecurityProviderConfig) getTrustManagerEnabled() string {
 type containerSecurityProviderConfig struct {
 	KeyManagerEnabled   string `yaml:"key_manager_enabled"`
 	TrustManagerEnabled string `yaml:"trust_manager_enabled"`
+}
+
+func (c *ContainerSecurityProviderFramework) DependencyIdentifier() string {
+	return "container-security-provider"
 }

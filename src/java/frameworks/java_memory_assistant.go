@@ -39,7 +39,7 @@ func (j *JavaMemoryAssistantFramework) Detect() (string, error) {
 
 // Supply installs the Java Memory Assistant agent and cleanup utility
 func (j *JavaMemoryAssistantFramework) Supply() error {
-	j.context.Log.BeginStep("Installing Java Memory Assistant")
+	j.context.Log.Debug("Installing Java Memory Assistant")
 
 	// Get java-memory-assistant agent dependency from manifest
 	agentDep, err := j.context.Manifest.DefaultVersion("java-memory-assistant")
@@ -53,7 +53,7 @@ func (j *JavaMemoryAssistantFramework) Supply() error {
 		return fmt.Errorf("failed to install Java Memory Assistant: %w", err)
 	}
 
-	j.context.Log.Info("Installed Java Memory Assistant version %s", agentDep.Version)
+	j.context.Log.Debug("Installed Java Memory Assistant version %s", agentDep.Version)
 
 	// Get cleanup utility dependency (optional)
 	cleanupDep, err := j.context.Manifest.DefaultVersion("java-memory-assistant-cleanup")
@@ -62,7 +62,7 @@ func (j *JavaMemoryAssistantFramework) Supply() error {
 		if err := j.context.Installer.InstallDependency(cleanupDep, cleanupDir); err != nil {
 			j.context.Log.Warning("Failed to install Java Memory Assistant cleanup utility: %s", err.Error())
 		} else {
-			j.context.Log.Info("Installed Java Memory Assistant cleanup utility version %s", cleanupDep.Version)
+			j.context.Log.Debug("Installed Java Memory Assistant cleanup utility version %s", cleanupDep.Version)
 		}
 	}
 
@@ -111,7 +111,7 @@ func (j *JavaMemoryAssistantFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	j.context.Log.Info("Java Memory Assistant configured (priority 28)")
+	j.context.Log.Debug("Java Memory Assistant configured (priority 28)")
 	return nil
 }
 
@@ -281,4 +281,8 @@ type Thresholds struct {
 
 type CleanUp struct {
 	MaxDumpCount int `yaml:"max_dump_count"`
+}
+
+func (j *JavaMemoryAssistantFramework) DependencyIdentifier() string {
+	return "java-memory-assistant"
 }

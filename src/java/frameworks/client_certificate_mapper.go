@@ -39,7 +39,7 @@ func (c *ClientCertificateMapperFramework) Detect() (string, error) {
 
 // Supply installs the client certificate mapper JAR
 func (c *ClientCertificateMapperFramework) Supply() error {
-	c.context.Log.BeginStep("Installing Client Certificate Mapper")
+	c.context.Log.Debug("Installing Client Certificate Mapper")
 
 	// Get client-certificate-mapper dependency from manifest
 	dep, err := c.context.Manifest.DefaultVersion("client-certificate-mapper")
@@ -53,7 +53,7 @@ func (c *ClientCertificateMapperFramework) Supply() error {
 		return fmt.Errorf("failed to install Client Certificate Mapper: %w", err)
 	}
 
-	c.context.Log.Info("Installed Client Certificate Mapper version %s", dep.Version)
+	c.context.Log.Debug("Installed Client Certificate Mapper version %s", dep.Version)
 	return nil
 }
 
@@ -71,15 +71,15 @@ func (c *ClientCertificateMapperFramework) Finalize() error {
 
 	depsIdx := c.context.Stager.DepsIdx()
 	runtimePath := fmt.Sprintf("$DEPS_DIR/%s/client_certificate_mapper/%s", depsIdx, filepath.Base(matches[0]))
-	
+
 	profileScript := fmt.Sprintf("export CLASSPATH=\"%s${CLASSPATH:+:$CLASSPATH}\"\n", runtimePath)
 
 	if err := c.context.Stager.WriteProfileD("client_certificate_mapper.sh", profileScript); err != nil {
 		return fmt.Errorf("failed to write client_certificate_mapper.sh profile.d script: %w", err)
 	}
-	
+
 	c.context.Log.Debug("Client Certificate Mapper JAR will be added to classpath at runtime: %s", runtimePath)
-	
+
 	return nil
 }
 
@@ -110,4 +110,8 @@ type clientCertificateMapperConfig struct {
 // isEnabled checks if client certificate mapper is enabled
 func (c *clientCertificateMapperConfig) isEnabled() bool {
 	return c.Enabled
+}
+
+func (c *ClientCertificateMapperFramework) DependencyIdentifier() string {
+	return "client-certificate-mapper"
 }

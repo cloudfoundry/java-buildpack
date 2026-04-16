@@ -34,8 +34,6 @@ func (j *JVMKillAgent) Name() string {
 
 // Supply installs the JVMKill agent
 func (j *JVMKillAgent) Supply() error {
-	j.ctx.Log.Info("Installing JVMKill Agent")
-
 	// Get JVMKill version from manifest
 	dep, err := j.ctx.Manifest.DefaultVersion("jvmkill")
 	if err != nil {
@@ -43,7 +41,7 @@ func (j *JVMKillAgent) Supply() error {
 	}
 
 	j.version = dep.Version
-	j.ctx.Log.Debug("JVMKill version: %s", j.version)
+	j.ctx.Log.Info("Installing JVMKill Agent (%s)", j.version)
 
 	// Install to bin directory
 	binDir := filepath.Join(j.jreDir, "bin")
@@ -108,7 +106,7 @@ func (j *JVMKillAgent) Supply() error {
 	}
 
 	j.agentPath = finalPath
-	j.ctx.Log.Info("JVMKill Agent installed to %s", finalPath)
+	j.ctx.Log.Debug("JVMKill Agent installed to %s", finalPath)
 
 	return nil
 }
@@ -173,7 +171,7 @@ func (j *JVMKillAgent) Finalize() error {
 		return fmt.Errorf("failed to add JVMKill to JAVA_OPTS: %w", err)
 	}
 
-	j.ctx.Log.Info("JVMKill Agent added to JAVA_OPTS")
+	j.ctx.Log.Debug("JVMKill Agent added to JAVA_OPTS")
 
 	return nil
 }

@@ -53,7 +53,7 @@ func (j *JacocoAgentFramework) Detect() (string, error) {
 
 // Supply installs the JaCoCo agent
 func (j *JacocoAgentFramework) Supply() error {
-	j.context.Log.BeginStep("Installing JaCoCo Agent")
+	j.context.Log.Debug("Installing JaCoCo Agent")
 
 	// Get JaCoCo agent dependency from manifest
 	dep, err := j.context.Manifest.DefaultVersion("jacoco")
@@ -71,7 +71,7 @@ func (j *JacocoAgentFramework) Supply() error {
 		return fmt.Errorf("failed to install JaCoCo agent: %w", err)
 	}
 
-	j.context.Log.Info("Installed JaCoCo Agent version %s", dep.Version)
+	j.context.Log.Debug("Installed JaCoCo Agent version %s", dep.Version)
 	return nil
 }
 
@@ -169,6 +169,10 @@ func (j *JacocoAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	j.context.Log.Info("JaCoCo Agent configured (priority 26)")
+	j.context.Log.Debug("JaCoCo Agent configured (priority 26)")
 	return nil
+}
+
+func (j *JacocoAgentFramework) DependencyIdentifier() string {
+	return "jacoco"
 }

@@ -99,7 +99,7 @@ func (a *AspectJWeaverAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	a.context.Log.Info("AspectJ Weaver Agent configured successfully (priority 12)")
+	a.context.Log.Debug("AspectJ Weaver Agent configured successfully (priority 12)")
 	return nil
 }
 

@@ -76,7 +76,7 @@ func (s *SplunkOtelJavaAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Splunk OTEL Java agent
 func (s *SplunkOtelJavaAgentFramework) Supply() error {
-	s.context.Log.BeginStep("Installing Splunk OTEL Java agent")
+	s.context.Log.Debug("Installing Splunk OTEL Java agent")
 
 	// Get dependency from manifest
 	dep, err := s.context.Manifest.DefaultVersion("splunk-otel-javaagent")
@@ -154,7 +154,7 @@ func (s *SplunkOtelJavaAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Splunk OTEL: %w", err)
 	}
 
-	s.context.Log.Info("Splunk OTEL Java agent configured")
+	s.context.Log.Debug("Splunk OTEL Java agent configured")
 	return nil
 }
 
@@ -264,4 +264,8 @@ func (s *SplunkOtelJavaAgentFramework) constructJarPath(agentDir string) error {
 	}
 	s.jarPath = jarPattern
 	return nil
+}
+
+func (s *SplunkOtelJavaAgentFramework) DependencyIdentifier() string {
+	return "splunk-otel-javaagent"
 }

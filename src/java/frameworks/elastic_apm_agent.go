@@ -59,7 +59,7 @@ func (e *ElasticApmAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Elastic APM agent
 func (e *ElasticApmAgentFramework) Supply() error {
-	e.context.Log.BeginStep("Installing Elastic APM agent")
+	e.context.Log.Debug("Installing Elastic APM agent")
 
 	// Get dependency from manifest
 	dep, err := e.context.Manifest.DefaultVersion("elastic-apm-agent")
@@ -133,7 +133,7 @@ func (e *ElasticApmAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Elastic APM: %w", err)
 	}
 
-	e.context.Log.Info("Elastic APM agent configured")
+	e.context.Log.Debug("Elastic APM agent configured")
 	return nil
 }
 
@@ -272,4 +272,8 @@ func (e *ElasticApmAgentFramework) constructJarPath(elasticDir string) error {
 	}
 	e.jarPath = matches[0]
 	return nil
+}
+
+func (e *ElasticApmAgentFramework) DependencyIdentifier() string {
+	return "elastic-apm-agent"
 }

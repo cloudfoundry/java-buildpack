@@ -49,7 +49,7 @@ func (j *JRebelAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the JRebel agent
 func (j *JRebelAgentFramework) Supply() error {
-	j.context.Log.Info("Installing JRebel Agent")
+	j.context.Log.Debug("Installing JRebel Agent")
 
 	dep, err := j.context.Manifest.DefaultVersion("jrebel")
 	if err != nil {
@@ -125,7 +125,7 @@ func (j *JRebelAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	j.context.Log.Info("JRebel Agent configured successfully (priority 31)")
+	j.context.Log.Debug("JRebel Agent configured successfully (priority 31)")
 	return nil
 }
 
@@ -156,4 +156,8 @@ type jrebelConfig struct {
 // isEnabled checks if jrebel is enabled
 func (j *jrebelConfig) isEnabled() bool {
 	return j.Enabled
+}
+
+func (j *JRebelAgentFramework) DependencyIdentifier() string {
+	return "jrebel"
 }

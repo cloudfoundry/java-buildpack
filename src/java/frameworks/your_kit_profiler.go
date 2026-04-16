@@ -34,6 +34,10 @@ func NewYourKitProfilerFramework(ctx *common.Context) *YourKitProfilerFramework 
 	return &YourKitProfilerFramework{context: ctx}
 }
 
+func (f *YourKitProfilerFramework) DependencyIdentifier() string {
+	return "your-kit-profiler"
+}
+
 // Detect returns the framework name if YourKit is explicitly enabled
 func (f *YourKitProfilerFramework) Detect() (string, error) {
 	// YourKit is disabled by default
@@ -64,14 +68,14 @@ func (f *YourKitProfilerFramework) Supply() error {
 	// Install directory
 	installDir := filepath.Join(f.context.Stager.DepDir(), "your_kit_profiler")
 
-	f.context.Log.BeginStep("Installing YourKit Profiler %s", dep.Version)
+	f.context.Log.Debug("Installing YourKit Profiler %s", dep.Version)
 
 	// Download and extract native library
 	if err := f.context.Installer.InstallDependency(dep, installDir); err != nil {
 		return fmt.Errorf("failed to install your-kit-profiler: %w", err)
 	}
 
-	f.context.Log.Info("YourKit Profiler installed successfully")
+	f.context.Log.Debug("YourKit Profiler installed successfully")
 	return nil
 }
 
@@ -141,6 +145,6 @@ func (f *YourKitProfilerFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	f.context.Log.Info("YourKit Profiler configured (priority 45)")
+	f.context.Log.Debug("YourKit Profiler configured (priority 45)")
 	return nil
 }
