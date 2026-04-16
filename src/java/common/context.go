@@ -152,11 +152,9 @@ func GetVCAPServices() (VCAPServices, error) {
 }
 
 // HasService checks if a service with the given label exists
-// Matching is case-insensitive to handle various service broker conventions
 func (v VCAPServices) HasService(label string) bool {
-	labelLower := strings.ToLower(label)
 	for key := range v {
-		if strings.ToLower(key) == labelLower {
+		if strings.ToLower(key) == label {
 			return true
 		}
 	}
