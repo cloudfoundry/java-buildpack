@@ -85,11 +85,8 @@ func (o *OpenTelemetryJavaagentFramework) Finalize() error {
 	vcapServices, _ := GetVCAPServices()
 
 	// Try to find service by various patterns
-	var service *VCAPService
-	if vcapServices.HasService("otel-collector") {
-		service = vcapServices.GetService("otel-collector")
-	}
-	if service == nil && vcapServices.HasService("opentelemetry") {
+	service := vcapServices.GetService("otel-collector")
+	if service == nil {
 		service = vcapServices.GetService("opentelemetry")
 	}
 	if service == nil {
@@ -111,8 +108,9 @@ func (o *OpenTelemetryJavaagentFramework) Finalize() error {
 		// Set otel.service.name to the application name if not specified in credentials
 		if _, hasServiceName := service.Credentials["otel.service.name"]; !hasServiceName {
 			// Use the build directory name as the application name
-			appName := filepath.Base(o.context.Stager.BuildDir())
-			javaOpts += fmt.Sprintf(" -Dotel.service.name=%s", appName)
+			if appName := GetApplicationName(false); appName != "" {
+				javaOpts += fmt.Sprintf(" -Dotel.service.name=%s", appName)
+			}
 		}
 	}
 

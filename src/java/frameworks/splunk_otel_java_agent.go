@@ -16,7 +16,6 @@
 package frameworks
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
@@ -63,9 +62,8 @@ func (s *SplunkOtelJavaAgentFramework) Detect() (string, error) {
 	if vcapServices.HasService("splunk") ||
 		vcapServices.HasService("splunk-otel") ||
 		vcapServices.HasTag("splunk") ||
-		vcapServices.HasTag("otel") ||
 		vcapServices.HasServiceByNamePattern("splunk") ||
-		vcapServices.HasServiceByNamePattern("otel") {
+		vcapServices.HasServiceByNamePattern("splunk-o11y") {
 		s.context.Log.Info("Splunk OTEL service detected!")
 		return "Splunk OTEL", nil
 	}
@@ -129,7 +127,7 @@ func (s *SplunkOtelJavaAgentFramework) Finalize() error {
 	opts = append(opts, fmt.Sprintf("-javaagent:%s", runtimeJarPath))
 
 	// Configure service name
-	if appName := s.getApplicationName(); appName != "" {
+	if appName := GetApplicationName(false); appName != "" {
 		opts = append(opts, fmt.Sprintf("-Dotel.service.name=%s", appName))
 	}
 
@@ -179,78 +177,56 @@ func (s *SplunkOtelJavaAgentFramework) getCredentials() SplunkCredentials {
 	}
 
 	// Check service binding
-	vcapServices := os.Getenv("VCAP_SERVICES")
-	if vcapServices == "" {
+	vcapServices, err := GetVCAPServices()
+	if err != nil {
 		return creds
 	}
 
-	var services map[string][]map[string]interface{}
-	if err := json.Unmarshal([]byte(vcapServices), &services); err != nil {
+	// Find the first matching Splunk service, preferring explicit labels over name pattern matches
+	var service *common.VCAPService
+	for _, label := range []string{"splunk", "splunk-otel", "splunk-o11y"} {
+		service = vcapServices.GetService(label)
+		break
+	}
+	if service == nil {
+		service = vcapServices.GetServiceByNamePattern("splunk")
+	}
+	if service == nil {
+		service = vcapServices.GetServiceByNamePattern("splunk-otel")
+	}
+	if service == nil {
+		service = vcapServices.GetServiceByNamePattern("splunk-o11y")
+	}
+	if service == nil {
 		return creds
 	}
 
-	// Look for splunk service
-	serviceNames := []string{
-		"splunk",
-		"splunk-otel",
-		"user-provided",
+	credentials := service.Credentials
+
+	// Get OTLP endpoint
+	if endpoint, ok := credentials["otlp_endpoint"].(string); ok {
+		creds.OTLPEndpoint = endpoint
+	} else if endpoint, ok := credentials["otlpEndpoint"].(string); ok {
+		creds.OTLPEndpoint = endpoint
+	} else if endpoint, ok := credentials["endpoint"].(string); ok {
+		creds.OTLPEndpoint = endpoint
 	}
 
-	for _, serviceName := range serviceNames {
-		if serviceList, ok := services[serviceName]; ok {
-			for _, service := range serviceList {
-				if credentials, ok := service["credentials"].(map[string]interface{}); ok {
-					// Get OTLP endpoint
-					if endpoint, ok := credentials["otlp_endpoint"].(string); ok {
-						creds.OTLPEndpoint = endpoint
-					} else if endpoint, ok := credentials["otlpEndpoint"].(string); ok {
-						creds.OTLPEndpoint = endpoint
-					} else if endpoint, ok := credentials["endpoint"].(string); ok {
-						creds.OTLPEndpoint = endpoint
-					}
+	// Get access token
+	if token, ok := credentials["access_token"].(string); ok {
+		creds.AccessToken = token
+	} else if token, ok := credentials["accessToken"].(string); ok {
+		creds.AccessToken = token
+	} else if token, ok := credentials["token"].(string); ok {
+		creds.AccessToken = token
+	}
 
-					// Get access token
-					if token, ok := credentials["access_token"].(string); ok {
-						creds.AccessToken = token
-					} else if token, ok := credentials["accessToken"].(string); ok {
-						creds.AccessToken = token
-					} else if token, ok := credentials["token"].(string); ok {
-						creds.AccessToken = token
-					}
-
-					// Get realm
-					if realm, ok := credentials["realm"].(string); ok {
-						creds.Realm = realm
-					}
-
-					if creds.OTLPEndpoint != "" {
-						return creds
-					}
-				}
-			}
-		}
+	// Get realm
+	if realm, ok := credentials["realm"].(string); ok {
+		creds.Realm = realm
 	}
 
 	return creds
-}
-
-// getApplicationName returns the application name
-func (s *SplunkOtelJavaAgentFramework) getApplicationName() string {
-	vcapApp := os.Getenv("VCAP_APPLICATION")
-	if vcapApp == "" {
-		return ""
-	}
-
-	var appData map[string]interface{}
-	if err := json.Unmarshal([]byte(vcapApp), &appData); err != nil {
-		return ""
-	}
-
-	if name, ok := appData["application_name"].(string); ok {
-		return name
-	}
-
-	return ""
 }
 
 func (s *SplunkOtelJavaAgentFramework) constructJarPath(agentDir string) error {

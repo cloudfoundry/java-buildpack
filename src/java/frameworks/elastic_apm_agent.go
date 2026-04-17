@@ -144,11 +144,13 @@ func (e *ElasticApmAgentFramework) findElasticApmService() *VCAPService {
 		return nil
 	}
 
-	if vcapServices.HasService("elastic-apm") {
-		return vcapServices.GetService("elastic-apm")
+	service := vcapServices.GetService("elastic-apm")
+	if service != nil {
+		return service
 	}
-	if vcapServices.HasService("elastic") {
-		return vcapServices.GetService("elastic")
+	service = vcapServices.GetService("elastic")
+	if service != nil {
+		return service
 	}
 
 	for _, services := range vcapServices {
