@@ -185,10 +185,8 @@ func (s *SplunkOtelJavaAgentFramework) getCredentials() SplunkCredentials {
 	// Find the first matching Splunk service, preferring explicit labels over name pattern matches
 	var service *common.VCAPService
 	for _, label := range []string{"splunk", "splunk-otel", "splunk-o11y"} {
-		if vcapServices.HasService(label) {
-			service = vcapServices.GetService(label)
-			break
-		}
+		service = vcapServices.GetService(label)
+		break
 	}
 	if service == nil {
 		service = vcapServices.GetServiceByNamePattern("splunk")

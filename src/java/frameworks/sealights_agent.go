@@ -135,8 +135,8 @@ func (f *SealightsAgentFramework) Finalize() error {
 
 	// Find Sealights service
 	var service *VCAPService
-	if vcapServices.HasService("sealights") {
-		service = vcapServices.GetService("sealights")
+	if svc := vcapServices.GetService("sealights"); svc != nil {
+		service = svc
 	} else {
 		service = vcapServices.GetServiceByNamePattern("sealights")
 	}
