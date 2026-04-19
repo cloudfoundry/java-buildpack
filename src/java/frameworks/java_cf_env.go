@@ -2,10 +2,11 @@ package frameworks
 
 import (
 	"fmt"
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 
 	"github.com/cloudfoundry/libbuildpack"
 )
@@ -30,8 +31,8 @@ func (j *JavaCfEnvFramework) Detect() (string, error) {
 		return "", nil
 	}
 
-	// Check if Spring Boot 3.x is present
-	if !j.isSpringBoot3() {
+	// Check if Spring Boot 3.x/4.x is present
+	if !j.isSpringBootMajor(4) && !j.isSpringBootMajor(3) {
 		return "", nil
 	}
 
@@ -48,14 +49,27 @@ func (j *JavaCfEnvFramework) Detect() (string, error) {
 func (j *JavaCfEnvFramework) Supply() error {
 	j.context.Log.BeginStep("Installing Java CF Env")
 
-	// Get java-cfenv dependency from manifest
-	dep, err := j.context.Manifest.DefaultVersion("java-cfenv")
+	dependency := "java-cfenv"
+	defaultVersion := "4.0.0"
+	versionPattern := "4.x.x"
+
+	if j.isSpringBootMajor(3) {
+		defaultVersion = "3.1.0"
+		versionPattern = "3.x.x"
+	}
+
+	allVersions := j.context.Manifest.AllDependencyVersions(dependency)
+	resolvedVersion, err := libbuildpack.FindMatchingVersion(versionPattern, allVersions)
+
+	dep := libbuildpack.Dependency{Name: dependency, Version: resolvedVersion}
 	if err != nil {
-		j.context.Log.Warning("Unable to determine Java CF Env version, using default")
+		j.context.Log.Warning("Unable to determine Java CF Env version for pattern %s, using default", versionPattern)
 		dep = libbuildpack.Dependency{
-			Name:    "java-cfenv",
-			Version: "3.1.0", // Fallback version
+			Name:    dependency,
+			Version: defaultVersion,
 		}
+	} else {
+		j.context.Log.Debug("Resolved Java CF Env version pattern '%s' to %s", versionPattern, resolvedVersion)
 	}
 
 	// Install java-cfenv JAR
@@ -139,15 +153,14 @@ func (j *JavaCfEnvFramework) isEnabled() bool {
 	return true
 }
 
-// isSpringBoot3 checks if the application is Spring Boot 3.x
-func (j *JavaCfEnvFramework) isSpringBoot3() bool {
-	// Look for Spring Boot 3.x JARs
-	// Spring Boot 3.x uses spring-boot-3.*.jar
+// isSpringBootMajor checks if the application is Spring Boot <major>.x
+func (j *JavaCfEnvFramework) isSpringBootMajor(major int) bool {
+	jarGlob := fmt.Sprintf("spring-boot-%d.*.jar", major)
 	patterns := []string{
-		filepath.Join(j.context.Stager.BuildDir(), "**", "spring-boot-3.*.jar"),
-		filepath.Join(j.context.Stager.BuildDir(), "WEB-INF", "lib", "spring-boot-3.*.jar"),
-		filepath.Join(j.context.Stager.BuildDir(), "BOOT-INF", "lib", "spring-boot-3.*.jar"),
-		filepath.Join(j.context.Stager.BuildDir(), "lib", "spring-boot-3.*.jar"),
+		filepath.Join(j.context.Stager.BuildDir(), "**", jarGlob),
+		filepath.Join(j.context.Stager.BuildDir(), "WEB-INF", "lib", jarGlob),
+		filepath.Join(j.context.Stager.BuildDir(), "BOOT-INF", "lib", jarGlob),
+		filepath.Join(j.context.Stager.BuildDir(), "lib", jarGlob),
 	}
 
 	for _, pattern := range patterns {
@@ -161,7 +174,7 @@ func (j *JavaCfEnvFramework) isSpringBoot3() bool {
 	manifestPath := filepath.Join(j.context.Stager.BuildDir(), "META-INF", "MANIFEST.MF")
 	if content, err := os.ReadFile(manifestPath); err == nil {
 		manifest := string(content)
-		if strings.Contains(manifest, "Spring-Boot-Version: 3.") {
+		if strings.Contains(manifest, fmt.Sprintf("Spring-Boot-Version: %d.", major)) {
 			return true
 		}
 	}
