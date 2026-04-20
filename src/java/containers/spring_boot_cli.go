@@ -143,7 +143,7 @@ func (s *SpringBootCLIContainer) Release() (string, error) {
 		classpathParts = append(classpathParts, "$HOME/lib/*")
 	}
 
-	classpath := "${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
+	classpath := "${CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
 	if len(classpathParts) > 0 {
 		classpath = strings.Join(classpathParts, ":")
 	}
@@ -166,7 +166,7 @@ func (s *SpringBootCLIContainer) Release() (string, error) {
 
 	// Add classpath if present
 	if classpath != "" {
-		cmdParts = append(cmdParts, "--classpath", classpath)
+		cmdParts = append(cmdParts, "-cp", classpath)
 	}
 
 	// Add Groovy files
