@@ -77,34 +77,6 @@ func (g *GroovyUtils) IsBeans(filePath string) bool {
 	return beansPattern.Match(content)
 }
 
-// HasMainMethod checks if a Groovy file contains a static void main() method
-func HasMainMethod(filePath string) (bool, error) {
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		return false, err
-	}
-	return mainMethodPattern.Match(content), nil
-}
-
-// IsPOGO checks if a Groovy file is a Plain Old Groovy Object (contains a class definition)
-// POGOs are NOT standalone runnable scripts - they need to be instantiated
-func IsPOGO(filePath string) (bool, error) {
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		return false, err
-	}
-	return pogoPattern.Match(content), nil
-}
-
-// HasShebang checks if a Groovy file has a shebang line (#!/...)
-func HasShebang(filePath string) (bool, error) {
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		return false, err
-	}
-	return shebangPattern.Match(content), nil
-}
-
 // isValidGroovyFile checks if a file is a valid, readable Groovy script
 // Filters out binary files, empty files, and files with invalid content
 func isValidGroovyFile(filePath string) bool {
@@ -149,60 +121,23 @@ func isPartOfUTF8Sequence(content []byte, i int) bool {
 	return false
 }
 
-// FindMainGroovyScript determines which Groovy script should be executed
-// Following Ruby buildpack logic:
-// 1. Files with static void main() method
-// 2. Non-POGO files (simple scripts without class definitions)
-// 3. Files with shebang
-// Returns the single candidate if exactly one matches, empty string otherwise
+// FindMainGroovyScript determines which Groovy script should be executed.
+// Following Ruby buildpack logic, a file is a candidate if it has a static
+// void main() method, is not a POGO, or has a shebang.
+// Returns the single candidate if exactly one matches, empty string otherwise.
 func FindMainGroovyScript(scripts []string) (string, error) {
+	g := &GroovyUtils{}
 	candidates := make(map[string]bool)
 
-	// Filter out invalid files first
-	validScripts := make([]string, 0, len(scripts))
 	for _, script := range scripts {
-		if isValidGroovyFile(script) {
-			validScripts = append(validScripts, script)
-		}
-	}
-
-	// Check for main method
-	for _, script := range validScripts {
-		hasMain, err := HasMainMethod(script)
-		if err != nil {
-			// Skip files that can't be read (like binary files)
+		if !isValidGroovyFile(script) {
 			continue
 		}
-		if hasMain {
+		if g.HasMainMethod(script) || !g.IsPOGO(script) || g.HasShebang(script) {
 			candidates[script] = true
 		}
 	}
 
-	// Check for non-POGOs (simple scripts)
-	for _, script := range validScripts {
-		isPOGO, err := IsPOGO(script)
-		if err != nil {
-			// Skip files that can't be read
-			continue
-		}
-		if !isPOGO {
-			candidates[script] = true
-		}
-	}
-
-	// Check for shebang
-	for _, script := range validScripts {
-		hasShebang, err := HasShebang(script)
-		if err != nil {
-			// Skip files that can't be read
-			continue
-		}
-		if hasShebang {
-			candidates[script] = true
-		}
-	}
-
-	// Return the candidate if exactly one matches
 	if len(candidates) == 1 {
 		for script := range candidates {
 			return script, nil

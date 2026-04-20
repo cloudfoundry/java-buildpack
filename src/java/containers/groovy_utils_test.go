@@ -10,98 +10,108 @@ import (
 	"github.com/cloudfoundry/java-buildpack/src/java/containers"
 )
 
-var _ = Describe("HasMainMethod", func() {
-	DescribeTable("detecting main method in Groovy files",
-		func(content string, expected bool) {
-			tmpFile, err := os.CreateTemp("", "test-*.groovy")
-			Expect(err).NotTo(HaveOccurred())
-			defer os.Remove(tmpFile.Name())
+// groovyFile writes content to a temp file and returns its path.
+// The file is removed when the current spec ends.
+func groovyFile(content string) string {
+	tmpFile, err := os.CreateTemp("", "test-*.groovy")
+	Expect(err).NotTo(HaveOccurred())
+	DeferCleanup(os.Remove, tmpFile.Name())
+	_, err = tmpFile.WriteString(content)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(tmpFile.Close()).To(Succeed())
+	return tmpFile.Name()
+}
 
-			_, err = tmpFile.WriteString(content)
-			Expect(err).NotTo(HaveOccurred())
-			tmpFile.Close()
+var _ = Describe("GroovyUtils", func() {
+	var g *containers.GroovyUtils
 
-			result, err := containers.HasMainMethod(tmpFile.Name())
-			Expect(err).NotTo(HaveOccurred())
-			Expect(result).To(Equal(expected))
-		},
-		Entry("has static void main", `class MyApp {
+	BeforeEach(func() {
+		g = &containers.GroovyUtils{}
+	})
+
+	Describe("HasMainMethod", func() {
+		DescribeTable("detecting main method in Groovy files",
+			func(content string, expected bool) {
+				Expect(g.HasMainMethod(groovyFile(content))).To(Equal(expected))
+			},
+			Entry("has static void main", `class MyApp {
 	static void main(String[] args) {
 		println "Hello"
 	}
 }`, true),
-		Entry("has static void main with whitespace variations", `class MyApp {
+			Entry("has static void main with extra whitespace", `class MyApp {
 	static  void  main ( String[] args ) {
 		println "Hello"
 	}
 }`, true),
-		Entry("no main method", `class Alpha {
+			Entry("no main method", `class Alpha {
 }`, false),
-		Entry("simple script no main", `println 'Hello World'`, false),
-		Entry("instance method not static main", `class Test {
+			Entry("simple script no main", `println 'Hello World'`, false),
+			Entry("instance method not static main", `class Test {
 	void main() {
 		println "Not static"
 	}
 }`, false),
-	)
-})
+		)
 
-var _ = Describe("IsPOGO", func() {
-	DescribeTable("detecting Plain Old Groovy Objects",
-		func(content string, expected bool) {
-			tmpFile, err := os.CreateTemp("", "test-*.groovy")
-			Expect(err).NotTo(HaveOccurred())
-			defer os.Remove(tmpFile.Name())
+		It("returns false for an unreadable file", func() {
+			Expect(g.HasMainMethod("/nonexistent/file.groovy")).To(BeFalse())
+		})
+	})
 
-			_, err = tmpFile.WriteString(content)
-			Expect(err).NotTo(HaveOccurred())
-			tmpFile.Close()
-
-			result, err := containers.IsPOGO(tmpFile.Name())
-			Expect(err).NotTo(HaveOccurred())
-			Expect(result).To(Equal(expected))
-		},
-		Entry("simple class definition", `class Alpha {
+	Describe("IsPOGO", func() {
+		DescribeTable("detecting Plain Old Groovy Objects",
+			func(content string, expected bool) {
+				Expect(g.IsPOGO(groovyFile(content))).To(Equal(expected))
+			},
+			Entry("simple class definition", `class Alpha {
 }`, true),
-		Entry("class with inheritance", `class MyApp extends BaseApp {
+			Entry("class with inheritance", `class MyApp extends BaseApp {
 	void run() {}
 }`, true),
-		Entry("simple script no class", `println 'Hello World'`, false),
-		Entry("script with variables no class", `def name = "World"
+			Entry("simple script no class", `println 'Hello World'`, false),
+			Entry("script with variables no class", `def name = "World"
 println "Hello $name"`, false),
-		Entry("class keyword in comment", `// This is not a class
+			Entry("class keyword in comment", `// This is not a class
 println 'Hello'`, false),
-		Entry("class keyword in string", `println "This mentions class but isn't one"`, false),
-	)
-})
+			Entry("class keyword in string", `println "This mentions class but isn't one"`, false),
+		)
 
-var _ = Describe("HasShebang", func() {
-	DescribeTable("detecting shebang in Groovy files",
-		func(content string, expected bool) {
-			tmpFile, err := os.CreateTemp("", "test-*.groovy")
-			Expect(err).NotTo(HaveOccurred())
-			defer os.Remove(tmpFile.Name())
+		It("returns false for an unreadable file", func() {
+			Expect(g.IsPOGO("/nonexistent/file.groovy")).To(BeFalse())
+		})
+	})
 
-			_, err = tmpFile.WriteString(content)
-			Expect(err).NotTo(HaveOccurred())
-			tmpFile.Close()
-
-			result, err := containers.HasShebang(tmpFile.Name())
-			Expect(err).NotTo(HaveOccurred())
-			Expect(result).To(Equal(expected))
-		},
-		Entry("has shebang", `#!/usr/bin/env groovy
-println 'Hello World'`, true),
-		Entry("has groovy shebang", `#!/usr/bin/groovy
-println 'Hello'`, true),
-		Entry("no shebang", `class Alpha {
+	Describe("HasShebang", func() {
+		DescribeTable("detecting shebang in Groovy files",
+			func(content string, expected bool) {
+				Expect(g.HasShebang(groovyFile(content))).To(Equal(expected))
+			},
+			Entry("has shebang", "#!/usr/bin/env groovy\nprintln 'Hello World'", true),
+			Entry("has groovy shebang", "#!/usr/bin/groovy\nprintln 'Hello'", true),
+			Entry("no shebang", `class Alpha {
 }`, false),
-		Entry("shebang not at start", `
-#!/usr/bin/env groovy
+			Entry("shebang not at start", "\n#!/usr/bin/env groovy\nprintln 'Hello'", false),
+			Entry("comment mentioning shebang", `// Use #!/usr/bin/env groovy at the top
 println 'Hello'`, false),
-		Entry("comment mentioning shebang", `// Use #!/usr/bin/env groovy at the top
-println 'Hello'`, false),
-	)
+		)
+
+		It("returns false for an unreadable file", func() {
+			Expect(g.HasShebang("/nonexistent/file.groovy")).To(BeFalse())
+		})
+	})
+
+	Describe("IsBeans", func() {
+		DescribeTable("detecting beans-style configuration",
+			func(content string, expected bool) {
+				Expect(g.IsBeans(groovyFile(content))).To(Equal(expected))
+			},
+			Entry("has beans block", `beans {
+	bean(MyBean)
+}`, true),
+			Entry("no beans block", `class Alpha {}`, false),
+		)
+	})
 })
 
 var _ = Describe("FindMainGroovyScript", func() {
@@ -117,32 +127,24 @@ var _ = Describe("FindMainGroovyScript", func() {
 		os.RemoveAll(tmpDir)
 	})
 
+	writeFile := func(name, content string) string {
+		path := filepath.Join(tmpDir, name)
+		Expect(os.WriteFile(path, []byte(content), 0644)).To(Succeed())
+		return path
+	}
+
 	Context("with various Groovy script types", func() {
 		var pogoFile, nonPogoFile, mainMethodFile, shebangFile string
 
 		BeforeEach(func() {
-			var err error
-
-			pogoFile = filepath.Join(tmpDir, "Alpha.groovy")
-			err = os.WriteFile(pogoFile, []byte("class Alpha {}"), 0644)
-			Expect(err).NotTo(HaveOccurred())
-
-			nonPogoFile = filepath.Join(tmpDir, "Application.groovy")
-			err = os.WriteFile(nonPogoFile, []byte("println 'Hello World'"), 0644)
-			Expect(err).NotTo(HaveOccurred())
-
-			mainMethodFile = filepath.Join(tmpDir, "Main.groovy")
-			mainContent := `class Main {
+			pogoFile = writeFile("Alpha.groovy", "class Alpha {}")
+			nonPogoFile = writeFile("Application.groovy", "println 'Hello World'")
+			mainMethodFile = writeFile("Main.groovy", `class Main {
 	static void main(String[] args) {
 		println "Main"
 	}
-}`
-			err = os.WriteFile(mainMethodFile, []byte(mainContent), 0644)
-			Expect(err).NotTo(HaveOccurred())
-
-			shebangFile = filepath.Join(tmpDir, "Script.groovy")
-			err = os.WriteFile(shebangFile, []byte("#!/usr/bin/env groovy\nprintln 'Script'"), 0644)
-			Expect(err).NotTo(HaveOccurred())
+}`)
+			shebangFile = writeFile("Script.groovy", "#!/usr/bin/env groovy\nprintln 'Script'")
 		})
 
 		DescribeTable("finding the main Groovy script",
@@ -176,17 +178,11 @@ var _ = Describe("FindMainGroovyScript", func() {
 	})
 
 	Context("with invalid files", func() {
-		It("should skip invalid files and select valid ones", func() {
-			invalidFile := filepath.Join(tmpDir, "invalid.groovy")
-			err := os.WriteFile(invalidFile, []byte{0xff, 0xfe}, 0644)
-			Expect(err).NotTo(HaveOccurred())
+		It("skips invalid files and selects the valid one", func() {
+			invalidFile := writeFile("invalid.groovy", string([]byte{0xff, 0xfe}))
+			validFile := writeFile("valid.groovy", "println 'Hello'")
 
-			validFile := filepath.Join(tmpDir, "valid.groovy")
-			err = os.WriteFile(validFile, []byte("println 'Hello'"), 0644)
-			Expect(err).NotTo(HaveOccurred())
-
-			scripts := []string{invalidFile, validFile}
-			result, err := containers.FindMainGroovyScript(scripts)
+			result, err := containers.FindMainGroovyScript([]string{invalidFile, validFile})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(result).To(Equal(validFile))
 		})
