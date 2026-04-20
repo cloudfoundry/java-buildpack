@@ -434,81 +434,85 @@ export PATH=$PLAY_BIN:$PATH
 }
 
 // collectAdditionalLibraries gathers all additional libraries that should be added to CLASSPATH
-// This includes framework-provided JAR libraries installed during supply phase
+// This includes framework-provided JAR libraries installed during supply phase by any buildpack.
 func (p *PlayContainer) collectAdditionalLibraries() []string {
 	var libs []string
-	depsDir := p.context.Stager.DepDir()
+	// DepDir() returns e.g. /tmp/deps/0 — the current buildpack's slot.
+	// The parent directory contains all supply buildpack slots (0, 1, 2, …).
+	allDepsDir := filepath.Dir(p.context.Stager.DepDir())
 
-	// Scan $DEPS_DIR/<idx>/ for all framework directories
-	entries, err := os.ReadDir(depsDir)
+	// Scan $DEPS_DIR/ for all index slots
+	slots, err := os.ReadDir(allDepsDir)
 	if err != nil {
 		p.context.Log.Debug("Unable to read deps directory: %s", err.Error())
 		return libs
 	}
 
-	// Iterate through each framework directory
-	for _, entry := range entries {
-		if !entry.IsDir() {
+	for _, slot := range slots {
+		if !slot.IsDir() {
 			continue
 		}
 
-		frameworkDir := filepath.Join(depsDir, entry.Name())
+		slotDir := filepath.Join(allDepsDir, slot.Name())
 
-		// Find all *.jar files in this framework directory
-		jarPattern := filepath.Join(frameworkDir, "*.jar")
-		matches, err := filepath.Glob(jarPattern)
+		// Each slot contains framework subdirectories installed by that buildpack
+		frameworks, err := os.ReadDir(slotDir)
 		if err != nil {
-			p.context.Log.Debug("Error globbing JARs in %s: %s", frameworkDir, err.Error())
+			p.context.Log.Debug("Unable to read slot directory %s: %s", slotDir, err.Error())
 			continue
 		}
 
-		// Add all found JARs to the list
-		// NOTE: Native libraries (.so, .dylib files like jvmkill) are NOT added here
-		// Native libraries are loaded via -agentpath in JAVA_OPTS
-		for _, jar := range matches {
-			// Skip native libraries - only include .jar files
-			if filepath.Ext(jar) == ".jar" {
-				libs = append(libs, jar)
+		for _, fw := range frameworks {
+			if !fw.IsDir() {
+				continue
 			}
+
+			frameworkDir := filepath.Join(slotDir, fw.Name())
+
+			// Find all *.jar files directly in this framework directory
+			jarPattern := filepath.Join(frameworkDir, "*.jar")
+			matches, err := filepath.Glob(jarPattern)
+			if err != nil {
+				p.context.Log.Debug("Error globbing JARs in %s: %s", frameworkDir, err.Error())
+				continue
+			}
+
+			libs = append(libs, matches...)
 		}
 	}
 
 	return libs
 }
 
-// buildRuntimeClasspath converts staging-time library paths to runtime paths
+// buildRuntimeClasspath converts staging-time library paths to runtime paths.
 // At staging time, libraries are in $DEPS_DIR/<idx>/<framework>/*.jar
 // At runtime, they'll be in /home/vcap/deps/<idx>/<framework>/*.jar
 func (p *PlayContainer) buildRuntimeClasspath(libs []string) []string {
 	var classpathParts []string
-	depsDir := p.context.Stager.DepDir()
+	allDepsDir := filepath.Dir(p.context.Stager.DepDir())
 	buildDir := p.context.Stager.BuildDir()
-	depsIdx := p.context.Stager.DepsIdx()
 
 	for _, lib := range libs {
 		var runtimePath string
 
-		// Check if library is in deps directory
-		if strings.HasPrefix(lib, depsDir) {
-			// Convert to runtime $DEPS_DIR path
-			relPath, err := filepath.Rel(depsDir, lib)
+		if strings.HasPrefix(lib, allDepsDir) {
+			// e.g. /tmp/deps/1/new_relic_agent/newrelic.jar
+			// → relPath = 1/new_relic_agent/newrelic.jar
+			// → $DEPS_DIR/1/new_relic_agent/newrelic.jar
+			relPath, err := filepath.Rel(allDepsDir, lib)
 			if err != nil {
 				p.context.Log.Warning("Could not calculate relative path for %s: %s", lib, err.Error())
 				continue
 			}
-			relPath = filepath.ToSlash(relPath)
-			runtimePath = fmt.Sprintf("$DEPS_DIR/%s/%s", depsIdx, relPath)
+			runtimePath = fmt.Sprintf("$DEPS_DIR/%s", filepath.ToSlash(relPath))
 		} else if strings.HasPrefix(lib, buildDir) {
-			// Convert to runtime $HOME path
 			relPath, err := filepath.Rel(buildDir, lib)
 			if err != nil {
 				p.context.Log.Warning("Could not calculate relative path for %s: %s", lib, err.Error())
 				continue
 			}
-			relPath = filepath.ToSlash(relPath)
-			runtimePath = fmt.Sprintf("$HOME/%s", relPath)
+			runtimePath = fmt.Sprintf("$HOME/%s", filepath.ToSlash(relPath))
 		} else {
-			// Fallback: library path doesn't match expected patterns
 			p.context.Log.Warning("Library path %s doesn't match deps or build directory, using as-is", lib)
 			runtimePath = lib
 		}
