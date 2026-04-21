@@ -15,7 +15,8 @@ include_files:
 pre_package: scripts/build.sh
 packaging_profiles:
   minimal:
-    description: "JDKs, CF utilities, Tomcat, and common frameworks only. No APM agents, profilers, or JDBC drivers."
+    description: JDKs, CF utilities, Tomcat, and common frameworks only. No APM agents,
+      profilers, or JDBC drivers.
     exclude:
     - datadog-javaagent
     - elastic-apm-agent
@@ -37,7 +38,8 @@ packaging_profiles:
     - postgresql-jdbc
     - mariadb-jdbc
   standard:
-    description: "Core + open-source APM, OTel, and JDBC drivers. No commercial agents or profilers."
+    description: Core + open-source APM, OTel, and JDBC drivers. No commercial agents
+      or profilers.
     exclude:
     - datadog-javaagent
     - elastic-apm-agent
@@ -465,14 +467,14 @@ dependencies:
   source: https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.8/postgresql-42.7.8.jar
   source_sha256: 2a32a9dcbc42d67a50ad3a0de5efd102c8d2be46720045f2cbd6689f160ab7c7
 - name: sapmachine
-  version: 17.0.18
-  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_17.0.18_linux_x64_any-stack_a7a52661.tgz
-  sha256: a7a5266183ece6d4ed3febb0a474e9985cdb7c185c57899b2ab3dc202180f971
+  version: 17.0.19
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_17.0.19_linux_x64_cflinuxfs4_133d93f4.tgz
+  sha256: 133d93f4e1995fd1913c8b159096ce60367af7cf1c2a56422e695720b9925a9e
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.18/sapmachine-jre-17.0.18_linux-x64_bin.tar.gz
-  source_sha256: a7a5266183ece6d4ed3febb0a474e9985cdb7c185c57899b2ab3dc202180f971
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.19/sapmachine-jre-17.0.19_linux-x64_bin.tar.gz
+  source_sha256: 133d93f4e1995fd1913c8b159096ce60367af7cf1c2a56422e695720b9925a9e
 - name: sapmachine
   version: 21.0.10
   uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_21.0.10_linux_x64_any-stack_6ee8043a.tgz
