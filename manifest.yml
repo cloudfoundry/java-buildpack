@@ -15,7 +15,8 @@ include_files:
 pre_package: scripts/build.sh
 packaging_profiles:
   minimal:
-    description: "JDKs, CF utilities, Tomcat, and common frameworks only. No APM agents, profilers, or JDBC drivers."
+    description: JDKs, CF utilities, Tomcat, and common frameworks only. No APM agents,
+      profilers, or JDBC drivers.
     exclude:
     - datadog-javaagent
     - elastic-apm-agent
@@ -37,7 +38,8 @@ packaging_profiles:
     - postgresql-jdbc
     - mariadb-jdbc
   standard:
-    description: "Core + open-source APM, OTel, and JDBC drivers. No commercial agents or profilers."
+    description: Core + open-source APM, OTel, and JDBC drivers. No commercial agents
+      or profilers.
     exclude:
     - datadog-javaagent
     - elastic-apm-agent
@@ -601,11 +603,11 @@ dependencies:
   source: https://cdn.azul.com/zulu/bin/zulu11.86.21-ca-jre11.0.30-linux_x64.tar.gz
   source_sha256: 4767f5e6453a4b087ca3591190652e2cd22b89f0820df08ad4970003de1e7c4f
 - name: zulu
-  version: 17.0.18
-  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_17.0.18_linux_x64_any-stack_297117b4.tgz
-  sha256: 297117b4073d2eaaafafe372596ba8f915a2d35a9af71ff268cd999ae00ac799
+  version: 17.0.19
+  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_17.0.19_linux_x64_cflinuxfs4_c72c1967.tgz
+  sha256: c72c1967afec8ca4b66747875468178ffa45cd8133a5ab7823650a15a01db204
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://cdn.azul.com/zulu/bin/zulu17.64.17-ca-crac-jre17.0.18-linux_x64.tar.gz
-  source_sha256: 297117b4073d2eaaafafe372596ba8f915a2d35a9af71ff268cd999ae00ac799
+  source: https://cdn.azul.com/zulu/bin/zulu17.66.19-ca-jre17.0.19-linux_x64.tar.gz
+  source_sha256: ''
