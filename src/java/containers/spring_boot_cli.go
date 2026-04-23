@@ -1,8 +1,8 @@
 package containers
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"fmt"
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"os"
 	"path/filepath"
 	"strings"
@@ -134,16 +134,16 @@ func (s *SpringBootCLIContainer) Release() (string, error) {
 	// Add additional libraries (if any)
 	additionalLibs := filepath.Join(buildDir, ".additional_libs")
 	if info, err := os.Stat(additionalLibs); err == nil && info.IsDir() {
-		classpathParts = append(classpathParts, ".additional_libs/*")
+		classpathParts = append(classpathParts, "$HOME/.additional_libs/*")
 	}
 
 	// Add root libraries (lib/ directory)
 	rootLibs := filepath.Join(buildDir, "lib")
 	if info, err := os.Stat(rootLibs); err == nil && info.IsDir() {
-		classpathParts = append(classpathParts, "lib/*")
+		classpathParts = append(classpathParts, "$HOME/lib/*")
 	}
 
-	classpath := ""
+	classpath := "${CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
 	if len(classpathParts) > 0 {
 		classpath = strings.Join(classpathParts, ":")
 	}
@@ -166,7 +166,7 @@ func (s *SpringBootCLIContainer) Release() (string, error) {
 
 	// Add classpath if present
 	if classpath != "" {
-		cmdParts = append(cmdParts, "--classpath", classpath)
+		cmdParts = append(cmdParts, "-cp", classpath)
 	}
 
 	// Add Groovy files

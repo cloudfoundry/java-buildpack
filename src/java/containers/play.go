@@ -31,46 +31,59 @@ func (p *PlayContainer) Detect() (string, error) {
 
 	p.context.Log.Debug("Play: Checking buildDir: %s", buildDir)
 
-	// First, validate that we don't have ambiguous configuration (hybrid apps)
-	if err := p.Validate(); err != nil {
-		p.context.Log.Debug("Play: Validation failed: %v", err)
-		return "", err
+	// Run each detector once, collecting matches. Using a temporary container per
+	// detector avoids mutating p until we know exactly one type matched.
+	type candidate struct {
+		name string
+		c    *PlayContainer
+	}
+	var matches []candidate
+
+	detectors := []struct {
+		name string
+		fn   func(*PlayContainer, string) bool
+	}{
+		{"Pre22Staged", (*PlayContainer).detectPre22Staged},
+		{"Post22Staged", (*PlayContainer).detectPost22Staged},
+		{"Post22Dist", (*PlayContainer).detectPost22Dist},
+		{"Pre22Dist", (*PlayContainer).detectPre22Dist},
 	}
 
-	// Try to detect Play Framework type in order of specificity
-	// Order matters to avoid ambiguous detection
-	// Check staged apps (more specific - lib/staged only) before dist apps (less specific - has start scripts)
-
-	// 1. Try Pre22Staged (Play 2.0-2.1 staged app - only staged/ with JARs)
-	p.context.Log.Debug("Play: Trying Pre22Staged detection")
-	if p.detectPre22Staged(buildDir) {
-		p.context.Log.Info("Play: Detected Pre22Staged - version %s", p.playVersion)
-		return "Play", nil
+	for _, d := range detectors {
+		p.context.Log.Debug("Play: Trying %s detection", d.name)
+		tmp := &PlayContainer{context: p.context}
+		if d.fn(tmp, buildDir) {
+			p.context.Log.Debug("Play: %s matched (version %s)", d.name, tmp.playVersion)
+			matches = append(matches, candidate{d.name, tmp})
+		}
 	}
 
-	// 2. Try Post22Staged (Play 2.2+ staged app - only lib/ with JARs)
-	p.context.Log.Debug("Play: Trying Post22Staged detection")
-	if p.detectPost22Staged(buildDir) {
-		p.context.Log.Info("Play: Detected Post22Staged - version %s", p.playVersion)
-		return "Play", nil
+	if len(matches) > 1 {
+		names := make([]string, len(matches))
+		for i, m := range matches {
+			names[i] = m.name
+		}
+		return "", fmt.Errorf("Play Framework application version cannot be determined: %v", names)
 	}
 
-	// 3. Try Post22Dist (Play 2.2+ distributed app in application-root/bin)
-	p.context.Log.Debug("Play: Trying Post22Dist detection")
-	if p.detectPost22Dist(buildDir) {
-		p.context.Log.Info("Play: Detected Post22Dist - version %s", p.playVersion)
-		return "Play", nil
-	}
-
-	// 4. Try Pre22Dist (Play 2.0-2.1 distributed app in application-root/)
-	p.context.Log.Debug("Play: Trying Pre22Dist detection")
-	if p.detectPre22Dist(buildDir) {
-		p.context.Log.Info("Play: Detected Pre22Dist - version %s", p.playVersion)
+	if len(matches) == 1 {
+		m := matches[0]
+		p.playType = m.c.playType
+		p.playVersion = m.c.playVersion
+		p.startScript = m.c.startScript
+		p.libDir = m.c.libDir
+		p.context.Log.Info("Play: Detected %s - version %s", m.name, p.playVersion)
 		return "Play", nil
 	}
 
 	p.context.Log.Debug("Play: No Play Framework detected")
 	return "", nil
+}
+
+// Validate checks for ambiguous Play configurations without mutating the receiver.
+func (p *PlayContainer) Validate() error {
+	_, err := p.Detect()
+	return err
 }
 
 // detectPost22Dist detects Play 2.2+ distributed applications
@@ -421,81 +434,85 @@ export PATH=$PLAY_BIN:$PATH
 }
 
 // collectAdditionalLibraries gathers all additional libraries that should be added to CLASSPATH
-// This includes framework-provided JAR libraries installed during supply phase
+// This includes framework-provided JAR libraries installed during supply phase by any buildpack.
 func (p *PlayContainer) collectAdditionalLibraries() []string {
 	var libs []string
-	depsDir := p.context.Stager.DepDir()
+	// DepDir() returns e.g. /tmp/deps/0 — the current buildpack's slot.
+	// The parent directory contains all supply buildpack slots (0, 1, 2, …).
+	allDepsDir := filepath.Dir(p.context.Stager.DepDir())
 
-	// Scan $DEPS_DIR/<idx>/ for all framework directories
-	entries, err := os.ReadDir(depsDir)
+	// Scan $DEPS_DIR/ for all index slots
+	slots, err := os.ReadDir(allDepsDir)
 	if err != nil {
 		p.context.Log.Debug("Unable to read deps directory: %s", err.Error())
 		return libs
 	}
 
-	// Iterate through each framework directory
-	for _, entry := range entries {
-		if !entry.IsDir() {
+	for _, slot := range slots {
+		if !slot.IsDir() {
 			continue
 		}
 
-		frameworkDir := filepath.Join(depsDir, entry.Name())
+		slotDir := filepath.Join(allDepsDir, slot.Name())
 
-		// Find all *.jar files in this framework directory
-		jarPattern := filepath.Join(frameworkDir, "*.jar")
-		matches, err := filepath.Glob(jarPattern)
+		// Each slot contains framework subdirectories installed by that buildpack
+		frameworks, err := os.ReadDir(slotDir)
 		if err != nil {
-			p.context.Log.Debug("Error globbing JARs in %s: %s", frameworkDir, err.Error())
+			p.context.Log.Debug("Unable to read slot directory %s: %s", slotDir, err.Error())
 			continue
 		}
 
-		// Add all found JARs to the list
-		// NOTE: Native libraries (.so, .dylib files like jvmkill) are NOT added here
-		// Native libraries are loaded via -agentpath in JAVA_OPTS
-		for _, jar := range matches {
-			// Skip native libraries - only include .jar files
-			if filepath.Ext(jar) == ".jar" {
-				libs = append(libs, jar)
+		for _, fw := range frameworks {
+			if !fw.IsDir() {
+				continue
 			}
+
+			frameworkDir := filepath.Join(slotDir, fw.Name())
+
+			// Find all *.jar files directly in this framework directory
+			jarPattern := filepath.Join(frameworkDir, "*.jar")
+			matches, err := filepath.Glob(jarPattern)
+			if err != nil {
+				p.context.Log.Debug("Error globbing JARs in %s: %s", frameworkDir, err.Error())
+				continue
+			}
+
+			libs = append(libs, matches...)
 		}
 	}
 
 	return libs
 }
 
-// buildRuntimeClasspath converts staging-time library paths to runtime paths
+// buildRuntimeClasspath converts staging-time library paths to runtime paths.
 // At staging time, libraries are in $DEPS_DIR/<idx>/<framework>/*.jar
 // At runtime, they'll be in /home/vcap/deps/<idx>/<framework>/*.jar
 func (p *PlayContainer) buildRuntimeClasspath(libs []string) []string {
 	var classpathParts []string
-	depsDir := p.context.Stager.DepDir()
+	allDepsDir := filepath.Dir(p.context.Stager.DepDir())
 	buildDir := p.context.Stager.BuildDir()
-	depsIdx := p.context.Stager.DepsIdx()
 
 	for _, lib := range libs {
 		var runtimePath string
 
-		// Check if library is in deps directory
-		if strings.HasPrefix(lib, depsDir) {
-			// Convert to runtime $DEPS_DIR path
-			relPath, err := filepath.Rel(depsDir, lib)
+		if strings.HasPrefix(lib, allDepsDir) {
+			// e.g. /tmp/deps/1/new_relic_agent/newrelic.jar
+			// → relPath = 1/new_relic_agent/newrelic.jar
+			// → $DEPS_DIR/1/new_relic_agent/newrelic.jar
+			relPath, err := filepath.Rel(allDepsDir, lib)
 			if err != nil {
 				p.context.Log.Warning("Could not calculate relative path for %s: %s", lib, err.Error())
 				continue
 			}
-			relPath = filepath.ToSlash(relPath)
-			runtimePath = fmt.Sprintf("$DEPS_DIR/%s/%s", depsIdx, relPath)
+			runtimePath = fmt.Sprintf("$DEPS_DIR/%s", filepath.ToSlash(relPath))
 		} else if strings.HasPrefix(lib, buildDir) {
-			// Convert to runtime $HOME path
 			relPath, err := filepath.Rel(buildDir, lib)
 			if err != nil {
 				p.context.Log.Warning("Could not calculate relative path for %s: %s", lib, err.Error())
 				continue
 			}
-			relPath = filepath.ToSlash(relPath)
-			runtimePath = fmt.Sprintf("$HOME/%s", relPath)
+			runtimePath = fmt.Sprintf("$HOME/%s", filepath.ToSlash(relPath))
 		} else {
-			// Fallback: library path doesn't match expected patterns
 			p.context.Log.Warning("Library path %s doesn't match deps or build directory, using as-is", lib)
 			runtimePath = lib
 		}
@@ -538,34 +555,4 @@ func (p *PlayContainer) Release() (string, error) {
 
 	p.context.Log.Debug("Play Framework release command: %s", cmd)
 	return cmd, nil
-}
-
-// Validate checks for ambiguous Play configurations
-// This should be called during detection to reject hybrid apps
-func (p *PlayContainer) Validate() error {
-	buildDir := p.context.Stager.BuildDir()
-
-	// Check for ambiguous Play 2.1/2.2 hybrid configurations
-	// This happens when both Pre22 and Post22 structures exist
-
-	detected := []string{}
-
-	if p.detectPost22Dist(buildDir) {
-		detected = append(detected, "Post22Dist")
-	}
-	if p.detectPost22Staged(buildDir) {
-		detected = append(detected, "Post22Staged")
-	}
-	if p.detectPre22Dist(buildDir) {
-		detected = append(detected, "Pre22Dist")
-	}
-	if p.detectPre22Staged(buildDir) {
-		detected = append(detected, "Pre22Staged")
-	}
-
-	if len(detected) > 1 {
-		return fmt.Errorf("Play Framework application version cannot be determined: %v", detected)
-	}
-
-	return nil
 }
