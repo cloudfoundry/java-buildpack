@@ -594,14 +594,14 @@ dependencies:
   source: https://cdn.azul.com/zulu/bin/zulu8.94.0.17-ca-jre8.0.492-linux_x64.tar.gz
   source_sha256: ''
 - name: zulu
-  version: 11.0.30
-  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_11.0.30_linux_x64_any-stack_4767f5e6.tgz
-  sha256: 4767f5e6453a4b087ca3591190652e2cd22b89f0820df08ad4970003de1e7c4f
+  version: 11.0.31
+  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_11.0.31_linux_x64_cflinuxfs4_11643d8f.tgz
+  sha256: 11643d8f13f5af8201b361f8d35fdbc9794c5f6ef98915f5379abb226e5138ab
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://cdn.azul.com/zulu/bin/zulu11.86.21-ca-jre11.0.30-linux_x64.tar.gz
-  source_sha256: 4767f5e6453a4b087ca3591190652e2cd22b89f0820df08ad4970003de1e7c4f
+  source: https://cdn.azul.com/zulu/bin/zulu11.88.17-ca-jre11.0.31-linux_x64.tar.gz
+  source_sha256: ''
 - name: zulu
   version: 17.0.19
   uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_17.0.19_linux_x64_cflinuxfs4_c72c1967.tgz
