@@ -585,14 +585,14 @@ dependencies:
   source: https://download.yourkit.com/yjp/2025.9/YourKit-JavaProfiler-2025.9-b191-x64.zip
   source_sha256: 5e79eab6bc02c70b30600c3d2c390147dd458d8f5488aa2abebb67525af7f26e
 - name: zulu
-  version: 8.0.482
-  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_8.0.482_linux_x64_any-stack_359544c3.tgz
-  sha256: 359544c33f80d1c24ebfa5a72355b9f828bbc91d13d9886adc56b3b5cf3926db
+  version: 8.0.492
+  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_8.0.492_linux_x64_cflinuxfs4_39abf1dc.tgz
+  sha256: 39abf1dc6798b5f6b8e9dca4e78994da316a3f990e444c2c483ea04f7f882cf2
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://cdn.azul.com/zulu/bin/zulu8.92.0.21-ca-jre8.0.482-linux_x64.tar.gz
-  source_sha256: 359544c33f80d1c24ebfa5a72355b9f828bbc91d13d9886adc56b3b5cf3926db
+  source: https://cdn.azul.com/zulu/bin/zulu8.94.0.17-ca-jre8.0.492-linux_x64.tar.gz
+  source_sha256: ''
 - name: zulu
   version: 11.0.30
   uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_11.0.30_linux_x64_any-stack_4767f5e6.tgz
