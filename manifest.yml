@@ -15,7 +15,8 @@ include_files:
 pre_package: scripts/build.sh
 packaging_profiles:
   minimal:
-    description: "JDKs, CF utilities, Tomcat, and common frameworks only. No APM agents, profilers, or JDBC drivers."
+    description: JDKs, CF utilities, Tomcat, and common frameworks only. No APM agents,
+      profilers, or JDBC drivers.
     exclude:
     - datadog-javaagent
     - elastic-apm-agent
@@ -37,7 +38,8 @@ packaging_profiles:
     - postgresql-jdbc
     - mariadb-jdbc
   standard:
-    description: "Core + open-source APM, OTel, and JDBC drivers. No commercial agents or profilers."
+    description: Core + open-source APM, OTel, and JDBC drivers. No commercial agents
+      or profilers.
     exclude:
     - datadog-javaagent
     - elastic-apm-agent
@@ -483,14 +485,14 @@ dependencies:
   source: https://github.com/SAP/SapMachine/releases/download/sapmachine-21.0.10/sapmachine-jre-21.0.10_linux-x64_bin.tar.gz
   source_sha256: 6ee8043a21cc27494307cedcee6f76689af7be2a33f89ca60ef89cd7df2ab9bc
 - name: sapmachine
-  version: 25.0.2
-  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_25.0.2_linux_x64_any-stack_1255fbaf.tgz
-  sha256: 1255fbafedfb983e8310321c9af205a825a2fe28b437320d66d8a635c6e4fb60
+  version: 25.0.3
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_25.0.3_linux_x64_cflinuxfs4_1a0c425e.tgz
+  sha256: 1a0c425ebcc41070dbd6203560ae60c62c5d1e7e03006d93081306d472e236a0
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.2/sapmachine-jre-25.0.2_linux-x64_bin.tar.gz
-  source_sha256: 1255fbafedfb983e8310321c9af205a825a2fe28b437320d66d8a635c6e4fb60
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.3/sapmachine-jre-25.0.3_linux-x64_bin.tar.gz
+  source_sha256: 1a0c425ebcc41070dbd6203560ae60c62c5d1e7e03006d93081306d472e236a0
 - name: sealights-agent
   version: 4.0.2570
   uri: https://agents.sealights.co/sealights-java/sealights-java-4.0.2570.zip
