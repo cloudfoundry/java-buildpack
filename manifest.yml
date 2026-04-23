@@ -414,14 +414,14 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 - name: openjdk
-  version: 8.0.482+10
-  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_8.0.482%2B10_linux_x64_any-stack_f05d0dba.tgz
-  sha256: f05d0dba908ad283f8f62d7a0f8c999363d725f2001d67eae84554ac2cc52dda
+  version: 8.0.492+9
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_8.0.492%2B9_linux_x64_cflinuxfs4_c8a7c418.tgz
+  sha256: c8a7c418481fb2e35af5a6afb2bc02a6862ce3f30d8a2b38fd9f18cd8b87ae07
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/bell-sw/Liberica/releases/download/8u482+10/bellsoft-jre8u482+10-linux-amd64.tar.gz
-  source_sha256: f05d0dba908ad283f8f62d7a0f8c999363d725f2001d67eae84554ac2cc52dda
+  source: https://github.com/bell-sw/Liberica/releases/download/8u492+9/bellsoft-jre8u492+9-linux-amd64.tar.gz
+  source_sha256: ''
 - name: openjdk
   version: 11.0.31+11
   uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_11.0.31%2B11_linux_x64_cflinuxfs4_d9147b32.tgz
