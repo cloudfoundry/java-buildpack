@@ -126,9 +126,9 @@ dependencies: []
 			Expect(os.MkdirAll(filepath.Join(cspInstallDir), 0755)).To(Succeed())
 
 			depClientCertificateMapper := libbuildpack.Dependency{Name: "client-certificate-mapper", Version: "2.0.1"}
-			mockManifest.EXPECT().DefaultVersion("client-certificate-mapper").Return(depClientCertificateMapper, nil)
+			mockManifest.EXPECT().DefaultVersion("client-certificate-mapper").Return(depClientCertificateMapper, nil).Times(2)
 			depContainerSecProvider := libbuildpack.Dependency{Name: "container-security-provider", Version: "1.20.0"}
-			mockManifest.EXPECT().DefaultVersion("container-security-provider").Return(depContainerSecProvider, nil)
+			mockManifest.EXPECT().DefaultVersion("container-security-provider").Return(depContainerSecProvider, nil).Times(2)
 
 			mockInstaller.EXPECT().InstallDependency(depClientCertificateMapper, ccmInstallDir).Return(nil)
 			mockInstaller.EXPECT().InstallDependency(depContainerSecProvider, cspInstallDir).Return(nil)
@@ -193,7 +193,7 @@ dependencies: []
 				Expect(os.MkdirAll(filepath.Join(javaCfEnvInstallDir), 0755)).To(Succeed())
 
 				depJavaCfEnv := libbuildpack.Dependency{Name: "java-cfenv", Version: "3.5.0"}
-				mockManifest.EXPECT().DefaultVersion("java-cfenv").Return(depJavaCfEnv, nil)
+				mockManifest.EXPECT().DefaultVersion("java-cfenv").Return(depJavaCfEnv, nil).Times(2)
 				mockInstaller.EXPECT().InstallDependency(depJavaCfEnv, javaCfEnvInstallDir).Return(nil)
 			})
 

@@ -49,7 +49,7 @@ func (r *RiverbedAppInternalsAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Riverbed AppInternals agent
 func (r *RiverbedAppInternalsAgentFramework) Supply() error {
-	r.context.Log.BeginStep("Installing Riverbed AppInternals agent")
+	r.context.Log.Debug("Installing Riverbed AppInternals agent")
 
 	// Get dependency from manifest
 	dep, err := r.context.Manifest.DefaultVersion("riverbed-appinternals-agent")
@@ -121,7 +121,7 @@ func (r *RiverbedAppInternalsAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Riverbed AppInternals: %w", err)
 	}
 
-	r.context.Log.Info("Riverbed AppInternals agent configured")
+	r.context.Log.Debug("Riverbed AppInternals agent configured")
 	return nil
 }
 
@@ -225,4 +225,8 @@ func (r *RiverbedAppInternalsAgentFramework) constructAgentJarPath(agentDir stri
 	}
 	r.agentPath = agentJarPath
 	return nil
+}
+
+func (r *RiverbedAppInternalsAgentFramework) DependencyIdentifier() string {
+	return "riverbed-appinternals-agent"
 }

@@ -50,7 +50,7 @@ func (s *SapMachineJRE) Supply() error {
 	}
 
 	s.version = dep.Version
-	s.ctx.Log.Info("Installing SAP Machine %s", s.version)
+	s.ctx.Log.Info("Installing SAP Machine (%s)", s.version)
 
 	// Install JRE
 	if err := s.ctx.Installer.InstallDependency(dep, s.jreDir); err != nil {

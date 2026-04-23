@@ -62,7 +62,7 @@ func (c *CheckmarxIASTAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Checkmarx IAST agent
 func (c *CheckmarxIASTAgentFramework) Supply() error {
-	c.context.Log.BeginStep("Installing Checkmarx IAST agent")
+	c.context.Log.Debug("Installing Checkmarx IAST agent")
 
 	// Get credentials from service binding
 	credentials := c.getCredentials()
@@ -126,7 +126,7 @@ func (c *CheckmarxIASTAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Checkmarx IAST: %w", err)
 	}
 
-	c.context.Log.Info("Checkmarx IAST agent configured")
+	c.context.Log.Debug("Checkmarx IAST agent configured")
 	return nil
 }
 

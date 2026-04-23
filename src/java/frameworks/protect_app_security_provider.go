@@ -56,7 +56,7 @@ func (p *ProtectAppSecurityProviderFramework) Detect() (string, error) {
 
 // Supply installs the ProtectApp security provider JAR
 func (p *ProtectAppSecurityProviderFramework) Supply() error {
-	p.context.Log.BeginStep("Installing ProtectApp Security Provider")
+	p.context.Log.Debug("Installing ProtectApp Security Provider")
 
 	// Get protect-app-security-provider dependency from manifest
 	dep, err := p.context.Manifest.DefaultVersion("protect-app-security-provider")
@@ -75,7 +75,7 @@ func (p *ProtectAppSecurityProviderFramework) Supply() error {
 		p.context.Log.Warning("Could not install default ProtectApp configuration: %s", err.Error())
 	}
 
-	p.context.Log.Info("Installed ProtectApp Security Provider version %s", dep.Version)
+	p.context.Log.Debug("Installed ProtectApp Security Provider version %s", dep.Version)
 	return nil
 }
 
@@ -101,7 +101,7 @@ func (p *ProtectAppSecurityProviderFramework) installDefaultConfiguration(protec
 		return fmt.Errorf("failed to write IngrianNAE.properties: %w", err)
 	}
 
-	p.context.Log.Info("Installed default ProtectApp configuration")
+	p.context.Log.Debug("Installed default ProtectApp configuration")
 	p.context.Log.Debug("  - IngrianNAE.properties (connection and cache settings)")
 	return nil
 }
@@ -341,4 +341,8 @@ func (p *ProtectAppSecurityProviderFramework) findProtectAppService() (map[strin
 	}
 
 	return nil, fmt.Errorf("no ProtectApp service found")
+}
+
+func (p *ProtectAppSecurityProviderFramework) DependencyIdentifier() string {
+	return "protect-app-security-provider"
 }

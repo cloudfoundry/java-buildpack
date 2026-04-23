@@ -46,7 +46,7 @@ func (j *JavaCfEnvFramework) Detect() (string, error) {
 
 // Supply installs the java-cfenv JAR
 func (j *JavaCfEnvFramework) Supply() error {
-	j.context.Log.BeginStep("Installing Java CF Env")
+	j.context.Log.Debug("Installing Java CF Env")
 
 	// Get java-cfenv dependency from manifest
 	dep, err := j.context.Manifest.DefaultVersion("java-cfenv")
@@ -64,7 +64,7 @@ func (j *JavaCfEnvFramework) Supply() error {
 		return fmt.Errorf("failed to install Java CF Env: %w", err)
 	}
 
-	j.context.Log.Info("Installed Java CF Env version %s", dep.Version)
+	j.context.Log.Debug("Installed Java CF Env version %s", dep.Version)
 	return nil
 }
 
@@ -187,4 +187,8 @@ func (j *JavaCfEnvFramework) hasJavaCfEnv() bool {
 	}
 
 	return false
+}
+
+func (j *JavaCfEnvFramework) DependencyIdentifier() string {
+	return "java-cfenv"
 }

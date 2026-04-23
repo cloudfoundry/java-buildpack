@@ -66,7 +66,7 @@ func (f *SealightsAgentFramework) Supply() error {
 	// Install directory
 	installDir := filepath.Join(f.context.Stager.DepDir(), "sealights_agent")
 
-	f.context.Log.BeginStep("Installing Sealights Agent %s", dep.Version)
+	f.context.Log.Debug("Installing Sealights Agent %s", dep.Version)
 
 	// Download and extract ZIP with JAR agent
 	if err := f.context.Installer.InstallDependency(dep, installDir); err != nil {
@@ -211,7 +211,7 @@ func (f *SealightsAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to create log directory: %w", err)
 	}
 
-	f.context.Log.Info("Sealights Agent configured (priority 39)")
+	f.context.Log.Debug("Sealights Agent configured (priority 39)")
 	return nil
 }
 

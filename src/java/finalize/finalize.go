@@ -153,14 +153,12 @@ func (f *Finalizer) finalizeJRE() error {
 		return fmt.Errorf("failed to finalize JRE %s: %w", f.JREName, err)
 	}
 
-	f.Log.Info("JRE finalization complete")
+	f.Log.Debug("JRE finalization complete")
 	return nil
 }
 
 // finalizeFrameworks finalizes framework components (APM agents, etc.)
 func (f *Finalizer) finalizeFrameworks(ctx *common.Context) error {
-	f.Log.BeginStep("Finalizing frameworks")
-
 	registry := frameworks.NewRegistry(ctx)
 	registry.RegisterStandardFrameworks()
 
@@ -175,10 +173,10 @@ func (f *Finalizer) finalizeFrameworks(ctx *common.Context) error {
 		return nil
 	}
 
-	f.Log.Info("Finalizing frameworks: [%v]", strings.Join(frameworkNames, ","))
+	f.Log.BeginStep("Finalizing frameworks [%v]", strings.Join(frameworkNames, ", "))
 
 	for i, framework := range detectedFrameworks {
-		f.Log.Info("Finalizing framework: %s", frameworkNames[i])
+		f.Log.Debug("Finalizing framework: %s", frameworkNames[i])
 		if err := framework.Finalize(); err != nil {
 			f.Log.Warning("Failed to finalize framework %s: %s", frameworkNames[i], err.Error())
 			// Continue with other frameworks even if one fails

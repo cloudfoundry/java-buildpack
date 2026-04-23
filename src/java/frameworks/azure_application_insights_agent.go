@@ -82,7 +82,7 @@ func (a *AzureApplicationInsightsAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Azure Application Insights agent
 func (a *AzureApplicationInsightsAgentFramework) Supply() error {
-	a.context.Log.BeginStep("Installing Azure Application Insights agent")
+	a.context.Log.Debug("Installing Azure Application Insights agent")
 
 	// Get dependency from manifest
 	dep, err := a.context.Manifest.DefaultVersion("azure-application-insights")
@@ -134,7 +134,7 @@ func (a *AzureApplicationInsightsAgentFramework) installDefaultConfiguration(age
 		return fmt.Errorf("failed to write AI-Agent.xml: %w", err)
 	}
 
-	a.context.Log.Info("Installed default Azure Application Insights configuration")
+	a.context.Log.Debug("Installed default Azure Application Insights configuration")
 	a.context.Log.Debug("  - AI-Agent.xml (instrumentation settings)")
 	return nil
 }
@@ -185,7 +185,7 @@ func (a *AzureApplicationInsightsAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Azure Application Insights: %w", err)
 	}
 
-	a.context.Log.Info("Azure Application Insights agent configured")
+	a.context.Log.Debug("Azure Application Insights agent configured")
 	return nil
 }
 
@@ -288,4 +288,8 @@ func (a *AzureApplicationInsightsAgentFramework) constructJarPath(agentDir strin
 	}
 	a.jarPath = matches[0]
 	return nil
+}
+
+func (a *AzureApplicationInsightsAgentFramework) DependencyIdentifier() string {
+	return "azure-application-insights"
 }

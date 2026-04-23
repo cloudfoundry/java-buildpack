@@ -9,6 +9,12 @@ import (
 )
 
 // Framework represents a cross-cutting concern (APM agents, security providers, etc.)
+// DependencyIdentifierProvider optionally exposes a manifest dependency identifier
+// for frameworks that install a specific dependency artifact.
+type DependencyIdentifierProvider interface {
+	DependencyIdentifier() string
+}
+
 type Framework interface {
 	// Detect returns true if this framework should be included
 	// Returns the framework name and version if detected

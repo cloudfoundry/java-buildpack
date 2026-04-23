@@ -48,7 +48,7 @@ func (o *OpenTelemetryJavaagentFramework) Detect() (string, error) {
 
 // Supply installs the OpenTelemetry Javaagent
 func (o *OpenTelemetryJavaagentFramework) Supply() error {
-	o.context.Log.BeginStep("Installing OpenTelemetry Javaagent")
+	o.context.Log.Debug("Installing OpenTelemetry Javaagent")
 
 	// Get OpenTelemetry agent dependency from manifest
 	dep, err := o.context.Manifest.DefaultVersion("open-telemetry-javaagent")
@@ -66,7 +66,7 @@ func (o *OpenTelemetryJavaagentFramework) Supply() error {
 		return fmt.Errorf("failed to install OpenTelemetry agent: %w", err)
 	}
 
-	o.context.Log.Info("Installed OpenTelemetry Javaagent version %s", dep.Version)
+	o.context.Log.Debug("Installed OpenTelemetry Javaagent version %s", dep.Version)
 	return nil
 }
 
@@ -119,6 +119,10 @@ func (o *OpenTelemetryJavaagentFramework) Finalize() error {
 		return fmt.Errorf("failed to write java_opts file: %w", err)
 	}
 
-	o.context.Log.Info("OpenTelemetry Javaagent configured (priority 36)")
+	o.context.Log.Debug("OpenTelemetry Javaagent configured (priority 36)")
 	return nil
+}
+
+func (o *OpenTelemetryJavaagentFramework) DependencyIdentifier() string {
+	return "open-telemetry-javaagent"
 }

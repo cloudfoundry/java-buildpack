@@ -48,7 +48,7 @@ func (s *SeekerSecurityProviderFramework) Detect() (string, error) {
 
 // Supply installs the Seeker agent by downloading from Seeker server
 func (s *SeekerSecurityProviderFramework) Supply() error {
-	s.context.Log.BeginStep("Installing Synopsys Seeker Security Provider")
+	s.context.Log.Debug("Installing Synopsys Seeker Security Provider")
 
 	// Get Seeker service credentials
 	seekerService, err := s.findSeekerService()
@@ -81,7 +81,7 @@ func (s *SeekerSecurityProviderFramework) Supply() error {
 		return fmt.Errorf("failed to download Seeker agent: %w", err)
 	}
 
-	s.context.Log.Info("Installed Synopsys Seeker Security Provider from %s", serverURL)
+	s.context.Log.Debug("Installed Synopsys Seeker Security Provider from %s", serverURL)
 	return nil
 }
 
@@ -169,7 +169,7 @@ export SEEKER_SERVER_URL="%s"
 		return fmt.Errorf("failed to write Seeker profile.d script: %w", err)
 	}
 
-	s.context.Log.Info("Seeker Security Provider configured (priority 40)")
+	s.context.Log.Debug("Seeker Security Provider configured (priority 40)")
 	return nil
 }
 

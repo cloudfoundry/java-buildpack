@@ -119,14 +119,12 @@ func (s *Supplier) installJRE() (jres.JRE, string, error) {
 		return nil, "", err
 	}
 
-	s.Log.Info("JRE installation complete: %s %s", jreName, jre.Version())
+	s.Log.Debug("JRE installation complete: %s %s", jreName, jre.Version())
 	return jre, jreName, nil
 }
 
 // installFrameworks installs framework components (APM agents, etc.)
 func (s *Supplier) installFrameworks() error {
-	s.Log.BeginStep("Installing frameworks")
-
 	// Create framework context
 	ctx := &common.Context{
 		Stager:    s.Stager,
@@ -152,17 +150,36 @@ func (s *Supplier) installFrameworks() error {
 		return nil
 	}
 
-	s.Log.Info("Detected frameworks: [%v]", strings.Join(frameworkNames, ","))
+	s.Log.BeginStep("Installing frameworks [%v]", strings.Join(frameworkNames, ", "))
 
 	// Install all detected frameworks
 	// Framework installation errors are fatal and will abort the build,
 	// matching the behavior of the Ruby buildpack
 	for i, framework := range detectedFrameworks {
-		s.Log.Info("Installing framework: %s", frameworkNames[i])
+		s.Log.Info("Installing %s%s", frameworkNames[i], s.frameworkVersionSuffix(framework))
 		if err := framework.Supply(); err != nil {
 			return fmt.Errorf("failed to install framework %s: %w", frameworkNames[i], err)
 		}
 	}
 
 	return nil
+}
+
+func (s *Supplier) frameworkVersionSuffix(framework frameworks.Framework) string {
+	provider, ok := framework.(frameworks.DependencyIdentifierProvider)
+	if !ok {
+		return ""
+	}
+
+	dependencyName := strings.TrimSpace(provider.DependencyIdentifier())
+	if dependencyName == "" {
+		return ""
+	}
+
+	dependency, err := s.Manifest.DefaultVersion(dependencyName)
+	if err != nil || strings.TrimSpace(dependency.Version) == "" {
+		return ""
+	}
+
+	return fmt.Sprintf(" (%s)", dependency.Version)
 }

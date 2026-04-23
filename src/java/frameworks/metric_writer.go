@@ -82,7 +82,7 @@ func (m *MetricWriterFramework) hasMicrometer() bool {
 
 // Supply installs the Metric Writer library
 func (m *MetricWriterFramework) Supply() error {
-	m.context.Log.BeginStep("Installing Metric Writer")
+	m.context.Log.Debug("Installing Metric Writer")
 
 	// Get metric-writer dependency from manifest
 	dep, err := m.context.Manifest.DefaultVersion("metric-writer")
@@ -96,7 +96,7 @@ func (m *MetricWriterFramework) Supply() error {
 		return fmt.Errorf("failed to install Metric Writer: %w", err)
 	}
 
-	m.context.Log.Info("Installed Metric Writer version %s", dep.Version)
+	m.context.Log.Debug("Installed Metric Writer version %s", dep.Version)
 	return nil
 }
 
@@ -199,4 +199,8 @@ type metricWriterConfig struct {
 // isEnabled checks if metric writer is enabled
 func (m *metricWriterConfig) isEnabled() bool {
 	return m.Enabled
+}
+
+func (m *MetricWriterFramework) DependencyIdentifier() string {
+	return "metric-writer"
 }

@@ -71,7 +71,7 @@ func testDistZip(platform switchblade.Platform, fixtures string) func(*testing.T
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				Expect(logs.String()).To(ContainSubstring("Java Buildpack"))
-				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK 8."))
+				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK (8."))
 				Eventually(deployment).Should(matchers.Serve(Not(BeEmpty())))
 			})
 
@@ -84,7 +84,7 @@ func testDistZip(platform switchblade.Platform, fixtures string) func(*testing.T
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				Expect(logs.String()).To(ContainSubstring("Java Buildpack"))
-				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK 17."))
+				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK (17."))
 				Eventually(deployment).Should(matchers.Serve(Not(BeEmpty())))
 			})
 		})

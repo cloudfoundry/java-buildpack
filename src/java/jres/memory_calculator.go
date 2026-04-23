@@ -45,8 +45,6 @@ func (m *MemoryCalculator) Name() string {
 
 // Supply installs the memory calculator
 func (m *MemoryCalculator) Supply() error {
-	m.ctx.Log.Info("Installing Memory Calculator")
-
 	// Get memory calculator version from manifest
 	dep, err := m.ctx.Manifest.DefaultVersion("memory-calculator")
 	if err != nil {
@@ -54,7 +52,7 @@ func (m *MemoryCalculator) Supply() error {
 	}
 
 	m.version = dep.Version
-	m.ctx.Log.Debug("Memory Calculator version: %s", m.version)
+	m.ctx.Log.Info("Installing Memory Calculator (%s)", m.version)
 
 	// Create bin directory
 	binDir := filepath.Join(m.jreDir, "bin")
@@ -194,7 +192,7 @@ export MALLOC_ARENA_MAX=2
 		return fmt.Errorf("failed to write memory calculator script: %w", err)
 	}
 
-	m.ctx.Log.Info("Memory Calculator configured")
+	m.ctx.Log.Debug("Memory Calculator configured")
 
 	return nil
 }

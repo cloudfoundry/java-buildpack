@@ -50,7 +50,7 @@ func (g *GraalVMJRE) Supply() error {
 	}
 
 	g.version = dep.Version
-	g.ctx.Log.Info("Installing GraalVM %s", g.version)
+	g.ctx.Log.Info("Installing GraalVM (%s)", g.version)
 
 	// Install JRE
 	if err := g.ctx.Installer.InstallDependency(dep, g.jreDir); err != nil {

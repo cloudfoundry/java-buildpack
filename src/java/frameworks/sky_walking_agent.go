@@ -67,7 +67,7 @@ func (s *SkyWalkingAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the SkyWalking agent
 func (s *SkyWalkingAgentFramework) Supply() error {
-	s.context.Log.BeginStep("Installing SkyWalking agent")
+	s.context.Log.Debug("Installing SkyWalking agent")
 
 	// Get dependency from manifest
 	dep, err := s.context.Manifest.DefaultVersion("skywalking-agent")
@@ -136,7 +136,7 @@ func (s *SkyWalkingAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for SkyWalking: %w", err)
 	}
 
-	s.context.Log.Info("SkyWalking agent configured")
+	s.context.Log.Debug("SkyWalking agent configured")
 	return nil
 }
 
@@ -245,4 +245,8 @@ func (s *SkyWalkingAgentFramework) loadConfig() (*skyWalkingAgentConfig, error) 
 
 type skyWalkingAgentConfig struct {
 	DefaultApplicationName string `yaml:"default_application_name"`
+}
+
+func (s *SkyWalkingAgentFramework) DependencyIdentifier() string {
+	return "skywalking-agent"
 }

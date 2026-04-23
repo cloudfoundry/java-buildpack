@@ -49,7 +49,7 @@ func (i *IntroscopeAgentFramework) Detect() (string, error) {
 
 // Supply downloads and installs the Introscope agent
 func (i *IntroscopeAgentFramework) Supply() error {
-	i.context.Log.BeginStep("Installing Introscope agent")
+	i.context.Log.Debug("Installing Introscope agent")
 
 	// Get dependency from manifest
 	dep, err := i.context.Manifest.DefaultVersion("introscope-agent")
@@ -126,7 +126,7 @@ func (i *IntroscopeAgentFramework) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS for Introscope: %w", err)
 	}
 
-	i.context.Log.Info("Introscope agent configured")
+	i.context.Log.Debug("Introscope agent configured")
 	return nil
 }
 
@@ -252,4 +252,8 @@ func (i *IntroscopeAgentFramework) constructAgentPath(agentDir string) error {
 	}
 	i.agentPath = agentPattern
 	return nil
+}
+
+func (i *IntroscopeAgentFramework) DependencyIdentifier() string {
+	return "introscope-agent"
 }
