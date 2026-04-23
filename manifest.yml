@@ -15,7 +15,8 @@ include_files:
 pre_package: scripts/build.sh
 packaging_profiles:
   minimal:
-    description: "JDKs, CF utilities, Tomcat, and common frameworks only. No APM agents, profilers, or JDBC drivers."
+    description: JDKs, CF utilities, Tomcat, and common frameworks only. No APM agents,
+      profilers, or JDBC drivers.
     exclude:
     - datadog-javaagent
     - elastic-apm-agent
@@ -37,7 +38,8 @@ packaging_profiles:
     - postgresql-jdbc
     - mariadb-jdbc
   standard:
-    description: "Core + open-source APM, OTel, and JDBC drivers. No commercial agents or profilers."
+    description: Core + open-source APM, OTel, and JDBC drivers. No commercial agents
+      or profilers.
     exclude:
     - datadog-javaagent
     - elastic-apm-agent
@@ -325,13 +327,14 @@ dependencies:
   source: https://repo1.maven.org/maven2/org/jacoco/jacoco/0.8.14/jacoco-0.8.14.zip
   source_sha256: 0372447f54900b4e77bcb216985b7d31cf5318fc599f8f9346ee35830448c125
 - name: java-cfenv
-  version: 3.5.0
-  uri: https://java-buildpack.cloudfoundry.org/java-cfenv/java-cfenv-3.5.0.jar
-  sha256: 6a761fe530783c0ec9e6d1713ef54f6504803bf1ad02856d3ee7b46211f905c5
+  version: 3.5.1
+  uri: https://buildpacks.cloudfoundry.org/dependencies/java-cfenv/java-cfenv_3.5.1_linux_noarch_any-stack_caa4a786.jar
+  sha256: caa4a78642a39df4fe01ed2013fef1f58ac7ce5376d7791f9b4c8f6eba9da94e
   cf_stacks:
   - cflinuxfs4
-  source: https://repo1.maven.org/maven2/io/pivotal/cfenv/java-cfenv/3.5.0/java-cfenv-3.5.0.jar
-  source_sha256: 9cc8d4c368bc90eafb7b6b14bc34c57ef5523f3ec8546e3fbd91326cdfc13500
+  - cflinuxfs5
+  source: https://repo1.maven.org/maven2/io/pivotal/cfenv/java-cfenv/3.5.1/java-cfenv-3.5.1.jar
+  source_sha256: ''
 - name: java-memory-assistant
   version: 0.5.0
   uri: https://github.com/SAP/java-memory-assistant/releases/download/0.5.0/java-memory-assistant-0.5.0.jar
