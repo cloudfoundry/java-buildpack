@@ -1,11 +1,12 @@
 package supply_test
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/internal/mocks"
-	"github.com/golang/mock/gomock"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/cloudfoundry/java-buildpack/src/internal/mocks"
+	"github.com/golang/mock/gomock"
 
 	"github.com/cloudfoundry/java-buildpack/src/java/supply"
 	"github.com/cloudfoundry/libbuildpack"
@@ -177,7 +178,33 @@ dependencies: []
 			})
 		})
 
-		Context("When a Spring-boot application is present", func() {
+		Context("When a Spring-boot 4 application is present", func() {
+			BeforeEach(func() {
+				// Create a Spring Boot JAR with BOOT-INF
+				bootInfDir := filepath.Join(buildDir, "BOOT-INF")
+				Expect(os.MkdirAll(bootInfDir, 0755)).To(Succeed())
+				Expect(os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)).To(Succeed())
+
+				// Create META-INF/MANIFEST.MF with corresponding content of a Spring Boot app
+				manifestFile := filepath.Join(buildDir, "META-INF", "MANIFEST.MF")
+				Expect(os.WriteFile(manifestFile, []byte("Spring-Boot-Version: 4.x.x"), 0644)).To(Succeed())
+
+				//Create install dir and mock for the java cf env spring boot related dependency
+				javaCfEnvInstallDir := filepath.Join(depsDir, depsIdx, "java_cf_env")
+				Expect(os.MkdirAll(filepath.Join(javaCfEnvInstallDir), 0755)).To(Succeed())
+
+				depJavaCfEnv := libbuildpack.Dependency{Name: "java-cfenv", Version: "4.999.0"}
+				mockManifest.EXPECT().DefaultVersion("java-cfenv").Return(depJavaCfEnv, nil)
+				mockManifest.EXPECT().AllDependencyVersions("java-cfenv").Return([]string{"4.999.0", "3.999.0"})
+				mockInstaller.EXPECT().InstallDependency(depJavaCfEnv, javaCfEnvInstallDir).Return(nil)
+			})
+
+			It("Supply passes successfully", func() {
+				Expect(supply.Run(supplier)).To(Succeed())
+			})
+		})
+
+		Context("When a Spring-boot 3 application is present", func() {
 			BeforeEach(func() {
 				// Create a Spring Boot JAR with BOOT-INF
 				bootInfDir := filepath.Join(buildDir, "BOOT-INF")
@@ -192,8 +219,9 @@ dependencies: []
 				javaCfEnvInstallDir := filepath.Join(depsDir, depsIdx, "java_cf_env")
 				Expect(os.MkdirAll(filepath.Join(javaCfEnvInstallDir), 0755)).To(Succeed())
 
-				depJavaCfEnv := libbuildpack.Dependency{Name: "java-cfenv", Version: "3.5.0"}
-				mockManifest.EXPECT().DefaultVersion("java-cfenv").Return(depJavaCfEnv, nil).Times(2)
+				depJavaCfEnv := libbuildpack.Dependency{Name: "java-cfenv", Version: "3.999.0"}
+				mockManifest.EXPECT().DefaultVersion("java-cfenv").Return(depJavaCfEnv, nil)
+				mockManifest.EXPECT().AllDependencyVersions("java-cfenv").Return([]string{"4.999.0", "3.999.0"})
 				mockInstaller.EXPECT().InstallDependency(depJavaCfEnv, javaCfEnvInstallDir).Return(nil)
 			})
 
