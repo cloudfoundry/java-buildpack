@@ -169,5 +169,15 @@ var _ = Describe("Spring Boot Container", func() {
 			err := container.Finalize()
 			Expect(err).NotTo(HaveOccurred())
 		})
+
+		It("writes SERVER_PORT=$PORT so app binds to CF's assigned port regardless of server.port in application.yml", func() {
+			err := container.Finalize()
+			Expect(err).NotTo(HaveOccurred())
+
+			envFile := filepath.Join(depsDir, "0", "env", "SERVER_PORT")
+			data, err := os.ReadFile(envFile)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(data)).To(Equal("$PORT"))
+		})
 	})
 })

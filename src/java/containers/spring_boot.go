@@ -233,6 +233,15 @@ func (s *SpringBootContainer) Finalize() error {
 		return fmt.Errorf("failed to write JAVA_OPTS: %w", err)
 	}
 
+	// Ensure the app binds to CF's assigned port, overriding any server.port set in
+	// application.yml or other Spring config. Without this, apps with a hardcoded
+	// server.port will either bind to the wrong port (health check fails) or crash
+	// with java.net.BindException: Permission denied for privileged ports (< 1024).
+	// Mirrors Ruby buildpack: lib/java_buildpack/container/spring_boot.rb release()
+	if err := s.context.Stager.WriteEnvFile("SERVER_PORT", "$PORT"); err != nil {
+		return fmt.Errorf("failed to write SERVER_PORT: %w", err)
+	}
+
 	return nil
 }
 
