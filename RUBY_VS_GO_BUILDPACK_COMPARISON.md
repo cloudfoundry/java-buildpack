@@ -2191,11 +2191,48 @@ dependencies:
 | **APM Agents** | ✅ 15 agents | ✅ 14 agents | Missing: Google Stackdriver Debugger (deprecated) |
 | **Security Providers** | ✅ 6 | ✅ 6 | Identical |
 | **Database JDBC Injection** | ✅ | ✅ | Identical |
-| **Memory Calculator** | ✅ | ✅ | Identical |
+| **Memory Calculator** | ✅ v3.13.0 | ✅ v4.2.0 | **Behaviour change** — see below |
 | **JVMKill Agent** | ✅ | ✅ | Identical |
 | **Custom JRE Repositories** | ✅ Runtime config | ❌ Requires fork | Breaking change |
 | **Multi-buildpack** | ⚠️ Via framework | ✅ Native V3 | Go improvement |
 | **Configuration Overrides** | ✅ | ✅ | Identical (JBP_CONFIG_*) |
+
+#### Memory Calculator Behaviour Change (v3 → v4)
+
+The memory calculator binary was upgraded from **v3.13.0 to v4.2.0**. Both versions
+receive the full `$JAVA_OPTS` string via `--jvm-options`, but they handle a
+user-pinned `-Xmx` differently:
+
+| Behaviour | v3.13.0 (Ruby buildpack) | v4.2.0 (Go buildpack) |
+|-----------|--------------------------|------------------------|
+| Total memory check | `overhead > total` | `overhead + fixed heap > total` |
+| User sets `-Xmx512M`, memory=750M | ✅ passes (overhead ≈ 728M < 750M) | ❌ fails (728M + 512M = 1,240M > 750M) |
+
+**Impact**: Apps that set `-Xmx` explicitly in `JAVA_OPTS` (or via `JBP_CONFIG_*`)
+**and** run in small containers (e.g. 750M) will fail at startup with:
+
+```
+required memory 1269289K is greater than 750M available for allocation
+```
+
+**Migration options** (choose one):
+
+1. **Remove `-Xmx` from `JAVA_OPTS`** — let the calculator size heap automatically.
+   This is the recommended approach; the calculator will allocate remaining memory
+   after reserving space for metaspace, code cache, and stack.
+
+2. **Increase manifest memory** — raise `memory:` to at least 1300M if you need to
+   keep a fixed `-Xmx512M`.
+
+3. **Reduce stack threads** — if you cannot change memory or remove `-Xmx`, reduce
+   thread count via `JBP_CONFIG_OPEN_JDK_JRE`:
+   ```yaml
+   env:
+     JBP_CONFIG_OPEN_JDK_JRE: '{ memory_calculator: { stack_threads: 50 } }'
+   ```
+   Saving 200 threads × 1M = 200M may be enough to fit within the limit.
+   > **Note**: `JBP_CONFIG_OPEN_JDK_JRE` parsing is a known bug (not yet fixed);
+   > track progress on the issue tracker.
 
 ### 10.3 Adoption Recommendations
 
