@@ -73,7 +73,8 @@ func CreateJavaOptsAssemblyScript(ctx *common.Context) error {
 # Expands runtime variables like $DEPS_DIR, $HOME, $JAVA_OPTS, and all other environment variables
 
 # Save original JAVA_OPTS from environment (user-provided)
-USER_JAVA_OPTS="$JAVA_OPTS"
+# Normalize to single line: YAML block scalars (>) may introduce newlines
+USER_JAVA_OPTS=$(echo "$JAVA_OPTS" | tr '\n' ' ' | tr -s ' ')
 
 # Start building new JAVA_OPTS
 JAVA_OPTS=""
