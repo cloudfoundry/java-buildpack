@@ -63,35 +63,47 @@ var _ = Describe("Java Opts Writer", func() {
 	})
 
 	Describe("CreateJavaOptsAssemblyScript", func() {
-		It("handles multiline JAVA_OPTS from YAML block scalar without sed error", func() {
-			// Reproduce the manifest pattern:
-			//   JAVA_OPTS: >
-			//     -javaagent:$HOME/BOOT-INF/classes/some-java-agent.jar
-			//     -Xms512m
-			//     -Xmx1024m
-			// YAML '>' folds newlines to spaces, but CF may deliver them as literal newlines
-			multilineJavaOpts := "-javaagent:$HOME/BOOT-INF/classes/some-java-agent.jar\n-Xms512m\n-Xmx1024m\n-XX:MaxDirectMemorySize=256m"
-
+		runScript := func(javaOpts string, optsFileContent string) (string, error) {
 			err := frameworks.CreateJavaOptsAssemblyScript(ctx)
 			Expect(err).NotTo(HaveOccurred())
 
-			// Create an opts file that references $JAVA_OPTS (as frameworks do)
 			optsDir := filepath.Join(depsDir, "0", "java_opts")
 			Expect(os.MkdirAll(optsDir, 0755)).To(Succeed())
-			Expect(os.WriteFile(filepath.Join(optsDir, "42_agent.opts"), []byte("-javaagent:somepath.jar $JAVA_OPTS"), 0644)).To(Succeed())
+			Expect(os.WriteFile(filepath.Join(optsDir, "42_agent.opts"), []byte(optsFileContent), 0644)).To(Succeed())
 
-			// Run the generated profile.d script with multiline JAVA_OPTS
 			scriptPath := filepath.Join(depsDir, "0", "profile.d", "00_java_opts.sh")
-			cmd := exec.Command("bash", "-c",
-				"source "+scriptPath+" && echo \"$JAVA_OPTS\"")
+			cmd := exec.Command("bash", "-c", "source "+scriptPath+" && echo \"$JAVA_OPTS\"")
 			cmd.Env = append(os.Environ(),
-				"JAVA_OPTS="+multilineJavaOpts,
+				"JAVA_OPTS="+javaOpts,
 				"DEPS_DIR="+depsDir,
 				"HOME=/home/vcap/app",
 			)
 			output, err := cmd.CombinedOutput()
-			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", string(output))
-			Expect(string(output)).To(ContainSubstring("-Xms512m"))
+			return string(output), err
+		}
+
+		It("handles multiline JAVA_OPTS from YAML block scalar without sed error", func() {
+			// Reproduce the manifest pattern:
+			//   JAVA_OPTS: >
+			//     -javaagent:$HOME/BOOT-INF/lib/agent.jar
+			//     -XX:+UseZGC
+			// YAML '>' folds newlines to spaces, but CF may deliver them as literal newlines
+			multilineJavaOpts := "-javaagent:$HOME/BOOT-INF/lib/agent.jar\n-XX:+UseZGC\n-XX:+AlwaysPreTouch"
+
+			output, err := runScript(multilineJavaOpts, "-javaagent:somepath.jar $JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring("-XX:+UseZGC"))
+		})
+
+		It("handles pipe character in JAVA_OPTS (e.g. javaagent options) without sed error", func() {
+			// Reproduce the manifest pattern:
+			//   JAVA_OPTS: >
+			//     -javaagent:$HOME/BOOT-INF/lib/jfr-exporter.jar=enableExecutorMBeans|disableMyFeature
+			pipeJavaOpts := "-javaagent:$HOME/BOOT-INF/lib/jfr-exporter.jar=enableExecutorMBeans|disableMyFeature"
+
+			output, err := runScript(pipeJavaOpts, "-javaagent:somepath.jar $JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring("enableExecutorMBeans|disableMyFeature"))
 		})
 	})
 })

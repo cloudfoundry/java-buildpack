@@ -85,15 +85,12 @@ if [ -d "$DEPS_DIR/%s/java_opts" ]; then
             # Read content and expand runtime variables
             opts_content=$(cat "$opts_file")
             
-            # First, expand special variables that need specific handling
-            # Expand $DEPS_DIR variable
-            opts_content=$(echo "$opts_content" | sed "s|\$DEPS_DIR|$DEPS_DIR|g")
-            
-            # Expand $HOME variable (for app-provided JARs like AspectJ)
-            opts_content=$(echo "$opts_content" | sed "s|\$HOME|$HOME|g")
-            
-            # Expand $JAVA_OPTS to the saved USER_JAVA_OPTS value (not the loop's current JAVA_OPTS)
-            opts_content=$(echo "$opts_content" | sed "s|\$JAVA_OPTS|$USER_JAVA_OPTS|g")
+            # Expand $DEPS_DIR, $HOME, $JAVA_OPTS using bash parameter expansion.
+            # sed-based substitution breaks when these values contain the sed delimiter (|),
+            # backslashes, ampersands, or newlines — all valid in JAVA_OPTS and paths.
+            opts_content="${opts_content//\$DEPS_DIR/$DEPS_DIR}"
+            opts_content="${opts_content//\$HOME/$HOME}"
+            opts_content="${opts_content//\$JAVA_OPTS/$USER_JAVA_OPTS}"
             
             # Now expand all remaining environment variables using eval with proper escaping
             # This mimics Ruby buildpack behavior where shell naturally expands variables
