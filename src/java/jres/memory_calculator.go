@@ -24,6 +24,7 @@ type MemoryCalculator struct {
 	classCount       int
 	stackThreads     int
 	headroom         int
+	configLoaded     bool
 }
 
 // NewMemoryCalculator creates a new memory calculator
@@ -53,6 +54,8 @@ func (m *MemoryCalculator) Supply() error {
 
 	m.version = dep.Version
 	m.ctx.Log.Info("Installing Memory Calculator (%s)", m.version)
+
+	m.LoadConfig()
 
 	// Create bin directory
 	binDir := filepath.Join(m.jreDir, "bin")
@@ -107,10 +110,11 @@ func (m *MemoryCalculator) Supply() error {
 
 	m.calculatorPath = finalPath
 
-	// Count classes in the application
-	if err := m.countClasses(); err != nil {
-		m.ctx.Log.Warning("Failed to count classes: %s (using default)", err.Error())
-		m.classCount = 0 // Will be calculated as 35% of actual later
+	// Count classes in the application, unless overridden by config
+	if m.classCount == 0 {
+		if err := m.countClasses(); err != nil {
+			m.ctx.Log.Warning("Failed to count classes: %s (using default)", err.Error())
+		}
 	}
 
 	m.ctx.Log.Info("Memory Calculator installed: Loaded Classes: %d, Threads: %d",
@@ -152,6 +156,8 @@ func (m *MemoryCalculator) detectInstalledCalculator() {
 
 // Finalize configures the memory calculator in the startup command
 func (m *MemoryCalculator) Finalize() error {
+	m.LoadConfig()
+
 	// If calculatorPath not set, try to detect it from previous installation
 	if m.calculatorPath == "" {
 		m.detectInstalledCalculator()
@@ -364,15 +370,47 @@ func (m *MemoryCalculator) convertToRuntimePath(stagingPath string) string {
 	return fmt.Sprintf("/home/vcap/deps/%s/jre/bin/%s", depsIdx, filename)
 }
 
-// LoadConfig loads memory calculator configuration from environment/config
+// openJDKJREConfig mirrors the memory_calculator section of JBP_CONFIG_OPEN_JDK_JRE.
+type openJDKJREConfig struct {
+	MemoryCalculator memoryCalculatorConfig `yaml:"memory_calculator"`
+}
+
+type memoryCalculatorConfig struct {
+	StackThreads int `yaml:"stack_threads"`
+	ClassCount   int `yaml:"class_count"`
+	Headroom     int `yaml:"headroom"`
+}
+
+// LoadConfig loads memory calculator configuration from JBP_CONFIG_OPEN_JDK_JRE
+// (standard CF format) and falls back to MEMORY_CALCULATOR_* env vars.
+// Must be called at the start of Supply(), before countClasses().
 func (m *MemoryCalculator) LoadConfig() {
-	// Check for environment overrides
-	// JBP_CONFIG_OPEN_JDK_JRE='{memory_calculator: {stack_threads: 300}}'
+	if m.configLoaded {
+		return
+	}
+	m.configLoaded = true
+	if config := os.Getenv("JBP_CONFIG_OPEN_JDK_JRE"); config != "" {
+		cfg := openJDKJREConfig{}
+		yamlHandler := common.YamlHandler{}
+		if err := yamlHandler.ValidateFields([]byte(config), &cfg); err != nil {
+			m.ctx.Log.Warning("Unknown fields in JBP_CONFIG_OPEN_JDK_JRE: %s", err.Error())
+		}
+		if err := yamlHandler.Unmarshal([]byte(config), &cfg); err != nil {
+			m.ctx.Log.Warning("Failed to parse JBP_CONFIG_OPEN_JDK_JRE: %s", err.Error())
+		} else {
+			mc := cfg.MemoryCalculator
+			if mc.StackThreads > 0 {
+				m.stackThreads = mc.StackThreads
+			}
+			if mc.ClassCount > 0 {
+				m.classCount = mc.ClassCount
+			}
+			if mc.Headroom > 0 {
+				m.headroom = mc.Headroom
+			}
+		}
+	}
 
-	// For now, using defaults
-	// In production, we'd parse JSON from environment variables
-
-	// Check specific environment variables
 	if val := os.Getenv("MEMORY_CALCULATOR_STACK_THREADS"); val != "" {
 		if threads, err := strconv.Atoi(val); err == nil {
 			m.stackThreads = threads
