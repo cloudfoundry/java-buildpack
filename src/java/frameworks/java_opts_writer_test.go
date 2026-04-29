@@ -105,5 +105,17 @@ var _ = Describe("Java Opts Writer", func() {
 			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
 			Expect(output).To(ContainSubstring("enableExecutorMBeans|disableMyFeature"))
 		})
+
+		It("expands $HOME in opts file content", func() {
+			output, err := runScript("", "-javaagent:$HOME/BOOT-INF/lib/agent.jar")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring("-javaagent:/home/vcap/app/BOOT-INF/lib/agent.jar"))
+		})
+
+		It("expands $DEPS_DIR in opts file content", func() {
+			output, err := runScript("", "-Djava.security.properties=$DEPS_DIR/0/security.properties")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring("-Djava.security.properties=" + depsDir + "/0/security.properties"))
+		})
 	})
 })
