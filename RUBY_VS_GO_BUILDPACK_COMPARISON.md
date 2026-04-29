@@ -2205,15 +2205,27 @@ user-pinned `-Xmx` differently:
 
 | Behaviour | v3.13.0 (Ruby buildpack) | v4.2.0 (Go buildpack) |
 |-----------|--------------------------|------------------------|
-| Total memory check | `overhead > total` | `overhead + fixed heap > total` |
-| User sets `-Xmx512M`, memory=750M | ✅ passes (overhead ≈ 728M < 750M) | ❌ fails (728M + 512M = 1,240M > 750M) |
+| Total memory check | `non-heap > total` | `non-heap + fixed heap > total` |
+| Non-heap calculation when `-Xmx` is set | Squeezed to `total - Xmx` | Calculated independently (threads + metaspace + code cache) |
+| User sets `-Xmx512M`, container=750M | ✅ passes — non-heap squeezes into 238M | ❌ fails — non-heap ~400M + 512M heap = ~912M > 750M |
 
-**Impact**: Apps that set `-Xmx` explicitly in `JAVA_OPTS` (or via `JBP_CONFIG_*`)
-**and** run in small containers (e.g. 750M) will fail at startup with:
+> **Note**: v4 correctly accounts for the full JVM memory footprint. When `-Xmx` is
+> explicitly set, it is included in the total memory check — this is the right behaviour
+> since the JVM will actually claim that heap in addition to native non-heap memory
+> (thread stacks, metaspace, code cache). v3 silently squeezed non-heap into whatever
+> remained after `-Xmx`, which could leave thread stacks and metaspace dangerously
+> undersized at runtime.
+
+**Impact**: Apps that set `-Xmx` explicitly in `JAVA_OPTS`
+**and** run in containers that cannot accommodate heap + non-heap will fail at startup with:
 
 ```
 required memory 1269289K is greater than 750M available for allocation
 ```
+
+The required memory is: `-Xmx` + thread stacks + metaspace + code cache.
+With defaults (250 threads × ~1M = 250M stacks, ~100M metaspace, ~50M code cache):
+a `-Xmx512M` app needs roughly **900–1000M** total.
 
 **Migration options** (choose one):
 
@@ -2221,18 +2233,21 @@ required memory 1269289K is greater than 750M available for allocation
    This is the recommended approach; the calculator will allocate remaining memory
    after reserving space for metaspace, code cache, and stack.
 
-2. **Increase manifest memory** — raise `memory:` to at least 1300M if you need to
-   keep a fixed `-Xmx512M`.
-
-3. **Reduce stack threads** — if you cannot change memory or remove `-Xmx`, reduce
-   thread count via `JBP_CONFIG_OPEN_JDK_JRE`:
+2. **Lower `stack_threads`** — the default 250 platform threads claim ~250M of native
+   memory. Reducing this is often the easiest way to fit within the container:
    ```yaml
    env:
      JBP_CONFIG_OPEN_JDK_JRE: '{ memory_calculator: { stack_threads: 50 } }'
    ```
-   Saving 200 threads × 1M = 200M may be enough to fit within the limit.
-   > **Note**: `JBP_CONFIG_OPEN_JDK_JRE` parsing is a known bug (not yet fixed);
-   > track progress on the issue tracker.
+   For apps using **virtual threads** (Java 21+, Spring Boot 3.2+), set this to the
+   carrier thread count (~CPU cores, typically 4–16). Virtual thread stacks are stored
+   on the heap as continuation objects, not as native stack memory, so only carrier
+   threads consume native stack memory. Note: with virtual threads you may want to
+   keep or increase `-Xmx` to accommodate heap-resident continuations.
+
+3. **Increase manifest memory** — raise `memory:` in `manifest.yml` to accommodate
+   the full JVM footprint (`-Xmx` + non-heap). With `-Xmx512M` and default thread
+   count, plan for ~900–1000M.
 
 ### 10.3 Adoption Recommendations
 
