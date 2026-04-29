@@ -2199,55 +2199,31 @@ dependencies:
 
 #### Memory Calculator Behaviour Change (v3 → v4)
 
-The memory calculator binary was upgraded from **v3.13.0 to v4.2.0**. Both versions
-receive the full `$JAVA_OPTS` string via `--jvm-options`, but they handle a
-user-pinned `-Xmx` differently:
+The memory calculator was upgraded from **v3.13.0 to v4.2.0**. The difference only affects apps with an **explicit `-Xmx`** in `JAVA_OPTS` (setting `-Xmx` explicitly in containerised environments is generally considered bad practice — the calculator sizes heap better automatically). How a pinned `-Xmx` is handled:
 
-| Behaviour | v3.13.0 (Ruby buildpack) | v4.2.0 (Go buildpack) |
-|-----------|--------------------------|------------------------|
-| Total memory check | `non-heap > total` | `non-heap + fixed heap > total` |
-| Non-heap calculation when `-Xmx` is set | Squeezed to `total - Xmx` | Calculated independently (threads + metaspace + code cache) |
-| User sets `-Xmx512M`, container=750M | ✅ passes — non-heap squeezes into 238M | ❌ fails — non-heap ~400M + 512M heap = ~912M > 750M |
+| | v3.13.0 (Ruby) | v4.2.0 (Go) |
+|--|----------------|-------------|
+| Memory check | `non-heap > total` | `non-heap + heap > total` |
+| Non-heap when `-Xmx` set | Squeezed to `total − Xmx` | Calculated independently |
+| `-Xmx512M`, container=750M | ✅ passes | ❌ fails |
 
-> **Note**: v4 correctly accounts for the full JVM memory footprint. When `-Xmx` is
-> explicitly set, it is included in the total memory check — this is the right behaviour
-> since the JVM will actually claim that heap in addition to native non-heap memory
-> (thread stacks, metaspace, code cache). v3 silently squeezed non-heap into whatever
-> remained after `-Xmx`, which could leave thread stacks and metaspace dangerously
-> undersized at runtime.
-
-**Impact**: Apps that set `-Xmx` explicitly in `JAVA_OPTS`
-**and** run in containers that cannot accommodate heap + non-heap will fail at startup with:
+When `-Xmx` is not set, both v3 and v4 size heap and non-heap to fit within the container — no difference. When `-Xmx` is pinned, v4 requires the container to fit both heap and non-heap (thread stacks + metaspace + code cache). v3 squeezed non-heap into whatever remained after `-Xmx`, claiming less total memory — at the cost of potentially undersized thread stacks and metaspace at runtime. Apps that fit in smaller containers with v3 may fail at startup with v4:
 
 ```
 required memory 1269289K is greater than 750M available for allocation
 ```
 
-The required memory is: `-Xmx` + thread stacks + metaspace + code cache.
-With defaults (250 threads × ~1M = 250M stacks, ~100M metaspace, ~50M code cache):
-a `-Xmx512M` app needs roughly **900–1000M** total.
+**Migration options**:
 
-**Migration options** (choose one):
-
-1. **Remove `-Xmx` from `JAVA_OPTS`** — let the calculator size heap automatically.
-   This is the recommended approach; the calculator will allocate remaining memory
-   after reserving space for metaspace, code cache, and stack.
-
-2. **Lower `stack_threads`** — the default 250 platform threads claim ~250M of native
-   memory. Reducing this is often the easiest way to fit within the container:
+1. **Lower `stack_threads`** *(only if your app uses fewer than 250 threads)*: 250 threads × ~1M = ~250M native memory. Reducing this alone is often enough to fit within the container:
    ```yaml
    env:
      JBP_CONFIG_OPEN_JDK_JRE: '{ memory_calculator: { stack_threads: 50 } }'
    ```
-   For apps using **virtual threads** (Java 21+, Spring Boot 3.2+), set this to the
-   carrier thread count (~CPU cores, typically 4–16). Virtual thread stacks are stored
-   on the heap as continuation objects, not as native stack memory, so only carrier
-   threads consume native stack memory. Note: with virtual threads you may want to
-   keep or increase `-Xmx` to accommodate heap-resident continuations.
 
-3. **Increase manifest memory** — raise `memory:` in `manifest.yml` to accommodate
-   the full JVM footprint (`-Xmx` + non-heap). With `-Xmx512M` and default thread
-   count, plan for ~900–1000M.
+2. **Remove `-Xmx` from `JAVA_OPTS`** — let the calculator size heap automatically. Note: removing `-Xmx` avoids the fixed-heap check but does not reduce total memory need. You will likely still need to increase `memory:` in `manifest.yml` so the calculator has enough room to allocate adequate heap.
+
+3. **Increase manifest memory** — raise `memory:` to fit `Xmx + non-heap`. Based on the error above (`1269289K ≈ 1240M`), set at least **1300M** for a `-Xmx512M` app with default settings.
 
 ### 10.3 Adoption Recommendations
 
