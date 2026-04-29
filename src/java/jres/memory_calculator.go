@@ -390,11 +390,23 @@ func (m *MemoryCalculator) LoadConfig() {
 	}
 	m.configLoaded = true
 	if config := os.Getenv("JBP_CONFIG_OPEN_JDK_JRE"); config != "" {
-		cfg := openJDKJREConfig{}
 		yamlHandler := common.YamlHandler{}
-		if err := yamlHandler.ValidateFields([]byte(config), &cfg); err != nil {
-			m.ctx.Log.Warning("Unknown fields in JBP_CONFIG_OPEN_JDK_JRE: %s", err.Error())
+
+		// Extract raw memory_calculator sub-section to validate its fields separately,
+		// so unknown top-level keys (e.g. jre:) are silently ignored while typos
+		// inside memory_calculator: are warned about.
+		rawCfg := struct {
+			MC interface{} `yaml:"memory_calculator"`
+		}{}
+		if err := yamlHandler.Unmarshal([]byte(config), &rawCfg); err == nil && rawCfg.MC != nil {
+			if mcBytes, err := yamlHandler.Marshal(rawCfg.MC); err == nil {
+				if err := yamlHandler.ValidateFields(mcBytes, &memoryCalculatorConfig{}); err != nil {
+					m.ctx.Log.Warning("Unknown fields in JBP_CONFIG_OPEN_JDK_JRE memory_calculator: %s", err.Error())
+				}
+			}
 		}
+
+		cfg := openJDKJREConfig{}
 		if err := yamlHandler.Unmarshal([]byte(config), &cfg); err != nil {
 			m.ctx.Log.Warning("Failed to parse JBP_CONFIG_OPEN_JDK_JRE: %s", err.Error())
 		} else {

@@ -20,11 +20,12 @@ import (
 
 var _ = Describe("Memory Calculator Issues", func() {
 	var (
-		buildDir string
-		depsDir  string
-		cacheDir string
-		ctx      *common.Context
-		jreDir   string
+		buildDir  string
+		depsDir   string
+		cacheDir  string
+		ctx       *common.Context
+		jreDir    string
+		logBuffer *bytes.Buffer
 	)
 
 	BeforeEach(func() {
@@ -40,7 +41,7 @@ var _ = Describe("Memory Calculator Issues", func() {
 
 		Expect(os.MkdirAll(depsDir+"/0", 0755)).To(Succeed())
 
-		logBuffer := &bytes.Buffer{}
+		logBuffer = &bytes.Buffer{}
 		logger := libbuildpack.NewLogger(logBuffer)
 		manifest := &libbuildpack.Manifest{}
 		installer := &libbuildpack.Installer{}
@@ -189,6 +190,44 @@ var _ = Describe("Memory Calculator Issues", func() {
 			Expect(script).To(ContainSubstring("--loaded-class-count=3500"),
 				"expected --loaded-class-count=3500 from JBP_CONFIG_OPEN_JDK_JRE.\nScript:\n%s",
 				script)
+		})
+	})
+
+	// -------------------------------------------------------------------------
+	// JBP_CONFIG_OPEN_JDK_JRE field validation:
+	// - Unknown top-level fields (e.g. jre:) must be silently ignored
+	// - Unknown fields inside memory_calculator: must produce a WARNING (typo guard)
+	// -------------------------------------------------------------------------
+	Describe("JBP_CONFIG_OPEN_JDK_JRE field validation", func() {
+		It("applies memory_calculator settings and logs no WARNING when jre: is also present", func() {
+			DeferCleanup(os.Unsetenv, "JBP_CONFIG_OPEN_JDK_JRE")
+			Expect(os.Setenv("JBP_CONFIG_OPEN_JDK_JRE",
+				`{ jre: { version: "25.+" }, memory_calculator: { headroom: 5, stack_threads: 50 } }`)).To(Succeed())
+
+			fakeBinary("4.2.0")
+			mc := jres.NewMemoryCalculator(ctx, jreDir, "17.0.9", 17)
+			Expect(mc.Finalize()).To(Succeed())
+
+			script := readGeneratedScript()
+			Expect(script).To(ContainSubstring("--thread-count=50"))
+			Expect(script).To(ContainSubstring("--head-room=5"))
+			Expect(logBuffer.String()).NotTo(ContainSubstring("WARNING"),
+				"unexpected WARNING in log output:\n%s", logBuffer.String())
+		})
+
+		It("logs a WARNING when memory_calculator contains an unknown field (e.g. typo)", func() {
+			DeferCleanup(os.Unsetenv, "JBP_CONFIG_OPEN_JDK_JRE")
+			Expect(os.Setenv("JBP_CONFIG_OPEN_JDK_JRE",
+				`{ memory_calculator: { stack_thread: 50 } }`)).To(Succeed()) // typo: missing 's'
+
+			fakeBinary("4.2.0")
+			mc := jres.NewMemoryCalculator(ctx, jreDir, "17.0.9", 17)
+			Expect(mc.Finalize()).To(Succeed())
+
+			Expect(logBuffer.String()).To(ContainSubstring("WARNING"),
+				"expected WARNING for unknown field 'stack_thread' in memory_calculator")
+			Expect(logBuffer.String()).To(ContainSubstring("stack_thread"),
+				"WARNING should mention the unknown field name")
 		})
 	})
 })
