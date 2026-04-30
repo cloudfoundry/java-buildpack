@@ -66,7 +66,12 @@ func NewHook(technologies ...string) libbuildpack.Hook {
 func (h *Hook) AfterCompile(stager *libbuildpack.Stager) error {
 	// All other methods in this package are called  from here, which
 	// makes it the main entry-point.
+	return h.injectDynatrace(stager, runtime.GOOS)
 
+}
+
+// injectDynatrace is an indirection to get rid of the tight coupling to the underlying operating system 
+func (h *Hook) injectDynatrace(stager *libbuildpack.Stager, operatingSystem string) error {
 	var err error
 
 	h.Log.Debug("Checking for enabled dynatrace service...")
@@ -84,30 +89,30 @@ func (h *Hook) AfterCompile(stager *libbuildpack.Stager) error {
 
 	// download installer
 	var installerFilename string
-	if runtime.GOOS == "linux" {
+	if operatingSystem == "linux" {
 		installerFilename = "paasInstaller.sh"
-	} else if runtime.GOOS == "windows" {
+	} else if operatingSystem == "windows" {
 		installerFilename = "paasInstaller.zip"
 	} else {
 		// This is the only place where we need to return an error.
 		// All following operating system checks are just to determine installation specifics.
-		return errors.New("libbuildpack-dynatrace: Unsupported operating system: " + runtime.GOOS)
+		return errors.New("libbuildpack-dynatrace: Unsupported operating system: " + operatingSystem)
 	}
 
 	installerFilePath := filepath.Join(os.TempDir(), installerFilename)
-	url := h.getDownloadURL(creds)
+	url := h.getDownloadURL(creds, operatingSystem)
 	err = h.download(url, installerFilePath, stager, creds)
 	if err != nil && creds.SkipErrors {
 		h.Log.Warning("Error during installer download, skipping installation")
 		return nil
-	}else if err != nil {
+	} else if err != nil {
 		return err
 	}
 
 	// run installer
-	if runtime.GOOS == "linux" {
+	if operatingSystem == "linux" {
 		err = h.runInstallerUnix(installerFilePath, installDir, creds, stager)
-	} else if runtime.GOOS == "windows" {
+	} else if operatingSystem == "windows" {
 		err = h.runInstallerWindows(installerFilePath, installDir, creds, stager)
 	}
 
@@ -137,9 +142,45 @@ func (h *Hook) AfterCompile(stager *libbuildpack.Stager) error {
 	return nil
 }
 
+// loadVCAPServicesData returns the raw VCAP_SERVICES JSON data from the appropriate source.
+func (h *Hook) loadVCAPServicesData() []byte {
+	filePath, filePathSet := os.LookupEnv("VCAP_SERVICES_FILE_PATH")
+
+	if filePathSet {
+		if filePath == "" {
+			h.Log.Debug("VCAP_SERVICES_FILE_PATH is set but empty")
+			return nil
+		}
+
+		h.Log.Debug("Loading VCAP services from file: %s", filePath)
+		fileContent, err := os.ReadFile(filePath)
+		if err != nil {
+			h.Log.Error("Failed to read VCAP services file %s: %s", filePath, err)
+			return nil
+		}
+		h.Log.Debug("Successfully read VCAP Service data.")
+		return fileContent
+
+	}
+
+	h.Log.Debug("Loading VCAP services from environment variable VCAP_SERVICES")
+	envData := os.Getenv("VCAP_SERVICES")
+	if envData == "" {
+		h.Log.Debug("Environment variable VCAP_SERVICES is not set or empty")
+		return nil
+	}
+	h.Log.Debug("Successfully read VCAP Service data from environment variable.")
+	return []byte(envData)
+}
+
 // getCredentials returns the configuration from the environment, or nil if not found. The credentials are represented
-// as a JSON object in the VCAP_SERVICES environment variable.
+// as a JSON object loaded via loadVCAPServicesData.
 func (h *Hook) getCredentials() *credentials {
+	data := h.loadVCAPServicesData()
+	if data == nil {
+		return nil
+	}
+
 	// Represent the structure of the JSON object in VCAP_SERVICES for parsing.
 
 	var vcapServices map[string][]struct {
@@ -147,7 +188,7 @@ func (h *Hook) getCredentials() *credentials {
 		Credentials map[string]interface{} `json:"credentials"`
 	}
 
-	if err := json.Unmarshal([]byte(os.Getenv("VCAP_SERVICES")), &vcapServices); err != nil {
+	if err := json.Unmarshal(data, &vcapServices); err != nil {
 		h.Log.Debug("Failed to unmarshal VCAP_SERVICES: %s", err)
 		return nil
 	}
@@ -176,13 +217,13 @@ func (h *Hook) getCredentials() *credentials {
 				SkipErrors:        queryString("skiperrors") == "true",
 				NetworkZone:       queryString("networkzone"),
 				EnableFIPS:        queryString("enablefips") == "true",
-				AddTechnologies:      queryString("addtechnologies"),
+				AddTechnologies:   queryString("addtechnologies"),
 			}
 
 			if (creds.EnvironmentID != "" && creds.APIToken != "") || creds.CustomOneAgentURL != "" {
 				found = append(found, creds)
 			} else if !(creds.EnvironmentID == "" && creds.APIToken == "") { // One of the fields is empty.
-				h.Log.Warning("Incomplete credentials for service: %s, environment ID: %s, API token: %s", creds.ServiceName,
+				h.Log.Error("Incomplete credentials for service: %s, environment ID: %s, API token: %s", creds.ServiceName,
 					creds.EnvironmentID, creds.APIToken)
 			}
 		}
@@ -194,7 +235,7 @@ func (h *Hook) getCredentials() *credentials {
 	}
 
 	if len(found) > 1 {
-		h.Log.Warning("More than one matching service found!")
+		h.Log.Error("More than one matching service found!")
 	}
 
 	return nil
@@ -206,10 +247,10 @@ func (h *Hook) download(url, filePath string, stager *libbuildpack.Stager, creds
 	req, _ := http.NewRequest("GET", url, nil)
 	if creds.CustomOneAgentURL == "" {
 		ver, err := stager.BuildpackVersion()
-			if err != nil {
-				h.Log.Warning("Failed to get buildpack version: %v", err)
-				ver = "unknown"
-			}
+		if err != nil {
+			h.Log.Warning("Failed to get buildpack version: %v", err)
+			ver = "unknown"
+		}
 		req.Header.Set("User-Agent", fmt.Sprintf("cf-%s-buildpack/%s", stager.BuildpackLanguage(), ver))
 		req.Header.Set("Authorization", fmt.Sprintf("Api-Token %s", creds.APIToken))
 	}
@@ -219,7 +260,7 @@ func (h *Hook) download(url, filePath string, stager *libbuildpack.Stager, creds
 		return err
 	}
 	defer out.Close()
-	
+
 	const baseWaitTime = 3 * time.Second
 	for i := 0; ; i++ {
 		resp, err := client.Do(req)
@@ -268,12 +309,13 @@ func (h *Hook) download(url, filePath string, stager *libbuildpack.Stager, creds
 
 }
 
-func (h *Hook) getDownloadURL(c *credentials) string {
+func (h *Hook) getDownloadURL(c *credentials, operatingSystem string) string {
 	var osType, installerType string
-	if runtime.GOOS == "linux" {
+	switch operatingSystem {
+	case "linux":
 		osType = "unix"
 		installerType = "paas-sh"
-	} else if runtime.GOOS == "windows" {
+	case "windows":
 		osType = "windows"
 		installerType = "paas"
 	}

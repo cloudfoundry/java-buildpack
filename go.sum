@@ -1360,6 +1360,8 @@ github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3
 github.com/DataDog/zstd v1.4.5/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
 github.com/Dynatrace/libbuildpack-dynatrace v1.8.0 h1:VNcd8+rurUUdY12emGfLGUUj5cMH4hkNgrdk8LO3dHE=
 github.com/Dynatrace/libbuildpack-dynatrace v1.8.0/go.mod h1:Uu9aa5UFAk1Ua+zZXnvzo+avDXuEi+GtegeOyja9xg4=
+github.com/Dynatrace/libbuildpack-dynatrace v1.9.0 h1:3tJzXt7VVTsvPPS9Q7+e/KAk0ccC2eAbgHib5C/XRhA=
+github.com/Dynatrace/libbuildpack-dynatrace v1.9.0/go.mod h1:Uu9aa5UFAk1Ua+zZXnvzo+avDXuEi+GtegeOyja9xg4=
 github.com/GoogleCloudPlatform/docker-credential-gcr v2.0.5+incompatible/go.mod h1:BB1eHdMLYEFuFdBlRMb0N7YGVdM5s6Pt0njxgvfbGGs=
 github.com/JohnCGriffin/overflow v0.0.0-20211019200055-46fa312c352c/go.mod h1:X0CRv0ky0k6m906ixxpzmDRLvX58TFUKS2eePweuyxk=
 github.com/Masterminds/goutils v1.1.1/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=

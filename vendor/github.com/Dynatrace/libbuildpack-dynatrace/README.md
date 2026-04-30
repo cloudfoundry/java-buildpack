@@ -21,7 +21,12 @@ func init() {
 
 ## Configuration
 
-The Hook will look for credentials in the configurations for existing services (which is represented in the runtime as the VCAP_SERVICES environment variable in JSON format.) We look for service names having the 'dynatrace' substring.
+The Hook will look for credentials in the configurations for existing services. It searches for service credentials depending on the binding type:
+
+1. **File-based**: If the `VCAP_SERVICES_FILE_PATH` environment variable is set, the hook reads the VCAP_SERVICES JSON from the file at that path.
+2. **Environment variable**: If the env var `VCAP_SERVICES` is set, it reads the JSON from the `VCAP_SERVICES` environment variable directly.
+
+In both cases, we look for service names having the 'dynatrace' substring.
 
 We support the following configuration fields,
 
@@ -47,8 +52,9 @@ We also support standard Dynatrace environment variables.
 
 ## Requirements
 
-- Go 1.11
-- Linux to run the tests.
+- Go 1.19 or higher.
+- Deployment targets: Linux and Windows.
+- Development and testing: Linux, Mac OS, and Windows.
 
 ## Development
 
@@ -57,7 +63,14 @@ You can download or clone the repository.
 You can run tests through,
 
 ```
-go test
+go test ./...
+```
+
+By default, tests simulate the Linux platform. To test against a different target OS, use the `-os` flag:
+
+```
+go test ./... -os=windows
+go test ./... -os=linux
 ```
 
 If you modify/add interfaces, you may need to regenerate the mocks. For this you need [gomock](https://github.com/golang/mock):
