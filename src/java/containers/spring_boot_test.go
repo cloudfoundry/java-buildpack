@@ -1,8 +1,11 @@
 package containers_test
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"github.com/cloudfoundry/java-buildpack/src/java/containers"
@@ -168,6 +171,24 @@ var _ = Describe("Spring Boot Container", func() {
 		It("finalizes successfully", func() {
 			err := container.Finalize()
 			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("writes a profile.d script that exports SERVER_PORT=$PORT so the variable is shell-expanded at runtime", func() {
+			err := container.Finalize()
+			Expect(err).NotTo(HaveOccurred())
+
+			profileScript := filepath.Join(depsDir, "0", "profile.d", "spring_boot_server_port.sh")
+			data, err := os.ReadFile(profileScript)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(data)).To(Equal("export SERVER_PORT=$PORT\n"))
+
+			// Verify $PORT is actually shell-expanded at runtime (not left as literal "$PORT").
+			// Simulates what CF's launcher does: source the profile.d script with PORT set in env.
+			cmd := exec.Command("bash", "-c", fmt.Sprintf("PORT=8080 . %s && echo $SERVER_PORT", profileScript))
+			out, bashErr := cmd.Output()
+			Expect(bashErr).NotTo(HaveOccurred())
+			Expect(strings.TrimSpace(string(out))).To(Equal("8080"),
+				"SERVER_PORT should be the expanded value of $PORT, not the literal string \"$PORT\"")
 		})
 	})
 })
