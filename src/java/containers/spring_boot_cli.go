@@ -106,16 +106,14 @@ func (s *SpringBootCLIContainer) Supply() error {
 func (s *SpringBootCLIContainer) Finalize() error {
 	s.context.Log.BeginStep("Finalizing Spring Boot CLI")
 
-	// Set environment variables for Spring Boot CLI
-	envVars := map[string]string{
-		"JAVA_OPTS":   "$JAVA_OPTS",
-		"SERVER_PORT": "$PORT",
+	// $JAVA_OPTS and $PORT are runtime variables — WriteProfileD ensures they are
+	// expanded at container startup rather than stored as literal strings.
+	if err := s.context.Stager.WriteProfileD("spring_boot_cli_java_opts.sh", "export JAVA_OPTS=$JAVA_OPTS\n"); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS profile.d script: %w", err)
 	}
 
-	for key, value := range envVars {
-		if err := s.context.Stager.WriteEnvFile(key, value); err != nil {
-			s.context.Log.Warning("Failed to set %s: %s", key, err.Error())
-		}
+	if err := s.context.Stager.WriteProfileD("spring_boot_cli_server_port.sh", "export SERVER_PORT=$PORT\n"); err != nil {
+		return fmt.Errorf("failed to write SERVER_PORT profile.d script: %w", err)
 	}
 
 	return nil

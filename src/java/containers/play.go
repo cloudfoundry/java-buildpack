@@ -423,10 +423,9 @@ export PATH=$PLAY_BIN:$PATH
 	}
 
 	// Play start scripts respect JAVA_OPTS environment variable
-	// Write JAVA_OPTS for the startup script to use
-	if err := p.context.Stager.WriteEnvFile("JAVA_OPTS",
-		strings.Join(javaOpts, " ")); err != nil {
-		return fmt.Errorf("failed to write JAVA_OPTS: %w", err)
+	javaOptsScript := fmt.Sprintf("export JAVA_OPTS=\"%s\"\n", strings.Join(javaOpts, " "))
+	if err := p.context.Stager.WriteProfileD("play_java_opts.sh", javaOptsScript); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS profile.d script: %w", err)
 	}
 
 	p.context.Log.Info("Play Framework finalization complete (using environment variables, not modifying scripts)")

@@ -2,11 +2,12 @@ package frameworks
 
 import (
 	"fmt"
-	"github.com/cloudfoundry/java-buildpack/src/java/common"
-	"github.com/cloudfoundry/java-buildpack/src/java/resources"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
+	"github.com/cloudfoundry/java-buildpack/src/java/resources"
 )
 
 // LunaSecurityProviderFramework implements Safenet Luna HSM Java Security Provider support
@@ -116,13 +117,13 @@ func (l *LunaSecurityProviderFramework) installDefaultConfiguration(lunaDir stri
 
 // Finalize configures the Luna security provider for runtime
 func (l *LunaSecurityProviderFramework) Finalize() error {
-	// Get buildpack index for multi-buildpack support
+	// Set ChrystokiConfigurationPath and (for Java 9+) LD_LIBRARY_PATH via profile.d.
+	// $DEPS_DIR is a runtime variable — WriteProfileD ensures it is expanded at
+	// container startup rather than stored as a literal string.
 	depsIdx := l.context.Stager.DepsIdx()
+	lunaRuntimeDir := fmt.Sprintf("$DEPS_DIR/%s/luna_security_provider", depsIdx)
 
-	// Set ChrystokiConfigurationPath environment variable with runtime path
-	if err := l.context.Stager.WriteEnvFile("ChrystokiConfigurationPath", fmt.Sprintf("$DEPS_DIR/%s/luna_security_provider", depsIdx)); err != nil {
-		return fmt.Errorf("failed to set ChrystokiConfigurationPath: %w", err)
-	}
+	profileScript := fmt.Sprintf("export ChrystokiConfigurationPath=%s\n", lunaRuntimeDir)
 
 	// Detect Java version to determine extension mechanism
 	javaVersion, err := common.GetJavaMajorVersion()
@@ -140,20 +141,16 @@ func (l *LunaSecurityProviderFramework) Finalize() error {
 		// Build JAVA_OPTS with runtime path
 		javaOpts = fmt.Sprintf("-Xbootclasspath/a:%s", lunaProviderJar)
 
-		// Set LD_LIBRARY_PATH for native library loading
-		existingLdPath := os.Getenv("LD_LIBRARY_PATH")
-		newLdPath := ldLibPath
-		if existingLdPath != "" {
-			newLdPath = existingLdPath + ":" + ldLibPath
-		}
-
-		if err := l.context.Stager.WriteEnvFile("LD_LIBRARY_PATH", newLdPath); err != nil {
-			return fmt.Errorf("failed to set LD_LIBRARY_PATH for Luna Security Provider: %w", err)
-		}
+		// Append to LD_LIBRARY_PATH at runtime via profile.d so $DEPS_DIR is expanded.
+		profileScript += fmt.Sprintf("export LD_LIBRARY_PATH=%s${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}\n", ldLibPath)
 	} else {
 		// Java 8: Use extension directory
 		extDir := fmt.Sprintf("$DEPS_DIR/%s/luna_security_provider/ext", depsIdx)
 		javaOpts = fmt.Sprintf("-Djava.ext.dirs=%s:$JAVA_HOME/jre/lib/ext:$JAVA_HOME/lib/ext", extDir)
+	}
+
+	if err := l.context.Stager.WriteProfileD("luna_security_provider.sh", profileScript); err != nil {
+		return fmt.Errorf("failed to write Luna Security Provider profile.d script: %w", err)
 	}
 
 	// Write to .opts file using priority 32
