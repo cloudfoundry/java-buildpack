@@ -1,0 +1,33 @@
+- name: status/blocked
+  description: This issue has been triaged and resolving it is blocked on some other issue
+  color: 848978
+- name: bug
+  description: Something isn't working
+  color: d73a4a
+- name: enhancement
+  description: A new feature or request
+  color: a2eeef
+- name: documentation
+  description: This issue relates to writing documentation
+  color: D4C5F9
+- name: semver:major
+  description: A change requiring a major version bump
+  color: 6b230e
+- name: semver:minor
+  description: A change requiring a minor version bump
+  color: cc6749
+- name: semver:patch
+  description: A change requiring a patch version bump
+  color: f9d0c4
+- name: good first issue
+  description: A good first issue to get started with
+  color: d3fc03
+- name: "failure:release"
+  description: An issue filed automatically when a release workflow run fails
+  color: f00a0a
+- name: "failure:push"
+  description: An issue filed automatically when a push buildpackage workflow run fails
+  color: f00a0a
+- name: dependency-deprecation
+  description: Notice of dependency deprecation
+  color: ffff00

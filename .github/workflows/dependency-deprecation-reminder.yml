@@ -1,0 +1,55 @@
+name: Dependency Deprecation Reminder
+
+on:
+  schedule:
+    - cron: '5 0 * * 0'
+  workflow_dispatch: {}
+
+jobs:
+  reminder:
+    name: Reminder
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: master
+
+      - name: Get deprecations
+        id: deprecations
+        uses: cloudfoundry/buildpacks-github-config/actions/dependency/deprecation-list@main
+        with:
+          buildpack: .
+          buffer-days: 10
+
+      - name: File Issue
+        if: steps.deprecations.outputs.list != ''
+        id: file-issue
+        uses: paketo-buildpacks/github-config/actions/issue/file@main
+        with:
+          token: ${{ secrets.CF_BOT_GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
+          comment_if_exists: true
+          label: dependency-deprecation
+          issue_title: Dependency Deprecation Alert
+          issue_body: |
+            Please make sure the following dependencies are removed from buildpack on time.
+
+            ${{ steps.deprecations.outputs.list }}
+          comment_body: |
+            Reminder that deprecation of the following dependencies may require attention
+
+            ${{ steps.deprecations.outputs.list }}
+
+      - name: Add issue to project
+        if: steps.deprecations.outputs.list != ''
+        id: issue-to-proj
+        uses: paketo-buildpacks/github-config/actions/issue/add-to-project@main
+        with:
+          # CF buildpacks project - https://github.com/orgs/cloudfoundry/projects/37
+          project-org: cloudfoundry
+          project-num: 37
+          field-name: Workstream
+          option-name: Dependency Deprecations
+          issue-node-id: ${{ steps.file-issue.outputs.node-id }}
+          token: ${{ secrets.CF_BOT_GITHUB_TOKEN }}

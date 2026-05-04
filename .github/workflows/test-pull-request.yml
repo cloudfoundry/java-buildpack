@@ -1,0 +1,131 @@
+name: Test Pull Request
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Unit Tests
+        run: ./scripts/unit.sh
+
+  integration-matrix:
+    name: Integration Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    needs: unit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Matrix
+        id: set-matrix
+        run: |
+          matrix="$(jq -r -c '.integration.matrix' ./config.json)"
+          printf "Output: matrix=%s\n" "${matrix}"
+          printf "matrix=%s\n" "${matrix}" >> "$GITHUB_OUTPUT"
+
+  integration:
+    name: Integration Test
+    runs-on: ubuntu-latest
+    needs: integration-matrix
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.integration-matrix.outputs.matrix) }}
+    steps:
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Integration Tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./scripts/integration.sh \
+            --platform docker \
+            --github-token "${GITHUB_TOKEN}" \
+            --cached ${{ matrix.cached }} \
+            --parallel ${{ matrix.parallel }}
+
+  roundup:
+    name: Integration Tests
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    needs: integration
+    steps:
+      - run: |
+          result="${{ needs.integration.result }}"
+          if [[ "${result}" == "success" ]]; then
+            echo "All integration tests passed"
+            exit 0
+          else
+            echo "One or more integration tests failed"
+            exit 1
+          fi
+
+  approve:
+    name: Approve Bot PRs
+    if: ${{ github.event.pull_request.user.login == 'cf-buildpacks-eng' || github.event.pull_request.user.login == 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    needs: roundup
+    steps:
+
+      - name: Check Commit Verification
+        id: unverified-commits
+        uses: paketo-buildpacks/github-config/actions/pull-request/check-unverified-commits@main
+        with:
+          token: ${{ secrets.CF_BOT_GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
+          number: ${{ github.event.number }}
+
+      - name: Check for Human Commits
+        id: human-commits
+        uses: paketo-buildpacks/github-config/actions/pull-request/check-human-commits@main
+        with:
+          token: ${{ secrets.CF_BOT_GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
+          number: ${{ github.event.number }}
+          bots: 'dependabot[bot],web-flow,cf-buildpacks-eng'
+
+      - name: Checkout
+        if: steps.human-commits.outputs.human_commits == 'false' && steps.unverified-commits.outputs.unverified_commits == 'false'
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Dispatch
+        if: steps.human-commits.outputs.human_commits == 'false' && steps.unverified-commits.outputs.unverified_commits == 'false'
+        uses: paketo-buildpacks/github-config/actions/dispatch@main
+        with:
+          repos: ${{ github.repository }}
+          token: ${{ secrets.CF_BOT_GITHUB_TOKEN }}
+          event: approve-bot-pr
+          payload: |
+            {
+              "number": "${{ github.event.pull_request.number }}",
+              "login": "${{ github.event.pull_request.user.login }}",
+              "tracker_story": "${{ steps.story-id.outputs.story_id }}"
+            }

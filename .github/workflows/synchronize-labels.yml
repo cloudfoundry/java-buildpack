@@ -1,0 +1,19 @@
+name: Synchronize Labels
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/labels.yml
+  workflow_dispatch: {}
+jobs:
+  synchronize:
+    name: Synchronize Labels
+    runs-on:
+      - ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: micnncim/action-label-syncer@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

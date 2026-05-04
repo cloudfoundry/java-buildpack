@@ -1,0 +1,64 @@
+name: Update shared github-config
+
+on:
+  schedule:
+    - cron: '10 9 * * *'
+  workflow_dispatch: { }
+
+jobs:
+  build:
+    name: Create PR to update shared files
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.CF_BOT_GITHUB_TOKEN }}
+          ref: master
+
+      - name: Checkout github-config
+        uses: actions/checkout@v4
+        with:
+          repository: cloudfoundry/buildpacks-github-config
+          path: github-config
+
+      - name: Checkout Branch
+        uses: paketo-buildpacks/github-config/actions/pull-request/checkout-branch@main
+        with:
+          branch: automation/github-config/update
+
+      - name: Run the sync action
+        uses: paketo-buildpacks/github-config/actions/sync@main
+        with:
+          workspace: /github/workspace
+          config: /github/workspace/github-config/buildpack
+
+      - name: Cleanup
+        run: rm -rf github-config
+
+      - name: Commit
+        id: commit
+        uses: paketo-buildpacks/github-config/actions/pull-request/create-commit@main
+        with:
+          message: "Updating github-config"
+          pathspec: "."
+          committer_name: "Cloud Foundry Buildpacks Team Robot"
+          committer_email: "cf-buildpacks-eng@pivotal.io"
+          keyid: ${{ secrets.CF_BOT_GPG_KEY_ID }}
+          key: ${{ secrets.CF_BOT_GPG_KEY }}
+
+      - name: Push Branch
+        if: ${{ steps.commit.outputs.commit_sha != '' }}
+        uses: paketo-buildpacks/github-config/actions/pull-request/push-branch@main
+        with:
+          branch: automation/github-config/update
+
+      - name: Open Pull Request
+        if: ${{ steps.commit.outputs.commit_sha != '' }}
+        uses: paketo-buildpacks/github-config/actions/pull-request/open@main
+        with:
+          token: ${{ secrets.CF_BOT_GITHUB_TOKEN }}
+          title: "Updates github-config"
+          branch: automation/github-config/update
+          base: master
