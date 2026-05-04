@@ -39,16 +39,16 @@ func (h *Hook) runInstallerWindows(installerFilePath, installDir string, creds *
 }
 
 func (h *Hook) setUpDotNetCorProfilerInjection(creds *credentials, installDir string, stager *libbuildpack.Stager) error {
-	loaderPath, err := h.findAbsoluteLoaderPath(stager, installDir)
+	agentPath, err := h.findAbsoluteAgentPath(stager, installDir)
 	if err != nil {
-		return fmt.Errorf("cannot find oneagentloader.dll: %s", err)
+		return fmt.Errorf("cannot find oneagentdotnet.dll: %s", err)
 	}
 
 	scriptContent := "set COR_ENABLE_PROFILING=1\n"
 	scriptContent += "set COR_PROFILER={B7038F67-52FC-4DA2-AB02-969B3C1EDA03}\n"
 	scriptContent += "set DT_AGENTACTIVE=true\n"
 	scriptContent += "set DT_BLOCKLIST=powershell*\n"
-	scriptContent += fmt.Sprintf("set COR_PROFILER_PATH_64=%s\n", loaderPath)
+	scriptContent += fmt.Sprintf("set COR_PROFILER_PATH_64=%s\n", agentPath)
 
 	if creds.NetworkZone != "" {
 		h.Log.Debug("Setting DT_NETWORK_ZONE...")
@@ -68,32 +68,32 @@ func (h *Hook) setUpDotNetCorProfilerInjection(creds *credentials, installDir st
 	return nil
 }
 
-func (h *Hook) findAbsoluteLoaderPath(stager *libbuildpack.Stager, installDir string) (string, error) {
+func (h *Hook) findAbsoluteAgentPath(stager *libbuildpack.Stager, installDir string) (string, error) {
 
-	// look for dotnet loader DLL file relative to the root of the downloaded zip archive
-	// and get the path from the manifest e.g. agent/bin/windows-x86-64/oneagentloader.dll
-	loaderDllPath, err := h.findAgentPath(filepath.Join(stager.BuildDir(), installDir), "dotnet", "loader", "oneagentloader.dll", "windows-x86-64")
+	// look for dotnet agent DLL file relative to the root of the downloaded zip archive
+	// and get the path from the manifest e.g. agent/bin/windows-x86-64/oneagentdotnet	.dll
+	agentDllPath, err := h.findAgentPath(filepath.Join(stager.BuildDir(), installDir), "dotnet", "primary", "oneagentdotnet.dll", "windows-x86-64")
 	if err != nil {
 		h.Log.Error("Manifest handling failed!")
 		return "", err
 	}
 
 	// windows path separator is "\" instead of "/"
-	loaderDllPath = strings.ReplaceAll(loaderDllPath, "/", "\\")
+	agentDllPath = strings.ReplaceAll(agentDllPath, "/", "\\")
 
-	// build the loader DLL path relative to the app directory
-	// e.g. dynatrace/oneagent/agent/bin/windows-x86-64/oneagentloader.dll
-	loaderDllPathInAppDir := filepath.Join(installDir, loaderDllPath)
+	// build the agent DLL path relative to the app directory
+	// e.g. dynatrace/oneagent/agent/bin/windows-x86-64/oneagentdotnet.dll
+	agentDllPathInAppDir := filepath.Join(installDir, agentDllPath)
 
-	// check that the loader dll is present in the build dir
-	// e.g. at \tmp\app\dynatrace\oneagent\agent\bin\1.303.0.20240930-081133\windows-x86-32\oneagentloader.dll
-	loaderDllPathInBuildDir := filepath.Join(stager.BuildDir(), loaderDllPathInAppDir)
+	// check that the agent dll is present in the build dir
+	// e.g. at \tmp\app\dynatrace\oneagent\agent\bin\1.303.0.20240930-081133\windows-x86-32\oneagentdotnet.dll
+	agentDllPathInBuildDir := filepath.Join(stager.BuildDir(), agentDllPathInAppDir)
 
-	if _, err = os.Stat(loaderDllPathInBuildDir); os.IsNotExist(err) {
-		h.Log.Error("Agent library (%s) not found!", loaderDllPathInBuildDir)
+	if _, err = os.Stat(agentDllPathInBuildDir); os.IsNotExist(err) {
+		h.Log.Error("Agent library (%s) not found!", agentDllPathInBuildDir)
 		return "", err
 	}
 
-	// build the absolute path of the loader DLL as it will be available at runtime
-	return filepath.Join("C:\\users\\vcap\\app", loaderDllPathInAppDir), nil
+	// build the absolute path of the agent DLL as it will be available at runtime
+	return filepath.Join("C:\\users\\vcap\\app", agentDllPathInAppDir), nil
 }

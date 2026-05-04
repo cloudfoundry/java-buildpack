@@ -1,4 +1,4 @@
-# github.com/Dynatrace/libbuildpack-dynatrace v1.8.0
+# github.com/Dynatrace/libbuildpack-dynatrace v1.9.0
 ## explicit; go 1.19
 github.com/Dynatrace/libbuildpack-dynatrace
 # github.com/Masterminds/semver v1.5.0
