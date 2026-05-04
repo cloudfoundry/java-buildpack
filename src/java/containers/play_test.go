@@ -230,6 +230,17 @@ var _ = Describe("Play Container", func() {
 				err := container.Finalize()
 				Expect(err).NotTo(HaveOccurred())
 			})
+
+			It("writes profile.d script that exports JAVA_OPTS with $PORT and $TMPDIR", func() {
+				Expect(container.Finalize()).To(Succeed())
+				scriptPath := filepath.Join(depsDir, "0", "profile.d", "play_java_opts.sh")
+				Expect(scriptPath).To(BeAnExistingFile())
+				content, err := os.ReadFile(scriptPath)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).To(ContainSubstring("export JAVA_OPTS="))
+				Expect(string(content)).To(ContainSubstring("$PORT"))
+				Expect(string(content)).To(ContainSubstring("$TMPDIR"))
+			})
 		})
 	})
 })

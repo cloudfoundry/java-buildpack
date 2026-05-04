@@ -247,10 +247,9 @@ export PATH=$DIST_ZIP_BIN:$PATH
 	}
 
 	// Most distZip scripts respect JAVA_OPTS environment variable
-	// Write JAVA_OPTS for the startup script to use
-	if err := d.context.Stager.WriteEnvFile("JAVA_OPTS",
-		strings.Join(javaOpts, " ")); err != nil {
-		return fmt.Errorf("failed to write JAVA_OPTS: %w", err)
+	javaOptsScript := fmt.Sprintf("export JAVA_OPTS=\"%s\"\n", strings.Join(javaOpts, " "))
+	if err := d.context.Stager.WriteProfileD("dist_zip_java_opts.sh", javaOptsScript); err != nil {
+		return fmt.Errorf("failed to write JAVA_OPTS profile.d script: %w", err)
 	}
 
 	d.context.Log.Info("DistZip finalization complete (using environment variables, not modifying scripts)")

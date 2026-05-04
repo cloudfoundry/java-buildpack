@@ -283,32 +283,31 @@ var _ = Describe("LunaSecurityProvider", func() {
 					Expect(string(content)).NotTo(ContainSubstring(depsDir))
 				})
 
-				It("writes ChrystokiConfigurationPath env file pointing to runtime path", func() {
+				It("writes profile.d script exporting ChrystokiConfigurationPath with runtime path", func() {
 					Expect(fw.Finalize()).To(Succeed())
-					envPath := filepath.Join(depsDir, "0", "env", "ChrystokiConfigurationPath")
-					Expect(envPath).To(BeAnExistingFile())
-					content, err := os.ReadFile(envPath)
+					scriptPath := filepath.Join(depsDir, "0", "profile.d", "luna_security_provider.sh")
+					Expect(scriptPath).To(BeAnExistingFile())
+					content, err := os.ReadFile(scriptPath)
 					Expect(err).NotTo(HaveOccurred())
-					Expect(string(content)).To(Equal("$DEPS_DIR/0/luna_security_provider"))
+					Expect(string(content)).To(ContainSubstring("export ChrystokiConfigurationPath=$DEPS_DIR/0/luna_security_provider"))
 				})
 
-				It("writes LD_LIBRARY_PATH env file pointing to the native library directory", func() {
+				It("writes profile.d script exporting LD_LIBRARY_PATH with runtime path", func() {
 					Expect(fw.Finalize()).To(Succeed())
-					envPath := filepath.Join(depsDir, "0", "env", "LD_LIBRARY_PATH")
-					Expect(envPath).To(BeAnExistingFile())
-					content, err := os.ReadFile(envPath)
+					scriptPath := filepath.Join(depsDir, "0", "profile.d", "luna_security_provider.sh")
+					Expect(scriptPath).To(BeAnExistingFile())
+					content, err := os.ReadFile(scriptPath)
 					Expect(err).NotTo(HaveOccurred())
 					Expect(string(content)).To(ContainSubstring("$DEPS_DIR/0/luna_security_provider/jsp/64"))
 				})
 
-				It("appends to existing LD_LIBRARY_PATH", func() {
-					os.Setenv("LD_LIBRARY_PATH", "/existing/lib")
+				It("uses shell parameter expansion to preserve existing LD_LIBRARY_PATH at runtime", func() {
 					Expect(fw.Finalize()).To(Succeed())
-					envPath := filepath.Join(depsDir, "0", "env", "LD_LIBRARY_PATH")
-					content, err := os.ReadFile(envPath)
+					scriptPath := filepath.Join(depsDir, "0", "profile.d", "luna_security_provider.sh")
+					content, err := os.ReadFile(scriptPath)
 					Expect(err).NotTo(HaveOccurred())
-					Expect(string(content)).To(ContainSubstring("/existing/lib"))
-					Expect(string(content)).To(ContainSubstring("$DEPS_DIR/0/luna_security_provider/jsp/64"))
+					// Shell expansion ${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH} appends existing value at runtime
+					Expect(string(content)).To(ContainSubstring("${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"))
 				})
 			})
 
