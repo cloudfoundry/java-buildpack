@@ -21,9 +21,13 @@ type MemoryCalculator struct {
 	javaMajorVersion int
 	calculatorPath   string
 	version          string
-	classCount       int
-	stackThreads     int
-	headroom         int
+	classCount          int
+	stackThreads        int
+	headroom            int
+	configLoaded        bool
+	classCountUserSet   bool
+	stackThreadsUserSet bool
+	headroomUserSet     bool
 }
 
 // NewMemoryCalculator creates a new memory calculator
@@ -53,6 +57,8 @@ func (m *MemoryCalculator) Supply() error {
 
 	m.version = dep.Version
 	m.ctx.Log.Info("Installing Memory Calculator (%s)", m.version)
+
+	m.LoadConfig()
 
 	// Create bin directory
 	binDir := filepath.Join(m.jreDir, "bin")
@@ -107,14 +113,15 @@ func (m *MemoryCalculator) Supply() error {
 
 	m.calculatorPath = finalPath
 
-	// Count classes in the application
-	if err := m.countClasses(); err != nil {
-		m.ctx.Log.Warning("Failed to count classes: %s (using default)", err.Error())
-		m.classCount = 0 // Will be calculated as 35% of actual later
+	// Count classes in the application, unless overridden by config
+	if m.classCount == 0 {
+		if err := m.countClasses(); err != nil {
+			m.ctx.Log.Warning("Failed to count classes: %s (using default)", err.Error())
+		}
 	}
 
-	m.ctx.Log.Info("Memory Calculator installed: Loaded Classes: %d, Threads: %d",
-		m.classCount, m.stackThreads)
+	m.ctx.Log.Info("Memory Calculator installed: Loaded Classes: %s, Threads: %s, Headroom: %s",
+		m.classCountDisplay(), m.stackThreadsDisplay(), m.headroomDisplay())
 
 	// Clean up temp directory
 	os.RemoveAll(tempDir)
@@ -152,6 +159,8 @@ func (m *MemoryCalculator) detectInstalledCalculator() {
 
 // Finalize configures the memory calculator in the startup command
 func (m *MemoryCalculator) Finalize() error {
+	m.LoadConfig()
+
 	// If calculatorPath not set, try to detect it from previous installation
 	if m.calculatorPath == "" {
 		m.detectInstalledCalculator()
@@ -364,24 +373,73 @@ func (m *MemoryCalculator) convertToRuntimePath(stagingPath string) string {
 	return fmt.Sprintf("/home/vcap/deps/%s/jre/bin/%s", depsIdx, filename)
 }
 
-// LoadConfig loads memory calculator configuration from environment/config
+// openJDKJREConfig mirrors the memory_calculator section of JBP_CONFIG_OPEN_JDK_JRE.
+type openJDKJREConfig struct {
+	MemoryCalculator memoryCalculatorConfig `yaml:"memory_calculator"`
+}
+
+type memoryCalculatorConfig struct {
+	StackThreads int `yaml:"stack_threads"`
+	ClassCount   int `yaml:"class_count"`
+	Headroom     int `yaml:"headroom"`
+}
+
+// LoadConfig loads memory calculator configuration from JBP_CONFIG_OPEN_JDK_JRE
+// (standard CF format) and falls back to MEMORY_CALCULATOR_* env vars.
+// Must be called at the start of Supply(), before countClasses().
 func (m *MemoryCalculator) LoadConfig() {
-	// Check for environment overrides
-	// JBP_CONFIG_OPEN_JDK_JRE='{memory_calculator: {stack_threads: 300}}'
+	if m.configLoaded {
+		return
+	}
+	m.configLoaded = true
+	if config := os.Getenv("JBP_CONFIG_OPEN_JDK_JRE"); config != "" {
+		yamlHandler := common.YamlHandler{}
 
-	// For now, using defaults
-	// In production, we'd parse JSON from environment variables
+		// Extract raw memory_calculator sub-section to validate its fields separately,
+		// so unknown top-level keys (e.g. jre:) are silently ignored while typos
+		// inside memory_calculator: are warned about.
+		rawCfg := struct {
+			MC interface{} `yaml:"memory_calculator"`
+		}{}
+		if err := yamlHandler.Unmarshal([]byte(config), &rawCfg); err == nil && rawCfg.MC != nil {
+			if mcBytes, err := yamlHandler.Marshal(rawCfg.MC); err == nil {
+				if err := yamlHandler.ValidateFields(mcBytes, &memoryCalculatorConfig{}); err != nil {
+					m.ctx.Log.Warning("Unknown fields in JBP_CONFIG_OPEN_JDK_JRE memory_calculator: %s", err.Error())
+				}
+			}
+		}
 
-	// Check specific environment variables
+		cfg := openJDKJREConfig{}
+		if err := yamlHandler.Unmarshal([]byte(config), &cfg); err != nil {
+			m.ctx.Log.Warning("Failed to parse JBP_CONFIG_OPEN_JDK_JRE: %s", err.Error())
+		} else {
+			mc := cfg.MemoryCalculator
+			if mc.StackThreads > 0 {
+				m.stackThreads = mc.StackThreads
+				m.stackThreadsUserSet = true
+			}
+			if mc.ClassCount > 0 {
+				m.classCount = mc.ClassCount
+				m.classCountUserSet = true
+			}
+			if mc.Headroom > 0 {
+				m.headroom = mc.Headroom
+				m.headroomUserSet = true
+			}
+		}
+	}
+
 	if val := os.Getenv("MEMORY_CALCULATOR_STACK_THREADS"); val != "" {
 		if threads, err := strconv.Atoi(val); err == nil {
 			m.stackThreads = threads
+			m.stackThreadsUserSet = true
 		}
 	}
 
 	if val := os.Getenv("MEMORY_CALCULATOR_HEADROOM"); val != "" {
 		if headroom, err := strconv.Atoi(val); err == nil {
 			m.headroom = headroom
+			m.headroomUserSet = true
 		}
 	}
 }
@@ -393,6 +451,27 @@ func copyFile(src, dst string) error {
 		return err
 	}
 	return os.WriteFile(dst, data, 0755)
+}
+
+func (m *MemoryCalculator) classCountDisplay() string {
+	if m.classCountUserSet {
+		return fmt.Sprintf("%d", m.classCount)
+	}
+	return fmt.Sprintf("%d (auto-detected)", m.classCount)
+}
+
+func (m *MemoryCalculator) stackThreadsDisplay() string {
+	if m.stackThreadsUserSet {
+		return fmt.Sprintf("%d", m.stackThreads)
+	}
+	return fmt.Sprintf("%d (default)", m.stackThreads)
+}
+
+func (m *MemoryCalculator) headroomDisplay() string {
+	if m.headroomUserSet {
+		return fmt.Sprintf("%d%%", m.headroom)
+	}
+	return fmt.Sprintf("%d%% (default)", m.headroom)
 }
 
 // RunMemoryCalculator runs the memory calculator and returns the calculated JAVA_OPTS
