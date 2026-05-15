@@ -299,11 +299,14 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 - name: elastic-apm-agent
-  version: 1.52.0
-  uri: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.52.0/elastic-apm-agent-1.52.0.jar
-  sha256: ef6c8f75bd6181e717cdd172864441580708c7ee8543175621a3f404f4ba6429
+  version: 1.55.6
+  uri: https://buildpacks.cloudfoundry.org/dependencies/elastic-apm-agent/elastic-apm-agent_1.55.6_linux_noarch_any-stack_29542a52.jar
+  sha256: 29542a5269d2cc8773f457e12848a27628d3f03d351ccdd928284b4094e56398
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
+  source: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.55.6/elastic-apm-agent-1.55.6.jar
+  source_sha256: ''
 - name: google-stackdriver-profiler
   version: 0.4.0
   uri: https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz
