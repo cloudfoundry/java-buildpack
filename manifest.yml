@@ -320,12 +320,13 @@ dependencies:
   source_sha256: 4a42d976370c6ab373a35ec602440a8a780a7715d55e4117b3028864a247878a
 - name: jacoco
   version: 0.8.14
-  uri: https://java-buildpack.cloudfoundry.org/jacoco/jacoco-0.8.14.jar
-  sha256: 20be9853385bdfc65a5929643412d09243d14514304b89ba23a265158cc8792b
+  uri: https://buildpacks.cloudfoundry.org/dependencies/jacoco/jacoco_0.8.14_linux_noarch_any-stack_0372447f.zip
+  sha256: 0372447f54900b4e77bcb216985b7d31cf5318fc599f8f9346ee35830448c125
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
   source: https://repo1.maven.org/maven2/org/jacoco/jacoco/0.8.14/jacoco-0.8.14.zip
-  source_sha256: 0372447f54900b4e77bcb216985b7d31cf5318fc599f8f9346ee35830448c125
+  source_sha256: ''
 - name: java-cfenv
   version: 3.5.1
   uri: https://buildpacks.cloudfoundry.org/dependencies/java-cfenv/java-cfenv_3.5.1_linux_noarch_any-stack_caa4a786.jar
