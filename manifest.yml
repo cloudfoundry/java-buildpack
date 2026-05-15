@@ -519,11 +519,14 @@ dependencies:
   source: https://dlcdn.apache.org/skywalking/java-agent/9.6.0/apache-skywalking-java-agent-9.6.0.tgz
   source_sha256: e17d512d4ee5575ebb7d705b3b9760f1cc2f0df7f6f4061beecaa352c94a43ad
 - name: splunk-otel-javaagent
-  version: 2.22.0
-  uri: https://github.com/signalfx/splunk-otel-java/releases/download/v2.22.0/splunk-otel-javaagent.jar
-  sha256: 070b98db6eaffe6705465706b187d4a6abb50505a1abe80600498b4ebca46bc3
+  version: 2.27.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/splunk-otel-javaagent/splunk-otel-javaagent_2.27.0_linux_noarch_any-stack_34f97475.jar
+  sha256: 34f974750fe8eaeb6af5f3ebbf99fa33332c598a7dccb3b072c19bf6421284ab
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
+  source: https://github.com/signalfx/splunk-otel-java/releases/download/v2.27.0/splunk-otel-javaagent.jar
+  source_sha256: 34f974750fe8eaeb6af5f3ebbf99fa33332c598a7dccb3b072c19bf6421284ab
 - name: spring-boot-cli
   version: 2.7.18
   uri: https://java-buildpack.cloudfoundry.org/spring-boot-cli/spring-boot-cli-2.7.18.tar.gz
