@@ -418,11 +418,14 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 - name: open-telemetry-javaagent
-  version: 2.22.0
-  uri: https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.22.0/opentelemetry-javaagent.jar
-  sha256: 53b34ae7a9ac9497ac16607fc6c74f10bb3cf818dc241789a067c47b0bdc2ea0
+  version: 2.27.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/open-telemetry-javaagent/open-telemetry-javaagent_2.27.0_linux_noarch_any-stack_bd01fea1.jar
+  sha256: bd01fea1304e8c8803fff827a0bdda02b2266742a85c62548053c6761474bb5b
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
+  source: https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.27.0/opentelemetry-javaagent.jar
+  source_sha256: bd01fea1304e8c8803fff827a0bdda02b2266742a85c62548053c6761474bb5b
 - name: openjdk
   version: 8.0.492+9
   uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_8.0.492%2B9_linux_x64_cflinuxfs4_c8a7c418.tgz
