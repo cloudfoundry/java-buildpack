@@ -526,12 +526,13 @@ dependencies:
   - cflinuxfs4
 - name: spring-boot-cli
   version: 2.7.18
-  uri: https://java-buildpack.cloudfoundry.org/spring-boot-cli/spring-boot-cli-2.7.18.tar.gz
+  uri: https://buildpacks.cloudfoundry.org/dependencies/spring-boot-cli/spring-boot-cli_2.7.18_linux_noarch_any-stack_e35d1ee2.tgz
   sha256: e35d1ee2c6ddc5c97a3eb305297d0e8aad328c3d87ab3c62b7cfb42de04d8720
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
   source: https://repo1.maven.org/maven2/org/springframework/boot/spring-boot-cli/2.7.18/spring-boot-cli-2.7.18-bin.tar.gz
-  source_sha256: e35d1ee2c6ddc5c97a3eb305297d0e8aad328c3d87ab3c62b7cfb42de04d8720
+  source_sha256: ''
 - name: tomcat
   version: 9.0.113
   uri: https://java-buildpack.cloudfoundry.org/tomcat/tomcat-9.0.113.tar.gz
