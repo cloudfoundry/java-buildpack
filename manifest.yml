@@ -124,7 +124,7 @@ default_versions:
 - name: luna-security-provider
   version: 7.x
 - name: newrelic
-  version: 8.x
+  version: 9.x
 - name: cf-metrics-exporter
   version: 0.7.x
 - name: metric-writer
