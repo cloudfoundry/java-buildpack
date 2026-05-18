@@ -102,7 +102,7 @@ func TestSupplyPlacesJarCorrectly(t *testing.T) {
 
 	// Pre-create the expected JAR file
 	jarName := "cf-metrics-exporter-0.7.1.jar" // adjust if version changes in manifest
-	jarDir := filepath.Join(tmpDepDir, "cf_metrics_exporter")
+	jarDir := filepath.Join(tmpDepDir, "0", "cf_metrics_exporter")
 	if err := os.MkdirAll(jarDir, 0755); err != nil {
 		t.Fatalf("Failed to create jar dir: %v", err)
 	}
@@ -151,7 +151,7 @@ func TestSupplyLogsProps(t *testing.T) {
 
 	// Pre-create the expected JAR file
 	jarName := "cf-metrics-exporter-0.7.1.jar"
-	jarDir := filepath.Join(tmpDepDir, "cf_metrics_exporter")
+	jarDir := filepath.Join(tmpDepDir, "0", "cf_metrics_exporter")
 	if err := os.MkdirAll(jarDir, 0755); err != nil {
 		t.Fatalf("Failed to create jar dir: %v", err)
 	}
