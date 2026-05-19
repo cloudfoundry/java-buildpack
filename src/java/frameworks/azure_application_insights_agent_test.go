@@ -63,7 +63,7 @@ func installAzureAgent(depsDir, version string) {
 	agentDir := filepath.Join(depsDir, "0", "azure_application_insights_agent")
 	Expect(os.MkdirAll(agentDir, 0755)).To(Succeed())
 	Expect(os.WriteFile(
-		filepath.Join(agentDir, "applicationinsights-agent-"+version+".jar"),
+		filepath.Join(agentDir, "azure-application-insights-"+version+".jar"),
 		[]byte("fake jar"), 0644,
 	)).To(Succeed())
 }
@@ -293,7 +293,7 @@ var _ = Describe("Azure Application Insights Agent", func() {
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "13_azure_application_insights_agent.opts"))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(string(content)).To(ContainSubstring("-javaagent:"))
-				Expect(string(content)).To(ContainSubstring("$DEPS_DIR/0/azure_application_insights_agent/applicationinsights-agent-3.4.0.jar"))
+				Expect(string(content)).To(ContainSubstring("$DEPS_DIR/0/azure_application_insights_agent/azure-application-insights-3.4.0.jar"))
 			})
 
 			It("opts file does not embed the staging-time absolute path", func() {

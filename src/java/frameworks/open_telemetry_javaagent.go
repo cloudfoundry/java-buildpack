@@ -11,6 +11,7 @@ import (
 // OpenTelemetryJavaagentFramework implements OpenTelemetry instrumentation support
 type OpenTelemetryJavaagentFramework struct {
 	context *common.Context
+	jarPath string
 }
 
 // NewOpenTelemetryJavaagentFramework creates a new OpenTelemetry Javaagent framework instance
@@ -75,8 +76,20 @@ func (o *OpenTelemetryJavaagentFramework) Finalize() error {
 	// Get buildpack index for multi-buildpack support
 	depsIdx := o.context.Stager.DepsIdx()
 
+	agentDir := filepath.Join(o.context.Stager.DepDir(), "open_telemetry_javaagent")
+
+	err := o.constructJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("OTEL Java agent JAR path not found during finalize: %w", err)
+	}
+
+	relPath, err := filepath.Rel(o.context.Stager.DepDir(), o.jarPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for OTEL Java agent: %w", err)
+	}
+
 	// Build runtime agent path
-	agentJar := fmt.Sprintf("$DEPS_DIR/%s/open_telemetry_javaagent/opentelemetry-javaagent.jar", depsIdx)
+	agentJar := filepath.Join(fmt.Sprintf("$DEPS_DIR/%s", depsIdx), relPath)
 
 	// Add javaagent to JAVA_OPTS
 	javaOpts := fmt.Sprintf("-javaagent:%s", agentJar)
@@ -123,6 +136,20 @@ func (o *OpenTelemetryJavaagentFramework) Finalize() error {
 	return nil
 }
 
+func (o *OpenTelemetryJavaagentFramework) constructJarPath(agentDir string) error {
+	jarPattern := filepath.Join(agentDir, o.DependencyIdentifier()+"*.jar")
+	matches, err := filepath.Glob(jarPattern)
+	if err != nil {
+		return fmt.Errorf("failed to search for OTEL javaagent jar: %w", err)
+	}
+	if len(matches) == 0 {
+		return fmt.Errorf("otel agent jar not found after installation in %s", agentDir)
+	}
+	o.jarPath = matches[0]
+	return nil
+}
+
 func (o *OpenTelemetryJavaagentFramework) DependencyIdentifier() string {
 	return "open-telemetry-javaagent"
 }
+
