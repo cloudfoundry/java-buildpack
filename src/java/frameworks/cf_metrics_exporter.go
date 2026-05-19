@@ -118,7 +118,7 @@ func (f *CfMetricsExporterFramework) Finalize() error {
 
 func (f *CfMetricsExporterFramework) constructJarPath(agentDir string) error {
 	// Find the installed JAR
-	jarPattern := filepath.Join(agentDir, "cf-metrics-exporter-*.jar")
+	jarPattern := filepath.Join(agentDir, "cf-metrics-exporter*.jar")
 	matches, err := filepath.Glob(jarPattern)
 	if err != nil {
 		return fmt.Errorf("failed to search for CF Metrics Exported jar: %w", err)
@@ -129,4 +129,3 @@ func (f *CfMetricsExporterFramework) constructJarPath(agentDir string) error {
 	f.jarPath = matches[0]
 	return nil
 }
-
