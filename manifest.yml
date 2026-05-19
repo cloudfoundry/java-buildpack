@@ -254,6 +254,7 @@ dependencies:
   sha256: 78dc1c2b3d3b6fb4ab94f38004ad1fbeb81992d942bd564127ca5d3da3cd2010
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
   source: https://repo1.maven.org/maven2/org/cloudfoundry/auto-reconfiguration/2.12.0/auto-reconfiguration-2.12.0-RELEASE.jar
   source_sha256: e791ccfcfee9c0d299d07474d9bfcbfcbebf1181323be601220c8a823062ab99
 - name: azure-application-insights
@@ -288,6 +289,7 @@ dependencies:
   sha256: fef33f4ffec1451b97253887026ec65ad99df0d2e8f8412e50e2afe5a4f6c62d
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
   source: https://repo1.maven.org/maven2/org/cloudfoundry/container-security-provider/1.20.0/container-security-provider-1.20.0-RELEASE.jar
   source_sha256: e791ccfcfee9c0d299d07474d9bfcbfcbebf1181323be601220c8a823062ab99
 - name: contrast-security
@@ -359,12 +361,14 @@ dependencies:
   sha256: 9c5ffb4bdeec5ed6b4f1d734469500754a857d1452c3d253d89e2315addb04c5
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
 - name: java-memory-assistant-cleanup
   version: 0.1.0
   uri: https://github.com/SAP/java-memory-assistant-tools/releases/download/0.1.0/cleanup-linux-amd64-0.1.0.zip
   sha256: f6a0348f70981ad3b7bc84d53f5964e5f60070ef75ca1ddac9184a4ab1639f75
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
 - name: jprofiler-profiler
   version: 15.0.4
   uri: https://buildpacks.cloudfoundry.org/dependencies/jprofiler-profiler/jprofiler-profiler_15.0.4_linux_x64_any-stack_fec74171.tgz
@@ -386,6 +390,7 @@ dependencies:
   sha256: 1e41375df364f8ee69f185f355bf90accff96f28453faa9f5dce148b5775b637
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
   source: https://github.com/cloudfoundry/jvmkill/releases/download/v1.17.0-RELEASE/jvmkill-1.17.0-RELEASE.so
   source_sha256: fb3fbbf6a242f0bcc4721c1c7b3c2f29ec08c4247c81f118e0870aeea8387dbc
 - name: luna-security-provider
@@ -409,12 +414,14 @@ dependencies:
   sha256: 0ba6fa26b32e4b906ab460a7cdb70ebded95ea353fdda93bd7f5792300b9cd43
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
 - name: memory-calculator
   version: 4.2.0
   uri: https://java-buildpack.cloudfoundry.org/memory-calculator/jammy/x86_64/memory-calculator-4.2.0.tgz
   sha256: a0689a655312fc4d1b71673d3edbfde61c4db48801e9d35fe3f31ecd49783d47
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
 - name: metric-writer
   version: 3.5.0
   uri: https://java-buildpack.cloudfoundry.org/metric-writer/metric-writer-3.5.0-RELEASE.jar
