@@ -68,14 +68,10 @@ func (f *CfMetricsExporterFramework) Supply() error {
 		if err := f.context.Installer.InstallDependency(dep, agentDir); err != nil {
 			return fmt.Errorf("failed to download cf-metrics-exporter: %w", err)
 		}
-		if _, err := os.Stat(f.jarPath); err != nil {
-			return fmt.Errorf("expected jar file not found after download: %w", err)
+		err := f.constructJarPath(agentDir)
+		if err != nil {
+			return fmt.Errorf("cf metrics exporter agent not found during supply: %w", err)
 		}
-	}
-
-	err = f.constructJarPath(agentDir)
-	if err != nil {
-		return fmt.Errorf("cf metrics exporter agent not found during supply: %w", err)
 	}
 
 	// Log activation, including properties if set
