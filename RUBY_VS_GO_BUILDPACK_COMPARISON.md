@@ -551,9 +551,9 @@ cf set-env myapp JBP_CONFIG_TOMCAT '{tomcat: {version: 10.1.+}}'
 cf set-env myapp JBP_CONFIG_TOMCAT '{external_configuration_enabled: true, external_configuration: {version: "1.0.0"}}'
 ```
 
-#### External Configuration: Different Approaches
+#### External Configuration: 
 
-**Ruby Buildpack**: Runtime repository_root override ✅
+Both buildpacks support repository_root override ✅
 
 ```bash
 # ✅ Works: Specify custom repository at runtime
@@ -565,37 +565,6 @@ cf set-env myapp JBP_CONFIG_TOMCAT '{
   }
 }'
 ```
-
-**Implementation**:
-```ruby
-# Ruby buildpack fetches index.yml from repository_root at staging time
-def compile
-  download(@version, @uri) { |file| expand file }  # Downloads from repository_root
-end
-```
-
-**Go Buildpack**: Manifest-only configuration ⚠️
-
-```bash
-# ❌ DOES NOT WORK: repository_root via environment variable not supported
-cf set-env myapp JBP_CONFIG_TOMCAT '{external_configuration_enabled: true, ...}'
-```
-
-**Required approach**:
-1. Fork buildpack
-2. Add external configuration to `manifest.yml`:
-   ```yaml
-   dependencies:
-     - name: tomcat-external-configuration
-       version: 1.0.0
-       uri: https://my-repo.example.com/tomcat-config-1.0.0.tar.gz
-       sha256: abc123...
-       cf_stacks:
-         - cflinuxfs4
-   ```
-3. Package and upload custom buildpack
-
-**Why the difference**: Go buildpack prioritizes security (mandatory SHA256 verification) and reproducibility (same manifest = same configs) over runtime flexibility.
 
 ### 2A.5 Access Logging Configuration
 
@@ -1241,13 +1210,13 @@ func (s *SpringBootCLIContainer) Detect() (string, error) {
 
 ### 3.1 Cloud Foundry API Versions
 
-| Aspect | Ruby (V2 API) | Go (V3 API) |
-|--------|---------------|-------------|
-| **Phases** | detect → compile → release | detect → supply → finalize |
-| **Multi-buildpack** | Not supported (needs workarounds) | Native support (multiple supply phases) |
+| Aspect | Ruby (V2 API) | Go (V3 API)                                |
+|--------|---------------|--------------------------------------------|
+| **Phases** | detect → compile → release | detect → supply → finalize -> release      |
+| **Multi-buildpack** | Not supported (needs workarounds) | Native support (multiple supply phases)    |
 | **Entrypoints** | `bin/detect`, `bin/compile`, `bin/release` | `bin/detect`, `bin/supply`, `bin/finalize` |
-| **State Management** | Droplet object (in-memory) | Files in `/deps/<idx>/` (persistent) |
-| **Caching** | `$CF_BUILDPACK_BUILDPACK_CACHE` | Same + `/deps/<idx>/` for dependencies |
+| **State Management** | Droplet object (in-memory) | Files in `/deps/<idx>/` (persistent)       |
+| **Caching** | `$CF_BUILDPACK_BUILDPACK_CACHE` | Same + `/deps/<idx>/` for dependencies     |
 
 ### 3.2 Phase Responsibilities
 
@@ -1723,8 +1692,6 @@ func (t *Tomcat) Supply() error {
 
 **Key difference**: The Go buildpack **initially forgot to use strip_components**, requiring helper functions like `findTomcatHome()`. The correct approach is to use `crush.Extract()` with `strip=1` parameter (similar to Ruby's `--strip 1`).
 
-See detailed analysis: `/ruby_vs_go_buildpack_comparison.md` (the OLD document focuses on this specific issue).
-
 ### 5.3 Caching Strategies
 
 | Aspect | Ruby Buildpack | Go Buildpack |
@@ -1741,13 +1708,13 @@ See detailed analysis: `/ruby_vs_go_buildpack_comparison.md` (the OLD document f
 
 ### 6.1 Test Framework Comparison
 
-| Aspect | Ruby Buildpack | Go Buildpack |
-|--------|---------------|--------------|
-| **Unit Test Framework** | RSpec | Go testing + Gomega assertions |
-| **Integration Tests** | Separate repo (java-buildpack-system-test) | In-tree (src/integration/) |
-| **Test Runner** | Rake tasks | Switchblade framework |
-| **Platforms** | Cloud Foundry only | CF + Docker (with GitHub token) |
-| **Total Tests** | ~300+ specs | ~100+ integration tests |
+| Aspect | Ruby Buildpack | Go Buildpack                          |
+|--------|---------------|---------------------------------------|
+| **Unit Test Framework** | RSpec | Go testing + Gomega assertions        |
+| **Integration Tests** | Separate repo (java-buildpack-system-test) | In-tree (src/integration/)            |
+| **Test Runner** | Rake tasks | Switchblade framework                 |
+| **Platforms** | Cloud Foundry only | CF + Docker (with GitHub token)       |
+| **Total Tests** | ~300+ specs | ~800+ integration tests               |
 | **Test Apps** | External repo (java-test-applications) | Embedded in src/integration/testdata/ |
 
 ### 6.2 Test Organization
@@ -2313,8 +2280,6 @@ The Go-based Java buildpack is a **production-ready, feature-complete** migratio
 ## Appendix B: Further Reading
 
 - **ARCHITECTURE.md** - Detailed Go buildpack architecture
-- **comparison.md** - Component-by-component feature parity analysis
-- **ruby_vs_go_buildpack_comparison.md** - OLD document (focused on dependency extraction only, outdated)
 - **docs/custom-jre-usage.md** - Guide for custom JRE repositories in Go buildpack
 - **docs/DEVELOPING.md** - Development workflow and testing
 - **docs/IMPLEMENTING_FRAMEWORKS.md** - Framework implementation guide
@@ -2323,5 +2288,5 @@ The Go-based Java buildpack is a **production-ready, feature-complete** migratio
 ---
 
 **Document Version**: 1.0  
-**Last Updated**: January 5, 2026  
+**Last Updated**: May 20, 2026  
 **Authors**: Cloud Foundry Java Buildpack Team
