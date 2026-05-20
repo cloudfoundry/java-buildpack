@@ -126,44 +126,46 @@ func (j *JavaMemoryAssistantFramework) buildAgentConfig() string {
 		return "" // Don't fail the build
 	}
 
-	// Heap dump folder (default: $PWD or volume service mount point)
-	heapDumpFolder := j.getHeapDumpFolder()
+	// Heap dump folder: config value takes priority, then volume service, then $PWD
+	heapDumpFolder := j.getHeapDumpFolder(config.Agent.HeapDumpFolder)
 	if heapDumpFolder != "" {
-		configParts = append(configParts, fmt.Sprintf("-Djma.heap-dump-folder=%s", heapDumpFolder))
+		configParts = append(configParts, fmt.Sprintf("-Djma.heap_dump_folder=%s", heapDumpFolder))
 	}
 
 	// Check interval (default: 5s)
 	checkInterval := config.Agent.CheckInterval
-	configParts = append(configParts, fmt.Sprintf("-Djma.check-interval=%s", checkInterval))
+	configParts = append(configParts, fmt.Sprintf("-Djma.check_interval=%s", checkInterval))
 
 	// Max frequency (default: 1/1m)
 	maxFrequency := config.Agent.MaxFrequency
-	configParts = append(configParts, fmt.Sprintf("-Djma.max-frequency=%s", maxFrequency))
+	configParts = append(configParts, fmt.Sprintf("-Djma.max_frequency=%s", maxFrequency))
 
-	// Log level (use buildpack log level if not specified)
-	logLevel := config.Agent.LogLevel
-	configParts = append(configParts, fmt.Sprintf("-Djma.log-level=%s", logLevel))
+	// Log level (only if set)
+	if logLevel := config.Agent.LogLevel; logLevel != "" {
+		configParts = append(configParts, fmt.Sprintf("-Djma.log_level=%s", logLevel))
+	}
 
 	// Thresholds (default: old_gen >600MB)
 	thresholds := config.getThresholds()
 	for memArea, threshold := range thresholds {
 		if threshold != "" {
-			configParts = append(configParts, fmt.Sprintf("-Djma.threshold.%s=%s", memArea, threshold))
+			configParts = append(configParts, fmt.Sprintf("-Djma.thresholds.%s=%s", memArea, threshold))
 		}
 	}
 
 	return strings.Join(configParts, " ")
 }
 
-// getHeapDumpFolder determines the heap dump folder location
-// Checks for volume services named "heap-dump" or tagged with "heap-dump"
-func (j *JavaMemoryAssistantFramework) getHeapDumpFolder() string {
+// getHeapDumpFolder determines the heap dump folder location.
+// Priority: explicit config value > volume service mount > $PWD default.
+func (j *JavaMemoryAssistantFramework) getHeapDumpFolder(configuredFolder string) string {
+	if configuredFolder != "" {
+		return configuredFolder
+	}
+
 	// Check for volume service mounts
-	// This is a simplified implementation - in production, parse VCAP_SERVICES
 	vcapServices := os.Getenv("VCAP_SERVICES")
 	if vcapServices != "" && contains(vcapServices, "heap-dump") {
-		// If heap-dump volume service exists, use its mount point
-		// For now, return a placeholder that would be resolved at runtime
 		return "$HEAP_DUMP_VOLUME/heapdumps"
 	}
 

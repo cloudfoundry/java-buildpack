@@ -151,28 +151,28 @@ var _ = Describe("Java Memory Assistant", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Djma.check-interval=5s"))
+				Expect(string(content)).To(ContainSubstring("-Djma.check_interval=5s"))
 			})
 
 			It("opts file contains default max frequency", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Djma.max-frequency=1/1m"))
+				Expect(string(content)).To(ContainSubstring("-Djma.max_frequency=1/1m"))
 			})
 
 			It("opts file contains default old_gen threshold", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Djma.threshold.old_gen=>600MB"))
+				Expect(string(content)).To(ContainSubstring("-Djma.thresholds.old_gen=>600MB"))
 			})
 
 			It("opts file contains heap dump folder defaulting to $PWD", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Djma.heap-dump-folder=$PWD"))
+				Expect(string(content)).To(ContainSubstring("-Djma.heap_dump_folder=$PWD"))
 			})
 		})
 
@@ -186,7 +186,7 @@ var _ = Describe("Java Memory Assistant", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Djma.check-interval=10s"))
+				Expect(string(content)).To(ContainSubstring("-Djma.check_interval=10s"))
 			})
 		})
 
@@ -200,7 +200,7 @@ var _ = Describe("Java Memory Assistant", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Djma.max-frequency=2/5m"))
+				Expect(string(content)).To(ContainSubstring("-Djma.max_frequency=2/5m"))
 			})
 		})
 
@@ -214,7 +214,7 @@ var _ = Describe("Java Memory Assistant", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Djma.threshold.old_gen=>80%"))
+				Expect(string(content)).To(ContainSubstring("-Djma.thresholds.old_gen=>80%"))
 			})
 		})
 
@@ -224,11 +224,11 @@ var _ = Describe("Java Memory Assistant", func() {
 				os.Setenv("JBP_CONFIG_JAVA_MEMORY_ASSISTANT", "agent:\n  thresholds:\n    heap: \">90%\"")
 			})
 
-			It("opts file contains -Djma.threshold.heap", func() {
+			It("opts file contains -Djma.thresholds.heap", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Djma.threshold.heap=>90%"))
+				Expect(string(content)).To(ContainSubstring("-Djma.thresholds.heap=>90%"))
 			})
 		})
 
@@ -238,11 +238,11 @@ var _ = Describe("Java Memory Assistant", func() {
 				os.Setenv("JBP_CONFIG_JAVA_MEMORY_ASSISTANT", "agent:\n  log_level: DEBUG")
 			})
 
-			It("opts file contains -Djma.log-level=DEBUG", func() {
+			It("opts file contains -Djma.log_level=DEBUG", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Djma.log-level=DEBUG"))
+				Expect(string(content)).To(ContainSubstring("-Djma.log_level=DEBUG"))
 			})
 		})
 
@@ -256,7 +256,7 @@ var _ = Describe("Java Memory Assistant", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Djma.heap-dump-folder=$HEAP_DUMP_VOLUME/heapdumps"))
+				Expect(string(content)).To(ContainSubstring("-Djma.heap_dump_folder=$HEAP_DUMP_VOLUME/heapdumps"))
 			})
 		})
 
@@ -299,6 +299,35 @@ var _ = Describe("Java Memory Assistant", func() {
 				err := fw.Finalize()
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("Java Memory Assistant JAR not found"))
+			})
+		})
+
+		Context("with the exact user config: enabled, heap threshold 80%, heap_dump_folder /home/vcap/, check_interval 5m", func() {
+			BeforeEach(func() {
+				installJMAAgent(depsDir, "1.2.3")
+				os.Setenv("JBP_CONFIG_JAVA_MEMORY_ASSISTANT",
+					`{enabled : true, agent: { thresholds : { heap: "80%" }, heap_dump_folder: /home/vcap/, check_interval: 5m } }`)
+			})
+
+			It("opts file contains -Djma.thresholds.heap=80%", func() {
+				Expect(fw.Finalize()).To(Succeed())
+				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).To(ContainSubstring("-Djma.thresholds.heap=80%"))
+			})
+
+			It("opts file contains -Djma.heap_dump_folder=/home/vcap/", func() {
+				Expect(fw.Finalize()).To(Succeed())
+				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).To(ContainSubstring("-Djma.heap_dump_folder=/home/vcap/"))
+			})
+
+			It("opts file contains -Djma.check_interval=5m", func() {
+				Expect(fw.Finalize()).To(Succeed())
+				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "28_java_memory_assistant.opts"))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).To(ContainSubstring("-Djma.check_interval=5m"))
 			})
 		})
 	})
