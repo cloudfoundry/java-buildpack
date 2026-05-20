@@ -327,11 +327,12 @@ var _ = Describe("Azure Application Insights Agent", func() {
 				os.Setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "InstrumentationKey=abc123;IngestionEndpoint=https://eastus.in.applicationinsights.azure.com/")
 			})
 
-			It("opts file contains -Dapplicationinsights.connection.string", func() {
+			It("opts file contains -Dapplicationinsights.connection.string with shell-safe single-quoted value", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "13_azure_application_insights_agent.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Dapplicationinsights.connection.string=InstrumentationKey=abc123;IngestionEndpoint=https://eastus.in.applicationinsights.azure.com/"))
+				// Value must be single-quoted so that eval exec java $JAVA_OPTS does not split on ; in the connection string
+				Expect(string(content)).To(ContainSubstring("-Dapplicationinsights.connection.string='InstrumentationKey=abc123;IngestionEndpoint=https://eastus.in.applicationinsights.azure.com/'"))
 			})
 		})
 
@@ -353,14 +354,15 @@ var _ = Describe("Azure Application Insights Agent", func() {
 			BeforeEach(func() {
 				installAzureAgent(depsDir, "3.4.0")
 				os.Setenv("VCAP_SERVICES", azureVCAPServices("azure-application-insights", "my-ai", nil,
-					`"connection_string":"InstrumentationKey=binding-key"`))
+					`"connection_string":"InstrumentationKey=binding-key;IngestionEndpoint=https://westeurope.in.applicationinsights.azure.com/"`))
 			})
 
-			It("opts file contains -Dapplicationinsights.connection.string from binding", func() {
+			It("opts file contains -Dapplicationinsights.connection.string with shell-safe single-quoted value", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "13_azure_application_insights_agent.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Dapplicationinsights.connection.string=InstrumentationKey=binding-key"))
+				// Value must be single-quoted so that eval exec java $JAVA_OPTS does not split on ;
+				Expect(string(content)).To(ContainSubstring("-Dapplicationinsights.connection.string='InstrumentationKey=binding-key;IngestionEndpoint=https://westeurope.in.applicationinsights.azure.com/'"))
 			})
 		})
 
@@ -368,14 +370,15 @@ var _ = Describe("Azure Application Insights Agent", func() {
 			BeforeEach(func() {
 				installAzureAgent(depsDir, "3.4.0")
 				os.Setenv("VCAP_SERVICES", azureVCAPServices("azure-application-insights", "my-ai", nil,
-					`"connectionString":"InstrumentationKey=camel-key"`))
+					`"connectionString":"InstrumentationKey=camel-key;IngestionEndpoint=https://westeurope.in.applicationinsights.azure.com/"`))
 			})
 
-			It("opts file contains -Dapplicationinsights.connection.string from camelCase binding", func() {
+			It("opts file contains -Dapplicationinsights.connection.string with shell-safe single-quoted value", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "13_azure_application_insights_agent.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Dapplicationinsights.connection.string=InstrumentationKey=camel-key"))
+				// Value must be single-quoted so that eval exec java $JAVA_OPTS does not split on ;
+				Expect(string(content)).To(ContainSubstring("-Dapplicationinsights.connection.string='InstrumentationKey=camel-key;IngestionEndpoint=https://westeurope.in.applicationinsights.azure.com/'"))
 			})
 		})
 
@@ -412,15 +415,15 @@ var _ = Describe("Azure Application Insights Agent", func() {
 		Context("with connection string taking precedence over instrumentation key when both present in env", func() {
 			BeforeEach(func() {
 				installAzureAgent(depsDir, "3.4.0")
-				os.Setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "InstrumentationKey=conn-str-key")
+				os.Setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "InstrumentationKey=conn-str-key;IngestionEndpoint=https://eastus.in.applicationinsights.azure.com/")
 				os.Setenv("APPINSIGHTS_INSTRUMENTATIONKEY", "plain-ikey")
 			})
 
-			It("opts file uses connection string and not instrumentation key", func() {
+			It("opts file uses single-quoted connection string and not instrumentation key", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "13_azure_application_insights_agent.opts"))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(content)).To(ContainSubstring("-Dapplicationinsights.connection.string=InstrumentationKey=conn-str-key"))
+				Expect(string(content)).To(ContainSubstring("-Dapplicationinsights.connection.string='InstrumentationKey=conn-str-key;IngestionEndpoint=https://eastus.in.applicationinsights.azure.com/'"))
 				Expect(string(content)).NotTo(ContainSubstring("applicationinsights.instrumentation-key"))
 			})
 		})
