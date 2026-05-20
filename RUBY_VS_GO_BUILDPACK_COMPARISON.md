@@ -1214,13 +1214,13 @@ func (s *SpringBootCLIContainer) Detect() (string, error) {
 
 ### 3.1 Cloud Foundry API Versions
 
-| Aspect | Ruby (V2 API) | Go (V3 API) |
-|--------|---------------|-------------|
-| **Phases** | detect → compile → release | detect → supply → finalize |
-| **Multi-buildpack** | Not supported (needs workarounds) | Native support (multiple supply phases) |
+| Aspect | Ruby (V2 API) | Go (V3 API)                                |
+|--------|---------------|--------------------------------------------|
+| **Phases** | detect → compile → release | detect → supply → finalize -> release      |
+| **Multi-buildpack** | Not supported (needs workarounds) | Native support (multiple supply phases)    |
 | **Entrypoints** | `bin/detect`, `bin/compile`, `bin/release` | `bin/detect`, `bin/supply`, `bin/finalize` |
-| **State Management** | Droplet object (in-memory) | Files in `/deps/<idx>/` (persistent) |
-| **Caching** | `$CF_BUILDPACK_BUILDPACK_CACHE` | Same + `/deps/<idx>/` for dependencies |
+| **State Management** | Droplet object (in-memory) | Files in `/deps/<idx>/` (persistent)       |
+| **Caching** | `$CF_BUILDPACK_BUILDPACK_CACHE` | Same + `/deps/<idx>/` for dependencies     |
 
 ### 3.2 Phase Responsibilities
 
@@ -1696,8 +1696,6 @@ func (t *Tomcat) Supply() error {
 
 **Key difference**: The Go buildpack **initially forgot to use strip_components**, requiring helper functions like `findTomcatHome()`. The correct approach is to use `crush.Extract()` with `strip=1` parameter (similar to Ruby's `--strip 1`).
 
-See detailed analysis: `/ruby_vs_go_buildpack_comparison.md` (the OLD document focuses on this specific issue).
-
 ### 5.3 Caching Strategies
 
 | Aspect | Ruby Buildpack | Go Buildpack |
@@ -1714,13 +1712,13 @@ See detailed analysis: `/ruby_vs_go_buildpack_comparison.md` (the OLD document f
 
 ### 6.1 Test Framework Comparison
 
-| Aspect | Ruby Buildpack | Go Buildpack |
-|--------|---------------|--------------|
-| **Unit Test Framework** | RSpec | Go testing + Gomega assertions |
-| **Integration Tests** | Separate repo (java-buildpack-system-test) | In-tree (src/integration/) |
-| **Test Runner** | Rake tasks | Switchblade framework |
-| **Platforms** | Cloud Foundry only | CF + Docker (with GitHub token) |
-| **Total Tests** | ~300+ specs | ~100+ integration tests |
+| Aspect | Ruby Buildpack | Go Buildpack                          |
+|--------|---------------|---------------------------------------|
+| **Unit Test Framework** | RSpec | Go testing + Gomega assertions        |
+| **Integration Tests** | Separate repo (java-buildpack-system-test) | In-tree (src/integration/)            |
+| **Test Runner** | Rake tasks | Switchblade framework                 |
+| **Platforms** | Cloud Foundry only | CF + Docker (with GitHub token)       |
+| **Total Tests** | ~300+ specs | ~800+ integration tests               |
 | **Test Apps** | External repo (java-test-applications) | Embedded in src/integration/testdata/ |
 
 ### 6.2 Test Organization
@@ -2286,8 +2284,6 @@ The Go-based Java buildpack is a **production-ready, feature-complete** migratio
 ## Appendix B: Further Reading
 
 - **ARCHITECTURE.md** - Detailed Go buildpack architecture
-- **comparison.md** - Component-by-component feature parity analysis
-- **ruby_vs_go_buildpack_comparison.md** - OLD document (focused on dependency extraction only, outdated)
 - **docs/custom-jre-usage.md** - Guide for custom JRE repositories in Go buildpack
 - **docs/DEVELOPING.md** - Development workflow and testing
 - **docs/IMPLEMENTING_FRAMEWORKS.md** - Framework implementation guide
@@ -2296,5 +2292,5 @@ The Go-based Java buildpack is a **production-ready, feature-complete** migratio
 ---
 
 **Document Version**: 1.0  
-**Last Updated**: January 5, 2026  
+**Last Updated**: May 20, 2026  
 **Authors**: Cloud Foundry Java Buildpack Team
