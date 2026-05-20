@@ -551,9 +551,9 @@ cf set-env myapp JBP_CONFIG_TOMCAT '{tomcat: {version: 10.1.+}}'
 cf set-env myapp JBP_CONFIG_TOMCAT '{external_configuration_enabled: true, external_configuration: {version: "1.0.0"}}'
 ```
 
-#### External Configuration: Different Approaches
+#### External Configuration: 
 
-**Ruby Buildpack**: Runtime repository_root override ✅
+Both buildpacks support repository_root override ✅
 
 ```bash
 # ✅ Works: Specify custom repository at runtime
@@ -566,33 +566,6 @@ cf set-env myapp JBP_CONFIG_TOMCAT '{
 }'
 ```
 
-**Implementation**:
-```ruby
-# Ruby buildpack fetches index.yml from repository_root at staging time
-def compile
-  download(@version, @uri) { |file| expand file }  # Downloads from repository_root
-end
-```
-
-**Go Buildpack**: Manifest-only configuration ⚠️
-
-```bash
-# ❌ DOES NOT WORK: repository_root via environment variable not supported
-cf set-env myapp JBP_CONFIG_TOMCAT '{external_configuration_enabled: true, ...}'
-```
-
-**Required approach**:
-1. Fork buildpack
-2. Add external configuration to `manifest.yml`:
-   ```yaml
-   dependencies:
-     - name: tomcat-external-configuration
-       version: 1.0.0
-       uri: https://my-repo.example.com/tomcat-config-1.0.0.tar.gz
-       sha256: abc123...
-       cf_stacks:
-         - cflinuxfs4
-   ```
 3. Package and upload custom buildpack
 
 **Why the difference**: Go buildpack prioritizes security (mandatory SHA256 verification) and reproducibility (same manifest = same configs) over runtime flexibility.
