@@ -566,10 +566,6 @@ cf set-env myapp JBP_CONFIG_TOMCAT '{
 }'
 ```
 
-3. Package and upload custom buildpack
-
-**Why the difference**: Go buildpack prioritizes security (mandatory SHA256 verification) and reproducibility (same manifest = same configs) over runtime flexibility.
-
 ### 2A.5 Access Logging Configuration
 
 #### Default Behavior: Disabled (Parity)
