@@ -399,6 +399,7 @@ dependencies:
   sha256: e024103719ffa99a011607942ecddfd91c5681113e6cea27f5514bc9fa172875
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
 - name: mariadb-jdbc
   version: 3.5.8
   uri: https://buildpacks.cloudfoundry.org/dependencies/mariadb-jdbc/mariadb-jdbc_3.5.8_linux_noarch_any-stack_6127dc78.jar
@@ -592,7 +593,7 @@ dependencies:
   sha256: b3452d5ffbf0652e0f44958a5cb306a961906280102e5fa1a15840d2ddb6bcc1
   cf_stacks:
   - cflinuxfs4
-  - cflinuxfs3
+  - cflinuxfs5
   source: https://repo1.maven.org/maven2/org/cloudfoundry/tomcat-access-logging-support/3.4.0.RELEASE/tomcat-access-logging-support-3.4.0.RELEASE.jar
   source_sha256: b3452d5ffbf0652e0f44958a5cb306a961906280102e5fa1a15840d2ddb6bcc1
 - name: tomcat-lifecycle-support
@@ -601,7 +602,7 @@ dependencies:
   sha256: 3861d32a91b58302fa936d6f84354e1874f71e59dd97b003efcc992a5a6f3c47
   cf_stacks:
   - cflinuxfs4
-  - cflinuxfs3
+  - cflinuxfs5
   source: https://repo1.maven.org/maven2/org/cloudfoundry/tomcat-lifecycle-support/3.4.0.RELEASE/tomcat-lifecycle-support-3.4.0.RELEASE.jar
   source_sha256: 3861d32a91b58302fa936d6f84354e1874f71e59dd97b003efcc992a5a6f3c47
 - name: tomcat-logging-support
@@ -610,7 +611,7 @@ dependencies:
   sha256: 07de9efe8dda4c67dec6183ec1d59953abf1372cd71fe276fc4598739bd70667
   cf_stacks:
   - cflinuxfs4
-  - cflinuxfs3
+  - cflinuxfs5
   source: https://repo1.maven.org/maven2/org/cloudfoundry/tomcat-logging-support/3.4.0.RELEASE/tomcat-logging-support-3.4.0.RELEASE.jar
   source_sha256: 07de9efe8dda4c67dec6183ec1d59953abf1372cd71fe276fc4598739bd70667
 - name: your-kit-profiler
