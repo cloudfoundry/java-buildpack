@@ -28,6 +28,13 @@ var _ = Describe("OpenTelemetryJavaagentFramework", func() {
 		err = os.MkdirAll(filepath.Join(depsDir, "0"), 0755)
 		Expect(err).NotTo(HaveOccurred())
 
+		agentDir := filepath.Join(depsDir, "0", "open_telemetry_javaagent")
+		Expect(os.MkdirAll(agentDir, 0755)).To(Succeed())
+		Expect(os.WriteFile(
+			filepath.Join(agentDir, "open-telemetry-javaagent_2.27.0_linux_noarch_any-stack_bd01fea1.jar"),
+			[]byte("fake jar"), 0644,
+		)).To(Succeed())
+
 		logger := libbuildpack.NewLogger(os.Stdout)
 		manifest := &libbuildpack.Manifest{}
 		stager := libbuildpack.NewStager([]string{tmpDir, "", depsDir, "0"}, logger, manifest)
@@ -219,7 +226,7 @@ var _ = Describe("OpenTelemetryJavaagentFramework", func() {
 				Expect(err).NotTo(HaveOccurred())
 				opts := string(data)
 
-				Expect(opts).To(ContainSubstring("-javaagent:$DEPS_DIR/0/open_telemetry_javaagent/opentelemetry-javaagent.jar"))
+				Expect(opts).To(ContainSubstring("-javaagent:$DEPS_DIR/0/open_telemetry_javaagent/open-telemetry-javaagent_2.27.0_linux_noarch_any-stack_bd01fea1.jar"))
 				Expect(opts).To(ContainSubstring("-Dotel.exporter.otlp.endpoint=http://collector:4318"))
 				Expect(opts).To(ContainSubstring("-Dotel.traces.sampler=always_on"))
 			})
@@ -262,7 +269,7 @@ var _ = Describe("OpenTelemetryJavaagentFramework", func() {
 				Expect(err).NotTo(HaveOccurred())
 				opts := string(data)
 
-				Expect(opts).To(ContainSubstring("-javaagent:$DEPS_DIR/0/open_telemetry_javaagent/opentelemetry-javaagent.jar"))
+				Expect(opts).To(ContainSubstring("-javaagent:$DEPS_DIR/0/open_telemetry_javaagent/open-telemetry-javaagent_2.27.0_linux_noarch_any-stack_bd01fea1.jar"))
 				Expect(opts).NotTo(ContainSubstring("-Dotel."))
 			})
 		})
@@ -301,7 +308,7 @@ var _ = Describe("OpenTelemetryJavaagentFramework", func() {
 				data, err := os.ReadFile(otelOptsFile())
 				Expect(err).NotTo(HaveOccurred())
 
-				Expect(string(data)).To(ContainSubstring("$DEPS_DIR/0/open_telemetry_javaagent/opentelemetry-javaagent.jar"))
+				Expect(string(data)).To(ContainSubstring("$DEPS_DIR/0/open_telemetry_javaagent/open-telemetry-javaagent_2.27.0_linux_noarch_any-stack_bd01fea1.jar"))
 			})
 		})
 	})

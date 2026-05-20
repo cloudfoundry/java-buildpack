@@ -194,7 +194,7 @@ func (f *MariaDBJDBCFramework) hasExistingDriver() bool {
 }
 
 func (f *MariaDBJDBCFramework) constructJarPath(mariadbDir string) error {
-	jarPattern := filepath.Join(mariadbDir, "mariadb-jdbc-*.jar")
+	jarPattern := filepath.Join(mariadbDir, f.DependencyIdentifier()+"*.jar")
 	matches, err := filepath.Glob(jarPattern)
 	if err != nil {
 		return fmt.Errorf("failed to search for MariaDB JDBC JAR: %w", err)
@@ -206,6 +206,7 @@ func (f *MariaDBJDBCFramework) constructJarPath(mariadbDir string) error {
 	return nil
 }
 
-func (m *MariaDBJDBCFramework) DependencyIdentifier() string {
+func (f *MariaDBJDBCFramework) DependencyIdentifier() string {
 	return "mariadb-jdbc"
 }
+

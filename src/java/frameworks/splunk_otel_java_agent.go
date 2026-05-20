@@ -230,18 +230,19 @@ func (s *SplunkOtelJavaAgentFramework) getCredentials() SplunkCredentials {
 }
 
 func (s *SplunkOtelJavaAgentFramework) constructJarPath(agentDir string) error {
-	jarPattern := filepath.Join(agentDir, "splunk-otel-javaagent.jar")
-	if _, err := os.Stat(jarPattern); err != nil {
-		// Try alternative name
-		jarPattern = filepath.Join(agentDir, "splunk-otel-javaagent-all.jar")
-		if _, err := os.Stat(jarPattern); err != nil {
-			return fmt.Errorf("javaagent jar not found after installation in %s (tried both splunk-otel-javaagent.jar and splunk-otel-javaagent-all.jar)", agentDir)
-		}
+	jarPattern := filepath.Join(agentDir, s.DependencyIdentifier()+"*.jar")
+	matches, err := filepath.Glob(jarPattern)
+	if err != nil {
+		return fmt.Errorf("failed to search for Splunk OTEL javaagent jar: %w", err)
 	}
-	s.jarPath = jarPattern
+	if len(matches) == 0 {
+		return fmt.Errorf("splunk otel agent jar not found after installation in %s", agentDir)
+	}
+	s.jarPath = matches[0]
 	return nil
 }
 
 func (s *SplunkOtelJavaAgentFramework) DependencyIdentifier() string {
 	return "splunk-otel-javaagent"
 }
+

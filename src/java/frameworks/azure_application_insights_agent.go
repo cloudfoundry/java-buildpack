@@ -278,7 +278,7 @@ func (a *AzureApplicationInsightsAgentFramework) getApplicationName() string {
 
 func (a *AzureApplicationInsightsAgentFramework) constructJarPath(agentDir string) error {
 	// Find the installed JAR
-	jarPattern := filepath.Join(agentDir, "applicationinsights-agent-*.jar")
+	jarPattern := filepath.Join(agentDir, "azure-application-insights*.jar")
 	matches, err := filepath.Glob(jarPattern)
 	if err != nil {
 		return fmt.Errorf("failed to search for Azure Application Insights agent JAR: %w", err)
