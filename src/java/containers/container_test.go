@@ -84,6 +84,37 @@ var _ = Describe("Container Registry", func() {
 			})
 		})
 
+		Context("with Spring Boot app and JBP_CONFIG_JAVA_MAIN java_main_class set", func() {
+			BeforeEach(func() {
+				// App looks like Spring Boot
+				os.MkdirAll(filepath.Join(buildDir, "BOOT-INF"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)
+				manifest := "Manifest-Version: 1.0\nStart-Class: com.example.App\nSpring-Boot-Version: 2.7.0\n"
+				os.WriteFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"), []byte(manifest), 0644)
+				os.Setenv("JBP_CONFIG_JAVA_MAIN", `{java_main_class: "org.springframework.boot.loader.launch.PropertiesLauncher", arguments: "--loader.home=/home/vcap/data"}`)
+			})
+
+			AfterEach(func() {
+				os.Unsetenv("JBP_CONFIG_JAVA_MAIN")
+			})
+
+			It("selects Java Main container instead of Spring Boot", func() {
+				container, name, err := registry.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(container).NotTo(BeNil())
+				Expect(name).To(Equal("Java Main"))
+			})
+
+			It("uses the configured class and arguments in the start command", func() {
+				container, _, err := registry.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(cmd).To(ContainSubstring("org.springframework.boot.loader.launch.PropertiesLauncher"))
+				Expect(cmd).To(ContainSubstring("--loader.home=/home/vcap/data"))
+			})
+		})
+
 		Context("with no detectable app", func() {
 			It("returns nil container", func() {
 				container, name, err := registry.Detect()

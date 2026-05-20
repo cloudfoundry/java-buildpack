@@ -39,8 +39,27 @@ func (r *Registry) Register(c Container) {
 	r.containers = append(r.containers, c)
 }
 
-// Detect finds the first container that can handle the application
+// Detect finds the first container that can handle the application.
+// If JBP_CONFIG_JAVA_MAIN specifies an explicit java_main_class, the Java Main
+// container is selected unconditionally — before the normal priority order —
+// so it can override higher-priority containers such as Spring Boot.
+// Java Main is always registered last (lowest priority), so it is the last element.
 func (r *Registry) Detect() (Container, string, error) {
+	cfg := loadJavaMainConfig(r.context.Log)
+	if cfg.JavaMainClass != "" && len(r.containers) > 0 {
+		if jm, ok := r.containers[len(r.containers)-1].(*JavaMainContainer); ok {
+			name, err := jm.Detect()
+			if err != nil {
+				return nil, "", err
+			}
+			if name != "" {
+				return jm, name, nil
+			}
+		} else {
+			r.context.Log.Warning("JBP_CONFIG_JAVA_MAIN java_main_class is set but JavaMain container is not available; ignoring override")
+		}
+	}
+
 	for _, container := range r.containers {
 		name, err := container.Detect()
 		if err != nil {
