@@ -64,45 +64,46 @@ func (t *TomcatContainer) Supply() error {
 
 	if javaHome != "" {
 		javaMajorVersion, versionErr := common.DetermineJavaVersion(javaHome)
-		if versionErr == nil {
-			tomcatVersion := DetermineTomcatVersion(t.config.Tomcat.Version)
-			t.context.Log.Debug("Detected Java major version: %d", javaMajorVersion)
-
-			// Select Tomcat version pattern based on Java version
-			var versionPattern string
-			if tomcatVersion == "" {
-				t.context.Log.Info("Tomcat version not specified")
-				if javaMajorVersion >= 11 {
-					// Java 11+: Use Tomcat 10.x (Jakarta EE 9+)
-					versionPattern = "10.x"
-					t.context.Log.Info("Using Tomcat 10.x for Java %d", javaMajorVersion)
-				} else {
-					// Java 8-10: Use Tomcat 9.x (Java EE 8)
-					versionPattern = "9.x"
-					t.context.Log.Info("Using Tomcat 9.x for Java %d", javaMajorVersion)
-				}
-			} else {
-				versionPattern = tomcatVersion
-				t.context.Log.Info("Using Tomcat %s for Java %d", versionPattern, javaMajorVersion)
-			}
-
-			if strings.HasPrefix(versionPattern, "10.") && javaMajorVersion < 11 {
-				return fmt.Errorf("Tomcat 10.x requires Java 11+, but Java %d detected", javaMajorVersion)
-			}
-
-			// Resolve the version pattern to actual version using libbuildpack
-			allVersions := t.context.Manifest.AllDependencyVersions("tomcat")
-			resolvedVersion, err := libbuildpack.FindMatchingVersion(versionPattern, allVersions)
-			if err != nil {
-				return fmt.Errorf("tomcat version resolution error for pattern %q: %w", versionPattern, err)
-			}
-
-			dep.Name = "tomcat"
-			dep.Version = resolvedVersion
-			t.context.Log.Debug("Resolved Tomcat version pattern '%s' to %s", versionPattern, resolvedVersion)
-		} else {
-			t.context.Log.Warning("Unable to determine Java version: %s", versionErr.Error())
+		if versionErr != nil {
+			t.context.Log.Warning("Unable to determine Java version: %s (defaulting to 17)", versionErr.Error())
+			javaMajorVersion = 17
 		}
+
+		tomcatVersion := DetermineTomcatVersion(t.config.Tomcat.Version)
+		t.context.Log.Debug("Detected Java major version: %d", javaMajorVersion)
+
+		// Select Tomcat version pattern based on Java version
+		var versionPattern string
+		if tomcatVersion == "" {
+			t.context.Log.Info("Tomcat version not specified")
+			if javaMajorVersion >= 11 {
+				// Java 11+: Use Tomcat 10.x (Jakarta EE 9+)
+				versionPattern = "10.x"
+				t.context.Log.Info("Using Tomcat 10.x for Java %d", javaMajorVersion)
+			} else {
+				// Java 8-10: Use Tomcat 9.x (Java EE 8)
+				versionPattern = "9.x"
+				t.context.Log.Info("Using Tomcat 9.x for Java %d", javaMajorVersion)
+			}
+		} else {
+			versionPattern = tomcatVersion
+			t.context.Log.Info("Using Tomcat %s for Java %d", versionPattern, javaMajorVersion)
+		}
+
+		if strings.HasPrefix(versionPattern, "10.") && javaMajorVersion < 11 {
+			return fmt.Errorf("Tomcat 10.x requires Java 11+, but Java %d detected", javaMajorVersion)
+		}
+
+		// Resolve the version pattern to actual version using libbuildpack
+		allVersions := t.context.Manifest.AllDependencyVersions("tomcat")
+		resolvedVersion, err := libbuildpack.FindMatchingVersion(versionPattern, allVersions)
+		if err != nil {
+			return fmt.Errorf("tomcat version resolution error for pattern %q: %w", versionPattern, err)
+		}
+
+		dep.Name = "tomcat"
+		dep.Version = resolvedVersion
+		t.context.Log.Debug("Resolved Tomcat version pattern '%s' to %s", versionPattern, resolvedVersion)
 	}
 
 	// Fallback to default version if we couldn't determine Java version

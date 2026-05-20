@@ -1,6 +1,7 @@
 package jres_test
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 
@@ -179,7 +180,32 @@ var _ = Describe("Standard JREs", func() {
 	})
 })
 
+var _ = Describe("BaseJRE Java version detection fallback", func() {
+	It("logs a warning when DetermineJavaVersion fails in Finalize and falls back to 17", func() {
+		var buf bytes.Buffer
+		ctx, cleanup := makeTestContextWithBuffer(&buf)
+		defer cleanup()
+
+		// Create a jre dir with a valid java binary but no release file,
+		// so DetermineJavaVersion returns an error and Finalize falls back to Java 17.
+		jreDir := filepath.Join(ctx.Stager.DepDir(), "jre")
+		Expect(os.MkdirAll(filepath.Join(jreDir, "bin"), 0755)).To(Succeed())
+		Expect(os.WriteFile(filepath.Join(jreDir, "bin", "java"), []byte("#!/bin/sh\n"), 0755)).To(Succeed())
+
+		jre := jres.NewOpenJDKJRE(ctx)
+		err := jre.Finalize()
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(buf.String()).To(ContainSubstring("WARNING"))
+		Expect(buf.String()).To(ContainSubstring("defaulting to 17"))
+	})
+})
+
 func makeTestContext() (*common.Context, func()) {
+	return makeTestContextWithBuffer(os.Stdout)
+}
+
+func makeTestContextWithBuffer(w interface{ Write([]byte) (int, error) }) (*common.Context, func()) {
 	buildDir, err := os.MkdirTemp("", "build")
 	Expect(err).NotTo(HaveOccurred())
 
@@ -191,7 +217,7 @@ func makeTestContext() (*common.Context, func()) {
 
 	Expect(os.MkdirAll(filepath.Join(depsDir, "0"), 0755)).To(Succeed())
 
-	logger := libbuildpack.NewLogger(os.Stdout)
+	logger := libbuildpack.NewLogger(w)
 	manifest := &libbuildpack.Manifest{}
 	installer := &libbuildpack.Installer{}
 	stager := libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, "0"}, logger, manifest)

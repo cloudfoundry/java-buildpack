@@ -140,7 +140,9 @@ func (b *BaseJRE) Finalize() error {
 
 	javaMajorVersion := 17
 	if b.javaHome != "" {
-		if ver, err := common.DetermineJavaVersion(b.javaHome); err == nil {
+		if ver, err := common.DetermineJavaVersion(b.javaHome); err != nil {
+			b.ctx.Log.Warning("Could not determine Java version: %s (defaulting to %d)", err.Error(), javaMajorVersion)
+		} else {
 			javaMajorVersion = ver
 		}
 	}

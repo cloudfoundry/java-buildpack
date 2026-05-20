@@ -571,10 +571,10 @@ IMPLEMENTOR="Eclipse Adoptium"`
 			Expect(version).To(Equal(21))
 		})
 
-		It("defaults to 17 when release file is missing", func() {
-			version, err := common.DetermineJavaVersion(javaHome)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(version).To(Equal(17))
+		It("returns an error when release file is missing", func() {
+			_, err := common.DetermineJavaVersion(javaHome)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("release file"))
 		})
 	})
 

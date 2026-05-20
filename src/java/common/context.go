@@ -66,10 +66,6 @@ func DetermineJavaVersion(javaHome string) (int, error) {
 	releaseFile := filepath.Join(javaHome, "release")
 	content, err := os.ReadFile(releaseFile)
 	if err != nil {
-		// Default to Java 17 if release file is missing
-		if os.IsNotExist(err) {
-			return 17, nil
-		}
 		return 0, fmt.Errorf("failed to read release file: %w", err)
 	}
 
