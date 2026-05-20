@@ -439,14 +439,14 @@ dependencies:
   source: https://download.newrelic.com/newrelic/java-agent/newrelic-agent/9.2.0/newrelic-agent-9.2.0.jar
   source_sha256: befb64341bc9e5eaa6b54f049b5b5abb1070f337bdba9dade1aae8e9c98c8ff2
 - name: open-telemetry-javaagent
-  version: 2.28.0
-  uri: https://buildpacks.cloudfoundry.org/dependencies/open-telemetry-javaagent/open-telemetry-javaagent_2.28.0_linux_noarch_any-stack_130606ae.jar
-  sha256: 130606aed07f101458fe42b8f453ef3a2536f6bce8a7ae64f222f5688ada2500
+  version: 2.28.1
+  uri: https://buildpacks.cloudfoundry.org/dependencies/open-telemetry-javaagent/open-telemetry-javaagent_2.28.1_linux_noarch_any-stack_faa89bde.jar
+  sha256: faa89bdeebf9b1f52be4a4374689176717b02a59df2d8f8b6eb9aa39f9292589
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.28.0/opentelemetry-javaagent.jar
-  source_sha256: 130606aed07f101458fe42b8f453ef3a2536f6bce8a7ae64f222f5688ada2500
+  source: https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.28.1/opentelemetry-javaagent.jar
+  source_sha256: faa89bdeebf9b1f52be4a4374689176717b02a59df2d8f8b6eb9aa39f9292589
 - name: openjdk
   version: 8.0.492+9
   uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_8.0.492%2B9_linux_x64_cflinuxfs4_c8a7c418.tgz
