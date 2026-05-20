@@ -195,7 +195,7 @@ type BaseComponent struct {
 // DetectJREByEnv checks environment variables for JRE selection
 // Takes the internal JRE name (e.g., "sapmachine", "openjdk", "zulu")
 // Checks both auto-generated and documented environment variable names
-// This matches the behavior of GetJREVersion and the Ruby buildpack
+// This matches the behavior of GetJREVersion
 func DetectJREByEnv(jreName string) bool {
 	// Check auto-generated name pattern (e.g., JBP_CONFIG_SAPMACHINE)
 	envKey := fmt.Sprintf("JBP_CONFIG_%s", strings.ToUpper(strings.ReplaceAll(jreName, "-", "_")))
@@ -275,27 +275,30 @@ func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency
 
 		versionPattern := parseJBPConfigVersion(envVal)
 		if versionPattern == "" {
-			return libbuildpack.Dependency{}, fmt.Errorf("could not parse version from %s='%s'", envKey, envVal)
+			// No version specified — env var is used for other settings (e.g. memory_calculator).
+			// Fall back to manifest default.
+			ctx.Log.Debug("%s set but contains no version field, using manifest default", envKey)
+		} else {
+			ctx.Log.Debug("Parsed version pattern from %s: '%s'", envKey, versionPattern)
+
+			normalizedPattern := normalizeVersionPattern(versionPattern)
+			ctx.Log.Debug("Normalized pattern: '%s' -> '%s'", versionPattern, normalizedPattern)
+
+			availableVersions := ctx.Manifest.AllDependencyVersions(jreName)
+			if len(availableVersions) == 0 {
+				return libbuildpack.Dependency{}, fmt.Errorf("no versions of %s found in manifest", jreName)
+			}
+			ctx.Log.Debug("Available versions for %s: %v", jreName, availableVersions)
+
+			matchedVersion, err := libbuildpack.FindMatchingVersion(normalizedPattern, availableVersions)
+			if err != nil {
+				ctx.Log.Debug("FindMatchingVersion failed: %s", err.Error())
+				return libbuildpack.Dependency{}, fmt.Errorf("no version of %s matching '%s' found in manifest. Available versions: %v", jreName, versionPattern, availableVersions)
+			}
+			ctx.Log.Debug("Matched version: %s", matchedVersion)
+
+			return libbuildpack.Dependency{Name: jreName, Version: matchedVersion}, nil
 		}
-		ctx.Log.Debug("Parsed version pattern from %s: '%s'", envKey, versionPattern)
-
-		normalizedPattern := normalizeVersionPattern(versionPattern)
-		ctx.Log.Debug("Normalized pattern: '%s' -> '%s'", versionPattern, normalizedPattern)
-
-		availableVersions := ctx.Manifest.AllDependencyVersions(jreName)
-		if len(availableVersions) == 0 {
-			return libbuildpack.Dependency{}, fmt.Errorf("no versions of %s found in manifest", jreName)
-		}
-		ctx.Log.Debug("Available versions for %s: %v", jreName, availableVersions)
-
-		matchedVersion, err := libbuildpack.FindMatchingVersion(normalizedPattern, availableVersions)
-		if err != nil {
-			ctx.Log.Debug("FindMatchingVersion failed: %s", err.Error())
-			return libbuildpack.Dependency{}, fmt.Errorf("no version of %s matching '%s' found in manifest. Available versions: %v", jreName, versionPattern, availableVersions)
-		}
-		ctx.Log.Debug("Matched version: %s", matchedVersion)
-
-		return libbuildpack.Dependency{Name: jreName, Version: matchedVersion}, nil
 	}
 
 	// Get default version from manifest (no version constraint)
@@ -397,7 +400,7 @@ func WriteJavaHomeProfileD(ctx *common.Context, jreDir, javaHome string) error {
 	}
 
 	// Create the profile.d script content with JAVA_HOME, JRE_HOME, and PATH
-	// Following the pattern from reference buildpacks (Ruby, Python, Go)
+	// Create the profile.d script content with JAVA_HOME, JRE_HOME, and PATH
 	envContent := fmt.Sprintf(`export JAVA_HOME=%s
 export JRE_HOME=%s
 export PATH=$JAVA_HOME/bin:$PATH

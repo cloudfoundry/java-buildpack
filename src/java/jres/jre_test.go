@@ -344,11 +344,11 @@ dependencies:
 				Expect(err.Error()).To(ContainSubstring("no version of openjdk matching"))
 			})
 
-			It("fails when config format is invalid", func() {
+			It("falls back to default version when config format has no version", func() {
 				os.Setenv("JBP_CONFIG_OPENJDK", "invalid config")
-				_, err := jres.GetJREVersion(ctx, "openjdk")
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("could not parse version"))
+				dep, err := jres.GetJREVersion(ctx, "openjdk")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(dep.Version).NotTo(BeEmpty())
 			})
 		})
 
@@ -393,6 +393,17 @@ dependencies:
 				dep, err := jres.GetJREVersion(ctx, "openjdk")
 				Expect(err).NotTo(HaveOccurred())
 				Expect(dep.Version).To(Equal("21.0.5"))
+			})
+
+			// https://github.com/cloudfoundry/java-buildpack/issues/1270
+			// JBP_CONFIG_OPEN_JDK_JRE with only memory_calculator settings (no version)
+			// should fall back to manifest default, not fail.
+			It("falls back to default version when only memory_calculator is set", func() {
+				os.Setenv("JBP_CONFIG_OPEN_JDK_JRE", "{ memory_calculator: { class_count: 30000 } }")
+				dep, err := jres.GetJREVersion(ctx, "openjdk")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(dep.Name).To(Equal("openjdk"))
+				Expect(dep.Version).NotTo(BeEmpty())
 			})
 		})
 
@@ -592,7 +603,7 @@ IMPLEMENTOR="Eclipse Adoptium"`
 		})
 	})
 
-	Describe("JRE Detection with Environment Variables (Ruby buildpack compatibility)", func() {
+	Describe("JRE Detection with Environment Variables", func() {
 		var testLogBuffer *bytes.Buffer
 		var testCtx *common.Context
 
