@@ -14,6 +14,7 @@ const cfMetricsExporterDirName = "cf_metrics_exporter"
 
 type CfMetricsExporterFramework struct {
 	context *common.Context
+	jarPath string
 }
 
 func NewCfMetricsExporterFramework(ctx *common.Context) *CfMetricsExporterFramework {
@@ -56,22 +57,18 @@ func (f *CfMetricsExporterFramework) Supply() error {
 	}
 
 	agentDir := filepath.Join(f.context.Stager.DepDir(), cfMetricsExporterDirName)
-	jarName := fmt.Sprintf("cf-metrics-exporter-%s.jar", dep.Version)
-	jarPath := filepath.Join(agentDir, jarName)
 
 	// Ensure agent directory exists
 	if err := os.MkdirAll(agentDir, 0755); err != nil {
 		return fmt.Errorf("failed to create agent dir: %w", err)
 	}
 
-	// Download the JAR if not present
-	if _, err := os.Stat(jarPath); os.IsNotExist(err) {
-		if err := f.context.Installer.InstallDependency(dep, agentDir); err != nil {
-			return fmt.Errorf("failed to download cf-metrics-exporter: %w", err)
-		}
-		if _, err := os.Stat(jarPath); err != nil {
-			return fmt.Errorf("expected jar file not found after download: %w", err)
-		}
+	if err := f.context.Installer.InstallDependency(dep, agentDir); err != nil {
+		return fmt.Errorf("failed to download cf-metrics-exporter: %w", err)
+	}
+	err = f.constructJarPath(agentDir)
+	if err != nil {
+		return fmt.Errorf("cf metrics exporter agent not found during supply: %w", err)
 	}
 
 	// Log activation, including properties if set
@@ -91,14 +88,20 @@ func (f *CfMetricsExporterFramework) Finalize() error {
 		return nil
 	}
 
-	dep, _, err := f.getManifestDependency()
+	agentDir := filepath.Join(f.context.Stager.DepDir(), cfMetricsExporterDirName)
+
+	err := f.constructJarPath(agentDir)
 	if err != nil {
-		return err
+		return fmt.Errorf("cf metrics exporter agent jar path not found during finalize: %w", err)
 	}
 
-	jarName := fmt.Sprintf("cf-metrics-exporter-%s.jar", dep.Version)
+	relPath, err := filepath.Rel(f.context.Stager.DepDir(), f.jarPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine relative path for cf metrics exporter agent: %w", err)
+	}
+
 	depsIdx := f.context.Stager.DepsIdx()
-	agentPath := fmt.Sprintf("$DEPS_DIR/%s/cf_metrics_exporter/%s", depsIdx, jarName)
+	agentPath := filepath.Join(fmt.Sprintf("$DEPS_DIR/%s", depsIdx), relPath)
 
 	props := os.Getenv("CF_METRICS_EXPORTER_PROPS")
 	var javaOpt string
@@ -110,4 +113,18 @@ func (f *CfMetricsExporterFramework) Finalize() error {
 
 	// Priority 43: after SkyWalking (41), Splunk OTEL (42)
 	return writeJavaOptsFile(f.context, 43, cfMetricsExporterDirName, javaOpt)
+}
+
+func (f *CfMetricsExporterFramework) constructJarPath(agentDir string) error {
+	// Find the installed JAR
+	jarPattern := filepath.Join(agentDir, "cf-metrics-exporter*.jar")
+	matches, err := filepath.Glob(jarPattern)
+	if err != nil {
+		return fmt.Errorf("failed to search for CF Metrics Exported jar: %w", err)
+	}
+	if len(matches) == 0 {
+		return fmt.Errorf("agent jar not found after installation in %s", agentDir)
+	}
+	f.jarPath = matches[0]
+	return nil
 }
