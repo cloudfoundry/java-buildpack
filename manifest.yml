@@ -299,11 +299,14 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 - name: datadog-javaagent
-  version: 1.42.1
-  uri: https://repo1.maven.org/maven2/com/datadoghq/dd-java-agent/1.42.1/dd-java-agent-1.42.1.jar
-  sha256: e703547f69695d2b3dbfcfa7e920bfa6e86decebe015e7047c313736d2268928
+  version: 1.62.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/datadog-javaagent/datadog-javaagent_1.62.0_linux_noarch_any-stack_def0ebd6.jar
+  sha256: def0ebd6b8d749fabb4d2037e2aac25090f8235b1cdd543502334da10ee623f2
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
+  source: https://repo1.maven.org/maven2/com/datadoghq/dd-java-agent/1.62.0/dd-java-agent-1.62.0.jar
+  source_sha256: ''
 - name: elastic-apm-agent
   version: 1.55.6
   uri: https://buildpacks.cloudfoundry.org/dependencies/elastic-apm-agent/elastic-apm-agent_1.55.6_linux_noarch_any-stack_29542a52.jar
