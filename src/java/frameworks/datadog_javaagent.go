@@ -305,7 +305,7 @@ func (d *DatadogJavaagentFramework) getApplicationVersion() string {
 
 func (d *DatadogJavaagentFramework) constructJarPathAndFixClassCount(datadogDir string) error {
 	// Find the installed JAR
-	jarPattern := filepath.Join(datadogDir, "dd-java-agent*.jar")
+	jarPattern := filepath.Join(datadogDir, d.DependencyIdentifier()+"*.jar")
 	matches, err := filepath.Glob(jarPattern)
 	if err != nil {
 		return fmt.Errorf("failed to search for Datadog agent JAR: %w", err)

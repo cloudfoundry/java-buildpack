@@ -61,7 +61,7 @@ func (c *ClientCertificateMapperFramework) Supply() error {
 func (c *ClientCertificateMapperFramework) Finalize() error {
 	// Find the installed JAR
 	mapperDir := filepath.Join(c.context.Stager.DepDir(), "client_certificate_mapper")
-	jarPattern := filepath.Join(mapperDir, "client-certificate-mapper-*.jar")
+	jarPattern := filepath.Join(mapperDir, "client-certificate-mapper*.jar")
 
 	matches, err := filepath.Glob(jarPattern)
 	if err != nil || len(matches) == 0 {

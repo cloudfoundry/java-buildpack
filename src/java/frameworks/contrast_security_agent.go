@@ -48,7 +48,7 @@ func (c *ContrastSecurityAgentFramework) findContrastAgent(frameworkDir string) 
 	}
 
 	// Try specific pattern first, then fallback to generic
-	path, err := FindFileByPattern(frameworkDir, "contrast-security-*.jar", []string{""})
+	path, err := FindFileByPattern(frameworkDir, "contrast-security*.jar", []string{""})
 	if err == nil {
 		return path, nil
 	}

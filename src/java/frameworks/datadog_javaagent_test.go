@@ -63,7 +63,7 @@ func installDatadogAgent(depsDir, version string, withClassdata bool) {
 	agentDir := filepath.Join(depsDir, "0", "datadog_javaagent")
 	Expect(os.MkdirAll(agentDir, 0755)).To(Succeed())
 
-	jarPath := filepath.Join(agentDir, "dd-java-agent-"+version+".jar")
+	jarPath := filepath.Join(agentDir, "datadog-javaagent_"+version+"_linux_noarch_any-stack_def0ebd6.jar")
 
 	f, err := os.Create(jarPath)
 	Expect(err).NotTo(HaveOccurred())
@@ -254,7 +254,7 @@ var _ = Describe("Datadog JavaAgent", func() {
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "19_datadog_javaagent.opts"))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(string(content)).To(ContainSubstring("-javaagent:"))
-				Expect(string(content)).To(ContainSubstring("$DEPS_DIR/0/datadog_javaagent/dd-java-agent-1.28.0.jar"))
+				Expect(string(content)).To(ContainSubstring("$DEPS_DIR/0/datadog_javaagent/datadog-javaagent_1.28.0_linux_noarch_any-stack_def0ebd6.jar"))
 			})
 
 			It("opts file does not embed the staging-time absolute path", func() {
