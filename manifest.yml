@@ -382,11 +382,14 @@ dependencies:
   source: https://download-gcdn.ej-technologies.com/jprofiler/jprofiler_linux_15_0_4.tar.gz
   source_sha256: fec741718854a11b2383bb278ca7103984e0ae659268ed53ea5a8b32077b86c9
 - name: jrebel
-  version: 2025.4.1
-  uri: https://dl.zeroturnaround.com/jrebel/releases/jrebel-2025.4.1-nosetup.zip
-  sha256: f5f8dc137b349350745b2dde316e2e629d924f784b7bec1ef8144ee8a9d6f1eb
+  version: 2025.4.2
+  uri: https://buildpacks.cloudfoundry.org/dependencies/jrebel/jrebel_2025.4.2_linux_noarch_any-stack_ebda7ad0.zip
+  sha256: ebda7ad0f07cb5115c7259ebddaed5ed154c04907a6f698e596f41d3c464eac1
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
+  source: https://dl.zeroturnaround.com/jrebel/releases/jrebel-2025.4.2-nosetup.zip
+  source_sha256: ebda7ad0f07cb5115c7259ebddaed5ed154c04907a6f698e596f41d3c464eac1
 - name: jvmkill
   version: 1.17.0
   uri: https://java-buildpack.cloudfoundry.org/jvmkill/jammy/x86_64/jvmkill-1.17.0-RELEASE.so
