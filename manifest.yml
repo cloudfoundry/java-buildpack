@@ -277,12 +277,13 @@ dependencies:
   source_sha256: ''
 - name: client-certificate-mapper
   version: 2.0.1
-  uri: https://java-buildpack.cloudfoundry.org/client-certificate-mapper/client-certificate-mapper-2.0.1.jar
+  uri: https://buildpacks.cloudfoundry.org/dependencies/client-certificate-mapper/client-certificate-mapper_2.0.1_linux_noarch_any-stack_f7f53a46.jar
   sha256: f7f53a460bcd4b0cead4da99dcb251bd283bd5fa4e421eeb52b86986d266cde9
   cf_stacks:
   - cflinuxfs4
-  source: https://repo1.maven.org/maven2/org/cloudfoundry/client-certificate-mapper/2.0.1/client-certificate-mapper-2.0.1.jar
-  source_sha256: e791ccfcfee9c0d299d07474d9bfcbfcbebf1181323be601220c8a823062ab99
+  - cflinuxfs5
+  source: https://repo1.maven.org/maven2/org/cloudfoundry/java-buildpack-client-certificate-mapper/2.0.1/java-buildpack-client-certificate-mapper-2.0.1.jar
+  source_sha256: ''
 - name: container-security-provider
   version: 1.20.0
   uri: https://java-buildpack.cloudfoundry.org/container-security-provider/container-security-provider-1.20.0-RELEASE.jar
