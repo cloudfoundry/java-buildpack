@@ -576,6 +576,19 @@ IMPLEMENTOR="Eclipse Adoptium"`
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("release file"))
 		})
+
+		It("returns 17 as safe default when release file is missing", func() {
+			version, _ := common.DetermineJavaVersion(javaHome)
+			Expect(version).To(Equal(17))
+		})
+
+		It("returns 17 as safe default when release file cannot be parsed", func() {
+			releaseFile := javaHome + "/release"
+			Expect(os.WriteFile(releaseFile, []byte("NO_VERSION_HERE=true\n"), 0644)).To(Succeed())
+			version, err := common.DetermineJavaVersion(javaHome)
+			Expect(err).To(HaveOccurred())
+			Expect(version).To(Equal(17))
+		})
 	})
 
 	Describe("WriteJavaOpts", func() {
