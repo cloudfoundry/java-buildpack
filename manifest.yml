@@ -429,6 +429,7 @@ dependencies:
   sha256: 0f8b092a6c02035b29e9af6d0f025efe5f8ce95e0cc655b30e93d1c436d5d137
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
 - name: newrelic
   version: 9.2.0
   uri: https://buildpacks.cloudfoundry.org/dependencies/newrelic/newrelic_9.2.0_linux_noarch_any-stack_befb6434.zip
