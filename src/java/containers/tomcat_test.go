@@ -197,6 +197,62 @@ var _ = Describe("Tomcat Container", func() {
 		})
 	})
 
+	Describe("SelectTomcatVersionPattern", func() {
+		var javaHome string
+
+		BeforeEach(func() {
+			var err error
+			javaHome, err = os.MkdirTemp("", "javahome")
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		AfterEach(func() {
+			os.RemoveAll(javaHome)
+		})
+
+		writeReleaseFile := func(content string) {
+			err := os.WriteFile(filepath.Join(javaHome, "release"), []byte(content), 0644)
+			Expect(err).NotTo(HaveOccurred())
+		}
+
+		Context("when release file is missing", func() {
+			It("returns empty pattern to fall back to manifest default, not assume Java 17", func() {
+				pattern, err := containers.SelectTomcatVersionPattern(javaHome, "")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(pattern).To(Equal(""))
+			})
+
+			It("still honours an explicitly configured tomcat version", func() {
+				pattern, err := containers.SelectTomcatVersionPattern(javaHome, "9.*")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(pattern).To(Equal("9.*"))
+			})
+		})
+
+		Context("happy path version selection", func() {
+			It("selects Tomcat 10.x for Java 11+", func() {
+				writeReleaseFile("JAVA_VERSION=\"11.0.20\"\n")
+				pattern, err := containers.SelectTomcatVersionPattern(javaHome, "")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(pattern).To(Equal("10.x"))
+			})
+
+			It("selects Tomcat 9.x for Java 8", func() {
+				writeReleaseFile("JAVA_VERSION=\"1.8.0_372\"\n")
+				pattern, err := containers.SelectTomcatVersionPattern(javaHome, "")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(pattern).To(Equal("9.x"))
+			})
+
+			It("errors when Tomcat 10.x is requested but Java 8 detected", func() {
+				writeReleaseFile("JAVA_VERSION=\"1.8.0_372\"\n")
+				_, err := containers.SelectTomcatVersionPattern(javaHome, "10.*")
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("Java 11+"))
+			})
+		})
+	})
+
 	Describe("determineTomcatVersion", func() {
 		It("returns empty string when JBP_CONFIG_TOMCAT is empty", func() {
 			v := containers.DetermineTomcatVersion("")
