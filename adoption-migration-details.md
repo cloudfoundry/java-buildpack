@@ -142,7 +142,30 @@ There are two main aspects to consider when migrating to the Go-based Java Build
 2. Plan migration before EOL dates
 3. Monitor EOL announcements for your versions
 
-## Additional Resources
+## Behavioral Differences vs Ruby Buildpack
+
+This section documents Go buildpack behaviors that differ from the Ruby buildpack, including new features and known fixes applied during the migration.
+
+### `JAVA_HOME` is now set during staging
+
+The Ruby buildpack never set `JAVA_HOME`. The Go buildpack writes it as an env file (sourced between supply steps) and in `profile.d/java.sh` at runtime. This is a **positive new feature** — apps and tasks that previously hard-coded `.java-buildpack/open_jdk_jre/bin/java` can now use `$JAVA_HOME/bin/java` instead.
+
+See also: [issue #1151](https://github.com/cloudfoundry/java-buildpack/issues/1151).
+
+### Tomcat version auto-selection based on Java version
+
+The Ruby buildpack always used the manifest default (`9.+`) unless the user explicitly set a Tomcat version. The Go buildpack adds a new convenience feature: when `JAVA_HOME` is available and readable it auto-selects:
+
+- **Java 11+** → Tomcat 10.x (Jakarta EE 9+)
+- **Java ≤ 10** → Tomcat 9.x (Java EE 8)
+
+When Java version detection fails (e.g. unreadable `release` file, non-standard JRE layout), the buildpack falls back to `DefaultVersion("tomcat")` from the manifest — matching the Ruby buildpack's behaviour in all cases. An explicitly configured `JBP_CONFIG_TOMCAT` version is always honoured.
+
+### `-XX:ActiveProcessorCount` is HotSpot-only
+
+The Ruby buildpack only added `-XX:ActiveProcessorCount=$(nproc)` in the OpenJDK-like JRE. The Go buildpack matches this: only HotSpot-based JREs (OpenJDK, Oracle, SapMachine, Zulu, GraalVM) receive this flag. IBM JRE continues to use `-Xtune:virtualized -Xshareclasses:none` as in Ruby. Note that IBM OpenJ9 does support `-XX:ActiveProcessorCount` (see [OpenJ9 docs](https://eclipse.dev/openj9/docs/xxactiveprocessorcount/)), but it is deliberately omitted here to stay compatible with the Ruby buildpack behaviour.
+
+
 
 - [OpenRewrite: JavaxMigrationToJakarta Recipe](https://docs.openrewrite.org/recipes/java/migrate/jakarta/javaxmigrationtojakarta)
 - [Apache Tomcat Jakarta EE Migration Tool](https://github.com/apache/tomcat-jakartaee-migration)
