@@ -7,5 +7,7 @@ type ZuluJRE struct{ BaseJRE }
 
 // NewZuluJRE creates a new Zulu JRE provider.
 func NewZuluJRE(ctx *common.Context) *ZuluJRE {
-	return &ZuluJRE{newBaseJRE(ctx, "Zulu", "zulu", []string{"zulu"}, nil, "")}
+	b := newBaseJRE(ctx, "Zulu", "zulu", []string{"zulu"}, nil, "")
+	b.extraFinalizeOpts = func() string { return "-XX:ActiveProcessorCount=$(nproc)" }
+	return &ZuluJRE{b}
 }

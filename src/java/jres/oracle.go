@@ -7,5 +7,7 @@ type OracleJRE struct{ BaseJRE }
 
 // NewOracleJRE creates a new Oracle JRE provider.
 func NewOracleJRE(ctx *common.Context) *OracleJRE {
-	return &OracleJRE{newBaseJRE(ctx, "Oracle JRE", "oracle", []string{"jdk", "jre"}, nil, "")}
+	b := newBaseJRE(ctx, "Oracle JRE", "oracle", []string{"jdk", "jre"}, nil, "")
+	b.extraFinalizeOpts = func() string { return "-XX:ActiveProcessorCount=$(nproc)" }
+	return &OracleJRE{b}
 }

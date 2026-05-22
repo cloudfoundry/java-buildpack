@@ -7,5 +7,7 @@ type SapMachineJRE struct{ BaseJRE }
 
 // NewSapMachineJRE creates a new SAP Machine JRE provider.
 func NewSapMachineJRE(ctx *common.Context) *SapMachineJRE {
-	return &SapMachineJRE{newBaseJRE(ctx, "SapMachine", "sapmachine", []string{"sapmachine"}, nil, "")}
+	b := newBaseJRE(ctx, "SapMachine", "sapmachine", []string{"sapmachine"}, nil, "")
+	b.extraFinalizeOpts = func() string { return "-XX:ActiveProcessorCount=$(nproc)" }
+	return &SapMachineJRE{b}
 }

@@ -7,5 +7,7 @@ type GraalVMJRE struct{ BaseJRE }
 
 // NewGraalVMJRE creates a new GraalVM JRE provider.
 func NewGraalVMJRE(ctx *common.Context) *GraalVMJRE {
-	return &GraalVMJRE{newBaseJRE(ctx, "GraalVM", "graalvm", []string{"graalvm"}, nil, "(ensure repository_root is configured)")}
+	b := newBaseJRE(ctx, "GraalVM", "graalvm", []string{"graalvm"}, nil, "(ensure repository_root is configured)")
+	b.extraFinalizeOpts = func() string { return "-XX:ActiveProcessorCount=$(nproc)" }
+	return &GraalVMJRE{b}
 }

@@ -7,5 +7,7 @@ type OpenJDKJRE struct{ BaseJRE }
 
 // NewOpenJDKJRE creates a new OpenJDK JRE provider.
 func NewOpenJDKJRE(ctx *common.Context) *OpenJDKJRE {
-	return &OpenJDKJRE{newBaseJRE(ctx, "OpenJDK", "openjdk", []string{"jdk", "jre"}, nil, "")}
+	b := newBaseJRE(ctx, "OpenJDK", "openjdk", []string{"jdk", "jre"}, nil, "")
+	b.extraFinalizeOpts = func() string { return "-XX:ActiveProcessorCount=$(nproc)" }
+	return &OpenJDKJRE{b}
 }

@@ -156,7 +156,6 @@ func (b *BaseJRE) Finalize() error {
 
 	baseOpts := []string{
 		"-Djava.io.tmpdir=$TMPDIR",
-		"-XX:ActiveProcessorCount=$(nproc)",
 	}
 	if err := WriteJavaOpts(b.ctx, strings.Join(baseOpts, " ")); err != nil {
 		b.ctx.Log.Warning("Failed to write base JAVA_OPTS: %s", err.Error())
@@ -187,6 +186,16 @@ func (b *BaseJRE) JavaHome() string {
 
 func (b *BaseJRE) Version() string {
 	return b.installedVersion
+}
+
+// ExtraFinalizeOpts returns the JRE-specific JVM options written during Finalize.
+// These are opts beyond the universal base opts (-Djava.io.tmpdir) — e.g. HotSpot
+// flags for OpenJDK-like JREs, or J9 tuning flags for IBM JRE.
+func (b *BaseJRE) ExtraFinalizeOpts() string {
+	if b.extraFinalizeOpts == nil {
+		return ""
+	}
+	return b.extraFinalizeOpts()
 }
 
 func (b *BaseJRE) MemoryCalculatorCommand() string {

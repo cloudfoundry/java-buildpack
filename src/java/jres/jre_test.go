@@ -616,6 +616,20 @@ IMPLEMENTOR="Eclipse Adoptium"`
 		})
 	})
 
+	Describe("JRE-specific finalize opts (Ruby parity)", func() {
+		It("OpenJDK includes -XX:ActiveProcessorCount (HotSpot flag)", func() {
+			Expect(jres.NewOpenJDKJRE(ctx).ExtraFinalizeOpts()).To(ContainSubstring("-XX:ActiveProcessorCount"))
+		})
+
+		It("IBM JRE does not include -XX:ActiveProcessorCount (J9 incompatible)", func() {
+			Expect(jres.NewIBMJRE(ctx).ExtraFinalizeOpts()).NotTo(ContainSubstring("-XX:ActiveProcessorCount"))
+		})
+
+		It("IBM JRE includes J9-specific tuning opts", func() {
+			Expect(jres.NewIBMJRE(ctx).ExtraFinalizeOpts()).To(ContainSubstring("-Xtune:virtualized"))
+		})
+	})
+
 	Describe("JRE Detection with Environment Variables", func() {
 		var testLogBuffer *bytes.Buffer
 		var testCtx *common.Context
