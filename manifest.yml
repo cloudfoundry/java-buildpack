@@ -326,6 +326,7 @@ dependencies:
   sha256: 509b87c406b59424cb101d561567cadad97d3fd1c235224bca2a114d4a7bde0c
   cf_stacks:
   - cflinuxfs4
+  - cflinuxfs5
 - name: groovy
   version: 4.0.32
   uri: https://buildpacks.cloudfoundry.org/dependencies/groovy/groovy_4.0.32_linux_noarch_any-stack_f03e8838.zip
