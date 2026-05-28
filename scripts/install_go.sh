@@ -5,7 +5,7 @@ set -u
 set -o pipefail
 
 function main() {
-  if [[ "${CF_STACK:-}" != "cflinuxfs3" && "${CF_STACK:-}" != "cflinuxfs4" && "${CF_STACK:-}" != "cflinuxfs5" ]]; then
+  if [[ "${CF_STACK:-}" != "cflinuxfs4" && "${CF_STACK:-}" != "cflinuxfs5" ]]; then
     echo "       **ERROR** Unsupported stack"
     echo "                 See https://docs.cloudfoundry.org/devguide/deploy-apps/stacks.html for more info"
     exit 1
