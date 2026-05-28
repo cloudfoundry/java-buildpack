@@ -126,7 +126,7 @@ func testJavaMain(platform switchblade.Platform, fixtures string) func(*testing.
 
 				// Verify SAPMachine JRE was installed from manifest
 				Expect(logs.String()).To(ContainSubstring("Java Buildpack"))
-				Expect(logs.String()).To(ContainSubstring("Installing SAP Machine"))
+				Expect(logs.String()).To(ContainSubstring("Installing SapMachine"))
 				Expect(logs.String()).To(ContainSubstring("17."))
 			})
 		})

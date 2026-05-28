@@ -55,6 +55,11 @@ dependencies: []
 `
 		Expect(os.WriteFile(manifestFile, []byte(manifestContent), 0644)).To(Succeed())
 
+		// The finalizer installs the javaexec launcher from <buildpackDir>/bin.
+		binDir := filepath.Join(buildpackDir, "bin")
+		Expect(os.MkdirAll(binDir, 0755)).To(Succeed())
+		Expect(os.WriteFile(filepath.Join(binDir, "javaexec"), []byte("#!/bin/sh\n"), 0755)).To(Succeed())
+
 		logger = libbuildpack.NewLogger(GinkgoWriter)
 
 		mockCtrl = gomock.NewController(GinkgoT())
@@ -67,11 +72,12 @@ dependencies: []
 		stager = libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, depsIdx}, logger, manifest)
 
 		finalizer = &finalize.Finalizer{
-			Stager:    stager,
-			Manifest:  mockManifest,
-			Installer: mockInstaller,
-			Log:       logger,
-			Command:   &libbuildpack.Command{},
+			Stager:       stager,
+			Manifest:     mockManifest,
+			Installer:    mockInstaller,
+			Log:          logger,
+			Command:      &libbuildpack.Command{},
+			BuildpackDir: buildpackDir,
 		}
 	})
 

@@ -122,6 +122,13 @@ var _ = Describe("Spring Boot Container", func() {
 	})
 
 	Describe("Release", func() {
+		expectSafeLaunch := func(cmd string) {
+			Expect(cmd).To(ContainSubstring("/bin/javaexec"))
+			Expect(cmd).To(ContainSubstring(`"$JAVA_HOME/bin/java"`))
+			Expect(cmd).NotTo(ContainSubstring("eval"))
+			Expect(cmd).NotTo(ContainSubstring("$JAVA_OPTS"))
+		}
+
 		Context("with exploded JAR (BOOT-INF)", func() {
 			BeforeEach(func() {
 				os.MkdirAll(filepath.Join(buildDir, "BOOT-INF"), 0755)
@@ -135,6 +142,12 @@ var _ = Describe("Spring Boot Container", func() {
 				cmd, err := container.Release()
 				Expect(err).NotTo(HaveOccurred())
 				Expect(cmd).To(ContainSubstring("JarLauncher"))
+			})
+
+			It("uses javaexec launcher and omits $JAVA_OPTS from the command", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				expectSafeLaunch(cmd)
 			})
 		})
 
@@ -150,6 +163,12 @@ var _ = Describe("Spring Boot Container", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(cmd).To(ContainSubstring("java"))
 				Expect(cmd).To(ContainSubstring("app-boot.jar"))
+			})
+
+			It("uses javaexec launcher and omits $JAVA_OPTS from the command", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				expectSafeLaunch(cmd)
 			})
 		})
 

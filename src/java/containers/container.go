@@ -127,6 +127,24 @@ func (r *Registry) RegisterStandardContainers() {
 	r.Register(NewJavaMainContainer(r.context))
 }
 
+// JavaExecCommand builds a start command of the form:
+//
+//	exec $DEPS_DIR/<idx>/bin/javaexec "$JAVA_HOME/bin/java" <javaArgs>
+//
+// The javaexec launcher reads JAVA_OPTS from the environment and tokenizes it
+// without a shell, so glob characters, quotes, and shell metacharacters in
+// user-provided JAVA_OPTS are never expanded or executed. This replaces the
+// previous `eval "exec $JAVA_HOME/bin/java $JAVA_OPTS <javaArgs>"` form, which
+// let the shell glob-expand $JAVA_OPTS and execute embedded command
+// substitutions.
+//
+// javaArgs are buildpack-generated (jar paths, Main-Class, classpath, and
+// shell expansions like ${CLASSPATH} or BOOT-INF/lib/*) and are placed on a
+// normal command line, where the shell expands them exactly as before.
+func JavaExecCommand(depsIdx, javaArgs string) string {
+	return `exec $DEPS_DIR/` + depsIdx + `/bin/javaexec "$JAVA_HOME/bin/java" ` + javaArgs
+}
+
 // This script is used to process the CLASSPATH assembled from various framework scripts sourced from profile.d
 // to further create symlinks to the corresponding framework dependencies in WEB-INF/lib, BOOT-INF/lib and where ever
 // needed thus they are available for application classloading

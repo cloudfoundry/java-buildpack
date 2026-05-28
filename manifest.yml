@@ -9,6 +9,7 @@ include_files:
 - bin/compile
 - bin/detect
 - bin/finalize
+- bin/javaexec
 - bin/release
 - bin/supply
 - manifest.yml
