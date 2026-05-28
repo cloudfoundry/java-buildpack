@@ -290,6 +290,10 @@ var _ = Describe("Java Main Container", func() {
 	})
 
 	Describe("buildClasspath", func() {
+		expectQuotedEval := func(cmd string) {
+			Expect(cmd).To(MatchRegexp(`eval "exec .*\$JAVA_OPTS`))
+		}
+
 		Context("with JARs in root and lib/", func() {
 			BeforeEach(func() {
 				os.WriteFile(filepath.Join(buildDir, "app.jar"), []byte("fake"), 0644)
@@ -349,6 +353,63 @@ var _ = Describe("Java Main Container", func() {
 				cmd, err := container.Release()
 				Expect(err).NotTo(HaveOccurred())
 				Expect(cmd).To(ContainSubstring("."))
+			})
+		})
+
+		// Regression tests for issue #1301: start command must use eval "exec ... $JAVA_OPTS"
+		// (quoted string) so that glob chars in JAVA_OPTS are not expanded by bash before eval.
+		Context("with JAR file (eval quoting)", func() {
+			BeforeEach(func() {
+				Expect(createJar(
+					filepath.Join(buildDir, "app.jar"),
+					"Manifest-Version: 1.0\nMain-Class: com.example.Main\n",
+				)).To(Succeed())
+				container.Detect()
+			})
+
+			It("uses quoted eval to protect $JAVA_OPTS from glob expansion", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				expectQuotedEval(cmd)
+			})
+		})
+
+		Context("with JAVA_MAIN_CLASS env variable (eval quoting)", func() {
+			BeforeEach(func() {
+				os.Setenv("JAVA_MAIN_CLASS", "com.example.Main")
+				os.WriteFile(filepath.Join(buildDir, "Main.class"), []byte("fake"), 0644)
+				container.Detect()
+			})
+
+			AfterEach(func() {
+				os.Unsetenv("JAVA_MAIN_CLASS")
+			})
+
+			It("uses quoted eval to protect $JAVA_OPTS from glob expansion", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				expectQuotedEval(cmd)
+			})
+		})
+
+		Context("with JBP_CONFIG_JAVA_MAIN java_main_class (eval quoting)", func() {
+			BeforeEach(func() {
+				os.Setenv("JBP_CONFIG_JAVA_MAIN", "{java_main_class: com.example.Main}")
+				Expect(createJar(
+					filepath.Join(buildDir, "app.jar"),
+					"Manifest-Version: 1.0\nMain-Class: com.example.Main\n",
+				)).To(Succeed())
+				container.Detect()
+			})
+
+			AfterEach(func() {
+				os.Unsetenv("JBP_CONFIG_JAVA_MAIN")
+			})
+
+			It("uses quoted eval to protect $JAVA_OPTS from glob expansion", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				expectQuotedEval(cmd)
 			})
 		})
 	})

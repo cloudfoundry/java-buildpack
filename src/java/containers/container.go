@@ -127,6 +127,18 @@ func (r *Registry) RegisterStandardContainers() {
 	r.Register(NewJavaMainContainer(r.context))
 }
 
+// JavaExecCommand builds a start command of the form:
+//
+//	eval "exec $JAVA_HOME/bin/java $JAVA_OPTS <javaArgs>"
+//
+// Wrapping the argument to eval in double quotes prevents bash from
+// glob-expanding or word-splitting $JAVA_OPTS before eval sees it.
+// eval then re-parses the string, honouring any embedded quotes in $JAVA_OPTS.
+// javaArgs must be buildpack-generated command fragments (not untrusted input).
+func JavaExecCommand(javaArgs string) string {
+	return `eval "exec $JAVA_HOME/bin/java $JAVA_OPTS ` + javaArgs + `"`
+}
+
 // This script is used to process the CLASSPATH assembled from various framework scripts sourced from profile.d
 // to further create symlinks to the corresponding framework dependencies in WEB-INF/lib, BOOT-INF/lib and where ever
 // needed thus they are available for application classloading

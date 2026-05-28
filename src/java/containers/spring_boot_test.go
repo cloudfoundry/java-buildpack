@@ -122,6 +122,10 @@ var _ = Describe("Spring Boot Container", func() {
 	})
 
 	Describe("Release", func() {
+		expectQuotedEval := func(cmd string) {
+			Expect(cmd).To(MatchRegexp(`eval "exec .*\$JAVA_OPTS`))
+		}
+
 		Context("with exploded JAR (BOOT-INF)", func() {
 			BeforeEach(func() {
 				os.MkdirAll(filepath.Join(buildDir, "BOOT-INF"), 0755)
@@ -135,6 +139,12 @@ var _ = Describe("Spring Boot Container", func() {
 				cmd, err := container.Release()
 				Expect(err).NotTo(HaveOccurred())
 				Expect(cmd).To(ContainSubstring("JarLauncher"))
+			})
+
+			It("uses quoted eval to protect $JAVA_OPTS from glob expansion", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				expectQuotedEval(cmd)
 			})
 		})
 
@@ -150,6 +160,12 @@ var _ = Describe("Spring Boot Container", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(cmd).To(ContainSubstring("java"))
 				Expect(cmd).To(ContainSubstring("app-boot.jar"))
+			})
+
+			It("uses quoted eval to protect $JAVA_OPTS from glob expansion", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				expectQuotedEval(cmd)
 			})
 		})
 

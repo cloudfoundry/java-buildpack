@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -53,17 +54,8 @@ var _ = Describe("Java Opts Writer", func() {
 		os.RemoveAll(depsDir)
 	})
 
-	Describe("Basic options", func() {
-		It("writes JAVA_OPTS correctly", func() {
-			javaOpts := "-Xmx512M -Xms256M"
-			os.Setenv("JAVA_OPTS", javaOpts)
-
-			Expect(os.Getenv("JAVA_OPTS")).To(Equal(javaOpts))
-		})
-	})
-
 	Describe("CreateJavaOptsAssemblyScript", func() {
-		runScript := func(javaOpts string, optsFileContent string) (string, error) {
+		setupScript := func(javaOpts string, optsFileContent string) string {
 			err := frameworks.CreateJavaOptsAssemblyScript(ctx)
 			Expect(err).NotTo(HaveOccurred())
 
@@ -71,8 +63,11 @@ var _ = Describe("Java Opts Writer", func() {
 			Expect(os.MkdirAll(optsDir, 0755)).To(Succeed())
 			Expect(os.WriteFile(filepath.Join(optsDir, "42_agent.opts"), []byte(optsFileContent), 0644)).To(Succeed())
 
-			scriptPath := filepath.Join(depsDir, "0", "profile.d", "00_java_opts.sh")
-			cmd := exec.Command("bash", "-c", "source "+scriptPath+" && echo \"$JAVA_OPTS\"")
+			return filepath.Join(depsDir, "0", "profile.d", "00_java_opts.sh")
+		}
+
+		runWithEnv := func(scriptPath, javaOpts, bashExpr string) (string, error) {
+			cmd := exec.Command("bash", "-c", "source "+scriptPath+" && "+bashExpr)
 			cmd.Env = append(os.Environ(),
 				"JAVA_OPTS="+javaOpts,
 				"DEPS_DIR="+depsDir,
@@ -80,6 +75,22 @@ var _ = Describe("Java Opts Writer", func() {
 			)
 			output, err := cmd.CombinedOutput()
 			return string(output), err
+		}
+
+		runScript := func(javaOpts string, optsFileContent string) (string, error) {
+			scriptPath := setupScript(javaOpts, optsFileContent)
+			return runWithEnv(scriptPath, javaOpts, "echo \"$JAVA_OPTS\"")
+		}
+
+		// runStartCommand simulates the actual JVM invocation:
+		//   eval "exec $JAVA_HOME/bin/java $JAVA_OPTS -jar app.jar"
+		// Returns the argument list java would receive (one arg per line).
+		runStartCommand := func(javaOpts string, optsFileContent string) (string, error) {
+			scriptPath := setupScript(javaOpts, optsFileContent)
+			// Simulate: eval "exec java $JAVA_OPTS" — quoted string prevents bash glob-expansion.
+			// eval then re-parses the string, honouring embedded quotes in $JAVA_OPTS.
+			return runWithEnv(scriptPath, javaOpts,
+				`eval "set -- $JAVA_OPTS"; printf '%s\n' "$@"`)
 		}
 
 		It("handles multiline JAVA_OPTS from YAML block scalar without sed error", func() {
@@ -116,6 +127,50 @@ var _ = Describe("Java Opts Writer", func() {
 			output, err := runScript("", "-Djava.security.properties=$DEPS_DIR/0/security.properties")
 			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
 			Expect(output).To(ContainSubstring("-Djava.security.properties=" + depsDir + "/0/security.properties"))
+		})
+
+		// Regression tests for issue #1301: xargs strips quotes, breaking quoted JVM args
+		It("preserves quoted value with spaces in JAVA_OPTS", func() {
+			// JAVA_OPTS='-Dfoo="bar baz"' — xargs removes the quotes from USER_JAVA_OPTS,
+			// so when eval exec java $JAVA_OPTS is called, -Dfoo=bar and baz become separate args
+			output, err := runScript(`-Dfoo="bar baz"`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring(`-Dfoo="bar baz"`))
+		})
+
+		It("preserves cron expression with glob characters in JAVA_OPTS", func() {
+			// JAVA_OPTS='-DcronSched="0 */7 * * * *"' — xargs strips quotes, then * expands via glob
+			// when eval exec java $JAVA_OPTS is invoked, corrupting the cron expression
+			output, err := runScript(`-DcronSched="0 */7 * * * *"`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring(`-DcronSched="0 */7 * * * *"`))
+		})
+
+		It("preserves multiple quoted args in JAVA_OPTS", func() {
+			// Multiple quoted values — xargs strips all quotes, each space-containing value splits
+			output, err := runScript(`-Dfoo="bar baz" -Dother="qux quux"`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring(`-Dfoo="bar baz"`))
+			Expect(output).To(ContainSubstring(`-Dother="qux quux"`))
+		})
+
+		It("preserves backslashes in JAVA_OPTS values", func() {
+			// xargs treats backslash as escape char: C:\path\to\app -> C:pathtoapp
+			// Affects regex patterns and any path using backslash notation
+			output, err := runScript(`-DregEx="[a-z]+(.*)" -Dpattern=foo\|bar`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring(`-DregEx="[a-z]+(.*)"`))
+			Expect(output).To(ContainSubstring(`foo\|bar`))
+		})
+
+		// Full invocation cycle test for issue #1301:
+		// Verifies that the quoted eval "exec ... $JAVA_OPTS" form delivers the correct
+		// argument to java — glob chars in $JAVA_OPTS are not expanded.
+		It("does not glob-expand * in cron expression when invoking java", func() {
+			output, err := runStartCommand(`-DcronSched="0 */7 * * * *"`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			// Java receives exactly one arg: -DcronSched=0 */7 * * * *
+			Expect(strings.TrimSpace(output)).To(Equal("-DcronSched=0 */7 * * * *"))
 		})
 	})
 })

@@ -74,8 +74,8 @@ func CreateJavaOptsAssemblyScript(ctx *common.Context) error {
 
 # Save original JAVA_OPTS from environment (user-provided)
 # Normalize to single line: YAML block scalars (>) may introduce newlines
-# xargs trims leading/trailing whitespace and collapses internal spaces
-USER_JAVA_OPTS=$(echo "$JAVA_OPTS" | tr '\n' ' ' | tr -s ' ' | xargs)
+# Only convert newlines to spaces — do not use xargs which strips quotes and backslashes
+USER_JAVA_OPTS=$(echo "$JAVA_OPTS" | tr '\n' ' ')
 
 # Start building new JAVA_OPTS
 JAVA_OPTS=""
@@ -86,18 +86,26 @@ if [ -d "$DEPS_DIR/%s/java_opts" ]; then
             # Read content and expand runtime variables
             opts_content=$(cat "$opts_file")
             
-            # Expand $DEPS_DIR, $HOME, $JAVA_OPTS using bash parameter expansion.
+            # Expand $DEPS_DIR and $HOME using bash parameter expansion.
             # sed-based substitution breaks when these values contain the sed delimiter (|),
             # backslashes, ampersands, or newlines — all valid in JAVA_OPTS and paths.
             opts_content="${opts_content//\$DEPS_DIR/$DEPS_DIR}"
             opts_content="${opts_content//\$HOME/$HOME}"
-            opts_content="${opts_content//\$JAVA_OPTS/$USER_JAVA_OPTS}"
-            
+
+            # Shield $JAVA_OPTS from eval: replace with a placeholder first,
+            # then substitute the actual value AFTER eval so that quotes and
+            # backslashes in the user-provided JAVA_OPTS are never exposed to eval.
+            _user_java_opts_placeholder='__JAVA_OPTS_BUILDPACK_PLACEHOLDER__'
+            opts_content="${opts_content//\$JAVA_OPTS/$_user_java_opts_placeholder}"
+
             # Expand any remaining environment variables in opts content via eval.
             # Note: eval executes commands, but .opts files are written by the buildpack
             # at staging time and run within the container context.
             # This matches how the Ruby buildpack naturally expanded variables via shell.
             opts_content=$(eval "echo \"$opts_content\"")
+
+            # Now safely substitute JAVA_OPTS after eval (preserves quotes and backslashes)
+            opts_content="${opts_content//$_user_java_opts_placeholder/$USER_JAVA_OPTS}"
             
             if [ -n "$opts_content" ]; then
                 JAVA_OPTS="$JAVA_OPTS $opts_content"
