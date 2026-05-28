@@ -12,9 +12,9 @@ function main() {
   fi
 
   local version expected_sha dir
-  version="1.24.13"
-  expected_sha_cflinuxfs4="7ed0876f713f6add32f07c1d82e7ea026b07995c084492c36e6fa27b37d58291"
-  expected_sha_cflinuxfs5="f8361b031b0940ade20ecd61c8e9876be6153f86fa675c4a5befaf5ce69e3ee5"
+  version="1.25.10"
+  expected_sha_cflinuxfs4="a1d6fbc0293b4de0f122f55df4af8689b294ef7a9d749b9f24e761deef33464e"
+  expected_sha_cflinuxfs5="ae729ea414d69b4c3a4757f772d6b4f4c3a1a6213c1d0d7e3267139cef708327"
   if [[ "${CF_STACK}" == "cflinuxfs4" ]]; then
     expected_sha="${expected_sha_cflinuxfs4}"
   elif [[ "${CF_STACK}" == "cflinuxfs5" ]]; then
