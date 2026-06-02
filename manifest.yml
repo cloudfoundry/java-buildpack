@@ -395,6 +395,15 @@ dependencies:
   - cflinuxfs5
   source: https://dl.zeroturnaround.com/jrebel/releases/jrebel-2025.4.2-nosetup.zip
   source_sha256: ebda7ad0f07cb5115c7259ebddaed5ed154c04907a6f698e596f41d3c464eac1
+- name: jrebel
+  version: 2026.2.2
+  uri: https://buildpacks.cloudfoundry.org/dependencies/jrebel/jrebel_2026.2.2_linux_noarch_any-stack_ebf624b6.zip
+  sha256: ebf624b6947ce3e19ab79bed199b40ddbd962a313f2c388ca58e7f36e160fce0
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://dl.zeroturnaround.com/jrebel/releases/jrebel-2026.2.2-nosetup.zip
+  source_sha256: ebf624b6947ce3e19ab79bed199b40ddbd962a313f2c388ca58e7f36e160fce0
 - name: jvmkill
   version: 1.17.0
   uri: https://java-buildpack.cloudfoundry.org/jvmkill/jammy/x86_64/jvmkill-1.17.0-RELEASE.so
