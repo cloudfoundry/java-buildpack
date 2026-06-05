@@ -102,7 +102,7 @@ if [ -d "$DEPS_DIR/%s/java_opts" ]; then
             # Note: eval executes commands, but .opts files are written by the buildpack
             # at staging time and run within the container context.
             # This matches how the Ruby buildpack naturally expanded variables via shell.
-            opts_content=$(eval "echo \"$opts_content\"")
+            opts_content=$(eval "printf '%%s' \"$opts_content\"")
 
             # Now safely substitute JAVA_OPTS after eval (preserves quotes and backslashes)
             opts_content="${opts_content//$_user_java_opts_placeholder/$USER_JAVA_OPTS}"

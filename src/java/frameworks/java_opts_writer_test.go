@@ -79,7 +79,7 @@ var _ = Describe("Java Opts Writer", func() {
 
 		runScript := func(javaOpts string, optsFileContent string) (string, error) {
 			scriptPath := setupScript(javaOpts, optsFileContent)
-			return runWithEnv(scriptPath, javaOpts, "echo \"$JAVA_OPTS\"")
+			return runWithEnv(scriptPath, javaOpts, `printf '%s\n' "$JAVA_OPTS"`)
 		}
 
 		// runStartCommand simulates the actual JVM invocation:
@@ -127,6 +127,12 @@ var _ = Describe("Java Opts Writer", func() {
 			output, err := runScript("", "-Djava.security.properties=$DEPS_DIR/0/security.properties")
 			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
 			Expect(output).To(ContainSubstring("-Djava.security.properties=" + depsDir + "/0/security.properties"))
+		})
+
+		It("preserves literal -n from opts file content", func() {
+			output, err := runScript("", "-n")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(strings.TrimSpace(output)).To(Equal("-n"))
 		})
 
 		// Regression tests for issue #1301: xargs strips quotes, breaking quoted JVM args
