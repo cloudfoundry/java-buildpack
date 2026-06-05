@@ -134,7 +134,8 @@ func (r *Registry) RegisterStandardContainers() {
 // Wrapping the argument to eval in double quotes prevents bash from
 // glob-expanding or word-splitting $JAVA_OPTS before eval sees it.
 // eval then re-parses the string, honouring any embedded quotes in $JAVA_OPTS.
-// javaArgs must be buildpack-generated command fragments (not untrusted input).
+// javaArgs may include app/config-derived values (e.g. jar paths, Main-Class,
+// configured arguments), so callers must ensure it is shell-safe.
 func JavaExecCommand(javaArgs string) string {
 	return `eval "exec $JAVA_HOME/bin/java $JAVA_OPTS ` + javaArgs + `"`
 }
