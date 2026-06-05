@@ -104,8 +104,10 @@ if [ -d "$DEPS_DIR/%s/java_opts" ]; then
             # This matches how the Ruby buildpack naturally expanded variables via shell.
             opts_content=$(eval "printf '%%s' \"$opts_content\"")
 
-            # Now safely substitute JAVA_OPTS after eval (preserves quotes and backslashes)
-            opts_content="${opts_content//$_user_java_opts_placeholder/$USER_JAVA_OPTS}"
+            # Now safely substitute JAVA_OPTS after eval (preserves quotes, backslashes, and ampersands)
+            _escaped_user_java_opts="${USER_JAVA_OPTS//\\/\\\\}"
+            _escaped_user_java_opts="${_escaped_user_java_opts//&/\\&}"
+            opts_content="${opts_content//$_user_java_opts_placeholder/$_escaped_user_java_opts}"
             
             if [ -n "$opts_content" ]; then
                 JAVA_OPTS="$JAVA_OPTS $opts_content"

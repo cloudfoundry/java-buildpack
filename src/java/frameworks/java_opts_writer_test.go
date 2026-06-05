@@ -175,6 +175,18 @@ var _ = Describe("Java Opts Writer", func() {
 			Expect(output).To(ContainSubstring(`-n -Dfoo=bar`))
 		})
 
+		It("preserves ampersand in JAVA_OPTS values during placeholder substitution", func() {
+			output, err := runScript(`-Dfoo=a&b`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring(`-Dfoo=a&b`))
+		})
+
+		It("preserves backslashes in JAVA_OPTS values during placeholder substitution", func() {
+			output, err := runScript(`-Dpath=C:\tmp\app`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring(`-Dpath=C:\tmp\app`))
+		})
+
 		// Full invocation cycle test for issue #1301:
 		// Verifies that the quoted eval "exec ... $JAVA_OPTS" form delivers the correct
 		// argument to java — glob chars in $JAVA_OPTS are not expanded.
