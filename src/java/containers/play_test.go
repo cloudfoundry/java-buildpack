@@ -185,7 +185,7 @@ var _ = Describe("Play Container", func() {
 			It("returns correct java command", func() {
 				cmd, err := container.Release()
 				Expect(err).NotTo(HaveOccurred())
-				Expect(cmd).To(ContainSubstring("java $JAVA_OPTS -cp"))
+				Expect(cmd).To(ContainSubstring(`eval "exec java $JAVA_OPTS -cp`))
 				Expect(cmd).To(ContainSubstring("play.core.server.NettyServer $HOME"))
 			})
 		})
@@ -201,7 +201,7 @@ var _ = Describe("Play Container", func() {
 			It("returns correct java command", func() {
 				cmd, err := container.Release()
 				Expect(err).NotTo(HaveOccurred())
-				Expect(cmd).To(ContainSubstring("java $JAVA_OPTS -cp"))
+				Expect(cmd).To(ContainSubstring(`eval "exec java $JAVA_OPTS -cp`))
 				Expect(cmd).To(ContainSubstring("play.core.server.NettyServer $HOME"))
 			})
 		})
