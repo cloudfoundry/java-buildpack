@@ -75,7 +75,7 @@ func CreateJavaOptsAssemblyScript(ctx *common.Context) error {
 # Save original JAVA_OPTS from environment (user-provided)
 # Normalize to single line: YAML block scalars (>) may introduce newlines
 # Only convert newlines to spaces — do not use xargs which strips quotes and backslashes
-USER_JAVA_OPTS=$(echo "$JAVA_OPTS" | tr '\n' ' ')
+USER_JAVA_OPTS=$(printf '%%s' "$JAVA_OPTS" | tr '\n' ' ')
 
 # Start building new JAVA_OPTS
 JAVA_OPTS=""

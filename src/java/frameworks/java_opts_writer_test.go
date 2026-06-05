@@ -163,6 +163,12 @@ var _ = Describe("Java Opts Writer", func() {
 			Expect(output).To(ContainSubstring(`foo\|bar`))
 		})
 
+		It("preserves leading -n argument in JAVA_OPTS", func() {
+			output, err := runScript(`-n -Dfoo=bar`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring(`-n -Dfoo=bar`))
+		})
+
 		// Full invocation cycle test for issue #1301:
 		// Verifies that the quoted eval "exec ... $JAVA_OPTS" form delivers the correct
 		// argument to java — glob chars in $JAVA_OPTS are not expanded.
