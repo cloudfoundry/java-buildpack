@@ -80,6 +80,15 @@ USER_JAVA_OPTS=$(printf '%%s' "$JAVA_OPTS" | tr '\n' ' ')
 # Start building new JAVA_OPTS
 JAVA_OPTS=""
 
+# Escape replacement-special chars once; these values are loop-invariant.
+_escaped_deps_dir="${DEPS_DIR//\\/\\\\}"
+_escaped_deps_dir="${_escaped_deps_dir//&/\\&}"
+_escaped_home="${HOME//\\/\\\\}"
+_escaped_home="${_escaped_home//&/\\&}"
+_user_java_opts_placeholder='__JAVA_OPTS_BUILDPACK_PLACEHOLDER__'
+_escaped_user_java_opts="${USER_JAVA_OPTS//\\/\\\\}"
+_escaped_user_java_opts="${_escaped_user_java_opts//&/\\&}"
+
 if [ -d "$DEPS_DIR/%s/java_opts" ]; then
     for opts_file in "$DEPS_DIR/%s/java_opts"/*.opts; do
         if [ -f "$opts_file" ]; then
@@ -87,15 +96,14 @@ if [ -d "$DEPS_DIR/%s/java_opts" ]; then
             opts_content=$(cat "$opts_file")
             
             # Expand $DEPS_DIR and $HOME using bash parameter expansion.
-            # sed-based substitution breaks when these values contain the sed delimiter (|),
-            # backslashes, ampersands, or newlines — all valid in JAVA_OPTS and paths.
-            opts_content="${opts_content//\$DEPS_DIR/$DEPS_DIR}"
-            opts_content="${opts_content//\$HOME/$HOME}"
+            # In ${var//pattern/repl}, '&' and '\' are special in replacement strings,
+            # so escape them first to preserve literal path contents.
+            opts_content="${opts_content//\$DEPS_DIR/$_escaped_deps_dir}"
+            opts_content="${opts_content//\$HOME/$_escaped_home}"
 
             # Shield $JAVA_OPTS from eval: replace with a placeholder first,
             # then substitute the actual value AFTER eval so that quotes and
             # backslashes in the user-provided JAVA_OPTS are never exposed to eval.
-            _user_java_opts_placeholder='__JAVA_OPTS_BUILDPACK_PLACEHOLDER__'
             opts_content="${opts_content//\$JAVA_OPTS/$_user_java_opts_placeholder}"
 
             # Expand any remaining environment variables in opts content via eval.
@@ -105,8 +113,6 @@ if [ -d "$DEPS_DIR/%s/java_opts" ]; then
             opts_content=$(eval "printf '%%s' \"$opts_content\"")
 
             # Now safely substitute JAVA_OPTS after eval (preserves quotes, backslashes, and ampersands)
-            _escaped_user_java_opts="${USER_JAVA_OPTS//\\/\\\\}"
-            _escaped_user_java_opts="${_escaped_user_java_opts//&/\\&}"
             opts_content="${opts_content//$_user_java_opts_placeholder/$_escaped_user_java_opts}"
             
             if [ -n "$opts_content" ]; then

@@ -77,6 +77,17 @@ var _ = Describe("Java Opts Writer", func() {
 			return string(output), err
 		}
 
+		runWithCustomRuntimeEnv := func(scriptPath, javaOpts, bashExpr, runtimeDepsDir, runtimeHome string) (string, error) {
+			cmd := exec.Command("bash", "-c", "source "+scriptPath+" && "+bashExpr)
+			cmd.Env = append(os.Environ(),
+				"JAVA_OPTS="+javaOpts,
+				"DEPS_DIR="+runtimeDepsDir,
+				"HOME="+runtimeHome,
+			)
+			output, err := cmd.CombinedOutput()
+			return string(output), err
+		}
+
 		runScript := func(javaOpts string, optsFileContent string) (string, error) {
 			scriptPath := setupScript(javaOpts, optsFileContent)
 			return runWithEnv(scriptPath, javaOpts, `printf '%s\n' "$JAVA_OPTS"`)
@@ -121,6 +132,14 @@ var _ = Describe("Java Opts Writer", func() {
 			output, err := runScript("", "-javaagent:$HOME/BOOT-INF/lib/agent.jar")
 			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
 			Expect(output).To(ContainSubstring("-javaagent:/home/vcap/app/BOOT-INF/lib/agent.jar"))
+		})
+
+		It("preserves ampersand and backslash in $HOME replacement", func() {
+			scriptPath := setupScript("", "-javaagent:$HOME/BOOT-INF/lib/agent.jar")
+			customHome := `/tmp/home&dir\sub`
+			output, err := runWithCustomRuntimeEnv(scriptPath, "", `printf '%s\n' "$JAVA_OPTS"`, depsDir, customHome)
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring("-javaagent:" + customHome + "/BOOT-INF/lib/agent.jar"))
 		})
 
 		It("expands $DEPS_DIR in opts file content", func() {
@@ -185,6 +204,12 @@ var _ = Describe("Java Opts Writer", func() {
 			output, err := runScript(`-Dpath=C:\tmp\app`, "$JAVA_OPTS")
 			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
 			Expect(output).To(ContainSubstring(`-Dpath=C:\tmp\app`))
+		})
+
+		It("preserves double backslashes in JAVA_OPTS values during placeholder substitution", func() {
+			output, err := runScript(`-Dpath=C:\\double`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring(`-Dpath=C:\\double`))
 		})
 
 		// Full invocation cycle test for issue #1301:
