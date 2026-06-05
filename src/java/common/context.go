@@ -66,11 +66,7 @@ func DetermineJavaVersion(javaHome string) (int, error) {
 	releaseFile := filepath.Join(javaHome, "release")
 	content, err := os.ReadFile(releaseFile)
 	if err != nil {
-		// Default to Java 17 if release file is missing
-		if os.IsNotExist(err) {
-			return 17, nil
-		}
-		return 0, fmt.Errorf("failed to read release file: %w", err)
+		return 17, fmt.Errorf("failed to read release file: %w", err)
 	}
 
 	// Parse JAVA_VERSION from release file
@@ -103,7 +99,7 @@ func DetermineJavaVersion(javaHome string) (int, error) {
 		}
 	}
 
-	return 0, fmt.Errorf("unable to parse Java version from release file")
+	return 17, fmt.Errorf("unable to parse Java version from release file")
 }
 
 // GetJavaMajorVersion returns the Java major version from the JAVA_HOME environment variable.
