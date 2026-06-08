@@ -282,6 +282,20 @@ var _ = Describe("Java Main Container", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(cmd).To(ContainSubstring("--foo=bar"))
 			})
+
+			It("escapes double quotes in arguments to avoid breaking the eval string", func() {
+				os.Setenv("JBP_CONFIG_JAVA_MAIN", `{arguments: "--spring.datasource.url=\"jdbc:h2:mem:test\""}`)
+				Expect(createJar(
+					filepath.Join(buildDir, "app.jar"),
+					"Manifest-Version: 1.0\nMain-Class: com.example.Main\n",
+				)).To(Succeed())
+				container.Detect()
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				// Double quotes in arguments must be backslash-escaped so they
+				// don't terminate the outer eval "..." string.
+				Expect(cmd).To(ContainSubstring(`--spring.datasource.url=\"jdbc:h2:mem:test\"`))
+			})
 		})
 
 		// Regression tests for issue #1301: start command must use eval "exec ... $JAVA_OPTS"

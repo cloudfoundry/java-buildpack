@@ -55,7 +55,7 @@ var _ = Describe("Java Opts Writer", func() {
 	})
 
 	Describe("CreateJavaOptsAssemblyScript", func() {
-		setupScript := func(javaOpts string, optsFileContent string) string {
+		setupScript := func(_ string, optsFileContent string) string {
 			err := frameworks.CreateJavaOptsAssemblyScript(ctx)
 			Expect(err).NotTo(HaveOccurred())
 

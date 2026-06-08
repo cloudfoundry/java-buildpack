@@ -286,7 +286,8 @@ func (j *JavaMainContainer) Release() (string, error) {
 
 	args := ""
 	if cfg.Arguments != "" {
-		args = " " + cfg.Arguments
+		// Escape double quotes so they don't terminate the outer eval "..." string.
+		args = " " + strings.ReplaceAll(cfg.Arguments, `"`, `\"`)
 	}
 
 	// JBP_CONFIG_JAVA_MAIN java_main_class takes precedence over manifest Main-Class.
