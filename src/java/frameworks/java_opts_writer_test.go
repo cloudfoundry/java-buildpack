@@ -221,5 +221,20 @@ var _ = Describe("Java Opts Writer", func() {
 			// Java receives exactly one arg: -DcronSched=0 */7 * * * *
 			Expect(strings.TrimSpace(output)).To(Equal("-DcronSched=0 */7 * * * *"))
 		})
+
+		// Regression test: eval mangles .opts content containing literal double quotes.
+		// e.g. Datadog writes -Ddd.service="myapp" into its .opts file; the inner "
+		// terminates the outer eval "..." string, stripping the value.
+		It("preserves double-quoted values from .opts file content", func() {
+			output, err := runScript("", `-Ddd.service="myapp"`)
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring(`-Ddd.service="myapp"`))
+		})
+
+		It("preserves backslashes in .opts file content", func() {
+			output, err := runScript("", `-Dpattern=foo\|bar`)
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring(`-Dpattern=foo\|bar`))
+		})
 	})
 })

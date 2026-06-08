@@ -106,11 +106,16 @@ if [ -d "$DEPS_DIR/%s/java_opts" ]; then
             # backslashes in the user-provided JAVA_OPTS are never exposed to eval.
             opts_content="${opts_content//\$JAVA_OPTS/$_user_java_opts_placeholder}"
 
+            # Escape \ and " in opts_content so they do not break the
+            # eval "..." wrapper below. \ must be escaped first.
+            _eval_safe="${opts_content//\\/\\\\}"
+            _eval_safe="${_eval_safe//\"/\\\"}"
+
             # Expand any remaining environment variables in opts content via eval.
             # Note: eval executes commands, but .opts files are written by the buildpack
             # at staging time and run within the container context.
             # This matches how the Ruby buildpack naturally expanded variables via shell.
-            opts_content=$(eval "printf '%%s' \"$opts_content\"")
+            opts_content=$(eval "printf '%%s' \"$_eval_safe\"")
 
             # Now safely substitute JAVA_OPTS after eval (preserves quotes, backslashes, and ampersands)
             opts_content="${opts_content//$_user_java_opts_placeholder/$_escaped_user_java_opts}"
