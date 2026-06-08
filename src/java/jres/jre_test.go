@@ -571,9 +571,22 @@ IMPLEMENTOR="Eclipse Adoptium"`
 			Expect(version).To(Equal(21))
 		})
 
-		It("defaults to 17 when release file is missing", func() {
+		It("returns an error when release file is missing", func() {
+			_, err := common.DetermineJavaVersion(javaHome)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("release file"))
+		})
+
+		It("returns 17 as safe default when release file is missing", func() {
+			version, _ := common.DetermineJavaVersion(javaHome)
+			Expect(version).To(Equal(17))
+		})
+
+		It("returns 17 as safe default when release file cannot be parsed", func() {
+			releaseFile := javaHome + "/release"
+			Expect(os.WriteFile(releaseFile, []byte("NO_VERSION_HERE=true\n"), 0644)).To(Succeed())
 			version, err := common.DetermineJavaVersion(javaHome)
-			Expect(err).NotTo(HaveOccurred())
+			Expect(err).To(HaveOccurred())
 			Expect(version).To(Equal(17))
 		})
 	})
@@ -600,6 +613,20 @@ IMPLEMENTOR="Eclipse Adoptium"`
 
 			optsFile := filepath.Join(depsDir, "0", "java_opts", "05_jre.opts")
 			Expect(optsFile).To(BeAnExistingFile())
+		})
+	})
+
+	Describe("JRE-specific finalize opts (Ruby parity)", func() {
+		It("OpenJDK includes -XX:ActiveProcessorCount (HotSpot flag)", func() {
+			Expect(jres.NewOpenJDKJRE(ctx).ExtraFinalizeOpts()).To(ContainSubstring("-XX:ActiveProcessorCount"))
+		})
+
+		It("IBM JRE does not include -XX:ActiveProcessorCount (J9 incompatible)", func() {
+			Expect(jres.NewIBMJRE(ctx).ExtraFinalizeOpts()).NotTo(ContainSubstring("-XX:ActiveProcessorCount"))
+		})
+
+		It("IBM JRE includes J9-specific tuning opts", func() {
+			Expect(jres.NewIBMJRE(ctx).ExtraFinalizeOpts()).To(ContainSubstring("-Xtune:virtualized"))
 		})
 	})
 

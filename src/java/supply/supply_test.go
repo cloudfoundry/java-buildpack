@@ -107,6 +107,8 @@ dependencies: []
 			Expect(os.MkdirAll(filepath.Join(jdkInstallDir, "jre-17.0.15", "bin"), 0755)).To(Succeed())
 			javaBin := filepath.Join(jdkInstallDir, "jre-17.0.15", "bin", "java")
 			Expect(os.WriteFile(javaBin, []byte("mockfile"), 0644)).To(Succeed())
+			releaseFile := filepath.Join(jdkInstallDir, "jre-17.0.15", "release")
+			Expect(os.WriteFile(releaseFile, []byte("JAVA_VERSION=\"17.0.15\"\n"), 0644)).To(Succeed())
 
 			// adjust JRE  component mocks used during supply
 			depJre := libbuildpack.Dependency{Name: "openjdk", Version: "17.0.15"}
