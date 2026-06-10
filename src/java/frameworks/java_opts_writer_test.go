@@ -339,14 +339,47 @@ var _ = Describe("Java Opts Writer", func() {
 			Expect(output).To(ContainSubstring(`-Dpath=C:\\double`))
 		})
 
-		// Full invocation cycle test for issue #1301:
-		// Verifies that the quoted eval "exec ... $JAVA_OPTS" form delivers the correct
-		// argument to java — glob chars in $JAVA_OPTS are not expanded.
+		// Full invocation cycle tests for issue #1301:
+		// Verify that javaexec tokenizes $JAVA_OPTS without a shell, so glob chars,
+		// pipes, and shell metacharacters are never expanded or executed.
 		It("does not glob-expand * in cron expression when invoking java", func() {
 			output, err := runStartCommand(`-DcronSched="0 */7 * * * *"`, "$JAVA_OPTS")
 			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
 			// Java receives exactly one arg: -DcronSched=0 */7 * * * *
 			Expect(strings.TrimSpace(output)).To(Equal("-DcronSched=0 */7 * * * *"))
+		})
+
+		It("delivers exact issue-#1301 reproducer: quoted value + cron as separate args", func() {
+			// Exact reproducer from the bug report:
+			//   JAVA_OPTS='-Dfoo="bar baz" -DcronSched="0 */7 * * * *"'
+			// Old xargs path: quotes stripped → "bar baz" splits → * globs → ClassNotFoundException
+			output, err := runStartCommand(`-Dfoo="bar baz" -DcronSched="0 */7 * * * *"`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			lines := strings.Split(strings.TrimSpace(output), "\n")
+			Expect(lines).To(HaveLen(2))
+			Expect(lines[0]).To(Equal("-Dfoo=bar baz"))
+			Expect(lines[1]).To(Equal("-DcronSched=0 */7 * * * *"))
+		})
+
+		It("passes pipe character in JAVA_OPTS through to java without shell interpretation", func() {
+			// Old sed-based assembly (5.0.2) used | as sed delimiter, so a | in JAVA_OPTS
+			// caused a sed syntax error and dropped options. javaexec never invokes a shell.
+			output, err := runStartCommand(`-Dpattern=foo|bar -Dother=baz`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			lines := strings.Split(strings.TrimSpace(output), "\n")
+			Expect(lines).To(HaveLen(2))
+			Expect(lines[0]).To(Equal("-Dpattern=foo|bar"))
+			Expect(lines[1]).To(Equal("-Dother=baz"))
+		})
+
+		It("passes shell metacharacters (&, ;, >) through to java as literals", func() {
+			output, err := runStartCommand(`-Da=x&y -Db=a;b -Dc=a>b`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			lines := strings.Split(strings.TrimSpace(output), "\n")
+			Expect(lines).To(HaveLen(3))
+			Expect(lines[0]).To(Equal("-Da=x&y"))
+			Expect(lines[1]).To(Equal("-Db=a;b"))
+			Expect(lines[2]).To(Equal("-Dc=a>b"))
 		})
 
 		// Regression test: eval mangles .opts content containing literal double quotes.

@@ -156,6 +156,43 @@ func testSpringBoot(platform switchblade.Platform, fixtures string) func(*testin
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("Hello from Spring Boot")))
 			})
 
+			// Regression tests for #1301: the start command no longer uses `eval`, and
+			// JAVA_OPTS is assembled by a pure-bash expander and tokenized at launch by
+			// the shell-free javaexec launcher. A user-supplied JAVA_OPTS value must
+			// therefore reach the JVM as literal text — command substitutions are never
+			// executed, and globs/cron stars/shell metacharacters are never expanded or
+			// interpreted as operators. These drive the value through the user JAVA_OPTS
+			// env path (from_environment: true; memory comes from the configured opts),
+			// then read the JVM's actual received value back via the fixture's /jvm-args
+			// endpoint (System.getProperty("userProperty")).
+			memoryOpts := `java_opts: ["-Xmx256M", "-Xms128M", "-Xss512k", "-XX:ReservedCodeCacheSize=120M", "-XX:MetaspaceSize=78643K", "-XX:MaxMetaspaceSize=157286K"]`
+
+			it("does not execute command substitution in JAVA_OPTS (#1301, no eval)", func() {
+				deployment, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"BP_JAVA_VERSION": "17",
+						"JBP_CONFIG_JAVA_OPTS": `{from_environment: true, ` + memoryOpts + `}`,
+						// $(hostname) would run under the old eval start command. It must
+						// instead arrive at the JVM verbatim.
+						"JAVA_OPTS": `-DuserProperty=$(hostname)`,
+					}).
+					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
+				Expect(err).NotTo(HaveOccurred(), logs.String)
+
+				Eventually(deployment).Should(matchers.Serve(
+					ContainSubstring("userProperty=$(hostname)"), // literal, not the executed hostname
+				).WithEndpoint("/jvm-args"))
+			})
+
+			// NOTE: glob/cron preservation and shell-metacharacter/ampersand/backslash
+			// fidelity are covered deterministically at the unit level in
+			// frameworks/java_opts_writer_test.go, which runs the real assembly script
+			// and the real javaexec tokenizer. They are intentionally not duplicated as
+			// docker integration tests (the switchblade docker harness mangles some
+			// metacharacters when passing env vars, which is a harness artifact, not
+			// buildpack behaviour). The command-substitution case above stays here
+			// because non-execution is the security property worth proving end-to-end.
+
 			it("applies framework opts without any configured JAVA_OPTS", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
