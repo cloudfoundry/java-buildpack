@@ -176,20 +176,13 @@ func (j *JVMKillAgent) Finalize() error {
 	return nil
 }
 
-// convertToRuntimePath converts absolute staging path to runtime absolute path
-// Example: /tmp/contents.../deps/<idx>/jre/bin/jvmkill-1.16.0.so -> /home/vcap/deps/<idx>/jre/bin/jvmkill-1.16.0.so
-// Note: We use absolute path instead of $DEPS_DIR because startup scripts run before .profile.d scripts
-// are sourced, so $DEPS_DIR is not yet available at runtime.
+// convertToRuntimePath converts a staging path to a runtime path using $DEPS_DIR.
+// The path ends up in a .opts file that is read by the profile.d assembly script,
+// which expands $DEPS_DIR before passing the value to the JVM.
 func (j *JVMKillAgent) convertToRuntimePath(stagingPath string) string {
-	// Extract filename and build runtime path
-	// We know the structure: <staging-path>/deps/<idx>/jre/bin/jvmkill-VERSION.so
-	// Runtime path: /home/vcap/deps/<idx>/jre/bin/jvmkill-VERSION.so
-
 	depsIdx := j.ctx.Stager.DepsIdx()
 	filename := filepath.Base(stagingPath)
-
-	// Build absolute runtime path (Cloud Foundry standard location)
-	return fmt.Sprintf("/home/vcap/deps/%s/jre/bin/%s", depsIdx, filename)
+	return fmt.Sprintf("$DEPS_DIR/%s/jre/bin/%s", depsIdx, filename)
 }
 
 // getHeapDumpPath checks for volume service with heap-dump tag and returns path

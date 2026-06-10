@@ -60,6 +60,48 @@ func TokenizeJavaOpts(s string) []string {
 				}
 				b.WriteRune(runes[i])
 			}
+		case '$':
+			started = true
+			b.WriteRune(c)
+			// Keep $(...) and ${...} as unbreakable units so that spaces inside
+			// do not split the enclosing token. Neither is executed; both pass
+			// literally to the JVM.
+			if i+1 < len(runes) {
+				next := runes[i+1]
+				var open, close rune
+				if next == '(' {
+					open, close = '(', ')'
+				} else if next == '{' {
+					open, close = '{', '}'
+				}
+				if open != 0 {
+					i++
+					b.WriteRune(open)
+					depth := 1
+					for i++; i < len(runes) && depth > 0; i++ {
+						ch := runes[i]
+						if ch == open {
+							depth++
+						} else if ch == close {
+							depth--
+						}
+						b.WriteRune(ch)
+						if depth == 0 {
+							break
+						}
+					}
+				}
+			}
+		case '`':
+			started = true
+			b.WriteRune(c)
+			// Keep `...` as one unbreakable unit (same reasoning as $(...)).
+			for i++; i < len(runes) && runes[i] != '`'; i++ {
+				b.WriteRune(runes[i])
+			}
+			if i < len(runes) {
+				b.WriteRune('`') // closing backtick
+			}
 		case '\\':
 			started = true
 			// Unquoted backslash escapes the next character.

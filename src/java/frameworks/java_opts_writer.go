@@ -124,6 +124,22 @@ USER_JAVA_OPTS="${USER_JAVA_OPTS//\\\$/$_escaped_dollar_placeholder}"
 USER_JAVA_OPTS=$(_expand_env_vars "$USER_JAVA_OPTS")
 USER_JAVA_OPTS="${USER_JAVA_OPTS//$_escaped_dollar_placeholder/$_dollar}"
 
+# Warn if any command substitution remains in user JAVA_OPTS. It will be
+# passed literally to the JVM — command substitutions are never executed.
+# Show only the offending token, not the full value (which may be long or contain secrets).
+case "$USER_JAVA_OPTS" in
+    *'$('*)
+        _warn_match="${USER_JAVA_OPTS#*'$('}"
+        _warn_match="\$(${_warn_match%%%%')'*})"
+        echo "WARNING: JAVA_OPTS contains command substitution; it will NOT be executed and will be passed literally to the JVM. Matching: ${_warn_match}" >&2
+        ;;
+    *"$_backtick"*)
+        _warn_match="${USER_JAVA_OPTS#*"$_backtick"}"
+        _warn_match="${_backtick}${_warn_match%%%%"$_backtick"*}${_backtick}"
+        echo "WARNING: JAVA_OPTS contains command substitution (backtick); it will NOT be executed and will be passed literally to the JVM. Matching: ${_warn_match}" >&2
+        ;;
+esac
+
 # Escape replacement-special chars once; these values are loop-invariant.
 _escaped_deps_dir="${DEPS_DIR//\\/\\\\}"
 _escaped_deps_dir="${_escaped_deps_dir//&/\\&}"

