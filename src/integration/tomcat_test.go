@@ -371,7 +371,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
-				Expect(logs.String()).To(ContainSubstring("Installing SAP Machine (17."))
+				Expect(logs.String()).To(ContainSubstring("Installing SapMachine (17."))
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 
@@ -384,7 +384,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
-				Expect(logs.String()).To(ContainSubstring("Installing SAP Machine (21."))
+				Expect(logs.String()).To(ContainSubstring("Installing SapMachine (21."))
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 
@@ -397,7 +397,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
-				Expect(logs.String()).To(ContainSubstring("Installing SAP Machine (25."))
+				Expect(logs.String()).To(ContainSubstring("Installing SapMachine (25."))
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 		})
