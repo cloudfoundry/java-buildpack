@@ -171,7 +171,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK (8."))
-				Expect(logs.String()).To(ContainSubstring("Tomcat 9"))
+				Expect(logs.String()).To(ContainSubstring("Installed Tomcat (9."))
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 
@@ -185,7 +185,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK (11."))
-				Expect(logs.String()).To(ContainSubstring("Tomcat 9"))
+				Expect(logs.String()).To(ContainSubstring("Installed Tomcat (9."))
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 
@@ -198,7 +198,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK (17."))
-				Expect(logs.String()).To(ContainSubstring("Tomcat 9"))
+				Expect(logs.String()).To(ContainSubstring("Installed Tomcat (9."))
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 
@@ -224,7 +224,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK (11."))
-				Expect(logs.String()).To(ContainSubstring("Tomcat 10"))
+				Expect(logs.String()).To(ContainSubstring("Installed Tomcat (10."))
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 
@@ -237,7 +237,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK (17."))
-				Expect(logs.String()).To(ContainSubstring("Tomcat 10"))
+				Expect(logs.String()).To(ContainSubstring("Installed Tomcat (10."))
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 		})
@@ -258,7 +258,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK (17."))
-				Expect(logs.String()).To(ContainSubstring("Tomcat 10.1."))
+				Expect(logs.String()).To(ContainSubstring("Installed Tomcat (10.1."))
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 		})
