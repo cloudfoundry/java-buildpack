@@ -97,6 +97,7 @@ Build the buildpack binaries:
 This creates executables in the `bin/` directory:
 - `bin/supply` - Staging phase binary (downloads and installs dependencies)
 - `bin/finalize` - Finalization phase binary (configures runtime)
+- `bin/javaexec` - Shell-free JVM launcher (tokenizes `JAVA_OPTS` without `eval`)
 
 ## Project Structure
 
@@ -118,6 +119,7 @@ java-buildpack/
 │   ├── jres/                           # JRE implementations (7 providers)
 │   ├── supply/cli/                     # Supply phase entrypoint
 │   ├── finalize/cli/                   # Finalize phase entrypoint
+│   ├── javaexec/cli/                   # Shell-free JVM launcher entrypoint
 │   ├── resources/                      # Resource configuration files
 │   └── integration/                    # Integration tests
 ├── scripts/                            # Build and test scripts
@@ -156,6 +158,7 @@ Build for the default platform (Linux):
 ```
 -----> Building supply for linux
 -----> Building finalize for linux
+-----> Building javaexec for linux
 -----> Build complete
 ```
 
@@ -193,6 +196,25 @@ go build -mod vendor -o bin/supply src/java/supply/cli/main.go
 
 # Build finalize
 go build -mod vendor -o bin/finalize src/java/finalize/cli/main.go
+
+# Build javaexec (shell-free JVM launcher, required at runtime)
+go build -mod vendor -o bin/javaexec src/java/javaexec/cli/main.go
+```
+
+### Source/Git Buildpack Usage
+
+When deploying with a git URL (`cf push -b https://github.com/.../java-buildpack.git`),
+Cloud Foundry runs `bin/finalize` directly from the cloned source. In that mode
+`bin/javaexec` does not exist (only packaged buildpacks have it). `bin/finalize`
+therefore builds `javaexec` into a temp directory alongside the finalize binary
+and passes the path via the `JAVAEXEC_BINARY_PATH` environment variable.
+`InstallJavaexecLauncher()` prefers this override and falls back to
+`bin/javaexec` for packaged buildpacks.
+
+To verify this path locally (no CF required):
+
+```bash
+bash scripts/test-javaexec-source-path.sh
 ```
 
 ## Running Tests

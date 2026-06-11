@@ -14,6 +14,8 @@ output_dir=$(mktemp -d -t finalizeXXX)
 pushd $BUILDPACK_DIR > /dev/null
 echo "-----> Running go build finalize"
 GOROOT=$GoInstallDir $GoInstallDir/bin/go build -mod=vendor -o $output_dir/finalize ./src/java/finalize/cli
+echo "-----> Running go build javaexec"
+GOROOT=$GoInstallDir $GoInstallDir/bin/go build -mod=vendor -o $output_dir/javaexec ./src/java/javaexec/cli
 popd > /dev/null
 
-$output_dir/finalize "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" "$DEPS_IDX" "$PROFILE_DIR"
+JAVAEXEC_BINARY_PATH=$output_dir/javaexec $output_dir/finalize "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" "$DEPS_IDX" "$PROFILE_DIR"

@@ -186,6 +186,12 @@ During the finalize phase (`bin/finalize`), the buildpack:
 1. **Finalizes JRE**: Configures JVM options, memory calculator
 2. **Finalizes Frameworks**: Adds agent paths, system properties
 3. **Finalizes Container**: Generates launch command
+4. **Installs `javaexec`**: Copies the shell-free JVM launcher into
+   `$DEPS_DIR/<idx>/bin/javaexec`. The generated start command invokes it
+   instead of `eval "exec java $JAVA_OPTS ..."` so that `JAVA_OPTS` is
+   tokenized without shell interpretation. For source/git buildpack usage
+   `bin/finalize` builds `javaexec` on the fly and passes its path via
+   `JAVAEXEC_BINARY_PATH` (see [DEVELOPING.md](DEVELOPING.md#sourcegit-buildpack-usage)).
 
 Components can:
 - Read installed dependencies from `$DEPS_DIR/<idx>/`

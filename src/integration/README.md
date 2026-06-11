@@ -151,6 +151,12 @@ property that must hold in a real container launch:
 - **The `javaexec` launcher actually starts the JVM** for the affected containers,
   including `Play` (previously `eval exec java $JAVA_OPTS ...`).
 
+**Source/git buildpack path** (`bin/finalize` building `javaexec` on the fly) is
+**not covered** by integration tests here: they use a packaged zip where `bin/javaexec`
+is pre-built by `scripts/build.sh`. The source/git path is covered by unit tests in
+[`../java/finalize/finalize_test.go`](../java/finalize/finalize_test.go) and can be
+verified locally with `bash scripts/test-javaexec-source-path.sh`.
+
 ## Writing New Tests
 
 To add a new test:
