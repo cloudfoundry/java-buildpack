@@ -412,13 +412,13 @@ dependencies:
   - cflinuxfs4
   - cflinuxfs5
 - name: mariadb-jdbc
-  version: 3.5.8
-  uri: https://buildpacks.cloudfoundry.org/dependencies/mariadb-jdbc/mariadb-jdbc_3.5.8_linux_noarch_any-stack_6127dc78.jar
-  sha256: 6127dc7858047b3d4482899139640b0e2ab2b8abdeb708cfb8c011117771cddf
+  version: 3.5.9
+  uri: https://buildpacks.cloudfoundry.org/dependencies/mariadb-jdbc/mariadb-jdbc_3.5.9_linux_noarch_any-stack_11e3bb5b.jar
+  sha256: 11e3bb5bbf8ef0e806ae4d6c5d5033fedf7262cc777f0190bde8a2f3c8e6bd8d
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.5.8/mariadb-java-client-3.5.8.jar
+  source: https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.5.9/mariadb-java-client-3.5.9.jar
   source_sha256: ''
 - name: memory-calculator
   version: 4.1.0
