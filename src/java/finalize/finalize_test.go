@@ -55,6 +55,11 @@ dependencies: []
 `
 		Expect(os.WriteFile(manifestFile, []byte(manifestContent), 0644)).To(Succeed())
 
+		// The finalizer installs the javaexec launcher from <buildpackDir>/bin.
+		binDir := filepath.Join(buildpackDir, "bin")
+		Expect(os.MkdirAll(binDir, 0755)).To(Succeed())
+		Expect(os.WriteFile(filepath.Join(binDir, "javaexec"), []byte("#!/bin/sh\n"), 0755)).To(Succeed())
+
 		logger = libbuildpack.NewLogger(GinkgoWriter)
 
 		mockCtrl = gomock.NewController(GinkgoT())
@@ -67,11 +72,12 @@ dependencies: []
 		stager = libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, depsIdx}, logger, manifest)
 
 		finalizer = &finalize.Finalizer{
-			Stager:    stager,
-			Manifest:  mockManifest,
-			Installer: mockInstaller,
-			Log:       logger,
-			Command:   &libbuildpack.Command{},
+			Stager:       stager,
+			Manifest:     mockManifest,
+			Installer:    mockInstaller,
+			Log:          logger,
+			Command:      &libbuildpack.Command{},
+			BuildpackDir: buildpackDir,
 		}
 	})
 
@@ -234,6 +240,45 @@ dependencies: []
 		It("has access to deps directory", func() {
 			depDir := stager.DepDir()
 			Expect(depDir).To(ContainSubstring(depsDir))
+		})
+	})
+
+	Describe("javaexec launcher installation", func() {
+		It("installs launcher from buildpack bin/ for packaged buildpack usage", func() {
+			// Default path: <buildpackDir>/bin/javaexec already written in BeforeEach.
+			Expect(finalizer.InstallJavaexecLauncher()).To(Succeed())
+			installed := filepath.Join(stager.DepDir(), "bin", "javaexec")
+			Expect(installed).To(BeARegularFile())
+		})
+
+		It("installs launcher from JAVAEXEC_BINARY_PATH for source/git buildpack usage", func() {
+			// Simulate bin/finalize wrapper: javaexec built into a temp dir, path passed via env var.
+			// <buildpackDir>/bin/javaexec is still present from BeforeEach, but the env var must take precedence.
+			altBinary, err := os.CreateTemp("", "javaexec-alt-*")
+			Expect(err).NotTo(HaveOccurred())
+			defer os.Remove(altBinary.Name())
+			_, err = altBinary.WriteString("#!/bin/sh\n# alt\n")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(altBinary.Close()).To(Succeed())
+
+			os.Setenv("JAVAEXEC_BINARY_PATH", altBinary.Name())
+			defer os.Unsetenv("JAVAEXEC_BINARY_PATH")
+
+			Expect(finalizer.InstallJavaexecLauncher()).To(Succeed())
+			installed := filepath.Join(stager.DepDir(), "bin", "javaexec")
+			Expect(installed).To(BeARegularFile())
+			content, err := os.ReadFile(installed)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring("# alt"))
+		})
+
+		It("fails when launcher is missing and JAVAEXEC_BINARY_PATH is not set", func() {
+			// Point BuildpackDir at an empty dir so bin/javaexec doesn't exist.
+			emptyDir, err := os.MkdirTemp("", "finalize-no-javaexec")
+			Expect(err).NotTo(HaveOccurred())
+			defer os.RemoveAll(emptyDir)
+			finalizer.BuildpackDir = emptyDir
+			Expect(finalizer.InstallJavaexecLauncher()).NotTo(Succeed())
 		})
 	})
 })

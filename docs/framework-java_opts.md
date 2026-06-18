@@ -26,36 +26,82 @@ The framework can be configured by creating or modifying the [`config/java_opts.
 
 Any `JAVA_OPTS` from either the config file or environment variables will be specified in the start command after any Java Opts added by other frameworks.
 
-## Escaping strings
+## Runtime variable expansion
 
-Java options will have special characters escaped when used in the shell command that starts the Java application but the `$` and `\` characters will not be escaped. This is to allow Java options to include environment variables when the application starts.
+Java options are assembled at container start by the buildpack's `profile.d` script
+(`00_java_opts.sh`), then passed to the JVM by the shell-free `javaexec` launcher.
+Because `javaexec` tokenizes `JAVA_OPTS` without invoking a shell, characters such as
+`*`, `&`, `;`, `|`, and `>` are treated as literals — they reach the JVM exactly as
+written.
+
+### Environment variable references
+
+`$VARNAME` and `${VARNAME}` references in **both** `JAVA_OPTS` (env) and `java_opts`
+(config) are expanded at container start against the runtime environment:
 
 ```bash
-cf set-env my-application JAVA_OPTS '-Dexample.port=$PORT'
+# $PWD, $HOME, $PORT, and any CF-injected variable all work
+cf set-env my-application JAVA_OPTS '-Dapp.config=$PWD/config/app.properties'
+cf set-env my-application JAVA_OPTS '-Dserver.port=$PORT'
 ```
 
-If an escaped `$` or `\` character is needed in the Java options they will have to be escaped manually. For example, to obtain this output in the start command.
-
-```bash
--Dexample.other=something.\$dollar.\\slash
-```
-
-From the command line use;
-```bash
-cf set-env my-application JAVA_OPTS '-Dexample.other=something.\\\\\$dollar.\\\\\\\slash'
-```
-
-From the [`config/java_opts.yml`][] file use;
 ```yaml
-from_environment: true
-java_opts: '-Dexample.other=something.\\$dollar.\\\\slash'
+# config/java_opts.yml
+java_opts: '-Xloggc:$PWD/beacon_gc.log -verbose:gc'
 ```
 
-Finally, from the applications manifest use;
-```yaml
-  env:
-    JAVA_OPTS: '-Dexample.other=something.\\\\\$dollar.\\\\\\\slash'
+### Command substitutions are never executed
+
+`$(...)` and backtick command substitutions are **not** executed. A value such as
+`-Dinject=$(hostname)` reaches the JVM as the literal string `-Dinject=$(hostname)`.
+This is intentional: executing arbitrary commands from a user-supplied option string
+would be a security vulnerability.
+
+### Processor count: `$(nproc)`
+
+The one exception is `-XX:ActiveProcessorCount=$(nproc)`, which the buildpack itself
+emits for JRE vendors that need it. The profile.d script resolves this single known
+token to the actual CPU count before passing the option to the JVM. Any other
+`$(...)` expression passes to the JVM literally.
+
+### Special characters and quoting
+
+Characters that were shell-special under the old `eval`-based launcher (`*`, `&`,
+`;`, `|`, `>`) are now passed to the JVM as literals — no quoting tricks required.
+
+POSIX quoting in the assembled `JAVA_OPTS` string is respected by `javaexec`'s
+tokenizer: a quoted value such as `"-Dfoo=bar baz"` is delivered as the single
+argument `-Dfoo=bar baz`.
+
+| Want to pass to JVM | Write in `JAVA_OPTS` / `java_opts` |
+|---------------------|-------------------------------------|
+| Literal `$PORT` (no expansion) | `\$PORT` |
+| Literal `\` backslash | `\\` |
+| Literal `\\` two backslashes | `\\\\` |
+| Value of `$PORT` at runtime | `$PORT` |
+| Cron expression `0 */7 * * *` | `0 */7 * * *` (no quoting needed) |
+| Space inside one JVM arg | `"-Dfoo=bar baz"` (quote the arg) |
+
+```bash
+# Expand $PORT at runtime
+cf set-env my-application JAVA_OPTS '-Dserver.port=$PORT'
+
+# Literal $PORT — not expanded
+cf set-env my-application JAVA_OPTS '-Dexample.literal=\$PORT'
+
+# Windows-style path — \\ becomes one backslash
+cf set-env my-application JAVA_OPTS '-Dapp.data=C:\\data\\app'
+
+# Cron expression — * is not glob-expanded
+cf set-env my-application JAVA_OPTS '-DcronExpr=0 */7 * * *'
 ```
+
+> **Note:** `$` followed by a digit or non-identifier character (e.g. `$1`, `$.`)
+> is left as-is. Undefined variables expand to an empty string.
+
+> **Migrating from the Ruby buildpack?** See
+> [Migrating JAVA_OPTS escaping from the Ruby buildpack](java_opts-ruby-migration.md)
+> for a comparison of the escaping rules.
 
 ## Examples
 

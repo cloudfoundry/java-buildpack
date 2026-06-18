@@ -124,6 +124,39 @@ The integration tests cover:
    - Cached buildpack deployment
    - No internet access scenarios
 
+### Note: JAVA_OPTS character-fidelity is tested at the unit level, not here (#1301)
+
+The `#1301` work removed `eval` from the start command: `JAVA_OPTS` is now assembled
+by a pure-bash expander and tokenized at launch by the shell-free `javaexec` launcher.
+The exact-character behaviour this guarantees — shell metacharacters (`; & | > `),
+glob/cron stars, quotes-with-spaces, and backslashes all reaching the JVM as literal
+text — is verified **deterministically at the unit level** in
+[`../java/frameworks/java_opts_writer_test.go`](../java/frameworks/java_opts_writer_test.go),
+which runs the **real** generated assembly script and the **real** `javaexec`
+tokenizer end-to-end.
+
+Do **not** re-assert those exact characters through a docker deployment here. The
+switchblade docker harness passes env vars into the container in a way that mangles
+some metacharacters (e.g. a user `JAVA_OPTS` `&` was observed arriving as `\&` inside
+the container) — that is a **harness artifact, not buildpack behaviour** (the unit
+test above confirms the buildpack delivers a clean `&`). A docker integration test
+asserting the literal received value would fail for reasons unrelated to the product.
+
+What this directory **does** cover for `#1301`, because it is a genuine end-to-end
+property that must hold in a real container launch:
+
+- **Command substitution is never executed** — a `$(...)` in user `JAVA_OPTS` reaches
+  the JVM as literal text (`SpringBoot` suite, asserted via the fixture's `/jvm-args`
+  endpoint).
+- **The `javaexec` launcher actually starts the JVM** for the affected containers,
+  including `Play` (previously `eval exec java $JAVA_OPTS ...`).
+
+**Source/git buildpack path** (`bin/finalize` building `javaexec` on the fly) is
+**not covered** by integration tests here: they use a packaged zip where `bin/javaexec`
+is pre-built by `scripts/build.sh`. The source/git path is covered by unit tests in
+[`../java/finalize/finalize_test.go`](../java/finalize/finalize_test.go) and can be
+verified locally with `bash scripts/test-javaexec-source-path.sh`.
+
 ## Writing New Tests
 
 To add a new test:

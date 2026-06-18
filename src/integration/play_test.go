@@ -100,6 +100,23 @@ func testPlay(platform switchblade.Platform, fixtures string) func(*testing.T, s
 				Eventually(deployment).Should(matchers.Serve(Not(BeEmpty())))
 			})
 
+			// Regression test for #1301: the Play start command now launches the JVM via
+			// the shell-free javaexec launcher (previously `eval exec java $JAVA_OPTS ...`).
+			// A command substitution and cron/glob characters in user JAVA_OPTS must not be
+			// executed or expanded, and must not break launch — the app must still boot.
+			it("starts via the javaexec launcher with unsafe JAVA_OPTS (#1301)", func() {
+				deployment, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"BP_JAVA_VERSION": "11",
+						"JAVA_OPTS":       `-DcronExpr="0 */7 * * * *" -Dinject=$(hostname)`,
+					}).
+					Execute(name, filepath.Join(fixtures, "containers", "play_2.2_staged"))
+				Expect(err).NotTo(HaveOccurred(), logs.String)
+
+				Expect(logs.String()).To(ContainSubstring("Java Buildpack"))
+				Eventually(deployment).Should(matchers.Serve(Not(BeEmpty())))
+			})
+
 			it("handles Play 2.2 application without bat file", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{

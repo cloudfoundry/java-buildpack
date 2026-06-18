@@ -15,6 +15,7 @@ tmp/
 .cache/
 bin/detect
 bin/finalize
+bin/javaexec
 bin/release
 bin/supply
 /*.md

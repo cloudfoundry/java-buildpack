@@ -24,6 +24,7 @@ type Finalizer struct {
 	JRE           jres.JRE
 	ContainerName string
 	JREName       string
+	BuildpackDir  string
 }
 
 // SupplyConfig holds the values written to config.yml by the supply phase.
@@ -113,6 +114,12 @@ func Run(f *Finalizer) error {
 		return err
 	}
 
+	// Install the javaexec launcher binary used by the start command.
+	if err := f.InstallJavaexecLauncher(); err != nil {
+		f.Log.Error("Failed to install javaexec launcher: %s", err.Error())
+		return err
+	}
+
 	// Write release YAML configuration
 	if err := f.writeReleaseYaml(container); err != nil {
 		f.Log.Error("Failed to write release YAML: %s", err.Error())
@@ -188,6 +195,60 @@ func (f *Finalizer) finalizeFrameworks(ctx *common.Context) error {
 		f.Log.Warning("Failed to create JAVA_OPTS assembly script: %s", err.Error())
 	}
 
+	return nil
+}
+
+// InstallJavaexecLauncher copies the javaexec launcher binary into the
+// dependency directory so it is present in the droplet at runtime. The start
+// command (see containers.JavaExecCommand) invokes it as
+// $DEPS_DIR/<idx>/bin/javaexec to tokenize JAVA_OPTS without a shell.
+//
+// Source path resolution (first match wins):
+//  1. JAVAEXEC_BINARY_PATH env var — set by bin/finalize for source/git usage
+//     where javaexec is built into a temp dir alongside the finalize binary.
+//  2. <buildpackDir>/bin/javaexec — present in packaged buildpacks built by
+//     scripts/build.sh.
+//
+// The binary is required: missing it means the generated start command would
+// fail at launch, so this returns an error rather than continuing.
+func (f *Finalizer) InstallJavaexecLauncher() error {
+	buildpackDir := f.BuildpackDir
+	if buildpackDir == "" {
+		var err error
+		buildpackDir, err = libbuildpack.GetBuildpackDir()
+		if err != nil {
+			return fmt.Errorf("unable to determine buildpack directory for javaexec launcher: %w", err)
+		}
+	}
+
+	src := filepath.Join(buildpackDir, "bin", "javaexec")
+	// For source/git buildpack usage the bin/finalize wrapper builds javaexec
+	// into a temp directory and passes the path here so the source checkout is
+	// not mutated. Prefer the override; fall back to <buildpackDir>/bin/javaexec
+	// for packaged buildpacks where scripts/build.sh provides the binary.
+	if override := os.Getenv("JAVAEXEC_BINARY_PATH"); override != "" {
+		src = override
+	}
+	data, err := os.ReadFile(src)
+	if err != nil {
+		return fmt.Errorf("javaexec launcher binary not found at %s (required by the start command): %w", src, err)
+	}
+
+	dstDir := filepath.Join(f.Stager.DepDir(), "bin")
+	if err := os.MkdirAll(dstDir, 0755); err != nil {
+		return fmt.Errorf("failed to create bin directory: %w", err)
+	}
+
+	dst := filepath.Join(dstDir, "javaexec")
+	if err := os.WriteFile(dst, data, 0755); err != nil {
+		return fmt.Errorf("failed to write javaexec launcher: %w", err)
+	}
+	// WriteFile does not change the mode of an existing file; ensure it is executable.
+	if err := os.Chmod(dst, 0755); err != nil {
+		return fmt.Errorf("failed to make javaexec launcher executable: %w", err)
+	}
+
+	f.Log.Debug("Installed javaexec launcher: %s", dst)
 	return nil
 }
 

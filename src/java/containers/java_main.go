@@ -286,19 +286,20 @@ func (j *JavaMainContainer) Release() (string, error) {
 
 	args := ""
 	if cfg.Arguments != "" {
+		// Passed through as-is onto the start command line. The command is parsed
+		// once by the shell at launch (no eval), so any quoting in the arguments is
+		// applied exactly once, like a normal shell command line.
 		args = " " + cfg.Arguments
 	}
 
 	// JBP_CONFIG_JAVA_MAIN java_main_class takes precedence over manifest Main-Class.
 	// Use classpath mode so the configured class is actually invoked (not the manifest's).
 	if cfg.JavaMainClass != "" {
-		return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp ${CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s%s", cfg.JavaMainClass, args), nil
+		return JavaExecCommand(j.context.Stager.DepsIdx(), fmt.Sprintf("-cp ${CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s%s", cfg.JavaMainClass, args)), nil
 	}
 
 	if j.jarFile != "" {
-		// JAR has its own Main-Class in the manifest — java -jar handles it
-		// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-		return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -jar %s%s", j.jarFile, args), nil
+		return JavaExecCommand(j.context.Stager.DepsIdx(), fmt.Sprintf("-jar %s%s", j.jarFile, args)), nil
 	}
 
 	// Classpath mode: need an explicit main class
@@ -311,6 +312,5 @@ func (j *JavaMainContainer) Release() (string, error) {
 		j.context.Log.Debug("Main Class %s found in JAVA_MAIN_CLASS", mainClass)
 	}
 
-	// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-	return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp ${CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s%s", mainClass, args), nil
+	return JavaExecCommand(j.context.Stager.DepsIdx(), fmt.Sprintf("-cp ${CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s%s", mainClass, args)), nil
 }

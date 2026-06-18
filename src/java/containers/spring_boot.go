@@ -256,21 +256,16 @@ func (s *SpringBootContainer) Release() (string, error) {
 		// Verify this is actually a Spring Boot application
 
 		if s.isSpringBootExplodedJar(buildDir) {
-			// True Spring Boot exploded JAR - use main class from manifest or fallback to JarLauncher based on spring-boot version
 			launcherClass := s.getLauncherClass(buildDir)
-			// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp $PWD/.${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s", launcherClass), nil
+			return JavaExecCommand(s.context.Stager.DepsIdx(), fmt.Sprintf("-cp $PWD/.${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s", launcherClass)), nil
 		}
 
-		// Exploded JAR but NOT Spring Boot - use Main-Class from MANIFEST.MF
 		mainClass, err := s.readMainClassFromManifest(buildDir)
 		if err != nil {
 			s.context.Log.Debug("Could not read MANIFEST.MF: %s", err.Error())
 		}
 		if mainClass != "" {
-			// Use classpath from BOOT-INF/classes and BOOT-INF/lib
-			// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-			return fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS -cp $HOME${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}:$HOME/BOOT-INF/classes:$HOME/BOOT-INF/lib/* %s", mainClass), nil
+			return JavaExecCommand(s.context.Stager.DepsIdx(), fmt.Sprintf("-cp $HOME${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}:$HOME/BOOT-INF/classes:$HOME/BOOT-INF/lib/* %s", mainClass)), nil
 		}
 
 		return "", fmt.Errorf("exploded JAR found but no Main-Class in MANIFEST.MF")
@@ -292,8 +287,8 @@ func (s *SpringBootContainer) Release() (string, error) {
 		jarFile = jar
 	}
 
-	// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-	cmd := fmt.Sprintf("eval exec $JAVA_HOME/bin/java $JAVA_OPTS ${CONTAINER_SECURITY_PROVIDER:+-Dloader.path=$CONTAINER_SECURITY_PROVIDER} -jar %s", jarFile)
+	// JAVA_OPTS is applied by the javaexec launcher (see JavaExecCommand) (#1301)
+	cmd := JavaExecCommand(s.context.Stager.DepsIdx(), fmt.Sprintf("${CONTAINER_SECURITY_PROVIDER:+-Dloader.path=$CONTAINER_SECURITY_PROVIDER} -jar %s", jarFile))
 	return cmd, nil
 }
 

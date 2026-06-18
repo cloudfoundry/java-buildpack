@@ -52,6 +52,7 @@ func main() {
 		logger.Error("Unable to initialize finalizer from supply config: %s", err.Error())
 		os.Exit(11)
 	}
+	f.BuildpackDir = buildpackDir
 
 	if err = finalize.Run(f); err != nil {
 		os.Exit(12)

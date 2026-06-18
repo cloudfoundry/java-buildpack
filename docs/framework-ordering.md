@@ -94,6 +94,16 @@ This ensures:
 2. **Container Security Provider runs BEFORE JRebel** (07 < 20)
 3. **User JAVA_OPTS override everything** (99 runs last)
 
+> **Note (safe expansion):** the snippet above is simplified. The real
+> `00_java_opts.sh` does **not** use `eval`. It expands only `$VAR` / `${VAR}`
+> references in `.opts` content via a pure-bash expander, so embedded command
+> substitutions (`$(...)`, backticks) are never executed. The one trusted
+> substitution the buildpack emits, `-XX:ActiveProcessorCount=$(nproc)`, is
+> resolved explicitly at runtime; any other surviving `$(...)` triggers a
+> warning. At launch the JVM is started through the shell-free `javaexec`
+> launcher (`$DEPS_DIR/<idx>/bin/javaexec`), which tokenizes `JAVA_OPTS`
+> without re-invoking a shell, rather than `eval "exec java $JAVA_OPTS"`.
+
 ## Critical Ordering Dependencies
 
 ### Container Security Provider (Priority 17, Line 51)

@@ -548,8 +548,9 @@ func (p *PlayContainer) Release() (string, error) {
 				libPath = filepath.ToSlash(relPath)
 			}
 		}
-		// Use eval to properly handle backslash-escaped values in $JAVA_OPTS (Ruby buildpack parity)
-		cmd = fmt.Sprintf("eval exec java $JAVA_OPTS -cp $HOME/%s/* play.core.server.NettyServer $HOME", libPath)
+		// JAVA_OPTS is applied by the javaexec launcher, which tokenizes it
+		// without a shell (no glob/word-splitting/command execution).
+		cmd = fmt.Sprintf(`exec $DEPS_DIR/%s/bin/javaexec "$JAVA_HOME/bin/java" -cp $HOME/%s/* play.core.server.NettyServer $HOME`, p.context.Stager.DepsIdx(), libPath)
 	}
 
 	p.context.Log.Debug("Play Framework release command: %s", cmd)

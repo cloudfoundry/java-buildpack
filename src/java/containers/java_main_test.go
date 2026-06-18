@@ -154,6 +154,13 @@ var _ = Describe("Java Main Container", func() {
 	})
 
 	Describe("Release", func() {
+		expectSafeLaunch := func(cmd string) {
+			Expect(cmd).To(ContainSubstring("/bin/javaexec"))
+			Expect(cmd).To(ContainSubstring(`"$JAVA_HOME/bin/java"`))
+			Expect(cmd).NotTo(ContainSubstring("eval"))
+			Expect(cmd).NotTo(ContainSubstring("$JAVA_OPTS"))
+		}
+
 		Context("with JAR file", func() {
 			BeforeEach(func() {
 				Expect(createJar(
@@ -278,6 +285,78 @@ var _ = Describe("Java Main Container", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(cmd).To(ContainSubstring("--foo=bar"))
 			})
+
+			It("passes double quotes in arguments through unescaped", func() {
+				os.Setenv("JBP_CONFIG_JAVA_MAIN", `{arguments: "--spring.datasource.url=\"jdbc:h2:mem:test\""}`)
+				Expect(createJar(
+					filepath.Join(buildDir, "app.jar"),
+					"Manifest-Version: 1.0\nMain-Class: com.example.Main\n",
+				)).To(Succeed())
+				container.Detect()
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				// No eval: the start command is parsed once by the shell, which
+				// consumes the quotes, so they must NOT be backslash-escaped.
+				Expect(cmd).To(ContainSubstring(`--spring.datasource.url="jdbc:h2:mem:test"`))
+			})
+		})
+
+		// Regression tests for issue #1301: start command must use the javaexec
+		// launcher and keep $JAVA_OPTS out of the command, so glob chars in
+		// JAVA_OPTS are never expanded by the shell.
+		Context("with JAR file (javaexec launch)", func() {
+			BeforeEach(func() {
+				Expect(createJar(
+					filepath.Join(buildDir, "app.jar"),
+					"Manifest-Version: 1.0\nMain-Class: com.example.Main\n",
+				)).To(Succeed())
+				container.Detect()
+			})
+
+			It("uses javaexec launcher and omits $JAVA_OPTS from the command", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				expectSafeLaunch(cmd)
+			})
+		})
+
+		Context("with JAVA_MAIN_CLASS env variable (javaexec launch)", func() {
+			BeforeEach(func() {
+				os.Setenv("JAVA_MAIN_CLASS", "com.example.Main")
+				os.WriteFile(filepath.Join(buildDir, "Main.class"), []byte("fake"), 0644)
+				container.Detect()
+			})
+
+			AfterEach(func() {
+				os.Unsetenv("JAVA_MAIN_CLASS")
+			})
+
+			It("uses javaexec launcher and omits $JAVA_OPTS from the command", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				expectSafeLaunch(cmd)
+			})
+		})
+
+		Context("with JBP_CONFIG_JAVA_MAIN java_main_class (javaexec launch)", func() {
+			BeforeEach(func() {
+				os.Setenv("JBP_CONFIG_JAVA_MAIN", "{java_main_class: com.example.Main}")
+				Expect(createJar(
+					filepath.Join(buildDir, "app.jar"),
+					"Manifest-Version: 1.0\nMain-Class: com.example.Main\n",
+				)).To(Succeed())
+				container.Detect()
+			})
+
+			AfterEach(func() {
+				os.Unsetenv("JBP_CONFIG_JAVA_MAIN")
+			})
+
+			It("uses javaexec launcher and omits $JAVA_OPTS from the command", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				expectSafeLaunch(cmd)
+			})
 		})
 
 		Context("without main class or JAR", func() {
@@ -351,6 +430,7 @@ var _ = Describe("Java Main Container", func() {
 				Expect(cmd).To(ContainSubstring("."))
 			})
 		})
+
 	})
 
 	Describe("Finalize", func() {

@@ -168,7 +168,8 @@ func (a *AzureApplicationInsightsAgentFramework) Finalize() error {
 
 	// Set connection string if available
 	if credentials.ConnectionString != "" {
-		// Single-quote the value so eval exec java $JAVA_OPTS does not split on ; in the connection string
+		// Single-quote the value so the javaexec launcher keeps it as one token
+		// (the connection string contains ; and spaces).
 		opts = append(opts, fmt.Sprintf("-Dapplicationinsights.connection.string='%s'", credentials.ConnectionString))
 	} else if credentials.InstrumentationKey != "" {
 		// Fallback to instrumentation key

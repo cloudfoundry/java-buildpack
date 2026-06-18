@@ -73,31 +73,129 @@ func CreateJavaOptsAssemblyScript(ctx *common.Context) error {
 # Expands runtime variables like $DEPS_DIR, $HOME, $JAVA_OPTS, and all other environment variables
 
 # Save original JAVA_OPTS from environment (user-provided)
-# Normalize to single line: YAML block scalars (>) may introduce newlines
-# xargs trims leading/trailing whitespace and collapses internal spaces
-USER_JAVA_OPTS=$(echo "$JAVA_OPTS" | tr '\n' ' ' | tr -s ' ' | xargs)
+# Normalize to single line: YAML block scalars (>) may introduce newlines; Windows-edited
+# manifests may use CRLF (\r\n). Strip \r first, then convert \n to spaces.
+# Do not use xargs — it strips quotes and backslashes.
+USER_JAVA_OPTS=$(printf '%%s' "$JAVA_OPTS" | tr -d '\r' | tr '\n' ' ')
 
 # Start building new JAVA_OPTS
 JAVA_OPTS=""
+
+# Expand $VAR and ${VAR} references in a string using only bash builtins.
+# Unlike eval, this NEVER executes command substitutions ($(...) or backticks);
+# only environment-variable references are expanded. It is also dependency-free
+# (envsubst from gettext-base is not available on the cflinuxfs stacks).
+# Expansion is single-pass: substituted values are not re-scanned for further
+# references, matching the previous eval-based behavior.
+_expand_env_vars() {
+    local s="$1" out="" name
+    while [[ "$s" =~ ^([^$]*)\$(\{([A-Za-z_][A-Za-z0-9_]*)\}|([A-Za-z_][A-Za-z0-9_]*))? ]]; do
+        out+="${BASH_REMATCH[1]}"
+        name="${BASH_REMATCH[3]}${BASH_REMATCH[4]}"
+        if [ -n "$name" ]; then
+            out+="${!name}"
+        else
+            out+='$'
+        fi
+        s="${s#"${BASH_REMATCH[0]}"}"
+    done
+    out+="$s"
+    printf '%%s' "$out"
+}
+
+# The buildpack itself emits the literal command substitution $(nproc) in its
+# base JAVA_OPTS (e.g. -XX:ActiveProcessorCount=$(nproc)). The pure-bash
+# expander deliberately does not execute command substitutions, so resolve this
+# single known, trusted token here by computing the processor count once and
+# substituting it literally below. All other command substitutions remain
+# literal (and therefore inert).
+_nproc_count="$(nproc 2>/dev/null || echo 1)"
+# Backtick char, computed here because this script lives inside a Go raw string.
+_backtick="$(printf '\140')"
+# Placeholder for \$ escape sequences (Ruby buildpack parity: \$VAR → literal $VAR).
+_escaped_dollar_placeholder='__JAVA_OPTS_ESCAPED_DOLLAR__'
+_dollar='$'
+
+# Expand $VAR / ${VAR} references in user JAVA_OPTS (e.g. $PWD, $HOME), matching
+# pre-eval behaviour. \$VAR is treated as a literal $ (not expanded), matching the
+# Ruby buildpack's eval-based behaviour where \$ suppressed variable expansion.
+# Command substitutions are still not executed.
+USER_JAVA_OPTS="${USER_JAVA_OPTS//\\\$/$_escaped_dollar_placeholder}"
+USER_JAVA_OPTS=$(_expand_env_vars "$USER_JAVA_OPTS")
+USER_JAVA_OPTS="${USER_JAVA_OPTS//$_escaped_dollar_placeholder/$_dollar}"
+
+# Warn if any command substitution remains in user JAVA_OPTS. It will be
+# passed literally to the JVM — command substitutions are never executed.
+# Show only the offending token, not the full value (which may be long or contain secrets).
+case "$USER_JAVA_OPTS" in
+    *'$('*)
+        _warn_match="${USER_JAVA_OPTS#*'$('}"
+        _warn_match="\$(${_warn_match%%%%')'*})"
+        echo "WARNING: JAVA_OPTS contains command substitution; it will NOT be executed and will be passed literally to the JVM. Matching: ${_warn_match}" >&2
+        ;;
+    *"$_backtick"*)
+        _warn_match="${USER_JAVA_OPTS#*"$_backtick"}"
+        _warn_match="${_backtick}${_warn_match%%%%"$_backtick"*}${_backtick}"
+        echo "WARNING: JAVA_OPTS contains command substitution (backtick); it will NOT be executed and will be passed literally to the JVM. Matching: ${_warn_match}" >&2
+        ;;
+esac
+
+# Escape replacement-special chars once; these values are loop-invariant.
+_escaped_deps_dir="${DEPS_DIR//\\/\\\\}"
+_escaped_deps_dir="${_escaped_deps_dir//&/\\&}"
+_escaped_home="${HOME//\\/\\\\}"
+_escaped_home="${_escaped_home//&/\\&}"
+_user_java_opts_placeholder='__JAVA_OPTS_BUILDPACK_PLACEHOLDER__'
+_escaped_user_java_opts="${USER_JAVA_OPTS//\\/\\\\}"
+_escaped_user_java_opts="${_escaped_user_java_opts//&/\\&}"
 
 if [ -d "$DEPS_DIR/%s/java_opts" ]; then
     for opts_file in "$DEPS_DIR/%s/java_opts"/*.opts; do
         if [ -f "$opts_file" ]; then
             # Read content and expand runtime variables
-            opts_content=$(cat "$opts_file")
-            
-            # Expand $DEPS_DIR, $HOME, $JAVA_OPTS using bash parameter expansion.
-            # sed-based substitution breaks when these values contain the sed delimiter (|),
-            # backslashes, ampersands, or newlines — all valid in JAVA_OPTS and paths.
-            opts_content="${opts_content//\$DEPS_DIR/$DEPS_DIR}"
-            opts_content="${opts_content//\$HOME/$HOME}"
-            opts_content="${opts_content//\$JAVA_OPTS/$USER_JAVA_OPTS}"
-            
-            # Expand any remaining environment variables in opts content via eval.
-            # Note: eval executes commands, but .opts files are written by the buildpack
-            # at staging time and run within the container context.
-            # This matches how the Ruby buildpack naturally expanded variables via shell.
-            opts_content=$(eval "echo \"$opts_content\"")
+            opts_content=$(< "$opts_file")
+
+            # Shield \$ from expansion so buildpack authors can write \$VAR to pass
+            # a literal $VAR to the JVM (Ruby buildpack parity).
+            opts_content="${opts_content//\\\$/$_escaped_dollar_placeholder}"
+
+            # Expand $DEPS_DIR and $HOME using bash parameter expansion.
+            # In ${var//pattern/repl}, '&' and '\' are special in replacement strings,
+            # so escape them first to preserve literal path contents.
+            opts_content="${opts_content//\$DEPS_DIR/$_escaped_deps_dir}"
+            opts_content="${opts_content//\$HOME/$_escaped_home}"
+
+            # Resolve the trusted $(nproc) token to the computed processor count.
+            opts_content="${opts_content//\$\(nproc\)/$_nproc_count}"
+
+            # Shield $JAVA_OPTS from expansion: replace with a placeholder first,
+            # then substitute the actual value AFTER expansion so that quotes and
+            # backslashes in the user-provided JAVA_OPTS are never reinterpreted.
+            opts_content="${opts_content//\$JAVA_OPTS/$_user_java_opts_placeholder}"
+
+            # Expand any remaining environment variables in opts content.
+            # Use a pure-bash expander instead of eval so that command
+            # substitutions like $(...) or backticks in .opts content are
+            # NOT executed — only $VAR / ${VAR} references are expanded.
+            opts_content=$(_expand_env_vars "$opts_content")
+
+            # Restore \$ escapes to literal $ now that expansion is done.
+            opts_content="${opts_content//$_escaped_dollar_placeholder/$_dollar}"
+
+            # Defense-in-depth: the buildpack resolves its only known command
+            # substitution ($(nproc)) above. Any remaining $(...) or backtick at
+            # this point is an unresolved buildpack-emitted substitution (the
+            # user's JAVA_OPTS is still a placeholder here) and would reach the
+            # JVM literally. Warn so such a regression is caught instead of
+            # silently producing a broken argument.
+            case "$opts_content" in
+                *'$('*|*"$_backtick"*)
+                    echo "WARNING: unresolved command substitution in $opts_file; it will be passed to the JVM literally: $opts_content" >&2
+                    ;;
+            esac
+
+            # Now safely substitute JAVA_OPTS after expansion (preserves quotes, backslashes, and ampersands)
+            opts_content="${opts_content//$_user_java_opts_placeholder/$_escaped_user_java_opts}"
             
             if [ -n "$opts_content" ]; then
                 JAVA_OPTS="$JAVA_OPTS $opts_content"
