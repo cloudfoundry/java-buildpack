@@ -259,14 +259,14 @@ dependencies:
   source: https://repo1.maven.org/maven2/org/cloudfoundry/auto-reconfiguration/2.12.0/auto-reconfiguration-2.12.0-RELEASE.jar
   source_sha256: e791ccfcfee9c0d299d07474d9bfcbfcbebf1181323be601220c8a823062ab99
 - name: azure-application-insights
-  version: 3.7.8
-  uri: https://buildpacks.cloudfoundry.org/dependencies/azure-application-insights/azure-application-insights_3.7.8_linux_noarch_any-stack_e8c494f3.jar
-  sha256: e8c494f3f9a36f6b99790a4741b03f51988dc5c4244c14cc24be51874ef72e6b
+  version: 3.7.9
+  uri: https://buildpacks.cloudfoundry.org/dependencies/azure-application-insights/azure-application-insights_3.7.9_linux_noarch_any-stack_4ab7a442.jar
+  sha256: 4ab7a442bf9defc7475d026c6b49042793ebb010c391a1db91ae07da0c04d848
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.7.8/applicationinsights-agent-3.7.8.jar
-  source_sha256: e8c494f3f9a36f6b99790a4741b03f51988dc5c4244c14cc24be51874ef72e6b
+  source: https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.7.9/applicationinsights-agent-3.7.9.jar
+  source_sha256: 4ab7a442bf9defc7475d026c6b49042793ebb010c391a1db91ae07da0c04d848
 - name: cf-metrics-exporter
   version: 0.7.1
   uri: https://buildpacks.cloudfoundry.org/dependencies/cf-metrics-exporter/cf-metrics-exporter_0.7.1_linux_noarch_any-stack_7ebabd3f.jar
