@@ -1,16 +1,18 @@
 package finalize_test
 
 import (
-	"github.com/cloudfoundry/java-buildpack/src/internal/mocks"
-	"github.com/golang/mock/gomock"
 	"os"
 	"path/filepath"
+	"regexp"
 	"time"
 
+	"github.com/cloudfoundry/java-buildpack/src/internal/mocks"
 	"github.com/cloudfoundry/java-buildpack/src/java/finalize"
 	"github.com/cloudfoundry/libbuildpack"
+	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"gopkg.in/yaml.v2"
 )
 
 var _ = Describe("Finalize", func() {
@@ -99,7 +101,7 @@ dependencies: []
 
 				// Create META-INF/MANIFEST.MF with corresponding content of a Spring Boot app
 				manifestFile := filepath.Join(buildDir, "META-INF", "MANIFEST.MF")
-				Expect(os.WriteFile(manifestFile, []byte("Spring-Boot-Version: 3.x.x"), 0644)).To(Succeed())
+				Expect(os.WriteFile(manifestFile, []byte("Spring-Boot-Version: 4.x.x"), 0644)).To(Succeed())
 
 				finalizer.JREName = "OpenJDK"
 				finalizer.ContainerName = "Spring Boot"
@@ -240,6 +242,50 @@ dependencies: []
 		It("has access to deps directory", func() {
 			depDir := stager.DepDir()
 			Expect(depDir).To(ContainSubstring(depsDir))
+		})
+	})
+
+	Describe("Release YAML", func() {
+		BeforeEach(func() {
+			os.Setenv("JBP_CONFIG_JAVA_MAIN", "{java_main_class: com.example.App}")
+			finalizer.JREName = "OpenJDK"
+			finalizer.ContainerName = "Java Main"
+		})
+
+		AfterEach(func() {
+			os.Unsetenv("JBP_CONFIG_JAVA_MAIN")
+		})
+
+		It("emits web and task process types with identical commands", func() {
+			Expect(finalize.Run(finalizer)).To(Succeed())
+			content, err := os.ReadFile(filepath.Join(buildDir, "tmp", "java-buildpack-release-step.yml"))
+			Expect(err).NotTo(HaveOccurred())
+
+			re := regexp.MustCompile(`(?m)^\s+(web|task):\s+'(.+)'$`)
+			matches := re.FindAllStringSubmatch(string(content), -1)
+			Expect(matches).To(HaveLen(2), "expected both web and task process types")
+
+			commands := map[string]string{}
+			for _, m := range matches {
+				commands[m[1]] = m[2]
+			}
+			Expect(commands).To(HaveKey("web"))
+			Expect(commands).To(HaveKey("task"))
+			Expect(commands["web"]).To(Equal(commands["task"]))
+		})
+
+		It("escapes single quotes in commands so release YAML is valid", func() {
+			os.Setenv("JBP_CONFIG_JAVA_MAIN", `{java_main_class: com.example.App, arguments: "--message=it's alive"}`)
+			Expect(finalize.Run(finalizer)).To(Succeed())
+			content, err := os.ReadFile(filepath.Join(buildDir, "tmp", "java-buildpack-release-step.yml"))
+			Expect(err).NotTo(HaveOccurred())
+
+			var parsed struct {
+				DefaultProcessTypes map[string]string `yaml:"default_process_types"`
+			}
+			Expect(yaml.Unmarshal(content, &parsed)).To(Succeed(), "release YAML must be valid")
+			Expect(parsed.DefaultProcessTypes["web"]).To(ContainSubstring("it's alive"))
+			Expect(parsed.DefaultProcessTypes["task"]).To(ContainSubstring("it's alive"))
 		})
 	})
 
