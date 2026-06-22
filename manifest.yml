@@ -313,13 +313,13 @@ dependencies:
   source: https://repo1.maven.org/maven2/com/datadoghq/dd-java-agent/1.62.0/dd-java-agent-1.62.0.jar
   source_sha256: ''
 - name: elastic-apm-agent
-  version: 1.55.6
-  uri: https://buildpacks.cloudfoundry.org/dependencies/elastic-apm-agent/elastic-apm-agent_1.55.6_linux_noarch_any-stack_29542a52.jar
-  sha256: 29542a5269d2cc8773f457e12848a27628d3f03d351ccdd928284b4094e56398
+  version: 1.56.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/elastic-apm-agent/elastic-apm-agent_1.56.0_linux_noarch_any-stack_4595ce67.jar
+  sha256: 4595ce678bfe3a3420ada95356bc85c241e287de0220251dec9d390bcdeaf2f5
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.55.6/elastic-apm-agent-1.55.6.jar
+  source: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.56.0/elastic-apm-agent-1.56.0.jar
   source_sha256: ''
 - name: google-stackdriver-profiler
   version: 0.4.0
