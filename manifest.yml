@@ -443,14 +443,14 @@ dependencies:
   - cflinuxfs4
   - cflinuxfs5
 - name: newrelic
-  version: 9.2.0
-  uri: https://buildpacks.cloudfoundry.org/dependencies/newrelic/newrelic_9.2.0_linux_noarch_any-stack_befb6434.zip
-  sha256: befb64341bc9e5eaa6b54f049b5b5abb1070f337bdba9dade1aae8e9c98c8ff2
+  version: 9.3.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/newrelic/newrelic_9.3.0_linux_noarch_any-stack_8310dc7f.zip
+  sha256: 8310dc7f43a32bc307aeb5f38c2d4a6cebe4124ceb5f5654b13b58300fb306f1
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://download.newrelic.com/newrelic/java-agent/newrelic-agent/9.2.0/newrelic-agent-9.2.0.jar
-  source_sha256: befb64341bc9e5eaa6b54f049b5b5abb1070f337bdba9dade1aae8e9c98c8ff2
+  source: https://download.newrelic.com/newrelic/java-agent/newrelic-agent/9.3.0/newrelic-agent-9.3.0.jar
+  source_sha256: 8310dc7f43a32bc307aeb5f38c2d4a6cebe4124ceb5f5654b13b58300fb306f1
 - name: open-telemetry-javaagent
   version: 2.29.0
   uri: https://buildpacks.cloudfoundry.org/dependencies/open-telemetry-javaagent/open-telemetry-javaagent_2.29.0_linux_noarch_any-stack_546531ca.jar
