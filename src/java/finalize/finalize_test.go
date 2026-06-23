@@ -101,7 +101,7 @@ dependencies: []
 
 				// Create META-INF/MANIFEST.MF with corresponding content of a Spring Boot app
 				manifestFile := filepath.Join(buildDir, "META-INF", "MANIFEST.MF")
-				Expect(os.WriteFile(manifestFile, []byte("Spring-Boot-Version: 4.x.x"), 0644)).To(Succeed())
+				Expect(os.WriteFile(manifestFile, []byte("Spring-Boot-Version: 3.x.x"), 0644)).To(Succeed())
 
 				finalizer.JREName = "OpenJDK"
 				finalizer.ContainerName = "Spring Boot"
