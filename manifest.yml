@@ -578,13 +578,13 @@ dependencies:
   source: https://repo1.maven.org/maven2/org/springframework/boot/spring-boot-cli/2.7.18/spring-boot-cli-2.7.18-bin.tar.gz
   source_sha256: ''
 - name: tomcat
-  version: 9.0.118
-  uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_9.0.118_linux_noarch_any-stack_2fd31ef9.tgz
-  sha256: 2fd31ef9da9929b878997f731cf25536feac574161c02d9399727471c7c406b2
+  version: 9.0.119
+  uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_9.0.119_linux_noarch_any-stack_bc4fd2fb.tgz
+  sha256: bc4fd2fb7040fd2f574fd726e4d0274af0c18cb343c450179c3a63104a971964
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.118/bin/apache-tomcat-9.0.118.tar.gz
+  source: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.119/bin/apache-tomcat-9.0.119.tar.gz
   source_sha256: ''
 - name: tomcat
   version: 10.1.55
