@@ -20,7 +20,7 @@
 
     <Service name='Catalina'>
         <Connector port='${http.port}' bindOnInit='false' connectionTimeout='20000' keepAliveTimeout='120000'>
-            <UpgradeProtocol className='org.apache.coyote.http2.Http2Protocol' />
+            <UpgradeProtocol className='org.apache.coyote.http2.Http2Protocol' allowSchemeMismatch='true'/>
         </Connector>
 
         <Engine defaultHost='localhost' name='Catalina'>
