@@ -14,6 +14,8 @@ function main() {
   local src
   src="$(find "${ROOTDIR}/src" -mindepth 1 -maxdepth 1 -type d )"
 
+  echo "bash: $(bash --version | head -1)"
+
   util::tools::ginkgo::install --directory "${ROOTDIR}/.bin"
   util::tools::buildpack-packager::install --directory "${ROOTDIR}/.bin"
 
