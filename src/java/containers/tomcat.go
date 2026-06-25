@@ -615,6 +615,13 @@ func (t *TomcatContainer) Finalize() error {
 		if err := os.WriteFile(contextXMLPath, []byte(contextContent), 0644); err != nil {
 			return fmt.Errorf("failed to write %s: %w", contextXMLName, err)
 		}
+
+		if contextXMLName != "ROOT.xml" {
+			rootXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
+			if err := os.Remove(rootXMLPath); err != nil && !os.IsNotExist(err) {
+				return fmt.Errorf("failed to remove ROOT.xml: %w", err)
+			}
+		}
 	}
 
 	return nil

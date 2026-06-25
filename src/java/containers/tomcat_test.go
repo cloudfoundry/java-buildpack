@@ -214,6 +214,9 @@ var _ = Describe("Tomcat Container", func() {
 		})
 
 		It("uses ROOT.xml when context_path is empty", func() {
+			os.Setenv("JBP_CONFIG_TOMCAT", `{tomcat: {context_path: ""}}`)
+			defer os.Unsetenv("JBP_CONFIG_TOMCAT")
+
 			err := container.Finalize()
 			Expect(err).NotTo(HaveOccurred())
 
@@ -242,6 +245,22 @@ var _ = Describe("Tomcat Container", func() {
 			tomcatDir := filepath.Join(depsDir, "0", "tomcat")
 			contextFile := filepath.Join(tomcatDir, "conf", "Catalina", "localhost", "the#intended#path.xml")
 			Expect(contextFile).To(BeAnExistingFile())
+		})
+
+		It("removes pre-existing ROOT.xml when context_path is non-root", func() {
+			os.Setenv("JBP_CONFIG_TOMCAT", `{tomcat: {context_path: /the/intended/path}}`)
+			defer os.Unsetenv("JBP_CONFIG_TOMCAT")
+
+			tomcatDir := filepath.Join(depsDir, "0", "tomcat")
+			contextDir := filepath.Join(tomcatDir, "conf", "Catalina", "localhost")
+			Expect(os.MkdirAll(contextDir, 0755)).To(Succeed())
+			rootXML := filepath.Join(contextDir, "ROOT.xml")
+			Expect(os.WriteFile(rootXML, []byte("<Context/>"), 0644)).To(Succeed())
+
+			err := container.Finalize()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(rootXML).NotTo(BeAnExistingFile())
+			Expect(filepath.Join(contextDir, "the#intended#path.xml")).To(BeAnExistingFile())
 		})
 	})
 
