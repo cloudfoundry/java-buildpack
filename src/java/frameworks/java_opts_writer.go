@@ -141,13 +141,13 @@ case "$USER_JAVA_OPTS" in
 esac
 
 # Escape replacement-special chars once; these values are loop-invariant.
+# USER_JAVA_OPTS is injected via string-split below (not ${//}) — bash 4.x and 5.x
+# treat '\\' in replacement strings differently, corrupting backslashes.
 _escaped_deps_dir="${DEPS_DIR//\\/\\\\}"
 _escaped_deps_dir="${_escaped_deps_dir//&/\\&}"
 _escaped_home="${HOME//\\/\\\\}"
 _escaped_home="${_escaped_home//&/\\&}"
 _user_java_opts_placeholder='__JAVA_OPTS_BUILDPACK_PLACEHOLDER__'
-_escaped_user_java_opts="${USER_JAVA_OPTS//\\/\\\\}"
-_escaped_user_java_opts="${_escaped_user_java_opts//&/\\&}"
 
 if [ -d "$DEPS_DIR/%s/java_opts" ]; then
     for opts_file in "$DEPS_DIR/%s/java_opts"/*.opts; do
@@ -194,8 +194,21 @@ if [ -d "$DEPS_DIR/%s/java_opts" ]; then
                     ;;
             esac
 
-            # Now safely substitute JAVA_OPTS after expansion (preserves quotes, backslashes, and ampersands)
-            opts_content="${opts_content//$_user_java_opts_placeholder/$_escaped_user_java_opts}"
+            # Restore USER_JAVA_OPTS via string-split, not ${//}: bash 4.x and 5.x
+            # treat '\\' in replacement strings differently, corrupting backslashes.
+            # %%%% / # are pure string ops — no special-char interpretation, any bash.
+            # Pre-count occurrences so the loop is bounded even if USER_JAVA_OPTS
+            # itself contained the placeholder string (infinite-loop defence).
+            # Counting uses empty replacement — no backslash in replacement, safe.
+            # Handles multiple occurrences (e.g. user config "$JAVA_OPTS -Xmx512m"
+            # with from_environment:true produces "$JAVA_OPTS -Xmx512m $JAVA_OPTS").
+            _stripped="${opts_content//"$_user_java_opts_placeholder"/}"
+            _placeholder_count=$(( (${#opts_content} - ${#_stripped}) / ${#_user_java_opts_placeholder} ))
+            for (( _i=0; _i<_placeholder_count; _i++ )); do
+                _before="${opts_content%%%%"$_user_java_opts_placeholder"*}"
+                _after="${opts_content#*"$_user_java_opts_placeholder"}"
+                opts_content="${_before}${USER_JAVA_OPTS}${_after}"
+            done
             
             if [ -n "$opts_content" ]; then
                 JAVA_OPTS="$JAVA_OPTS $opts_content"
