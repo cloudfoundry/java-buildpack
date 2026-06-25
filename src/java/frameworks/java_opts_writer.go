@@ -140,13 +140,6 @@ case "$USER_JAVA_OPTS" in
         ;;
 esac
 
-# Escape replacement-special chars once; these values are loop-invariant.
-# USER_JAVA_OPTS is injected via string-split below (not ${//}) — bash 4.x and 5.x
-# treat '\\' in replacement strings differently, corrupting backslashes.
-_escaped_deps_dir="${DEPS_DIR//\\/\\\\}"
-_escaped_deps_dir="${_escaped_deps_dir//&/\\&}"
-_escaped_home="${HOME//\\/\\\\}"
-_escaped_home="${_escaped_home//&/\\&}"
 _user_java_opts_placeholder='__JAVA_OPTS_BUILDPACK_PLACEHOLDER__'
 
 if [ -d "$DEPS_DIR/%s/java_opts" ]; then
@@ -159,11 +152,22 @@ if [ -d "$DEPS_DIR/%s/java_opts" ]; then
             # a literal $VAR to the JVM (Ruby buildpack parity).
             opts_content="${opts_content//\\\$/$_escaped_dollar_placeholder}"
 
-            # Expand $DEPS_DIR and $HOME using bash parameter expansion.
-            # In ${var//pattern/repl}, '&' and '\' are special in replacement strings,
-            # so escape them first to preserve literal path contents.
-            opts_content="${opts_content//\$DEPS_DIR/$_escaped_deps_dir}"
-            opts_content="${opts_content//\$HOME/$_escaped_home}"
+            # Replace $DEPS_DIR and $HOME using string-split, not ${//}: bash 4.x, 5.1.x
+            # and 5.2.x differ in how '&' and '\' in replacement variables are handled,
+            # causing literal \& and \\ in output on bash 5.1 (cflinuxfs4).
+            _rest="$opts_content"; opts_content=""
+            while [[ "$_rest" == *'$DEPS_DIR'* ]]; do
+                opts_content+="${_rest%%%%'$DEPS_DIR'*}${DEPS_DIR}"
+                _rest="${_rest#*'$DEPS_DIR'}"
+            done
+            opts_content+="$_rest"
+
+            _rest="$opts_content"; opts_content=""
+            while [[ "$_rest" == *'$HOME'* ]]; do
+                opts_content+="${_rest%%%%'$HOME'*}${HOME}"
+                _rest="${_rest#*'$HOME'}"
+            done
+            opts_content+="$_rest"
 
             # Resolve the trusted $(nproc) token to the computed processor count.
             opts_content="${opts_content//\$\(nproc\)/$_nproc_count}"
