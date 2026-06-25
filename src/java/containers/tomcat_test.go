@@ -231,6 +231,18 @@ var _ = Describe("Tomcat Container", func() {
 			tomcatDir := filepath.Join(depsDir, "0", "tomcat")
 			Expect(filepath.Join(tomcatDir, "conf", "Catalina", "localhost", "ROOT.xml")).To(BeAnExistingFile())
 		})
+
+		It("normalizes trailing slash in context_path", func() {
+			os.Setenv("JBP_CONFIG_TOMCAT", `{tomcat: {context_path: /the/intended/path/}}`)
+			defer os.Unsetenv("JBP_CONFIG_TOMCAT")
+
+			err := container.Finalize()
+			Expect(err).NotTo(HaveOccurred())
+
+			tomcatDir := filepath.Join(depsDir, "0", "tomcat")
+			contextFile := filepath.Join(tomcatDir, "conf", "Catalina", "localhost", "the#intended#path.xml")
+			Expect(contextFile).To(BeAnExistingFile())
+		})
 	})
 
 	Describe("SelectTomcatVersionPattern", func() {

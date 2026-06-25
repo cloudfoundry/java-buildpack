@@ -556,10 +556,10 @@ func injectDocBase(xmlContent string, docBase string) string {
 // contextXMLFilename converts a context path to a Tomcat context XML filename.
 // Tomcat convention: /foo/bar → foo#bar.xml, / or empty → ROOT.xml
 func contextXMLFilename(contextPath string) string {
-	if contextPath == "" || contextPath == "/" {
+	name := strings.Trim(contextPath, "/")
+	if name == "" {
 		return "ROOT.xml"
 	}
-	name := strings.TrimPrefix(contextPath, "/")
 	name = strings.ReplaceAll(name, "/", "#")
 	return name + ".xml"
 }
@@ -606,7 +606,7 @@ func (t *TomcatContainer) Finalize() error {
 			xmlStr = strings.TrimSpace(xmlStr)
 
 			contextContent = injectDocBase(xmlStr, "${user.home}/app")
-			t.context.Log.Info("Merged META-INF/context.xml with ROOT.xml - realm and resource configurations preserved")
+			t.context.Log.Info("Merged META-INF/context.xml with %s - realm and resource configurations preserved", contextXMLName)
 		} else {
 			contextContent = fmt.Sprintf("<Context docBase=\"${user.home}/app\" reloadable=\"false\">\n</Context>\n")
 			t.context.Log.Info("Created %s with docBase pointing to application directory", contextXMLName)
