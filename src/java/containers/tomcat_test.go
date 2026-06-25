@@ -195,6 +195,42 @@ var _ = Describe("Tomcat Container", func() {
 			Expect(contentStr).NotTo(ContainSubstring("/old/path"))
 			Expect(contentStr).To(ContainSubstring("org.apache.catalina.realm.UserDatabaseRealm"))
 		})
+
+		It("creates context XML named after context_path when set", func() {
+			os.Setenv("JBP_CONFIG_TOMCAT", `{tomcat: {context_path: /the/intended/path}}`)
+			defer os.Unsetenv("JBP_CONFIG_TOMCAT")
+
+			err := container.Finalize()
+			Expect(err).NotTo(HaveOccurred())
+
+			tomcatDir := filepath.Join(depsDir, "0", "tomcat")
+			contextFile := filepath.Join(tomcatDir, "conf", "Catalina", "localhost", "the#intended#path.xml")
+			Expect(contextFile).To(BeAnExistingFile())
+			Expect(filepath.Join(tomcatDir, "conf", "Catalina", "localhost", "ROOT.xml")).NotTo(BeAnExistingFile())
+
+			content, err := os.ReadFile(contextFile)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(ContainSubstring("docBase=\"${user.home}/app\""))
+		})
+
+		It("uses ROOT.xml when context_path is empty", func() {
+			err := container.Finalize()
+			Expect(err).NotTo(HaveOccurred())
+
+			tomcatDir := filepath.Join(depsDir, "0", "tomcat")
+			Expect(filepath.Join(tomcatDir, "conf", "Catalina", "localhost", "ROOT.xml")).To(BeAnExistingFile())
+		})
+
+		It("uses ROOT.xml when context_path is /", func() {
+			os.Setenv("JBP_CONFIG_TOMCAT", `{tomcat: {context_path: /}}`)
+			defer os.Unsetenv("JBP_CONFIG_TOMCAT")
+
+			err := container.Finalize()
+			Expect(err).NotTo(HaveOccurred())
+
+			tomcatDir := filepath.Join(depsDir, "0", "tomcat")
+			Expect(filepath.Join(tomcatDir, "conf", "Catalina", "localhost", "ROOT.xml")).To(BeAnExistingFile())
+		})
 	})
 
 	Describe("SelectTomcatVersionPattern", func() {

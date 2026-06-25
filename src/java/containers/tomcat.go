@@ -553,12 +553,32 @@ func injectDocBase(xmlContent string, docBase string) string {
 	return xmlContent[:idx] + newContextTag + xmlContent[endIdx:]
 }
 
+// contextXMLFilename converts a context path to a Tomcat context XML filename.
+// Tomcat convention: /foo/bar → foo#bar.xml, / or empty → ROOT.xml
+func contextXMLFilename(contextPath string) string {
+	if contextPath == "" || contextPath == "/" {
+		return "ROOT.xml"
+	}
+	name := strings.TrimPrefix(contextPath, "/")
+	name = strings.ReplaceAll(name, "/", "#")
+	return name + ".xml"
+}
+
 // Finalize performs final Tomcat configuration
 func (t *TomcatContainer) Finalize() error {
 	t.context.Log.BeginStep("Finalizing Tomcat")
 
+	if t.config == nil {
+		var err error
+		t.config, err = t.loadConfig()
+		if err != nil {
+			return fmt.Errorf("failed to load tomcat config: %w", err)
+		}
+	}
+
 	buildDir := t.context.Stager.BuildDir()
-	contextXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
+	contextXMLName := contextXMLFilename(t.config.Tomcat.ContextPath)
+	contextXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", contextXMLName)
 
 	webInf := filepath.Join(buildDir, "WEB-INF")
 	if _, err := os.Stat(webInf); err == nil {
@@ -589,7 +609,7 @@ func (t *TomcatContainer) Finalize() error {
 			t.context.Log.Info("Merged META-INF/context.xml with ROOT.xml - realm and resource configurations preserved")
 		} else {
 			contextContent = fmt.Sprintf("<Context docBase=\"${user.home}/app\" reloadable=\"false\">\n</Context>\n")
-			t.context.Log.Info("Created ROOT.xml with docBase pointing to application directory")
+			t.context.Log.Info("Created %s with docBase pointing to application directory", contextXMLName)
 		}
 
 		if err := os.WriteFile(contextXMLPath, []byte(contextContent), 0644); err != nil {
@@ -647,6 +667,7 @@ type tomcatConfig struct {
 type Tomcat struct {
 	Version                      string `yaml:"version"`
 	ExternalConfigurationEnabled bool   `yaml:"external_configuration_enabled"`
+	ContextPath                  string `yaml:"context_path"`
 }
 
 type ExternalConfiguration struct {
