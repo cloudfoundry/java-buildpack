@@ -25,6 +25,25 @@ If the application uses Spring, [Spring profiles][] can be specified by setting 
 
 If `java_main_class` is set to one of Spring Boot's launchers (`JarLauncher`, `PropertiesLauncher` or `WarLauncher`), the Java Main Container sets `SERVER_PORT=$PORT` so that the application binds to the CF-assigned port.
 
+## CF Tasks
+
+The buildpack emits both `web` and `task` process types with the same command so `cf run-task` works without `--command`.
+
+To run a task with a different main class (batch job, migration, etc.), set `java_main_class` to Spring Boot's `PropertiesLauncher` at staging time:
+
+```yaml
+env:
+  JBP_CONFIG_JAVA_MAIN: '{java_main_class: "org.springframework.boot.loader.launch.PropertiesLauncher"}'
+```
+
+Then override the main class per task at run time (requires CF CLI v7+):
+
+```bash
+cf run-task my-app --env JAVA_OPTS="-Dloader.main=com.example.BatchJob"
+```
+
+`-Dloader.main` is a Spring Boot `PropertiesLauncher` system property -- the buildpack passes it through to the JVM unchanged. `JBP_CONFIG_JAVA_MAIN` is a staging-time setting that applies to both `web` and `task`; `-Dloader.main` is a per-task runtime override.
+
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
