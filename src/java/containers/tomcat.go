@@ -613,7 +613,7 @@ func (t *TomcatContainer) Finalize() error {
 		}
 
 		if err := os.WriteFile(contextXMLPath, []byte(contextContent), 0644); err != nil {
-			return fmt.Errorf("failed to write ROOT.xml: %w", err)
+			return fmt.Errorf("failed to write %s: %w", contextXMLName, err)
 		}
 	}
 
