@@ -10,6 +10,8 @@ This guide explains how to implement new JRE providers for the Cloud Foundry Jav
 - [BaseJRE — Shared Implementation](#basejre--shared-implementation)
 - [Implementation Steps](#implementation-steps)
 - [Examples](#examples)
+- [Helper Functions](#helper-functions)
+- [Runtime Components](#runtime-components)
 - [Testing JREs](#testing-jres)
 - [Troubleshooting](#troubleshooting)
 
@@ -235,9 +237,71 @@ Replace `<JREKEY>` with the uppercased `jreKey` value.
 bash scripts/unit.sh
 ```
 
+## Helper Functions
+
+These are available in `src/java/jres/` and called by `BaseJRE` internally. You may need them if you implement a JRE that does not use `BaseJRE` (e.g. Zing).
+
+| Function | Purpose |
+|----------|---------|
+| `GetJREVersion(ctx, jreKey)` | Resolves version from `BP_JAVA_VERSION`, `JBP_CONFIG_<KEY>_JRE`, then manifest default |
+| `DetectJREByEnv(jreKey)` | Returns `true` if `JBP_CONFIG_<KEY>_JRE` or `JBP_CONFIG_COMPONENTS` selects this JRE |
+| `WriteJavaHomeProfileD(ctx, jreDir, javaHome)` | Writes `profile.d/java.sh` exporting `JAVA_HOME`, `JRE_HOME`, and `PATH` |
+| `WriteJavaOpts(ctx, opts)` | Appends opts to the centralized `.opts` file consumed by `profile.d/00_java_opts.sh` |
+| `common.DetermineJavaVersion(javaHome)` | Reads `$JAVA_HOME/release` → returns Java major version as int |
+
+### Version resolution priority
+
+1. `BP_JAVA_VERSION` (e.g. `17`, `17.*`, `17.0.13`)
+2. `JBP_CONFIG_<JREKEY>_JRE` with `version:` field
+3. Manifest `default_versions` entry for this JRE key
+
+### profile.d output
+
+`WriteJavaHomeProfileD` produces `$DEPS_DIR/<idx>/.profile.d/java.sh`:
+
+```bash
+export JAVA_HOME=$DEPS_DIR/0/jre/jdk-17.0.13
+export JRE_HOME=$DEPS_DIR/0/jre/jdk-17.0.13
+export PATH=$JAVA_HOME/bin:$PATH
+```
+
+## Runtime Components
+
+`BaseJRE` installs and finalizes these automatically. Documented here for operational reference.
+
+### Memory Calculator
+
+Downloads `java-buildpack-memory-calculator` binary. At application start it computes JVM heap/metaspace/stack settings from `$MEMORY_LIMIT`:
+
+```
+-Xmx512M -Xms512M -XX:MaxMetaspaceSize=128M -Xss1M -XX:ReservedCodeCacheSize=32M
+```
+
+User customization via env:
+
+```bash
+cf set-env myapp MEMORY_CALCULATOR_STACK_THREADS 300
+cf set-env myapp MEMORY_CALCULATOR_HEADROOM 10   # % headroom to leave
+```
+
+### JVMKill Agent
+
+Native agent (`.so`) that kills the JVM on `OutOfMemoryError` or memory allocation failure, causing CF to restart the container cleanly instead of hanging.
+
+Added to `JAVA_OPTS` as:
+```
+-agentpath:/home/vcap/deps/0/jre/bin/jvmkill-1.16.0.so=printHeapHistogram=1
+```
+
+**Heap dump support:** if a volume service tagged `heap-dump` is bound, JVMKill writes heap dumps to the mounted volume:
+
+```bash
+cf bind-service myapp my-nfs -c '{"mount":"/volumes/heap-dumps","tags":["heap-dump"]}'
+```
+
 ## Troubleshooting
 
-**`findJavaHome` fails** — the tarball extracted to a directory that matches neither `dirPrefixes` nor `dirExacts`. Check the extraction layout:
+**`findJavaHome` fails** — tarball extracted to directory matching neither `dirPrefixes` nor `dirExacts`. Check layout:
 
 ```bash
 tar tf my-jre.tar.gz | head -5
@@ -245,6 +309,21 @@ tar tf my-jre.tar.gz | head -5
 
 Add the top-level directory prefix/name to `dirPrefixes`/`dirExacts` accordingly.
 
-**Install fails with "No matching dependency"** — check the `jreKey` in `newBaseJRE` matches the `name:` field in `manifest.yml` exactly.
+**Install fails with "No matching dependency"** — `jreKey` in `newBaseJRE` must match the `name:` field in `manifest.yml` exactly.
 
-**`extraFinalizeOpts` not applied** — ensure the function is set on `b` (the `BaseJRE` value) before wrapping it: `b.extraFinalizeOpts = func() string { ... }`. Setting it on the returned struct after `return &MyJRE{b}` has no effect.
+**`extraFinalizeOpts` not applied** — set the function on `b` (the `BaseJRE` value) before wrapping: `b.extraFinalizeOpts = func() string { ... }`. Setting it after `return &MyJRE{b}` has no effect.
+
+**JAVA_HOME not set at runtime** — verify `profile.d/java.sh` exists:
+
+```bash
+cf ssh myapp -- cat /home/vcap/deps/0/.profile.d/java.sh
+```
+
+**Memory calculator not running** — verify binary exists and `MEMORY_LIMIT` is set:
+
+```bash
+cf ssh myapp -- ls /home/vcap/deps/0/jre/bin/java-buildpack-memory-calculator-*
+cf ssh myapp -- echo $MEMORY_LIMIT
+```
+
+**Wrong Java version selected** — check resolution order: `BP_JAVA_VERSION` → `JBP_CONFIG_<KEY>_JRE` → manifest default. Enable debug: `cf set-env myapp BP_LOG_LEVEL DEBUG`.
