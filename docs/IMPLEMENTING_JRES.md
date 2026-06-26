@@ -327,3 +327,22 @@ cf ssh myapp -- echo $MEMORY_LIMIT
 ```
 
 **Wrong Java version selected** — check resolution order: `BP_JAVA_VERSION` → `JBP_CONFIG_<KEY>_JRE` → manifest default. Enable debug: `cf set-env myapp BP_LOG_LEVEL DEBUG`.
+
+## Summary
+
+Adding a standard JRE (one that embeds `BaseJRE`) requires three things:
+
+1. **Create `src/java/jres/<name>.go`** — embed `BaseJRE`, call `newBaseJRE()`, set `extraFinalizeOpts` if needed
+2. **Add dependency to `manifest.yml`** — `name`, version, URI, SHA256, stacks; add to `default_versions` if applicable
+3. **Register in `src/java/supply/supply.go`** — one `jreRegistry.Register(jres.NewMyJRE(ctx))` call
+
+`BaseJRE` handles everything else: download, extraction, `findJavaHome`, `profile.d` script, JVMKill, Memory Calculator, base JVM opts.
+
+For JREs that cannot use `BaseJRE` (e.g. Zing — no memory calculator, custom detection), implement the full `jres.JRE` interface manually and use the helper functions listed above.
+
+## See Also
+
+- [DEVELOPING.md](DEVELOPING.md) — building and running the buildpack locally
+- [TESTING.md](TESTING.md) — unit and integration test framework
+- [IMPLEMENTING_FRAMEWORKS.md](IMPLEMENTING_FRAMEWORKS.md) — adding framework support
+- [IMPLEMENTING_CONTAINERS.md](IMPLEMENTING_CONTAINERS.md) — adding container types
