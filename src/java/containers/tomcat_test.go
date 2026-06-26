@@ -279,6 +279,28 @@ var _ = Describe("Tomcat Container", func() {
 			Expect(string(content)).To(Equal(preExistingContent))
 		})
 
+		It("removes ROOT.xml even when non-root context XML already exists (external config)", func() {
+			os.Setenv("JBP_CONFIG_TOMCAT", `{tomcat: {context_path: /my/path}}`)
+			defer os.Unsetenv("JBP_CONFIG_TOMCAT")
+
+			tomcatDir := filepath.Join(depsDir, "0", "tomcat")
+			contextDir := filepath.Join(tomcatDir, "conf", "Catalina", "localhost")
+			Expect(os.MkdirAll(contextDir, 0755)).To(Succeed())
+			externalContent := "<Context docBase=\"/external/path\"/>"
+			contextXML := filepath.Join(contextDir, "my#path.xml")
+			Expect(os.WriteFile(contextXML, []byte(externalContent), 0644)).To(Succeed())
+			rootXML := filepath.Join(contextDir, "ROOT.xml")
+			Expect(os.WriteFile(rootXML, []byte("<Context/>"), 0644)).To(Succeed())
+
+			err := container.Finalize()
+			Expect(err).NotTo(HaveOccurred())
+
+			content, readErr := os.ReadFile(contextXML)
+			Expect(readErr).NotTo(HaveOccurred())
+			Expect(string(content)).To(Equal(externalContent))
+			Expect(rootXML).NotTo(BeAnExistingFile())
+		})
+
 		Context("with packaged WAR (no WEB-INF)", func() {
 			BeforeEach(func() {
 				Expect(os.RemoveAll(filepath.Join(buildDir, "WEB-INF"))).To(Succeed())

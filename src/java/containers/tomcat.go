@@ -593,7 +593,11 @@ func (t *TomcatContainer) Finalize() error {
 			return fmt.Errorf("failed to create context directory: %w", err)
 		}
 
-		if _, statErr := os.Stat(contextXMLPath); os.IsNotExist(statErr) {
+		_, statErr := os.Stat(contextXMLPath)
+		if statErr != nil && !os.IsNotExist(statErr) {
+			return fmt.Errorf("failed to check context XML %s: %w", contextXMLName, statErr)
+		}
+		if os.IsNotExist(statErr) {
 			appContextXML := filepath.Join(buildDir, "META-INF", "context.xml")
 			var contextContent string
 
@@ -616,15 +620,14 @@ func (t *TomcatContainer) Finalize() error {
 			if err := os.WriteFile(contextXMLPath, []byte(contextContent), 0644); err != nil {
 				return fmt.Errorf("failed to write %s: %w", contextXMLName, err)
 			}
-
-			if contextXMLName != "ROOT.xml" {
-				rootXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
-				if err := os.Remove(rootXMLPath); err != nil && !os.IsNotExist(err) {
-					return fmt.Errorf("failed to remove ROOT.xml: %w", err)
-				}
-			}
 		} else {
 			t.context.Log.Info("Context XML %s already exists (e.g. from external config), skipping generation", contextXMLName)
+		}
+		if contextXMLName != "ROOT.xml" {
+			rootXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
+			if err := os.Remove(rootXMLPath); err != nil && !os.IsNotExist(err) {
+				return fmt.Errorf("failed to remove ROOT.xml: %w", err)
+			}
 		}
 	} else {
 		warMatches, err := filepath.Glob(filepath.Join(buildDir, "*.war"))
@@ -637,20 +640,23 @@ func (t *TomcatContainer) Finalize() error {
 				return fmt.Errorf("failed to create context directory: %w", err)
 			}
 
-			if _, statErr := os.Stat(contextXMLPath); os.IsNotExist(statErr) {
+			_, statErr := os.Stat(contextXMLPath)
+			if statErr != nil && !os.IsNotExist(statErr) {
+				return fmt.Errorf("failed to check context XML %s: %w", contextXMLName, statErr)
+			}
+			if os.IsNotExist(statErr) {
 				if err := os.WriteFile(contextXMLPath, []byte(contextContent), 0644); err != nil {
 					return fmt.Errorf("failed to write %s: %w", contextXMLName, err)
-				}
-
-				if contextXMLName != "ROOT.xml" {
-					rootXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
-					if err := os.Remove(rootXMLPath); err != nil && !os.IsNotExist(err) {
-						return fmt.Errorf("failed to remove ROOT.xml: %w", err)
-					}
 				}
 				t.context.Log.Info("Created %s with docBase pointing to %s", contextXMLName, warFilename)
 			} else {
 				t.context.Log.Info("Context XML %s already exists (e.g. from external config), skipping generation", contextXMLName)
+			}
+			if contextXMLName != "ROOT.xml" {
+				rootXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
+				if err := os.Remove(rootXMLPath); err != nil && !os.IsNotExist(err) {
+					return fmt.Errorf("failed to remove ROOT.xml: %w", err)
+				}
 			}
 		} else if len(warMatches) > 1 {
 			t.context.Log.Warning("Multiple WAR files found in build directory; context_path not applied")
