@@ -17,6 +17,19 @@ The container expects to run the application creating by running [`gradle distZi
 
 If the application uses Spring, [Spring profiles][] can be specified by setting the [`SPRING_PROFILES_ACTIVE`][] environment variable. This is automatically detected and used by Spring. The Spring Auto-reconfiguration Framework will specify the `cloud` profile in addition to any others. 
 
+## CF Tasks
+
+The buildpack includes a `task` process type in the release output using the same command as `web`, so `cf run-task` works without an explicit `--command`.
+
+```bash
+cf run-task my-app              # uses the task process type command
+cf run-task my-app --command "..." # explicit override
+```
+
+To run a task with a different main class (batch job, migration, etc.), see [Java Main Container - CF Tasks][java-main-tasks].
+
+[java-main-tasks]: container-java_main.md#cf-tasks
+
 ## Configuration
 The Spring Boot Container cannot be configured.
 

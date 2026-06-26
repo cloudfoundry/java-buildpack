@@ -280,10 +280,12 @@ func (f *Finalizer) writeReleaseYaml(container containers.Container) error {
 	}
 
 	releaseYamlPath := filepath.Join(tmpDir, "java-buildpack-release-step.yml")
+	escapedCommand := strings.ReplaceAll(fullCommand, "'", "''")
 	yamlContent := fmt.Sprintf(`---
 default_process_types:
   web: '%s'
-`, fullCommand)
+  task: '%s'
+`, escapedCommand, escapedCommand)
 
 	if err := os.WriteFile(releaseYamlPath, []byte(yamlContent), 0644); err != nil {
 		return fmt.Errorf("failed to write release YAML: %w", err)

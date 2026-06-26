@@ -370,6 +370,15 @@ var _ = Describe("Java Opts Writer", func() {
 			Expect(output).To(ContainSubstring(`-Dpath=C:\\double`))
 		})
 
+		It("replaces all occurrences of $JAVA_OPTS when opts file contains it twice", func() {
+			// Scenario: JBP_CONFIG_JAVA_OPTS: '{java_opts: "$JAVA_OPTS -Xmx512m", from_environment: true}'
+			// produces opts file: "$JAVA_OPTS -Xmx512m $JAVA_OPTS" — two placeholders
+			output, err := runScript(`-Dfoo=bar`, "$JAVA_OPTS -Xmx512m $JAVA_OPTS")
+			Expect(err).NotTo(HaveOccurred(), "script failed with output: %s", output)
+			Expect(strings.Count(output, "-Dfoo=bar")).To(Equal(2))
+			Expect(output).NotTo(ContainSubstring("__JAVA_OPTS_BUILDPACK_PLACEHOLDER__"))
+		})
+
 		// Full invocation cycle tests for issue #1301:
 		// Verify that javaexec tokenizes $JAVA_OPTS without a shell, so glob chars,
 		// pipes, and shell metacharacters are never expanded or executed.
