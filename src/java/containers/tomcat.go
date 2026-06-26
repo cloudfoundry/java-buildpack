@@ -593,34 +593,67 @@ func (t *TomcatContainer) Finalize() error {
 			return fmt.Errorf("failed to create context directory: %w", err)
 		}
 
-		appContextXML := filepath.Join(buildDir, "META-INF", "context.xml")
-		var contextContent string
+		if _, statErr := os.Stat(contextXMLPath); os.IsNotExist(statErr) {
+			appContextXML := filepath.Join(buildDir, "META-INF", "context.xml")
+			var contextContent string
 
-		if _, err := os.Stat(appContextXML); err == nil {
-			xmlBytes, err := os.ReadFile(appContextXML)
-			if err != nil {
-				return fmt.Errorf("failed to read META-INF/context.xml: %w", err)
+			if _, err := os.Stat(appContextXML); err == nil {
+				xmlBytes, err := os.ReadFile(appContextXML)
+				if err != nil {
+					return fmt.Errorf("failed to read META-INF/context.xml: %w", err)
+				}
+
+				xmlStr := string(xmlBytes)
+				xmlStr = strings.TrimSpace(xmlStr)
+
+				contextContent = injectDocBase(xmlStr, "${user.home}/app")
+				t.context.Log.Info("Merged META-INF/context.xml with %s - realm and resource configurations preserved", contextXMLName)
+			} else {
+				contextContent = fmt.Sprintf("<Context docBase=\"${user.home}/app\" reloadable=\"false\">\n</Context>\n")
+				t.context.Log.Info("Created %s with docBase pointing to application directory", contextXMLName)
 			}
 
-			xmlStr := string(xmlBytes)
-			xmlStr = strings.TrimSpace(xmlStr)
+			if err := os.WriteFile(contextXMLPath, []byte(contextContent), 0644); err != nil {
+				return fmt.Errorf("failed to write %s: %w", contextXMLName, err)
+			}
 
-			contextContent = injectDocBase(xmlStr, "${user.home}/app")
-			t.context.Log.Info("Merged META-INF/context.xml with %s - realm and resource configurations preserved", contextXMLName)
+			if contextXMLName != "ROOT.xml" {
+				rootXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
+				if err := os.Remove(rootXMLPath); err != nil && !os.IsNotExist(err) {
+					return fmt.Errorf("failed to remove ROOT.xml: %w", err)
+				}
+			}
 		} else {
-			contextContent = fmt.Sprintf("<Context docBase=\"${user.home}/app\" reloadable=\"false\">\n</Context>\n")
-			t.context.Log.Info("Created %s with docBase pointing to application directory", contextXMLName)
+			t.context.Log.Info("Context XML %s already exists (e.g. from external config), skipping generation", contextXMLName)
 		}
+	} else {
+		warMatches, err := filepath.Glob(filepath.Join(buildDir, "*.war"))
+		if err == nil && len(warMatches) == 1 {
+			warFilename := filepath.Base(warMatches[0])
+			contextContent := fmt.Sprintf("<Context docBase=\"${user.home}/app/%s\" reloadable=\"false\">\n</Context>\n", warFilename)
 
-		if err := os.WriteFile(contextXMLPath, []byte(contextContent), 0644); err != nil {
-			return fmt.Errorf("failed to write %s: %w", contextXMLName, err)
-		}
-
-		if contextXMLName != "ROOT.xml" {
-			rootXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
-			if err := os.Remove(rootXMLPath); err != nil && !os.IsNotExist(err) {
-				return fmt.Errorf("failed to remove ROOT.xml: %w", err)
+			contextXMLDir := filepath.Dir(contextXMLPath)
+			if err := os.MkdirAll(contextXMLDir, 0755); err != nil {
+				return fmt.Errorf("failed to create context directory: %w", err)
 			}
+
+			if _, statErr := os.Stat(contextXMLPath); os.IsNotExist(statErr) {
+				if err := os.WriteFile(contextXMLPath, []byte(contextContent), 0644); err != nil {
+					return fmt.Errorf("failed to write %s: %w", contextXMLName, err)
+				}
+
+				if contextXMLName != "ROOT.xml" {
+					rootXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
+					if err := os.Remove(rootXMLPath); err != nil && !os.IsNotExist(err) {
+						return fmt.Errorf("failed to remove ROOT.xml: %w", err)
+					}
+				}
+				t.context.Log.Info("Created %s with docBase pointing to %s", contextXMLName, warFilename)
+			} else {
+				t.context.Log.Info("Context XML %s already exists (e.g. from external config), skipping generation", contextXMLName)
+			}
+		} else if len(warMatches) > 1 {
+			t.context.Log.Warning("Multiple WAR files found in build directory; context_path not applied")
 		}
 	}
 

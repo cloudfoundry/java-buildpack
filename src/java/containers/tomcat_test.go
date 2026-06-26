@@ -262,6 +262,73 @@ var _ = Describe("Tomcat Container", func() {
 			Expect(rootXML).NotTo(BeAnExistingFile())
 			Expect(filepath.Join(contextDir, "the#intended#path.xml")).To(BeAnExistingFile())
 		})
+
+		It("skips writing context XML when file already exists (external config)", func() {
+			tomcatDir := filepath.Join(depsDir, "0", "tomcat")
+			contextDir := filepath.Join(tomcatDir, "conf", "Catalina", "localhost")
+			Expect(os.MkdirAll(contextDir, 0755)).To(Succeed())
+			preExistingContent := "<Context docBase=\"/external/path\"/>"
+			rootXML := filepath.Join(contextDir, "ROOT.xml")
+			Expect(os.WriteFile(rootXML, []byte(preExistingContent), 0644)).To(Succeed())
+
+			err := container.Finalize()
+			Expect(err).NotTo(HaveOccurred())
+
+			content, readErr := os.ReadFile(rootXML)
+			Expect(readErr).NotTo(HaveOccurred())
+			Expect(string(content)).To(Equal(preExistingContent))
+		})
+
+		Context("with packaged WAR (no WEB-INF)", func() {
+			BeforeEach(func() {
+				Expect(os.RemoveAll(filepath.Join(buildDir, "WEB-INF"))).To(Succeed())
+			})
+
+			It("creates context XML pointing to WAR file when context_path is set", func() {
+				Expect(os.WriteFile(filepath.Join(buildDir, "myapp.war"), []byte("fakewar"), 0644)).To(Succeed())
+				os.Setenv("JBP_CONFIG_TOMCAT", `{tomcat: {context_path: /my/path}}`)
+				defer os.Unsetenv("JBP_CONFIG_TOMCAT")
+
+				err := container.Finalize()
+				Expect(err).NotTo(HaveOccurred())
+
+				tomcatDir := filepath.Join(depsDir, "0", "tomcat")
+				contextFile := filepath.Join(tomcatDir, "conf", "Catalina", "localhost", "my#path.xml")
+				Expect(contextFile).To(BeAnExistingFile())
+				content, _ := os.ReadFile(contextFile)
+				Expect(string(content)).To(ContainSubstring(`docBase="${user.home}/app/myapp.war"`))
+			})
+
+			It("creates ROOT.xml pointing to WAR file when no context_path set", func() {
+				Expect(os.WriteFile(filepath.Join(buildDir, "myapp.war"), []byte("fakewar"), 0644)).To(Succeed())
+
+				err := container.Finalize()
+				Expect(err).NotTo(HaveOccurred())
+
+				tomcatDir := filepath.Join(depsDir, "0", "tomcat")
+				contextFile := filepath.Join(tomcatDir, "conf", "Catalina", "localhost", "ROOT.xml")
+				Expect(contextFile).To(BeAnExistingFile())
+				content, _ := os.ReadFile(contextFile)
+				Expect(string(content)).To(ContainSubstring(`docBase="${user.home}/app/myapp.war"`))
+			})
+
+			It("removes ROOT.xml when packaged WAR uses non-root context_path", func() {
+				Expect(os.WriteFile(filepath.Join(buildDir, "myapp.war"), []byte("fakewar"), 0644)).To(Succeed())
+				os.Setenv("JBP_CONFIG_TOMCAT", `{tomcat: {context_path: /my/path}}`)
+				defer os.Unsetenv("JBP_CONFIG_TOMCAT")
+
+				tomcatDir := filepath.Join(depsDir, "0", "tomcat")
+				contextDir := filepath.Join(tomcatDir, "conf", "Catalina", "localhost")
+				Expect(os.MkdirAll(contextDir, 0755)).To(Succeed())
+				rootXML := filepath.Join(contextDir, "ROOT.xml")
+				Expect(os.WriteFile(rootXML, []byte("<Context/>"), 0644)).To(Succeed())
+
+				err := container.Finalize()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(rootXML).NotTo(BeAnExistingFile())
+				Expect(filepath.Join(contextDir, "my#path.xml")).To(BeAnExistingFile())
+			})
+		})
 	})
 
 	Describe("SelectTomcatVersionPattern", func() {
