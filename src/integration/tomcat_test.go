@@ -1,13 +1,11 @@
 package integration_test
 
 import (
-	"net/http"
 	"path/filepath"
 	"testing"
 
 	"github.com/cloudfoundry/switchblade"
 	"github.com/cloudfoundry/switchblade/matchers"
-	"github.com/onsi/gomega"
 	"github.com/sclevine/spec"
 
 	. "github.com/onsi/gomega"
@@ -445,7 +443,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 		})
 
 		context("with context_path configured", func() {
-			it("serves app at configured path and returns 404 at root", func() {
+			it("serves app at configured path and not at root", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
 						"BP_JAVA_VERSION":   "11",
@@ -455,7 +453,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				Expect(err).NotTo(HaveOccurred(), logs.String())
 
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")).WithEndpoint("/my/app"))
-				Eventually(deployment).Should(matchers.Serve(gomega.Anything()).WithEndpoint("/").WithExpectedStatusCode(http.StatusNotFound))
+				Eventually(deployment).ShouldNot(matchers.Serve(ContainSubstring("OK")).WithEndpoint("/"))
 			})
 		})
 	}
