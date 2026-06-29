@@ -581,7 +581,11 @@ func (t *TomcatContainer) Finalize() error {
 	contextXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", contextXMLName)
 
 	webInf := filepath.Join(buildDir, "WEB-INF")
-	if _, err := os.Stat(webInf); err == nil {
+	_, webInfErr := os.Stat(webInf)
+	if webInfErr != nil && !os.IsNotExist(webInfErr) {
+		return fmt.Errorf("failed to check WEB-INF directory: %w", webInfErr)
+	}
+	if webInfErr == nil {
 		// the script name is prefixed with 'zzz' as it is important to be the last script sourced from profile.d
 		// so that the previous scripts assembling the CLASSPATH variable(left from frameworks) are sourced previous to it.
 		if err := t.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("WEB-INF", "lib"))); err != nil {
@@ -631,7 +635,10 @@ func (t *TomcatContainer) Finalize() error {
 		}
 	} else {
 		warMatches, err := filepath.Glob(filepath.Join(buildDir, "*.war"))
-		if err == nil && len(warMatches) == 1 {
+		if err != nil {
+			return fmt.Errorf("failed to find WAR files in build directory: %w", err)
+		}
+		if len(warMatches) == 1 {
 			warFilename := filepath.Base(warMatches[0])
 			contextContent := fmt.Sprintf("<Context docBase=\"${user.home}/app/%s\" reloadable=\"false\">\n</Context>\n", warFilename)
 
@@ -659,7 +666,7 @@ func (t *TomcatContainer) Finalize() error {
 				}
 			}
 		} else if len(warMatches) > 1 {
-			t.context.Log.Warning("Multiple WAR files found in build directory; context_path not applied")
+			t.context.Log.Warning("Multiple WAR files found in build directory; cannot determine which to deploy, skipping context descriptor generation")
 		}
 	}
 
