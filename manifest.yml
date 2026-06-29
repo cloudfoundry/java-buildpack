@@ -117,7 +117,7 @@ default_versions:
 - name: your-kit-profiler
   version: 2025.x
 - name: jprofiler-profiler
-  version: 15.x
+  version: 16.x
 - name: sealights-agent
   version: 4.x
 - name: container-security-provider
