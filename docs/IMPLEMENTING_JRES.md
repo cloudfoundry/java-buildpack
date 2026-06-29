@@ -251,7 +251,7 @@ These are available in `src/java/jres/` and called by `BaseJRE` internally. You 
 
 ### Version resolution priority
 
-1. `BP_JAVA_VERSION` (e.g. `17`, `17.*`, `17.0.13`)
+1. `BP_JAVA_VERSION` (e.g. `21`, `21.*`, `21.0.5`)
 2. `JBP_CONFIG_<JREKEY>_JRE` with `version:` field
 3. Manifest `default_versions` entry for this JRE key
 
@@ -260,8 +260,8 @@ These are available in `src/java/jres/` and called by `BaseJRE` internally. You 
 `WriteJavaHomeProfileD` produces `$DEPS_DIR/<idx>/.profile.d/java.sh`:
 
 ```bash
-export JAVA_HOME=$DEPS_DIR/0/jre/jdk-17.0.13
-export JRE_HOME=$DEPS_DIR/0/jre/jdk-17.0.13
+export JAVA_HOME=$DEPS_DIR/0/jre/jdk-21.0.5
+export JRE_HOME=$DEPS_DIR/0/jre/jdk-21.0.5
 export PATH=$JAVA_HOME/bin:$PATH
 ```
 
@@ -277,11 +277,23 @@ Downloads `java-buildpack-memory-calculator` binary. At application start it com
 -Xmx512M -Xms512M -XX:MaxMetaspaceSize=128M -Xss1M -XX:ReservedCodeCacheSize=32M
 ```
 
-User customization via env:
+User customization — prefer `JBP_CONFIG_<JRE>_JRE` for structured config (covers all three knobs):
+
+```bash
+cf set-env myapp JBP_CONFIG_OPEN_JDK_JRE \
+  '{memory_calculator: {stack_threads: 300, class_count: 500, headroom: 10}}'
+```
+
+`stack_threads` — number of user threads (default: 200); affects `-Xss` heap budget.
+`class_count` — estimated loaded classes (default: auto-detected); affects `-XX:MaxMetaspaceSize`.
+`headroom` — percent of total memory to leave unallocated (default: 0).
+
+`MEMORY_CALCULATOR_*` env vars are a simpler alternative, but only cover two of the three knobs. They take precedence over `JBP_CONFIG_*` when both are set:
 
 ```bash
 cf set-env myapp MEMORY_CALCULATOR_STACK_THREADS 300
-cf set-env myapp MEMORY_CALCULATOR_HEADROOM 10   # % headroom to leave
+cf set-env myapp MEMORY_CALCULATOR_HEADROOM 10
+# class_count not available as a MEMORY_CALCULATOR_* env var — use JBP_CONFIG_* for that
 ```
 
 ### JVMKill Agent
