@@ -71,7 +71,6 @@ func (j *JavaCfEnvFramework) Supply() error {
 	} else {
 		j.context.Log.Debug("Resolved Java CF Env version pattern '%s' to %s", versionPattern, resolvedVersion)
 	}
-
 	// Install java-cfenv JAR
 	javaCfEnvDir := filepath.Join(j.context.Stager.DepDir(), "java_cf_env")
 	if err := j.context.Installer.InstallDependency(dep, javaCfEnvDir); err != nil {

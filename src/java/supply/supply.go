@@ -181,5 +181,5 @@ func (s *Supplier) frameworkVersionSuffix(framework frameworks.Framework) string
 		return ""
 	}
 
-	return fmt.Sprintf(" (%s)", dependency.Version)
+	return fmt.Sprintf(" (default: %s)", dependency.Version)
 }

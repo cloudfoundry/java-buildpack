@@ -219,6 +219,12 @@ var _ = Describe("Java CF Env", func() {
 		})
 	})
 
+	Describe("DependencyIdentifier", func() {
+		It("returns java-cfenv so supply.go can look up the manifest default version", func() {
+			Expect(fw.DependencyIdentifier()).To(Equal("java-cfenv"))
+		})
+	})
+
 	Describe("Finalize", func() {
 		Context("when the JAR is present", func() {
 			BeforeEach(func() {
