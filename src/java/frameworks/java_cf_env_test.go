@@ -68,10 +68,23 @@ var _ = Describe("Java CF Env", func() {
 			})
 		})
 
-		Context("with Spring Boot 3.x JAR in lib/", func() {
+		Context("with Spring Boot 4.1.x JAR in BOOT-INF/lib", func() {
+			BeforeEach(func() {
+				Expect(os.MkdirAll(filepath.Join(buildDir, "BOOT-INF", "lib"), 0755)).To(Succeed())
+				Expect(os.WriteFile(filepath.Join(buildDir, "BOOT-INF", "lib", "spring-boot-4.1.0.jar"), []byte("fake"), 0644)).To(Succeed())
+			})
+
+			It("returns 'Java CF Env'", func() {
+				name, err := fw.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(Equal("Java CF Env"))
+			})
+		})
+
+		Context("with Spring Boot 4.1.x JAR in lib/", func() {
 			BeforeEach(func() {
 				Expect(os.MkdirAll(filepath.Join(buildDir, "lib"), 0755)).To(Succeed())
-				Expect(os.WriteFile(filepath.Join(buildDir, "lib", "spring-boot-3.1.5.jar"), []byte("fake"), 0644)).To(Succeed())
+				Expect(os.WriteFile(filepath.Join(buildDir, "lib", "spring-boot-4.1.0.jar"), []byte("fake"), 0644)).To(Succeed())
 			})
 
 			It("returns 'Java CF Env'", func() {
@@ -81,10 +94,10 @@ var _ = Describe("Java CF Env", func() {
 			})
 		})
 
-		Context("with Spring Boot 3.x JAR in WEB-INF/lib", func() {
+		Context("with Spring Boot 4.1.x JAR in WEB-INF/lib", func() {
 			BeforeEach(func() {
 				Expect(os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)).To(Succeed())
-				Expect(os.WriteFile(filepath.Join(buildDir, "WEB-INF", "lib", "spring-boot-3.0.0.jar"), []byte("fake"), 0644)).To(Succeed())
+				Expect(os.WriteFile(filepath.Join(buildDir, "WEB-INF", "lib", "spring-boot-4.1.0.jar"), []byte("fake"), 0644)).To(Succeed())
 			})
 
 			It("returns 'Java CF Env'", func() {
@@ -94,12 +107,12 @@ var _ = Describe("Java CF Env", func() {
 			})
 		})
 
-		Context("with Spring-Boot-Version: 3.x in META-INF/MANIFEST.MF", func() {
+		Context("with Spring-Boot-Version: 4.1.x in META-INF/MANIFEST.MF", func() {
 			BeforeEach(func() {
 				Expect(os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)).To(Succeed())
 				Expect(os.WriteFile(
 					filepath.Join(buildDir, "META-INF", "MANIFEST.MF"),
-					[]byte("Manifest-Version: 1.0\nSpring-Boot-Version: 3.2.0\nMain-Class: org.springframework.boot.loader.JarLauncher\n"),
+					[]byte("Manifest-Version: 1.0\nSpring-Boot-Version: 4.1.0\nMain-Class: org.springframework.boot.loader.JarLauncher\n"),
 					0644,
 				)).To(Succeed())
 			})
