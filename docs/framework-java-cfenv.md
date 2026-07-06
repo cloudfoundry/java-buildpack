@@ -1,7 +1,7 @@
 # Java CfEnv Framework
-The Java CfEnv Framework provides the `java-cfenv` library for Spring Boot 3.x and 4.x applications. This library sets various Spring Boot properties by parsing CloudFoundry variables such as `VCAP_SERVICES`, allowing Spring Boot's autoconfiguration to kick in.
+The Java CfEnv Framework provides the `java-cfenv` library for Spring Boot 3.x and 4.x applications. This library sets various Spring Boot properties by parsing Cloud Foundry variables such as `VCAP_SERVICES`, allowing Spring Boot's autoconfiguration to kick in.
 
-This is the recommended replacement for Spring AutoReconfiguration library which is deprecated. See the `java-cfenv` <a href="https://github.com/pivotal-cf/java-cfenv">repository</a> for more detail.
+This is the recommended replacement for Spring AutoReconfiguration library which is deprecated. See the `java-cfenv` <a href="https://github.com/pivotal-cf/java-cfenv">repository</a> for more details.
 
 The included `java-cfenv` library activates the `cloud` Spring profile at runtime when `VCAP_SERVICES` is present, as the Spring AutoReconfiguration framework did. The buildpack itself does not set any Spring profile.
 
@@ -31,12 +31,16 @@ The framework can be disabled via the `JBP_CONFIG_JAVA_CF_ENV` environment varia
 
 ```bash
 cf set-env <app> JBP_CONFIG_JAVA_CF_ENV '{enabled: false}'
+cf restage <app>
 ```
+
+The buildpack only re-reads this variable during staging, so a `cf restage` is required for the change to take effect.
 
 To re-enable, either set it back to `{enabled: true}` or remove the variable entirely:
 
 ```bash
 cf unset-env <app> JBP_CONFIG_JAVA_CF_ENV
+cf restage <app>
 ```
 
 | Variable | Default | Description |
