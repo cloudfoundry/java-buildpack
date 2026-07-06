@@ -139,6 +139,18 @@ var _ = Describe("Tomcat Container", func() {
 			Expect(string(content)).To(ContainSubstring("reloadable=\"false\""))
 		})
 
+		It("returns an error when META-INF/context.xml cannot be stat'd (non-IsNotExist)", func() {
+			// Make META-INF a regular file so os.Stat(META-INF/context.xml) fails
+			// with ENOTDIR (not IsNotExist). The buildpack must surface this rather
+			// than silently falling back to a default descriptor, which would drop
+			// user-provided Realm/Resource config.
+			Expect(os.WriteFile(filepath.Join(buildDir, "META-INF"), []byte("not a dir"), 0644)).To(Succeed())
+
+			err := container.Finalize()
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("META-INF/context.xml"))
+		})
+
 		It("merges META-INF/context.xml with realm configuration", func() {
 			metaInfDir := filepath.Join(buildDir, "META-INF")
 			os.MkdirAll(metaInfDir, 0755)

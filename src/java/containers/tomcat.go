@@ -607,7 +607,14 @@ func (t *TomcatContainer) Finalize() error {
 			appContextXML := filepath.Join(buildDir, "META-INF", "context.xml")
 			var contextContent string
 
-			if _, err := os.Stat(appContextXML); err == nil {
+			_, appStatErr := os.Stat(appContextXML)
+			if appStatErr != nil && !os.IsNotExist(appStatErr) {
+				// A non-IsNotExist error (permissions/IO) must not be silently
+				// treated as "no context.xml" — that would drop user-provided
+				// Realm/Resource config. Surface it.
+				return fmt.Errorf("failed to check META-INF/context.xml: %w", appStatErr)
+			}
+			if appStatErr == nil {
 				xmlBytes, err := os.ReadFile(appContextXML)
 				if err != nil {
 					return fmt.Errorf("failed to read META-INF/context.xml: %w", err)
