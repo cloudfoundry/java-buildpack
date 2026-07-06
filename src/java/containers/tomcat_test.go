@@ -1,6 +1,7 @@
 package containers_test
 
 import (
+	"encoding/xml"
 	"os"
 	"path/filepath"
 
@@ -332,6 +333,38 @@ var _ = Describe("Tomcat Container", func() {
 				Expect(contextFile).To(BeAnExistingFile())
 				content, _ := os.ReadFile(contextFile)
 				Expect(string(content)).To(ContainSubstring(`docBase="${user.home}/app/myapp.war"`))
+			})
+
+			It("XML-escapes WAR filenames containing XML-sensitive characters", func() {
+				// A WAR filename may legally contain &, <, > which are XML-sensitive.
+				// Interpolated raw into the docBase attribute they produce an invalid
+				// descriptor that Tomcat fails to parse. The filename must be escaped.
+				warName := "my&a<b>c.war"
+				Expect(os.WriteFile(filepath.Join(buildDir, warName), []byte("fakewar"), 0644)).To(Succeed())
+
+				err := container.Finalize()
+				Expect(err).NotTo(HaveOccurred())
+
+				tomcatDir := filepath.Join(depsDir, "0", "tomcat")
+				contextFile := filepath.Join(tomcatDir, "conf", "Catalina", "localhost", "ROOT.xml")
+				Expect(contextFile).To(BeAnExistingFile())
+				content, _ := os.ReadFile(contextFile)
+				contentStr := string(content)
+
+				// Raw sensitive characters must not leak into the descriptor.
+				Expect(contentStr).NotTo(ContainSubstring("my&a<b>c.war"),
+					"raw unescaped WAR filename produced invalid XML:\n%s", contentStr)
+				// Escaped form present.
+				Expect(contentStr).To(ContainSubstring("my&amp;a&lt;b&gt;c.war"),
+					"expected XML-escaped WAR filename in docBase:\n%s", contentStr)
+
+				// The descriptor must be well-formed XML.
+				var parsed struct {
+					DocBase string `xml:"docBase,attr"`
+				}
+				Expect(xml.Unmarshal(content, &parsed)).To(Succeed(),
+					"generated descriptor is not well-formed XML:\n%s", contentStr)
+				Expect(parsed.DocBase).To(Equal("${user.home}/app/my&a<b>c.war"))
 			})
 
 			It("removes ROOT.xml when packaged WAR uses non-root context_path", func() {

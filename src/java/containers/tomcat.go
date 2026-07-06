@@ -1,6 +1,8 @@
 package containers
 
 import (
+	"bytes"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
@@ -640,7 +642,13 @@ func (t *TomcatContainer) Finalize() error {
 		}
 		if len(warMatches) == 1 {
 			warFilename := filepath.Base(warMatches[0])
-			contextContent := fmt.Sprintf("<Context docBase=\"${user.home}/app/%s\" reloadable=\"false\">\n</Context>\n", warFilename)
+			// Escape XML-sensitive characters (&, <, >, ", ') so a WAR filename
+			// containing them cannot produce an invalid Tomcat context descriptor.
+			var escapedWarFilename bytes.Buffer
+			if err := xml.EscapeText(&escapedWarFilename, []byte(warFilename)); err != nil {
+				return fmt.Errorf("failed to XML-escape WAR filename %q: %w", warFilename, err)
+			}
+			contextContent := fmt.Sprintf("<Context docBase=\"${user.home}/app/%s\" reloadable=\"false\">\n</Context>\n", escapedWarFilename.String())
 
 			contextXMLDir := filepath.Dir(contextXMLPath)
 			if err := os.MkdirAll(contextXMLDir, 0755); err != nil {
