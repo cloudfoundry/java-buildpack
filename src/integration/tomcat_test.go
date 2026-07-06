@@ -441,5 +441,20 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
 		})
+
+		context("with context_path configured", func() {
+			it("serves app at configured path and not at root", func() {
+				deployment, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"BP_JAVA_VERSION":   "11",
+						"JBP_CONFIG_TOMCAT": `{tomcat: {context_path: /my/app}}`,
+					}).
+					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
+				Expect(err).NotTo(HaveOccurred(), logs.String())
+
+				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")).WithEndpoint("/my/app"))
+				Eventually(deployment).ShouldNot(matchers.Serve(ContainSubstring("OK")).WithEndpoint("/"))
+			})
+		})
 	}
 }

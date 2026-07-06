@@ -445,6 +445,7 @@ func (t *TomcatContainer) Supply() error {
 | **Logging Support** | `TomcatLoggingSupport` | `installTomcatLoggingSupport()` | ✅ Complete | Installs `tomcat-logging-support.jar` (CloudFoundryConsoleHandler) |
 | **setenv.sh Generation** | `TomcatSetenv` | `createSetenvScript()` | ✅ Complete | Creates `bin/setenv.sh` for CLASSPATH |
 | **Utils (XML helpers)** | `TomcatUtils` | N/A | ✅ Complete | Go uses standard library XML parsing |
+| **Context Path** | `TomcatInstance#root` (webapps dir rename) | `contextXMLFilename()` + context descriptor | ✅ Complete | Same config key; different mechanism — see §2A.11 |
 | **Geode/GemFire Session Store** | `TomcatGeodeStore` (199 lines) | **❌ Missing** | ❌ Not Implemented | Session clustering for Tanzu GemFire |
 | **Redis Session Store** | `TomcatRedisStore` (118 lines) | **❌ Missing** | ❌ Not Implemented | Session clustering for Redis |
 | **Spring Insight Support** | `TomcatInsightSupport` (51 lines) | **❌ Missing** | ⚠️ Deprecated | Spring Insight deprecated by VMware |
@@ -849,6 +850,7 @@ cf set-env myapp JBP_CONFIG_TOMCAT '{tomcat: {version: 9.0.+}}'
 | **External Configuration** | ⚠️ 90% | Go requires manifest (no runtime repository_root) |
 | **Lifecycle Support** | ✅ 100% | Both detect startup failures |
 | **Logging Support** | ✅ 100% | Both use CloudFoundryConsoleHandler |
+| **Context Path** | ✅ 100% | Same config key and URL behavior; implementation differs (see §2A.11) |
 | **Session Store Auto-Config** | ⚠️ 0% | Go missing convenience auto-configuration (manual setup possible) |
 | **Overall** | ⚠️ **95%** | Core features complete; auto-config conveniences missing |
 
@@ -874,6 +876,22 @@ cf set-env myapp JBP_CONFIG_TOMCAT '{tomcat: {version: 9.0.+}}'
 2. Add `META-INF/context.xml` with session manager configuration
 3. Read `VCAP_SERVICES` in application code (if needed)
 4. Test with Go buildpack → Deploy
+
+### 2A.11 Context Path: Implementation Difference
+
+Both buildpacks support `context_path` via `JBP_CONFIG_TOMCAT`, but use different Tomcat mechanisms:
+
+| Aspect | Ruby (4.x) | Go (5.x) |
+|--------|-----------|---------|
+| **Mechanism** | Deploys app into `tomcat/webapps/<name>/` | Writes `conf/Catalina/localhost/<name>.xml` context descriptor |
+| **App location** | `tomcat/webapps/foo#bar/` | `${user.home}/app` (unchanged) |
+| **Root context prevention** | No `ROOT` directory in webapps | `ROOT.xml` explicitly removed when non-root path set |
+| **Config key** | `tomcat.context_path` | `tomcat.context_path` (identical) |
+| **URL result** | App at `/foo/bar` only | App at `/foo/bar` only (identical) |
+
+**Migration impact**: None for users. The `context_path` config key and resulting URL routing are identical between 4.x and 5.x. This is a smooth transition.
+
+**Caveat**: `ServletContext.getRealPath()` and webapps-relative path assumptions may behave differently — the Go buildpack serves from `${user.home}/app` rather than a webapps subdirectory. This is a pre-existing structural difference between the two buildpacks, not specific to `context_path`.
 
 ---
 

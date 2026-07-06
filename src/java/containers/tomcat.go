@@ -1,6 +1,8 @@
 package containers
 
 import (
+	"bytes"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
@@ -553,15 +555,39 @@ func injectDocBase(xmlContent string, docBase string) string {
 	return xmlContent[:idx] + newContextTag + xmlContent[endIdx:]
 }
 
+// contextXMLFilename converts a context path to a Tomcat context XML filename.
+// Tomcat convention: /foo/bar → foo#bar.xml, / or empty → ROOT.xml
+func contextXMLFilename(contextPath string) string {
+	name := strings.Trim(contextPath, "/")
+	if name == "" {
+		return "ROOT.xml"
+	}
+	name = strings.ReplaceAll(name, "/", "#")
+	return name + ".xml"
+}
+
 // Finalize performs final Tomcat configuration
 func (t *TomcatContainer) Finalize() error {
 	t.context.Log.BeginStep("Finalizing Tomcat")
 
+	if t.config == nil {
+		var err error
+		t.config, err = t.loadConfig()
+		if err != nil {
+			return fmt.Errorf("failed to load tomcat config: %w", err)
+		}
+	}
+
 	buildDir := t.context.Stager.BuildDir()
-	contextXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
+	contextXMLName := contextXMLFilename(t.config.Tomcat.ContextPath)
+	contextXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", contextXMLName)
 
 	webInf := filepath.Join(buildDir, "WEB-INF")
-	if _, err := os.Stat(webInf); err == nil {
+	_, webInfErr := os.Stat(webInf)
+	if webInfErr != nil && !os.IsNotExist(webInfErr) {
+		return fmt.Errorf("failed to check WEB-INF directory: %w", webInfErr)
+	}
+	if webInfErr == nil {
 		// the script name is prefixed with 'zzz' as it is important to be the last script sourced from profile.d
 		// so that the previous scripts assembling the CLASSPATH variable(left from frameworks) are sourced previous to it.
 		if err := t.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("WEB-INF", "lib"))); err != nil {
@@ -573,27 +599,89 @@ func (t *TomcatContainer) Finalize() error {
 			return fmt.Errorf("failed to create context directory: %w", err)
 		}
 
-		appContextXML := filepath.Join(buildDir, "META-INF", "context.xml")
-		var contextContent string
+		_, statErr := os.Stat(contextXMLPath)
+		if statErr != nil && !os.IsNotExist(statErr) {
+			return fmt.Errorf("failed to check context XML %s: %w", contextXMLName, statErr)
+		}
+		if os.IsNotExist(statErr) {
+			appContextXML := filepath.Join(buildDir, "META-INF", "context.xml")
+			var contextContent string
 
-		if _, err := os.Stat(appContextXML); err == nil {
-			xmlBytes, err := os.ReadFile(appContextXML)
-			if err != nil {
-				return fmt.Errorf("failed to read META-INF/context.xml: %w", err)
+			_, appStatErr := os.Stat(appContextXML)
+			if appStatErr != nil && !os.IsNotExist(appStatErr) {
+				// A non-IsNotExist error (permissions/IO) must not be silently
+				// treated as "no context.xml" — that would drop user-provided
+				// Realm/Resource config. Surface it.
+				return fmt.Errorf("failed to check META-INF/context.xml: %w", appStatErr)
+			}
+			if appStatErr == nil {
+				xmlBytes, err := os.ReadFile(appContextXML)
+				if err != nil {
+					return fmt.Errorf("failed to read META-INF/context.xml: %w", err)
+				}
+
+				xmlStr := string(xmlBytes)
+				xmlStr = strings.TrimSpace(xmlStr)
+
+				contextContent = injectDocBase(xmlStr, "${user.home}/app")
+				t.context.Log.Info("Merged META-INF/context.xml with %s - realm and resource configurations preserved", contextXMLName)
+			} else {
+				contextContent = fmt.Sprintf("<Context docBase=\"${user.home}/app\" reloadable=\"false\">\n</Context>\n")
+				t.context.Log.Info("Created %s with docBase pointing to application directory", contextXMLName)
 			}
 
-			xmlStr := string(xmlBytes)
-			xmlStr = strings.TrimSpace(xmlStr)
-
-			contextContent = injectDocBase(xmlStr, "${user.home}/app")
-			t.context.Log.Info("Merged META-INF/context.xml with ROOT.xml - realm and resource configurations preserved")
+			if err := os.WriteFile(contextXMLPath, []byte(contextContent), 0644); err != nil {
+				return fmt.Errorf("failed to write %s: %w", contextXMLName, err)
+			}
 		} else {
-			contextContent = fmt.Sprintf("<Context docBase=\"${user.home}/app\" reloadable=\"false\">\n</Context>\n")
-			t.context.Log.Info("Created ROOT.xml with docBase pointing to application directory")
+			t.context.Log.Info("Context XML %s already exists (e.g. from external config), skipping generation", contextXMLName)
 		}
+		if contextXMLName != "ROOT.xml" {
+			rootXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
+			if err := os.Remove(rootXMLPath); err != nil && !os.IsNotExist(err) {
+				return fmt.Errorf("failed to remove ROOT.xml: %w", err)
+			}
+		}
+	} else {
+		warMatches, err := filepath.Glob(filepath.Join(buildDir, "*.war"))
+		if err != nil {
+			return fmt.Errorf("failed to find WAR files in build directory: %w", err)
+		}
+		if len(warMatches) == 1 {
+			warFilename := filepath.Base(warMatches[0])
+			// Escape XML-sensitive characters (&, <, >, ", ') so a WAR filename
+			// containing them cannot produce an invalid Tomcat context descriptor.
+			var escapedWarFilename bytes.Buffer
+			if err := xml.EscapeText(&escapedWarFilename, []byte(warFilename)); err != nil {
+				return fmt.Errorf("failed to XML-escape WAR filename %q: %w", warFilename, err)
+			}
+			contextContent := fmt.Sprintf("<Context docBase=\"${user.home}/app/%s\" reloadable=\"false\">\n</Context>\n", escapedWarFilename.String())
 
-		if err := os.WriteFile(contextXMLPath, []byte(contextContent), 0644); err != nil {
-			return fmt.Errorf("failed to write ROOT.xml: %w", err)
+			contextXMLDir := filepath.Dir(contextXMLPath)
+			if err := os.MkdirAll(contextXMLDir, 0755); err != nil {
+				return fmt.Errorf("failed to create context directory: %w", err)
+			}
+
+			_, statErr := os.Stat(contextXMLPath)
+			if statErr != nil && !os.IsNotExist(statErr) {
+				return fmt.Errorf("failed to check context XML %s: %w", contextXMLName, statErr)
+			}
+			if os.IsNotExist(statErr) {
+				if err := os.WriteFile(contextXMLPath, []byte(contextContent), 0644); err != nil {
+					return fmt.Errorf("failed to write %s: %w", contextXMLName, err)
+				}
+				t.context.Log.Info("Created %s with docBase pointing to %s", contextXMLName, warFilename)
+			} else {
+				t.context.Log.Info("Context XML %s already exists (e.g. from external config), skipping generation", contextXMLName)
+			}
+			if contextXMLName != "ROOT.xml" {
+				rootXMLPath := filepath.Join(t.tomcatDir(), "conf", "Catalina", "localhost", "ROOT.xml")
+				if err := os.Remove(rootXMLPath); err != nil && !os.IsNotExist(err) {
+					return fmt.Errorf("failed to remove ROOT.xml: %w", err)
+				}
+			}
+		} else if len(warMatches) > 1 {
+			t.context.Log.Warning("Multiple WAR files found in build directory; cannot determine which to deploy, skipping context descriptor generation")
 		}
 	}
 
@@ -647,6 +735,7 @@ type tomcatConfig struct {
 type Tomcat struct {
 	Version                      string `yaml:"version"`
 	ExternalConfigurationEnabled bool   `yaml:"external_configuration_enabled"`
+	ContextPath                  string `yaml:"context_path"`
 }
 
 type ExternalConfiguration struct {
