@@ -49,6 +49,9 @@ type JRE interface {
     Finalize() error
     JavaHome() string
     Version()  string
+    // MemoryCalculatorCommand returns the shell snippet prepended to the
+    // container startup command; "" when the memory calculator is not installed.
+    MemoryCalculatorCommand() string
 }
 ```
 
@@ -182,6 +185,8 @@ func NewGraalVMJRE(ctx *common.Context) *GraalVMJRE {
 If no JRE-specific opts are needed, omit `extraFinalizeOpts`:
 
 ```go
+type MinimalJRE struct{ BaseJRE }
+
 func NewMinimalJRE(ctx *common.Context) *MinimalJRE {
     b := newBaseJRE(ctx, "Minimal JRE", "minimal", []string{"jre"}, nil, "")
     // extraFinalizeOpts left nil — BaseJRE writes only -Djava.io.tmpdir=$TMPDIR
@@ -220,12 +225,13 @@ var _ = Describe("MyJRE", func() {
 
 ### Detection
 
-`BaseJRE.Detect()` calls `DetectJREByEnv(jreKey)` which returns `true` when:
-- `JBP_CONFIG_<JREKEY>_JRE` is set, or
-- `JBP_CONFIG_COMPONENTS` names this JRE, or
-- `BP_JAVA_<JREKEY>` is set
+`BaseJRE.Detect()` calls `DetectJREByEnv(jreKey)` which returns `true` when **either**:
+- the documented `JBP_CONFIG_<NAME>_JRE` name is set (e.g. `JBP_CONFIG_OPEN_JDK_JRE`) — the **recommended** form, defined for each built-in provider in the `jreNameToDocumentedEnvVar` map, or
+- the auto-generated `JBP_CONFIG_<KEY>` alias is set — `jreKey` uppercased with `-` → `_` (e.g. `JBP_CONFIG_OPENJDK`).
 
-Replace `<JREKEY>` with the uppercased `jreKey` value.
+The documented `_JRE` names originate from the Ruby buildpack and are kept for backward compatibility, but they remain the recommended, fully-supported form: the buildpack points users to them, and (unlike the auto-generated alias) they also drive memory-calculator config. `JBP_CONFIG_COMPONENTS` is **deprecated** and is not used for JRE selection; there is no `BP_JAVA_<JREKEY>` detection variable.
+
+A **new custom JRE** responds only to the auto-generated `JBP_CONFIG_<KEY>` name unless you add an entry to `jreNameToDocumentedEnvVar`.
 
 ### Running tests
 
@@ -243,8 +249,8 @@ These are available in `src/java/jres/` and called by `BaseJRE` internally. You 
 
 | Function | Purpose |
 |----------|---------|
-| `GetJREVersion(ctx, jreKey)` | Resolves version from `BP_JAVA_VERSION`, `JBP_CONFIG_<KEY>_JRE`, then manifest default |
-| `DetectJREByEnv(jreKey)` | Returns `true` if `JBP_CONFIG_<KEY>_JRE` or `JBP_CONFIG_COMPONENTS` selects this JRE |
+| `GetJREVersion(ctx, jreKey)` | Resolves version from `BP_JAVA_VERSION`, then the documented `JBP_CONFIG_<NAME>_JRE` or auto-generated `JBP_CONFIG_<KEY>` alias, then manifest default |
+| `DetectJREByEnv(jreKey)` | Returns `true` if the documented `JBP_CONFIG_<NAME>_JRE` name or the auto-generated `JBP_CONFIG_<KEY>` alias selects this JRE |
 | `WriteJavaHomeProfileD(ctx, jreDir, javaHome)` | Writes `profile.d/java.sh` exporting `JAVA_HOME`, `JRE_HOME`, and `PATH` |
 | `WriteJavaOpts(ctx, opts)` | Appends opts to the centralized `.opts` file consumed by `profile.d/00_java_opts.sh` |
 | `common.DetermineJavaVersion(javaHome)` | Reads `$JAVA_HOME/release` → returns Java major version as int |
@@ -252,7 +258,7 @@ These are available in `src/java/jres/` and called by `BaseJRE` internally. You 
 ### Version resolution priority
 
 1. `BP_JAVA_VERSION` (e.g. `21`, `21.*`, `21.0.5`)
-2. `JBP_CONFIG_<JREKEY>_JRE` with `version:` field
+2. The documented `JBP_CONFIG_<NAME>_JRE` name, or the auto-generated `JBP_CONFIG_<KEY>` alias, with a `version:` field
 3. Manifest `default_versions` entry for this JRE key
 
 ### profile.d output
