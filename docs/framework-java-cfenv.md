@@ -3,7 +3,7 @@ The Java CfEnv Framework provides the `java-cfenv` library for Spring Boot 3.x a
 
 This is the recommended replacement for Spring AutoReconfiguration library which is deprecated. See the `java-cfenv` <a href="https://github.com/pivotal-cf/java-cfenv">repository</a> for more details.
 
-The included `java-cfenv` library activates the `cloud` Spring profile at runtime when `VCAP_SERVICES` is present, as the Spring AutoReconfiguration framework did. The buildpack itself does not set any Spring profile.
+The `cloud` Spring profile is activated at runtime by java-cfenv's `CloudProfileApplicationListener`, which ships in the `java-cfenv-all` module. To ensure the profile is active — or to activate it independently of java-cfenv — set it explicitly. Use `SPRING_PROFILES_INCLUDE=cloud` to add `cloud` alongside any other active profiles, or `SPRING_PROFILES_ACTIVE=cloud` to set it as the sole active profile (this replaces any others). The buildpack itself does not set any Spring profile.
 
 The buildpack selects the appropriate `java-cfenv` version based on the detected Spring Boot major version:
 

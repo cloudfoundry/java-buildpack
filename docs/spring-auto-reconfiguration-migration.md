@@ -2,6 +2,24 @@
 
 This guide provides step-by-step instructions for migrating from the deprecated **Spring Auto-reconfiguration** framework to **java-cfenv**.
 
+> **Note — the `cloud` Spring profile**
+>
+> Spring Auto-reconfiguration activated a Spring profile named `cloud`. java-cfenv only
+> activates that profile if the `java-cfenv-all` module is on the classpath (it contains
+> `CloudProfileApplicationListener`); the `java-cfenv-boot` module does **not**. If your
+> application relies on the `cloud` profile — for example `application-cloud.yml` /
+> `application-cloud.properties` or `@Profile("cloud")` beans — either use `java-cfenv-all`,
+> or activate it explicitly. If the application already sets other active profiles, use
+> `SPRING_PROFILES_INCLUDE` to add `cloud` alongside them:
+>
+> ```bash
+> cf set-env <APP> SPRING_PROFILES_INCLUDE cloud   # adds 'cloud' to any existing profiles
+> cf restage <APP>
+> ```
+>
+> Use `SPRING_PROFILES_ACTIVE=cloud` only if `cloud` should be the sole active profile (it
+> replaces any others).
+
 ---
 
 ## Table of Contents
@@ -453,15 +471,22 @@ public class CustomConfig {
 
 ### Issue: "cloud" profile not active
 
-**Cause**: java-cfenv only activates "cloud" profile on Cloud Foundry
+**Cause**: The `cloud` profile is activated by `CloudProfileApplicationListener`, which ships
+only in the `java-cfenv-all` module. The `java-cfenv-boot` dependency shown above does **not**
+activate it. If you previously depended on the `cloud` profile under Spring Auto-reconfiguration,
+it will not be active after migrating to `java-cfenv-boot` alone.
 
-**Solution**: This is expected. Locally, the "cloud" profile won't be active.
-
-To test cloud profile locally:
+**Solution**: Either depend on `java-cfenv-all` instead of `java-cfenv-boot`, or activate the
+profile explicitly. If the application already sets other active profiles, add `cloud` alongside
+them with `SPRING_PROFILES_INCLUDE`:
 
 ```bash
-java -jar myapp.jar --spring.profiles.active=cloud
+cf set-env <APP> SPRING_PROFILES_INCLUDE cloud   # adds 'cloud' to any existing profiles
+cf restage <APP>
 ```
+
+Use `SPRING_PROFILES_ACTIVE=cloud` only if `cloud` should be the sole active profile (it replaces
+any others). To activate it locally: `java -jar myapp.jar --spring.profiles.active=cloud`.
 
 ---
 
