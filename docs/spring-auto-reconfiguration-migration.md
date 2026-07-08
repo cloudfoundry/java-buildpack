@@ -70,8 +70,9 @@ This guide provides step-by-step instructions for migrating from the deprecated 
 <!-- Add to your pom.xml -->
 <dependency>
     <groupId>io.pivotal.cfenv</groupId>
-    <artifactId>java-cfenv-boot</artifactId>
-    <version>3.1.4</version>
+    <artifactId>java-cfenv-all</artifactId>
+    <!-- match your Spring Boot major: 3.5.1 for Spring Boot 3, 4.0.0 for Spring Boot 4 -->
+    <version>3.5.1</version>
 </dependency>
 ```
 
@@ -80,6 +81,7 @@ This guide provides step-by-step instructions for migrating from the deprecated 
 - Library reads `VCAP_SERVICES` and sets Spring Boot properties
 - Spring Boot autoconfiguration uses these properties
 - More transparent and Spring Boot native
+- `java-cfenv-all` bundles the property post-processors **and** the `cloud` profile listener (`CloudProfileApplicationListener`); use the lighter `java-cfenv-boot` instead only if you do not rely on the `cloud` profile
 
 ---
 
@@ -109,11 +111,11 @@ Check your `pom.xml` or `build.gradle`:
 
 ```xml
 <dependencies>
-    <!-- Add this dependency -->
+    <!-- Add this dependency (match your Spring Boot major: 3.5.1 for Spring Boot 3, 4.0.0 for Spring Boot 4) -->
     <dependency>
         <groupId>io.pivotal.cfenv</groupId>
-        <artifactId>java-cfenv-boot</artifactId>
-        <version>3.1.4</version>
+        <artifactId>java-cfenv-all</artifactId>
+        <version>3.5.1</version>
     </dependency>
 </dependencies>
 ```
@@ -122,7 +124,7 @@ Check your `pom.xml` or `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'io.pivotal.cfenv:java-cfenv-boot:3.1.4'
+    implementation 'io.pivotal.cfenv:java-cfenv-all:3.5.1' // 4.0.0 for Spring Boot 4
 }
 ```
 
@@ -245,7 +247,7 @@ You should see:
 ```
 Java Buildpack v1.x.x | https://github.com/cloudfoundry/java-buildpack
 -----> Supplying frameworks...
-       java-cf-env=3.1.4
+       java-cf-env=3.5.1
 ```
 
 ---
@@ -472,13 +474,13 @@ public class CustomConfig {
 ### Issue: "cloud" profile not active
 
 **Cause**: The `cloud` profile is activated by `CloudProfileApplicationListener`, which ships
-only in the `java-cfenv-all` module. The `java-cfenv-boot` dependency shown above does **not**
-activate it. If you previously depended on the `cloud` profile under Spring Auto-reconfiguration,
-it will not be active after migrating to `java-cfenv-boot` alone.
+only in the `java-cfenv-all` module. If you migrated with the lighter `java-cfenv-boot` module
+instead, it does **not** carry that listener, so the `cloud` profile you had under Spring
+Auto-reconfiguration will not be active.
 
-**Solution**: Either depend on `java-cfenv-all` instead of `java-cfenv-boot`, or activate the
-profile explicitly. If the application already sets other active profiles, add `cloud` alongside
-them with `SPRING_PROFILES_INCLUDE`:
+**Solution**: Depend on `java-cfenv-all` (as shown in the steps above), or activate the profile
+explicitly. If the application already sets other active profiles, add `cloud` alongside them with
+`SPRING_PROFILES_INCLUDE`:
 
 ```bash
 cf set-env <APP> SPRING_PROFILES_INCLUDE cloud   # adds 'cloud' to any existing profiles
@@ -527,7 +529,7 @@ If you encounter migration issues:
 ## Summary Checklist
 
 - [ ] Verify Spring Boot version (2.1+ required, 3.x recommended)
-- [ ] Add `java-cfenv-boot` dependency to `pom.xml` or `build.gradle`
+- [ ] Add `java-cfenv-all` dependency to `pom.xml` or `build.gradle` (match your Spring Boot major)
 - [ ] Remove Spring Cloud Connectors dependencies (if present)
 - [ ] Review and simplify custom service configurations
 - [ ] Remove `JBP_CONFIG_SPRING_AUTO_RECONFIGURATION` environment variable
