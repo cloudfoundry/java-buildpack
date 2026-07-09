@@ -272,5 +272,29 @@ var _ = Describe("Java CF Env", func() {
 				Expect(string(content)).To(ContainSubstring("java-cfenv-2.5.0.jar"))
 			})
 		})
+
+		Context("when the mirrored, underscore-named JAR is installed", func() {
+			// The CF dependency mirror names the artifact
+			// java-cfenv_<version>_<stack>_<sha>.jar (underscores), not the
+			// hyphenated Maven name. Finalize must still add it to the classpath.
+			BeforeEach(func() {
+				javaCfEnvDir := filepath.Join(depsDir, "0", "java_cf_env")
+				Expect(os.MkdirAll(javaCfEnvDir, 0755)).To(Succeed())
+				Expect(os.WriteFile(
+					filepath.Join(javaCfEnvDir, "java-cfenv_3.5.1_linux_noarch_any-stack_696225e3.jar"),
+					[]byte("fake jar"),
+					0644,
+				)).To(Succeed())
+			})
+
+			It("adds the mirrored JAR to the profile.d CLASSPATH", func() {
+				Expect(fw.Finalize()).To(Succeed())
+				scriptPath := filepath.Join(depsDir, "0", "profile.d", "java_cf_env.sh")
+				Expect(scriptPath).To(BeAnExistingFile())
+				content, err := os.ReadFile(scriptPath)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).To(ContainSubstring("java-cfenv_3.5.1_linux_noarch_any-stack_696225e3.jar"))
+			})
+		})
 	})
 })
