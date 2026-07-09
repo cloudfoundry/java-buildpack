@@ -50,6 +50,8 @@ var _ = Describe("Java CF Env artifact", func() {
 	var deps []manifestDependency
 
 	BeforeEach(func() {
+		deps = nil
+
 		manifestPath, err := filepath.Abs(filepath.Join("..", "..", "..", "manifest.yml"))
 		Expect(err).NotTo(HaveOccurred())
 
