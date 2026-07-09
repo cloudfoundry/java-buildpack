@@ -20,6 +20,27 @@ This guide provides step-by-step instructions for migrating from the deprecated 
 > Use `SPRING_PROFILES_ACTIVE=cloud` only if `cloud` should be the sole active profile (it
 > replaces any others).
 
+> **Note — controlling the automatic behaviour**
+>
+> When the application does not bundle java-cfenv itself, the buildpack injects `java-cfenv-all`
+> (property mapping **and** `cloud` profile). To scope this:
+> - `cf set-env <APP> JBP_CONFIG_JAVA_CF_ENV '{enabled: false}'` (+ `cf restage`) disables the
+>   **whole** framework — both property mapping and the `cloud` profile. There is no
+>   `cloud`-profile-only toggle.
+> - Because the buildpack backs off when the app already bundles a `java-cfenv*.jar`, bundling your
+>   own artifact wins: `java-cfenv-boot` = property mapping without the `cloud` profile;
+>   `java-cfenv` (core) = neither, use the `CfEnv` API directly.
+>
+> See [Java CfEnv Framework](framework-java-cfenv.md) for details.
+
+> **Note — backwards compatible with buildpack 4.x (java-buildpack 5.0.6+)**
+>
+> As of java-buildpack **5.0.6**, the buildpack injects `java-cfenv-all` by default, so the `cloud`
+> profile activation and the `VCAP_SERVICES` → Spring property mapping behave the same as under
+> java-buildpack 4.x. Apps that relied on either under 4.x keep working after upgrading — no
+> application change is required for the `cloud`/VCAP behaviour. (Buildpack 5.0.0–5.0.5 shipped the
+> bare `java-cfenv` core module, which activated neither; see #1349.)
+
 ---
 
 ## Table of Contents
