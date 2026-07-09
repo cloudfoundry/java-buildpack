@@ -290,7 +290,7 @@ cf set-env myapp JBP_CONFIG_OPEN_JDK_JRE \
   '{memory_calculator: {stack_threads: 300, class_count: 500, headroom: 10}}'
 ```
 
-`stack_threads` — number of user threads (default: 200); affects `-Xss` heap budget.
+`stack_threads` — number of user threads (default: 250); affects `-Xss` heap budget.
 `class_count` — estimated loaded classes (default: auto-detected); affects `-XX:MaxMetaspaceSize`.
 `headroom` — percent of total memory to leave unallocated (default: 0).
 
@@ -344,7 +344,7 @@ cf ssh myapp -- ls /home/vcap/deps/0/jre/bin/java-buildpack-memory-calculator-*
 cf ssh myapp -- echo $MEMORY_LIMIT
 ```
 
-**Wrong Java version selected** — check resolution order: `BP_JAVA_VERSION` → `JBP_CONFIG_<KEY>_JRE` → manifest default. Enable debug: `cf set-env myapp BP_LOG_LEVEL DEBUG`.
+**Wrong Java version selected** — check resolution order: `BP_JAVA_VERSION` → the documented `JBP_CONFIG_<NAME>_JRE` name (or the auto-generated `JBP_CONFIG_<KEY>` alias) → manifest default. Enable debug: `cf set-env myapp BP_LOG_LEVEL DEBUG`.
 
 ## Summary
 
