@@ -109,7 +109,7 @@ default_versions:
 - name: contrast-security
   version: 6.x
 - name: jrebel
-  version: 2025.x
+  version: 2026.x
 - name: java-memory-assistant
   version: 0.x
 - name: java-memory-assistant-cleanup
@@ -387,15 +387,6 @@ dependencies:
   - cflinuxfs5
   source: https://download-gcdn.ej-technologies.com/jprofiler/jprofiler_linux_16_1_1.tar.gz
   source_sha256: 4778a85b978308553129326e9bb7941b9cd73943539248fe62ba6b04f6ee3ef4
-- name: jrebel
-  version: 2025.4.2
-  uri: https://buildpacks.cloudfoundry.org/dependencies/jrebel/jrebel_2025.4.2_linux_noarch_any-stack_ebda7ad0.zip
-  sha256: ebda7ad0f07cb5115c7259ebddaed5ed154c04907a6f698e596f41d3c464eac1
-  cf_stacks:
-  - cflinuxfs4
-  - cflinuxfs5
-  source: https://dl.zeroturnaround.com/jrebel/releases/jrebel-2025.4.2-nosetup.zip
-  source_sha256: ebda7ad0f07cb5115c7259ebddaed5ed154c04907a6f698e596f41d3c464eac1
 - name: jrebel
   version: 2026.3.0
   uri: https://buildpacks.cloudfoundry.org/dependencies/jrebel/jrebel_2026.3.0_linux_noarch_any-stack_4c918a5c.zip
