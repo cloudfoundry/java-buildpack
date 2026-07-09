@@ -181,5 +181,7 @@ func (s *Supplier) frameworkVersionSuffix(framework frameworks.Framework) string
 		return ""
 	}
 
-	return fmt.Sprintf(" (default: %s)", dependency.Version)
+	// "manifest default" — the default version listed in manifest.yml, not necessarily what
+	// gets installed (e.g. java-cfenv resolves to a Spring-Boot-major-specific version).
+	return fmt.Sprintf(" (manifest default: %s)", dependency.Version)
 }
