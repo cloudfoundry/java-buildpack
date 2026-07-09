@@ -19,7 +19,7 @@ Command line arguments may optionally be configured.
 </table>
 Tags are printed to standard output by the buildpack detect script
 
-If the application uses Spring, [Spring profiles][] can be specified by setting the [`SPRING_PROFILES_ACTIVE`][] environment variable. This is automatically detected and used by Spring. The Spring Auto-reconfiguration Framework will specify the `cloud` profile in addition to any others.
+If the application uses Spring, [Spring profiles][] can be specified by setting the [`SPRING_PROFILES_ACTIVE`][] environment variable. This is automatically detected and used by Spring. The [Java CfEnv](framework-java-cfenv.md) framework — the replacement for the deprecated Spring Auto-reconfiguration — activates the `cloud` profile at runtime; you can also add it explicitly with `SPRING_PROFILES_INCLUDE=cloud`.
 
 ## Spring Boot
 
