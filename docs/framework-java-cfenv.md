@@ -25,6 +25,15 @@ The buildpack selects the appropriate `java-cfenv` version based on the detected
 </table>
 Tags are printed to standard output by the buildpack detect script
 
+## How it works
+
+The framework is implemented in `src/java/frameworks/java_cf_env.go`:
+
+1. **Detect** — activates only when all of these hold: the framework is enabled (see [Configuration](#configuration)); a Spring Boot 3.x or 4.x marker is found (a `spring-boot-{3,4}.*.jar` under `BOOT-INF/lib`, `WEB-INF/lib`, or `lib/`, or a `Spring-Boot-Version: 3.*` / `4.*` entry in `META-INF/MANIFEST.MF`); and the application does not already bundle a `java-cfenv*.jar` (if it does, the buildpack backs off and uses the application's own copy).
+2. **Supply** — selects the java-cfenv version from the detected Spring Boot major (Spring Boot 3 → the manifest's `3.x` line, Spring Boot 4 → the `4.x` line) and installs the `java-cfenv-all` jar into the dependency directory.
+3. **Finalize** — appends the installed jar to `CLASSPATH` via a `.profile.d/java_cf_env.sh` script, so it is on the application's runtime classpath.
+4. **Runtime** — Spring Boot reads the jar's `META-INF/spring.factories`: the `EnvironmentPostProcessor`s map `VCAP_SERVICES` to Spring properties, and `CloudProfileApplicationListener` (in the `java-cfenv-all` module) activates the `cloud` profile when running in Cloud Foundry.
+
 ## Configuration
 
 The framework can be disabled via the `JBP_CONFIG_JAVA_CF_ENV` environment variable:
@@ -53,3 +62,16 @@ Disable when:
 - The application handles `VCAP_SERVICES` manually with custom binding logic
 - The automatic `cloud` profile activation is unwanted
 - Another service binding library conflicts with `java-cfenv`
+
+`{enabled: false}` disables the **whole** framework — both the `VCAP_SERVICES` → Spring property mapping and the `cloud` profile activation. There is no option to disable only the `cloud` profile.
+
+For finer control, bundle a java-cfenv artifact in the application yourself. Because the buildpack backs off whenever a `java-cfenv*.jar` is already present, the app's choice wins:
+
+| App bundles | Property mapping | `cloud` profile |
+|-------------|------------------|-----------------|
+| _(nothing — buildpack injects `java-cfenv-all`)_ | yes | yes |
+| `java-cfenv-all` | yes | yes (app pins the version) |
+| `java-cfenv-boot` | yes | **no** (no `CloudProfileApplicationListener`) |
+| `java-cfenv` (core) | **no** (API only) | **no** |
+
+So an app can include `java-cfenv-boot` to keep property mapping without the `cloud` profile, or the bare `java-cfenv` core to opt out of all automatic behaviour and use the `CfEnv` API directly.
