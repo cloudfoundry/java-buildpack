@@ -1,15 +1,22 @@
 # Java CfEnv Framework
-The Java CfEnv Framework provides the `java-cfenv` library for Spring Boot 3+ applications. This library sets various Spring Boot properties by parsing CloudFoundry variables such as `VCAP_SERVICES`, allowing Spring Boot's autoconfiguration to kick in. 
+The Java CfEnv Framework provides the `java-cfenv` library for Spring Boot 3.x and 4.x applications. This library sets various Spring Boot properties by parsing Cloud Foundry variables such as `VCAP_SERVICES`, allowing Spring Boot's autoconfiguration to kick in.
 
-This is the recommended replacement for Spring AutoReconfiguration library which is deprecated. See the `java-cfenv` <a href="https://github.com/pivotal-cf/java-cfenv">repostitory</a> for more detail.
+This is the recommended replacement for Spring AutoReconfiguration library which is deprecated. See the `java-cfenv` <a href="https://github.com/pivotal-cf/java-cfenv">repository</a> for more details.
 
-It also sets the 'cloud' profile for Spring Boot applications, as the Spring AutoReconfiguration framework did.
+The `cloud` Spring profile is activated at runtime by java-cfenv's `CloudProfileApplicationListener`, which ships in the `java-cfenv-all` module. To ensure the profile is active — or to activate it independently of java-cfenv — set it explicitly. Use `SPRING_PROFILES_INCLUDE=cloud` to add `cloud` alongside any other active profiles, or `SPRING_PROFILES_ACTIVE=cloud` to set it as the sole active profile (this replaces any others). The buildpack itself does not set any Spring profile.
+
+The buildpack selects the appropriate `java-cfenv` version based on the detected Spring Boot major version:
+
+| Spring Boot | java-cfenv |
+|-------------|------------|
+| 3.x | 3.x (latest) |
+| 4.x | 4.x (latest) |
 
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td>Existence of a `Spring-Boot-Version: 3.*` manifest entry</td>
-    <td>No existing `java-cfenv` library found</td>
+    <td>Existence of a <tt>spring-boot-3.*.jar</tt> or <tt>spring-boot-4.*.jar</tt> in <tt>BOOT-INF/lib</tt>, <tt>WEB-INF/lib</tt>, or <tt>lib/</tt>; or a <tt>Spring-Boot-Version: 3.*</tt> / <tt>Spring-Boot-Version: 4.*</tt> entry in <tt>META-INF/MANIFEST.MF</tt></td>
+    <td>No existing <tt>java-cfenv</tt> library found in the application</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
@@ -17,3 +24,54 @@ It also sets the 'cloud' profile for Spring Boot applications, as the Spring Aut
   </tr>
 </table>
 Tags are printed to standard output by the buildpack detect script
+
+## How it works
+
+The framework is implemented in `src/java/frameworks/java_cf_env.go`:
+
+1. **Detect** — activates only when all of these hold: the framework is enabled (see [Configuration](#configuration)); a Spring Boot 3.x or 4.x marker is found (a `spring-boot-{3,4}.*.jar` under `BOOT-INF/lib`, `WEB-INF/lib`, or `lib/`, or a `Spring-Boot-Version: 3.*` / `4.*` entry in `META-INF/MANIFEST.MF`); and the application does not already bundle a `java-cfenv*.jar` (if it does, the buildpack backs off and uses the application's own copy).
+2. **Supply** — selects the java-cfenv version from the detected Spring Boot major (Spring Boot 3 → the manifest's `3.x` line, Spring Boot 4 → the `4.x` line) and installs the `java-cfenv-all` jar into the dependency directory.
+3. **Finalize** — appends the installed jar to `CLASSPATH` via a `.profile.d/java_cf_env.sh` script, so it is on the application's runtime classpath.
+4. **Runtime** — Spring Boot reads the jar's `META-INF/spring.factories`: the `EnvironmentPostProcessor`s map `VCAP_SERVICES` to Spring properties, and `CloudProfileApplicationListener` (in the `java-cfenv-all` module) activates the `cloud` profile when running in Cloud Foundry.
+
+## Configuration
+
+The framework can be disabled via the `JBP_CONFIG_JAVA_CF_ENV` environment variable:
+
+```bash
+cf set-env <app> JBP_CONFIG_JAVA_CF_ENV '{enabled: false}'
+cf restage <app>
+```
+
+The buildpack only re-reads this variable during staging, so a `cf restage` is required for the change to take effect.
+
+To re-enable, either set it back to `{enabled: true}` or remove the variable entirely:
+
+```bash
+cf unset-env <app> JBP_CONFIG_JAVA_CF_ENV
+cf restage <app>
+```
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `JBP_CONFIG_JAVA_CF_ENV` | `{enabled: true}` | Enable or disable the framework |
+
+Note: if `java-cfenv*.jar` is already present in the application, the buildpack skips injection automatically — no need to disable explicitly for that case.
+
+Disable when:
+- The application handles `VCAP_SERVICES` manually with custom binding logic
+- The automatic `cloud` profile activation is unwanted
+- Another service binding library conflicts with `java-cfenv`
+
+`{enabled: false}` disables the **whole** framework — both the `VCAP_SERVICES` → Spring property mapping and the `cloud` profile activation. There is no option to disable only the `cloud` profile.
+
+For finer control, bundle a java-cfenv artifact in the application yourself. Because the buildpack backs off whenever a `java-cfenv*.jar` is already present, the app's choice wins:
+
+| App bundles | Property mapping | `cloud` profile |
+|-------------|------------------|-----------------|
+| _(nothing — buildpack injects `java-cfenv-all`)_ | yes | yes |
+| `java-cfenv-all` | yes | yes (app pins the version) |
+| `java-cfenv-boot` | yes | **no** (no `CloudProfileApplicationListener`) |
+| `java-cfenv` (core) | **no** (API only) | **no** |
+
+So an app can include `java-cfenv-boot` to keep property mapping without the `cloud` profile, or the bare `java-cfenv` core to opt out of all automatic behaviour and use the `CfEnv` API directly.

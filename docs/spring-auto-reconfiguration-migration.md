@@ -2,6 +2,45 @@
 
 This guide provides step-by-step instructions for migrating from the deprecated **Spring Auto-reconfiguration** framework to **java-cfenv**.
 
+> **Note — the `cloud` Spring profile**
+>
+> Spring Auto-reconfiguration activated a Spring profile named `cloud`. java-cfenv only
+> activates that profile if the `java-cfenv-all` module is on the classpath (it contains
+> `CloudProfileApplicationListener`); the `java-cfenv-boot` module does **not**. If your
+> application relies on the `cloud` profile — for example `application-cloud.yml` /
+> `application-cloud.properties` or `@Profile("cloud")` beans — either use `java-cfenv-all`,
+> or activate it explicitly. If the application already sets other active profiles, use
+> `SPRING_PROFILES_INCLUDE` to add `cloud` alongside them:
+>
+> ```bash
+> cf set-env <APP> SPRING_PROFILES_INCLUDE cloud   # adds 'cloud' to any existing profiles
+> cf restage <APP>
+> ```
+>
+> Use `SPRING_PROFILES_ACTIVE=cloud` only if `cloud` should be the sole active profile (it
+> replaces any others).
+
+> **Note — controlling the automatic behaviour**
+>
+> When the application does not bundle java-cfenv itself, the buildpack injects `java-cfenv-all`
+> (property mapping **and** `cloud` profile). To scope this:
+> - `cf set-env <APP> JBP_CONFIG_JAVA_CF_ENV '{enabled: false}'` (+ `cf restage`) disables the
+>   **whole** framework — both property mapping and the `cloud` profile. There is no
+>   `cloud`-profile-only toggle.
+> - Because the buildpack backs off when the app already bundles a `java-cfenv*.jar`, bundling your
+>   own artifact wins: `java-cfenv-boot` = property mapping without the `cloud` profile;
+>   `java-cfenv` (core) = neither, use the `CfEnv` API directly.
+>
+> See [Java CfEnv Framework](framework-java-cfenv.md) for details.
+
+> **Note — backwards compatible with buildpack 4.x (java-buildpack 5.0.6+)**
+>
+> As of java-buildpack **5.0.6**, the buildpack injects `java-cfenv-all` by default, so the `cloud`
+> profile activation and the `VCAP_SERVICES` → Spring property mapping behave the same as under
+> java-buildpack 4.x. Apps that relied on either under 4.x keep working after upgrading — no
+> application change is required for the `cloud`/VCAP behaviour. (Buildpack 5.0.0–5.0.5 shipped the
+> bare `java-cfenv` core module, which activated neither; see #1349.)
+
 ---
 
 ## Table of Contents
@@ -52,8 +91,9 @@ This guide provides step-by-step instructions for migrating from the deprecated 
 <!-- Add to your pom.xml -->
 <dependency>
     <groupId>io.pivotal.cfenv</groupId>
-    <artifactId>java-cfenv-boot</artifactId>
-    <version>3.1.4</version>
+    <artifactId>java-cfenv-all</artifactId>
+    <!-- match your Spring Boot major: 3.5.1 for Spring Boot 3, 4.0.0 for Spring Boot 4 -->
+    <version>3.5.1</version>
 </dependency>
 ```
 
@@ -62,6 +102,7 @@ This guide provides step-by-step instructions for migrating from the deprecated 
 - Library reads `VCAP_SERVICES` and sets Spring Boot properties
 - Spring Boot autoconfiguration uses these properties
 - More transparent and Spring Boot native
+- `java-cfenv-all` bundles the property post-processors **and** the `cloud` profile listener (`CloudProfileApplicationListener`); use the lighter `java-cfenv-boot` instead only if you do not rely on the `cloud` profile
 
 ---
 
@@ -91,11 +132,11 @@ Check your `pom.xml` or `build.gradle`:
 
 ```xml
 <dependencies>
-    <!-- Add this dependency -->
+    <!-- Add this dependency (match your Spring Boot major: 3.5.1 for Spring Boot 3, 4.0.0 for Spring Boot 4) -->
     <dependency>
         <groupId>io.pivotal.cfenv</groupId>
-        <artifactId>java-cfenv-boot</artifactId>
-        <version>3.1.4</version>
+        <artifactId>java-cfenv-all</artifactId>
+        <version>3.5.1</version>
     </dependency>
 </dependencies>
 ```
@@ -104,7 +145,7 @@ Check your `pom.xml` or `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'io.pivotal.cfenv:java-cfenv-boot:3.1.4'
+    implementation 'io.pivotal.cfenv:java-cfenv-all:3.5.1' // 4.0.0 for Spring Boot 4
 }
 ```
 
@@ -227,7 +268,7 @@ You should see:
 ```
 Java Buildpack v1.x.x | https://github.com/cloudfoundry/java-buildpack
 -----> Supplying frameworks...
-       java-cf-env=3.1.4
+       java-cf-env=3.5.1
 ```
 
 ---
@@ -453,15 +494,22 @@ public class CustomConfig {
 
 ### Issue: "cloud" profile not active
 
-**Cause**: java-cfenv only activates "cloud" profile on Cloud Foundry
+**Cause**: The `cloud` profile is activated by `CloudProfileApplicationListener`, which ships
+only in the `java-cfenv-all` module. If you migrated with the lighter `java-cfenv-boot` module
+instead, it does **not** carry that listener, so the `cloud` profile you had under Spring
+Auto-reconfiguration will not be active.
 
-**Solution**: This is expected. Locally, the "cloud" profile won't be active.
-
-To test cloud profile locally:
+**Solution**: Depend on `java-cfenv-all` (as shown in the steps above), or activate the profile
+explicitly. If the application already sets other active profiles, add `cloud` alongside them with
+`SPRING_PROFILES_INCLUDE`:
 
 ```bash
-java -jar myapp.jar --spring.profiles.active=cloud
+cf set-env <APP> SPRING_PROFILES_INCLUDE cloud   # adds 'cloud' to any existing profiles
+cf restage <APP>
 ```
+
+Use `SPRING_PROFILES_ACTIVE=cloud` only if `cloud` should be the sole active profile (it replaces
+any others). To activate it locally: `java -jar myapp.jar --spring.profiles.active=cloud`.
 
 ---
 
@@ -502,7 +550,7 @@ If you encounter migration issues:
 ## Summary Checklist
 
 - [ ] Verify Spring Boot version (2.1+ required, 3.x recommended)
-- [ ] Add `java-cfenv-boot` dependency to `pom.xml` or `build.gradle`
+- [ ] Add `java-cfenv-all` dependency to `pom.xml` or `build.gradle` (match your Spring Boot major)
 - [ ] Remove Spring Cloud Connectors dependencies (if present)
 - [ ] Review and simplify custom service configurations
 - [ ] Remove `JBP_CONFIG_SPRING_AUTO_RECONFIGURATION` environment variable
