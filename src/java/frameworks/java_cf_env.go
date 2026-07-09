@@ -86,7 +86,9 @@ func (j *JavaCfEnvFramework) Supply() error {
 func (j *JavaCfEnvFramework) Finalize() error {
 	// Add the JAR to additional libraries (classpath)
 	javaCfEnvDir := filepath.Join(j.context.Stager.DepDir(), "java_cf_env")
-	jarPattern := filepath.Join(javaCfEnvDir, "java-cfenv-*.jar")
+	// Match both the Maven name (java-cfenv-all-<ver>.jar) and the CF mirror name
+	// (java-cfenv_<ver>_<stack>_<sha>.jar, underscores) — a hyphen-only glob misses the latter.
+	jarPattern := filepath.Join(javaCfEnvDir, "java-cfenv*.jar")
 
 	matches, err := filepath.Glob(jarPattern)
 	if err != nil || len(matches) == 0 {
