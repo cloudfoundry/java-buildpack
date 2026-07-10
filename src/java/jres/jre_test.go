@@ -313,6 +313,14 @@ dependencies:
 				Expect(dep.Name).To(Equal("openjdk"))
 				Expect(dep.Version).To(Equal("17.0.13"))
 			})
+
+			It("resolves exact patch version", func() {
+				os.Setenv("BP_JAVA_VERSION", "17.0.13")
+				dep, err := jres.GetJREVersion(ctx, "openjdk")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(dep.Name).To(Equal("openjdk"))
+				Expect(dep.Version).To(Equal("17.0.13"))
+			})
 		})
 
 		Context("without BP_JAVA_VERSION", func() {
