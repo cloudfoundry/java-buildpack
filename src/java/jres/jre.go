@@ -317,6 +317,12 @@ func normalizeVersionPattern(version string) string {
 	if strings.Contains(version, "*") {
 		return version
 	}
+	// Exact patch version (e.g. "17.0.13") — already fully specified, don't append ".*"
+	// which would produce an unmatchable pattern like "17.0.13.*".
+	exactVersionRegex := regexp.MustCompile(`^\d+\.\d+\.\d+$`)
+	if exactVersionRegex.MatchString(version) {
+		return version
+	}
 	return version + ".*"
 }
 
