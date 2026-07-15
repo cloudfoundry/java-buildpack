@@ -183,6 +183,12 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 - name: openjdk
+  version: 17.0.19+11
+  uri: https://example.com/openjdk-17.0.19+11.tar.gz
+  sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  cf_stacks:
+  - cflinuxfs4  
+- name: openjdk
   version: 21.0.5
   uri: https://example.com/openjdk-21.tar.gz
   sha256: 3333333333333333333333333333333333333333333333333333333333333333
@@ -320,6 +326,14 @@ dependencies:
 				Expect(err).NotTo(HaveOccurred())
 				Expect(dep.Name).To(Equal("openjdk"))
 				Expect(dep.Version).To(Equal("17.0.13"))
+			})
+
+			It("resolves exact version with build metadata (X.Y.Z+W format)", func() {
+				os.Setenv("BP_JAVA_VERSION", "17.0.19+11")
+				dep, err := jres.GetJREVersion(ctx, "openjdk")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(dep.Name).To(Equal("openjdk"))
+				Expect(dep.Version).To(Equal("17.0.19+11"))
 			})
 		})
 
