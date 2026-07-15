@@ -21,6 +21,7 @@ packaging_profiles:
     exclude:
     - datadog-javaagent
     - elastic-apm-agent
+    - elastic-otel-javaagent
     - azure-application-insights
     - skywalking-agent
     - splunk-otel-javaagent
@@ -44,6 +45,7 @@ packaging_profiles:
     exclude:
     - datadog-javaagent
     - elastic-apm-agent
+    - elastic-otel-javaagent
     - azure-application-insights
     - skywalking-agent
     - splunk-otel-javaagent
@@ -93,6 +95,8 @@ default_versions:
 - name: datadog-javaagent
   version: 1.x
 - name: elastic-apm-agent
+  version: 1.x
+- name: elastic-otel-javaagent
   version: 1.x
 - name: azure-application-insights
   version: 3.x
@@ -181,6 +185,9 @@ url_to_dependency_map:
   version: "$1"
 - match: elastic-apm-agent-(\d+\.\d+\.\d+)
   name: elastic-apm-agent
+  version: "$1"
+- match: elastic-otel-javaagent[-_](\d+\.\d+\.\d+)
+  name: elastic-otel-javaagent
   version: "$1"
 - match: applicationinsights-agent-(\d+\.\d+\.\d+)
   name: azure-application-insights
@@ -321,6 +328,15 @@ dependencies:
   - cflinuxfs5
   source: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.56.0/elastic-apm-agent-1.56.0.jar
   source_sha256: ''
+- name: elastic-otel-javaagent
+  version: 1.11.0
+  uri: https://repo1.maven.org/maven2/co/elastic/otel/elastic-otel-javaagent/1.11.0/elastic-otel-javaagent-1.11.0.jar
+  sha256: 61c0aae98e165ddfa3096d5d8ed16c159992b8ae284bf6296800839008cdb707
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://repo1.maven.org/maven2/co/elastic/otel/elastic-otel-javaagent/1.11.0/elastic-otel-javaagent-1.11.0.jar
+  source_sha256: 61c0aae98e165ddfa3096d5d8ed16c159992b8ae284bf6296800839008cdb707
 - name: google-stackdriver-profiler
   version: 0.4.0
   uri: https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz
