@@ -311,11 +311,17 @@ func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency
 }
 
 func normalizeVersionPattern(version string) string {
-	if strings.Contains(version, "+") {
-		return strings.ReplaceAll(version, "+", "*")
-	}
 	if strings.Contains(version, "*") {
 		return version
+	}
+	// Exact version with build metadata (e.g. "17.0.19+11") — pass through as-is.
+	// Must be checked before the general "+" replacement below.
+	exactVersionWithBuildRegex := regexp.MustCompile(`^\d+\.\d+\.\d+\+\d+$`)
+	if exactVersionWithBuildRegex.MatchString(version) {
+		return version
+	}
+	if strings.Contains(version, "+") {
+		return strings.ReplaceAll(version, "+", "*")
 	}
 	// Exact patch version (e.g. "17.0.13") — already fully specified, don't append ".*"
 	// which would produce an unmatchable pattern like "17.0.13.*".
