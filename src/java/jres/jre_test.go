@@ -177,12 +177,6 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 - name: openjdk
-  version: 17.0.13
-  uri: https://example.com/openjdk-17.tar.gz
-  sha256: 2222222222222222222222222222222222222222222222222222222222222222
-  cf_stacks:
-  - cflinuxfs4
-- name: openjdk
   version: 17.0.19+11
   uri: https://example.com/openjdk-17.0.19+11.tar.gz
   sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
@@ -301,7 +295,7 @@ dependencies:
 				dep, err := jres.GetJREVersion(ctx, "openjdk")
 				Expect(err).NotTo(HaveOccurred())
 				Expect(dep.Name).To(Equal("openjdk"))
-				Expect(dep.Version).To(Equal("17.0.13"))
+				Expect(dep.Version).To(Equal("17.0.19+11"))
 			})
 
 			It("resolves major version 21", func() {
@@ -317,15 +311,23 @@ dependencies:
 				dep, err := jres.GetJREVersion(ctx, "openjdk")
 				Expect(err).NotTo(HaveOccurred())
 				Expect(dep.Name).To(Equal("openjdk"))
-				Expect(dep.Version).To(Equal("17.0.13"))
+				Expect(dep.Version).To(Equal("17.0.19+11"))
 			})
 
-			It("resolves exact patch version", func() {
-				os.Setenv("BP_JAVA_VERSION", "17.0.13")
+			It("handles version patterns with wildcards", func() {
+				os.Setenv("BP_JAVA_VERSION", "17.+")
 				dep, err := jres.GetJREVersion(ctx, "openjdk")
 				Expect(err).NotTo(HaveOccurred())
 				Expect(dep.Name).To(Equal("openjdk"))
-				Expect(dep.Version).To(Equal("17.0.13"))
+				Expect(dep.Version).To(Equal("17.0.19+11"))
+			})
+
+			It("resolves exact patch version", func() {
+				os.Setenv("BP_JAVA_VERSION", "17.0.19")
+				dep, err := jres.GetJREVersion(ctx, "openjdk")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(dep.Name).To(Equal("openjdk"))
+				Expect(dep.Version).To(Equal("17.0.19+11"))
 			})
 
 			It("resolves exact version with build metadata (X.Y.Z+W format)", func() {
@@ -392,7 +394,7 @@ dependencies:
 				dep, err := jres.GetJREVersion(ctx, "openjdk")
 				Expect(err).NotTo(HaveOccurred())
 				Expect(dep.Name).To(Equal("openjdk"))
-				Expect(dep.Version).To(Equal("17.0.13"))
+				Expect(dep.Version).To(Equal("17.0.19+11"))
 			})
 
 			It("resolves version 11.+ pattern", func() {
