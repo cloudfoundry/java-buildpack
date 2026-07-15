@@ -5,7 +5,7 @@ The Elastic OTel Java Agent Framework causes an application to be automatically 
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td>Existence of a bound Elastic OTel service. The service must have a name, label, or tag containing <code>elastic-otel</code>, <code>edot-java</code>, or <code>elastic-edot</code>, and must provide an OTLP endpoint plus authentication credentials. The framework can also be enabled explicitly with <code>ELASTIC_OTEL_AGENT</code>.</td>
+    <td>Existence of a bound Elastic OTel service. The service must have a name, label, or tag containing <code>elastic-otel</code> and must provide an OTLP endpoint plus authentication credentials. The framework can also be enabled explicitly with <code>ELASTIC_OTEL_AGENT</code>.</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
@@ -17,7 +17,7 @@ Tags are printed to standard output by the buildpack detect script.
 
 ## User-Provided Service
 
-Users can provide their own Elastic OTel service. A user-provided service must have a name or tag with `elastic-otel`, `edot-java`, or `elastic-edot` in it so that the framework configures the application with the EDOT Java agent.
+Users can provide their own Elastic OTel service. A user-provided service must have a name or tag with `elastic-otel` in it so that the framework configures the application with the Elastic Otel Java agent.
 
 The credential payload can contain the following entries.
 
@@ -27,7 +27,6 @@ The credential payload can contain the following entries.
 | `otel.exporter.otlp.headers` | Explicit OTLP headers, for example `Authorization=ApiKey <key>`. If present, this takes precedence over derived authentication headers. |
 | `api_key` | Elastic API key. Converted to `otel.exporter.otlp.headers=Authorization=ApiKey <key>`. |
 | `secret_token` | Bearer token. Converted to `otel.exporter.otlp.headers=Authorization=Bearer <token>`. |
-| `access_token` | Bearer token. Converted to `otel.exporter.otlp.headers=Authorization=Bearer <token>`. |
 | `otel.*` | Any additional OpenTelemetry configuration applied as JVM system properties. |
 | `elastic.otel.*` | Any additional Elastic OTel configuration applied as JVM system properties. |
 
