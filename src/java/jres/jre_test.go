@@ -397,6 +397,14 @@ dependencies:
 				Expect(dep.Version).To(Equal("17.0.19+11"))
 			})
 
+			It("resolves exact version 17.0.19+11 pattern", func() {
+				os.Setenv("JBP_CONFIG_OPEN_JDK_JRE", "{jre: {version: 17.0.19+11}}")
+				dep, err := jres.GetJREVersion(ctx, "openjdk")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(dep.Name).To(Equal("openjdk"))
+				Expect(dep.Version).To(Equal("17.0.19+11"))
+			})
+
 			It("resolves version 11.+ pattern", func() {
 				os.Setenv("JBP_CONFIG_OPEN_JDK_JRE", "{jre: {version: 11.+}}")
 				dep, err := jres.GetJREVersion(ctx, "openjdk")
