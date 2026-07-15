@@ -310,14 +310,16 @@ func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency
 	return dep, nil
 }
 
+var exactVersionWithBuildRegex = regexp.MustCompile(`^\d+\.\d+\.\d+\+\d+$`)
+var exactVersionRegex = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
+
 func normalizeVersionPattern(version string) string {
 	if strings.Contains(version, "*") {
 		return version
 	}
 	// Exact version with build metadata (e.g. "17.0.19+11") — pass through as-is.
 	// Must be checked before the general "+" replacement below.
-	exactVersionWithBuildRegex := regexp.MustCompile(`^\d+\.\d+\.\d+\+\d+$`)
-	if exactVersionWithBuildRegex.MatchString(version) {
+	if isValidVersionWithBuild(version) {
 		return version
 	}
 	if strings.Contains(version, "+") {
@@ -325,11 +327,18 @@ func normalizeVersionPattern(version string) string {
 	}
 	// Exact patch version (e.g. "17.0.13") — already fully specified, don't append ".*"
 	// which would produce an unmatchable pattern like "17.0.13.*".
-	exactVersionRegex := regexp.MustCompile(`^\d+\.\d+\.\d+$`)
-	if exactVersionRegex.MatchString(version) {
+	if isValidVersion(version) {
 		return version
 	}
 	return version + ".*"
+}
+
+func isValidVersion(version string) bool {
+	return exactVersionRegex.MatchString(version)
+}
+
+func isValidVersionWithBuild(version string) bool {
+	return exactVersionWithBuildRegex.MatchString(version)
 }
 
 func parseJBPConfigVersion(configValue string) string {
