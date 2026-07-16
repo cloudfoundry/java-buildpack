@@ -86,10 +86,13 @@ func (s *SpringBootContainer) findSpringBootJar(buildDir string) (string, error)
 	return "", nil
 }
 
-// isSpringBootJar checks if a JAR is a Spring Boot JAR
+// isSpringBootJar checks if a JAR is a Spring Boot JAR by filename heuristic.
+// In real CF staging, the artifact is extracted as a zip before the buildpack runs,
+// so BOOT-INF/ exists on disk and Detect() never reaches this path.
+// This fallback only matters when a fat jar is pushed without prior extraction
+// (e.g. local testing). For a more robust check, read MANIFEST.MF from inside
+// the jar zip and look for Spring-Boot-Version or Start-Class headers.
 func (s *SpringBootContainer) isSpringBootJar(jarPath string) bool {
-	// TODO: In full implementation, we'd extract and check MANIFEST.MF
-	// For now, check file name patterns
 	name := filepath.Base(jarPath)
 	return strings.Contains(name, "spring") ||
 		strings.Contains(name, "boot") ||

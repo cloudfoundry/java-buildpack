@@ -34,6 +34,32 @@ The framework is implemented in `src/java/frameworks/java_cf_env.go`:
 3. **Finalize** — appends the installed jar to `CLASSPATH` via a `.profile.d/java_cf_env.sh` script, so it is on the application's runtime classpath.
 4. **Runtime** — Spring Boot reads the jar's `META-INF/spring.factories`: the `EnvironmentPostProcessor`s map `VCAP_SERVICES` to Spring properties, and `CloudProfileApplicationListener` (in the `java-cfenv-all` module) activates the `cloud` profile when running in Cloud Foundry.
 
+## VCAP_SERVICES auto-configuration
+
+Spring Boot has built-in support for flattening `VCAP_SERVICES` into `vcap.services.<name>.credentials.*` properties (`CloudFoundryVcapEnvironmentPostProcessor`). This works without java-cfenv but does **not** set `spring.datasource.url` or activate the `cloud` profile.
+
+`java-cfenv-all` adds service-aware auto-configuration on top: it detects bound services by tag, label, or URI scheme and maps them to the appropriate Spring Boot properties. For example, a bound PostgreSQL service with URI `postgres://host:5432/db` is automatically mapped to `spring.datasource.url=jdbc:postgresql://host:5432/db` (plus username, password, and driver class). For reactive apps, `spring.r2dbc.*` properties are set as well. With a single bound database service, no `application.yml` DataSource configuration is needed.
+
+This behavior is identical across java-cfenv 3.x and 4.x (the only difference is a Spring Boot 4 package relocation of `EnvironmentPostProcessor`).
+
+### JDBC services (`CfDataSourceEnvironmentPostProcessor`)
+
+| Service | Matching criteria | JDBC prefix |
+|---------|-------------------|-------------|
+| PostgreSQL | tag `postgresql`/`postgres`, label prefix `postgresql`, URI scheme `postgres://`/`postgresql://` | `jdbc:postgresql://` |
+| MySQL / MariaDB | tag `mysql`/`mariadb`, label prefix `mysql`/`mariadb`, URI scheme `mysql://`/`mariadb://` | `jdbc:mysql://` or `jdbc:mariadb://` |
+| SQL Server | label prefix `sqlserver`, URI scheme `sqlserver://` | `jdbc:sqlserver://` |
+| Oracle | label prefix `oracle`, URI scheme `oracle://` | `jdbc:oracle:thin:@` |
+| DB2 | tag `db2`/`sqldb`/`dashDB`, label prefix `db2`, URI scheme `db2://` | `jdbc:db2://` |
+
+### Other services (`CfEnvProcessor` implementations)
+
+| Service | Matching criteria | Properties set |
+|---------|-------------------|----------------|
+| MongoDB | tag `mongodb`, label prefix `mongolab`/`mongodb` | `spring.data.mongodb.uri` |
+| Redis | tag `redis`, URI scheme `redis://`/`rediss://` | `spring.data.redis.*` |
+| RabbitMQ | tag `rabbitmq`/`amqp`, URI scheme `amqp://`/`amqps://` | `spring.rabbitmq.*` |
+
 ## Configuration
 
 The framework can be disabled via the `JBP_CONFIG_JAVA_CF_ENV` environment variable:
