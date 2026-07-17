@@ -28,6 +28,12 @@ var settings struct {
 	GitHubToken          string
 	Platform             string
 	Stack                string
+
+	// Paths to fixture directories containing real Spring Boot fat jars from java-test-applications release.
+	// Each directory holds a single fat jar; passed to switchblade Deploy.Execute as the app source.
+	// Populated in TestIntegration before the suite runs.
+	SB3JarPath string
+	SB4JarPath string
 }
 
 func init() {
@@ -66,6 +72,16 @@ func TestIntegration(t *testing.T) {
 	)
 	Expect(err).NotTo(HaveOccurred())
 
+	// Download real Spring Boot fat jars for java-cfenv integration tests.
+	// Skip in cached/offline mode — tests self-skip when paths are empty.
+	if !settings.Cached {
+		sb3Jar, sb4Jar, cleanupJars, err := downloadJavaTestAppsJars(settings.Platform)
+		Expect(err).NotTo(HaveOccurred(), "failed to download java-test-applications jars for integration tests")
+		defer cleanupJars()
+		settings.SB3JarPath = sb3Jar
+		settings.SB4JarPath = sb4Jar
+	}
+
 	var suite spec.Suite
 	if settings.Serial {
 		suite = spec.New("integration", spec.Report(report.Terminal{}), spec.Sequential())
@@ -75,7 +91,7 @@ func TestIntegration(t *testing.T) {
 
 	// Core container tests
 	suite("Tomcat", testTomcat(platform, fixtures))
-	suite("SpringBoot", testSpringBoot(platform, fixtures))
+	suite("SpringBoot", testSpringBoot(platform, fixtures, settings.SB3JarPath, settings.SB4JarPath))
 	suite("JavaMain", testJavaMain(platform, fixtures))
 	suite("DistZip", testDistZip(platform, fixtures))
 

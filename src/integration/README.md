@@ -57,16 +57,41 @@ You can also run the tests directly using Go:
 cd src/integration
 
 # Run all tests
-BUILDPACK_FILE=/path/to/buildpack.zip go test -v -timeout 30m
+BUILDPACK_FILE=/path/to/buildpack.zip go test -mod vendor -v -timeout 30m ./
 
-# Run specific test suite
-BUILDPACK_FILE=/path/to/buildpack.zip go test -v -run TestIntegration/Tomcat
-
-# Run on Docker
-BUILDPACK_FILE=/path/to/buildpack.zip go test -v -platform=docker
+# Run on Docker (requires GitHub token)
+BUILDPACK_FILE=/path/to/buildpack.zip go test -mod vendor -v -timeout 30m ./ \
+  -platform=docker -github-token=<token>
 
 # Run offline tests
-BUILDPACK_FILE=/path/to/buildpack.zip go test -v -cached
+BUILDPACK_FILE=/path/to/buildpack.zip go test -mod vendor -v -timeout 30m ./ -cached
+```
+
+### Running a Subset of Tests
+
+The spec framework creates subtests 5 levels deep:
+`TestIntegration/integration/<Suite>/<context>/<it>`
+
+Use `-run` with a regex; Go does substring matching at each `/`-separated level:
+
+```bash
+# All SpringBoot real-jar tests
+-run "TestIntegration/integration/SpringBoot/with_real_Spring_Boot_fat_jars"
+
+# Single test — SB3 only
+-run "TestIntegration/integration/SpringBoot/with_real_Spring_Boot_fat_jars/SB3"
+
+# Single test — SB4 cfenv + loaded-jars
+-run "TestIntegration/integration/SpringBoot/with_real_Spring_Boot_fat_jars/SB4.*cloud_profile"
+
+# Single test — SB4 combined (cfenv + csp + metrics)
+-run "TestIntegration/integration/SpringBoot/with_real_Spring_Boot_fat_jars/SB4.*container-security"
+
+# All Tomcat tests
+-run "TestIntegration/integration/Tomcat"
+
+# All Frameworks tests
+-run "TestIntegration/integration/Frameworks"
 ```
 
 ## Test Organization

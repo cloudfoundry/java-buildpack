@@ -445,7 +445,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					deployment, logs, err := platform.Deploy.
 						WithServices(map[string]switchblade.Service{
 							"checkmarx-iast": {
-								"url":         "https://github.com/cloudfoundry/java-test-applications/raw/main/java-main-application/java-main-application.jar",
+								"url":         "https://github.com/cloudfoundry/java-test-applications/releases/download/v1.0.0/java-main-application-1.0.0.jar",
 								"manager_url": "https://checkmarx.example.com",
 								"api_key":     "test-api-key-12345",
 							},
