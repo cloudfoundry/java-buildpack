@@ -542,14 +542,14 @@ dependencies:
   source: https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.3/sapmachine-jre-25.0.3_linux-x64_bin.tar.gz
   source_sha256: 1a0c425ebcc41070dbd6203560ae60c62c5d1e7e03006d93081306d472e236a0
 - name: sealights-agent
-  version: 4.0.2800
-  uri: https://buildpacks.cloudfoundry.org/dependencies/sealights-agent/sealights-agent_4.0.2800_linux_noarch_any-stack_c74205ef.zip
-  sha256: c74205ef2d37f45226e6d7ed7a9eca629afb6f1d2e47f3c317a967c92202efa7
+  version: 4.0.2804
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sealights-agent/sealights-agent_4.0.2804_linux_noarch_any-stack_7399f6c6.zip
+  sha256: 7399f6c6466eb784a57aa10661204344126827c4786db9d5fa28ddfafe35cab2
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://agents.sealights.co/sealights-java/sealights-java-4.0.2800.zip
-  source_sha256: c74205ef2d37f45226e6d7ed7a9eca629afb6f1d2e47f3c317a967c92202efa7
+  source: https://agents.sealights.co/sealights-java/sealights-java-4.0.2804.zip
+  source_sha256: 7399f6c6466eb784a57aa10661204344126827c4786db9d5fa28ddfafe35cab2
 - name: skywalking-agent
   version: 9.6.0
   uri: https://buildpacks.cloudfoundry.org/dependencies/skywalking-agent/skywalking-agent_9.6.0_linux_noarch_any-stack_e17d512d.tgz
