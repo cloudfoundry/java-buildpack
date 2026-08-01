@@ -329,14 +329,14 @@ dependencies:
   - cflinuxfs4
   - cflinuxfs5
 - name: groovy
-  version: 4.0.32
-  uri: https://buildpacks.cloudfoundry.org/dependencies/groovy/groovy_4.0.32_linux_noarch_any-stack_f03e8838.zip
-  sha256: f03e8838b56c202d8c864d462f6117d3512fdb6d1db9afcd47dfd1af81683f50
+  version: 4.0.33
+  uri: https://buildpacks.cloudfoundry.org/dependencies/groovy/groovy_4.0.33_linux_noarch_any-stack_395a69a8.zip
+  sha256: 395a69a81d5e9915d360d630663c1d98534c9dec134cb267798e49370855d93d
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://groovy.jfrog.io/artifactory/dist-release-local/groovy-zips/apache-groovy-binary-4.0.32.zip
-  source_sha256: f03e8838b56c202d8c864d462f6117d3512fdb6d1db9afcd47dfd1af81683f50
+  source: https://groovy.jfrog.io/artifactory/dist-release-local/groovy-zips/apache-groovy-binary-4.0.33.zip
+  source_sha256: 395a69a81d5e9915d360d630663c1d98534c9dec134cb267798e49370855d93d
 - name: jacoco
   version: 0.8.15
   uri: https://buildpacks.cloudfoundry.org/dependencies/jacoco/jacoco_0.8.15_linux_noarch_any-stack_5b3f6ddb.zip
