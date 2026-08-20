@@ -264,10 +264,10 @@ func (j *JavaMainContainer) buildClasspath() (string, error) {
 	}
 
 	// Add all JARs in the build directory
-	jarFiles, err := filepath.Glob(filepath.Join(buildDir, "$HOME/*.jar"))
+	jarFiles, err := filepath.Glob(filepath.Join(buildDir, "*.jar"))
 	if err == nil {
 		for _, jar := range jarFiles {
-			classpathEntries = append(classpathEntries, filepath.Base(jar))
+			classpathEntries = append(classpathEntries, "$HOME/"+filepath.Base(jar))
 		}
 	}
 
@@ -314,3 +314,4 @@ func (j *JavaMainContainer) Release() (string, error) {
 
 	return JavaExecCommand(j.context.Stager.DepsIdx(), fmt.Sprintf("-cp ${CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s%s", mainClass, args)), nil
 }
+

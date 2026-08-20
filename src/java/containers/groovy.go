@@ -47,10 +47,7 @@ func (g *GroovyContainer) Supply() error {
 	// Install Groovy runtime
 	dep, err := g.context.Manifest.DefaultVersion("groovy")
 	if err != nil {
-		g.context.Log.Warning("Unable to determine default Groovy version")
-		// Fallback version
-		dep.Name = "groovy"
-		dep.Version = "4.0.0"
+		return fmt.Errorf("unable to determine Groovy version: %w", err)
 	}
 
 	// Install Groovy with strip components to remove the top-level directory
@@ -163,3 +160,4 @@ func (g *GroovyContainer) buildClasspath() string {
 	// Adding also container security provider and the additional CLASSPATH env built when profile.d scripts are sourced
 	return "-cp " + strings.Join(jarPaths, ":") + "${CLASSPATH:+:$CLASSPATH}${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER}"
 }
+

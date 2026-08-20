@@ -73,10 +73,7 @@ func (s *SpringBootCLIContainer) Supply() error {
 	// Install Spring Boot CLI runtime
 	dep, err := s.context.Manifest.DefaultVersion("spring-boot-cli")
 	if err != nil {
-		s.context.Log.Warning("Unable to determine default Spring Boot CLI version: %s", err.Error())
-		// Fallback version
-		dep.Name = "spring-boot-cli"
-		dep.Version = "2.7.0"
+		return fmt.Errorf("unable to determine Spring Boot CLI version: %w", err)
 	}
 
 	springBootCLIDir := filepath.Join(s.context.Stager.DepDir(), "spring-boot-cli")
@@ -210,3 +207,4 @@ func (s *SpringBootCLIContainer) noShebang(files []string) bool {
 	}
 	return true
 }
+
