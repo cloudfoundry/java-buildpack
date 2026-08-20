@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"path/filepath"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // OpenTelemetryJavaagentFramework implements OpenTelemetry instrumentation support
@@ -54,11 +52,7 @@ func (o *OpenTelemetryJavaagentFramework) Supply() error {
 	// Get OpenTelemetry agent dependency from manifest
 	dep, err := o.context.Manifest.DefaultVersion("open-telemetry-javaagent")
 	if err != nil {
-		o.context.Log.Warning("Unable to determine OpenTelemetry version, using default")
-		dep = libbuildpack.Dependency{
-			Name:    "open-telemetry-javaagent",
-			Version: "2.10.0", // Fallback version
-		}
+		return fmt.Errorf("unable to determine OpenTelemetry version: %w", err)
 	}
 
 	// Install OpenTelemetry agent JAR

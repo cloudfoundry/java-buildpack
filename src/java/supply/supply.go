@@ -25,7 +25,6 @@ type Supplier struct {
 func Run(s *Supplier) error {
 	s.Log.BeginStep("Supplying Java")
 
-	// Create container context
 	ctx := &common.Context{
 		Stager:    s.Stager,
 		Manifest:  s.Manifest,
@@ -53,13 +52,13 @@ func Run(s *Supplier) error {
 	s.Container = container
 
 	// Install JRE - returns installed JRE for config persistence
-	jre, jreName, err := s.installJRE()
+	jre, jreName, err := s.installJRE(ctx)
 	if err != nil {
 		return err
 	}
 
 	// Install frameworks (APM agents, etc.)
-	if err := s.installFrameworks(); err != nil {
+	if err := s.installFrameworks(ctx); err != nil {
 		s.Log.Error("Failed to install frameworks: %s", err.Error())
 		return err
 	}
@@ -88,16 +87,7 @@ func Run(s *Supplier) error {
 
 // installJRE installs the Java Runtime Environment.
 // Returns the installed JRE instance and its name so the caller can persist them to config.yml.
-func (s *Supplier) installJRE() (jres.JRE, string, error) {
-	// Create JRE context
-	ctx := &common.Context{
-		Stager:    s.Stager,
-		Manifest:  s.Manifest,
-		Installer: s.Installer,
-		Log:       s.Log,
-		Command:   s.Command,
-	}
-
+func (s *Supplier) installJRE(ctx *common.Context) (jres.JRE, string, error) {
 	// Create and populate JRE registry
 	registry := jres.NewRegistry(ctx)
 	registry.RegisterStandardJREs()
@@ -124,16 +114,7 @@ func (s *Supplier) installJRE() (jres.JRE, string, error) {
 }
 
 // installFrameworks installs framework components (APM agents, etc.)
-func (s *Supplier) installFrameworks() error {
-	// Create framework context
-	ctx := &common.Context{
-		Stager:    s.Stager,
-		Manifest:  s.Manifest,
-		Installer: s.Installer,
-		Log:       s.Log,
-		Command:   s.Command,
-	}
-
+func (s *Supplier) installFrameworks(ctx *common.Context) error {
 	// Create and populate framework registry
 	registry := frameworks.NewRegistry(ctx)
 	registry.RegisterStandardFrameworks()
@@ -185,3 +166,4 @@ func (s *Supplier) frameworkVersionSuffix(framework frameworks.Framework) string
 	// gets installed (e.g. java-cfenv resolves to a Spring-Boot-major-specific version).
 	return fmt.Sprintf(" (manifest default: %s)", dependency.Version)
 }
+

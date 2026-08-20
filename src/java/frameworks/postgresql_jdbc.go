@@ -5,8 +5,6 @@ import (
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"path/filepath"
 	"strings"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // PostgresqlJdbcFramework implements PostgreSQL JDBC driver support
@@ -43,11 +41,7 @@ func (p *PostgresqlJdbcFramework) Supply() error {
 	// Get PostgreSQL JDBC dependency from manifest
 	dep, err := p.context.Manifest.DefaultVersion("postgresql-jdbc")
 	if err != nil {
-		p.context.Log.Warning("Unable to determine PostgreSQL JDBC version, using default")
-		dep = libbuildpack.Dependency{
-			Name:    "postgresql-jdbc",
-			Version: "42.7.0", // Fallback version
-		}
+		return fmt.Errorf("unable to determine PostgreSQL JDBC version: %w", err)
 	}
 
 	// Install PostgreSQL JDBC JAR
@@ -150,3 +144,4 @@ func (p *PostgresqlJdbcFramework) hasPostgresDriver() bool {
 func (p *PostgresqlJdbcFramework) DependencyIdentifier() string {
 	return "postgresql-jdbc"
 }
+

@@ -6,8 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // SpringAutoReconfigurationFramework implements Spring Auto-reconfiguration support for Cloud Foundry
@@ -64,11 +62,7 @@ func (s *SpringAutoReconfigurationFramework) Supply() error {
 	// Get Spring Auto-reconfiguration dependency from manifest
 	dep, err := s.context.Manifest.DefaultVersion("auto-reconfiguration")
 	if err != nil {
-		s.context.Log.Warning("Unable to determine Spring Auto-reconfiguration version, using default")
-		dep = libbuildpack.Dependency{
-			Name:    "auto-reconfiguration",
-			Version: "2.13.0", // Fallback version
-		}
+		return fmt.Errorf("unable to determine Spring Auto-reconfiguration version: %w", err)
 	}
 
 	// Install Spring Auto-reconfiguration JAR
@@ -209,3 +203,4 @@ func (s *SpringAutoReconfigurationFramework) hasSpringCloudConnectors() bool {
 func (s *SpringAutoReconfigurationFramework) DependencyIdentifier() string {
 	return "auto-reconfiguration"
 }
+

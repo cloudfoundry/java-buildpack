@@ -7,8 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // NewRelicFramework implements New Relic APM agent support
@@ -60,11 +58,7 @@ func (n *NewRelicFramework) Supply() error {
 	// Get New Relic agent dependency from manifest
 	dep, err := n.context.Manifest.DefaultVersion("newrelic")
 	if err != nil {
-		n.context.Log.Warning("Unable to determine New Relic version, using default")
-		dep = libbuildpack.Dependency{
-			Name:    "newrelic",
-			Version: "8.14.0", // Fallback version
-		}
+		return fmt.Errorf("unable to determine New Relic version: %w", err)
 	}
 
 	// Install New Relic agent JAR
@@ -175,3 +169,4 @@ func (n *NewRelicFramework) Finalize() error {
 func (n *NewRelicFramework) DependencyIdentifier() string {
 	return "newrelic"
 }
+

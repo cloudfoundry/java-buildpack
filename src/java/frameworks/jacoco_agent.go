@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"path/filepath"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // JacocoAgentFramework implements JaCoCo code coverage agent support
@@ -58,11 +56,7 @@ func (j *JacocoAgentFramework) Supply() error {
 	// Get JaCoCo agent dependency from manifest
 	dep, err := j.context.Manifest.DefaultVersion("jacoco")
 	if err != nil {
-		j.context.Log.Warning("Unable to determine JaCoCo version, using default")
-		dep = libbuildpack.Dependency{
-			Name:    "jacoco",
-			Version: "0.8.12", // Fallback version
-		}
+		return fmt.Errorf("unable to determine JaCoCo version: %w", err)
 	}
 
 	// Install JaCoCo agent ZIP
@@ -176,3 +170,4 @@ func (j *JacocoAgentFramework) Finalize() error {
 func (j *JacocoAgentFramework) DependencyIdentifier() string {
 	return "jacoco"
 }
+

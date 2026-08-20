@@ -6,8 +6,6 @@ import (
 	"github.com/cloudfoundry/java-buildpack/src/java/resources"
 	"os"
 	"path/filepath"
-
-	"github.com/cloudfoundry/libbuildpack"
 )
 
 // AppDynamicsFramework implements AppDynamics APM agent support
@@ -52,11 +50,7 @@ func (a *AppDynamicsFramework) Supply() error {
 	// Get AppDynamics agent dependency from manifest
 	dep, err := a.context.Manifest.DefaultVersion("appdynamics")
 	if err != nil {
-		a.context.Log.Warning("Unable to determine AppDynamics version, using default")
-		dep = libbuildpack.Dependency{
-			Name:    "appdynamics",
-			Version: "24.7.0", // Fallback version
-		}
+		return fmt.Errorf("unable to determine AppDynamics version: %w", err)
 	}
 
 	// Install AppDynamics agent
@@ -193,3 +187,4 @@ func (a *AppDynamicsFramework) Finalize() error {
 func (a *AppDynamicsFramework) DependencyIdentifier() string {
 	return "appdynamics"
 }
+
