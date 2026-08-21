@@ -265,10 +265,8 @@ func (j *JavaMainContainer) buildClasspath() (string, error) {
 
 	// Add all JARs in the build directory
 	jarFiles, err := filepath.Glob(filepath.Join(buildDir, "*.jar"))
-	if err == nil {
-		for _, jar := range jarFiles {
-			classpathEntries = append(classpathEntries, "$HOME/"+filepath.Base(jar))
-		}
+	if err == nil && len(jarFiles) > 0 {
+		classpathEntries = append(classpathEntries, "$HOME/*.jar")
 	}
 
 	// Add lib directory if it exists

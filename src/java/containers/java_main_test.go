@@ -369,6 +369,24 @@ var _ = Describe("Java Main Container", func() {
 	})
 
 	Describe("buildClasspath", func() {
+		Context("with JARs in root directory", func() {
+			BeforeEach(func() {
+				os.WriteFile(filepath.Join(buildDir, "app.jar"), []byte("fake"), 0644)
+				os.WriteFile(filepath.Join(buildDir, "Main.class"), []byte("fake"), 0644)
+			})
+
+			It("includes root JARs with $HOME wildcard in classpath", func() {
+				container.Detect()
+				err := container.Finalize()
+				Expect(err).NotTo(HaveOccurred())
+
+				profileScript := filepath.Join(depsDir, "0", "profile.d", "java_main.sh")
+				data, err := os.ReadFile(profileScript)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(data)).To(ContainSubstring("$HOME/*.jar"))
+			})
+		})
+
 		Context("with JARs in root and lib/", func() {
 			BeforeEach(func() {
 				os.WriteFile(filepath.Join(buildDir, "app.jar"), []byte("fake"), 0644)
@@ -507,3 +525,4 @@ var _ = Describe("Java Main Container", func() {
 
 	})
 })
+
