@@ -618,14 +618,14 @@ dependencies:
   source: https://repo1.maven.org/maven2/org/cloudfoundry/tomcat-logging-support/3.4.0.RELEASE/tomcat-logging-support-3.4.0.RELEASE.jar
   source_sha256: 07de9efe8dda4c67dec6183ec1d59953abf1372cd71fe276fc4598739bd70667
 - name: your-kit-profiler
-  version: 2025.9.191
-  uri: https://buildpacks.cloudfoundry.org/dependencies/your-kit-profiler/your-kit-profiler_2025.9.191_linux_x64_any-stack_5e79eab6.zip
-  sha256: 5e79eab6bc02c70b30600c3d2c390147dd458d8f5488aa2abebb67525af7f26e
+  version: 2026.3.176
+  uri: https://buildpacks.cloudfoundry.org/dependencies/your-kit-profiler/your-kit-profiler_2026.3.176_linux_x64_cflinuxfs4_b12d3f13.zip
+  sha256: b12d3f1322e866153a64df87dc6002a5aaea47bdafe6e1235e10b5b22b4fb84b
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://download.yourkit.com/yjp/2025.9/YourKit-JavaProfiler-2025.9-b191-x64.zip
-  source_sha256: 5e79eab6bc02c70b30600c3d2c390147dd458d8f5488aa2abebb67525af7f26e
+  source: https://download.yourkit.com/yjp/2026.3.176/YourKit-Java-Profiler-2026.3.176-x64.zip
+  source_sha256: ''
 - name: zulu
   version: 8.0.504
   uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_8.0.504_linux_x64_cflinuxfs4_f443c5f5.tgz
