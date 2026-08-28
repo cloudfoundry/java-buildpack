@@ -386,6 +386,7 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 				// detects postgres:// URI scheme and maps to spring.datasource.url/username/password.
 				// This proves the full service connector pipeline is active, beyond
 				// Spring Boot's built-in vcap.services.* property flattening.
+				t.Skip("java-cfenv JDBC mapping broken on SB3+/SB4, see https://github.com/cloudfoundry/java-buildpack/issues/1406")
 				Eventually(springEnv("spring.datasource.url")).
 					Should(ContainSubstring("jdbc:postgresql://host:5432/dbname"))
 				Eventually(springEnv("spring.datasource.username")).
