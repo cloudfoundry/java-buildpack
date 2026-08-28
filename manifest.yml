@@ -113,7 +113,7 @@ default_versions:
 - name: java-memory-assistant-cleanup
   version: 0.x
 - name: your-kit-profiler
-  version: 2025.x
+  version: 2026.x
 - name: jprofiler-profiler
   version: 16.x
 - name: sealights-agent
