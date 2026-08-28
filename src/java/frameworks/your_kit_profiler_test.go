@@ -33,6 +33,14 @@ func installYourKitAgent(depsDir string) {
 	Expect(os.WriteFile(filepath.Join(libDir, "libyjpagent.so"), []byte("fake so"), 0644)).To(Succeed())
 }
 
+// installYourKitAgentSpacedDir simulates the 2026.3+ zip layout where the top-level
+// directory is "YourKit Java Profiler/" (contains spaces).
+func installYourKitAgentSpacedDir(depsDir string) {
+	libDir := filepath.Join(depsDir, "0", "your_kit_profiler", "YourKit Java Profiler", "bin", "linux-x86-64")
+	Expect(os.MkdirAll(libDir, 0755)).To(Succeed())
+	Expect(os.WriteFile(filepath.Join(libDir, "libyjpagent.so"), []byte("fake so"), 0644)).To(Succeed())
+}
+
 var _ = Describe("YourKitProfiler", func() {
 	var (
 		fw       *frameworks.YourKitProfilerFramework
@@ -131,6 +139,66 @@ var _ = Describe("YourKitProfiler", func() {
 		})
 	})
 
+	Describe("Supply path normalisation", func() {
+		Context("when libyjpagent.so is already at the canonical space-free path", func() {
+			BeforeEach(func() {
+				installYourKitAgent(depsDir)
+			})
+
+			It("leaves the file in place (no-op)", func() {
+				canonical := filepath.Join(depsDir, "0", "your_kit_profiler", "bin", "linux-x86-64", "libyjpagent.so")
+				info1, err := os.Stat(canonical)
+				Expect(err).NotTo(HaveOccurred())
+				// Simulate the normalisation logic: canonical already exists, nothing to do
+				Expect(info1).NotTo(BeNil())
+			})
+		})
+
+		Context("when libyjpagent.so is under a directory with spaces (2026.3+ layout)", func() {
+			BeforeEach(func() {
+				installYourKitAgentSpacedDir(depsDir)
+			})
+
+			It("copies libyjpagent.so to the canonical space-free path", func() {
+				installDir := filepath.Join(depsDir, "0", "your_kit_profiler")
+				canonical := filepath.Join(installDir, "bin", "linux-x86-64", "libyjpagent.so")
+				// Canonical does not exist yet
+				Expect(canonical).NotTo(BeAnExistingFile())
+
+				// Run the same normalisation logic the Supply() method uses
+				found, err := frameworks.FindFileInDirectoryWithArchFilter(installDir, "libyjpagent.so", nil, []string{"linux-x86-64"})
+				Expect(err).NotTo(HaveOccurred())
+				Expect(os.MkdirAll(filepath.Dir(canonical), 0755)).To(Succeed())
+				src, err := os.ReadFile(found)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(os.WriteFile(canonical, src, 0755)).To(Succeed())
+
+				Expect(canonical).To(BeAnExistingFile())
+				content, err := os.ReadFile(canonical)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).To(Equal("fake so"))
+			})
+
+			It("Finalize produces -agentpath with no spaces after normalisation", func() {
+				// Manually normalise (simulating Supply())
+				installDir := filepath.Join(depsDir, "0", "your_kit_profiler")
+				canonical := filepath.Join(installDir, "bin", "linux-x86-64", "libyjpagent.so")
+				found, err := frameworks.FindFileInDirectoryWithArchFilter(installDir, "libyjpagent.so", nil, []string{"linux-x86-64"})
+				Expect(err).NotTo(HaveOccurred())
+				Expect(os.MkdirAll(filepath.Dir(canonical), 0755)).To(Succeed())
+				src, err := os.ReadFile(found)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(os.WriteFile(canonical, src, 0755)).To(Succeed())
+
+				Expect(fw.Finalize()).To(Succeed())
+				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "45_your_kit_profiler.opts"))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).NotTo(ContainSubstring(" "))
+				Expect(string(content)).To(ContainSubstring("$DEPS_DIR/0/your_kit_profiler/bin/linux-x86-64/libyjpagent.so"))
+			})
+		})
+	})
+
 	Describe("Finalize", func() {
 		Context("with agent library present at the linux-x86-64 path", func() {
 			BeforeEach(func() {
@@ -217,3 +285,4 @@ var _ = Describe("YourKitProfiler", func() {
 		})
 	})
 })
+

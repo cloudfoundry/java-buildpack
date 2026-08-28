@@ -75,6 +75,30 @@ func (f *YourKitProfilerFramework) Supply() error {
 		return fmt.Errorf("failed to install your-kit-profiler: %w", err)
 	}
 
+	// YourKit 2026.3+ changed the top-level zip directory from
+	// "YourKit-JavaProfiler-YEAR.BUILD/" to "YourKit Java Profiler/" (with spaces).
+	// A space in -agentpath: causes the JVM to fail to start. Normalise by copying
+	// libyjpagent.so to a canonical space-free location if it is not already there.
+	canonicalAgent := filepath.Join(installDir, "bin", "linux-x86-64", "libyjpagent.so")
+	if _, err := os.Stat(canonicalAgent); os.IsNotExist(err) {
+		// Find the actual location inside the extracted archive
+		found, findErr := FindFileInDirectoryWithArchFilter(installDir, "libyjpagent.so", nil, []string{"linux-x86-64"})
+		if findErr != nil {
+			return fmt.Errorf("failed to locate libyjpagent.so after install: %w", findErr)
+		}
+		if err := os.MkdirAll(filepath.Dir(canonicalAgent), 0755); err != nil {
+			return fmt.Errorf("failed to create canonical agent dir: %w", err)
+		}
+		src, err := os.ReadFile(found)
+		if err != nil {
+			return fmt.Errorf("failed to read libyjpagent.so: %w", err)
+		}
+		if err := os.WriteFile(canonicalAgent, src, 0755); err != nil {
+			return fmt.Errorf("failed to write libyjpagent.so to canonical path: %w", err)
+		}
+		f.context.Log.Debug("Normalised libyjpagent.so to canonical path (source had spaces)")
+	}
+
 	f.context.Log.Debug("YourKit Profiler installed successfully")
 	return nil
 }
@@ -148,3 +172,4 @@ func (f *YourKitProfilerFramework) Finalize() error {
 	f.context.Log.Debug("YourKit Profiler configured (priority 45)")
 	return nil
 }
+
