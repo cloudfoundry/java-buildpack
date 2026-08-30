@@ -70,6 +70,9 @@ func testContainerDetectionErrors(platform switchblade.Platform, fixtures string
 				Expect(err).NotTo(HaveOccurred())
 				defer cleanup()
 
+				// CF CLI rejects a truly empty directory before staging; a placeholder lets the buildpack's detect run.
+				Expect(os.WriteFile(filepath.Join(appDir, ".keep"), []byte{}, 0644)).To(Succeed())
+
 				_, logs, err := platform.Deploy.Execute(name, appDir)
 				Expect(err).To(HaveOccurred())
 				Expect(logs.String()).To(ContainSubstring("detected a compatible application"))
@@ -165,3 +168,4 @@ func testContainerDetectionErrors(platform switchblade.Platform, fixtures string
 		})
 	}
 }
+
