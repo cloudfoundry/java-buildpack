@@ -299,13 +299,13 @@ dependencies:
   source: https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/6.34.0/contrast-agent-6.34.0.jar
   source_sha256: ''
 - name: datadog-javaagent
-  version: 1.65.1
-  uri: https://buildpacks.cloudfoundry.org/dependencies/datadog-javaagent/datadog-javaagent_1.65.1_linux_noarch_any-stack_04fa3c1e.jar
-  sha256: 04fa3c1ec79d6bf112f9b115465b2f41f352474b7aeb4178961adf4b24ff351d
+  version: 1.66.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/datadog-javaagent/datadog-javaagent_1.66.0_linux_noarch_any-stack_5f0eb511.jar
+  sha256: 5f0eb51160fade367d97404624561b6666f7475fb1453a7a73237eb643e398d8
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://repo1.maven.org/maven2/com/datadoghq/dd-java-agent/1.65.1/dd-java-agent-1.65.1.jar
+  source: https://repo1.maven.org/maven2/com/datadoghq/dd-java-agent/1.66.0/dd-java-agent-1.66.0.jar
   source_sha256: ''
 - name: elastic-apm-agent
   version: 1.56.0
