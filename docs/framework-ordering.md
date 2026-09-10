@@ -50,7 +50,8 @@ Line | Framework Name                          | Priority | Notes
 75   | SpringAutoReconfiguration              | 41       | Spring framework
 76   | SplunkOtelJavaAgent                    | 42       | Observability agent
 77   | SpringInsight                          | 43       | Spring monitoring
-78   | SkyWalkingAgent                        | 44       | APM agent
+78   | SkyWalkingAgent                        | 41       | APM agent
+78a  | ElasticOtelJavaAgent                   | 44       | Observability agent
 79   | YourKitProfiler                        | 45       | Profiler
 80   | JavaSecurity                           | 47       | Security configuration
 81   | JavaOpts                               | 99       | ⚠️ USER-DEFINED OPTS (ALWAYS LAST)

@@ -35,6 +35,7 @@ import (
 //   - 40: Seeker Security Provider
 //   - 41: SkyWalking Agent
 //   - 42: Splunk OTEL Java Agent
+//   - 44: Elastic OTel Java Agent
 //   - 45: YourKit Profiler
 //   - 46: Takipi Agent
 //   - 99: User JAVA_OPTS (always last)
