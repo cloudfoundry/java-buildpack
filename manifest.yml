@@ -573,13 +573,13 @@ dependencies:
   source: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.121/bin/apache-tomcat-9.0.121.tar.gz
   source_sha256: ''
 - name: tomcat
-  version: 10.1.59
-  uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_10.1.59_linux_noarch_any-stack_15e435e8.tgz
-  sha256: 15e435e8ecafd30e500dec7cd30fc289aed4cd8743db14d55024896be77d9241
+  version: 10.1.60
+  uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_10.1.60_linux_noarch_any-stack_ba8998cb.tgz
+  sha256: ba8998cb41b3695f3c2d47224c70f44035e9c6385652fdafdb64ac31c354efbd
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.59/bin/apache-tomcat-10.1.59.tar.gz
+  source: https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.60/bin/apache-tomcat-10.1.60.tar.gz
   source_sha256: ''
 - name: tomcat
   version: 11.0.25
