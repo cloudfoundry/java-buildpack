@@ -564,13 +564,13 @@ dependencies:
   source: https://github.com/signalfx/splunk-otel-java/releases/download/v2.31.1/splunk-otel-javaagent.jar
   source_sha256: 234f5b138c71dce938a6b71b8ecc0f9a2b0af5908a9a63a60aa9e65f1d24f925
 - name: tomcat
-  version: 9.0.121
-  uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_9.0.121_linux_noarch_any-stack_d1a80450.tgz
-  sha256: d1a804502cddfd1c1436c1c37809ed4cb807a9c64a8a35fe1747d3ba9a0edeab
+  version: 9.0.122
+  uri: https://buildpacks.cloudfoundry.org/dependencies/tomcat/tomcat_9.0.122_linux_noarch_any-stack_d8ec7e51.tgz
+  sha256: d8ec7e512e1450d23bceb14e93ac647ad20524ae8457a6eef529c077f8829890
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.121/bin/apache-tomcat-9.0.121.tar.gz
+  source: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.122/bin/apache-tomcat-9.0.122.tar.gz
   source_sha256: ''
 - name: tomcat
   version: 10.1.60
