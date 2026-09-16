@@ -161,6 +161,7 @@ For historical analysis documents from development sessions, see [`docs/archive/
   * [DataDog](docs/framework-datadog_javaagent.md) ([Configuration](docs/framework-datadog_javaagent.md#configuration)
   * [Debug](docs/framework-debug.md) ([Configuration](docs/framework-debug.md#configuration))
   * [Elastic APM Agent](docs/framework-elastic_apm_agent.md) ([Configuration](docs/framework-elastic_apm_agent.md#configuration))
+  * [Elastic OTel Java Agent](docs/framework-elastic_otel_java_agent.md) ([Configuration](docs/framework-elastic_otel_java_agent.md#configuration))
   * [Dynatrace SaaS/Managed OneAgent](docs/framework-dynatrace_one_agent.md) ([Configuration](docs/framework-dynatrace_one_agent.md#configuration))
   * [Google Stackdriver Profiler](docs/framework-google_stackdriver_profiler.md) ([Configuration](docs/framework-google_stackdriver_profiler.md#configuration))
   * [Introscope Agent](docs/framework-introscope_agent.md) ([Configuration](docs/framework-introscope_agent.md#configuration))
