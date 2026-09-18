@@ -26,17 +26,8 @@ Users may optionally provide their own MariaDB or MySQL service. A user-provided
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/maria_db_jdbc.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
-
-| Name | Description
-| ---- | -----------
-| `repository_root` | The URL of the MariaDB JDBC repository index ([details][repositories]).
-| `version` | The version of MariaDB JDBC to use. Candidate versions can be found in [this listing][].
+The framework has no user-configurable buildpack options.  The MariaDB JDBC driver version is managed by the buildpack manifest.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[`config/maria_db_jdbc.yml`]: ../config/maria_db_jdbc.yml
 [MariaDB]: https://mariadb.com
 [MySQL Service]: http://www.mysql.org
-[repositories]: extending-repositories.md
-[this listing]: http://download.pivotal.io.s3.amazonaws.com/mariadb-jdbc/index.yml
-[version syntax]: extending-repositories.md#version-syntax-and-ordering

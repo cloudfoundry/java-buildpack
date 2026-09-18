@@ -151,17 +151,15 @@ func (f *YourKitProfilerFramework) Finalize() error {
 	// Get session name from VCAP_APPLICATION (space:app)
 	sessionName := "cloudfoundry"
 
-	// Get port from config (default: 10001)
-	port := "10001"
-	portConfig := os.Getenv("JBP_CONFIG_YOUR_KIT_PROFILER")
-	if portConfig != "" && common.ContainsIgnoreCase(portConfig, "port") {
-		// Simple extraction (would need proper YAML parsing in production)
-		// For now, use default
+	// Load config and use the parsed port value
+	cfg, err := f.loadConfig()
+	if err != nil {
+		return fmt.Errorf("failed to load yourkit config: %w", err)
 	}
 
 	// Build agent path with options using runtime paths
-	agentOptions := fmt.Sprintf("dir=%s,logdir=%s,port=%s,sessionname=%s",
-		runtimeHomeDir, runtimeHomeDir, port, sessionName)
+	agentOptions := fmt.Sprintf("dir=%s,logdir=%s,port=%d,sessionname=%s",
+		runtimeHomeDir, runtimeHomeDir, cfg.Port, sessionName)
 	javaAgent := fmt.Sprintf("-agentpath:%s=%s", runtimeAgentPath, agentOptions)
 
 	// Write to .opts file using priority 45
@@ -171,5 +169,28 @@ func (f *YourKitProfilerFramework) Finalize() error {
 
 	f.context.Log.Debug("YourKit Profiler configured (priority 45)")
 	return nil
+}
+
+func (f *YourKitProfilerFramework) loadConfig() (*yourKitConfig, error) {
+	cfg := yourKitConfig{
+		Enabled: false,
+		Port:    10001,
+	}
+	config := os.Getenv("JBP_CONFIG_YOUR_KIT_PROFILER")
+	if config != "" {
+		yamlHandler := common.YamlHandler{}
+		if err := yamlHandler.ValidateFields([]byte(config), &cfg); err != nil {
+			f.context.Log.Warning("Unknown user config values: %s", err.Error())
+		}
+		if err := yamlHandler.Unmarshal([]byte(config), &cfg); err != nil {
+			return nil, fmt.Errorf("failed to parse JBP_CONFIG_YOUR_KIT_PROFILER: %w", err)
+		}
+	}
+	return &cfg, nil
+}
+
+type yourKitConfig struct {
+	Enabled bool `yaml:"enabled"`
+	Port    int  `yaml:"port"`
 }
 

@@ -262,6 +262,52 @@ var _ = Describe("SealightsAgent", func() {
 			})
 		})
 
+		Context("with auto_upgrade: true set via JBP_CONFIG_SEALIGHTS (no service credential)", func() {
+			BeforeEach(func() {
+				installSealightsAgent(depsDir, "sl-test-listener.jar")
+				os.Setenv("VCAP_SERVICES", sealightsVCAPServices("sealights", "my-sl", nil, "tok", ""))
+				os.Setenv("JBP_CONFIG_SEALIGHTS", "auto_upgrade: true")
+			})
+
+			It("opts file contains -Dsl.enableUpgrade=true", func() {
+				Expect(fw.Finalize()).To(Succeed())
+				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "39_sealights_agent.opts"))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).To(ContainSubstring("-Dsl.enableUpgrade=true"))
+			})
+		})
+
+		Context("with auto_upgrade: false set via JBP_CONFIG_SEALIGHTS (no service credential)", func() {
+			BeforeEach(func() {
+				installSealightsAgent(depsDir, "sl-test-listener.jar")
+				os.Setenv("VCAP_SERVICES", sealightsVCAPServices("sealights", "my-sl", nil, "tok", ""))
+				os.Setenv("JBP_CONFIG_SEALIGHTS", "auto_upgrade: false")
+			})
+
+			It("opts file does not contain -Dsl.enableUpgrade", func() {
+				Expect(fw.Finalize()).To(Succeed())
+				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "39_sealights_agent.opts"))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).NotTo(ContainSubstring("-Dsl.enableUpgrade"))
+			})
+		})
+
+		Context("with service credential 'enableUpgrade' and auto_upgrade: false in JBP_CONFIG_SEALIGHTS", func() {
+			BeforeEach(func() {
+				installSealightsAgent(depsDir, "sl-test-listener.jar")
+				os.Setenv("VCAP_SERVICES", sealightsVCAPServices("sealights", "my-sl", nil, "tok",
+					`"enableUpgrade":"true"`))
+				os.Setenv("JBP_CONFIG_SEALIGHTS", "auto_upgrade: false")
+			})
+
+			It("service credential takes precedence (enableUpgrade=true)", func() {
+				Expect(fw.Finalize()).To(Succeed())
+				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "39_sealights_agent.opts"))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).To(ContainSubstring("-Dsl.enableUpgrade=true"))
+			})
+		})
+
 		Context("with optional 'logLevel' credential", func() {
 			BeforeEach(func() {
 				installSealightsAgent(depsDir, "sl-test-listener.jar")

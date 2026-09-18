@@ -5,7 +5,7 @@ The Java Options Framework contributes arbitrary Java options to the application
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td><tt>java_opts</tt> set in the <tt>config/java_opts.yml</tt> file or the <tt>JAVA_OPTS</tt> environment variable set</td>
+    <td><tt>java_opts</tt> set in <tt>JBP_CONFIG_JAVA_OPTS</tt> or the <tt>JAVA_OPTS</tt> environment variable set</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
@@ -17,14 +17,14 @@ Tags are printed to standard output by the buildpack detect script
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by creating or modifying the [`config/java_opts.yml`][] file in the buildpack fork.
+The framework can be configured by setting the `JBP_CONFIG_JAVA_OPTS` environment variable.  The value must be valid inline YAML.
 
 | Name | Description
 | ---- | -----------
 | `from_environment` | Whether to append the value of the `JAVA_OPTS` environment variable to the collection of Java options
 | `java_opts` | The Java options to use when running the application. All values are used without modification when invoking the JVM. The options are specified as a single YAML scalar in plain style or enclosed in single or double quotes.
 
-Any `JAVA_OPTS` from either the config file or environment variables will be specified in the start command after any Java Opts added by other frameworks.
+Any `JAVA_OPTS` from either `JBP_CONFIG_JAVA_OPTS` or the `JAVA_OPTS` environment variable will be specified in the start command after any Java options added by other frameworks.
 
 ## Runtime variable expansion
 
@@ -46,8 +46,7 @@ cf set-env my-application JAVA_OPTS '-Dserver.port=$PORT'
 ```
 
 ```yaml
-# config/java_opts.yml
-java_opts: '-Xloggc:$PWD/beacon_gc.log -verbose:gc'
+JBP_CONFIG_JAVA_OPTS: '{ java_opts: "-Xloggc:$PWD/beacon_gc.log -verbose:gc" }'
 ```
 
 ### Command substitutions are never executed
@@ -105,12 +104,9 @@ cf set-env my-application JAVA_OPTS '-DcronExpr=0 */7 * * *'
 
 ## Examples
 
-### Configuration File Example
+### Environment Variable Example
 ```yaml
-# config/java_opts.yml
----
-from_environment: false
-java_opts: -Xloggc:$PWD/beacon_gc.log -verbose:gc
+JBP_CONFIG_JAVA_OPTS: '{ from_environment: false, java_opts: ["-Xloggc:$PWD/beacon_gc.log", "-verbose:gc"] }'
 ```
 
 ### Environment Variable Override Examples
@@ -171,7 +167,6 @@ However, using an array format is recommended for clarity and to avoid parsing a
 | `-XX:SurvivorRatio=<RATIO>` | Ratio of eden/survivor space. Solaris only.
 | `-XX:TargetSurvivorRatio=<RATIO>` | Desired ratio of survivor space used after scavenge.
 
-[`config/java_opts.yml`]: ../config/java_opts.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [Java Support for Large Memory Pages]: http://www.oracle.com/technetwork/java/javase/tech/largememory-jsp-137182.html
 [JRE Memory]: jre-open_jdk_jre.md#memory

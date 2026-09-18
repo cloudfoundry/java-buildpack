@@ -4,7 +4,7 @@ The JProfiler Profiler Framework contributes JProfiler configuration to the appl
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td><tt>enabled</tt> set in the <tt>config/jprofiler_profiler.yml</tt> file</td>
+    <td><tt>enabled</tt> set via <tt>JBP_CONFIG_JPROFILER_PROFILER</tt></td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
@@ -16,15 +16,27 @@ Tags are printed to standard output by the buildpack detect script
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by creating or modifying the [`config/jprofiler_profiler.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+The framework can be configured by setting the `JBP_CONFIG_JPROFILER_PROFILER` environment variable.  The value must be valid inline YAML.
 
 | Name | Description
 | ---- | -----------
-| `enabled` | Whether to enable the JProfiler Profiler
+| `enabled` | Whether to enable the JProfiler Profiler.  Defaults to `false`.
 | `port` | The port that the JProfiler Profiler will listen on.  Defaults to `8849`.
-| `nowait` | Whether to start process without waiting for JProfiler to connect first.  Defaults to `true`.
-| `repository_root` | The URL of the JProfiler Profiler repository index ([details][repositories]).
-| `version` | The version of the JProfiler Profiler to use. Candidate versions can be found in [this listing][].
+| `nowait` | Whether to start the process without waiting for JProfiler to connect first.  Defaults to `true`.
+
+### Examples
+
+Enable JProfiler on the default port:
+
+```yaml
+JBP_CONFIG_JPROFILER_PROFILER: '{enabled: true}'
+```
+
+Enable JProfiler on a custom port, waiting for connection:
+
+```yaml
+JBP_CONFIG_JPROFILER_PROFILER: '{enabled: true, port: 9000, nowait: false}'
+```
 
 ## Creating SSH Tunnel
 After starting an application with the JProfiler Profiler enabled, an SSH tunnel must be created to the container.  To create that SSH container, execute the following command:
@@ -39,8 +51,4 @@ Once the SSH tunnel has been created, your JProfiler Profiler should connect to 
 
 ![JProfiler Configuration](framework-jprofiler_profiler.png)
 
-[`config/jprofiler_profiler.yml`]: ../config/jprofiler_profiler.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[this listing]: http://download.pivotal.io.s3.amazonaws.com/jprofiler/index.yml
-[repositories]: extending-repositories.md
-[version syntax]: extending-repositories.md#version-syntax-and-ordering

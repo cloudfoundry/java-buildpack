@@ -79,12 +79,7 @@ So, here are a few steps you can take to normalize your certificate:
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/protect_app_security_provider.yml`][] file in the buildpack. The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
-
-| Name | Description
-| ---- | -----------
-| `repository_root` | The URL of the ProtectApp Security Provider repository index ([details][repositories]).
-| `version` | Version of the ProtectApp Security Provider to use.
+The framework has no user-configurable buildpack options.  The ProtectApp Security Provider version is managed by the buildpack manifest.  See [Additional Configuration](#additional-configuration) below for application-level configuration options.
 
 ### Additional Configuration
 
@@ -107,8 +102,5 @@ All ProtectApp configuration can also be provided via:
 - System properties passed through VCAP_SERVICES credentials (using the `-Dcom.ingrian.security.nae.*` prefix)
 - The credentials payload as documented above
 
-[`config/protect_app_security_provider.yml`]: ../config/protect_app_security_provider.yml
 [ProtectApp Security Service]: https://safenet.gemalto.com/data-encryption/protectapp-application-protection/
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[repositories]: extending-repositories.md
-[version syntax]: extending-repositories.md#version-syntax-and-ordering

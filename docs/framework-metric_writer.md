@@ -29,16 +29,18 @@ The Metric Writer Framework adds a set of CloudFoundry-specific Micrometer tags 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/metric_writer.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+The framework can be configured by setting the `JBP_CONFIG_METRIC_WRITER` environment variable.  The value must be valid inline YAML.
 
 | Name | Description
 | ---- | -----------
-| `enabled` | Whether to attempt metric augmentation
-| `repository_root` | The URL of the Metric Writer repository index ([details][repositories]).
-| `version` | The version of Metric Writer to use. Candidate versions can be found in [this listing][].
+| `enabled` | Whether to attempt metric augmentation.  Defaults to `false`.
+
+### Example
+
+Enable the metric writer:
+
+```yaml
+JBP_CONFIG_METRIC_WRITER: '{enabled: true}'
+```
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[`config/metric_writer.yml`]: ../config/metric_writer.yml
-[repositories]: extending-repositories.md
-[this listing]: https://java-buildpack.cloudfoundry.org/metric-writer/index.yml
-[version syntax]: extending-repositories.md#version-syntax-and-ordering

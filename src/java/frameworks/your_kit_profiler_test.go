@@ -241,6 +241,20 @@ var _ = Describe("YourKitProfiler", func() {
 				Expect(string(content)).To(ContainSubstring("port=10001"))
 			})
 
+			Context("when a custom port is configured", func() {
+				BeforeEach(func() {
+					os.Setenv("JBP_CONFIG_YOUR_KIT_PROFILER", "{enabled: true, port: 10002}")
+				})
+
+				It("opts file contains the configured port", func() {
+					Expect(fw.Finalize()).To(Succeed())
+					content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "45_your_kit_profiler.opts"))
+					Expect(err).NotTo(HaveOccurred())
+					Expect(string(content)).To(ContainSubstring("port=10002"))
+					Expect(string(content)).NotTo(ContainSubstring("port=10001"))
+				})
+			})
+
 			It("opts file contains dir and logdir pointing to $DEPS_DIR runtime path", func() {
 				Expect(fw.Finalize()).To(Succeed())
 				content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "45_your_kit_profiler.opts"))

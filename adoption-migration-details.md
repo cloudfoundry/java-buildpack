@@ -36,11 +36,11 @@ Applications compiled with Java 8 should generally run on Java 17 without issues
 - Tomcat 9 by default
 - Java 1.8.x by default
 
-**Starting with the Go-based Java Buildpack, they will be switched to:**
+**With the Go-based Java Buildpack, the defaults are:**
 - Tomcat 10
 - Java 17
 
-**This change will take effect only after redeploy or restage.**
+**These new defaults apply after redeploy or restage.**
 
 ## How to Maintain Current Versions
 
@@ -70,16 +70,16 @@ This section highlights significant breaking changes introduced in the Go-based 
 
 ### Custom JRE Usage
 
-Custom JRE usage will be supported only as documented in the [Custom JRE Usage Guide](custom-jre-usage.md).
+Custom JRE usage is supported only as documented in the [Custom JRE Usage Guide](docs/custom-jre-usage.md).
 
 ### Changed Default Configuration
 
 - **SpringAutoReconfigurationFramework is now disabled by default.** Please note that `SpringAutoReconfigurationFramework` is deprecated, and the recommended alternative is [java-cfenv](https://github.com/pivotal-cf/java-cfenv).
-- **JRE selection based on `JBP_CONFIG_COMPONENTS` is deprecated.** The Go-based buildpack supports JRE selection based on `JBP_CONFIG_<JRE_TYPE>` as described in the [README](https://github.com/cloudfoundry/java-buildpack/blob/feature/go-migration/README.md#jre-selection).
+- **JRE selection based on `JBP_CONFIG_COMPONENTS` is deprecated.** The Go-based buildpack supports JRE selection based on `JBP_CONFIG_<JRE_TYPE>` as described in the [README](README.md#jre-selection).
 
 ### Frameworks Not Included
 
-The following frameworks will not be migrated to the Go buildpack:
+The following frameworks were not migrated to the Go buildpack:
 
 - **Takipi Agent (OverOps)**: Removed because the agent has moved behind a licensed login wall, making it inaccessible for automated buildpack integration.
 - **Java Security**: Rarely used and custom security policies should be implemented at the platform level or within application code.
@@ -176,7 +176,7 @@ The Ruby buildpack only added `-XX:ActiveProcessorCount=$(nproc)` in the OpenJDK
 
 If you encounter issues during migration or have questions:
 1. Review the [buildpack documentation](../README.md)
-2. Check the [RFC document](https://github.com/cloudfoundry/community/pull/1392) for detailed technical information
+2. Check [RFC-0050](https://github.com/cloudfoundry/community/blob/main/toc/rfc/rfc-0050-java-buildpack-migration-to-golang.md) for detailed technical information
 3. Open an issue in the [Java Buildpack repository](https://github.com/cloudfoundry/java-buildpack)
 
 ## Summary Checklist

@@ -32,20 +32,11 @@ The credential payload of the service may contain the following entries:
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/jacoc_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
-
-| Name | Description
-| ---- | -----------
-| `repository_root` | The URL of the JaCoCo repository index ([details][repositories]).
-| `version` | The version of JaCoCo to use. Candidate versions can be found in [this listing][].
+The framework has no user-configurable buildpack options.  The JaCoCo agent version is managed by the buildpack manifest.  Agent properties are configured through the bound service credentials (see [User-Provided Service](#user-provided-service-optional) above).
 
 ### Additional Resources
 
 **Note:** The `resources/jacoco_agent` directory approach from the Ruby buildpack (2013-2025) is no longer supported. This was a **buildpack-level** feature where teams would fork the java-buildpack repository, add custom files to `resources/jacoco_agent/`, and package their custom buildpack. The Go buildpack does not package the `resources/` directory.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[`config/jacoco_agent.yml`]: ../config/jacoco_agent.yml
 [JaCoCo Service]: http://www.jacoco.org/jacoco/
-[repositories]: extending-repositories.md
-[this listing]: https://java-buildpack.cloudfoundry.org/jacoco/index.yml
-[version syntax]: extending-repositories.md#version-syntax-and-ordering

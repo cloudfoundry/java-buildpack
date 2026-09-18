@@ -49,19 +49,9 @@ or use the `services` block in the application manifest file.
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/elastic_apm_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
-
-| Name | Description
-| ---- | -----------
-| `service_name` | This can be overridden by a `service_name` entry in the credentials payload. If neither are supplied the default is the application_name as specified by Cloud Foundry.
-| `repository_root` | The URL of the Elastic APM repository index ([details][repositories]).
-| `version` | The version of Elastic APM to use. Candidate versions can be found in [this listing][].
+The framework has no user-configurable buildpack options.  The Elastic APM agent version is managed by the buildpack manifest.  Agent behaviour is configured entirely through the bound service credentials (see [User-Provided Service](#user-provided-service) above).
 
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[`config/elastic_apm_agent.yml`]: ../config/elastic_apm_agent.yml
 [Elastic APM]: https://www.elastic.co/guide/en/apm/agent/java/current/index.html
-[repositories]: extending-repositories.md
-[this listing]: https://raw.githubusercontent.com/elastic/apm-agent-java/master/cloudfoundry/index.yml
-[version syntax]: extending-repositories.md#version-syntax-and-ordering
 [Configuration of Elastic Agent]: https://www.elastic.co/guide/en/apm/agent/java/current/configuration.html

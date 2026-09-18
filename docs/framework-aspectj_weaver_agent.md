@@ -16,11 +16,18 @@ Tags are printed to standard output by the buildpack detect script
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by creating or modifying the [`config/aspectj_weaver_agent.yml`][] file in the buildpack fork.
+The framework can be configured by setting the `JBP_CONFIG_ASPECTJ_WEAVER_AGENT` environment variable.  The value must be valid inline YAML.
 
 | Name | Description
 | ---- | -----------
-| `enabled` | Whether to enable the AspectJ Runtime Weaving agent.
+| `enabled` | Whether to enable the AspectJ Runtime Weaving agent.  Defaults to `true`.
 
-[`config/aspectj_weaver_agent.yml`]: ../config/aspect_weaver_agent.yml
+### Example
+
+Disable the AspectJ weaver agent:
+
+```yaml
+JBP_CONFIG_ASPECTJ_WEAVER_AGENT: '{enabled: false}'
+```
+
 [Configuration and Extension]: ../README.md#configuration-and-extension

@@ -24,16 +24,7 @@ Users may optionally provide their own PostgreSQL service. A user-provided Postg
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/postgresql_jdbc.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
-
-| Name | Description
-| ---- | -----------
-| `repository_root` | The URL of the PostgreSQL JDBC repository index ([details][repositories]).
-| `version` | The version of PostgreSQL JDBC to use. Candidate versions can be found in [this listing][].
+The framework has no user-configurable buildpack options.  The PostgreSQL JDBC driver version is managed by the buildpack manifest.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[`config/postgresql_jdbc.yml`]: ../config/postgresql_jdbc.yml
 [PostgreSQL Service]: http://www.postgresql.org
-[repositories]: extending-repositories.md
-[this listing]: http://download.pivotal.io.s3.amazonaws.com/postgresql-jdbc/index.yml
-[version syntax]: extending-repositories.md#version-syntax-and-ordering

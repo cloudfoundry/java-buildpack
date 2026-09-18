@@ -22,7 +22,9 @@ The following are _very_ simple examples for deploying the artifact types that w
 
 ## Configuration and Extension
 
-The buildpack default configuration can be overridden with an environment variable matching the configuration file you wish to override minus the `.yml` extension. It is not possible to add new configuration properties and properties with `nil` or empty values will be ignored by the buildpack (in this case you will have to extend the buildpack, see below). The value of the variable should be valid inline yaml, referred to as "flow style" in the yaml spec ([Wikipedia][] has a good description of this yaml syntax).
+Configurable framework and JRE settings are overridden through component-specific `JBP_CONFIG_*` environment variables (for example, `JBP_CONFIG_OPEN_JDK_JRE` and `JBP_CONFIG_DEBUG`). Consult each component's documentation for its exact variable name and supported fields. The value must be valid inline YAML, referred to as "flow style" in the YAML spec ([Wikipedia][] has a good description of this syntax).
+
+> **Note:** The Ruby buildpack's `config/*.yml` file-based configuration is not used by this buildpack.  All configuration is done through environment variables as described below.
 
 There are two levels of overrides: operator and application developer.
 
@@ -119,11 +121,19 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 
 The buildpack supports extension through the use of Git repository forking. The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository. Make the required extension changes in the copy of the repository. Then specify the URL of the new repository when pushing Cloud Foundry applications. If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes. More information on extending the buildpack is available [here](docs/extending.md).
 
+## GA Status
+
+**v5.1.0 is the first generally available (GA) release of the Go-based Java Buildpack.**
+
+This release is declared GA in accordance with [RFC-0050][] and supersedes the experimental Go buildpack releases in the 5.0.x line.  The Ruby-based buildpack (4.x) is no longer receiving feature updates; operators are encouraged to migrate to v5.1.0 or later.
+
+[RFC-0050]: https://github.com/cloudfoundry/community/blob/main/toc/rfc/rfc-0050-java-buildpack-migration-to-golang.md
+
 ## Ruby vs Go Migration Status
 
 This Go-based buildpack is a migration from the original Ruby-based Cloud Foundry Java Buildpack. For comprehensive information about the migration status, component parity, and architectural differences:
 
-* **[Ruby vs Go Buildpack Comparison](ruby_vs_go_buildpack_comparison.md)** - Technical deep-dive into how dependency extraction differs between Ruby and Go implementations
+* **[Ruby vs Go Buildpack Comparison](RUBY_VS_GO_BUILDPACK_COMPARISON.md)** - Technical deep-dive into how dependency extraction differs between Ruby and Go implementations
 
 **⚠️ Important Migration Note:** The Go buildpack does **NOT** support the Ruby buildpack's `repository_root` configuration approach for custom JREs (via `JBP_CONFIG_*` environment variables). Custom JREs now require forking the buildpack and modifying `manifest.yml`. See [Custom JRE Usage](docs/custom-jre-usage.md) for details.
 
@@ -375,15 +385,14 @@ For detailed guidelines about setting up and running tests please check this [Te
 ## License
 This buildpack is released under version 2.0 of the [Apache License][].
 
-[`config/` directory]: config
 [Apache License]: http://www.apache.org/licenses/LICENSE-2.0
 [Cloud Foundry]: http://www.cloudfoundry.org
 [contributor guidelines]: CONTRIBUTING.md
 [disables `remote_downloads`]: docs/extending-caches.md#configuration
 [Environment Variables]: http://docs.cloudfoundry.org/devguide/deploy-apps/manifest.html#env-block
 [GitHub's forking functionality]: https://help.github.com/articles/fork-a-repo
-[Grails]: http://grails.org
-[Groovy]: http://groovy.codehaus.org
+[Grails]: https://grails.apache.org/
+[Groovy]: https://groovy-lang.org/
 [Play Framework]: http://www.playframework.com
 [pull request]: https://help.github.com/articles/using-pull-requests
 [Pull requests]: http://help.github.com/send-pull-requests

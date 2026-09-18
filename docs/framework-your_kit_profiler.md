@@ -4,7 +4,7 @@ The YourKit Profiler Framework contributes YourKit Profiler configuration to the
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td><tt>enabled</tt> set in the <tt>config/your_kit_profiler.yml</tt> file</td>
+    <td><tt>enabled</tt> set via <tt>JBP_CONFIG_YOUR_KIT_PROFILER</tt></td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
@@ -16,15 +16,26 @@ Tags are printed to standard output by the buildpack detect script
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by creating or modifying the [`config/your_kit_profiler.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+The framework can be configured by setting the `JBP_CONFIG_YOUR_KIT_PROFILER` environment variable.  The value must be valid inline YAML.
 
 | Name | Description
 | ---- | -----------
-| `default_session_name` | The session name to display in the YourKit Profiler UI.  Defaults to `<APPLICATION_NAME>:<INSTANCE_INDEX>`.
-| `enabled` | Whether to enable the YourKit Profiler
+| `enabled` | Whether to enable the YourKit Profiler.  Defaults to `false`.
 | `port` | The port that the YourKit Profiler will listen on.  Defaults to `10001`.
-| `repository_root` | The URL of the YourKit Profiler repository index ([details][repositories]).
-| `version` | The version of the YourKit Profiler to use. Candidate versions can be found in the listings for [jammy][].
+
+### Examples
+
+Enable YourKit Profiler on the default port:
+
+```yaml
+JBP_CONFIG_YOUR_KIT_PROFILER: '{enabled: true}'
+```
+
+Enable YourKit Profiler on a custom port:
+
+```yaml
+JBP_CONFIG_YOUR_KIT_PROFILER: '{enabled: true, port: 10002}'
+```
 
 ## Creating SSH Tunnel
 After starting an application with the YourKit Profiler enabled, an SSH tunnel must be created to the container.  To create that SSH container, execute the following command:
@@ -39,8 +50,4 @@ Once the SSH tunnel has been created, your YourKit Profiler should connect to `l
 
 ![YourKit Configuration](framework-your_kit_profiler.png)
 
-[`config/your_kit_profiler.yml`]: ../config/your_kit_profiler.yml
-[jammy]: https://download.run.pivotal.io/your-kit/bioni/x86_64/index.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[repositories]: extending-repositories.md
-[version syntax]: extending-repositories.md#version-syntax-and-ordering

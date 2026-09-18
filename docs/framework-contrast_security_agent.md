@@ -22,18 +22,8 @@ When binding ContrastSecurity using a user-provided service, it must have name o
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/contrast_security_agent.yml`][] file in the buildpack fork. The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
-
-| Name | Description
-| ---- | -----------
-| `repository_root` | The URL of the Contrast Security repository index ([details][repositories]).
-| `version` | The version of Contrast Security to use. Candidate versions can be found in [this listing][].
+The framework has no user-configurable options.  The Contrast Security agent version is managed by the buildpack manifest.
 
 [Contrast Security]: https://www.contrastsecurity.com
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [Contrast Security Service]: https://www.contrastsecurity.com
-[`config/contrast_security_agent.yml`]: ../config/contrast_security_agent.yml
-[Configuration and Extension]: ../README.md#configuration-and-extension
-[repositories]: extending-repositories.md
-[this listing]: https://artifacts.contrastsecurity.com/agents/java/index.yml
-[version syntax]: extending-repositories.md#version-syntax-and-ordering
