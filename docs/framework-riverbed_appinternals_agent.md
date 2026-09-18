@@ -40,11 +40,6 @@ The framework has no user-configurable buildpack options.  The Riverbed AppInter
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
 
-
-**NOTE**
-
-If the Riverbed Service Broker's version is greater than or equal to 10.20, the buildpack will instead download Riverbed AppInternals agent from Riverbed Service Broker and will fall back to using `repository_root` from the buildpack manifest only if Service Broker failed to serve the Agent artifact.
-
 **NOTE**
 
 If the Rivered verstion is 10.21.9 or later, the buildpack will load the profiler normally, instead of from the Service Broker. This allows for creating multiple offline buildpacks containing different versions.
