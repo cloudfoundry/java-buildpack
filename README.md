@@ -127,7 +127,7 @@ The buildpack supports extension through the use of Git repository forking. The 
 
 This release is declared GA in accordance with [RFC-0050][] and supersedes the experimental Go buildpack releases in the 5.0.x line.  The Ruby-based buildpack (4.x) is no longer receiving feature updates; operators are encouraged to migrate to v5.1.0 or later.
 
-[RFC-0050]: https://github.com/cloudfoundry/community/blob/main/toc/rfc/rfc-0050-go-java-buildpack.md
+[RFC-0050]: https://github.com/cloudfoundry/community/blob/main/toc/rfc/rfc-0050-java-buildpack-migration-to-golang.md
 
 ## Ruby vs Go Migration Status
 
