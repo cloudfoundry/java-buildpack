@@ -17,12 +17,11 @@ When binding SkyWalking using a user-provided service, it must have name or tag 
 
 | Name | Description
 | ---- | -----------
-| `application-name` | (Optional) The application's name
+| `collector_backend_services` | The collector backend address(es). Examples: single collector — `127.0.0.1:11800`; cluster — `10.2.45.126:11800,10.2.45.127:11800`. Also accepted as `collectorBackendServices` or `backend_service`.
 | `sample-n-per-3-secs` | (Optional) The number of sampled traces per 3 seconds. Negative number means sample traces as many as possible, most likely 100%
 | `span-limit-per-segment` | (Optional) The max amount of spans in a single segment
 | `ignore-suffix` |  (Optional) Ignore the segments if their operation names start with these suffix
 | `open-debugging-class` | (Optional) If true, skywalking agent will save all instrumented classes files in `/debugging` folder.Skywalking team may ask for these files in order to resolve compatible problem
-| `servers` |  Server addresses .Examples: Single collector：servers="127.0.0.1:8080",Collector cluster：servers="10.2.45.126:8080,10.2.45.127:7600"
 | `logging-level` | (Optional) Logging level
 
 ## Configuration
@@ -32,11 +31,16 @@ The framework can be configured by setting the `JBP_CONFIG_SKY_WALKING_AGENT` en
 
 | Name | Description
 | ---- | -----------
-| `default_application_name` | This is omitted by default but can be added to specify the application name in the SkyWalking dashboard.  This can be overridden by an `application-name` entry in the credentials payload.  If neither are supplied the default is the `application_name` as specified by Cloud Foundry.
+| `default_application_name` | Fallback application name used in the SkyWalking dashboard **only when `VCAP_APPLICATION` is not available** (i.e. outside a Cloud Foundry container).  On Cloud Foundry, `VCAP_APPLICATION.application_name` is always used instead, prefixed with the space name (`space:app`), and this setting is ignored.
+
+### Application name resolution order
+
+1. **`VCAP_APPLICATION`** — the buildpack reads `space_name` and `application_name` from this variable and sets the service name to `<space>:<app>`.  This is the value used for every normal Cloud Foundry deployment; `default_application_name` has no effect here.
+2. **`default_application_name`** (fallback) — used only when `VCAP_APPLICATION` is absent or unparseable (e.g. running the agent outside Cloud Foundry).
 
 ### Example
 
-Set a custom application name:
+Set a fallback name for non-CF environments:
 
 ```yaml
 JBP_CONFIG_SKY_WALKING_AGENT: '{default_application_name: my-service}'

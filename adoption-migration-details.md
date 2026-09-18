@@ -70,7 +70,7 @@ This section highlights significant breaking changes introduced in the Go-based 
 
 ### Custom JRE Usage
 
-Custom JRE usage is supported only as documented in the [Custom JRE Usage Guide](custom-jre-usage.md).
+Custom JRE usage is supported only as documented in the [Custom JRE Usage Guide](docs/custom-jre-usage.md).
 
 ### Changed Default Configuration
 

@@ -24,7 +24,7 @@ The framework can be configured by setting the `JBP_CONFIG_JAVA_OPTS` environmen
 | `from_environment` | Whether to append the value of the `JAVA_OPTS` environment variable to the collection of Java options
 | `java_opts` | The Java options to use when running the application. All values are used without modification when invoking the JVM. The options are specified as a single YAML scalar in plain style or enclosed in single or double quotes.
 
-Any `JAVA_OPTS` from either the config file or environment variables will be specified in the start command after any Java Opts added by other frameworks.
+Any `JAVA_OPTS` from either `JBP_CONFIG_JAVA_OPTS` or the `JAVA_OPTS` environment variable will be specified in the start command after any Java options added by other frameworks.
 
 ## Runtime variable expansion
 
@@ -46,8 +46,7 @@ cf set-env my-application JAVA_OPTS '-Dserver.port=$PORT'
 ```
 
 ```yaml
-# config/java_opts.yml
-java_opts: '-Xloggc:$PWD/beacon_gc.log -verbose:gc'
+JBP_CONFIG_JAVA_OPTS: '{ java_opts: "-Xloggc:$PWD/beacon_gc.log -verbose:gc" }'
 ```
 
 ### Command substitutions are never executed
