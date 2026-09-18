@@ -2,7 +2,7 @@
 
 **Date**: September 18, 2026  
 **Migration Status**: Complete — v5.1.0 is the first generally available (GA) release ([RFC-0050][])  
-**Ruby Buildpack**:  https://github.com/cloudfoundry/java-buildpack/tree/backup/main-before-go-migration (Legacy)  
+**Ruby Buildpack**:  [main-before-go-migration](https://github.com/cloudfoundry/java-buildpack/tree/backup/main-before-go-migration) (Legacy)  
 **Go Buildpack**: Current repository (Active Development)
 
 [RFC-0050]: https://github.com/cloudfoundry/community/blob/main/toc/rfc/rfc-0050-java-buildpack-migration-to-golang.md
