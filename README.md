@@ -121,6 +121,14 @@ To learn how to configure various properties of the buildpack, follow the "Confi
 
 The buildpack supports extension through the use of Git repository forking. The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository. Make the required extension changes in the copy of the repository. Then specify the URL of the new repository when pushing Cloud Foundry applications. If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes. More information on extending the buildpack is available [here](docs/extending.md).
 
+## GA Status
+
+**v5.1.0 is the first generally available (GA) release of the Go-based Java Buildpack.**
+
+This release is declared GA in accordance with [RFC-0050][] and supersedes the experimental Go buildpack releases in the 5.0.x line.  The Ruby-based buildpack (4.x) is no longer receiving feature updates; operators are encouraged to migrate to v5.1.0 or later.
+
+[RFC-0050]: https://github.com/cloudfoundry/community/blob/main/toc/rfc/rfc-0050-go-java-buildpack.md
+
 ## Ruby vs Go Migration Status
 
 This Go-based buildpack is a migration from the original Ruby-based Cloud Foundry Java Buildpack. For comprehensive information about the migration status, component parity, and architectural differences:
