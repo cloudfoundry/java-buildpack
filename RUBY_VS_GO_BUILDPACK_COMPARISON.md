@@ -1,9 +1,11 @@
 # Ruby vs Go Java Buildpack: Comprehensive Architectural Comparison
 
 **Date**: January 5, 2026  
-**Migration Status**: Complete (Production Ready)  
+**Migration Status**: Complete — v5.1.0 is the first generally available (GA) release ([RFC-0050][])  
 **Ruby Buildpack**: /home/ramonskie/workspace/tmp/orig-java (Legacy)  
 **Go Buildpack**: Current repository (Active Development)
+
+[RFC-0050]: https://github.com/cloudfoundry/community/blob/main/toc/rfc/rfc-0050-java-buildpack-migration-to-golang.md
 
 ---
 
@@ -2244,6 +2246,8 @@ required memory 1269289K is greater than 750M available for allocation
 ---
 
 ## 11. Conclusion
+
+**v5.1.0 is the first generally available (GA) release of the Go-based Java Buildpack**, declared GA in accordance with [RFC-0050][]. It supersedes the experimental 5.0.x releases; the Ruby-based buildpack (4.x) is no longer receiving feature updates.
 
 The Go-based Java buildpack is a **production-ready, feature-complete** migration from the Ruby buildpack, achieving:
 
