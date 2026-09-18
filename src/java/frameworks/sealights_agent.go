@@ -156,6 +156,14 @@ func (f *SealightsAgentFramework) Finalize() error {
 	// Optional: sl.tags, sl.enableUpgrade, sl.log.level, sl.log.folder
 	systemProps := fmt.Sprintf("-Dsl.token=%s", token)
 
+	// Load JBP_CONFIG_SEALIGHTS before processing optional properties so config
+	// values are available as fallbacks throughout the block below.
+	config, err := f.loadConfig()
+	if err != nil {
+		f.context.Log.Warning("Failed to load sealight config: %s", err.Error())
+		return nil // Don't fail the build
+	}
+
 	// Add optional properties from service credentials
 	if tags, ok := service.Credentials["tags"].(string); ok && tags != "" {
 		systemProps += fmt.Sprintf(" -Dsl.tags=%s", tags)
@@ -175,12 +183,6 @@ func (f *SealightsAgentFramework) Finalize() error {
 	// Build javaagent argument
 	javaAgent := fmt.Sprintf("-javaagent:%s", runtimeAgentPath)
 
-	// Add if custom config is at place
-	config, err := f.loadConfig()
-	if err != nil {
-		f.context.Log.Warning("Failed to load sealight config: %s", err.Error())
-		return nil // Don't fail the build
-	}
 	if config.BuildSessionId != "" {
 		systemProps += fmt.Sprintf(" -Dsl.buildSessionId=%s", config.BuildSessionId)
 	}
