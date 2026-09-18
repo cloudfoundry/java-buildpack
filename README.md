@@ -22,7 +22,7 @@ The following are _very_ simple examples for deploying the artifact types that w
 
 ## Configuration and Extension
 
-Framework and JRE configuration is overridden using environment variables of the form `JBP_CONFIG_<COMPONENT>`, where `<COMPONENT>` matches the component name in uppercase with spaces replaced by underscores (e.g. `JBP_CONFIG_OPEN_JDK_JRE`, `JBP_CONFIG_DEBUG`).  The value must be valid inline YAML, referred to as "flow style" in the YAML spec ([Wikipedia][] has a good description of this syntax).  Only properties that the component explicitly supports can be set; unknown properties are logged as warnings and ignored.
+Configurable framework and JRE settings are overridden through component-specific `JBP_CONFIG_*` environment variables (for example, `JBP_CONFIG_OPEN_JDK_JRE` and `JBP_CONFIG_DEBUG`). Consult each component's documentation for its exact variable name and supported fields. The value must be valid inline YAML, referred to as "flow style" in the YAML spec ([Wikipedia][] has a good description of this syntax).
 
 > **Note:** The Ruby buildpack's `config/*.yml` file-based configuration is not used by this buildpack.  All configuration is done through environment variables as described below.
 
