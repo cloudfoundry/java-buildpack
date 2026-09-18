@@ -32,13 +32,6 @@ For general information on configuring the buildpack, including how to specify c
 
 The framework has no user-configurable buildpack options for version selection.  The New Relic agent version is managed by the buildpack manifest.
 
-Extensions can be configured via `JBP_CONFIG_NEW_RELIC_AGENT`:
-
-| Name | Description
-| ---- | -----------
-| `extensions.repository_root` | The URL of a custom Extensions repository index.
-| `extensions.version` | The version of Extensions to use from the custom repository.
-
 ### Extensions
 
 Custom New Relic instrumentation in the form of [Extension XML Files][] (or JARs) may be provided via a custom repository.

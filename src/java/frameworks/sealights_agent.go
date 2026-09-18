@@ -162,6 +162,8 @@ func (f *SealightsAgentFramework) Finalize() error {
 	}
 	if enableUpgrade, ok := service.Credentials["enableUpgrade"].(string); ok && enableUpgrade != "" {
 		systemProps += fmt.Sprintf(" -Dsl.enableUpgrade=%s", enableUpgrade)
+	} else if config.AutoUpgrade {
+		systemProps += " -Dsl.enableUpgrade=true"
 	}
 	if logLevel, ok := service.Credentials["logLevel"].(string); ok && logLevel != "" {
 		systemProps += fmt.Sprintf(" -Dsl.log.level=%s", logLevel)

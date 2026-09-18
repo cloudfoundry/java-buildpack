@@ -34,7 +34,7 @@ The framework can be configured by setting the `JBP_CONFIG_SEALIGHTS` environmen
 | `build_session_id` | Sealights [Build Session ID][] for the application.  Leave blank to use the value embedded in the jar/war artifacts.
 | `proxy` | Specify an HTTP proxy used to communicate with the Sealights backend.  Required when a corporate network prohibits communication to cloud services.  The default is to have no proxy configured.  This does not inherit from `http_proxy`/`https_proxy` or `http.proxyHost/https.proxyHost`.
 | `lab_id` | Specify a Sealights [Lab ID][].
-| `auto_upgrade` | Enable/disable agent auto-upgrade.  Defaults to `false`.
+| `auto_upgrade` | Enable agent auto-upgrade by passing `-Dsl.enableUpgrade=true` to the JVM.  Defaults to `false`.  If the bound service's credentials include an `enableUpgrade` entry, that value takes precedence over this setting.
 
 Configuration settings will take precedence over the ones specified in the [User-Provided Service](#user-provided-service), if those are defined.
 
