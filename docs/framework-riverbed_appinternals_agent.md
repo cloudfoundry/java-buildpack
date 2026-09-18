@@ -36,22 +36,14 @@ cf bind-service spring-music spring-music-appinternals
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/riverbed_appinternals_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
-
-| Name | Description
-| ---- | -----------
-| `repository_root` | The URL of the Riverbed Appinternals agent repository index ([details][repositories]).
-| `version` | The version of the Riverbed Appinternals agent to use.
+The framework has no user-configurable buildpack options.  The Riverbed AppInternals agent version is managed by the buildpack manifest.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[repositories]: extending-repositories.md
-[version syntax]: extending-repositories.md#version-syntax-and-ordering
-[`config/riverbed_appinternals_agent.yml`]: ../config/riverbed_appinternals_agent.yml
 
 
 **NOTE**
 
-If the Riverbed Service Broker's version is greater than or equal to 10.20, the buildpack will instead download Riverbed AppInternals agent from Riverbed Service Broker and will fall back to using `repository_root` in [`config/riverbed_appinternals_agent.yml`][] only if Service Broker failed to serve the Agent artifact.
+If the Riverbed Service Broker's version is greater than or equal to 10.20, the buildpack will instead download Riverbed AppInternals agent from Riverbed Service Broker and will fall back to using `repository_root` from the buildpack manifest only if Service Broker failed to serve the Agent artifact.
 
 **NOTE**
 

@@ -30,14 +30,14 @@ The credential payload of the service may contain the following entries:
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/new_relic_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+The framework has no user-configurable buildpack options for version selection.  The New Relic agent version is managed by the buildpack manifest.
+
+Extensions can be configured via `JBP_CONFIG_NEW_RELIC_AGENT`:
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the New Relic repository index ([details][repositories]).
-| `version` | The version of New Relic to use. Candidate versions can be found in [this listing][].
-| `extensions.repository_root` | The URL of the Extensions repository index ([details][repositories]).
-| `extensions.version` | The version of the Extensions to use. Candidate versions can be found in the the repository that you have created to house the Extensions.
+| `extensions.repository_root` | The URL of a custom Extensions repository index.
+| `extensions.version` | The version of Extensions to use from the custom repository.
 
 ### Extensions
 
@@ -77,9 +77,5 @@ To customize the default New Relic configuration across all applications using y
 This approach is useful for operators who want to enforce organization-wide New Relic settings.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[`config/new_relic_agent.yml`]: ../config/new_relic_agent.yml
 [New Relic Service]: https://newrelic.com
-[repositories]: extending-repositories.md
-[this listing]: https://download.run.pivotal.io/new-relic/index.yml
-[version syntax]: extending-repositories.md#version-syntax-and-ordering
 [Extension XML Files]: https://docs.newrelic.com/docs/agents/java-agent/custom-instrumentation/java-instrumentation-xml

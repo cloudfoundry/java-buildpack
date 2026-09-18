@@ -87,15 +87,21 @@ $ cf create-user-provided-service luna -p '{"client":{"certificate":"-----BEGIN 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/luna_security_provider.yml`][] file in the buildpack. The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+The framework can be configured by setting the `JBP_CONFIG_LUNA_SECURITY_PROVIDER` environment variable.  The value must be valid inline YAML.
 
 | Name | Description
 | ---- | -----------
 | `ha_logging_enabled` | Whether to enable HA logging for the Luna Security Provider.  Defaults to `true`.
 | `logging_enabled` | Whether to enable the logging wrapper for the Luna Security Provider.  Defaults to `false`.
 | `tcp_keep_alive_enabled` | Whether to enable the client TCP keep alive setting for the Luna Security Provider.  Defaults to `false`.
-| `repository_root` | The URL of the Luna Security Provider repository index ([details][repositories]).
-| `version` | Version of the Luna Security Provider to use.
+
+### Example
+
+Enable Cryptoki logging and TCP keep-alive:
+
+```yaml
+JBP_CONFIG_LUNA_SECURITY_PROVIDER: '{logging_enabled: true, tcp_keep_alive_enabled: true}'
+```
 
 ### Configuration Generation
 
@@ -116,8 +122,5 @@ To customize the default Luna Security Provider configuration across all applica
 
 This approach is useful for operators who want to enforce organization-wide Luna Security Provider settings.
 
-[`config/luna_security_provider.yml`]: ../config/luna_security_provider.yml
 [Luna Security Service]: http://www.safenet-inc.com/data-encryption/hardware-security-modules-hsms/
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[repositories]: extending-repositories.md
-[version syntax]: extending-repositories.md#version-syntax-and-ordering

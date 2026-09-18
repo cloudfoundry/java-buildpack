@@ -5,7 +5,7 @@ The Java Options Framework contributes arbitrary Java options to the application
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td><tt>java_opts</tt> set in the <tt>config/java_opts.yml</tt> file or the <tt>JAVA_OPTS</tt> environment variable set</td>
+    <td><tt>java_opts</tt> set in <tt>JBP_CONFIG_JAVA_OPTS</tt> or the <tt>JAVA_OPTS</tt> environment variable set</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
@@ -17,7 +17,7 @@ Tags are printed to standard output by the buildpack detect script
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by creating or modifying the [`config/java_opts.yml`][] file in the buildpack fork.
+The framework can be configured by setting the `JBP_CONFIG_JAVA_OPTS` environment variable.  The value must be valid inline YAML.
 
 | Name | Description
 | ---- | -----------
@@ -105,12 +105,9 @@ cf set-env my-application JAVA_OPTS '-DcronExpr=0 */7 * * *'
 
 ## Examples
 
-### Configuration File Example
+### Environment Variable Example
 ```yaml
-# config/java_opts.yml
----
-from_environment: false
-java_opts: -Xloggc:$PWD/beacon_gc.log -verbose:gc
+JBP_CONFIG_JAVA_OPTS: '{ from_environment: false, java_opts: ["-Xloggc:$PWD/beacon_gc.log", "-verbose:gc"] }'
 ```
 
 ### Environment Variable Override Examples
@@ -171,7 +168,6 @@ However, using an array format is recommended for clarity and to avoid parsing a
 | `-XX:SurvivorRatio=<RATIO>` | Ratio of eden/survivor space. Solaris only.
 | `-XX:TargetSurvivorRatio=<RATIO>` | Desired ratio of survivor space used after scavenge.
 
-[`config/java_opts.yml`]: ../config/java_opts.yml
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [Java Support for Large Memory Pages]: http://www.oracle.com/technetwork/java/javase/tech/largememory-jsp-137182.html
 [JRE Memory]: jre-open_jdk_jre.md#memory

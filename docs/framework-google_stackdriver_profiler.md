@@ -28,16 +28,20 @@ The credential payload of the service must contain the following entry:
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/google_stackdriver_profiler.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+The framework can be configured by setting the `JBP_CONFIG_GOOGLE_STACKDRIVER_PROFILER` environment variable.  The value must be valid inline YAML.
 
 | Name | Description
 | ---- | -----------
-| `repository_root` | The URL of the Google Stackdriver Profiler repository index ([details][repositories]).
-| `version` | The version of Google Stackdriver Profiler to use. Candidate versions can be found in [this listing][].
+| `application_name` | Override the application name reported to Stackdriver.  Defaults to the value from `VCAP_APPLICATION`.
+| `application_version` | Override the application version reported to Stackdriver.  Defaults to the value from `VCAP_APPLICATION`.
+
+### Example
+
+Override application name and version:
+
+```yaml
+JBP_CONFIG_GOOGLE_STACKDRIVER_PROFILER: '{application_name: my-app, application_version: 1.2.3}'
+```
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[`config/google_stackdriver_profiler.yml`]: ../config/google_stackdriver_profiler.yml
 [Google Stackdriver Profiler Service]: https://cloud.google.com/profiler/
-[repositories]: extending-repositories.md
-[this listing]: https://java-buildpack.cloudfoundry.org/google-stackdriver-profiler/jammy/x86_64/index.yml
-[version syntax]: extending-repositories.md#version-syntax-and-ordering

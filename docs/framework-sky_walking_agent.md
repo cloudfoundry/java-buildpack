@@ -28,22 +28,24 @@ When binding SkyWalking using a user-provided service, it must have name or tag 
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/sky_walking_agent.yml`][] file in the buildpack fork. The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
+The framework can be configured by setting the `JBP_CONFIG_SKY_WALKING_AGENT` environment variable.  The value must be valid inline YAML.
 
 | Name | Description
 | ---- | -----------
-| `default_application_name` | This is omitted by default but can be added to specify the application name in the SkyWalking dashboard. This can be overridden by an `application-name` entry in the credentials payload. If neither are supplied the default is the `application_name` as specified by Cloud Foundry.
-| `repository_root` | The URL of the SkyWalking repository index ([details][repositories]).
-| `version` | The version of SkyWalking to use. Candidate versions can be found in [this listing][].
+| `default_application_name` | This is omitted by default but can be added to specify the application name in the SkyWalking dashboard.  This can be overridden by an `application-name` entry in the credentials payload.  If neither are supplied the default is the `application_name` as specified by Cloud Foundry.
+
+### Example
+
+Set a custom application name:
+
+```yaml
+JBP_CONFIG_SKY_WALKING_AGENT: '{default_application_name: my-service}'
+```
 
 ### Additional Resources
 
 **Note:** The `resources/sky_walking_agent` directory approach from the Ruby buildpack (2013-2025) is no longer supported. This was a **buildpack-level** feature where teams would fork the java-buildpack repository, add custom files to `resources/sky_walking_agent/`, and package their custom buildpack. The Go buildpack does not package the `resources/` directory.
 
-[`config/sky_walking_agent.yml`]: ../config/sky_walking_agent.yml
 [SkyWalking Java Agent Configuration Properties]: https://github.com/apache/incubator-skywalking/blob/master/docs/en/Deploy-skywalking-agent.md
 [SkyWalking Service]: http://skywalking.io
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[repositories]: extending-repositories.md
-[this listing]: https://download.run.pivotal.io/sky-walking/index.yml
-[version syntax]: extending-repositories.md#version-syntax-and-ordering

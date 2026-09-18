@@ -38,19 +38,11 @@ To provide more complex values such as the `agent_name`, using the interactive m
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/introscope_agent.yml`][] file in the buildpack fork.  The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
-
-| Name | Description
-| ---- | -----------
-| `repository_root` | The URL of the Introscope Agent repository index ([details][repositories]).
-| `version` | The version of Introscope Agent to use.
+The framework has no user-configurable buildpack options.  The Introscope agent version is managed by the buildpack manifest.  Agent properties are configured through the bound service credentials (see [User-Provided Service](#user-provided-service-optional) above).
 
 ### Additional Resources
 
 **Note:** The `resources/introscope_agent` directory approach from the Ruby buildpack (2013-2025) is no longer supported. This was a **buildpack-level** feature where teams would fork the java-buildpack repository, add custom files to `resources/introscope_agent/`, and package their custom buildpack. The Go buildpack does not package the `resources/` directory.
 
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[`config/intoscope_agent.yml`]: ../config/intoscope_agent.yml
 [Introscope service]: http://www.ca.com/us/opscenter/ca-application-performance-management.aspx
-[repositories]: extending-repositories.md
-[version syntax]: extending-repositories.md#version-syntax-and-ordering

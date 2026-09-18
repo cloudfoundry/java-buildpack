@@ -4,7 +4,7 @@ The heap dumps created by the Java Memory Assistant can be analyzed using Java m
 
 <table>
   <tr>
-    <td><strong>Detection Criterion</strong></td><td><code>enabled</code> set in the <code>config/java_memory_assistant.yml</code></td>
+    <td><strong>Detection Criterion</strong></td><td><code>enabled</code> set via <code>JBP_CONFIG_JAVA_MEMORY_ASSISTANT</code></td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td><td><tt>java-memory-assistant=&lt;version&gt;</tt></td>
@@ -15,7 +15,7 @@ Tags are printed to standard output by the buildpack detect script.
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/java_memory_assistant.yml`][] file in the buildpack fork.
+The framework can be configured by setting the `JBP_CONFIG_JAVA_MEMORY_ASSISTANT` environment variable.  The value must be valid inline YAML.
 
 | Name | Description
 | ---- | -----------
@@ -54,7 +54,7 @@ The timestamp pattern `%ts:yyyyMMdd'T'mmssSSSZ%` is equivalent to the `%FT%T%z` 
 Different builds and versions of Java Virtual Machines offer different memory areas.
 The list of supported Java Virtual Machines and the respective memory areas can be found in the [Java Memory Assistant documentation](https://github.com/SAP/java-memory-assistant#supported-jvms).
 
-The default values can be found in the [`config/java_memory_assistant.yml`][] file.
+The default values can be found in the Go source at `src/java/frameworks/java_memory_assistant.go`.
 
 ### Examples
 
@@ -121,5 +121,4 @@ To prevent heap dumps from "going down" with the container, you should consider 
 
 If you are using a filesystem service that mounts persistent volumes to the container, it is enough to name one of the volume services `heap-dump` or tag one volume with `heap-dump`, and the path specified as the `heap_dump_folder` configuration will be resolved against `<mount-point>/<space_name>-<space_id[0,8]>/<application_name>-<application_id[0-8]>`. The default directory convention matches the [`jvmkill`][] directory convention.
 
-[`config/java_memory_assistant.yml`]: ../config/java_memory_assistant.yml
 [`jvmkill`]: jre-open_jdk_jre.md#jvmkill

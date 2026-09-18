@@ -33,15 +33,7 @@ To provide more complex values such as the `tier-name`, using the interactive mo
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The framework can be configured by modifying the [`config/app_dynamics_agent.yml`][] file in the buildpack fork. The framework uses the [`Repository` utility support][repositories] and so it supports the [version syntax][] defined there.
-
-| Name | Description
-| ---- | -----------
-| `default_application_name` | This is omitted by default but can be added to specify the application name in the AppDynamics dashboard. This can be overridden by an `application-name` entry in the credentials payload. If neither are supplied the default is the `application_name` as specified by Cloud Foundry.
-| `default_node_name` | The default node name for this application in the AppDynamics dashboard. The default value is an expression that will be evaluated based on the `instance_index` of the application. This can be overridden by a `node-name` entry in the credentials payload.
-| `default_tier_name` | This is omitted by default but can be added to specify the tier name for this application in the AppDynamics dashboard. This can be overridden by a `tier-name` entry in the credentials payload. If neither are supplied the default is the `application_name` as specified by Cloud Foundry.
-| `repository_root` | The URL of the AppDynamics repository index ([details][repositories]).
-| `version` | The version of AppDynamics to use. Candidate versions can be found in [this listing][].
+The framework has no user-configurable options.  The AppDynamics agent version is managed by the buildpack manifest.  See [Additional Resources](#additional-resources) below for application-level configuration options.
 
 ### Additional Resources
 The framework can be configured by providing custom configuration files.
@@ -100,10 +92,6 @@ The Java buildpack will take the `app_root` + `APPD_CONF_DIR` directory and atte
 Any files that exist will be copied to the configuration directory. The buildpack does not fail if files are missing.
 
 
-[`config/app_dynamics_agent.yml`]: ../config/app_dynamics_agent.yml
 [AppDynamics Java Agent Configuration Properties]: https://docs.appdynamics.com/display/PRO42/Java+Agent+Configuration+Properties
 [AppDynamics Service]: http://www.appdynamics.com
 [Configuration and Extension]: ../README.md#configuration-and-extension
-[repositories]: extending-repositories.md
-[this listing]: https://packages.appdynamics.com/java/index.yml
-[version syntax]: extending-repositories.md#version-syntax-and-ordering
