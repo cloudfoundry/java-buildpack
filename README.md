@@ -125,7 +125,7 @@ The buildpack supports extension through the use of Git repository forking. The 
 
 This Go-based buildpack is a migration from the original Ruby-based Cloud Foundry Java Buildpack. For comprehensive information about the migration status, component parity, and architectural differences:
 
-* **[Ruby vs Go Buildpack Comparison](ruby_vs_go_buildpack_comparison.md)** - Technical deep-dive into how dependency extraction differs between Ruby and Go implementations
+* **[Ruby vs Go Buildpack Comparison](RUBY_VS_GO_BUILDPACK_COMPARISON.md)** - Technical deep-dive into how dependency extraction differs between Ruby and Go implementations
 
 **⚠️ Important Migration Note:** The Go buildpack does **NOT** support the Ruby buildpack's `repository_root` configuration approach for custom JREs (via `JBP_CONFIG_*` environment variables). Custom JREs now require forking the buildpack and modifying `manifest.yml`. See [Custom JRE Usage](docs/custom-jre-usage.md) for details.
 
