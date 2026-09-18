@@ -391,8 +391,8 @@ This buildpack is released under version 2.0 of the [Apache License][].
 [disables `remote_downloads`]: docs/extending-caches.md#configuration
 [Environment Variables]: http://docs.cloudfoundry.org/devguide/deploy-apps/manifest.html#env-block
 [GitHub's forking functionality]: https://help.github.com/articles/fork-a-repo
-[Grails]: http://grails.org
-[Groovy]: http://groovy.codehaus.org
+[Grails]: https://grails.apache.org/
+[Groovy]: https://groovy-lang.org/
 [Play Framework]: http://www.playframework.com
 [pull request]: https://help.github.com/articles/using-pull-requests
 [Pull requests]: http://help.github.com/send-pull-requests
