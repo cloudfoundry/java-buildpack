@@ -22,7 +22,9 @@ The following are _very_ simple examples for deploying the artifact types that w
 
 ## Configuration and Extension
 
-The buildpack default configuration can be overridden with an environment variable matching the configuration file you wish to override minus the `.yml` extension. It is not possible to add new configuration properties and properties with `nil` or empty values will be ignored by the buildpack (in this case you will have to extend the buildpack, see below). The value of the variable should be valid inline yaml, referred to as "flow style" in the yaml spec ([Wikipedia][] has a good description of this yaml syntax).
+Framework and JRE configuration is overridden using environment variables of the form `JBP_CONFIG_<COMPONENT>`, where `<COMPONENT>` matches the component name in uppercase with spaces replaced by underscores (e.g. `JBP_CONFIG_OPEN_JDK_JRE`, `JBP_CONFIG_DEBUG`).  The value must be valid inline YAML, referred to as "flow style" in the YAML spec ([Wikipedia][] has a good description of this syntax).  Only properties that the component explicitly supports can be set; unknown properties are logged as warnings and ignored.
+
+> **Note:** The Ruby buildpack's `config/*.yml` file-based configuration is not used by this buildpack.  All configuration is done through environment variables as described below.
 
 There are two levels of overrides: operator and application developer.
 
@@ -375,7 +377,6 @@ For detailed guidelines about setting up and running tests please check this [Te
 ## License
 This buildpack is released under version 2.0 of the [Apache License][].
 
-[`config/` directory]: config
 [Apache License]: http://www.apache.org/licenses/LICENSE-2.0
 [Cloud Foundry]: http://www.cloudfoundry.org
 [contributor guidelines]: CONTRIBUTING.md
