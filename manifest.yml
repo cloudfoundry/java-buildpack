@@ -272,14 +272,14 @@ dependencies:
   source: https://repo1.maven.org/maven2/io/github/rabobank/cf-metrics-exporter/0.7.1/cf-metrics-exporter-0.7.1.jar
   source_sha256: ''
 - name: client-certificate-mapper
-  version: 2.0.1
-  uri: https://buildpacks.cloudfoundry.org/dependencies/client-certificate-mapper/client-certificate-mapper_2.0.1_linux_noarch_any-stack_f7f53a46.jar
-  sha256: f7f53a460bcd4b0cead4da99dcb251bd283bd5fa4e421eeb52b86986d266cde9
+  version: 2.1.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/client-certificate-mapper/client-certificate-mapper_2.1.0_linux_noarch_any-stack_c7bffa85.jar
+  sha256: c7bffa857e1305675aba79d88afae96681fd426674ccb275bf1e2bc4561f0c36
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://repo1.maven.org/maven2/org/cloudfoundry/java-buildpack-client-certificate-mapper/2.0.1/java-buildpack-client-certificate-mapper-2.0.1.jar
-  source_sha256: ''
+  source: https://github.com/cloudfoundry/java-buildpack-client-certificate-mapper/releases/download/v2.1.0/java-buildpack-client-certificate-mapper-2.1.0.jar
+  source_sha256: c7bffa857e1305675aba79d88afae96681fd426674ccb275bf1e2bc4561f0c36
 - name: container-security-provider
   version: 1.20.0
   uri: https://java-buildpack.cloudfoundry.org/container-security-provider/container-security-provider-1.20.0-RELEASE.jar
