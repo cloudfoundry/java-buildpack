@@ -147,6 +147,7 @@ This Go-based buildpack is a migration from the original Ruby-based Cloud Foundr
 ## Additional Documentation
 * [Design](docs/design.md)
 * [Security](docs/security.md)
+* [v5.1.0 Release Notes (draft)](docs/release-notes-v5.1.0.md)
 * Standard Containers
   * [Dist ZIP](docs/container-dist_zip.md)
   * [Groovy](docs/container-groovy.md) ([Configuration](docs/container-groovy.md#configuration))

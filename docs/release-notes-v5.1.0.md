@@ -1,5 +1,13 @@
 # v5.1.0 Release Notes
 
+> **Note**: This project's practice is to publish curated release notes directly in the
+> GitHub Release for milestone versions (e.g. [v5.0.0][]) — the CI pipeline then appends
+> an auto-generated packaged-binaries table below them. This doc is kept in-repo as a
+> durable, reviewable draft; its content is intended to be pasted into the `v5.1.0`
+> GitHub Release body when that release is cut.
+
+[v5.0.0]: https://github.com/cloudfoundry/java-buildpack/releases/tag/v5.0.0
+
 ## 🎉 First GA Release
 
 **v5.1.0 is the first generally available (GA) release of the Go-based Java Buildpack.**
