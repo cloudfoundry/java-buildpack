@@ -6,8 +6,10 @@
 
 Per [RFC-0050][] (Java Buildpack Migration to Golang), the `v5.0.x` series was an
 experimental release intended to collect broad community feedback before committing to
-API/behavior stability. No unannounced breaking changes were introduced since `v5.0.0` —
-see "Notable fixes since v5.0.0" below for behavior changes that shipped as bug fixes.
+API/behavior stability. Since `v5.0.0`, one container type was removed (see "Removed
+since v5.0.0" below) and several bug fixes changed previously-buggy or inconsistent
+runtime behavior (see "Notable fixes since v5.0.0" below) — review both sections before
+upgrading.
 
 v5.1.0 supersedes the experimental `5.0.x` releases. The Ruby-based buildpack (`4.x`) is
 no longer receiving feature updates; operators are encouraged to migrate to `v5.1.0` or
@@ -17,13 +19,22 @@ detailed Ruby vs. Go feature comparison.
 
 [RFC-0050]: https://github.com/cloudfoundry/community/blob/main/toc/rfc/rfc-0050-java-buildpack-migration-to-golang.md
 
+## Removed since v5.0.0
+
+- **Spring Boot CLI container support was removed** ([`8c1816ec`](https://github.com/cloudfoundry/java-buildpack/commit/8c1816ec86e49a78d560232f45f3518a87e61aff),
+  "Remove spring-boot-cli outdated container"). Applications previously detected and run
+  via the Spring Boot CLI container (executable Groovy scripts with the
+  `spring-boot-cli` runtime) are **no longer supported** — this was not called out in a
+  prior release's notes. If your application relies on this, stay on `v5.0.x`/`v4.x` or
+  migrate to a supported container (e.g. package as a Spring Boot fat JAR).
+
 ## Notable fixes since v5.0.0
 
-`git log v5.0.0..v5.1.0` introduced no intentionally-breaking API/config changes (no
-removed frameworks, no default-value flips beyond what `v5.0.0` already announced).
-However, several bug fixes changed previously-buggy or inconsistent runtime behavior.
-These are fixes "for the better" (bringing behavior in line with intent), but some
-upgrading apps could still observe a difference:
+`git log v5.0.0..v5.1.0` introduced no other intentionally-breaking API/config changes
+(no other removed frameworks, no default-value flips beyond what `v5.0.0` already
+announced). However, several bug fixes changed previously-buggy or inconsistent runtime
+behavior. These are fixes "for the better" (bringing behavior in line with intent), but
+some upgrading apps could still observe a difference:
 
 - Fixed `JBP_CONFIG_JAVA_MAIN` not taking effect when the app is detected as Spring Boot
   — silently-ignored config now applies.
