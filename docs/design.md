@@ -39,18 +39,16 @@ type Container interface {
 - **Java Main**: Executable JARs with `Main-Class` manifest entry
 - **Play Framework**: Play 2.x applications
 - **Spring Boot**: Spring Boot executable JARs
-- **Spring Boot CLI**: Spring Boot CLI applications
 - **Tomcat**: WAR files deployed to Tomcat
 
 **Detection Order:**
 Only a single container component can run an application. Containers are detected in priority order (most specific to least specific):
 1. Spring Boot
-2. Spring Boot CLI
-3. Tomcat
-4. Groovy
-5. Play Framework
-6. Dist Zip
-7. Java Main
+2. Tomcat
+3. Groovy
+4. Play Framework
+5. Dist Zip
+6. Java Main
 
 If more than one container matches, the first one wins. If no container can be used, an error will be raised and application staging will fail.
 

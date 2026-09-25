@@ -315,7 +315,6 @@ export BUILDPACK_FILE="${PWD}/build/buildpack.zip"
 - `play_test.go` - Play Framework tests
 - `ratpack_test.go` - Ratpack tests
 - `spring_boot_test.go` - Spring Boot tests
-- `spring_boot_cli_test.go` - Spring Boot CLI tests
 - `tomcat_test.go` - Tomcat container tests
 - `offline_test.go` - Offline buildpack tests
 
