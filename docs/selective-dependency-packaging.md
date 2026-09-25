@@ -690,7 +690,7 @@ here mirrors the analysis of the 47 dependencies in the current `manifest.yml`.
   `cf-metrics-exporter`
 - Tomcat family: `tomcat`, `tomcat-access-logging-support`, `tomcat-lifecycle-support`,
   `tomcat-logging-support`
-- Other frameworks: `groovy`, `spring-boot-cli`
+- Other frameworks: `groovy`
 
 **`minimal` profile** — excludes everything that requires a commercial license or serves a
 single vendor's ecosystem:

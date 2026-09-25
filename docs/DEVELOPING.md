@@ -315,7 +315,6 @@ export BUILDPACK_FILE="${PWD}/build/buildpack.zip"
 - `play_test.go` - Play Framework tests
 - `ratpack_test.go` - Ratpack tests
 - `spring_boot_test.go` - Spring Boot tests
-- `spring_boot_cli_test.go` - Spring Boot CLI tests
 - `tomcat_test.go` - Tomcat container tests
 - `offline_test.go` - Offline buildpack tests
 
@@ -339,7 +338,7 @@ cd src/java
 ginkgo watch -r frameworks/
 ```
 
-For detailed guidelines about setting up and running tests you can also check [Testing Guide](docs/TESTING.md)
+For detailed guidelines about setting up and running tests you can also check [Testing Guide](TESTING.md)
 
 ## Development Workflow
 

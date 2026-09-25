@@ -37,7 +37,6 @@ The buildpack currently supports these container types:
 | **Groovy** | *.groovy files | Groovy scripts |
 | **Play Framework** | start script + playVersion file | Play Framework apps |
 | **Ratpack** | Ratpack.class | Ratpack applications |
-| **Spring Boot CLI** | *.groovy + Spring annotations | Spring Boot CLI apps |
 
 ### Container Lifecycle
 
@@ -123,7 +122,7 @@ Install and configure application servers.
 
 Execute applications via startup scripts.
 
-**Examples:** DistZip, Groovy, Spring Boot CLI
+**Examples:** DistZip, Groovy
 
 **Detection:**
 - bin/ directory with executable scripts

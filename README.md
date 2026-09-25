@@ -18,7 +18,6 @@ The following are _very_ simple examples for deploying the artifact types that w
 * [Java Main](docs/example-java_main.md)
 * [Play Framework](docs/example-play_framework.md)
 * [Servlet](docs/example-servlet.md)
-* [Spring Boot CLI](docs/example-spring_boot_cli.md)
 
 ## Configuration and Extension
 
@@ -119,7 +118,7 @@ See the [Environment Variables][] documentation for more information.
 
 To learn how to configure various properties of the buildpack, follow the "Configuration" links below.
 
-The buildpack supports extension through the use of Git repository forking. The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository. Make the required extension changes in the copy of the repository. Then specify the URL of the new repository when pushing Cloud Foundry applications. If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes. More information on extending the buildpack is available [here](docs/extending.md).
+The buildpack supports extension through the use of Git repository forking. The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository. Make the required extension changes in the copy of the repository. Then specify the URL of the new repository when pushing Cloud Foundry applications. If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes. More information on extending the buildpack is available [here](docs/extending-repositories.md).
 
 ## GA Status
 
@@ -137,19 +136,18 @@ This Go-based buildpack is a migration from the original Ruby-based Cloud Foundr
 
 **⚠️ Important Migration Note:** The Go buildpack does **NOT** support the Ruby buildpack's `repository_root` configuration approach for custom JREs (via `JBP_CONFIG_*` environment variables). Custom JREs now require forking the buildpack and modifying `manifest.yml`. See [Custom JRE Usage](docs/custom-jre-usage.md) for details.
 
-**Quick Status Summary** (as of December 16, 2025):
-- ✅ All 8 container types implemented (100%)
+**Quick Status Summary** (as of September 25, 2026):
+- ✅ All 7 supported application types implemented (100%; 6 registered container implementations — Ratpack is detected as a DistZip application type, not a separate container)
 - ✅ All 7 JRE providers implemented (3 in manifest + 4 BYOL via custom manifest)
 - ✅ 37 of 40 frameworks implemented (92.5%)
 - ✅ All integration tests passing
 - ⚠️ Only 3 missing frameworks are niche/deprecated (affecting <2% of applications)
 - 📝 BYOL JREs (GraalVM, IBM, Oracle, Zing) require custom manifest - see [Custom JRE Usage](docs/custom-jre-usage.md)
 
-For historical analysis documents from development sessions, see [`docs/archive/`](docs/archive/).
-
 ## Additional Documentation
 * [Design](docs/design.md)
 * [Security](docs/security.md)
+* [v5.1.0 Release Notes (draft)](docs/release-notes-v5.1.0.md)
 * Standard Containers
   * [Dist ZIP](docs/container-dist_zip.md)
   * [Groovy](docs/container-groovy.md) ([Configuration](docs/container-groovy.md#configuration))
@@ -157,7 +155,6 @@ For historical analysis documents from development sessions, see [`docs/archive/
   * [Play Framework](docs/container-play_framework.md)
   * [Ratpack](docs/container-ratpack.md)
   * [Spring Boot](docs/container-spring_boot.md)
-  * [Spring Boot CLI](docs/container-spring_boot_cli.md) ([Configuration](docs/container-spring_boot_cli.md#configuration))
   * [Tomcat](docs/container-tomcat.md) ([Configuration](docs/container-tomcat.md#configuration))
 * Standard Frameworks
   * [AppDynamics Agent](docs/framework-app_dynamics_agent.md) ([Configuration](docs/framework-app_dynamics_agent.md#configuration))
@@ -190,7 +187,7 @@ For historical analysis documents from development sessions, see [`docs/archive/
   * [ProtectApp Security Provider](docs/framework-protect_app_security_provider.md) ([Configuration](docs/framework-protect_app_security_provider.md#configuration))
   * [Riverbed AppInternals Agent](docs/framework-riverbed_appinternals_agent.md) ([Configuration](docs/framework-riverbed_appinternals_agent.md#configuration))
   * [Sealights Agent](docs/framework-sealights_agent.md) ([Configuration](docs/framework-sealights_agent.md#configuration))
-  * [Seeker Security Provider](docs/framework-seeker_security_provider.md) ([Configuration](docs/framework-seeker_security_provider.md#configuration))
+  * [Seeker Security Provider](docs/framework-seeker_security_provider.md) ([Configuration](docs/framework-seeker_security_provider.md#user-provided-service))
   * [Splunk Observability Cloud](docs/framework-splunk_otel_java_agent.md) ([Configuration](docs/framework-splunk_otel_java_agent.md#user-provided-service))
   * [Spring Auto Reconfiguration](docs/framework-spring_auto_reconfiguration.md) ([Configuration](docs/framework-spring_auto_reconfiguration.md#configuration))
   * [Spring Insight](docs/framework-spring_insight.md)
