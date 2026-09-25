@@ -39,11 +39,12 @@ detailed Ruby vs. Go feature comparison.
 
 ## Notable fixes since v5.0.0
 
-`git log v5.0.0..v5.1.0` introduced no other intentionally-breaking API/config changes
-(no other removed frameworks, no default-value flips beyond what `v5.0.0` already
-announced). However, several bug fixes changed previously-buggy or inconsistent runtime
-behavior. These are fixes "for the better" (bringing behavior in line with intent), but
-some upgrading apps could still observe a difference:
+Scanning commits between `v5.0.0` and `86056b23` (`main`, as of this writing) shows no
+other intentionally-breaking API/config changes (no other removed frameworks, no
+default-value flips beyond what `v5.0.0` already announced). However, several bug fixes
+changed previously-buggy or inconsistent runtime behavior. These are fixes "for the
+better" (bringing behavior in line with intent), but some upgrading apps could still
+observe a difference:
 
 - Fixed `JBP_CONFIG_JAVA_MAIN` not taking effect when the app is detected as Spring Boot
   — silently-ignored config now applies.
