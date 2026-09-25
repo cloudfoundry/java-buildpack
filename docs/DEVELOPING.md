@@ -339,7 +339,7 @@ cd src/java
 ginkgo watch -r frameworks/
 ```
 
-For detailed guidelines about setting up and running tests you can also check [Testing Guide](docs/TESTING.md)
+For detailed guidelines about setting up and running tests you can also check [Testing Guide](TESTING.md)
 
 ## Development Workflow
 
