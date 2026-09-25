@@ -175,7 +175,7 @@ The Ruby buildpack only added `-XX:ActiveProcessorCount=$(nproc)` in the OpenJDK
 ## Support and Feedback
 
 If you encounter issues during migration or have questions:
-1. Review the [buildpack documentation](../README.md)
+1. Review the [buildpack documentation](README.md)
 2. Check [RFC-0050](https://github.com/cloudfoundry/community/blob/main/toc/rfc/rfc-0050-java-buildpack-migration-to-golang.md) for detailed technical information
 3. Open an issue in the [Java Buildpack repository](https://github.com/cloudfoundry/java-buildpack)
 

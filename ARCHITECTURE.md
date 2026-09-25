@@ -15,7 +15,7 @@
 4. [Buildpack Lifecycle](#buildpack-lifecycle)
 5. [Key Architectural Patterns](#key-architectural-patterns)
 6. [Component Interface](#component-interface)
-7. [Configuration System](#configuration-system)
+7. [Configuration System](#environment-variable-overrides)
 8. [Dependency Management](#dependency-management)
 9. [Cloud Foundry Integration](#cloud-foundry-integration)
 

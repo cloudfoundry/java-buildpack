@@ -119,7 +119,7 @@ See the [Environment Variables][] documentation for more information.
 
 To learn how to configure various properties of the buildpack, follow the "Configuration" links below.
 
-The buildpack supports extension through the use of Git repository forking. The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository. Make the required extension changes in the copy of the repository. Then specify the URL of the new repository when pushing Cloud Foundry applications. If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes. More information on extending the buildpack is available [here](docs/extending.md).
+The buildpack supports extension through the use of Git repository forking. The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository. Make the required extension changes in the copy of the repository. Then specify the URL of the new repository when pushing Cloud Foundry applications. If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes. More information on extending the buildpack is available [here](docs/extending-repositories.md).
 
 ## GA Status
 
@@ -144,8 +144,6 @@ This Go-based buildpack is a migration from the original Ruby-based Cloud Foundr
 - ✅ All integration tests passing
 - ⚠️ Only 3 missing frameworks are niche/deprecated (affecting <2% of applications)
 - 📝 BYOL JREs (GraalVM, IBM, Oracle, Zing) require custom manifest - see [Custom JRE Usage](docs/custom-jre-usage.md)
-
-For historical analysis documents from development sessions, see [`docs/archive/`](docs/archive/).
 
 ## Additional Documentation
 * [Design](docs/design.md)
@@ -190,7 +188,7 @@ For historical analysis documents from development sessions, see [`docs/archive/
   * [ProtectApp Security Provider](docs/framework-protect_app_security_provider.md) ([Configuration](docs/framework-protect_app_security_provider.md#configuration))
   * [Riverbed AppInternals Agent](docs/framework-riverbed_appinternals_agent.md) ([Configuration](docs/framework-riverbed_appinternals_agent.md#configuration))
   * [Sealights Agent](docs/framework-sealights_agent.md) ([Configuration](docs/framework-sealights_agent.md#configuration))
-  * [Seeker Security Provider](docs/framework-seeker_security_provider.md) ([Configuration](docs/framework-seeker_security_provider.md#configuration))
+  * [Seeker Security Provider](docs/framework-seeker_security_provider.md) ([Configuration](docs/framework-seeker_security_provider.md#user-provided-service))
   * [Splunk Observability Cloud](docs/framework-splunk_otel_java_agent.md) ([Configuration](docs/framework-splunk_otel_java_agent.md#user-provided-service))
   * [Spring Auto Reconfiguration](docs/framework-spring_auto_reconfiguration.md) ([Configuration](docs/framework-spring_auto_reconfiguration.md#configuration))
   * [Spring Insight](docs/framework-spring_insight.md)
