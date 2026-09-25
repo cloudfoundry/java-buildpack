@@ -319,7 +319,7 @@ func (m *MemoryCalculator) countClassesInJar(jarPath string) (int, error) {
 // 1. Runs the memory calculator with runtime $MEMORY_LIMIT
 // 2. Echoes the calculated memory settings
 // 3. Appends the settings to $JAVA_OPTS
-// 4. Sets MALLOC_ARENA_MAX to reduce memory overhead
+// 4. Exports MALLOC_ARENA_MAX to reduce memory overhead
 func (m *MemoryCalculator) GetCalculatorCommand() string {
 	if m.calculatorPath == "" {
 		return ""
@@ -352,7 +352,7 @@ func (m *MemoryCalculator) GetCalculatorCommand() string {
 
 	calcCmd := strings.Join(args, " ")
 
-	return fmt.Sprintf(`CALCULATED_MEMORY=$(%s) && echo JVM Memory Configuration: $CALCULATED_MEMORY && JAVA_OPTS="$JAVA_OPTS $CALCULATED_MEMORY" && MALLOC_ARENA_MAX=2`, calcCmd)
+	return fmt.Sprintf(`CALCULATED_MEMORY=$(%s) && echo JVM Memory Configuration: $CALCULATED_MEMORY && JAVA_OPTS="$JAVA_OPTS $CALCULATED_MEMORY" && export MALLOC_ARENA_MAX=2`, calcCmd)
 }
 
 // convertToRuntimePath converts a staging path to a runtime path using $DEPS_DIR.
