@@ -270,4 +270,21 @@ var _ = Describe("Memory Calculator Issues", func() {
 				"WARNING should mention the unknown field name")
 		})
 	})
+
+	// -------------------------------------------------------------------------
+	// Validate that MALLOC_ARENA_MAX reaches the JVM process, not merely appear in the
+	// start command.
+	// -------------------------------------------------------------------------
+	Describe("MALLOC_ARENA_MAX reaches the JVM process", func() {
+		It("renders MALLOC_ARENA_MAX in exporting form", func() {
+			fakeBinary("4.2.0")
+			mc := jres.NewMemoryCalculator(ctx, jreDir, "17.0.9", 17, "openjdk")
+			Expect(mc.Finalize()).To(Succeed())
+
+			cmd := mc.GetCalculatorCommand()
+
+			Expect(cmd).To(ContainSubstring("export MALLOC_ARENA_MAX=2"),
+				"MALLOC_ARENA_MAX must be exported to reach the exec-ed JVM.\nCommand:\n%s", cmd)
+		})
+	})
 })
