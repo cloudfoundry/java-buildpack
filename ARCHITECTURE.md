@@ -1,7 +1,9 @@
 # Cloud Foundry Java Buildpack - Go Implementation Architecture
 
 **Last Updated**: December 13, 2025  
-**Migration Status**: Complete (Ruby → Go)
+**Migration Status**: Complete — v5.1.0 is the first generally available (GA) release ([RFC-0050][])
+
+[RFC-0050]: https://github.com/cloudfoundry/community/blob/main/toc/rfc/rfc-0050-java-buildpack-migration-to-golang.md
 
 ---
 
