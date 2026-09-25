@@ -21,12 +21,13 @@ detailed Ruby vs. Go feature comparison.
 
 ## Removed since v5.0.0
 
-- **Spring Boot CLI container support was removed** ([`8c1816ec`](https://github.com/cloudfoundry/java-buildpack/commit/8c1816ec86e49a78d560232f45f3518a87e61aff),
-  "Remove spring-boot-cli outdated container"). Applications previously detected and run
-  via the Spring Boot CLI container (executable Groovy scripts with the
-  `spring-boot-cli` runtime) are **no longer supported** — this was not called out in a
-  prior release's notes. If your application relies on this, stay on `v5.0.x`/`v4.x` or
-  migrate to a supported container (e.g. package as a Spring Boot fat JAR).
+- **Spring Boot CLI container support was removed in `v5.0.7`** ([`8c1816ec`](https://github.com/cloudfoundry/java-buildpack/commit/8c1816ec86e49a78d560232f45f3518a87e61aff),
+  "Remove spring-boot-cli outdated container"). It was still present in `v5.0.0`–`v5.0.6`.
+  Applications previously detected and run via the Spring Boot CLI container (executable
+  Groovy scripts with the `spring-boot-cli` runtime) are **no longer supported** — this
+  was not called out in a prior release's notes. If your application relies on this,
+  stay on `v5.0.0`–`v5.0.6`/`v4.x` or migrate to a supported container (e.g. package as
+  a Spring Boot fat JAR).
 
 ## Notable fixes since v5.0.0
 

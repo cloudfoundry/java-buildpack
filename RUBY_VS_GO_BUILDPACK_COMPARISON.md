@@ -16,7 +16,7 @@ This document provides a **comprehensive architectural comparison** between the 
 ### Key Findings
 
 **✅ MIGRATION COMPLETE**:
-- **100% container coverage at migration** (8/8 containers migrated; Spring Boot CLI later removed post-v5.0.0, leaving 7)
+- **100% container coverage at migration** (8/8 containers migrated; Spring Boot CLI later removed in v5.0.7, leaving 7)
 - **92.5% framework coverage** (37/40 frameworks, only 3 deprecated/niche missing)
 - **100% JRE provider coverage** (7/7 JREs including BYOL options)
 - **All integration tests passing**
@@ -200,13 +200,13 @@ type Context struct {
 
 ## 2. Component Implementation Comparison
 
-### 2.1 Containers (7 remaining; Spring Boot CLI removed post-v5.0.0, see note below)
+### 2.1 Containers (7 remaining; Spring Boot CLI removed in v5.0.7, see note below)
 
 | Container | Ruby File | Go File | Lines (Ruby) | Lines (Go) | Notes |
 |-----------|-----------|---------|--------------|------------|-------|
 | **Spring Boot** | `spring_boot.rb` | `spring_boot.go` | 87 | 156 | Go: More explicit manifest detection |
 | **Tomcat** | `tomcat.rb` + 9 modules | `tomcat.go` | 865 total | 627 | Ruby: 10 separate files (more modular). **Go missing:** Geode/Redis session store auto-config (manual setup possible), Spring Insight (deprecated) |
-| **Spring Boot CLI** | `spring_boot_cli.rb` | ❌ **Removed** (was `spring_boot_cli.go`) | 94 | 168 (removed) | Implemented at Go migration, then dropped post-v5.0.0 — see [§2B.8](#2b8-spring-boot-cli) |
+| **Spring Boot CLI** | `spring_boot_cli.rb` | ❌ **Removed** (was `spring_boot_cli.go`) | 94 | 168 (removed) | Implemented at Go migration, then dropped in v5.0.7 — see [§2B.8](#2b8-spring-boot-cli) |
 | **Groovy** | `groovy.rb` | `groovy.go` + utils | 108 | 187 | Go: Separate utilities |
 | **Java Main** | `java_main.rb` | `java_main.go` | 119 | 203 | Go: More manifest parsing |
 | **Play Framework** | `play_framework.rb` | `play.go` | 142 | 289 | Go: Combined staged/dist modes |
@@ -900,7 +900,7 @@ Both buildpacks support `context_path` via `JBP_CONFIG_TOMCAT`, but use differen
 ## 2B. Container Feature Parity: Complete Analysis
 
 This section provides a comprehensive comparison of **7 remaining containers** (Spring
-Boot CLI was implemented at Go migration time but removed post-v5.0.0 — see
+Boot CLI was implemented at Go migration time but removed in v5.0.7 — see
 [§2B.8](#2b8-spring-boot-cli)), documenting missing features, architectural differences,
 and production readiness for each.
 
@@ -915,7 +915,7 @@ and production readiness for each.
 | **Java Main** | 190 | 205 | 85% | ⚠️ Thin Launcher, Manifest Class-Path, arguments config | ✅ Production Ready (basic use cases) |
 | **Dist ZIP** | 200 | 345 | 95% | ⚠️ Arguments config (uses profile.d instead) | ✅ Production Ready |
 | **Ratpack** | 189 | Merged into Dist ZIP | 95% | ⚠️ Version detection lost | ✅ Production Ready |
-| **Spring Boot CLI** | 198 | 428 (removed) | N/A | — | ❌ **Removed post-v5.0.0** (was ✅ Production Ready while implemented) |
+| **Spring Boot CLI** | 198 | 428 (removed) | N/A | — | ❌ **Removed in v5.0.7** (was ✅ Production Ready while implemented) |
 
 **Legend:**
 - 🔴 **HIGH severity** - Application will fail or behave incorrectly
@@ -1133,11 +1133,11 @@ cmd := "eval exec java ... play.core.server.NettyServer"
 
 ### 2B.8 Spring Boot CLI
 
-> **⚠️ Removed post-v5.0.0**: The Go buildpack's Spring Boot CLI container
-> (`spring_boot_cli.go`) was deleted after the v5.0.0 release with no separate
-> deprecation notice. The analysis below reflects the container **as it existed while
-> implemented** and is retained for historical reference; it no longer applies to the
-> current Go buildpack.
+> **⚠️ Removed in v5.0.7**: The Go buildpack's Spring Boot CLI container
+> (`spring_boot_cli.go`) was present through `v5.0.6` and deleted in `v5.0.7` with no
+> separate deprecation notice. The analysis below reflects the container **as it existed
+> while implemented** and is retained for historical reference; it no longer applies to
+> the current Go buildpack.
 
 #### Feature Comparison
 
@@ -1181,7 +1181,7 @@ func (s *SpringBootCLIContainer) Detect() (string, error) {
 
 #### Recommendation
 
-- ✅ **Go buildpack worked** for Spring Boot CLI applications while implemented (container has since been removed post-v5.0.0)
+- ✅ **Go buildpack worked** for Spring Boot CLI applications while implemented (container has since been removed in v5.0.7)
 - ⚠️ **Risk (historical)**: May have misdetected WAR files as Spring Boot CLI (low probability)
 - ⚠️ **Code cleanup needed (historical)**: Remove duplicate groovy_utils functions
 
@@ -1198,7 +1198,7 @@ func (s *SpringBootCLIContainer) Detect() (string, error) {
 | **Java Main** | ✅ Yes | No Thin Launcher or Manifest Class-Path support |
 | **Dist ZIP** | ✅ Yes | No arguments config (architectural choice) |
 | **Ratpack** | ✅ Yes | Version detection lost (merged into Dist ZIP) |
-| **Spring Boot CLI** | ❌ Removed post-v5.0.0 | Container no longer exists in Go buildpack |
+| **Spring Boot CLI** | ❌ Removed in v5.0.7 | Container no longer exists in Go buildpack |
 
 #### Critical Blockers by Container
 
@@ -2247,7 +2247,7 @@ required memory 1269289K is greater than 750M available for allocation
 | Test Type | Status | Coverage |
 |-----------|--------|----------|
 | **Unit Tests** | ✅ Passing | All components |
-| **Integration Tests** | ✅ Passing | All 7 containers (Spring Boot CLI removed post-v5.0.0), 20+ frameworks |
+| **Integration Tests** | ✅ Passing | All 7 containers (Spring Boot CLI removed in v5.0.7), 20+ frameworks |
 | **CF Platform Tests** | ✅ Passing | CF deployment tested |
 | **Docker Platform Tests** | ✅ Passing | Docker deployment tested |
 | **Performance Tests** | ✅ Validated | 10-30% faster staging |
