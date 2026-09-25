@@ -136,7 +136,7 @@ This Go-based buildpack is a migration from the original Ruby-based Cloud Foundr
 
 **⚠️ Important Migration Note:** The Go buildpack does **NOT** support the Ruby buildpack's `repository_root` configuration approach for custom JREs (via `JBP_CONFIG_*` environment variables). Custom JREs now require forking the buildpack and modifying `manifest.yml`. See [Custom JRE Usage](docs/custom-jre-usage.md) for details.
 
-**Quick Status Summary** (as of December 16, 2025):
+**Quick Status Summary** (as of September 25, 2026):
 - ✅ All 7 container types implemented (100%)
 - ✅ All 7 JRE providers implemented (3 in manifest + 4 BYOL via custom manifest)
 - ✅ 37 of 40 frameworks implemented (92.5%)

@@ -2319,5 +2319,5 @@ The Go-based Java buildpack is a **production-ready, feature-complete** migratio
 ---
 
 **Document Version**: 1.0  
-**Last Updated**: May 20, 2026  
+**Last Updated**: September 25, 2026  
 **Authors**: Cloud Foundry Java Buildpack Team
