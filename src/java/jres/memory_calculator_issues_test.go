@@ -75,14 +75,6 @@ var _ = Describe("Memory Calculator Issues", func() {
 		Expect(os.WriteFile(path, []byte("#!/bin/sh\n"), 0755)).To(Succeed())
 	}
 
-	// readGeneratedScript returns the content of the generated memory_calculator.sh.
-	readGeneratedScript := func() string {
-		path := filepath.Join(depsDir, "0", "bin", "memory_calculator.sh")
-		data, err := os.ReadFile(path)
-		Expect(err).NotTo(HaveOccurred())
-		return string(data)
-	}
-
 	// -------------------------------------------------------------------------
 	// https://github.com/cloudfoundry/java-buildpack/issues/1257
 	// LoadConfig() appears not to be called — MEMORY_CALCULATOR_* env vars silently ignored
@@ -92,11 +84,11 @@ var _ = Describe("Memory Calculator Issues", func() {
 	// tune stack_threads or headroom to work around the memory regression.
 	//
 	// Expected fix: call LoadConfig() at the start of Supply() (before countClasses()),
-	// so both stack_threads and headroom overrides are in effect before the script
-	// is built in Finalize().
+	// so both stack_threads and headroom overrides are in effect before the command
+	// is built by GetCalculatorCommand().
 	// -------------------------------------------------------------------------
 	Describe("#1257: LoadConfig() never called, MEMORY_CALCULATOR_* env vars silently ignored", func() {
-		It("MEMORY_CALCULATOR_STACK_THREADS env var reduces thread count in generated script", func() {
+		It("MEMORY_CALCULATOR_STACK_THREADS env var reduces thread count in generated calculator command", func() {
 			DeferCleanup(os.Unsetenv, "MEMORY_CALCULATOR_STACK_THREADS")
 			Expect(os.Setenv("MEMORY_CALCULATOR_STACK_THREADS", "50")).To(Succeed())
 
@@ -104,16 +96,16 @@ var _ = Describe("Memory Calculator Issues", func() {
 			mc := jres.NewMemoryCalculator(ctx, jreDir, "17.0.9", 17, "openjdk")
 			Expect(mc.Finalize()).To(Succeed())
 
-			script := readGeneratedScript()
+			cmd := mc.GetCalculatorCommand()
 
 			// This assertion FAILS until LoadConfig() is called at the start of Supply():
-			// currently the script will contain --thread-count=250 (the default).
-			Expect(script).To(ContainSubstring("--thread-count=50"),
+			// currently the command will contain --thread-count=250 (the default).
+			Expect(cmd).To(ContainSubstring("--thread-count=50"),
 				"expected --thread-count=50 from MEMORY_CALCULATOR_STACK_THREADS env var, "+
-					"but LoadConfig() appears not to be called so the override is silently ignored.\nScript:\n%s", script)
+					"but LoadConfig() appears not to be called so the override is silently ignored.\nCommand:\n%s", cmd)
 		})
 
-		It("MEMORY_CALCULATOR_HEADROOM env var applies headroom in generated script", func() {
+		It("MEMORY_CALCULATOR_HEADROOM env var applies headroom in generated calculator command", func() {
 			DeferCleanup(os.Unsetenv, "MEMORY_CALCULATOR_HEADROOM")
 			Expect(os.Setenv("MEMORY_CALCULATOR_HEADROOM", "5")).To(Succeed())
 
@@ -121,13 +113,13 @@ var _ = Describe("Memory Calculator Issues", func() {
 			mc := jres.NewMemoryCalculator(ctx, jreDir, "17.0.9", 17, "openjdk")
 			Expect(mc.Finalize()).To(Succeed())
 
-			script := readGeneratedScript()
+			cmd := mc.GetCalculatorCommand()
 
 			// This assertion FAILS until LoadConfig() is called at the start of Supply():
-			// currently no --head-room flag appears because headroom defaults to 0.
-			Expect(script).To(ContainSubstring("--head-room=5"),
+			// currently no --head-room flag would appear because headroom defaults to 0.
+			Expect(cmd).To(ContainSubstring("--head-room=5"),
 				"expected --head-room=5 from MEMORY_CALCULATOR_HEADROOM env var, "+
-					"but LoadConfig() appears not to be called.\nScript:\n%s", script)
+					"but LoadConfig() appears not to be called.\nCommand:\n%s", cmd)
 		})
 	})
 
@@ -144,14 +136,14 @@ var _ = Describe("Memory Calculator Issues", func() {
 	//      parsing JBP_CONFIG_OPEN_JDK_JRE
 	//
 	// Note: class_count override must be loaded before countClasses() in Supply();
-	// stack_threads must be loaded before buildCalculatorCommand() in Finalize().
+	// stack_threads must be loaded before GetCalculatorCommand() builds the command.
 	// Therefore LoadConfig() should be called at the start of Supply().
 	//
 	// Reducing stack_threads from 250 → 50 saves 200M of stack, which is the
 	// primary mitigation available to teams hitting the 750M regression.
 	// -------------------------------------------------------------------------
 	Describe("#1257: JBP_CONFIG_OPEN_JDK_JRE is not parsed, stack_threads override silently ignored", func() {
-		It("stack_threads set via JBP_CONFIG_OPEN_JDK_JRE is reflected in generated script", func() {
+		It("stack_threads set via JBP_CONFIG_OPEN_JDK_JRE is reflected in generated calculator command", func() {
 			DeferCleanup(os.Unsetenv, "JBP_CONFIG_OPEN_JDK_JRE")
 			Expect(os.Setenv("JBP_CONFIG_OPEN_JDK_JRE",
 				"{ memory_calculator: { stack_threads: 50 } }")).To(Succeed())
@@ -160,17 +152,17 @@ var _ = Describe("Memory Calculator Issues", func() {
 			mc := jres.NewMemoryCalculator(ctx, jreDir, "17.0.9", 17, "openjdk")
 			Expect(mc.Finalize()).To(Succeed())
 
-			script := readGeneratedScript()
+			cmd := mc.GetCalculatorCommand()
 
 			// This assertion FAILS until JBP_CONFIG_OPEN_JDK_JRE is parsed:
-			// currently the script will contain --thread-count=250 (the default).
+			// currently the command will contain --thread-count=250 (the default).
 			// Fix: parse JBP_CONFIG_OPEN_JDK_JRE in LoadConfig() and call it at
 			// the start of Supply(). With 50 threads: stack = 50M instead of 250M
 			// → saves 200M, making 750M containers viable again.
-			Expect(script).To(ContainSubstring("--thread-count=50"),
+			Expect(cmd).To(ContainSubstring("--thread-count=50"),
 				"expected --thread-count=50 from JBP_CONFIG_OPEN_JDK_JRE but got default 250.\n"+
-					"Fix: parse JBP_CONFIG_OPEN_JDK_JRE in LoadConfig() and call it at start of Supply().\nScript:\n%s",
-				script)
+					"Fix: parse JBP_CONFIG_OPEN_JDK_JRE in LoadConfig() and call it at start of Supply().\nCommand:\n%s",
+				cmd)
 		})
 
 		It("class_count set via JBP_CONFIG_OPEN_JDK_JRE overrides calculated count", func() {
@@ -182,14 +174,14 @@ var _ = Describe("Memory Calculator Issues", func() {
 			mc := jres.NewMemoryCalculator(ctx, jreDir, "17.0.9", 17, "openjdk")
 			Expect(mc.Finalize()).To(Succeed())
 
-			script := readGeneratedScript()
+			cmd := mc.GetCalculatorCommand()
 
 			// This assertion FAILS until JBP_CONFIG_OPEN_JDK_JRE is parsed.
 			// class_count must be loaded before countClasses() runs in Supply().
 			// class_count=3500 keeps metaspace at ~34M instead of ~233M.
-			Expect(script).To(ContainSubstring("--loaded-class-count=3500"),
-				"expected --loaded-class-count=3500 from JBP_CONFIG_OPEN_JDK_JRE.\nScript:\n%s",
-				script)
+			Expect(cmd).To(ContainSubstring("--loaded-class-count=3500"),
+				"expected --loaded-class-count=3500 from JBP_CONFIG_OPEN_JDK_JRE.\nCommand:\n%s",
+				cmd)
 		})
 	})
 
@@ -204,7 +196,7 @@ var _ = Describe("Memory Calculator Issues", func() {
 	// to read the correct env var in LoadConfig().
 	// -------------------------------------------------------------------------
 	Describe("Non-OpenJDK JRE config is silently ignored", func() {
-		It("JBP_CONFIG_SAP_MACHINE_JRE stack_threads is reflected in generated script", func() {
+		It("JBP_CONFIG_SAP_MACHINE_JRE stack_threads is reflected in generated calculator command", func() {
 			DeferCleanup(os.Unsetenv, "JBP_CONFIG_SAP_MACHINE_JRE")
 			Expect(os.Setenv("JBP_CONFIG_SAP_MACHINE_JRE",
 				"{ memory_calculator: { stack_threads: 50 } }")).To(Succeed())
@@ -213,12 +205,12 @@ var _ = Describe("Memory Calculator Issues", func() {
 			mc := jres.NewMemoryCalculator(ctx, jreDir, "21.0.1", 21, "sapmachine")
 			Expect(mc.Finalize()).To(Succeed())
 
-			script := readGeneratedScript()
-			Expect(script).To(ContainSubstring("--thread-count=50"),
-				"expected --thread-count=50 from JBP_CONFIG_SAP_MACHINE_JRE but got default.\nScript:\n%s", script)
+			cmd := mc.GetCalculatorCommand()
+			Expect(cmd).To(ContainSubstring("--thread-count=50"),
+				"expected --thread-count=50 from JBP_CONFIG_SAP_MACHINE_JRE but got default.\nCommand:\n%s", cmd)
 		})
 
-		It("JBP_CONFIG_ZULU_JRE headroom is reflected in generated script", func() {
+		It("JBP_CONFIG_ZULU_JRE headroom is reflected in generated calculator command", func() {
 			DeferCleanup(os.Unsetenv, "JBP_CONFIG_ZULU_JRE")
 			Expect(os.Setenv("JBP_CONFIG_ZULU_JRE",
 				"{ memory_calculator: { headroom: 10 } }")).To(Succeed())
@@ -227,9 +219,9 @@ var _ = Describe("Memory Calculator Issues", func() {
 			mc := jres.NewMemoryCalculator(ctx, jreDir, "17.0.9", 17, "zulu")
 			Expect(mc.Finalize()).To(Succeed())
 
-			script := readGeneratedScript()
-			Expect(script).To(ContainSubstring("--head-room=10"),
-				"expected --head-room=10 from JBP_CONFIG_ZULU_JRE but got default.\nScript:\n%s", script)
+			cmd := mc.GetCalculatorCommand()
+			Expect(cmd).To(ContainSubstring("--head-room=10"),
+				"expected --head-room=10 from JBP_CONFIG_ZULU_JRE but got default.\nCommand:\n%s", cmd)
 		})
 	})
 
@@ -248,9 +240,9 @@ var _ = Describe("Memory Calculator Issues", func() {
 			mc := jres.NewMemoryCalculator(ctx, jreDir, "17.0.9", 17, "openjdk")
 			Expect(mc.Finalize()).To(Succeed())
 
-			script := readGeneratedScript()
-			Expect(script).To(ContainSubstring("--thread-count=50"))
-			Expect(script).To(ContainSubstring("--head-room=5"))
+			cmd := mc.GetCalculatorCommand()
+			Expect(cmd).To(ContainSubstring("--thread-count=50"))
+			Expect(cmd).To(ContainSubstring("--head-room=5"))
 			Expect(logBuffer.String()).NotTo(ContainSubstring("WARNING"),
 				"unexpected WARNING in log output:\n%s", logBuffer.String())
 		})
