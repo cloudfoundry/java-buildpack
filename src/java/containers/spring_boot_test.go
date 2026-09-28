@@ -209,5 +209,25 @@ var _ = Describe("Spring Boot Container", func() {
 			Expect(strings.TrimSpace(string(out))).To(Equal("8080"),
 				"SERVER_PORT should be the expanded value of $PORT, not the literal string \"$PORT\"")
 		})
+
+		It("preserves JAVA_OPTS already written by the JRE phase instead of overwriting it (regression for #1432)", func() {
+			// Simulate the JRE finalize phase having already written JAVA_OPTS
+			// (e.g. including the user's own -Xss512K, plus the memory calculator's output).
+			// container.Finalize() reads this file, merges in its own opts, and rewrites it
+			// (see spring_boot.go: reads envFile -> finalOpts -> WriteEnvFile), so we seed it
+			// here before calling Finalize(), then read the same path back afterward.
+			envDir := filepath.Join(depsDir, "0", "env")
+			Expect(os.MkdirAll(envDir, 0755)).To(Succeed())
+			Expect(os.WriteFile(filepath.Join(envDir, "JAVA_OPTS"), []byte("-Xss512K -Xmx338199K"), 0644)).To(Succeed())
+
+			Expect(container.Finalize()).To(Succeed())
+
+			data, err := os.ReadFile(filepath.Join(envDir, "JAVA_OPTS"))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(data)).To(ContainSubstring("-Xss512K"),
+				"Spring Boot's Finalize must preserve JAVA_OPTS set by the JRE phase, not overwrite it")
+			Expect(string(data)).To(ContainSubstring("-XX:+ExitOnOutOfMemoryError"),
+				"Spring Boot's own additional opts should still be appended")
+		})
 	})
 })

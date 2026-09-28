@@ -1,8 +1,11 @@
 package containers_test
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/cloudfoundry/java-buildpack/src/java/common"
 	"github.com/cloudfoundry/java-buildpack/src/java/containers"
@@ -221,6 +224,11 @@ var _ = Describe("Play Container", func() {
 
 	Describe("Finalize", func() {
 		Context("with detected Play application", func() {
+			// Note: container.Finalize() (re)writes play_java_opts.sh from scratch every time it
+			// runs (WriteProfileD truncates and rewrites the file). Each It below gets a fresh
+			// buildDir/depsDir from the top-level BeforeEach, calls Finalize() itself to produce
+			// that It's own copy of the script, and only then reads/executes it — so there's no
+			// shared state or write/read race across tests.
 			BeforeEach(func() {
 				os.MkdirAll(filepath.Join(buildDir, "application-root"), 0755)
 				os.WriteFile(filepath.Join(buildDir, "application-root", "start"), []byte("#!/bin/sh"), 0755)
@@ -244,6 +252,32 @@ var _ = Describe("Play Container", func() {
 				Expect(string(content)).To(ContainSubstring("export JAVA_OPTS="))
 				Expect(string(content)).To(ContainSubstring("$PORT"))
 				Expect(string(content)).To(ContainSubstring("$TMPDIR"))
+			})
+
+			It("appends to, rather than overwrites, any previously assembled JAVA_OPTS (#1432)", func() {
+				Expect(container.Finalize()).To(Succeed())
+				scriptPath := filepath.Join(depsDir, "0", "profile.d", "play_java_opts.sh")
+				content, err := os.ReadFile(scriptPath)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).To(ContainSubstring(`export JAVA_OPTS="${JAVA_OPTS:+$JAVA_OPTS }`),
+					"must preserve JAVA_OPTS already assembled by profile.d/00_java_opts.sh, e.g. the user's own JAVA_OPTS")
+			})
+
+			It("actually preserves a pre-set JAVA_OPTS value at runtime, not just in the script text (#1432)", func() {
+				Expect(container.Finalize()).To(Succeed())
+				scriptPath := filepath.Join(depsDir, "0", "profile.d", "play_java_opts.sh")
+
+				// Simulate profile.d/00_java_opts.sh having already assembled and exported JAVA_OPTS
+				// (e.g. containing the user's own -Xss512K) before this script is sourced, exactly as
+				// CF's launcher sources profile.d scripts one after another in the same shell.
+				cmd := exec.Command("bash", "-c", fmt.Sprintf(`export JAVA_OPTS="-Xss512K"; . %s; echo "$JAVA_OPTS"`, scriptPath))
+				out, err := cmd.Output()
+				Expect(err).NotTo(HaveOccurred())
+				result := strings.TrimSpace(string(out))
+				Expect(result).To(ContainSubstring("-Xss512K"),
+					"the pre-existing JAVA_OPTS value must survive, not be wiped out by this container's own opts")
+				Expect(result).To(ContainSubstring("-XX:+ExitOnOutOfMemoryError"),
+					"this container's own opts should still be appended")
 			})
 		})
 	})
