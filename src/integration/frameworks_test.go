@@ -412,11 +412,11 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION": "17",
 						}).
-						Execute(name, filepath.Join(fixtures, "apps", "integration_valid"))
+						Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
 					Expect(err).NotTo(HaveOccurred(), logs.String)
 
 					Expect(logs.String()).To(ContainSubstring("Elastic OTel"))
-					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
+					Eventually(deployment).Should(matchers.Serve(ContainSubstring("Hello from Spring Boot")))
 				})
 
 				it("configures Elastic OTel with explicit OTLP headers", func() {
@@ -435,7 +435,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					Expect(err).NotTo(HaveOccurred(), logs.String)
 
 					Expect(logs.String()).To(ContainSubstring("Elastic OTel"))
-					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
+					Eventually(deployment).Should(matchers.Serve(ContainSubstring("Hello from Spring Boot")))
 				})
 			})
 

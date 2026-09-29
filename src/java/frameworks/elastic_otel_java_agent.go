@@ -39,21 +39,23 @@ func NewElasticOtelJavaAgentFramework(ctx *common.Context) *ElasticOtelJavaAgent
 
 // Detect checks if the Elastic OTel Java agent should be enabled.
 func (e *ElasticOtelJavaAgentFramework) Detect() (string, error) {
+	service := e.findElasticOtelService()
+
 	if os.Getenv("ELASTIC_OTEL_AGENT") != "" {
+		if !e.hasRequiredConfiguration(service) {
+			e.context.Log.Debug("Elastic OTel Java agent: ELASTIC_OTEL_AGENT requires an OTLP endpoint and authentication credentials")
+			return "", nil
+		}
+		e.service = service
 		e.context.Log.Debug("Elastic OTel Java agent framework detected via ELASTIC_OTEL_AGENT")
 		return "elastic-otel-javaagent", nil
 	}
-	if os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") != "" && os.Getenv("OTEL_EXPORTER_OTLP_HEADERS") != "" {
-		e.context.Log.Debug("Elastic OTel Java agent framework detected via OTLP environment variables")
-		return "elastic-otel-javaagent", nil
-	}
 
-	service := e.findElasticOtelService()
 	if service == nil {
 		e.context.Log.Debug("Elastic OTel Java agent: no elastic-otel service found")
 		return "", nil
 	}
-	if !e.hasRequiredCredentials(service) {
+	if !e.hasRequiredConfiguration(service) {
 		e.context.Log.Debug("Elastic OTel Java agent: service missing OTLP endpoint or authentication credentials")
 		return "", nil
 	}
@@ -139,11 +141,18 @@ func (e *ElasticOtelJavaAgentFramework) findElasticOtelService() *common.VCAPSer
 	return nil
 }
 
-func (e *ElasticOtelJavaAgentFramework) hasRequiredCredentials(service *common.VCAPService) bool {
-	if service == nil || service.Credentials == nil {
-		return false
+func (e *ElasticOtelJavaAgentFramework) hasRequiredConfiguration(service *common.VCAPService) bool {
+	endpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+	headers := os.Getenv("OTEL_EXPORTER_OTLP_HEADERS")
+	if service != nil && service.Credentials != nil {
+		if endpoint == "" {
+			endpoint = getOtlpEndpoint(service.Credentials)
+		}
+		if headers == "" {
+			headers = getOtlpHeaders(service.Credentials)
+		}
 	}
-	return getOtlpEndpoint(service.Credentials) != "" && getOtlpHeaders(service.Credentials) != ""
+	return endpoint != "" && headers != ""
 }
 
 func (e *ElasticOtelJavaAgentFramework) buildConfiguration() map[string]string {
@@ -173,11 +182,10 @@ func (e *ElasticOtelJavaAgentFramework) buildConfiguration() map[string]string {
 	if headers := os.Getenv("OTEL_EXPORTER_OTLP_HEADERS"); headers != "" {
 		config["otel.exporter.otlp.headers"] = headers
 	}
-	if serviceName := os.Getenv("OTEL_SERVICE_NAME"); serviceName != "" {
-		config["otel.service.name"] = serviceName
-	}
 	if _, ok := config["otel.service.name"]; !ok {
-		if appName := GetApplicationName(false); appName != "" {
+		if serviceName := os.Getenv("OTEL_SERVICE_NAME"); serviceName != "" {
+			config["otel.service.name"] = serviceName
+		} else if appName := GetApplicationName(false); appName != "" {
 			config["otel.service.name"] = appName
 		}
 	}

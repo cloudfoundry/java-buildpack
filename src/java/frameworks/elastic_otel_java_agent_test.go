@@ -132,19 +132,28 @@ var _ = Describe("ElasticOtelJavaAgentFramework", func() {
 			Expect(name).To(Equal("elastic-otel-javaagent"))
 		})
 
-		It("detects via ELASTIC_OTEL_AGENT", func() {
+		It("does not detect via ELASTIC_OTEL_AGENT without required configuration", func() {
 			os.Setenv("ELASTIC_OTEL_AGENT", "true")
 			name, err := framework.Detect()
 			Expect(err).NotTo(HaveOccurred())
-			Expect(name).To(Equal("elastic-otel-javaagent"))
+			Expect(name).To(BeEmpty())
 		})
 
-		It("detects via OTLP endpoint and headers environment variables", func() {
+		It("detects via ELASTIC_OTEL_AGENT with OTLP endpoint and headers", func() {
+			os.Setenv("ELASTIC_OTEL_AGENT", "true")
 			os.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "https://elastic.example.com:443")
 			os.Setenv("OTEL_EXPORTER_OTLP_HEADERS", "Authorization=ApiKey abc123")
 			name, err := framework.Detect()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(name).To(Equal("elastic-otel-javaagent"))
+		})
+
+		It("does not claim generic OTLP endpoint and headers configuration", func() {
+			os.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "https://elastic.example.com:443")
+			os.Setenv("OTEL_EXPORTER_OTLP_HEADERS", "Authorization=ApiKey abc123")
+			name, err := framework.Detect()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(name).To(BeEmpty())
 		})
 
 		It("does not detect a generic OpenTelemetry collector service", func() {
@@ -237,7 +246,7 @@ var _ = Describe("ElasticOtelJavaAgentFramework", func() {
 			Expect(opts).To(ContainSubstring("-Dotel.exporter.otlp.headers='Authorization=ApiKey abc123'"))
 			Expect(opts).To(ContainSubstring("-Delastic.otel.javaagent.log.level=DEBUG"))
 			Expect(opts).To(ContainSubstring("-Dotel.service.name=my-cf-app"))
-			Expect(opts).To(ContainSubstring("-Dotel.resource.attributes=deployment.environment.name=production"))
+			Expect(opts).To(ContainSubstring("-Dotel.resource.attributes='deployment.environment.name=production'"))
 			Expect(opts).NotTo(ContainSubstring(tmpDir))
 		})
 
@@ -254,6 +263,30 @@ var _ = Describe("ElasticOtelJavaAgentFramework", func() {
 			Expect(opts).To(ContainSubstring("-Dotel.exporter.otlp.endpoint=https://env.elastic.example.com:443"))
 			Expect(opts).To(ContainSubstring("-Dotel.exporter.otlp.headers='Authorization=ApiKey env-key'"))
 			Expect(opts).To(ContainSubstring("-Dotel.service.name=env-service"))
+		})
+
+		It("preserves the service name configured by the service binding", func() {
+			os.Setenv("OTEL_SERVICE_NAME", "env-service")
+			os.Setenv("VCAP_SERVICES", `{
+				"elastic-otel": [{
+					"name": "my-elastic-otel",
+					"label": "elastic-otel",
+					"tags": [],
+					"credentials": {
+						"otel.exporter.otlp.endpoint": "https://elastic.example.com:443",
+						"api_key": "abc123",
+						"otel.service.name": "binding-service"
+					}
+				}]
+			}`)
+
+			Expect(framework.Finalize()).To(Succeed())
+
+			data, err := os.ReadFile(optsFile())
+			Expect(err).NotTo(HaveOccurred())
+			opts := string(data)
+			Expect(opts).To(ContainSubstring("-Dotel.service.name=binding-service"))
+			Expect(opts).NotTo(ContainSubstring("-Dotel.service.name=env-service"))
 		})
 	})
 })

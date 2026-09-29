@@ -5,7 +5,7 @@ The Elastic OTel Java Agent Framework causes an application to be automatically 
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td>Existence of a bound Elastic OTel service. The service must have a name, label, or tag containing <code>elastic-otel</code> and must provide an OTLP endpoint plus authentication credentials. The framework can also be enabled explicitly with <code>ELASTIC_OTEL_AGENT</code>.</td>
+    <td>Existence of a bound Elastic OTel service. The service must have a name, label, or tag containing <code>elastic-otel</code> and the combined service and environment configuration must provide an OTLP endpoint plus authentication credentials. The framework can also be enabled explicitly with <code>ELASTIC_OTEL_AGENT</code> when the same required configuration is present.</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
@@ -60,7 +60,7 @@ The framework uses the dependency version configured in `manifest.yml`.
 | ---- | ----------- |
 | `version` | The version of Elastic OTel Java agent to use. The current buildpack manifest uses the `elastic-otel-javaagent` dependency. |
 
-The framework sets `otel.service.name` from `VCAP_APPLICATION.application_name` if it is not configured in service credentials or `OTEL_SERVICE_NAME`. It also sets `deployment.environment.name` from `VCAP_APPLICATION.space_name` when `otel.resource.attributes` is not configured.
+The framework sets `otel.service.name` from service credentials, then `OTEL_SERVICE_NAME`, then `VCAP_APPLICATION.application_name`, using the first configured value. It also sets `deployment.environment.name` from `VCAP_APPLICATION.space_name` when `otel.resource.attributes` is not configured. Generic OTLP environment variables do not select the Elastic distribution by themselves; set `ELASTIC_OTEL_AGENT` to choose it explicitly.
 
 > **Warning**
 > Do not bind this framework alongside the Elastic APM Agent, OpenTelemetry Javaagent, Splunk OTel Java Agent, or another Java agent framework for the same application. Running multiple Java agents in the same JVM can cause duplicate telemetry or conflicting instrumentation.
