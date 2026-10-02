@@ -423,7 +423,9 @@ export PATH=$PLAY_BIN:$PATH
 	}
 
 	// Play start scripts respect JAVA_OPTS environment variable
-	javaOptsScript := fmt.Sprintf("export JAVA_OPTS=\"%s\"\n", strings.Join(javaOpts, " "))
+	// Append to any JAVA_OPTS already assembled (e.g. by profile.d/00_java_opts.sh, which
+	// includes the user-supplied JAVA_OPTS) instead of overwriting it (#1432).
+	javaOptsScript := fmt.Sprintf("export JAVA_OPTS=\"${JAVA_OPTS:+$JAVA_OPTS }%s\"\n", strings.Join(javaOpts, " "))
 	if err := p.context.Stager.WriteProfileD("play_java_opts.sh", javaOptsScript); err != nil {
 		return fmt.Errorf("failed to write JAVA_OPTS profile.d script: %w", err)
 	}

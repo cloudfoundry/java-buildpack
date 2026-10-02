@@ -209,5 +209,41 @@ var _ = Describe("Spring Boot Container", func() {
 			Expect(strings.TrimSpace(string(out))).To(Equal("8080"),
 				"SERVER_PORT should be the expanded value of $PORT, not the literal string \"$PORT\"")
 		})
+
+		It("does not clobber JAVA_OPTS assembled by profile.d/00_java_opts.sh at runtime (regression for #1432)", func() {
+			// #1432 was caused by a container writing a profile.d script that overwrote
+			// (rather than appended to) the JAVA_OPTS already assembled by the centralized
+			// 00_java_opts.sh script, which other profile.d scripts source after it runs
+			// (alphabetical order) in the same shell. Spring Boot never writes a profile.d
+			// script that touches JAVA_OPTS at all — it only writes deps/<idx>/env/JAVA_OPTS
+			// via WriteEnvFile, a separate, unrelated mechanism — so it cannot exhibit the
+			// #1432 clobbering bug by construction. Verify that directly: a JAVA_OPTS value
+			// already exported (simulating 00_java_opts.sh having run first) must still be
+			// intact after sourcing every profile.d script Spring Boot's Finalize writes.
+			Expect(container.Finalize()).To(Succeed())
+
+			profileDDir := filepath.Join(depsDir, "0", "profile.d")
+			entries, err := os.ReadDir(profileDDir)
+			Expect(err).NotTo(HaveOccurred())
+
+			var sourceCmds []string
+			for _, entry := range entries {
+				scriptPath := filepath.Join(profileDDir, entry.Name())
+				content, err := os.ReadFile(scriptPath)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).NotTo(ContainSubstring("export JAVA_OPTS="),
+					fmt.Sprintf("%s must not write JAVA_OPTS (would risk clobbering 00_java_opts.sh like #1432)", entry.Name()))
+				sourceCmds = append(sourceCmds, fmt.Sprintf(`. "%s"`, scriptPath))
+			}
+
+			// set -e so a source failure (e.g. a bad path) fails the command instead of
+			// silently leaving JAVA_OPTS unchanged, which would let the assertion below
+			// pass vacuously.
+			cmd := exec.Command("bash", "-c", fmt.Sprintf(`set -e; export JAVA_OPTS="-Xss512K"; %s; echo "$JAVA_OPTS"`, strings.Join(sourceCmds, "; ")))
+			out, err := cmd.Output()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(strings.TrimSpace(string(out))).To(Equal("-Xss512K"),
+				"JAVA_OPTS already assembled by 00_java_opts.sh must survive Spring Boot's profile.d scripts untouched")
+		})
 	})
 })
