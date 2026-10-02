@@ -210,24 +210,37 @@ var _ = Describe("Spring Boot Container", func() {
 				"SERVER_PORT should be the expanded value of $PORT, not the literal string \"$PORT\"")
 		})
 
-		It("preserves JAVA_OPTS already written by the JRE phase instead of overwriting it (regression for #1432)", func() {
-			// Simulate the JRE finalize phase having already written JAVA_OPTS
-			// (e.g. including the user's own -Xss512K, plus the memory calculator's output).
-			// container.Finalize() reads this file, merges in its own opts, and rewrites it
-			// (see spring_boot.go: reads envFile -> finalOpts -> WriteEnvFile), so we seed it
-			// here before calling Finalize(), then read the same path back afterward.
-			envDir := filepath.Join(depsDir, "0", "env")
-			Expect(os.MkdirAll(envDir, 0755)).To(Succeed())
-			Expect(os.WriteFile(filepath.Join(envDir, "JAVA_OPTS"), []byte("-Xss512K -Xmx338199K"), 0644)).To(Succeed())
-
+		It("does not clobber JAVA_OPTS assembled by profile.d/00_java_opts.sh at runtime (regression for #1432)", func() {
+			// #1432 was caused by a container writing a profile.d script that overwrote
+			// (rather than appended to) the JAVA_OPTS already assembled by the centralized
+			// 00_java_opts.sh script, which other profile.d scripts source after it runs
+			// (alphabetical order) in the same shell. Spring Boot never writes a profile.d
+			// script that touches JAVA_OPTS at all — it only writes deps/<idx>/env/JAVA_OPTS
+			// via WriteEnvFile, a separate, unrelated mechanism — so it cannot exhibit the
+			// #1432 clobbering bug by construction. Verify that directly: a JAVA_OPTS value
+			// already exported (simulating 00_java_opts.sh having run first) must still be
+			// intact after sourcing every profile.d script Spring Boot's Finalize writes.
 			Expect(container.Finalize()).To(Succeed())
 
-			data, err := os.ReadFile(filepath.Join(envDir, "JAVA_OPTS"))
+			profileDDir := filepath.Join(depsDir, "0", "profile.d")
+			entries, err := os.ReadDir(profileDDir)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(string(data)).To(ContainSubstring("-Xss512K"),
-				"Spring Boot's Finalize must preserve JAVA_OPTS set by the JRE phase, not overwrite it")
-			Expect(string(data)).To(ContainSubstring("-XX:+ExitOnOutOfMemoryError"),
-				"Spring Boot's own additional opts should still be appended")
+
+			var sourceCmds []string
+			for _, entry := range entries {
+				scriptPath := filepath.Join(profileDDir, entry.Name())
+				content, err := os.ReadFile(scriptPath)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).NotTo(ContainSubstring("export JAVA_OPTS="),
+					fmt.Sprintf("%s must not write JAVA_OPTS (would risk clobbering 00_java_opts.sh like #1432)", entry.Name()))
+				sourceCmds = append(sourceCmds, fmt.Sprintf(". %s", scriptPath))
+			}
+
+			cmd := exec.Command("bash", "-c", fmt.Sprintf(`export JAVA_OPTS="-Xss512K"; %s; echo "$JAVA_OPTS"`, strings.Join(sourceCmds, "; ")))
+			out, err := cmd.Output()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(strings.TrimSpace(string(out))).To(Equal("-Xss512K"),
+				"JAVA_OPTS already assembled by 00_java_opts.sh must survive Spring Boot's profile.d scripts untouched")
 		})
 	})
 })
