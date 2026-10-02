@@ -174,64 +174,16 @@ func (m *MemoryCalculator) Finalize() error {
 
 	m.ctx.Log.Info("Configuring Memory Calculator")
 
-	// The memory calculator command will be added to the startup script
-	// It's executed at runtime to calculate memory based on actual container limits
-	// Format: CALCULATED_MEMORY=$(calculator args) && JAVA_OPTS="$JAVA_OPTS $CALCULATED_MEMORY"
-
-	// We'll write this to a shell script that containers can source
-	memoryCalcScript := filepath.Join(m.ctx.Stager.DepDir(), "bin", "memory_calculator.sh")
-	if err := os.MkdirAll(filepath.Dir(memoryCalcScript), 0755); err != nil {
-		return fmt.Errorf("failed to create bin directory: %w", err)
-	}
-
-	// Build calculator command (v4.x format)
-	calculatorCmd := m.buildCalculatorCommand()
-
-	scriptContent := fmt.Sprintf(`#!/bin/bash
-# Memory Calculator - calculates optimal JVM memory settings
-if [ -n "$MEMORY_LIMIT" ]; then
-  CALCULATED_MEMORY=$(%s)
-  echo "JVM Memory Configuration: $CALCULATED_MEMORY"
-  export JAVA_OPTS="$JAVA_OPTS $CALCULATED_MEMORY"
-fi
-
-# Set MALLOC_ARENA_MAX to reduce memory overhead
-export MALLOC_ARENA_MAX=2
-`, calculatorCmd)
-
-	if err := os.WriteFile(memoryCalcScript, []byte(scriptContent), 0755); err != nil {
-		return fmt.Errorf("failed to write memory calculator script: %w", err)
-	}
+	// The actual runtime command (with export MALLOC_ARENA_MAX etc.) is built by
+	// GetCalculatorCommand() and embedded directly into the release/start command
+	// by the container packages — see base_jre.go's MemoryCalculatorCommand().
+	// No separate memory_calculator.sh script is generated: nothing sources one,
+	// so an earlier version of this method that wrote such a script (dead code,
+	// see cloudfoundry/java-buildpack#1433) has been removed.
 
 	m.ctx.Log.Debug("Memory Calculator configured")
 
 	return nil
-}
-
-// buildCalculatorCommand builds the memory calculator command with all arguments (v4.x format)
-func (m *MemoryCalculator) buildCalculatorCommand() string {
-	args := []string{
-		m.calculatorPath,
-		"--total-memory=$MEMORY_LIMIT",
-	}
-
-	if m.headroom > 0 {
-		args = append(args, fmt.Sprintf("--head-room=%d", m.headroom))
-	}
-
-	// Use default class count if counting failed (v4 calculator requires this parameter)
-	classCount := m.classCount
-	if classCount == 0 {
-		classCount = int(float64(DefaultClassCount) * 0.35) // Apply same 35% factor
-	}
-
-	args = append(args,
-		fmt.Sprintf("--loaded-class-count=%d", classCount),
-		fmt.Sprintf("--thread-count=%d", m.stackThreads),
-		`--jvm-options="$JAVA_OPTS"`,
-	)
-
-	return strings.Join(args, " ")
 }
 
 // countClasses counts .class and .groovy files in the application
