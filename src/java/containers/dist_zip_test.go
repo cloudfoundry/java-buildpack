@@ -195,7 +195,7 @@ var _ = Describe("Dist ZIP Container", func() {
 	Describe("Finalize", func() {
 		// Note: container.Finalize() (re)writes dist_zip_java_opts.sh from scratch every time it
 		// runs (WriteProfileD truncates and rewrites the file). Each It below gets a fresh
-		// buildDir/depsDir from the top-level BeforeEach, calls Finalize() itself to produce that
+		// buildDir/depsDir from the top-level BeforeEach, calls Finalize() itself to produce
 		// its own copy of the script, and only then reads/executes it — so there's no shared
 		// state or write/read race across tests.
 		BeforeEach(func() {
