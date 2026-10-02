@@ -236,7 +236,7 @@ var _ = Describe("Dist ZIP Container", func() {
 			// Simulate profile.d/00_java_opts.sh having already assembled and exported JAVA_OPTS
 			// (e.g. containing the user's own -Xss512K) before this script is sourced, exactly as
 			// CF's launcher sources profile.d scripts one after another in the same shell.
-			cmd := exec.Command("bash", "-c", fmt.Sprintf(`export JAVA_OPTS="-Xss512K"; . %s; echo "$JAVA_OPTS"`, scriptPath))
+			cmd := exec.Command("bash", "-c", fmt.Sprintf(`export JAVA_OPTS="-Xss512K"; . "%s"; echo "$JAVA_OPTS"`, scriptPath))
 			out, err := cmd.Output()
 			Expect(err).NotTo(HaveOccurred())
 			result := strings.TrimSpace(string(out))

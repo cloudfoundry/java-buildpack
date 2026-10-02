@@ -233,10 +233,13 @@ var _ = Describe("Spring Boot Container", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(string(content)).NotTo(ContainSubstring("export JAVA_OPTS="),
 					fmt.Sprintf("%s must not write JAVA_OPTS (would risk clobbering 00_java_opts.sh like #1432)", entry.Name()))
-				sourceCmds = append(sourceCmds, fmt.Sprintf(". %s", scriptPath))
+				sourceCmds = append(sourceCmds, fmt.Sprintf(`. "%s"`, scriptPath))
 			}
 
-			cmd := exec.Command("bash", "-c", fmt.Sprintf(`export JAVA_OPTS="-Xss512K"; %s; echo "$JAVA_OPTS"`, strings.Join(sourceCmds, "; ")))
+			// set -e so a source failure (e.g. a bad path) fails the command instead of
+			// silently leaving JAVA_OPTS unchanged, which would let the assertion below
+			// pass vacuously.
+			cmd := exec.Command("bash", "-c", fmt.Sprintf(`set -e; export JAVA_OPTS="-Xss512K"; %s; echo "$JAVA_OPTS"`, strings.Join(sourceCmds, "; ")))
 			out, err := cmd.Output()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(strings.TrimSpace(string(out))).To(Equal("-Xss512K"),
