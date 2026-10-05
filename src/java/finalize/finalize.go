@@ -25,6 +25,7 @@ type Finalizer struct {
 	ContainerName string
 	JREName       string
 	BuildpackDir  string
+	Manifest4Part map[string]libbuildpack.ManifestEntry
 }
 
 // SupplyConfig holds the values written to config.yml by the supply phase.
@@ -39,7 +40,7 @@ type SupplyConfig struct {
 // This follows the pattern established by go-buildpack and dotnet-core-buildpack.
 func NewFinalizer(stager common.Stager, manifest common.Manifest,
 	installer common.Installer, logger *libbuildpack.Logger,
-	command common.Command) (*Finalizer, error) {
+	command common.Command, manifest4Part ...map[string]libbuildpack.ManifestEntry) (*Finalizer, error) {
 
 	raw := struct {
 		Config SupplyConfig `yaml:"config"`
@@ -56,6 +57,11 @@ func NewFinalizer(stager common.Stager, manifest common.Manifest,
 
 	logger.Info("Loaded supply config: container=%s jre=%s version=%s", cfg.Container, cfg.JRE, cfg.JREVersion)
 
+	var m4p map[string]libbuildpack.ManifestEntry
+	if len(manifest4Part) > 0 {
+		m4p = manifest4Part[0]
+	}
+
 	return &Finalizer{
 		Stager:        stager,
 		Manifest:      manifest,
@@ -64,6 +70,7 @@ func NewFinalizer(stager common.Stager, manifest common.Manifest,
 		Command:       command,
 		ContainerName: cfg.Container,
 		JREName:       cfg.JRE,
+		Manifest4Part: m4p,
 	}, nil
 }
 
@@ -72,11 +79,12 @@ func Run(f *Finalizer) error {
 	f.Log.BeginStep("Finalizing Java")
 
 	ctx := &common.Context{
-		Stager:    f.Stager,
-		Manifest:  f.Manifest,
-		Installer: f.Installer,
-		Log:       f.Log,
-		Command:   f.Command,
+		Stager:        f.Stager,
+		Manifest:      f.Manifest,
+		Installer:     f.Installer,
+		Log:           f.Log,
+		Command:       f.Command,
+		Manifest4Part: f.Manifest4Part,
 	}
 
 	// Resolve container using the name stored by supply — no re-detection needed.

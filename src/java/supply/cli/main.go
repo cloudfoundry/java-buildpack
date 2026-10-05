@@ -7,6 +7,7 @@ import (
 	"time"
 
 	_ "github.com/cloudfoundry/java-buildpack/src/java/hooks" // Register hooks (Dynatrace)
+	"github.com/cloudfoundry/java-buildpack/src/java/jres"
 	"github.com/cloudfoundry/java-buildpack/src/java/supply"
 	"github.com/cloudfoundry/libbuildpack"
 )
@@ -34,6 +35,11 @@ func main() {
 		logger.Error("Unable to load buildpack manifest: %s", err.Error())
 		os.Exit(10)
 	}
+
+	// Extract 4-part sapmachine versions before libbuildpack sees the manifest.
+	// Neither blang/semver nor Masterminds/semver can parse X.Y.Z.W strings;
+	// leaving them in the manifest breaks DefaultVersion and warnNewerPatch.
+	manifest4Part := jres.Extract4PartEntries(manifest, "sapmachine")
 
 	installer := libbuildpack.NewInstaller(manifest)
 	stager := libbuildpack.NewStager(os.Args[1:], logger, manifest)
@@ -71,11 +77,12 @@ func main() {
 	}
 
 	s := supply.Supplier{
-		Stager:    stager,
-		Manifest:  manifest,
-		Installer: installer,
-		Log:       logger,
-		Command:   &libbuildpack.Command{},
+		Stager:        stager,
+		Manifest:      manifest,
+		Installer:     installer,
+		Log:           logger,
+		Command:       &libbuildpack.Command{},
+		Manifest4Part: manifest4Part,
 	}
 
 	if err = supply.Run(&s); err != nil {

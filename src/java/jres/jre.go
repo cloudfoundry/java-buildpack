@@ -226,32 +226,12 @@ var jreNameToDocumentedEnvVar = map[string]string{
 	"zing":       "JBP_CONFIG_ZING_JRE",
 }
 
-// GetJREVersion gets the desired JRE version from environment or uses default
-// Supports BP_JAVA_VERSION (simple version) and JBP_CONFIG_<JRE_NAME> (complex config)
 func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency, error) {
 	// Check for simple BP_JAVA_VERSION environment variable first
 	// Format: "8", "11", "17", "21", etc. or version patterns like "11.+", "17.*"
 	if bpVersion := os.Getenv("BP_JAVA_VERSION"); bpVersion != "" {
 		ctx.Log.Debug("Using Java version from BP_JAVA_VERSION: %s", bpVersion)
-
-		// Normalize version to a pattern that FindMatchingVersion understands
-		versionPattern := normalizeVersionPattern(bpVersion)
-
-		// Get all available versions for this JRE
-		availableVersions := ctx.Manifest.AllDependencyVersions(jreName)
-		if len(availableVersions) == 0 {
-			return libbuildpack.Dependency{}, fmt.Errorf("no versions found for %s", jreName)
-		}
-
-		// Find the highest matching version
-		matchedVersion, err := findVersion(versionPattern, availableVersions)
-		if err != nil {
-			ctx.Log.Warning("Could not find %s matching version %s: %s", jreName, versionPattern, err.Error())
-			return libbuildpack.Dependency{}, fmt.Errorf("no version of %s matching %s found", jreName, versionPattern)
-		}
-
-		ctx.Log.Debug("Resolved %s version %s from pattern %s", jreName, matchedVersion, versionPattern)
-		return libbuildpack.Dependency{Name: jreName, Version: matchedVersion}, nil
+		return resolveVersion(ctx, jreName, bpVersion)
 	}
 
 	// Check for JBP_CONFIG_<JRE_NAME> environment variable
@@ -279,25 +259,7 @@ func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency
 			// Fall back to manifest default.
 			ctx.Log.Debug("%s set but contains no version field, using manifest default", envKey)
 		} else {
-			ctx.Log.Debug("Parsed version pattern from %s: '%s'", envKey, versionPattern)
-
-			normalizedPattern := normalizeVersionPattern(versionPattern)
-			ctx.Log.Debug("Normalized pattern: '%s' -> '%s'", versionPattern, normalizedPattern)
-
-			availableVersions := ctx.Manifest.AllDependencyVersions(jreName)
-			if len(availableVersions) == 0 {
-				return libbuildpack.Dependency{}, fmt.Errorf("no versions of %s found in manifest", jreName)
-			}
-			ctx.Log.Debug("Available versions for %s: %v", jreName, availableVersions)
-
-			matchedVersion, err := findVersion(normalizedPattern, availableVersions)
-			if err != nil {
-				ctx.Log.Debug("FindMatchingVersion failed: %s", err.Error())
-				return libbuildpack.Dependency{}, fmt.Errorf("no version of %s matching '%s' found in manifest. Available versions: %v", jreName, versionPattern, availableVersions)
-			}
-			ctx.Log.Debug("Matched version: %s", matchedVersion)
-
-			return libbuildpack.Dependency{Name: jreName, Version: matchedVersion}, nil
+			return resolveVersion(ctx, jreName, versionPattern)
 		}
 	}
 
@@ -310,33 +272,43 @@ func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency
 	return dep, nil
 }
 
+// resolveVersion resolves a user-supplied version string or pattern against the
+// manifest for the given JRE.  Exact 4-part versions (e.g. "17.0.0.1") are
+// looked up in ctx.Manifest4Part, which holds entries extracted from the
+// concrete manifest before libbuildpack saw them (libbuildpack's semver
+// libraries cannot parse 4-part version strings).  All other patterns go
+// through the normal semver matching path.
+func resolveVersion(ctx *common.Context, jreName, version string) (libbuildpack.Dependency, error) {
+	if isValidVersion4Part(version) {
+		if entry, ok := ctx.Manifest4Part[version]; ok && entry.Dependency.Name == jreName {
+			ctx.Log.Debug("Resolved %s %s from 4-part entry map", jreName, version)
+			return libbuildpack.Dependency{Name: jreName, Version: version}, nil
+		}
+		return libbuildpack.Dependency{}, fmt.Errorf("no version of %s matching '%s' found in manifest", jreName, version)
+	}
+
+	pattern := normalizeVersionPattern(version)
+	ctx.Log.Debug("Normalized pattern: '%s' -> '%s'", version, pattern)
+
+	availableVersions := ctx.Manifest.AllDependencyVersions(jreName)
+	if len(availableVersions) == 0 {
+		return libbuildpack.Dependency{}, fmt.Errorf("no versions of %s found in manifest", jreName)
+	}
+	ctx.Log.Debug("Available versions for %s: %v", jreName, availableVersions)
+
+	matchedVersion, err := libbuildpack.FindMatchingVersion(pattern, availableVersions)
+	if err != nil {
+		ctx.Log.Debug("FindMatchingVersion failed: %s", err.Error())
+		return libbuildpack.Dependency{}, fmt.Errorf("no version of %s matching '%s' found in manifest. Available versions: %v", jreName, version, availableVersions)
+	}
+	ctx.Log.Debug("Matched version: %s", matchedVersion)
+
+	return libbuildpack.Dependency{Name: jreName, Version: matchedVersion}, nil
+}
+
 var exactVersionWithBuildRegex = regexp.MustCompile(`^\d+\.\d+\.\d+\+\d+$`)
 var exactVersionRegex = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
 var exactVersion4PartRegex = regexp.MustCompile(`^\d+\.\d+\.\d+\.\d+$`)
-
-// findVersion resolves a version pattern against a list of available versions.
-// For 4-part exact versions (e.g. "17.0.0.1"), it falls back to direct string
-// matching because semver libraries cannot parse 4-digit version strings.
-// For all other patterns it delegates to libbuildpack.FindMatchingVersion.
-func findVersion(pattern string, versions []string) (string, error) {
-	if isValidVersion4Part(pattern) {
-		for _, v := range versions {
-			if v == pattern {
-				return v, nil
-			}
-		}
-		return "", fmt.Errorf("no match found for %s", pattern)
-	}
-	// For semver range patterns, exclude 4-part versions from the candidate list
-	// because the semver libraries cannot parse them and would abort the whole match.
-	semverVersions := make([]string, 0, len(versions))
-	for _, v := range versions {
-		if !isValidVersion4Part(v) {
-			semverVersions = append(semverVersions, v)
-		}
-	}
-	return libbuildpack.FindMatchingVersion(pattern, semverVersions)
-}
 
 func normalizeVersionPattern(version string) string {
 	if strings.Contains(version, "*") {
@@ -353,10 +325,6 @@ func normalizeVersionPattern(version string) string {
 	// Exact patch version (e.g. "17.0.13") — already fully specified, don't append ".*"
 	// which would produce an unmatchable pattern like "17.0.13.*".
 	if isValidVersion(version) {
-		return version
-	}
-	// 4-part exact version (e.g. "17.0.0.1" used by SapMachine) — already fully specified.
-	if isValidVersion4Part(version) {
 		return version
 	}
 	return version + ".*"

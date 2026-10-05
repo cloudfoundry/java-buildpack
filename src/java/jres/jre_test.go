@@ -230,14 +230,17 @@ dependencies:
 		manifest, err := libbuildpack.NewManifest(manifestDir, logger, time.Now())
 		Expect(err).NotTo(HaveOccurred())
 
+		manifest4Part := jres.Extract4PartEntries(manifest, "sapmachine")
+
 		stager := libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, "0"}, logger, manifest)
 
 		ctx = &common.Context{
-			Stager:    stager,
-			Manifest:  manifest,
-			Installer: &libbuildpack.Installer{},
-			Log:       logger,
-			Command:   &libbuildpack.Command{},
+			Stager:        stager,
+			Manifest:      manifest,
+			Installer:     &libbuildpack.Installer{},
+			Log:           logger,
+			Command:       &libbuildpack.Command{},
+			Manifest4Part: manifest4Part,
 		}
 	})
 
@@ -685,6 +688,157 @@ IMPLEMENTOR="Eclipse Adoptium"`
 
 		It("IBM JRE includes J9-specific tuning opts", func() {
 			Expect(jres.NewIBMJRE(ctx).ExtraFinalizeOpts()).To(ContainSubstring("-Xtune:virtualized"))
+		})
+	})
+
+	// Regression tests for the 4-part SapMachine version problem.
+	//
+	// Root cause: blang/semver and Masterminds/semver both reject "17.0.17.1" as
+	// unparseable.  blang splits on the first three dots and sees patch "17.1"
+	// (contains a non-numeric character); Masterminds anchors its regex at 3
+	// parts.  Any call that passes the full version list to FindMatchingVersion —
+	// including Manifest.DefaultVersion and Installer.warnNewerPatch — therefore
+	// errors when the manifest contains even one 4-part sapmachine entry.
+	//
+	// The fix (Extract4PartEntries) removes those entries from the concrete
+	// *libbuildpack.Manifest before NewInstaller ever sees it, so libbuildpack
+	// only encounters semver-parseable strings.  Exact 4-part lookups are served
+	// from ctx.Manifest4Part instead.
+	Describe("Regression: 4-part SapMachine version breaks DefaultVersion", func() {
+		// buildManifestCtx creates a Context from the shared inline fixture.
+		// When extract4Part is true it calls Extract4PartEntries first (the fix);
+		// when false it leaves the raw manifest in place (reproduces the bug).
+		buildManifestCtx := func(manifestDir, buildDir, cacheDir, depsDir string, extract4Part bool) *common.Context {
+			logger := libbuildpack.NewLogger(GinkgoWriter)
+			manifest, err := libbuildpack.NewManifest(manifestDir, logger, time.Now())
+			Expect(err).NotTo(HaveOccurred())
+
+			var m4p map[string]libbuildpack.ManifestEntry
+			if extract4Part {
+				m4p = jres.Extract4PartEntries(manifest, "sapmachine")
+			}
+
+			stager := libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, "0"}, logger, manifest)
+			return &common.Context{
+				Stager:        stager,
+				Manifest:      manifest,
+				Installer:     &libbuildpack.Installer{},
+				Log:           logger,
+				Command:       &libbuildpack.Command{},
+				Manifest4Part: m4p,
+			}
+		}
+
+		var (
+			fixtureDir string
+			rBuildDir  string
+			rDepsDir   string
+			rCacheDir  string
+		)
+
+		BeforeEach(func() {
+			var err error
+			rBuildDir, err = os.MkdirTemp("", "reg-build")
+			Expect(err).NotTo(HaveOccurred())
+			rDepsDir, err = os.MkdirTemp("", "reg-deps")
+			Expect(err).NotTo(HaveOccurred())
+			rCacheDir, err = os.MkdirTemp("", "reg-cache")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(os.MkdirAll(rDepsDir+"/0", 0755)).To(Succeed())
+
+			fixtureDir, err = os.MkdirTemp("", "reg-manifest")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(os.WriteFile(fixtureDir+"/VERSION", []byte("1.0.0"), 0644)).To(Succeed())
+
+			// Fixture: sapmachine default is 21.x, but the entry list contains
+			// 17.0.17.1 (4-part).  Without extraction this poisons DefaultVersion.
+			Expect(os.WriteFile(fixtureDir+"/manifest.yml", []byte(`---
+language: java
+default_versions:
+- name: sapmachine
+  version: 21.x
+dependencies:
+- name: sapmachine
+  version: 17.0.17.1
+  uri: https://example.com/sapmachine-17.0.17.1.tar.gz
+  sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  cf_stacks:
+  - cflinuxfs4
+- name: sapmachine
+  version: 17.0.17
+  uri: https://example.com/sapmachine-17.0.17.tar.gz
+  sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  cf_stacks:
+  - cflinuxfs4
+- name: sapmachine
+  version: 21.0.9
+  uri: https://example.com/sapmachine-21.0.9.tar.gz
+  sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  cf_stacks:
+  - cflinuxfs4
+`), 0644)).To(Succeed())
+		})
+
+		AfterEach(func() {
+			os.RemoveAll(rBuildDir)
+			os.RemoveAll(rDepsDir)
+			os.RemoveAll(rCacheDir)
+			os.RemoveAll(fixtureDir)
+			os.Unsetenv("BP_JAVA_VERSION")
+			os.Unsetenv("JBP_CONFIG_SAP_MACHINE_JRE")
+		})
+
+		// ── failing path (no extraction) ────────────────────────────────────────
+
+		It("FAILING PATH: DefaultVersion errors when 4-part entry remains in manifest", func() {
+			// Reproduce the bug: raw manifest still contains 17.0.17.1.
+			// DefaultVersion("sapmachine") collects all versions including
+			// 17.0.17.1, then passes them to FindMatchingVersion("21.*", ...).
+			// blang.Parse("17.0.17.1") sees patch "17.1" → error.
+			// matchSemver2: Masterminds regex anchors at 3 parts → ErrInvalidSemVer.
+			// Both paths fail; DefaultVersion returns an error.
+			rawCtx := buildManifestCtx(fixtureDir, rBuildDir, rCacheDir, rDepsDir, false)
+			_, err := jres.GetJREVersion(rawCtx, "sapmachine")
+			Expect(err).To(HaveOccurred(),
+				"expected DefaultVersion to fail when 17.0.17.1 is in the unfiltered version list")
+		})
+
+		It("FAILING PATH: range pattern via JBP_CONFIG_SAP_MACHINE_JRE errors when 4-part entry remains", func() {
+			// Same root cause, triggered via resolveVersion → AllDependencyVersions
+			// → FindMatchingVersion rather than DefaultVersion.
+			os.Setenv("JBP_CONFIG_SAP_MACHINE_JRE", "{ jre: {version: 17.+} }")
+			rawCtx := buildManifestCtx(fixtureDir, rBuildDir, rCacheDir, rDepsDir, false)
+			_, err := jres.GetJREVersion(rawCtx, "sapmachine")
+			Expect(err).To(HaveOccurred(),
+				"expected FindMatchingVersion to fail when 17.0.17.1 is in the unfiltered version list")
+		})
+
+		// ── fixed path (with extraction) ────────────────────────────────────────
+
+		It("FIXED PATH: DefaultVersion succeeds after Extract4PartEntries removes 4-part entry", func() {
+			fixedCtx := buildManifestCtx(fixtureDir, rBuildDir, rCacheDir, rDepsDir, true)
+			dep, err := jres.GetJREVersion(fixedCtx, "sapmachine")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(dep.Name).To(Equal("sapmachine"))
+			Expect(dep.Version).To(Equal("21.0.9"))
+		})
+
+		It("FIXED PATH: range pattern resolves correctly after extraction", func() {
+			os.Setenv("JBP_CONFIG_SAP_MACHINE_JRE", "{ jre: {version: 17.+} }")
+			fixedCtx := buildManifestCtx(fixtureDir, rBuildDir, rCacheDir, rDepsDir, true)
+			dep, err := jres.GetJREVersion(fixedCtx, "sapmachine")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(dep.Name).To(Equal("sapmachine"))
+			Expect(dep.Version).To(Equal("17.0.17"))
+		})
+
+		It("FIXED PATH: exact 4-part version resolves from Manifest4Part after extraction", func() {
+			os.Setenv("JBP_CONFIG_SAP_MACHINE_JRE", "{ jre: {version: 17.0.17.1} }")
+			fixedCtx := buildManifestCtx(fixtureDir, rBuildDir, rCacheDir, rDepsDir, true)
+			dep, err := jres.GetJREVersion(fixedCtx, "sapmachine")
+			Expect(err).NotTo(HaveOccurred())
+			Expect(dep.Name).To(Equal("sapmachine"))
+			Expect(dep.Version).To(Equal("17.0.17.1"))
 		})
 	})
 

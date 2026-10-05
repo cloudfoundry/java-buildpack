@@ -7,6 +7,7 @@ import (
 
 	"github.com/cloudfoundry/java-buildpack/src/java/finalize"
 	_ "github.com/cloudfoundry/java-buildpack/src/java/hooks" // Register hooks (Dynatrace)
+	"github.com/cloudfoundry/java-buildpack/src/java/jres"
 	"github.com/cloudfoundry/libbuildpack"
 )
 
@@ -34,6 +35,9 @@ func main() {
 		os.Exit(10)
 	}
 
+	// Extract 4-part sapmachine versions before libbuildpack sees the manifest.
+	manifest4Part := jres.Extract4PartEntries(manifest, "sapmachine")
+
 	installer := libbuildpack.NewInstaller(manifest)
 	stager := libbuildpack.NewStager(os.Args[1:], logger, manifest)
 
@@ -47,7 +51,7 @@ func main() {
 		os.Exit(10)
 	}
 
-	f, err := finalize.NewFinalizer(stager, manifest, installer, logger, &libbuildpack.Command{})
+	f, err := finalize.NewFinalizer(stager, manifest, installer, logger, &libbuildpack.Command{}, manifest4Part)
 	if err != nil {
 		logger.Error("Unable to initialize finalizer from supply config: %s", err.Error())
 		os.Exit(11)

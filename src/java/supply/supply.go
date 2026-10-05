@@ -13,12 +13,13 @@ import (
 )
 
 type Supplier struct {
-	Stager    common.Stager
-	Manifest  common.Manifest
-	Installer common.Installer
-	Log       *libbuildpack.Logger
-	Command   common.Command
-	Container containers.Container
+	Stager        common.Stager
+	Manifest      common.Manifest
+	Installer     common.Installer
+	Log           *libbuildpack.Logger
+	Command       common.Command
+	Container     containers.Container
+	Manifest4Part map[string]libbuildpack.ManifestEntry
 }
 
 // Run performs the supply phase
@@ -26,11 +27,12 @@ func Run(s *Supplier) error {
 	s.Log.BeginStep("Supplying Java")
 
 	ctx := &common.Context{
-		Stager:    s.Stager,
-		Manifest:  s.Manifest,
-		Installer: s.Installer,
-		Log:       s.Log,
-		Command:   s.Command,
+		Stager:        s.Stager,
+		Manifest:      s.Manifest,
+		Installer:     s.Installer,
+		Log:           s.Log,
+		Command:       s.Command,
+		Manifest4Part: s.Manifest4Part,
 	}
 
 	// Create and populate container registry with standard containers

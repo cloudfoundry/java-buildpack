@@ -48,6 +48,12 @@ type Context struct {
 	Installer Installer
 	Log       *libbuildpack.Logger
 	Command   Command
+
+	// Manifest4Part holds 4-digit-version manifest entries that were removed
+	// from the concrete manifest before handing it to libbuildpack (which cannot
+	// parse 4-part semver strings).  Keyed by version string, e.g. "17.0.0.1".
+	// Populated by jres.Extract4PartEntries in the supply/finalize CLI mains.
+	Manifest4Part map[string]libbuildpack.ManifestEntry
 }
 
 // DetermineJavaVersion determines the major Java version from a Java installation
