@@ -189,6 +189,12 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 - name: sapmachine
+  version: 17.0.17.1
+  uri: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.17.1/sapmachine-jre-17.0.17.1_linux-x64_bin.tar.gz
+  sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  cf_stacks:
+  - cflinuxfs4
+- name: sapmachine
   version: 17.0.17
   uri: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.17/sapmachine-jre-17.0.17_linux-x64_bin.tar.gz
   sha256: c45d572629c722b18a6254f7503a397dbfe474223afb3ac96ef462d27074f7a0
@@ -470,6 +476,26 @@ dependencies:
 				Expect(dep.Version).To(Equal("25.0.1"))
 			})
 
+			It("should resolve JBP_CONFIG_SAP_MACHINE_JRE for SAPMachine 4-digit exact version", func() {
+				os.Setenv("JBP_CONFIG_SAP_MACHINE_JRE", "{ jre: {version: 17.0.17.1} }")
+				defer os.Unsetenv("JBP_CONFIG_SAP_MACHINE_JRE")
+
+				dep, err := jres.GetJREVersion(ctx, "sapmachine")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(dep.Name).To(Equal("sapmachine"))
+				Expect(dep.Version).To(Equal("17.0.17.1"))
+			})
+
+			It("should resolve BP_JAVA_VERSION 4-digit exact version for SapMachine", func() {
+				os.Setenv("BP_JAVA_VERSION", "17.0.17.1")
+				defer os.Unsetenv("BP_JAVA_VERSION")
+
+				dep, err := jres.GetJREVersion(ctx, "sapmachine")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(dep.Name).To(Equal("sapmachine"))
+				Expect(dep.Version).To(Equal("17.0.17.1"))
+			})
+
 			It("should resolve JBP_CONFIG_SAP_MACHINE_JRE for SAPMachine", func() {
 				os.Setenv("JBP_CONFIG_SAP_MACHINE_JRE", "{ jre: {version: 26.+} }")
 				defer os.Unsetenv("JBP_CONFIG_SAP_MACHINE_JRE")
@@ -731,3 +757,4 @@ IMPLEMENTOR="Eclipse Adoptium"`
 		})
 	})
 })
+

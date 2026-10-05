@@ -135,7 +135,7 @@ url_to_dependency_map:
 - match: zulu(\d+\.\d+\.\d+)-.*-jre(\d+\.\d+\.\d+)
   name: zulu
   version: "$2"
-- match: sapmachine-jre-(\d+\.\d+\.\d+)
+- match: sapmachine-jre-(\d+\.\d+\.\d+(?:\.\d+)?)
   name: sapmachine
   version: "$1"
 - match: tomcat-(\d+\.\d+\.\d+)
@@ -653,3 +653,4 @@ dependencies:
   - cflinuxfs5
   source: https://cdn.azul.com/zulu/bin/zulu17.68.17-ca-jre17.0.20-linux_x64.tar.gz
   source_sha256: ''
+

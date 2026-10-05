@@ -244,7 +244,7 @@ func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency
 		}
 
 		// Find the highest matching version
-		matchedVersion, err := libbuildpack.FindMatchingVersion(versionPattern, availableVersions)
+		matchedVersion, err := findVersion(versionPattern, availableVersions)
 		if err != nil {
 			ctx.Log.Warning("Could not find %s matching version %s: %s", jreName, versionPattern, err.Error())
 			return libbuildpack.Dependency{}, fmt.Errorf("no version of %s matching %s found", jreName, versionPattern)
@@ -290,7 +290,7 @@ func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency
 			}
 			ctx.Log.Debug("Available versions for %s: %v", jreName, availableVersions)
 
-			matchedVersion, err := libbuildpack.FindMatchingVersion(normalizedPattern, availableVersions)
+			matchedVersion, err := findVersion(normalizedPattern, availableVersions)
 			if err != nil {
 				ctx.Log.Debug("FindMatchingVersion failed: %s", err.Error())
 				return libbuildpack.Dependency{}, fmt.Errorf("no version of %s matching '%s' found in manifest. Available versions: %v", jreName, versionPattern, availableVersions)
@@ -312,6 +312,31 @@ func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency
 
 var exactVersionWithBuildRegex = regexp.MustCompile(`^\d+\.\d+\.\d+\+\d+$`)
 var exactVersionRegex = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
+var exactVersion4PartRegex = regexp.MustCompile(`^\d+\.\d+\.\d+\.\d+$`)
+
+// findVersion resolves a version pattern against a list of available versions.
+// For 4-part exact versions (e.g. "17.0.0.1"), it falls back to direct string
+// matching because semver libraries cannot parse 4-digit version strings.
+// For all other patterns it delegates to libbuildpack.FindMatchingVersion.
+func findVersion(pattern string, versions []string) (string, error) {
+	if isValidVersion4Part(pattern) {
+		for _, v := range versions {
+			if v == pattern {
+				return v, nil
+			}
+		}
+		return "", fmt.Errorf("no match found for %s", pattern)
+	}
+	// For semver range patterns, exclude 4-part versions from the candidate list
+	// because the semver libraries cannot parse them and would abort the whole match.
+	semverVersions := make([]string, 0, len(versions))
+	for _, v := range versions {
+		if !isValidVersion4Part(v) {
+			semverVersions = append(semverVersions, v)
+		}
+	}
+	return libbuildpack.FindMatchingVersion(pattern, semverVersions)
+}
 
 func normalizeVersionPattern(version string) string {
 	if strings.Contains(version, "*") {
@@ -330,6 +355,10 @@ func normalizeVersionPattern(version string) string {
 	if isValidVersion(version) {
 		return version
 	}
+	// 4-part exact version (e.g. "17.0.0.1" used by SapMachine) — already fully specified.
+	if isValidVersion4Part(version) {
+		return version
+	}
 	return version + ".*"
 }
 
@@ -339,6 +368,10 @@ func isValidVersion(version string) bool {
 
 func isValidVersionWithBuild(version string) bool {
 	return exactVersionWithBuildRegex.MatchString(version)
+}
+
+func isValidVersion4Part(version string) bool {
+	return exactVersion4PartRegex.MatchString(version)
 }
 
 func parseJBPConfigVersion(configValue string) string {
@@ -450,3 +483,4 @@ export PATH=$JAVA_HOME/bin:$PATH
 func containsString(s, substr string) bool {
 	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }
+
