@@ -383,14 +383,14 @@ dependencies:
   source: https://download-gcdn.ej-technologies.com/jprofiler/jprofiler_linux_16_2_1.tar.gz
   source_sha256: edf8f42cfb6c0021a60820e28b372d7c85254e25b7d105c76f436ef0459e53c3
 - name: jrebel
-  version: 2026.3.2
-  uri: https://buildpacks.cloudfoundry.org/dependencies/jrebel/jrebel_2026.3.2_linux_noarch_any-stack_a24bb428.zip
-  sha256: a24bb4285f412af6fb08d88d8bcf33e1f70787435cbe1d6547bd83439289fd7f
+  version: 2026.4.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/jrebel/jrebel_2026.4.0_linux_noarch_any-stack_bfaf3d7c.zip
+  sha256: bfaf3d7ca04673f70ac95443276a4203a550a0e809babcd590eec234fb88a374
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://dl.zeroturnaround.com/jrebel/releases/jrebel-2026.3.2-nosetup.zip
-  source_sha256: a24bb4285f412af6fb08d88d8bcf33e1f70787435cbe1d6547bd83439289fd7f
+  source: https://dl.zeroturnaround.com/jrebel/releases/jrebel-2026.4.0-nosetup.zip
+  source_sha256: bfaf3d7ca04673f70ac95443276a4203a550a0e809babcd590eec234fb88a374
 - name: jvmkill
   version: 1.17.0
   uri: https://java-buildpack.cloudfoundry.org/jvmkill/jammy/x86_64/jvmkill-1.17.0-RELEASE.so
