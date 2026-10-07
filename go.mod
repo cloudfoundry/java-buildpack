@@ -11,6 +11,7 @@ require (
 	github.com/onsi/gomega v1.40.0
 	github.com/sclevine/spec v1.4.0
 	go.yaml.in/yaml/v3 v3.0.4
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -44,12 +45,11 @@ require (
 	go.opentelemetry.io/otel/metric v1.32.0 // indirect
 	go.opentelemetry.io/otel/trace v1.32.0 // indirect
 	golang.org/x/mod v0.35.0 // indirect
-	golang.org/x/net v0.53.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/tools v0.44.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
 // Replace directives to fix OpenTelemetry dependency conflicts from docker/docker test dependencies
