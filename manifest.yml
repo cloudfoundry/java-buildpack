@@ -519,14 +519,14 @@ dependencies:
   source: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.20/sapmachine-jre-17.0.20_linux-x64_bin.tar.gz
   source_sha256: ef6f84f309558166a7c431b9f5a72a4b9d359568d37eb7fbc54f0095c5b80d7e
 - name: sapmachine
-  version: 21.0.12
-  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_21.0.12_linux_x64_cflinuxfs4_1054f195.tgz
-  sha256: 1054f195874edc90920d3428da874b2cebd150169fe650018bfc62ddee06bbaa
+  version: 21.0.12.1
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_21.0.12.1_linux_x64_cflinuxfs4_be23fbde.tgz
+  sha256: be23fbde203788c43a238b87971af46f17213b3357d274c8fc48632ec74b1619
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-21.0.12/sapmachine-jre-21.0.12_linux-x64_bin.tar.gz
-  source_sha256: 1054f195874edc90920d3428da874b2cebd150169fe650018bfc62ddee06bbaa
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-21.0.12.1/sapmachine-jre-21.0.12.1_linux-x64_bin.tar.gz
+  source_sha256: be23fbde203788c43a238b87971af46f17213b3357d274c8fc48632ec74b1619
 - name: sapmachine
   version: 25.0.4
   uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_25.0.4_linux_x64_cflinuxfs4_45822a01.tgz
