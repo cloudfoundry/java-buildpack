@@ -26,14 +26,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 		})
 
 		it.After(func() {
-			if t.Failed() && name != "" {
-				t.Logf("❌ FAILED TEST - App/Container: %s", name)
-				t.Logf("   Platform: %s", settings.Platform)
-			}
-			// Only attempt cleanup if test actually ran (not skipped) and name was set
-			if name != "" && !t.Skipped() && (!settings.KeepFailedContainers || !t.Failed()) {
-				Expect(platform.Delete.Execute(name)).To(Succeed())
-			}
+			cleanupDeployedApp(t, platform, name)
 		})
 
 		context("APM Agents", func() {
