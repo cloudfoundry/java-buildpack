@@ -316,6 +316,15 @@ dependencies:
   - cflinuxfs5
   source: https://repo1.maven.org/maven2/co/elastic/apm/elastic-apm-agent/1.57.0/elastic-apm-agent-1.57.0.jar
   source_sha256: ''
+- name: elastic-otel-javaagent
+  version: 1.13.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/elastic-otel-javaagent/elastic-otel-javaagent_1.13.0_linux_noarch_any-stack_5034fc8f.jar
+  sha256: 5034fc8f6388cd95575a44b4b5a1679a0108b9da8cacc4daf2db59f56cd4b8bd
+  cf_stacks:
+  - cflinuxfs4
+  - cflinuxfs5
+  source: https://repo1.maven.org/maven2/co/elastic/otel/elastic-otel-javaagent/1.13.0/elastic-otel-javaagent-1.13.0.jar
+  source_sha256: ''
 - name: google-stackdriver-profiler
   version: 0.4.0
   uri: https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz
