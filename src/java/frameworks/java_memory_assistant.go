@@ -73,7 +73,7 @@ func (j *JavaMemoryAssistantFramework) Supply() error {
 func (j *JavaMemoryAssistantFramework) Finalize() error {
 	// Find the installed agent JAR
 	agentDir := filepath.Join(j.context.Stager.DepDir(), "java_memory_assistant")
-	jarPattern := filepath.Join(agentDir, "java-memory-assistant-*.jar")
+	jarPattern := filepath.Join(agentDir, "java-memory-assistant[\\-_]*.jar")
 
 	matches, err := filepath.Glob(jarPattern)
 	if err != nil || len(matches) == 0 {

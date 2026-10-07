@@ -104,7 +104,7 @@ func (m *MetricWriterFramework) Supply() error {
 func (m *MetricWriterFramework) Finalize() error {
 	// Find the installed Metric Writer JAR
 	writerDir := filepath.Join(m.context.Stager.DepDir(), "metric_writer")
-	jarPattern := filepath.Join(writerDir, "metric-writer-*.jar")
+	jarPattern := filepath.Join(writerDir, "metric-writer[\\-_]*.jar")
 
 	matches, err := filepath.Glob(jarPattern)
 	if err != nil || len(matches) == 0 {

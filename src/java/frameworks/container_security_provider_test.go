@@ -104,6 +104,31 @@ var _ = Describe("Container Security Provider", func() {
 				})
 			})
 
+			Context("when the JAR uses the dependency pipeline naming (name_version_...)", func() {
+				BeforeEach(func() {
+					javaHome, err := os.MkdirTemp("", "java-home")
+					Expect(err).NotTo(HaveOccurred())
+					writeJavaReleaseFile(javaHome, "17.0.13")
+					os.Setenv("JAVA_HOME", javaHome)
+
+					providerDir := filepath.Join(depsDir, "0", "container_security_provider")
+					Expect(os.MkdirAll(providerDir, 0755)).To(Succeed())
+					Expect(os.WriteFile(
+						filepath.Join(providerDir, "container-security-provider_1.21.0_linux_noarch_any-stack_45347758.jar"),
+						[]byte("fake jar"),
+						0644,
+					)).To(Succeed())
+				})
+
+				It("finds the JAR and exports CONTAINER_SECURITY_PROVIDER", func() {
+					Expect(fw.Finalize()).To(Succeed())
+					content, err := os.ReadFile(filepath.Join(depsDir, "0", "profile.d", "container_security_provider.sh"))
+					Expect(err).NotTo(HaveOccurred())
+					Expect(string(content)).To(ContainSubstring("container-security-provider_1.21.0_linux_noarch_any-stack_45347758.jar"))
+					Expect(filepath.Join(depsDir, "0", "java_opts", "17_container_security.opts")).To(BeAnExistingFile())
+				})
+			})
+
 			Context("when the JAR is present (Java 9+)", func() {
 				BeforeEach(func() {
 					javaHome, err := os.MkdirTemp("", "java-home")

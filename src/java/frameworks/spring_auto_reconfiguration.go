@@ -87,7 +87,7 @@ func (s *SpringAutoReconfigurationFramework) Supply() error {
 func (s *SpringAutoReconfigurationFramework) Finalize() error {
 	// Add the JAR to additional libraries (classpath)
 	autoReconfDir := filepath.Join(s.context.Stager.DepDir(), "spring_auto_reconfiguration")
-	jarPattern := filepath.Join(autoReconfDir, "auto-reconfiguration-*.jar")
+	jarPattern := filepath.Join(autoReconfDir, "auto-reconfiguration[\\-_]*.jar")
 
 	matches, err := filepath.Glob(jarPattern)
 	if err != nil || len(matches) == 0 {

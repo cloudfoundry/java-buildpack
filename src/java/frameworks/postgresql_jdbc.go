@@ -58,7 +58,7 @@ func (p *PostgresqlJdbcFramework) Supply() error {
 func (p *PostgresqlJdbcFramework) Finalize() error {
 	// Add the JAR to classpath
 	postgresqlDir := filepath.Join(p.context.Stager.DepDir(), "postgresql_jdbc")
-	jarPattern := filepath.Join(postgresqlDir, "postgresql-*.jar")
+	jarPattern := filepath.Join(postgresqlDir, "postgresql[\\-_]*.jar")
 
 	matches, err := filepath.Glob(jarPattern)
 	if err != nil || len(matches) == 0 {

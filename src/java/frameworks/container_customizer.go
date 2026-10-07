@@ -102,7 +102,7 @@ func (c *ContainerCustomizerFramework) Supply() error {
 func (c *ContainerCustomizerFramework) Finalize() error {
 	// Find the installed Container Customizer JAR
 	customizerDir := filepath.Join(c.context.Stager.DepDir(), "container_customizer")
-	jarPattern := filepath.Join(customizerDir, "container-customizer-*.jar")
+	jarPattern := filepath.Join(customizerDir, "container-customizer[\\-_]*.jar")
 
 	matches, err := filepath.Glob(jarPattern)
 	if err != nil || len(matches) == 0 {
