@@ -2209,17 +2209,19 @@ When `-Xmx` is not set, both v3 and v4 size heap and non-heap to fit within the 
 required memory 1269289K is greater than 750M available for allocation
 ```
 
-**Migration options**:
+**Migration options** (preferably do not set `-Xmx`; let the calculator size the heap):
 
-1. **Lower `stack_threads`** *(only if your app uses fewer than 250 threads)*: 250 threads × ~1M = ~250M native memory. Reducing this alone is often enough to fit within the container:
+1. **Remove `-Xmx` from `JAVA_OPTS`** — the calculator sizes heap to fit the container after non-heap regions. If the resulting heap is too small, increase `memory:` in `manifest.yml` rather than pinning `-Xmx`.
+
+2. **Increase manifest memory** — if `-Xmx` must stay, raise `memory:` to fit `Xmx + non-heap`. Based on the error above (`1269289K ≈ 1240M`), set at least **1300M** for a `-Xmx512M` app with default settings.
+
+3. **Tune the memory calculator** *(in addition to the above)* — for example, lower `stack_threads` if your app uses fewer than 250 threads (250 threads × ~1M = ~250M native memory). This leaves more memory for the heap, but with a pinned `-Xmx` it is usually not enough on its own: with `-Xmx512M` in a 750M container, 50 threads still requires ~907M.
    ```yaml
    env:
      JBP_CONFIG_OPEN_JDK_JRE: '{ memory_calculator: { stack_threads: 50 } }'
    ```
 
-2. **Remove `-Xmx` from `JAVA_OPTS`** — let the calculator size heap automatically. Note: removing `-Xmx` avoids the fixed-heap check but does not reduce total memory need. You will likely still need to increase `memory:` in `manifest.yml` so the calculator has enough room to allocate adequate heap.
-
-3. **Increase manifest memory** — raise `memory:` to fit `Xmx + non-heap`. Based on the error above (`1269289K ≈ 1240M`), set at least **1300M** for a `-Xmx512M` app with default settings.
+4. **Set specific non-heap regions** *(special cases)* — e.g. `-XX:MaxDirectMemorySize=64M` in `JAVA_OPTS`. The calculator keeps explicitly set values and sizes the remaining regions and the heap around them.
 
 ### 10.3 Adoption Recommendations
 
