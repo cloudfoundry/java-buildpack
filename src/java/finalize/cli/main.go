@@ -35,8 +35,11 @@ func main() {
 		os.Exit(10)
 	}
 
-	// Extract 4-part sapmachine versions before libbuildpack sees the manifest.
-	manifest4Part := jres.Extract4PartEntries(manifest, "sapmachine")
+	// Build 4-part version map and wrap the manifest so that AllDependencyVersions
+	// and DefaultVersion never expose 4-part version strings to the semver libraries.
+	// The raw manifest is still passed to NewInstaller so GetEntry works for install.
+	manifest4Part := jres.Build4PartMap(manifest, "sapmachine")
+	filteredManifest := jres.NewFilteredManifest(manifest, "sapmachine")
 
 	installer := libbuildpack.NewInstaller(manifest)
 	stager := libbuildpack.NewStager(os.Args[1:], logger, manifest)
@@ -51,7 +54,7 @@ func main() {
 		os.Exit(10)
 	}
 
-	f, err := finalize.NewFinalizer(stager, manifest, installer, logger, &libbuildpack.Command{}, manifest4Part)
+	f, err := finalize.NewFinalizer(stager, filteredManifest, installer, logger, &libbuildpack.Command{}, manifest4Part)
 	if err != nil {
 		logger.Error("Unable to initialize finalizer from supply config: %s", err.Error())
 		os.Exit(11)

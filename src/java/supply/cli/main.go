@@ -36,10 +36,11 @@ func main() {
 		os.Exit(10)
 	}
 
-	// Extract 4-part sapmachine versions before libbuildpack sees the manifest.
-	// Neither blang/semver nor Masterminds/semver can parse X.Y.Z.W strings;
-	// leaving them in the manifest breaks DefaultVersion and warnNewerPatch.
-	manifest4Part := jres.Extract4PartEntries(manifest, "sapmachine")
+	// Build 4-part version map and wrap the manifest so that AllDependencyVersions
+	// and DefaultVersion never expose 4-part version strings to the semver libraries.
+	// The raw manifest is still passed to NewInstaller so GetEntry works for install.
+	manifest4Part := jres.Build4PartMap(manifest, "sapmachine")
+	filteredManifest := jres.NewFilteredManifest(manifest, "sapmachine")
 
 	installer := libbuildpack.NewInstaller(manifest)
 	stager := libbuildpack.NewStager(os.Args[1:], logger, manifest)
@@ -78,7 +79,7 @@ func main() {
 
 	s := supply.Supplier{
 		Stager:        stager,
-		Manifest:      manifest,
+		Manifest:      filteredManifest,
 		Installer:     installer,
 		Log:           logger,
 		Command:       &libbuildpack.Command{},

@@ -1,7 +1,13 @@
 package jres_test
 
 import (
+	"archive/tar"
 	"bytes"
+	"compress/gzip"
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"time"
@@ -230,13 +236,14 @@ dependencies:
 		manifest, err := libbuildpack.NewManifest(manifestDir, logger, time.Now())
 		Expect(err).NotTo(HaveOccurred())
 
-		manifest4Part := jres.Extract4PartEntries(manifest, "sapmachine")
+		manifest4Part := jres.Build4PartMap(manifest, "sapmachine")
+		filteredManifest := jres.NewFilteredManifest(manifest, "sapmachine")
 
 		stager := libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, "0"}, logger, manifest)
 
 		ctx = &common.Context{
 			Stager:        stager,
-			Manifest:      manifest,
+			Manifest:      filteredManifest,
 			Installer:     &libbuildpack.Installer{},
 			Log:           logger,
 			Command:       &libbuildpack.Command{},
@@ -700,28 +707,33 @@ IMPLEMENTOR="Eclipse Adoptium"`
 	// including Manifest.DefaultVersion and Installer.warnNewerPatch — therefore
 	// errors when the manifest contains even one 4-part sapmachine entry.
 	//
-	// The fix (Extract4PartEntries) removes those entries from the concrete
-	// *libbuildpack.Manifest before NewInstaller ever sees it, so libbuildpack
-	// only encounters semver-parseable strings.  Exact 4-part lookups are served
-	// from ctx.Manifest4Part instead.
+	// The fix (FilteredManifest wrapper) hides 4-part entries from
+	// AllDependencyVersions and DefaultVersion without mutating ManifestEntries,
+	// so libbuildpack's semver libraries never see them.  The raw manifest is
+	// still passed to NewInstaller so GetEntry works for InstallDependency.
+	// Exact 4-part lookups are served from ctx.Manifest4Part.
 	Describe("Regression: 4-part SapMachine version breaks DefaultVersion", func() {
 		// buildManifestCtx creates a Context from the shared inline fixture.
-		// When extract4Part is true it calls Extract4PartEntries first (the fix);
+		// When filtered is true it uses Build4PartMap + NewFilteredManifest (the fix);
 		// when false it leaves the raw manifest in place (reproduces the bug).
-		buildManifestCtx := func(manifestDir, buildDir, cacheDir, depsDir string, extract4Part bool) *common.Context {
+		buildManifestCtx := func(manifestDir, buildDir, cacheDir, depsDir string, filtered bool) *common.Context {
 			logger := libbuildpack.NewLogger(GinkgoWriter)
 			manifest, err := libbuildpack.NewManifest(manifestDir, logger, time.Now())
 			Expect(err).NotTo(HaveOccurred())
 
 			var m4p map[string]libbuildpack.ManifestEntry
-			if extract4Part {
-				m4p = jres.Extract4PartEntries(manifest, "sapmachine")
+			var manifestForCtx common.Manifest
+			if filtered {
+				m4p = jres.Build4PartMap(manifest, "sapmachine")
+				manifestForCtx = jres.NewFilteredManifest(manifest, "sapmachine")
+			} else {
+				manifestForCtx = manifest
 			}
 
 			stager := libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, "0"}, logger, manifest)
 			return &common.Context{
 				Stager:        stager,
-				Manifest:      manifest,
+				Manifest:      manifestForCtx,
 				Installer:     &libbuildpack.Installer{},
 				Log:           logger,
 				Command:       &libbuildpack.Command{},
@@ -815,7 +827,7 @@ dependencies:
 
 		// ── fixed path (with extraction) ────────────────────────────────────────
 
-		It("FIXED PATH: DefaultVersion succeeds after Extract4PartEntries removes 4-part entry", func() {
+		It("FIXED PATH: DefaultVersion succeeds with filtered manifest", func() {
 			fixedCtx := buildManifestCtx(fixtureDir, rBuildDir, rCacheDir, rDepsDir, true)
 			dep, err := jres.GetJREVersion(fixedCtx, "sapmachine")
 			Expect(err).NotTo(HaveOccurred())
@@ -823,7 +835,7 @@ dependencies:
 			Expect(dep.Version).To(Equal("21.0.9"))
 		})
 
-		It("FIXED PATH: range pattern resolves correctly after extraction", func() {
+		It("FIXED PATH: range pattern resolves correctly with filtered manifest", func() {
 			os.Setenv("JBP_CONFIG_SAP_MACHINE_JRE", "{ jre: {version: 17.+} }")
 			fixedCtx := buildManifestCtx(fixtureDir, rBuildDir, rCacheDir, rDepsDir, true)
 			dep, err := jres.GetJREVersion(fixedCtx, "sapmachine")
@@ -832,7 +844,7 @@ dependencies:
 			Expect(dep.Version).To(Equal("17.0.17"))
 		})
 
-		It("FIXED PATH: exact 4-part version resolves from Manifest4Part after extraction", func() {
+		It("FIXED PATH: exact 4-part version resolves from Manifest4Part via filtered manifest", func() {
 			os.Setenv("JBP_CONFIG_SAP_MACHINE_JRE", "{ jre: {version: 17.0.17.1} }")
 			fixedCtx := buildManifestCtx(fixtureDir, rBuildDir, rCacheDir, rDepsDir, true)
 			dep, err := jres.GetJREVersion(fixedCtx, "sapmachine")
@@ -909,6 +921,150 @@ dependencies:
 			Expect(err).NotTo(HaveOccurred())
 			Expect(detected).To(BeTrue(), "OpenJDK should also be detected via JBP_CONFIG_OPEN_JDK_JRE")
 		})
+	})
+})
+
+// makeTarGz writes a minimal tar.gz to path and returns its sha256 hex digest.
+// The archive contains a single file "bin/java" so findJavaHome can succeed when
+// the JRE directory prefix matches "sapmachine".
+func makeTarGz(path string) (string, error) {
+	f, err := os.Create(path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	h := sha256.New()
+	gw := gzip.NewWriter(io.MultiWriter(f, h))
+	tw := tar.NewWriter(gw)
+
+	content := []byte("#!/bin/sh\n")
+	hdr := &tar.Header{
+		Name: "sapmachine-17.0.17.1/bin/java",
+		Mode: 0755,
+		Size: int64(len(content)),
+	}
+	if err := tw.WriteHeader(hdr); err != nil {
+		return "", err
+	}
+	if _, err := tw.Write(content); err != nil {
+		return "", err
+	}
+	if err := tw.Close(); err != nil {
+		return "", err
+	}
+	if err := gw.Close(); err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+var _ = Describe("Regression: 4-part SapMachine InstallDependency", func() {
+	// Regression for: with the old Extract4PartEntries approach the entry was
+	// removed from manifest.ManifestEntries so Installer.GetEntry failed with
+	// "dependency sapmachine 17.0.17.1 not found".
+	//
+	// Fix: Build4PartMap (non-mutating) + NewFilteredManifest wrapper.  The raw
+	// manifest is passed to NewInstaller so GetEntry still finds the entry; the
+	// filtered wrapper hides 4-part versions from AllDependencyVersions /
+	// DefaultVersion so the semver libraries never see them.
+
+	var (
+		buildDir    string
+		depsDir     string
+		cacheDir    string
+		outputDir   string
+		tarPath     string
+		sha256sum   string
+		manifestDir string
+	)
+
+	BeforeEach(func() {
+		var err error
+		buildDir, err = os.MkdirTemp("", "inst-build")
+		Expect(err).NotTo(HaveOccurred())
+		depsDir, err = os.MkdirTemp("", "inst-deps")
+		Expect(err).NotTo(HaveOccurred())
+		cacheDir, err = os.MkdirTemp("", "inst-cache")
+		Expect(err).NotTo(HaveOccurred())
+		outputDir, err = os.MkdirTemp("", "inst-output")
+		Expect(err).NotTo(HaveOccurred())
+		manifestDir, err = os.MkdirTemp("", "inst-manifest")
+		Expect(err).NotTo(HaveOccurred())
+		Expect(os.MkdirAll(depsDir+"/0", 0755)).To(Succeed())
+		Expect(os.Setenv("CF_STACK", "cflinuxfs4")).To(Succeed())
+
+		tarPath = filepath.Join(manifestDir, "sapmachine-17.0.17.1.tar.gz")
+		sha256sum, err = makeTarGz(tarPath)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(os.WriteFile(manifestDir+"/VERSION", []byte("1.0.0"), 0644)).To(Succeed())
+		Expect(os.WriteFile(manifestDir+"/manifest.yml", []byte(fmt.Sprintf(`---
+language: java
+default_versions:
+- name: sapmachine
+  version: 21.x
+dependencies:
+- name: sapmachine
+  version: 17.0.17.1
+  file: sapmachine-17.0.17.1.tar.gz
+  uri: file://%s
+  sha256: %s
+  cf_stacks:
+  - cflinuxfs4
+- name: sapmachine
+  version: 21.0.9
+  uri: https://example.com/sapmachine-21.0.9.tar.gz
+  sha256: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  cf_stacks:
+  - cflinuxfs4
+`, tarPath, sha256sum)), 0644)).To(Succeed())
+	})
+
+	AfterEach(func() {
+		os.RemoveAll(buildDir)
+		os.RemoveAll(depsDir)
+		os.RemoveAll(cacheDir)
+		os.RemoveAll(outputDir)
+		os.RemoveAll(manifestDir)
+		os.Unsetenv("BP_JAVA_VERSION")
+		os.Unsetenv("JBP_CONFIG_SAP_MACHINE_JRE")
+		os.Unsetenv("CF_STACK")
+	})
+
+	It("InstallDependency succeeds for a 4-part sapmachine version", func() {
+		os.Setenv("JBP_CONFIG_SAP_MACHINE_JRE", "{ jre: {version: 17.0.17.1} }")
+
+		logger := libbuildpack.NewLogger(GinkgoWriter)
+		manifest, err := libbuildpack.NewManifest(manifestDir, logger, time.Now())
+		Expect(err).NotTo(HaveOccurred())
+
+		manifest4Part := jres.Build4PartMap(manifest, "sapmachine")
+		filteredManifest := jres.NewFilteredManifest(manifest, "sapmachine")
+
+		installer := libbuildpack.NewInstaller(manifest)
+		stager := libbuildpack.NewStager([]string{buildDir, cacheDir, depsDir, "0"}, logger, manifest)
+
+		ctx := &common.Context{
+			Stager:        stager,
+			Manifest:      filteredManifest,
+			Installer:     installer,
+			Log:           logger,
+			Command:       &libbuildpack.Command{},
+			Manifest4Part: manifest4Part,
+		}
+
+		dep, err := jres.GetJREVersion(ctx, "sapmachine")
+		Expect(err).NotTo(HaveOccurred())
+		Expect(dep.Version).To(Equal("17.0.17.1"))
+
+		// GetEntry finds the entry because the raw manifest (not the filtered
+		// wrapper) was passed to NewInstaller — ManifestEntries is untouched.
+		err = ctx.Installer.InstallDependency(dep, outputDir)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(filepath.Join(outputDir, "sapmachine-17.0.17.1", "bin", "java")).To(BeAnExistingFile())
 	})
 })
 

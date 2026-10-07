@@ -49,10 +49,11 @@ type Context struct {
 	Log       *libbuildpack.Logger
 	Command   Command
 
-	// Manifest4Part holds 4-digit-version manifest entries that were removed
-	// from the concrete manifest before handing it to libbuildpack (which cannot
-	// parse 4-part semver strings).  Keyed by version string, e.g. "17.0.0.1".
-	// Populated by jres.Extract4PartEntries in the supply/finalize CLI mains.
+	// Manifest4Part holds 4-digit-version manifest entries keyed by version
+	// string (e.g. "17.0.0.1"). Populated by jres.Build4PartMap in the
+	// supply/finalize CLI mains. Used by resolveVersion for exact 4-part
+	// lookups; the filtered manifest wrapper keeps these versions out of the
+	// semver matching paths.
 	Manifest4Part map[string]libbuildpack.ManifestEntry
 }
 
