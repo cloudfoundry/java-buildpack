@@ -28,13 +28,7 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 		})
 
 		it.After(func() {
-			if t.Failed() && name != "" {
-				t.Logf("❌ FAILED TEST - App/Container: %s", name)
-				t.Logf("   Platform: %s", settings.Platform)
-			}
-			if name != "" && !t.Skipped() && (!settings.KeepFailedContainers || !t.Failed()) {
-				Expect(platform.Delete.Execute(name)).To(Succeed())
-			}
+			cleanupDeployedApp(t, platform, name)
 		})
 
 		context("with a Spring Boot application", func() {
