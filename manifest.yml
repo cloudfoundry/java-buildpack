@@ -230,7 +230,7 @@ dependency_deprecation_dates:
   match: 8\.\d+\.\d+
 - version_line: 11.x
   name: openjdk
-  date: 2026-09-30
+  date: 2032-03-31
   link: https://bell-sw.com/pages/downloads/#jdk-11-lts
   match: 11\.\d+\.\d+
 - version_line: 17.x
