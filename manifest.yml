@@ -225,12 +225,12 @@ url_to_dependency_map:
 dependency_deprecation_dates:
 - version_line: 8.x
   name: openjdk
-  date: 2026-11-30
+  date: 2031-03-31
   link: https://bell-sw.com/pages/downloads/#jdk-8-lts
   match: 8\.\d+\.\d+
 - version_line: 11.x
   name: openjdk
-  date: 2027-10-31
+  date: 2026-09-30
   link: https://bell-sw.com/pages/downloads/#jdk-11-lts
   match: 11\.\d+\.\d+
 - version_line: 17.x
