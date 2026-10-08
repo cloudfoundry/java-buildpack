@@ -312,6 +312,7 @@ func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency
 
 var exactVersionWithBuildRegex = regexp.MustCompile(`^\d+\.\d+\.\d+\+\d+$`)
 var exactVersionRegex = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
+var exactVersion4PartRegex = regexp.MustCompile(`^\d+\.\d+\.\d+\.\d+$`)
 
 func normalizeVersionPattern(version string) string {
 	if strings.Contains(version, "*") {
@@ -325,6 +326,11 @@ func normalizeVersionPattern(version string) string {
 	if strings.Contains(version, "+") {
 		return strings.ReplaceAll(version, "+", "*")
 	}
+	// Exact 4-part version (e.g. "21.0.12.1") — pass through as-is so the
+	// short-circuit string-equality path in FindMatchingVersions is reached.
+	if isValid4PartVersion(version) {
+		return version
+	}
 	// Exact patch version (e.g. "17.0.13") — already fully specified, don't append ".*"
 	// which would produce an unmatchable pattern like "17.0.13.*".
 	if isValidVersion(version) {
@@ -335,6 +341,10 @@ func normalizeVersionPattern(version string) string {
 
 func isValidVersion(version string) bool {
 	return exactVersionRegex.MatchString(version)
+}
+
+func isValid4PartVersion(version string) bool {
+	return exactVersion4PartRegex.MatchString(version)
 }
 
 func isValidVersionWithBuild(version string) bool {
