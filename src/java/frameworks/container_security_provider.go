@@ -50,7 +50,7 @@ func (c *ContainerSecurityProviderFramework) Supply() error {
 func (c *ContainerSecurityProviderFramework) Finalize() error {
 	// Find the installed JAR
 	providerDir := filepath.Join(c.context.Stager.DepDir(), "container_security_provider")
-	jarPattern := filepath.Join(providerDir, "container-security-provider-*.jar")
+	jarPattern := filepath.Join(providerDir, "container-security-provider[\\-_]*.jar")
 
 	matches, err := filepath.Glob(jarPattern)
 	if err != nil || len(matches) == 0 {

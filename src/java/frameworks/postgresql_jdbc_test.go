@@ -261,5 +261,20 @@ var _ = Describe("PostgreSQLJDBC", func() {
 				Expect(string(content)).To(ContainSubstring("postgresql-42.6.0.jar"))
 			})
 		})
+
+		Context("when the JAR uses the dependency pipeline naming (name_version_...)", func() {
+			BeforeEach(func() {
+				pgDir := filepath.Join(depsDir, "0", "postgresql_jdbc")
+				Expect(os.MkdirAll(pgDir, 0755)).To(Succeed())
+				Expect(os.WriteFile(filepath.Join(pgDir, "postgresql-jdbc_42.7.13_linux_noarch_any-stack_6e0e4cc2.jar"), []byte("fake jar"), 0644)).To(Succeed())
+			})
+
+			It("adds the JAR to the runtime CLASSPATH", func() {
+				Expect(fw.Finalize()).To(Succeed())
+				content, err := os.ReadFile(filepath.Join(depsDir, "0", "profile.d", "postgresql_jdbc.sh"))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(content)).To(ContainSubstring("$DEPS_DIR/0/postgresql_jdbc/postgresql-jdbc_42.7.13_linux_noarch_any-stack_6e0e4cc2.jar"))
+			})
+		})
 	})
 })
