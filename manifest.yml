@@ -501,13 +501,13 @@ dependencies:
   source: https://github.com/bell-sw/Liberica/releases/download/25.0.4+9/bellsoft-jre25.0.4+9-linux-amd64.tar.gz
   source_sha256: ''
 - name: postgresql-jdbc
-  version: 42.7.13
-  uri: https://buildpacks.cloudfoundry.org/dependencies/postgresql-jdbc/postgresql-jdbc_42.7.13_linux_noarch_any-stack_6e0e4cc2.jar
-  sha256: 6e0e4cc2d8cae902084f8a2b18728b073a6fd9d1f87c9d8bff8f298c18185b93
+  version: 42.7.14
+  uri: https://buildpacks.cloudfoundry.org/dependencies/postgresql-jdbc/postgresql-jdbc_42.7.14_linux_noarch_any-stack_73914527.jar
+  sha256: 73914527305a40cce504b0d3d90b23caf565136912d607ae8ae7c5895512332c
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.13/postgresql-42.7.13.jar
+  source: https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.14/postgresql-42.7.14.jar
   source_sha256: ''
 - name: sapmachine
   version: 17.0.20
