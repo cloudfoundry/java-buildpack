@@ -510,32 +510,32 @@ dependencies:
   source: https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.14/postgresql-42.7.14.jar
   source_sha256: ''
 - name: sapmachine
-  version: 17.0.20
-  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_17.0.20_linux_x64_cflinuxfs4_ef6f84f3.tgz
-  sha256: ef6f84f309558166a7c431b9f5a72a4b9d359568d37eb7fbc54f0095c5b80d7e
+  version: 17.0.20.1
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_17.0.20.1_linux_x64_cflinuxfs4_133f80ba.tgz
+  sha256: 133f80ba8db1403a49831ae59392b74670ab0444018d40be5aa16458c3968f8a
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.20/sapmachine-jre-17.0.20_linux-x64_bin.tar.gz
-  source_sha256: ef6f84f309558166a7c431b9f5a72a4b9d359568d37eb7fbc54f0095c5b80d7e
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.20.1/sapmachine-jre-17.0.20.1_linux-x64_bin.tar.gz
+  source_sha256: 133f80ba8db1403a49831ae59392b74670ab0444018d40be5aa16458c3968f8a
 - name: sapmachine
-  version: 21.0.12
-  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_21.0.12_linux_x64_cflinuxfs4_1054f195.tgz
-  sha256: 1054f195874edc90920d3428da874b2cebd150169fe650018bfc62ddee06bbaa
+  version: 21.0.12.1
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_21.0.12.1_linux_x64_cflinuxfs4_be23fbde.tgz
+  sha256: be23fbde203788c43a238b87971af46f17213b3357d274c8fc48632ec74b1619
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-21.0.12/sapmachine-jre-21.0.12_linux-x64_bin.tar.gz
-  source_sha256: 1054f195874edc90920d3428da874b2cebd150169fe650018bfc62ddee06bbaa
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-21.0.12.1/sapmachine-jre-21.0.12.1_linux-x64_bin.tar.gz
+  source_sha256: be23fbde203788c43a238b87971af46f17213b3357d274c8fc48632ec74b1619
 - name: sapmachine
-  version: 25.0.4
-  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_25.0.4_linux_x64_cflinuxfs4_45822a01.tgz
-  sha256: 45822a0180c0b1b5afd789a0d4bc3442d6841605e3aff87c731156e3ed73d39c
+  version: 25.0.4.1
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_25.0.4.1_linux_x64_cflinuxfs4_c70a9764.tgz
+  sha256: c70a97647a0045142642964f642ccf9157d3c49f298e9d9c6303fdb43a49ff4f
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.4/sapmachine-jre-25.0.4_linux-x64_bin.tar.gz
-  source_sha256: 45822a0180c0b1b5afd789a0d4bc3442d6841605e3aff87c731156e3ed73d39c
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.4.1/sapmachine-jre-25.0.4.1_linux-x64_bin.tar.gz
+  source_sha256: c70a97647a0045142642964f642ccf9157d3c49f298e9d9c6303fdb43a49ff4f
 - name: sealights-agent
   version: 4.0.2836
   uri: https://buildpacks.cloudfoundry.org/dependencies/sealights-agent/sealights-agent_4.0.2836_linux_noarch_any-stack_6383cf9b.zip

@@ -1560,6 +1560,8 @@ github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDk
 github.com/cloudflare/circl v1.1.0/go.mod h1:prBCrKB9DV4poKZY1l9zBXg2QJY7mvgRvtMxxK7fi4I=
 github.com/cloudfoundry/libbuildpack v0.0.0-20260415084012-70e599bbe72c h1:BMlBv4TunN2BTh8CgVL1Hf8iiKCCIk5eD64Dg9fU4GM=
 github.com/cloudfoundry/libbuildpack v0.0.0-20260415084012-70e599bbe72c/go.mod h1:Qtj1XicpoDn88w2cvVCYtw1Whq+kK3bouin0xNZ9lIU=
+github.com/cloudfoundry/libbuildpack v0.0.0-20261008144637-09d456c3def9 h1:dk4sBbWPrFKJfiNbRfx8RsDGTZf7MS2TOUHq2z//TPU=
+github.com/cloudfoundry/libbuildpack v0.0.0-20261008144637-09d456c3def9/go.mod h1:Qtj1XicpoDn88w2cvVCYtw1Whq+kK3bouin0xNZ9lIU=
 github.com/cloudfoundry/switchblade v0.9.5 h1:GTga1Uu6kGOL+n1TRTHyZm170N5/B/ou6wU90MiKKys=
 github.com/cloudfoundry/switchblade v0.9.5/go.mod h1:hIEQdGAsuNnzlyQfsD5OIORt38weSBar6Wq5/JX6Omo=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
