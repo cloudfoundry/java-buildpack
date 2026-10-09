@@ -135,6 +135,9 @@ url_to_dependency_map:
 - match: zulu(\d+\.\d+\.\d+)-.*-jre(\d+\.\d+\.\d+)
   name: zulu
   version: "$2"
+- match: sapmachine-jre-(\d+\.\d+\.\d+\.\d+)
+  name: sapmachine
+  version: "$1"
 - match: sapmachine-jre-(\d+\.\d+\.\d+)
   name: sapmachine
   version: "$1"
