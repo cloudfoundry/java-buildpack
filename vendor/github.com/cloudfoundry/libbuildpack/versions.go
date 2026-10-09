@@ -85,16 +85,25 @@ func (a jep322Version) compareFields(b jep322Version) int {
 	return 0
 }
 
-// compareJEP322 orders two version strings by all numeric fields (trailing
-// zeros insignificant), then by numeric build number (absent < +1 < +2), and
-// finally by number of fields so that ordering stays deterministic
-// ("21.0.12" < "21.0.12.0"). Returns 0 if either version is not a numeric
-// JEP 322 version.
+// compareJEP322 is the tie-breaker for versions that are equal according to
+// semver. It orders two numeric JEP 322 versions by all numeric fields
+// (trailing zeros insignificant), then by numeric build number
+// (absent < +1 < +2), and finally by number of fields so that ordering stays
+// deterministic ("21.0.12" < "21.0.12.0"). Other versions (e.g. with
+// non-numeric build metadata such as "21.0.12+foo") are equal to each other
+// and sort before numeric JEP 322 versions, keeping the ordering transitive.
 func compareJEP322(a, b string) int {
 	va, okA := parseJEP322(a)
 	vb, okB := parseJEP322(b)
 	if !okA || !okB {
-		return 0
+		switch {
+		case okA:
+			return 1
+		case okB:
+			return -1
+		default:
+			return 0
+		}
 	}
 	if c := va.compareFields(vb); c != 0 {
 		return c
@@ -134,20 +143,27 @@ func isExactJEP322Constraint(constraint string) (jep322Version, bool) {
 	return v, true
 }
 
-// matchExactJEP322 returns all versions equal to the constraint. Without a
-// build number in the constraint any build matches ("21.0.12.1" matches
-// "21.0.12.1+1" and "21.0.12.1+2"); with one, the build must be equal.
+// matchesExactJEP322 reports whether ver equals the exact constraint c. The
+// numeric fields must be identical, including their number ("21.0.12.0" does
+// not match "21.0.12"). Without a build number in the constraint any build
+// matches ("21.0.12.1" matches "21.0.12.1+1" and "21.0.12.1+2"); with one,
+// the build must be equal.
+func matchesExactJEP322(c jep322Version, ver string) bool {
+	v, ok := parseJEP322(ver)
+	if !ok || len(v.fields) != len(c.fields) || v.compareFields(c) != 0 {
+		return false
+	}
+	return c.build < 0 || v.build == c.build
+}
+
+// matchExactJEP322 returns all versions matching the exact constraint, see
+// matchesExactJEP322.
 func matchExactJEP322(constraint string, c jep322Version, versions []string) ([]string, error) {
 	var matched []string
 	for _, ver := range versions {
-		v, ok := parseJEP322(ver)
-		if !ok || v.compareFields(c) != 0 {
-			continue
+		if matchesExactJEP322(c, ver) {
+			matched = append(matched, ver)
 		}
-		if c.build >= 0 && v.build != c.build {
-			continue
-		}
-		matched = append(matched, ver)
 	}
 	if len(matched) == 0 {
 		return []string{}, fmt.Errorf("no match found for %s in %v", constraint, versions)

@@ -147,21 +147,30 @@ func (i *Installer) warnNewerPatch(dep Dependency) error {
 }
 
 func (i *Installer) warnEndOfLife(dep Dependency) error {
-	matchVersion := func(versionLine, depVersion string) bool {
+	matchSemver := func(versionLine, depVersion string) bool {
 		return versionLine == depVersion
 	}
 
 	v, err := semver.NewVersion(normalizeSemver(dep.Version))
 	if err == nil {
-		matchVersion = func(versionLine, depVersion string) bool {
+		matchSemver = func(versionLine, depVersion string) bool {
 			constraint, err := semver.NewConstraint(versionLine)
 			if err != nil {
-				// e.g. an exact version line such as "21.0.12.1+1"
-				return normalizeSemver(depVersion) != depVersion && versionLine == depVersion
+				return false
 			}
 
 			return constraint.Check(v)
 		}
+	}
+
+	matchVersion := func(versionLine, depVersion string) bool {
+		// Exact version lines such as "21.0.12+10" or "21.0.12.1" are matched
+		// like exact FindMatchingVersion constraints; semver would ignore the
+		// build number or fail to parse more than three fields.
+		if c, ok := isExactJEP322Constraint(versionLine); ok {
+			return matchesExactJEP322(c, depVersion)
+		}
+		return matchSemver(versionLine, depVersion)
 	}
 
 	for _, deprecation := range i.manifest.Deprecations {
