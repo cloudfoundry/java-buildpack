@@ -206,6 +206,12 @@ dependencies:
   sha256: 6bc007201b97214a3883e2da92dc80b2e5ae29378a7a77ab4077d74ccbfdfdbd
   cf_stacks:
   - cflinuxfs4
+- name: sapmachine
+  version: 21.0.9.1
+  uri: https://github.com/SAP/SapMachine/releases/download/sapmachine-21.0.9.1/sapmachine-jre-21.0.9.1_linux-x64_bin.tar.gz
+  sha256: 5555555555555555555555555555555555555555555555555555555555555555
+  cf_stacks:
+  - cflinuxfs4
 - name: zulu
   version: 11.0.25
   uri: https://cdn.azul.com/zulu/bin/zulu11.76.21-ca-jre11.0.25-linux_x64.tar.gz
@@ -457,7 +463,7 @@ dependencies:
 				dep, err := jres.GetJREVersion(ctx, "sapmachine")
 				Expect(err).NotTo(HaveOccurred())
 				Expect(dep.Name).To(Equal("sapmachine"))
-				Expect(dep.Version).To(Equal("21.0.9"))
+				Expect(dep.Version).To(Equal("21.0.9.1"))
 			})
 
 			It("should resolve JBP_CONFIG_SAP_MACHINE_JRE for SAPMachine", func() {
@@ -477,6 +483,26 @@ dependencies:
 				_, err := jres.GetJREVersion(ctx, "sapmachine")
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("no version of sapmachine matching '26.+' found in manifest"))
+			})
+
+			It("should resolve exact 4-part SapMachine version via JBP_CONFIG_SAP_MACHINE_JRE", func() {
+				os.Setenv("JBP_CONFIG_SAP_MACHINE_JRE", `{ jre: { version: "21.0.9.1" } }`)
+				defer os.Unsetenv("JBP_CONFIG_SAP_MACHINE_JRE")
+
+				dep, err := jres.GetJREVersion(ctx, "sapmachine")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(dep.Name).To(Equal("sapmachine"))
+				Expect(dep.Version).To(Equal("21.0.9.1"))
+			})
+
+			It("should resolve exact 4-part SapMachine version via BP_JAVA_VERSION", func() {
+				os.Setenv("BP_JAVA_VERSION", "21.0.9.1")
+				defer os.Unsetenv("BP_JAVA_VERSION")
+
+				dep, err := jres.GetJREVersion(ctx, "sapmachine")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(dep.Name).To(Equal("sapmachine"))
+				Expect(dep.Version).To(Equal("21.0.9.1"))
 			})
 
 			It("should resolve JBP_CONFIG_ZULU_JRE for Zulu", func() {
