@@ -65,7 +65,8 @@ func parseJEP322(ver string) (jep322Version, bool) {
 }
 
 // compareFields compares numeric fields, treating missing fields as zero,
-// so "21.0.12" and "21.0.12.0" compare equal.
+// so it reports "21.0.12" and "21.0.12.0" as equal. compareJEP322 breaks
+// such ties by number of fields; matchesExactJEP322 requires equal counts.
 func (a jep322Version) compareFields(b jep322Version) int {
 	for i := 0; i < len(a.fields) || i < len(b.fields); i++ {
 		var x, y int
@@ -245,7 +246,11 @@ func matchSemver2(constraint string, versions []string) ([]string, error) {
 	for _, ver := range versions {
 		depVersion, err := semver2.NewVersion(normalizeSemver(ver))
 		if err != nil {
-			return []string{}, err
+			// Last resort parser: skip unparsable versions so that a single
+			// unexpected manifest entry does not break resolution of all others.
+			// matchSemver1 must keep failing instead, so that lists containing
+			// versions only this lenient parser accepts (e.g. "1.2") end up here.
+			continue
 		}
 
 		if versionConstraint.Check(depVersion) {

@@ -59,4 +59,4 @@ replace (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp => go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.32.0
 )
 
-replace github.com/cloudfoundry/libbuildpack => github.com/stokpop/libbuildpack v0.0.0-20261009132744-b97b9cc8ecd4
+replace github.com/cloudfoundry/libbuildpack => github.com/stokpop/libbuildpack v0.0.0-20261009143620-80c7e71f9b6c

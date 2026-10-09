@@ -131,11 +131,6 @@ func (i *Installer) warnNewerPatch(dep Dependency) error {
 
 	latest, err := FindMatchingVersion(constraint, versions)
 	if err != nil {
-		if normalizeSemver(dep.Version) != dep.Version {
-			// Versions with more than three fields were never checked before;
-			// don't let an unparsable sibling version fail their installation.
-			return nil
-		}
 		return err
 	}
 
