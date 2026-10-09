@@ -310,45 +310,30 @@ func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency
 	return dep, nil
 }
 
-var exactVersionWithBuildRegex = regexp.MustCompile(`^\d+\.\d+\.\d+\+\d+$`)
-var exactVersionRegex = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
-var exactVersion4PartRegex = regexp.MustCompile(`^\d+\.\d+\.\d+\.\d+$`)
+// exactVersionRegex matches a fully specified JEP 322 version: at least three
+// numeric fields, optionally more (e.g. monthly security patch releases such as
+// "21.0.12.1" or SapMachine "21.0.10.0.1"), and an optional numeric build
+// number (e.g. "17.0.19+11", "21.0.12.1+1"). See https://openjdk.org/jeps/322.
+var exactVersionRegex = regexp.MustCompile(`^\d+\.\d+\.\d+(\.\d+)*(\+\d+)?$`)
 
 func normalizeVersionPattern(version string) string {
 	if strings.Contains(version, "*") {
 		return version
 	}
-	// Exact version with build metadata (e.g. "17.0.19+11") — pass through as-is.
-	// Must be checked before the general "+" replacement below.
-	if isValidVersionWithBuild(version) {
+	// Exact version (e.g. "17.0.13", "17.0.19+11", "21.0.12.1+1") — pass through
+	// as-is. Must be checked before the "+" replacement below, and appending
+	// ".*" would produce an unmatchable pattern like "17.0.13.*".
+	if isExactVersion(version) {
 		return version
 	}
 	if strings.Contains(version, "+") {
 		return strings.ReplaceAll(version, "+", "*")
 	}
-	// Exact 4-part version (e.g. "21.0.12.1") — pass through as-is so the
-	// short-circuit string-equality path in FindMatchingVersions is reached.
-	if isValid4PartVersion(version) {
-		return version
-	}
-	// Exact patch version (e.g. "17.0.13") — already fully specified, don't append ".*"
-	// which would produce an unmatchable pattern like "17.0.13.*".
-	if isValidVersion(version) {
-		return version
-	}
 	return version + ".*"
 }
 
-func isValidVersion(version string) bool {
+func isExactVersion(version string) bool {
 	return exactVersionRegex.MatchString(version)
-}
-
-func isValid4PartVersion(version string) bool {
-	return exactVersion4PartRegex.MatchString(version)
-}
-
-func isValidVersionWithBuild(version string) bool {
-	return exactVersionWithBuildRegex.MatchString(version)
 }
 
 func parseJBPConfigVersion(configValue string) string {

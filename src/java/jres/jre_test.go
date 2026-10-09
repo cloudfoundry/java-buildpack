@@ -188,6 +188,24 @@ dependencies:
   sha256: 3333333333333333333333333333333333333333333333333333333333333333
   cf_stacks:
   - cflinuxfs4
+- name: openjdk
+  version: 25.0.4+9
+  uri: https://example.com/openjdk-25.0.4+9.tar.gz
+  sha256: 6666666666666666666666666666666666666666666666666666666666666666
+  cf_stacks:
+  - cflinuxfs4
+- name: openjdk
+  version: 25.0.4.1+1
+  uri: https://example.com/openjdk-25.0.4.1+1.tar.gz
+  sha256: 7777777777777777777777777777777777777777777777777777777777777777
+  cf_stacks:
+  - cflinuxfs4
+- name: openjdk
+  version: 25.0.4.1+2
+  uri: https://example.com/openjdk-25.0.4.1+2.tar.gz
+  sha256: 8888888888888888888888888888888888888888888888888888888888888888
+  cf_stacks:
+  - cflinuxfs4
 - name: sapmachine
   version: 17.0.17
   uri: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.17/sapmachine-jre-17.0.17_linux-x64_bin.tar.gz
@@ -222,6 +240,12 @@ dependencies:
   version: 17.0.13
   uri: https://cdn.azul.com/zulu/bin/zulu17.54.21-ca-jre17.0.13-linux_x64.tar.gz
   sha256: 2d74f026d0d184075ad99de343c6a24bd702eb25d87ce6de5e3ab8df1cd3ef25
+  cf_stacks:
+  - cflinuxfs4
+- name: zulu
+  version: 17.0.13.1
+  uri: https://cdn.azul.com/zulu/bin/zulu17.54.22-ca-jre17.0.13.1-linux_x64.tar.gz
+  sha256: 9999999999999999999999999999999999999999999999999999999999999999
   cf_stacks:
   - cflinuxfs4
 `
@@ -341,6 +365,43 @@ dependencies:
 				dep, err := jres.GetJREVersion(ctx, "openjdk")
 				Expect(err).NotTo(HaveOccurred())
 				Expect(dep.Name).To(Equal("openjdk"))
+				Expect(dep.Version).To(Equal("17.0.19+11"))
+			})
+		})
+
+		// https://github.com/cloudfoundry/java-buildpack/issues/1461
+		Context("with JEP 322 monthly security patch releases (X.Y.Z.N+B)", func() {
+			DescribeTable("BP_JAVA_VERSION resolves the expected openjdk version",
+				func(requested, expected string) {
+					os.Setenv("BP_JAVA_VERSION", requested)
+					dep, err := jres.GetJREVersion(ctx, "openjdk")
+					Expect(err).NotTo(HaveOccurred())
+					Expect(dep.Version).To(Equal(expected))
+				},
+				Entry("major version", "25", "25.0.4.1+2"),
+				Entry("+ wildcard", "25.+", "25.0.4.1+2"),
+				Entry("* wildcard", "25.*", "25.0.4.1+2"),
+				Entry("exact quarterly update", "25.0.4+9", "25.0.4+9"),
+				Entry("exact patch release without build", "25.0.4.1", "25.0.4.1+2"),
+				Entry("exact patch release with build", "25.0.4.1+1", "25.0.4.1+1"),
+			)
+
+			It("resolves exact X.Y.Z.N+B version via JBP_CONFIG_OPEN_JDK_JRE", func() {
+				os.Setenv("JBP_CONFIG_OPEN_JDK_JRE", `{ jre: { version: "25.0.4.1+1" } }`)
+				dep, err := jres.GetJREVersion(ctx, "openjdk")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(dep.Version).To(Equal("25.0.4.1+1"))
+			})
+
+			It("fails for an unknown build of an exact X.Y.Z.N+B version", func() {
+				os.Setenv("BP_JAVA_VERSION", "25.0.4.1+3")
+				_, err := jres.GetJREVersion(ctx, "openjdk")
+				Expect(err).To(HaveOccurred())
+			})
+
+			It("still resolves the manifest default version", func() {
+				dep, err := jres.GetJREVersion(ctx, "openjdk")
+				Expect(err).NotTo(HaveOccurred())
 				Expect(dep.Version).To(Equal("17.0.19+11"))
 			})
 		})
@@ -522,7 +583,7 @@ dependencies:
 				dep, err := jres.GetJREVersion(ctx, "zulu")
 				Expect(err).NotTo(HaveOccurred())
 				Expect(dep.Name).To(Equal("zulu"))
-				Expect(dep.Version).To(Equal("17.0.13"))
+				Expect(dep.Version).To(Equal("17.0.13.1"))
 			})
 
 			It("should resolve JBP_CONFIG_ZULU_JRE for Zulu", func() {
