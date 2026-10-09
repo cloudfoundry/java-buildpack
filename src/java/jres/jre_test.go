@@ -463,7 +463,7 @@ dependencies:
 				dep, err := jres.GetJREVersion(ctx, "sapmachine")
 				Expect(err).NotTo(HaveOccurred())
 				Expect(dep.Name).To(Equal("sapmachine"))
-				Expect(dep.Version).To(Equal("21.0.9"))
+				Expect(dep.Version).To(Equal("21.0.9.1"))
 			})
 
 			It("should resolve JBP_CONFIG_SAP_MACHINE_JRE for SAPMachine", func() {
