@@ -110,7 +110,7 @@ func (i *Installer) InstallDependencyWithStrip(dep Dependency, outputDir string,
 
 func (i *Installer) warnNewerPatch(dep Dependency) error {
 
-	v, err := semver.NewVersion(dep.Version)
+	v, err := semver.NewVersion(normalizeSemver(dep.Version))
 	if err != nil {
 		return nil
 	}
@@ -131,6 +131,11 @@ func (i *Installer) warnNewerPatch(dep Dependency) error {
 
 	latest, err := FindMatchingVersion(constraint, versions)
 	if err != nil {
+		if normalizeSemver(dep.Version) != dep.Version {
+			// Versions with more than three fields were never checked before;
+			// don't let an unparsable sibling version fail their installation.
+			return nil
+		}
 		return err
 	}
 
@@ -146,12 +151,13 @@ func (i *Installer) warnEndOfLife(dep Dependency) error {
 		return versionLine == depVersion
 	}
 
-	v, err := semver.NewVersion(dep.Version)
+	v, err := semver.NewVersion(normalizeSemver(dep.Version))
 	if err == nil {
 		matchVersion = func(versionLine, depVersion string) bool {
 			constraint, err := semver.NewConstraint(versionLine)
 			if err != nil {
-				return false
+				// e.g. an exact version line such as "21.0.12.1+1"
+				return normalizeSemver(depVersion) != depVersion && versionLine == depVersion
 			}
 
 			return constraint.Check(v)

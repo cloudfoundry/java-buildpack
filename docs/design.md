@@ -151,6 +151,9 @@ cf set-env myapp BP_JAVA_VERSION 17
 # Version pattern
 cf set-env myapp BP_JAVA_VERSION "21.*"
 
+# Exact version, incl. JEP 322 monthly patch releases and build numbers
+cf set-env myapp BP_JAVA_VERSION "21.0.12.1+1"
+
 # Legacy config
 cf set-env myapp JBP_CONFIG_OPEN_JDK_JRE '{jre: {version: 11.+}}'
 ```
