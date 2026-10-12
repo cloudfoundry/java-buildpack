@@ -4,7 +4,7 @@ go 1.25.4
 
 require (
 	github.com/Dynatrace/libbuildpack-dynatrace v1.9.0
-	github.com/cloudfoundry/libbuildpack v0.0.0-20261008144637-09d456c3def9
+	github.com/cloudfoundry/libbuildpack v0.0.0-20261012122722-6cd465089938
 	github.com/cloudfoundry/switchblade v0.9.5
 	github.com/golang/mock v1.6.0
 	github.com/onsi/ginkgo/v2 v2.29.0
@@ -58,5 +58,3 @@ replace (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace => go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.32.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp => go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.32.0
 )
-
-replace github.com/cloudfoundry/libbuildpack => github.com/stokpop/libbuildpack v0.0.0-20261012103240-31ab990d7258
