@@ -246,11 +246,7 @@ func matchSemver2(constraint string, versions []string) ([]string, error) {
 	for _, ver := range versions {
 		depVersion, err := semver2.NewVersion(normalizeSemver(ver))
 		if err != nil {
-			// Last resort parser: skip unparsable versions so that a single
-			// unexpected manifest entry does not break resolution of all others.
-			// matchSemver1 must keep failing instead, so that lists containing
-			// versions only this lenient parser accepts (e.g. "1.2") end up here.
-			continue
+			return []string{}, err
 		}
 
 		if versionConstraint.Check(depVersion) {
