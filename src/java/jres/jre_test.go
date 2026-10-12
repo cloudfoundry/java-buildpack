@@ -225,6 +225,12 @@ dependencies:
   cf_stacks:
   - cflinuxfs4
 - name: sapmachine
+  version: 21.0.9.0.1
+  uri: https://github.com/SAP/SapMachine/releases/download/sapmachine-21.0.9.0.1/sapmachine-jre-21.0.9.0.1_linux-x64_bin.tar.gz
+  sha256: 5555555555555555555555555555555555555555555555555555555555555555
+  cf_stacks:
+  - cflinuxfs4
+- name: sapmachine
   version: 21.0.9.1
   uri: https://github.com/SAP/SapMachine/releases/download/sapmachine-21.0.9.1/sapmachine-jre-21.0.9.1_linux-x64_bin.tar.gz
   sha256: 5555555555555555555555555555555555555555555555555555555555555555
@@ -564,6 +570,16 @@ dependencies:
 				Expect(err).NotTo(HaveOccurred())
 				Expect(dep.Name).To(Equal("sapmachine"))
 				Expect(dep.Version).To(Equal("21.0.9.1"))
+			})
+
+			It("should resolve exact 5-part SapMachine version via BP_JAVA_VERSION", func() {
+				os.Setenv("BP_JAVA_VERSION", "21.0.9.0.1")
+				defer os.Unsetenv("BP_JAVA_VERSION")
+
+				dep, err := jres.GetJREVersion(ctx, "sapmachine")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(dep.Name).To(Equal("sapmachine"))
+				Expect(dep.Version).To(Equal("21.0.9.0.1"))
 			})
 
 			It("should resolve JBP_CONFIG_ZULU_JRE for Zulu", func() {

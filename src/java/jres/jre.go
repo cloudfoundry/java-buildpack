@@ -311,9 +311,11 @@ func GetJREVersion(ctx *common.Context, jreName string) (libbuildpack.Dependency
 }
 
 // exactVersionRegex matches a fully specified JEP 322 version: at least three
-// numeric fields, optionally more (e.g. monthly security patch releases such as
-// "21.0.12.1" or SapMachine "21.0.10.0.1"), and an optional numeric build
-// number (e.g. "17.0.19+11", "21.0.12.1+1"). See https://openjdk.org/jeps/322.
+// numeric fields ($FEATURE.$INTERIM.$UPDATE), optionally $PATCH (e.g. monthly
+// patch releases such as "21.0.12.1"), and an optional numeric build number
+// (e.g. "17.0.19+11", "21.0.12.1+1"). Any number of further fields is accepted
+// on purpose: JEP 322 reserves the fifth and later elements for downstream
+// implementors, e.g. SapMachine "21.0.10.0.1". See https://openjdk.org/jeps/322.
 var exactVersionRegex = regexp.MustCompile(`^\d+\.\d+\.\d+(\.\d+)*(\+\d+)?$`)
 
 func normalizeVersionPattern(version string) string {
