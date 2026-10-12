@@ -1358,8 +1358,6 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/CycloneDX/cyclonedx-go v0.7.1/go.mod h1:N/nrdWQI2SIjaACyyDs/u7+ddCkyl/zkNs8xFsHF2Ps=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/DataDog/zstd v1.4.5/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
-github.com/Dynatrace/libbuildpack-dynatrace v1.8.0 h1:VNcd8+rurUUdY12emGfLGUUj5cMH4hkNgrdk8LO3dHE=
-github.com/Dynatrace/libbuildpack-dynatrace v1.8.0/go.mod h1:Uu9aa5UFAk1Ua+zZXnvzo+avDXuEi+GtegeOyja9xg4=
 github.com/Dynatrace/libbuildpack-dynatrace v1.9.0 h1:3tJzXt7VVTsvPPS9Q7+e/KAk0ccC2eAbgHib5C/XRhA=
 github.com/Dynatrace/libbuildpack-dynatrace v1.9.0/go.mod h1:Uu9aa5UFAk1Ua+zZXnvzo+avDXuEi+GtegeOyja9xg4=
 github.com/GoogleCloudPlatform/docker-credential-gcr v2.0.5+incompatible/go.mod h1:BB1eHdMLYEFuFdBlRMb0N7YGVdM5s6Pt0njxgvfbGGs=
@@ -1558,10 +1556,8 @@ github.com/circonus-labs/circonus-gometrics v2.3.1+incompatible/go.mod h1:nmEj6D
 github.com/circonus-labs/circonusllhist v0.1.3/go.mod h1:kMXHVDlOchFAehlya5ePtbp5jckzBHf4XRpQvBOLI+I=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cloudflare/circl v1.1.0/go.mod h1:prBCrKB9DV4poKZY1l9zBXg2QJY7mvgRvtMxxK7fi4I=
-github.com/cloudfoundry/libbuildpack v0.0.0-20260415084012-70e599bbe72c h1:BMlBv4TunN2BTh8CgVL1Hf8iiKCCIk5eD64Dg9fU4GM=
-github.com/cloudfoundry/libbuildpack v0.0.0-20260415084012-70e599bbe72c/go.mod h1:Qtj1XicpoDn88w2cvVCYtw1Whq+kK3bouin0xNZ9lIU=
-github.com/cloudfoundry/libbuildpack v0.0.0-20261008144637-09d456c3def9 h1:dk4sBbWPrFKJfiNbRfx8RsDGTZf7MS2TOUHq2z//TPU=
-github.com/cloudfoundry/libbuildpack v0.0.0-20261008144637-09d456c3def9/go.mod h1:Qtj1XicpoDn88w2cvVCYtw1Whq+kK3bouin0xNZ9lIU=
+github.com/cloudfoundry/libbuildpack v0.0.0-20261012122722-6cd465089938 h1:hKWGdn8UAnlVtkNG+HnvEK9f8s2NDTpq48/HxKd0SSc=
+github.com/cloudfoundry/libbuildpack v0.0.0-20261012122722-6cd465089938/go.mod h1:Qtj1XicpoDn88w2cvVCYtw1Whq+kK3bouin0xNZ9lIU=
 github.com/cloudfoundry/switchblade v0.9.5 h1:GTga1Uu6kGOL+n1TRTHyZm170N5/B/ou6wU90MiKKys=
 github.com/cloudfoundry/switchblade v0.9.5/go.mod h1:hIEQdGAsuNnzlyQfsD5OIORt38weSBar6Wq5/JX6Omo=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=

@@ -4,13 +4,14 @@ go 1.25.4
 
 require (
 	github.com/Dynatrace/libbuildpack-dynatrace v1.9.0
-	github.com/cloudfoundry/libbuildpack v0.0.0-20261008144637-09d456c3def9
+	github.com/cloudfoundry/libbuildpack v0.0.0-20261012122722-6cd465089938
 	github.com/cloudfoundry/switchblade v0.9.5
 	github.com/golang/mock v1.6.0
 	github.com/onsi/ginkgo/v2 v2.29.0
 	github.com/onsi/gomega v1.40.0
 	github.com/sclevine/spec v1.4.0
 	go.yaml.in/yaml/v3 v3.0.4
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -49,7 +50,6 @@ require (
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.36.0 // indirect
 	golang.org/x/tools v0.44.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
 // Replace directives to fix OpenTelemetry dependency conflicts from docker/docker test dependencies
