@@ -49,7 +49,7 @@ Sometimes logging is not enough, and inspecting the staged files is the fastest 
 ### Requirements
 
 * Docker
-* A packaged buildpack, for example `java-buildpack-cflinuxfs4-vX.Y.Z.zip` from the [releases](https://github.com/cloudfoundry/java-buildpack/releases) page, or one built from source with `./scripts/package.sh` (see [DEVELOPING.md](DEVELOPING.md))
+* A packaged buildpack, for example `java-buildpack-cflinuxfs5-vX.Y.Z.zip` from the [releases](https://github.com/cloudfoundry/java-buildpack/releases) page, or one built from source with `./scripts/package.sh` (see [DEVELOPING.md](DEVELOPING.md))
 * Your application, exploded into a directory (for example, unzip a JAR, WAR, or distZip)
 
 ### Example invocation
@@ -58,18 +58,18 @@ Unzip the buildpack and the application into a working directory:
 
 ```bash
 mkdir -p /tmp/jbp/bp /tmp/jbp/app
-unzip -q java-buildpack-cflinuxfs4-vX.Y.Z.zip -d /tmp/jbp/bp
+unzip -q java-buildpack-cflinuxfs5-vX.Y.Z.zip -d /tmp/jbp/bp
 unzip -q my-application.jar -d /tmp/jbp/app
 ```
 
-Run the `supply`, `finalize`, and `release` phases in the `cflinuxfs4` stack image. `CF_STACK` is required. Add `VCAP_SERVICES` if your application needs service bindings during staging:
+Run the `supply`, `finalize`, and `release` phases in the `cflinuxfs5` stack image as the `vcap` user, like Cloud Foundry staging does. `CF_STACK` is required. Add `VCAP_SERVICES` if your application needs service bindings during staging:
 
 ```bash
-docker run --rm -it \
-  -e CF_STACK=cflinuxfs4 \
+docker run --rm -it -u vcap \
+  -e CF_STACK=cflinuxfs5 \
   -e BP_DEBUG=true \
   -v /tmp/jbp:/s \
-  cloudfoundry/cflinuxfs4 bash -c '
+  cloudfoundry/cflinuxfs5 bash -c '
     mkdir -p /home/vcap/app /tmp/cache /home/vcap/deps/0 /tmp/profile.d
     cp -r /s/app/. /home/vcap/app/
     /s/bp/bin/supply   /home/vcap/app /tmp/cache /home/vcap/deps 0

@@ -2221,7 +2221,7 @@ required memory 1269289K is greater than 750M available for allocation
      JBP_CONFIG_OPEN_JDK_JRE: '{ memory_calculator: { stack_threads: 50 } }'
    ```
 
-4. **Set specific non-heap regions** *(special cases)* — e.g. `-XX:MaxDirectMemorySize=64M` in `JAVA_OPTS`. The calculator keeps explicitly set values and sizes the remaining regions and the heap around them.
+4. **Set specific non-heap regions** *(only for known application needs, not a fix for this error)* — e.g. `-XX:MaxDirectMemorySize=64M` in `JAVA_OPTS`. The calculator keeps explicitly set values and sizes the remaining regions and the heap around them. Raising a region above its default (10M for direct memory) increases the required memory.
 
 ### 10.3 Adoption Recommendations
 
