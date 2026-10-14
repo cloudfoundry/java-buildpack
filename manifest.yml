@@ -293,13 +293,13 @@ dependencies:
   source: https://github.com/cloudfoundry/java-buildpack-security-provider/releases/download/v1.21.0/java-buildpack-container-security-provider-1.21.0.jar
   source_sha256: 45347758aa96498194ddaa770e8207b18125e759eed37b3e14b86927fe66183f
 - name: contrast-security
-  version: 6.35.2
-  uri: https://buildpacks.cloudfoundry.org/dependencies/contrast-security/contrast-security_6.35.2_linux_noarch_any-stack_f9bf9026.jar
-  sha256: f9bf902616b9087133597c759f4a8e3433bdf543aba6d3b4c09ebda6610a96f9
+  version: 6.35.3
+  uri: https://buildpacks.cloudfoundry.org/dependencies/contrast-security/contrast-security_6.35.3_linux_noarch_any-stack_d40aa69c.jar
+  sha256: d40aa69c127eb58437bdeb867d7f79b58a306a34ec4a4d60a658b56071288e93
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/6.35.2/contrast-agent-6.35.2.jar
+  source: https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/6.35.3/contrast-agent-6.35.3.jar
   source_sha256: ''
 - name: datadog-javaagent
   version: 1.67.1
