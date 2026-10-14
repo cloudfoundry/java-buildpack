@@ -42,7 +42,7 @@ func (e *ElasticOtelJavaAgentFramework) Detect() (string, error) {
 	service := e.findElasticOtelService()
 
 	if os.Getenv("ELASTIC_OTEL_AGENT") != "" {
-		if !e.hasRequiredConfiguration(service) {
+		if !hasRequiredElasticOtelConfiguration(service) {
 			e.context.Log.Debug("Elastic OTel Java agent: ELASTIC_OTEL_AGENT requires an OTLP endpoint and authentication credentials")
 			return "", nil
 		}
@@ -55,7 +55,7 @@ func (e *ElasticOtelJavaAgentFramework) Detect() (string, error) {
 		e.context.Log.Debug("Elastic OTel Java agent: no elastic-otel service found")
 		return "", nil
 	}
-	if !e.hasRequiredConfiguration(service) {
+	if !hasRequiredElasticOtelConfiguration(service) {
 		e.context.Log.Debug("Elastic OTel Java agent: service missing OTLP endpoint or authentication credentials")
 		return "", nil
 	}
@@ -122,6 +122,10 @@ func (e *ElasticOtelJavaAgentFramework) findElasticOtelService() *common.VCAPSer
 		return nil
 	}
 
+	return findElasticOtelService(vcapServices)
+}
+
+func findElasticOtelService(vcapServices common.VCAPServices) *common.VCAPService {
 	for _, label := range []string{"elastic-otel", "edot-java", "elastic-edot"} {
 		if service := vcapServices.GetService(label); service != nil {
 			return service
@@ -141,7 +145,7 @@ func (e *ElasticOtelJavaAgentFramework) findElasticOtelService() *common.VCAPSer
 	return nil
 }
 
-func (e *ElasticOtelJavaAgentFramework) hasRequiredConfiguration(service *common.VCAPService) bool {
+func hasRequiredElasticOtelConfiguration(service *common.VCAPService) bool {
 	endpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
 	headers := os.Getenv("OTEL_EXPORTER_OTLP_HEADERS")
 	if service != nil && service.Credentials != nil {
