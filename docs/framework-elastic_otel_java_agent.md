@@ -5,7 +5,7 @@ The Elastic OTel Java Agent Framework causes an application to be automatically 
 <table>
   <tr>
     <td><strong>Detection Criterion</strong></td>
-    <td>Existence of a bound Elastic OTel service. The service must have a name, label, or tag containing <code>elastic-otel</code> and the combined service and environment configuration must provide an OTLP endpoint plus authentication credentials. The framework can also be enabled explicitly with <code>ELASTIC_OTEL_AGENT</code> when the same required configuration is present.</td>
+    <td>Existence of a bound Elastic OTel service. The service must have a name containing, or a label or tag matching, <code>elastic-otel</code>, <code>edot-java</code>, or <code>elastic-edot</code>, and the combined service and environment configuration must provide an OTLP endpoint plus authentication credentials. The framework can also be enabled explicitly with <code>ELASTIC_OTEL_AGENT</code> when the same required configuration is present.</td>
   </tr>
   <tr>
     <td><strong>Tags</strong></td>
@@ -17,7 +17,7 @@ Tags are printed to standard output by the buildpack detect script.
 
 ## User-Provided Service
 
-Users can provide their own Elastic OTel service. A user-provided service must have a name or tag with `elastic-otel` in it so that the framework configures the application with the Elastic Otel Java agent.
+Users can provide their own Elastic OTel service. A user-provided service must have a name containing or a tag matching `elastic-otel`, `edot-java`, or `elastic-edot` so that the framework configures the application with the Elastic OTel Java agent.
 
 The credential payload can contain the following entries.
 
@@ -64,6 +64,13 @@ The framework sets `otel.service.name` from service credentials, then `OTEL_SERV
 
 > **Warning**
 > Do not bind this framework alongside the Elastic APM Agent, OpenTelemetry Javaagent, Splunk OTel Java Agent, or another Java agent framework for the same application. Running multiple Java agents in the same JVM can cause duplicate telemetry or conflicting instrumentation.
+
+## Troubleshooting: Multiple Agents or Wrong Agent
+
+- **Elastic and Splunk agents both start:** `OTEL_EXPORTER_OTLP_ENDPOINT` is set as an environment variable during staging. Also set `ELASTIC_OTEL_AGENT=true`, or put the endpoint in the service credentials instead.
+- **Upstream OpenTelemetry agent starts instead of Elastic:** The Elastic service lacks authentication credentials. Add `api_key` or `otel.exporter.otlp.headers`.
+- **Elastic and OpenTelemetry agents both start:** An `otel-collector` service or another `otel`-named or `otel`-tagged service is also bound. Unbind it.
+- **Telemetry does not reach Elastic:** `OTEL_EXPORTER_OTLP_ENDPOINT`, set as an environment variable during staging, overrides the endpoint from the service binding. Remove it, or make sure it points to Elastic.
 
 ## Migration From Elastic APM Agent
 
