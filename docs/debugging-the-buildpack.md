@@ -49,7 +49,7 @@ Sometimes logging is not enough, and inspecting the staged files is the fastest 
 ### Requirements
 
 * Docker
-* A packaged buildpack, for example `java-buildpack-cflinuxfs5-vX.Y.Z.zip` from the [releases](https://github.com/cloudfoundry/java-buildpack/releases) page, or one built from source with `./scripts/package.sh` (see [DEVELOPING.md](DEVELOPING.md))
+* A packaged buildpack, for example `java-buildpack-cflinuxfs5-vX.Y.Z.zip` from the [releases](https://github.com/cloudfoundry/java-buildpack/releases) page, or one built from source with `./scripts/package.sh --stack cflinuxfs5` (see [DEVELOPING.md](DEVELOPING.md)). The package must be built for the stack you run it on
 * Your application, exploded into a directory (for example, unzip a JAR, WAR, or distZip)
 
 ### Example invocation

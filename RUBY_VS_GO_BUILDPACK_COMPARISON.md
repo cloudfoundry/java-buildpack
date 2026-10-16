@@ -2215,7 +2215,7 @@ required memory 1269289K is greater than 750M available for allocation
 
 2. **Increase manifest memory** — if `-Xmx` must stay, raise `memory:` to fit `Xmx + non-heap`. Based on the error above (`1269289K ≈ 1240M`), set at least **1300M** for a `-Xmx512M` app with default settings.
 
-3. **Tune the memory calculator** *(in addition to the above)* — for example, lower `stack_threads` if your app uses fewer than 250 threads (250 threads × ~1M = ~250M native memory). This leaves more memory for the heap, but with a pinned `-Xmx` it is usually not enough on its own: with `-Xmx512M` in a 750M container, 50 threads still requires ~907M.
+3. **Tune the memory calculator** *(in addition to the above)* — for example, lower `stack_threads` if your app uses fewer than 250 threads (250 threads × ~1M = ~250M native memory). This leaves more memory for the heap, but with a pinned `-Xmx` it is usually not enough on its own: for the app in the error above, 50 threads instead of 250 saves ~200M, so it still requires ~1040M (`1240M - 200 × 1M`), more than the 750M available.
    ```yaml
    env:
      JBP_CONFIG_OPEN_JDK_JRE: '{ memory_calculator: { stack_threads: 50 } }'
