@@ -116,7 +116,7 @@ applications:
 
 ### Memory Configuration
 
-Memory settings are configured via the memory calculator. See [Memory Configuration](#memory) below.
+Azul Platform Prime does not use the memory calculator. See [Memory](#memory) below.
 
 ### Custom CA Certificates
 
@@ -134,50 +134,7 @@ Heapdump written to /var/vcap/data/9ae0b817-1446-4915-9990-74c1bb26f147/pcfdev-s
 
 ## Memory
 
-The total available memory for the application's container is specified when an application is pushed. The Java buildpack uses this value to control the JRE's use of various regions of memory and logs the JRE memory settings when the application starts or restarts.
-
-Note: If the total available memory is scaled up or down, the Java buildpack will re-calculate the JRE memory settings the next time the application is started.
-
-### Total Memory
-
-The user can change the container's total memory available to influence the JRE memory settings. Unless the user specifies the heap size Java option (`-Xmx`), increasing or decreasing the total memory available results in the heap size setting increasing or decreasing by a corresponding amount.
-
-### Loaded Classes
-
-The amount of memory allocated to metaspace and compressed class space is calculated from an estimate of the number of classes that will be loaded. The default behavior is to estimate the number of loaded classes as a fraction of the number of class files in the application. To specify a specific number:
-
-```yaml
-class_count: 500
-```
-
-### Headroom
-
-A percentage of total memory to leave as headroom:
-
-```yaml
-headroom: 10
-```
-
-### Stack Threads
-
-The amount of memory for stacks is given as memory per thread with `-Xss`. To specify an explicit thread count:
-
-```yaml
-stack_threads: 500
-```
-
-Note: The default of 250 threads is optimized for Tomcat. For non-blocking servers like Netty, use a smaller value (typically 25).
-
-### Memory Calculation
-
-Memory calculation happens before every `start` of an application and is performed by the [Java Buildpack Memory Calculator][]. No need to `restage` after scaling memory—restarting recalculates the settings.
-
-The JRE memory settings are logged when the application starts:
-
-```
-JVM Memory Configuration: -XX:MaxDirectMemorySize=10M -XX:MaxMetaspaceSize=99199K \
-    -XX:ReservedCodeCacheSize=240M -XX:CompressedClassSpaceSize=18134K -Xss1M -Xmx368042K
-```
+The Java buildpack does not run the [Java Buildpack Memory Calculator][] for Azul Platform Prime. It sets no heap, metaspace, or thread stack sizes, so the memory calculator settings (`class_count`, `headroom`, `stack_threads`) have no effect and the JVM uses its own defaults. To size memory regions, set the JVM options yourself, for example `-Xmx`, with [Java Options][].
 
 ## Azul Platform Prime Features
 
@@ -200,4 +157,5 @@ Refer to [Azul Platform Prime documentation](https://docs.azul.com/prime/) for f
 [Configuration and Extension]: ../README.md#configuration-and-extension
 [Custom JRE Usage Guide]: custom-jre-usage.md
 [Java Buildpack Memory Calculator]: https://github.com/cloudfoundry/java-buildpack-memory-calculator
+[Java Options]: framework-java_opts.md
 [Volume Service]: https://docs.cloudfoundry.org/devguide/services/using-vol-services.html

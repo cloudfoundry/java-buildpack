@@ -107,7 +107,7 @@ available results in the heap size setting increasing or decreasing by a corresp
 
 #### Loaded Classes
 
-The amount of memory that is allocated to metaspace and compressed class space (or, on Java 7, the permanent generation) is calculated from an estimate of the number of classes that will be loaded. The default behaviour is to estimate the number of loaded classes as a fraction of the number of class files in the application.
+The amount of memory that is allocated to metaspace is calculated from an estimate of the number of classes that will be loaded. The default behaviour is to estimate the number of loaded classes as a fraction of the number of class files in the application.
 If a specific number of loaded classes should be used for calculations, then it should be specified as in the following example:
 
 ```yaml
@@ -135,22 +135,23 @@ Note that the default value of 250 threads is optimized for a default Tomcat con
 #### Java Options
 
 If the JRE memory settings need to be fine-tuned, the user can set one or more Java memory options to
-specific values. The heap size can be set explicitly, but changing the value of options other
-than the heap size can also affect the heap size. For example, if the user increases
+specific values. Preferably do not set the heap size (`-Xmx`) explicitly: let the memory calculator size the heap,
+and change the container's total memory instead. Changing the value of options other
+than the heap size affects the calculated heap size. For example, if the user increases
 the maximum direct memory size from its default value of 10 Mb to 20 Mb, then this will
 reduce the calculated heap size by 10 Mb.
 
 #### Memory Calculation
 Memory calculation happens before every `start` of an application and is performed by an external program, the [Java Buildpack Memory Calculator]. There is no need to `restage` an application after scaling the memory as restarting will cause the memory settings to be recalculated.
 
-The container's total available memory is allocated into heap, metaspace and compressed class space (or permanent generation for Java 7),
+The container's total available memory is allocated into heap, metaspace, code cache,
 direct memory, and stack memory settings.
 
 The memory calculation is described in more detail in the [Memory Calculator's README].
 
 The inputs to the memory calculation, except the container's total memory (which is unknown at staging time), are logged during staging, for example:
 ```
-Loaded Classes: 13974, Threads: 300, JAVA_OPTS: ''
+Memory Calculator installed: Loaded Classes: 13974 (auto-detected), Threads: 300, Headroom: 0% (default)
 ```
 
 The container's total memory is logged during `cf push` and `cf scale`, for example:
@@ -161,8 +162,8 @@ The container's total memory is logged during `cf push` and `cf scale`, for exam
 
 The JRE memory settings are logged when the application is started or re-started, for example:
 ```
-JVM Memory Configuration: -XX:MaxDirectMemorySize=10M -XX:MaxMetaspaceSize=99199K \
-    -XX:ReservedCodeCacheSize=240M -XX:CompressedClassSpaceSize=18134K -Xss1M -Xmx368042K
+JVM Memory Configuration: -XX:MaxDirectMemorySize=10M -XX:MaxMetaspaceSize=92821K \
+    -XX:ReservedCodeCacheSize=240M -Xss1M -Xmx392554K
 ```
 
 [`config/components.yml`]: ../config/components.yml

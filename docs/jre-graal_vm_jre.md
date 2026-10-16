@@ -174,7 +174,7 @@ The user can change the container's total memory available to influence the JRE 
 
 ### Loaded Classes
 
-The amount of memory allocated to metaspace and compressed class space is calculated from an estimate of the number of classes that will be loaded. The default behavior is to estimate the number of loaded classes as a fraction of the number of class files in the application. To specify a specific number:
+The amount of memory allocated to metaspace is calculated from an estimate of the number of classes that will be loaded. The default behavior is to estimate the number of loaded classes as a fraction of the number of class files in the application. To specify a specific number:
 
 ```yaml
 class_count: 500
@@ -205,8 +205,8 @@ Memory calculation happens before every `start` of an application and is perform
 The JRE memory settings are logged when the application starts:
 
 ```
-JVM Memory Configuration: -XX:MaxDirectMemorySize=10M -XX:MaxMetaspaceSize=99199K \
-    -XX:ReservedCodeCacheSize=240M -XX:CompressedClassSpaceSize=18134K -Xss1M -Xmx368042K
+JVM Memory Configuration: -XX:MaxDirectMemorySize=10M -XX:MaxMetaspaceSize=92821K \
+    -XX:ReservedCodeCacheSize=240M -Xss1M -Xmx392554K
 ```
 
 ## See Also
