@@ -62,6 +62,8 @@ The framework uses the dependency version configured in `manifest.yml`.
 
 The framework sets `otel.service.name` from service credentials, then `OTEL_SERVICE_NAME`, then `VCAP_APPLICATION.application_name`, using the first configured value. It also sets `deployment.environment.name` from `VCAP_APPLICATION.space_name` when `otel.resource.attributes` is not configured. Generic OTLP environment variables do not select the Elastic distribution by themselves; set `ELASTIC_OTEL_AGENT` to choose it explicitly.
 
+Authentication headers are provided through `OTEL_EXPORTER_OTLP_HEADERS` rather than a JVM system property. When the headers come from service credentials, the framework resolves them from `VCAP_SERVICES` when the application starts. This keeps credentials out of the JVM command line and allows credential rotation with an application restart instead of a restage.
+
 > **Warning**
 > Do not bind this framework alongside the Elastic APM Agent, OpenTelemetry Javaagent, Splunk OTel Java Agent, or another Java agent framework for the same application. Running multiple Java agents in the same JVM can cause duplicate telemetry or conflicting instrumentation.
 

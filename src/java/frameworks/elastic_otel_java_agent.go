@@ -32,6 +32,8 @@ type ElasticOtelJavaAgentFramework struct {
 	service *common.VCAPService
 }
 
+var elasticOtelServiceIdentifiers = []string{"elastic-otel", "edot-java", "elastic-edot"}
+
 // NewElasticOtelJavaAgentFramework creates a new Elastic OTel Java agent framework instance.
 func NewElasticOtelJavaAgentFramework(ctx *common.Context) *ElasticOtelJavaAgentFramework {
 	return &ElasticOtelJavaAgentFramework{context: ctx}
@@ -110,9 +112,70 @@ func (e *ElasticOtelJavaAgentFramework) Finalize() error {
 	if err := writeJavaOptsFile(e.context, 44, "elastic_otel_java_agent", strings.Join(opts, " ")); err != nil {
 		return fmt.Errorf("failed to write JAVA_OPTS for Elastic OTel Java agent: %w", err)
 	}
+	if err := e.context.Stager.WriteProfileD("elastic_otel_java_agent.sh", buildElasticOtelHeadersProfile()); err != nil {
+		return fmt.Errorf("failed to write Elastic OTel Java agent profile script: %w", err)
+	}
 
 	e.context.Log.Debug("Elastic OTel Java agent configured")
 	return nil
+}
+
+const elasticOtelHeadersProfileTemplate = `#!/usr/bin/env bash
+# Resolve Elastic OTLP authentication at runtime so credentials are not added to JAVA_OPTS or the droplet.
+if [ -z "${OTEL_EXPORTER_OTLP_HEADERS:-}" ] && [ -n "${VCAP_SERVICES:-}" ]; then
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "WARNING: Elastic OTel Java agent could not resolve OTLP headers: jq is not available" >&2
+  elif elastic_otel_headers="$(
+    printf '%%s' "$VCAP_SERVICES" | jq -r '
+      [
+        %s as $identifiers
+        | [
+            to_entries[]
+            | .key as $label
+            | .value[]
+            | ((.tags // []) | map(ascii_downcase)) as $tags
+            | ((.name // "") | ascii_downcase) as $name
+            | ($identifiers | index(($label | ascii_downcase))) as $label_priority
+            | if $label_priority != null then
+                {priority: $label_priority, service: .}
+              elif (any($tags[]; . as $tag | $identifiers | index($tag) != null)) or
+                   (any($identifiers[]; . as $identifier | $name | contains($identifier))) then
+                {priority: ($identifiers | length), service: .}
+              else
+                empty
+              end
+          ]
+        | sort_by(.priority)
+        | .[]
+        | (.service.credentials // {})
+        | if ((."otel.exporter.otlp.headers" // "") | length) > 0 then
+            ."otel.exporter.otlp.headers"
+          elif ((.api_key // "") | length) > 0 then
+            "Authorization=ApiKey " + .api_key
+          elif ((.secret_token // "") | length) > 0 then
+            "Authorization=Bearer " + .secret_token
+          elif ((.access_token // "") | length) > 0 then
+            "Authorization=Bearer " + .access_token
+          else
+            empty
+          end
+      ][0] // empty
+    '
+  )"; then
+    if [ -n "$elastic_otel_headers" ]; then
+      export OTEL_EXPORTER_OTLP_HEADERS="$elastic_otel_headers"
+    fi
+    unset elastic_otel_headers
+  else
+    echo "WARNING: Elastic OTel Java agent could not resolve OTLP headers from VCAP_SERVICES" >&2
+    unset elastic_otel_headers
+  fi
+fi
+`
+
+func buildElasticOtelHeadersProfile() string {
+	identifiers, _ := json.Marshal(elasticOtelServiceIdentifiers)
+	return fmt.Sprintf(elasticOtelHeadersProfileTemplate, identifiers)
 }
 
 func (e *ElasticOtelJavaAgentFramework) findElasticOtelService() *common.VCAPService {
@@ -126,18 +189,17 @@ func (e *ElasticOtelJavaAgentFramework) findElasticOtelService() *common.VCAPSer
 }
 
 func findElasticOtelService(vcapServices common.VCAPServices) *common.VCAPService {
-	for _, label := range []string{"elastic-otel", "edot-java", "elastic-edot"} {
+	for _, label := range elasticOtelServiceIdentifiers {
 		if service := vcapServices.GetService(label); service != nil {
 			return service
 		}
 	}
 	for _, services := range vcapServices {
 		for _, service := range services {
-			if hasAnyTag(service, "elastic-otel", "edot-java", "elastic-edot") ||
-				common.ContainsIgnoreCase(service.Name, "elastic-otel") ||
-				common.ContainsIgnoreCase(service.Name, "edot-java") ||
-				common.ContainsIgnoreCase(service.Name, "elastic-edot") {
-				return &service
+			for _, identifier := range elasticOtelServiceIdentifiers {
+				if hasAnyTag(service, identifier) || common.ContainsIgnoreCase(service.Name, identifier) {
+					return &service
+				}
 			}
 		}
 	}
@@ -168,23 +230,18 @@ func (e *ElasticOtelJavaAgentFramework) buildConfiguration() map[string]string {
 			if !ok || strValue == "" {
 				continue
 			}
-			if strings.HasPrefix(key, "otel.") || strings.HasPrefix(key, "elastic.otel.") {
+			if key != "otel.exporter.otlp.headers" &&
+				(strings.HasPrefix(key, "otel.") || strings.HasPrefix(key, "elastic.otel.")) {
 				config[key] = strValue
 			}
 		}
 		if endpoint := getOtlpEndpoint(service.Credentials); endpoint != "" {
 			config["otel.exporter.otlp.endpoint"] = endpoint
 		}
-		if headers := getOtlpHeaders(service.Credentials); headers != "" {
-			config["otel.exporter.otlp.headers"] = headers
-		}
 	}
 
 	if endpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"); endpoint != "" {
 		config["otel.exporter.otlp.endpoint"] = endpoint
-	}
-	if headers := os.Getenv("OTEL_EXPORTER_OTLP_HEADERS"); headers != "" {
-		config["otel.exporter.otlp.headers"] = headers
 	}
 	if _, ok := config["otel.service.name"]; !ok {
 		if serviceName := os.Getenv("OTEL_SERVICE_NAME"); serviceName != "" {
