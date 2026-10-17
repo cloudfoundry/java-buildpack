@@ -275,6 +275,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					Expect(err).NotTo(HaveOccurred(), logs.String)
 
 					Expect(logs.String()).To(ContainSubstring("Splunk OTEL"))
+					Expect(logs.String()).NotTo(ContainSubstring("OpenTelemetry Javaagent"))
 					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
 				})
 
@@ -294,6 +295,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					Expect(err).NotTo(HaveOccurred(), logs.String)
 
 					Expect(logs.String()).To(ContainSubstring("Splunk OTEL"))
+					Expect(logs.String()).NotTo(ContainSubstring("OpenTelemetry Javaagent"))
 					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
 				})
 			})
@@ -415,7 +417,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 				it("configures OpenTelemetry with OTLP endpoint from service binding", func() {
 					deployment, logs, err := platform.Deploy.
 						WithServices(map[string]switchblade.Service{
-							"my-otel-service": {
+							"my-otel-collector": {
 								"otel.exporter.otlp.endpoint": "https://otel.example.com:4318",
 								"otel.traces.exporter":        "otlp",
 								"otel.metrics.exporter":       "otlp",

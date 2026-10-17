@@ -158,19 +158,33 @@ var _ = Describe("OpenTelemetryJavaagentFramework", func() {
 			})
 		})
 
-		Context("with user-provided service matching otel name pattern", func() {
-			It("detects via name pattern", func() {
+		Context("with service name containing otel but not otel-collector", func() {
+			It("does not detect a Splunk OTel service", func() {
 				os.Setenv("VCAP_SERVICES", `{
 					"user-provided": [{
-						"name": "my-otel-sidecar",
+						"name": "splunk-otel",
 						"label": "user-provided",
 						"tags": [],
-						"credentials": {}
+						"credentials": {"access_token": "token"}
 					}]
 				}`)
 				name, err := framework.Detect()
 				Expect(err).NotTo(HaveOccurred())
-				Expect(name).To(Equal("OpenTelemetry Javaagent"))
+				Expect(name).To(BeEmpty())
+			})
+
+			It("does not detect an unrelated service", func() {
+				os.Setenv("VCAP_SERVICES", `{
+					"postgres": [{
+						"name": "hotel-db",
+						"label": "postgres",
+						"tags": ["postgres"],
+						"credentials": {"uri": "postgres://host/db"}
+					}]
+				}`)
+				name, err := framework.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(BeEmpty())
 			})
 		})
 

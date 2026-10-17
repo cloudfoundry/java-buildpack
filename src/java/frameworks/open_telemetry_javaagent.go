@@ -35,8 +35,7 @@ func (o *OpenTelemetryJavaagentFramework) Detect() (string, error) {
 		vcapServices.HasTag("otel") ||
 		vcapServices.HasTag("otel-collector") ||
 		vcapServices.HasTag("opentelemetry") ||
-		vcapServices.HasServiceByNamePattern("otel-collector") ||
-		vcapServices.HasServiceByNamePattern("otel") {
+		vcapServices.HasServiceByNamePattern("otel-collector") {
 		o.context.Log.Info("OpenTelemetry service detected!")
 		return "OpenTelemetry Javaagent", nil
 	}
