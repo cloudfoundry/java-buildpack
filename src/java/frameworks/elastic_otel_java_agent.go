@@ -32,6 +32,8 @@ type ElasticOtelJavaAgentFramework struct {
 	service *common.VCAPService
 }
 
+// Keep this list and the matching precedence in findElasticOtelService synchronized with
+// the runtime jq lookup in elasticOtelHeadersProfileTemplate.
 var elasticOtelServiceIdentifiers = []string{"elastic-otel", "edot-java", "elastic-edot"}
 
 // NewElasticOtelJavaAgentFramework creates a new Elastic OTel Java agent framework instance.
@@ -128,6 +130,7 @@ if [ -z "${OTEL_EXPORTER_OTLP_HEADERS:-}" ] && [ -n "${VCAP_SERVICES:-}" ]; then
   elif elastic_otel_headers="$(
     printf '%%s' "$VCAP_SERVICES" | jq -r '
       [
+        # Keep this lookup precedence synchronized with findElasticOtelService.
         %s as $identifiers
         | [
             to_entries[]
@@ -151,11 +154,11 @@ if [ -z "${OTEL_EXPORTER_OTLP_HEADERS:-}" ] && [ -n "${VCAP_SERVICES:-}" ]; then
         | if ((."otel.exporter.otlp.headers" // "") | length) > 0 then
             ."otel.exporter.otlp.headers"
           elif ((.api_key // "") | length) > 0 then
-            "Authorization=ApiKey " + .api_key
+            "Authorization=ApiKey " + (.api_key | @uri)
           elif ((.secret_token // "") | length) > 0 then
-            "Authorization=Bearer " + .secret_token
+            "Authorization=Bearer " + (.secret_token | @uri)
           elif ((.access_token // "") | length) > 0 then
-            "Authorization=Bearer " + .access_token
+            "Authorization=Bearer " + (.access_token | @uri)
           else
             empty
           end

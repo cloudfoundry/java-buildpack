@@ -259,7 +259,7 @@ var _ = Describe("ElasticOtelJavaAgentFramework", func() {
 			Expect(err).NotTo(HaveOccurred())
 			profile := string(data)
 			Expect(profile).To(ContainSubstring(`export OTEL_EXPORTER_OTLP_HEADERS="$elastic_otel_headers"`))
-			Expect(profile).To(ContainSubstring(`"Authorization=ApiKey " + .api_key`))
+			Expect(profile).To(ContainSubstring(`"Authorization=ApiKey " + (.api_key | @uri)`))
 			Expect(profile).To(ContainSubstring(`"$VCAP_SERVICES"`))
 			Expect(profile).NotTo(ContainSubstring("abc123"))
 		})
@@ -286,9 +286,8 @@ var _ = Describe("ElasticOtelJavaAgentFramework", func() {
 		})
 
 		It("resolves headers at runtime and prioritizes an explicit service label", func() {
-			if _, err := exec.LookPath("jq"); err != nil {
-				Skip("jq is not available")
-			}
+			_, err := exec.LookPath("jq")
+			Expect(err).NotTo(HaveOccurred(), "jq is required to resolve Elastic OTel headers at runtime")
 
 			runtimeServices := `{
 				"user-provided": [{
@@ -311,7 +310,7 @@ var _ = Describe("ElasticOtelJavaAgentFramework", func() {
 			cmd.Env = []string{"PATH=" + os.Getenv("PATH"), "VCAP_SERVICES=" + runtimeServices}
 			output, err := cmd.Output()
 			Expect(err).NotTo(HaveOccurred())
-			Expect(string(output)).To(Equal("Authorization=ApiKey right+key/=="))
+			Expect(string(output)).To(Equal("Authorization=ApiKey right%2Bkey%2F%3D%3D"))
 		})
 
 		It("preserves an existing headers environment variable without requiring jq", func() {
