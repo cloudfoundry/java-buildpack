@@ -284,14 +284,14 @@ dependencies:
   source: https://github.com/cloudfoundry/java-buildpack-client-certificate-mapper/releases/download/v2.1.0/java-buildpack-client-certificate-mapper-2.1.0.jar
   source_sha256: c7bffa857e1305675aba79d88afae96681fd426674ccb275bf1e2bc4561f0c36
 - name: container-security-provider
-  version: 1.21.0
-  uri: https://buildpacks.cloudfoundry.org/dependencies/container-security-provider/container-security-provider_1.21.0_linux_noarch_any-stack_45347758.jar
-  sha256: 45347758aa96498194ddaa770e8207b18125e759eed37b3e14b86927fe66183f
+  version: 1.21.1
+  uri: https://buildpacks.cloudfoundry.org/dependencies/container-security-provider/container-security-provider_1.21.1_linux_noarch_any-stack_b2d3382d.jar
+  sha256: b2d3382d01bbf73e1a151412a53f3fa29b3203b6637803aefab79b7007e70170
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/cloudfoundry/java-buildpack-security-provider/releases/download/v1.21.0/java-buildpack-container-security-provider-1.21.0.jar
-  source_sha256: 45347758aa96498194ddaa770e8207b18125e759eed37b3e14b86927fe66183f
+  source: https://github.com/cloudfoundry/java-buildpack-security-provider/releases/download/v1.21.1/java-buildpack-container-security-provider-1.21.1.jar
+  source_sha256: b2d3382d01bbf73e1a151412a53f3fa29b3203b6637803aefab79b7007e70170
 - name: contrast-security
   version: 6.35.3
   uri: https://buildpacks.cloudfoundry.org/dependencies/contrast-security/contrast-security_6.35.3_linux_noarch_any-stack_d40aa69c.jar
