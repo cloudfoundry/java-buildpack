@@ -495,13 +495,13 @@ dependencies:
   source: https://github.com/bell-sw/Liberica/releases/download/21.0.12+10/bellsoft-jre21.0.12+10-linux-amd64.tar.gz
   source_sha256: ''
 - name: openjdk
-  version: 25.0.4+9
-  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_25.0.4%2B9_linux_x64_cflinuxfs4_9a8a0670.tgz
-  sha256: 9a8a067007c7be6011c05a6d1ec0b74dc545e84f11262d5960dfb16fd2546498
+  version: 25.0.4.1+1
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_25.0.4.1%2B1_linux_x64_cflinuxfs4_c9e2b381.tgz
+  sha256: c9e2b381dcb3a0f378b7b7d18bbebff0d2c57e6450a9ef632c2b4cc4a9678303
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/bell-sw/Liberica/releases/download/25.0.4+9/bellsoft-jre25.0.4+9-linux-amd64.tar.gz
+  source: https://github.com/bell-sw/Liberica/releases/download/25.0.4.1+1/bellsoft-jre25.0.4.1+1-linux-amd64.tar.gz
   source_sha256: ''
 - name: postgresql-jdbc
   version: 42.7.14
