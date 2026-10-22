@@ -134,11 +134,11 @@ if [ -z "${OTEL_EXPORTER_OTLP_HEADERS:-}" ] && [ -n "${VCAP_SERVICES:-}" ]; then
         %s as $identifiers
         | [
             to_entries[]
-            | .key as $label
+            | .key as $service_label
             | .value[]
             | ((.tags // []) | map(ascii_downcase)) as $tags
             | ((.name // "") | ascii_downcase) as $name
-            | ($identifiers | index(($label | ascii_downcase))) as $label_priority
+            | ($identifiers | index(($service_label | ascii_downcase))) as $label_priority
             | if $label_priority != null then
                 {priority: $label_priority, service: .}
               elif (any($tags[]; . as $tag | $identifiers | index($tag) != null)) or
