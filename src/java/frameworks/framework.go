@@ -96,6 +96,7 @@ func (r *Registry) RegisterStandardFrameworks() {
 	r.Register(NewGoogleStackdriverProfilerFramework(r.context))
 	r.Register(NewIntroscopeAgentFramework(r.context))
 	r.Register(NewOpenTelemetryJavaagentFramework(r.context))
+	r.Register(NewElasticOtelJavaAgentFramework(r.context))
 	r.Register(NewRiverbedAppInternalsAgentFramework(r.context))
 	r.Register(NewSkyWalkingAgentFramework(r.context))
 	r.Register(NewSplunkOtelJavaAgentFramework(r.context))

@@ -42,6 +42,12 @@ func (s *SplunkOtelJavaAgentFramework) Detect() (string, error) {
 		return "Splunk OTEL", nil
 	}
 
+	// An explicit Elastic selection takes precedence over generic OTLP configuration.
+	if os.Getenv("ELASTIC_OTEL_AGENT") != "" {
+		s.context.Log.Debug("Splunk OTEL Java agent framework skipped because ELASTIC_OTEL_AGENT is set")
+		return "", nil
+	}
+
 	// Check for OTEL_EXPORTER_OTLP_ENDPOINT
 	if os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") != "" {
 		s.context.Log.Debug("Splunk OTEL Java agent framework detected via OTEL_EXPORTER_OTLP_ENDPOINT")
@@ -245,4 +251,3 @@ func (s *SplunkOtelJavaAgentFramework) constructJarPath(agentDir string) error {
 func (s *SplunkOtelJavaAgentFramework) DependencyIdentifier() string {
 	return "splunk-otel-javaagent"
 }
-

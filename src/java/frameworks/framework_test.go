@@ -289,6 +289,28 @@ var _ = Describe("Framework Registry", func() {
 			Expect(detected).To(HaveLen(2))
 			Expect(names).To(ContainElements("New Relic Agent", "AppDynamics Agent"))
 		})
+
+		It("detects only Elastic OTel for an Elastic OTel service binding", func() {
+			registry.Register(frameworks.NewOpenTelemetryJavaagentFramework(ctx))
+			registry.Register(frameworks.NewElasticOtelJavaAgentFramework(ctx))
+
+			os.Setenv("VCAP_SERVICES", `{
+				"user-provided": [{
+					"name": "my-elastic-otel-service",
+					"label": "user-provided",
+					"tags": [],
+					"credentials": {
+						"otel.exporter.otlp.endpoint": "https://my-deployment.ingest.us-west1.gcp.cloud.es.io",
+						"api_key": "my-api-key"
+					}
+				}]
+			}`)
+
+			detected, names, err := registry.DetectAll()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(detected).To(HaveLen(1))
+			Expect(names).To(ConsistOf("elastic-otel-javaagent"))
+		})
 	})
 })
 

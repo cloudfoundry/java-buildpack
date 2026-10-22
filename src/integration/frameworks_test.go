@@ -275,6 +275,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					Expect(err).NotTo(HaveOccurred(), logs.String)
 
 					Expect(logs.String()).To(ContainSubstring("Splunk OTEL"))
+					Expect(logs.String()).NotTo(ContainSubstring("OpenTelemetry Javaagent"))
 					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
 				})
 
@@ -294,6 +295,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 					Expect(err).NotTo(HaveOccurred(), logs.String)
 
 					Expect(logs.String()).To(ContainSubstring("Splunk OTEL"))
+					Expect(logs.String()).NotTo(ContainSubstring("OpenTelemetry Javaagent"))
 					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
 				})
 			})
@@ -393,6 +395,45 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 				})
 			})
 
+			context("with Elastic OTel service binding", func() {
+				it("detects and installs Elastic OTel Java agent", func() {
+					deployment, logs, err := platform.Deploy.
+						WithServices(map[string]switchblade.Service{
+							"elastic-otel": {
+								"otel.exporter.otlp.endpoint": "https://elastic-otel.example.com:443",
+								"api_key":                     "test-api-key",
+							},
+						}).
+						WithEnv(map[string]string{
+							"BP_JAVA_VERSION": "17",
+						}).
+						Execute(name, filepath.Join(fixtures, "apps", "integration_valid"))
+					Expect(err).NotTo(HaveOccurred(), logs.String)
+
+					Expect(logs.String()).To(ContainSubstring("Elastic OTel"))
+					Eventually(deployment).Should(matchers.Serve(ContainSubstring("Hello from Java Main!")))
+				})
+
+				it("configures Elastic OTel with explicit OTLP headers", func() {
+					deployment, logs, err := platform.Deploy.
+						WithServices(map[string]switchblade.Service{
+							"my-elastic-otel": {
+								"otel.exporter.otlp.endpoint": "https://elastic-otel.production.example.com:443",
+								"otel.exporter.otlp.headers":  "Authorization=ApiKey explicit-key",
+								"otel.service.name":           "my-java-app",
+							},
+						}).
+						WithEnv(map[string]string{
+							"BP_JAVA_VERSION": "17",
+						}).
+						Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
+					Expect(err).NotTo(HaveOccurred(), logs.String)
+
+					Expect(logs.String()).To(ContainSubstring("Elastic OTel"))
+					Eventually(deployment).Should(matchers.Serve(ContainSubstring("Hello from Spring Boot")))
+				})
+			})
+
 			context("with OpenTelemetry service binding", func() {
 				it("detects and installs OpenTelemetry Javaagent", func() {
 					deployment, logs, err := platform.Deploy.
@@ -415,7 +456,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 				it("configures OpenTelemetry with OTLP endpoint from service binding", func() {
 					deployment, logs, err := platform.Deploy.
 						WithServices(map[string]switchblade.Service{
-							"my-otel-service": {
+							"my-otel-collector": {
 								"otel.exporter.otlp.endpoint": "https://otel.example.com:4318",
 								"otel.traces.exporter":        "otlp",
 								"otel.metrics.exporter":       "otlp",
