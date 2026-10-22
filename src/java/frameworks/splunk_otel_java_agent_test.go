@@ -48,6 +48,7 @@ var _ = Describe("SplunkOtelJavaAgent", func() {
 		os.RemoveAll(tmpDir)
 		os.Unsetenv("VCAP_SERVICES")
 		os.Unsetenv("SPLUNK_OTEL_AGENT")
+		os.Unsetenv("ELASTIC_OTEL_AGENT")
 		os.Unsetenv("OTEL_EXPORTER_OTLP_ENDPOINT")
 		os.Unsetenv("SPLUNK_ACCESS_TOKEN")
 		os.Unsetenv("SPLUNK_REALM")
@@ -77,6 +78,15 @@ var _ = Describe("SplunkOtelJavaAgent", func() {
 				name, err := framework.Detect()
 				Expect(err).NotTo(HaveOccurred())
 				Expect(name).To(Equal("Splunk OTEL"))
+			})
+
+			It("does not detect when the Elastic OTel agent is explicitly selected", func() {
+				os.Setenv("ELASTIC_OTEL_AGENT", "true")
+				os.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://collector:4318")
+
+				name, err := framework.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(BeEmpty())
 			})
 		})
 

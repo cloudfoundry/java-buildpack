@@ -26,6 +26,12 @@ func (o *OpenTelemetryJavaagentFramework) Detect() (string, error) {
 		return "", nil
 	}
 
+	if service := findElasticOtelService(vcapServices); service != nil &&
+		hasRequiredElasticOtelConfiguration(service) {
+		o.context.Log.Debug("OpenTelemetry Javaagent skipped because an Elastic OTel service is bound")
+		return "", nil
+	}
+
 	// OpenTelemetry can be bound as:
 	// - "otel-collector" service (required by Ruby implementation)
 	// - Services with "otel" or "opentelemetry" tag
@@ -145,4 +151,3 @@ func (o *OpenTelemetryJavaagentFramework) constructJarPath(agentDir string) erro
 func (o *OpenTelemetryJavaagentFramework) DependencyIdentifier() string {
 	return "open-telemetry-javaagent"
 }
-
