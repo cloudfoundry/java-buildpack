@@ -15,7 +15,7 @@ Currently listed:
 ## Configuration
 For general information on configuring the buildpack, including how to specify configuration values through environment variables, refer to [Configuration and Extension][].
 
-The step can be configured by setting the `JBP_CONFIG_JRE_BLOCKED_CERTS` environment variable. The value must be valid inline YAML.
+The step can be configured by setting the `JBP_CONFIG_JRE_BLOCKED_CERTS` environment variable. The value must be valid inline YAML. If the value cannot be parsed, staging logs a warning and the step stays enabled.
 
 | Name | Description
 | ---- | -----------

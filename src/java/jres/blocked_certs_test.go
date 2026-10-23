@@ -188,6 +188,42 @@ var _ = Describe("Blocked certificates", func() {
 			Expect(readFile(path)).To(Equal(original))
 		})
 
+		It("stays enabled and warns when the configuration cannot be parsed", func() {
+			os.Setenv("JBP_CONFIG_JRE_BLOCKED_CERTS", "{not valid yaml")
+			path := writeFile("lib/security/blocked.certs", "Algorithm=SHA-256\n")
+
+			Expect(jres.ApplyBlockedCerts(ctx, javaHome)).To(Succeed())
+
+			Expect(readFile(path)).To(ContainSubstring(embeddedFingerprints()[0]))
+			Expect(logBuffer.String()).To(ContainSubstring("JBP_CONFIG_JRE_BLOCKED_CERTS"))
+		})
+
+		It("updates a read-only file and restores its mode", func() {
+			path := writeFile("lib/security/blocked.certs", "Algorithm=SHA-256\n"+vendorFingerprint+"\n")
+			Expect(os.Chmod(path, 0444)).To(Succeed())
+
+			Expect(jres.ApplyBlockedCerts(ctx, javaHome)).To(Succeed())
+
+			Expect(readFile(path)).To(ContainSubstring(embeddedFingerprints()[0]))
+			info, err := os.Stat(path)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(info.Mode().Perm()).To(Equal(os.FileMode(0444)))
+		})
+
+		DescribeTable("accepts the algorithm header as java.util.Properties reads it",
+			func(header string) {
+				path := writeFile("lib/security/blocked.certs", header+"\n"+vendorFingerprint+"\n")
+
+				Expect(jres.ApplyBlockedCerts(ctx, javaHome)).To(Succeed())
+
+				Expect(readFile(path)).To(HavePrefix(header + "\n" + vendorFingerprint + "\n"))
+				Expect(readFile(path)).To(ContainSubstring(embeddedFingerprints()[0]))
+			},
+			Entry("lowercase value", "Algorithm=sha-256"),
+			Entry("spaces around separator", "Algorithm = SHA-256"),
+			Entry("colon separator", "Algorithm:SHA-256"),
+		)
+
 		It("stays enabled when the configuration sets enabled: true", func() {
 			os.Setenv("JBP_CONFIG_JRE_BLOCKED_CERTS", "{enabled: true}")
 			path := writeFile("lib/security/blocked.certs", "Algorithm=SHA-256\n")

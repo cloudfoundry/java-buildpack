@@ -36,7 +36,8 @@ func ApplyBlockedCerts(ctx *common.Context, javaHome string) error {
 			ctx.Log.Warning("Unknown user config values: %s", err.Error())
 		}
 		if err := yamlHandler.Unmarshal([]byte(raw), &config); err != nil {
-			return fmt.Errorf("failed to parse JBP_CONFIG_JRE_BLOCKED_CERTS: %w", err)
+			ctx.Log.Warning("Failed to parse JBP_CONFIG_JRE_BLOCKED_CERTS, keeping blocked certificates enabled: %s", err.Error())
+			config = blockedCertsConfig{Enabled: true}
 		}
 	}
 	if !config.Enabled {
@@ -61,7 +62,7 @@ func ApplyBlockedCerts(ctx *common.Context, javaHome string) error {
 		return fmt.Errorf("failed to read %s: %w", path, err)
 	}
 	algorithm, present := parseBlockedCerts(string(data))
-	if algorithm != blockedCertsAlgorithm {
+	if !strings.EqualFold(algorithm, blockedCertsAlgorithm) {
 		ctx.Log.Warning("Not updating %s: algorithm %q, expected %s", filepath.Base(path), algorithm, blockedCertsAlgorithm)
 		return nil
 	}
@@ -93,6 +94,16 @@ func ApplyBlockedCerts(ctx *common.Context, javaHome string) error {
 	if len(data) > 0 && data[len(data)-1] != '\n' {
 		addition = "\n" + addition
 	}
+	info, err := os.Stat(path)
+	if err != nil {
+		return fmt.Errorf("failed to stat %s: %w", path, err)
+	}
+	if mode := info.Mode().Perm(); mode&0200 == 0 {
+		if err := os.Chmod(path, mode|0200); err != nil {
+			return fmt.Errorf("failed to make %s writable: %w", path, err)
+		}
+		defer os.Chmod(path, mode)
+	}
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_APPEND, 0)
 	if err != nil {
 		return fmt.Errorf("failed to open %s: %w", path, err)
@@ -116,12 +127,28 @@ func parseBlockedCerts(content string) (string, []string) {
 	for _, line := range strings.Split(content, "\n") {
 		line = strings.TrimSpace(line)
 		switch {
-		case line == "" || strings.HasPrefix(line, "#"):
-		case strings.HasPrefix(line, "Algorithm="):
-			algorithm = strings.TrimSpace(strings.TrimPrefix(line, "Algorithm="))
+		case line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, "!"):
+		case isProperty(line, "Algorithm"):
+			algorithm = propertyValue(line, "Algorithm")
 		default:
 			fingerprints = append(fingerprints, strings.ToUpper(line))
 		}
 	}
 	return algorithm, fingerprints
+}
+
+// isProperty reports whether a trimmed java.util.Properties line has the given key,
+// which ends at the first '=', ':' or whitespace.
+func isProperty(line, key string) bool {
+	rest, found := strings.CutPrefix(line, key)
+	return found && rest != "" && strings.ContainsRune("=: \t\f", rune(rest[0]))
+}
+
+// propertyValue returns the value of a trimmed java.util.Properties line with the given key.
+func propertyValue(line, key string) string {
+	rest := strings.TrimLeft(strings.TrimPrefix(line, key), " \t\f")
+	if rest != "" && (rest[0] == '=' || rest[0] == ':') {
+		rest = rest[1:]
+	}
+	return strings.TrimSpace(rest)
 }
