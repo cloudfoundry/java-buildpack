@@ -529,14 +529,14 @@ dependencies:
   source: https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.14/postgresql-42.7.14.jar
   source_sha256: ''
 - name: sapmachine
-  version: 17.0.21
-  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_17.0.21_linux_x64_cflinuxfs4_ce9106ad.tgz
-  sha256: ce9106ad2e7f7834c2ac2de8f132d8048944be96206bbf1295ae260378f2fcd9
+  version: 17.0.21.0.2
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_17.0.21.0.2_linux_x64_cflinuxfs4_c14bcc70.tgz
+  sha256: c14bcc708d12040ef256251a2cf994e7acbb06fa7eb805edbd7e6f73b16bbd4d
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.21/sapmachine-jre-17.0.21_linux-x64_bin.tar.gz
-  source_sha256: ce9106ad2e7f7834c2ac2de8f132d8048944be96206bbf1295ae260378f2fcd9
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.21.0.2/sapmachine-jre-17.0.21.0.2_linux-x64_bin.tar.gz
+  source_sha256: c14bcc708d12040ef256251a2cf994e7acbb06fa7eb805edbd7e6f73b16bbd4d
 - name: sapmachine
   version: 21.0.13
   uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_21.0.13_linux_x64_cflinuxfs4_85f24bac.tgz
