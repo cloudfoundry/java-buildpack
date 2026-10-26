@@ -1,0 +1,15 @@
+# Root certificates removed from the JRE's lib/security/cacerts at staging, for JREs that do not
+# remove them yet. Matched by SHA-256 fingerprint of the DER encoding, not by alias.
+# Opt out with JBP_CONFIG_JRE_REMOVED_ROOTS='{enabled: false}'.
+Algorithm=SHA-256
+
+# eMudhra and Comodo (Sectigo) AAA roots, removed in Oracle JDK 25.0.5.0.3 (JDK-8395690).
+# Source: https://www.oracle.com/java/technologies/javase/25-0-5-0-3-relnotes.html
+# CN=AAA Certificate Services, O=Comodo CA Limited
+D7A7A0FB5D7E2731D771E9484EBCDEF71D5F0C3E0A2948782BC83EE0EA699EF4
+# CN=emSign ECC Root CA - G3, O=eMudhra Technologies Limited
+86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B
+# CN=emSign Root CA - G1, O=eMudhra Technologies Limited
+40F6AF0346A99AA1CD1D555A4E9CCE62C7F9634603EE406615833DC8C8D00367
+# CN=emSign Root CA - G2, O=eMudhra Technologies Limited
+1AA0C2709E831BD6E3B5129A00BA41F7EEEF020872F1E6504BF0F6C3F24F3AF3
