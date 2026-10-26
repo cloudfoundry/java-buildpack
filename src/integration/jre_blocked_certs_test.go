@@ -38,6 +38,7 @@ func testJREBlockedCerts(platform switchblade.Platform, fixtures string) func(*t
 			Expect(err).NotTo(HaveOccurred(), logs.String)
 
 			Expect(logs.String()).To(MatchRegexp(`(Added \d+ certificate\(s\) to blocked\.certs|blocked\.certs already contains all blocked certificates)`))
+			Expect(logs.String()).To(MatchRegexp(`(Removed \d+ root certificate\(s\) from cacerts|cacerts already free of the removed root certificates)`))
 			Eventually(deployment).Should(matchers.Serve(Not(BeEmpty())))
 		})
 
@@ -50,6 +51,7 @@ func testJREBlockedCerts(platform switchblade.Platform, fixtures string) func(*t
 			Expect(err).NotTo(HaveOccurred(), logs.String)
 
 			Expect(logs.String()).To(MatchRegexp(`(Added \d+ certificate\(s\) to blacklisted\.certs|blacklisted\.certs already contains all blocked certificates)`))
+			Expect(logs.String()).To(MatchRegexp(`(Removed \d+ root certificate\(s\) from cacerts|cacerts already free of the removed root certificates)`))
 			Eventually(deployment).Should(matchers.Serve(Not(BeEmpty())))
 		})
 
@@ -58,11 +60,12 @@ func testJREBlockedCerts(platform switchblade.Platform, fixtures string) func(*t
 				WithEnv(map[string]string{
 					"BP_JAVA_VERSION":              "21",
 					"JBP_CONFIG_JRE_BLOCKED_CERTS": "{enabled: false}",
+					"JBP_CONFIG_JRE_REMOVED_ROOTS": "{enabled: false}",
 				}).
 				Execute(name, filepath.Join(fixtures, "containers", "dist_zip"))
 			Expect(err).NotTo(HaveOccurred(), logs.String)
 
-			Expect(logs.String()).NotTo(MatchRegexp(`certificate\(s\) to|already contains all blocked certificates`))
+			Expect(logs.String()).NotTo(MatchRegexp(`certificate\(s\) to|already contains all blocked certificates|root certificate\(s\) from cacerts|already free of the removed`))
 			Eventually(deployment).Should(matchers.Serve(Not(BeEmpty())))
 		})
 	}
