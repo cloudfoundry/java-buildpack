@@ -475,49 +475,49 @@ dependencies:
   source: https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.32.0/opentelemetry-javaagent.jar
   source_sha256: f787eb6c7f3d18e69a431e108a15278d25ee37f83d68b678f621e063f3988f82
 - name: openjdk
-  version: 8.0.512+11
-  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_8.0.512%2B11_linux_x64_cflinuxfs4_238239e7.tgz
-  sha256: 238239e724dbbd56d8343e1f4b50d915913f9535172e88136cac184b2723aa06
+  version: 8.0.513+7
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_8.0.513%2B7_linux_x64_cflinuxfs4_1c319be8.tgz
+  sha256: 1c319be8217bb96b35f50ae4a152549a9c7822082410f34a8bc79b49af4725f3
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/bell-sw/Liberica/releases/download/8u512+11/bellsoft-jre8u512+11-linux-amd64.tar.gz
+  source: https://github.com/bell-sw/Liberica/releases/download/8u513+7/bellsoft-jre8u513+7-linux-amd64.tar.gz
   source_sha256: ''
 - name: openjdk
-  version: 11.0.33+11
-  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_11.0.33%2B11_linux_x64_cflinuxfs4_ba4dfcb5.tgz
-  sha256: ba4dfcb55dd7eac9e7ae34bd8cd895e0f8447cf70de588cd0bbf3d7f21cae59f
+  version: 11.0.33.0.3+5
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_11.0.33.0.3%2B5_linux_x64_cflinuxfs4_ea39ce41.tgz
+  sha256: ea39ce4168f1d93bfe2f5a76e45e80a23eef78d998dac5ad15303a9ced99186f
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/bell-sw/Liberica/releases/download/11.0.33+11/bellsoft-jre11.0.33+11-linux-amd64.tar.gz
+  source: https://github.com/bell-sw/Liberica/releases/download/11.0.33.0.3+5/bellsoft-jre11.0.33.0.3+5-linux-amd64.tar.gz
   source_sha256: ''
 - name: openjdk
-  version: 17.0.21+11
-  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_17.0.21%2B11_linux_x64_cflinuxfs4_463033f3.tgz
-  sha256: 463033f322c771e90870cf068a3f737da74feec64bd6d600396a2ad60df6e825
+  version: 17.0.21.0.3+5
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_17.0.21.0.3%2B5_linux_x64_cflinuxfs4_bdf95068.tgz
+  sha256: bdf950687794fc47602fcb5568a5e2191e6892698e165c2bbf28fdc981a4d72d
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/bell-sw/Liberica/releases/download/17.0.21+11/bellsoft-jre17.0.21+11-linux-amd64.tar.gz
+  source: https://github.com/bell-sw/Liberica/releases/download/17.0.21.0.3+5/bellsoft-jre17.0.21.0.3+5-linux-amd64.tar.gz
   source_sha256: ''
 - name: openjdk
-  version: 21.0.13+11
-  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_21.0.13%2B11_linux_x64_cflinuxfs4_9af63aa4.tgz
-  sha256: 9af63aa4c780f24650714c44ea7456b0718c6771560cfa8b189970b6e6066c63
+  version: 21.0.13.0.3+5
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_21.0.13.0.3%2B5_linux_x64_cflinuxfs4_05772294.tgz
+  sha256: '0577229439419dd3decdffdb67ca2749cff0bf237282e655584bb32f91713ec0'
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/bell-sw/Liberica/releases/download/21.0.13+11/bellsoft-jre21.0.13+11-linux-amd64.tar.gz
+  source: https://github.com/bell-sw/Liberica/releases/download/21.0.13.0.3+5/bellsoft-jre21.0.13.0.3+5-linux-amd64.tar.gz
   source_sha256: ''
 - name: openjdk
-  version: 25.0.5+11
-  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_25.0.5%2B11_linux_x64_cflinuxfs4_1c56102a.tgz
-  sha256: 1c56102a46841fff4a23e49cc02b7e9e7b6a62277452f1c716309b0b57cba5ca
+  version: 25.0.5.0.3+5
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_25.0.5.0.3%2B5_linux_x64_cflinuxfs4_78846aee.tgz
+  sha256: 78846aeed480e29ba3c987e61d3c7b437163f005b20e41bb2cdf7cf8ccbe76f3
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/bell-sw/Liberica/releases/download/25.0.5+11/bellsoft-jre25.0.5+11-linux-amd64.tar.gz
+  source: https://github.com/bell-sw/Liberica/releases/download/25.0.5.0.3+5/bellsoft-jre25.0.5.0.3+5-linux-amd64.tar.gz
   source_sha256: ''
 - name: postgresql-jdbc
   version: 42.7.14
@@ -529,32 +529,32 @@ dependencies:
   source: https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.14/postgresql-42.7.14.jar
   source_sha256: ''
 - name: sapmachine
-  version: 17.0.21.0.2
-  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_17.0.21.0.2_linux_x64_cflinuxfs4_c14bcc70.tgz
-  sha256: c14bcc708d12040ef256251a2cf994e7acbb06fa7eb805edbd7e6f73b16bbd4d
+  version: 17.0.21.0.3
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_17.0.21.0.3_linux_x64_cflinuxfs4_0c26a539.tgz
+  sha256: 0c26a539edf8ce7789452d68250890b4a02989c10ce28ece7e823155da2756f9
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.21.0.2/sapmachine-jre-17.0.21.0.2_linux-x64_bin.tar.gz
-  source_sha256: c14bcc708d12040ef256251a2cf994e7acbb06fa7eb805edbd7e6f73b16bbd4d
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-17.0.21.0.3/sapmachine-jre-17.0.21.0.3_linux-x64_bin.tar.gz
+  source_sha256: 0c26a539edf8ce7789452d68250890b4a02989c10ce28ece7e823155da2756f9
 - name: sapmachine
-  version: 21.0.13.0.2
-  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_21.0.13.0.2_linux_x64_cflinuxfs4_1c04d0af.tgz
-  sha256: 1c04d0af0a724e4124f451dbdd2e02e3ed1659afcad5dd845e4c16b23ea3901a
+  version: 21.0.13.0.3
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_21.0.13.0.3_linux_x64_cflinuxfs4_7e7df3b2.tgz
+  sha256: 7e7df3b282697e2101d72f2070db9d0f821ad17dc3ed31550fdf7aa129e8901c
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-21.0.13.0.2/sapmachine-jre-21.0.13.0.2_linux-x64_bin.tar.gz
-  source_sha256: 1c04d0af0a724e4124f451dbdd2e02e3ed1659afcad5dd845e4c16b23ea3901a
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-21.0.13.0.3/sapmachine-jre-21.0.13.0.3_linux-x64_bin.tar.gz
+  source_sha256: 7e7df3b282697e2101d72f2070db9d0f821ad17dc3ed31550fdf7aa129e8901c
 - name: sapmachine
-  version: 25.0.5.0.2
-  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_25.0.5.0.2_linux_x64_cflinuxfs4_7d478cc0.tgz
-  sha256: 7d478cc0f670796bcbfe14d11db483576f804ae49a90ebc6b456a08a4e98093b
+  version: 25.0.5.0.3
+  uri: https://buildpacks.cloudfoundry.org/dependencies/sapmachine/sapmachine_25.0.5.0.3_linux_x64_cflinuxfs4_3b3f6b23.tgz
+  sha256: 3b3f6b2307251ab2bab8738e42167fb6303f6ea1c7a152d4cde02130aef83709
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.5.0.2/sapmachine-jre-25.0.5.0.2_linux-x64_bin.tar.gz
-  source_sha256: 7d478cc0f670796bcbfe14d11db483576f804ae49a90ebc6b456a08a4e98093b
+  source: https://github.com/SAP/SapMachine/releases/download/sapmachine-25.0.5.0.3/sapmachine-jre-25.0.5.0.3_linux-x64_bin.tar.gz
+  source_sha256: 3b3f6b2307251ab2bab8738e42167fb6303f6ea1c7a152d4cde02130aef83709
 - name: sealights-agent
   version: 4.0.2836
   uri: https://buildpacks.cloudfoundry.org/dependencies/sealights-agent/sealights-agent_4.0.2836_linux_noarch_any-stack_6383cf9b.zip
@@ -646,29 +646,29 @@ dependencies:
   source: https://download.yourkit.com/yjp/2026.3.176/YourKit-Java-Profiler-2026.3.176-x64.zip
   source_sha256: ''
 - name: zulu
-  version: 8.0.504
-  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_8.0.504_linux_x64_cflinuxfs4_f443c5f5.tgz
-  sha256: f443c5f525d1fd6a1e51739f7ae589e8a8e142e8cdc5674375261f8889449db4
+  version: 8.0.512
+  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_8.0.512_linux_x64_cflinuxfs4_5dfbd0a9.tgz
+  sha256: 5dfbd0a969da91b71b5d10d13d456c57d3d3a6b9986f2ad016d04e8ee823d13e
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://cdn.azul.com/zulu/bin/zulu8.96.0.205-ca-jre8.0.504-linux_x64.tar.gz
+  source: https://cdn.azul.com/zulu/bin/zulu8.98.0.107-ca-jre8.0.512-linux_x64.tar.gz
   source_sha256: ''
 - name: zulu
-  version: 11.0.32.1
-  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_11.0.32.1_linux_x64_cflinuxfs4_5011c320.tgz
-  sha256: 5011c320ad9b127785657cc80e5783ceae91a2262eedc3a9d3f717d7375443a2
+  version: 11.0.33
+  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_11.0.33_linux_x64_cflinuxfs4_d488c77b.tgz
+  sha256: d488c77b6ba04a18b9d97b2bc6a72a33e3a97f14c22125252eda0435ece95a7d
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://cdn.azul.com/zulu/bin/zulu11.90.205-ca-jre11.0.32.1-linux_x64.tar.gz
+  source: https://cdn.azul.com/zulu/bin/zulu11.92.109-ca-jre11.0.33-linux_x64.tar.gz
   source_sha256: ''
 - name: zulu
-  version: 17.0.20.1
-  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_17.0.20.1_linux_x64_cflinuxfs4_ab4f4e4b.tgz
-  sha256: ab4f4e4bee5db1a266ba08134cd93275ca394c025afde58e6cd34f6aee8d6eb9
+  version: 17.0.21
+  uri: https://buildpacks.cloudfoundry.org/dependencies/zulu/zulu_17.0.21_linux_x64_cflinuxfs4_95f5ca5a.tgz
+  sha256: 95f5ca5ad770f631f94738f328e6da8f085452443aae54f95b8a45be9f6c2d9d
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://cdn.azul.com/zulu/bin/zulu17.68.203-ca-jre17.0.20.1-linux_x64.tar.gz
+  source: https://cdn.azul.com/zulu/bin/zulu17.70.111-ca-jre17.0.21-linux_x64.tar.gz
   source_sha256: ''
