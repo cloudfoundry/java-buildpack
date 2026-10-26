@@ -26,6 +26,11 @@ OPTIONS
   --stack <stack>                    Stack to use for tests (default: cflinuxfs4)
   --keep-failed-containers           Preserve failed test containers for debugging (default: false)
 
+ENVIRONMENT
+  INTEGRATION_RETRIES                Times to rerun each failed test on its own after a full run
+                                     fails, so a transient failure does not cost a full run.
+                                     0 disables it (default: 2)
+
 EXAMPLES
   # Serial mode
   ./scripts/integration.sh --platform docker
@@ -139,21 +144,125 @@ function specs::run() {
   local buildpack_file
   buildpack_file="$(buildpack::package "1.2.3" "${cached}" "${stack}")"
 
-  CF_STACK="${stack}" \
-  BUILDPACK_FILE="${BUILDPACK_FILE:-"${buildpack_file}"}" \
-  GOMAXPROCS="${GOMAXPROCS:-"${nodes}"}" \
-    go test \
-      -count=1 \
-      -timeout=0 \
-      -mod vendor \
-      -v \
-        "${ROOTDIR}/src/integration" \
-         ${cached_flag} \
-         ${platform_flag} \
-         ${token_flag} \
-         ${stack_flag} \
-         ${serial_flag} \
-         ${keep_failed_flag}
+  local log
+  log="$(mktemp)"
+
+  local -a go_test_args
+  go_test_args=(
+    "${ROOTDIR}/src/integration"
+    ${cached_flag}
+    ${platform_flag}
+    ${token_flag}
+    ${stack_flag}
+    ${serial_flag}
+    ${keep_failed_flag}
+  )
+
+  export CF_STACK="${stack}"
+  export BUILDPACK_FILE="${BUILDPACK_FILE:-"${buildpack_file}"}"
+  export GOMAXPROCS="${GOMAXPROCS:-"${nodes}"}"
+
+  local status=0
+  if go test -count=1 -timeout=0 -mod vendor -v "${go_test_args[@]}" 2>&1 | tee "${log}"; then
+    rm -f "${log}"
+    return 0
+  fi
+
+  specs::retry_failed "${log}" "${go_test_args[@]}" || status=$?
+  rm -f "${log}"
+  return "${status}"
+}
+
+# Reruns only the tests that failed, so a transient failure (for example a Cloud Controller 500)
+# does not cost a full run. Set INTEGRATION_RETRIES=0 to disable.
+function specs::retry_failed() {
+  local log="${1}"
+  shift
+
+  local retries="${INTEGRATION_RETRIES:-2}"
+
+  # A crash, build failure or panic can leave tests unrun, so only trust the failed test list
+  # when the run completed normally and printed its summary.
+  if [[ "${retries}" -lt 1 ]] ||
+    grep -qE '^(panic:|FAIL\s.*\[(build|setup) failed\])' "${log}" ||
+    ! grep -qE '^--- FAIL: TestIntegration ' "${log}"; then
+    return 1
+  fi
+
+  local failed
+  failed="$(specs::failed_tests "${log}")"
+  if [[ -z "${failed}" ]]; then
+    return 1
+  fi
+
+  echo ""
+  echo "=== Rerunning failed tests only (up to ${retries} retries each) ==="
+
+  local test attempt recovered still_failing retry_log
+  recovered=()
+  still_failing=()
+  retry_log="$(mktemp)"
+  while IFS= read -r test; do
+    local passed="false"
+    for ((attempt = 1; attempt <= retries; attempt++)); do
+      echo "--- Retry ${attempt}/${retries}: ${test}"
+      # A pattern that matches nothing also exits 0, so require the test to be reported as passed.
+      if go test -count=1 -timeout=0 -mod vendor -v -run "$(specs::run_pattern "${test}")" "$@" 2>&1 | tee "${retry_log}" &&
+        grep -qE "^\s*--- PASS: ${test//[^[:alnum:]_\/-]/.} " "${retry_log}"; then
+        passed="true"
+        break
+      fi
+    done
+    if [[ "${passed}" == "true" ]]; then
+      recovered+=("${test}")
+    else
+      still_failing+=("${test}")
+    fi
+  done <<<"${failed}"
+  rm -f "${retry_log}"
+
+  echo ""
+  echo "=== Retry summary ==="
+  for test in "${recovered[@]+"${recovered[@]}"}"; do
+    echo "PASSED ON RETRY: ${test}"
+  done
+  for test in "${still_failing[@]+"${still_failing[@]}"}"; do
+    echo "STILL FAILING:   ${test}"
+  done
+
+  [[ "${#still_failing[@]}" -eq 0 ]]
+}
+
+# Prints the full names of the failed leaf tests: failed tests that have no failed subtests.
+function specs::failed_tests() {
+  local log="${1}"
+
+  grep -E '^\s*--- FAIL: ' "${log}" |
+    sed -E 's/^\s*--- FAIL: ([^ ]+) .*/\1/' |
+    sort -u |
+    awk '
+      { names[NR] = $0 }
+      END {
+        for (i = 1; i <= NR; i++) {
+          leaf = 1
+          for (j = 1; j <= NR; j++) {
+            if (index(names[j], names[i] "/") == 1) { leaf = 0; break }
+          }
+          if (leaf) print names[i]
+        }
+      }'
+}
+
+# Turns a full test name into an anchored -run pattern, one regular expression per name element.
+function specs::run_pattern() {
+  local name="${1}" element pattern=""
+  local -a elements
+  IFS='/' read -ra elements <<<"${name}"
+  for element in "${elements[@]}"; do
+    element="$(printf '%s' "${element}" | sed -E 's/[][\\.*+?(){}|^$]/\\&/g')"
+    pattern+="${pattern:+/}^${element}\$"
+  done
+  printf '%s' "${pattern}"
 }
 
 function buildpack::package() {
