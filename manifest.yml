@@ -484,13 +484,13 @@ dependencies:
   source: https://github.com/bell-sw/Liberica/releases/download/8u513+7/bellsoft-jre8u513+7-linux-amd64.tar.gz
   source_sha256: ''
 - name: openjdk
-  version: 11.0.33.0.3+5
-  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_11.0.33.0.3%2B5_linux_x64_cflinuxfs4_ea39ce41.tgz
-  sha256: ea39ce4168f1d93bfe2f5a76e45e80a23eef78d998dac5ad15303a9ced99186f
+  version: 11.0.33.0.3+7
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_11.0.33.0.3%2B7_linux_x64_cflinuxfs4_bc24e504.tgz
+  sha256: bc24e504f04e14ea7384307f3924568cb88207316a49772f4d6972181c5dc819
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/bell-sw/Liberica/releases/download/11.0.33.0.3+5/bellsoft-jre11.0.33.0.3+5-linux-amd64.tar.gz
+  source: https://github.com/bell-sw/Liberica/releases/download/11.0.33.0.3+7/bellsoft-jre11.0.33.0.3+7-linux-amd64.tar.gz
   source_sha256: ''
 - name: openjdk
   version: 17.0.21.0.3+5
