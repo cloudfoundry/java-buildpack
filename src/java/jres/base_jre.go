@@ -75,6 +75,14 @@ func (b *BaseJRE) Supply() error {
 	b.javaHome = javaHome
 	b.installedVersion = b.version
 
+	if err := ApplyBlockedCerts(b.ctx, javaHome); err != nil {
+		b.ctx.Log.Warning("Could not update blocked certificates: %s", err.Error())
+	}
+
+	if err := RemoveDistrustedRoots(b.ctx, javaHome); err != nil {
+		b.ctx.Log.Warning("Could not remove distrusted root certificates: %s", err.Error())
+	}
+
 	if err := b.writeProfileDScript(); err != nil {
 		b.ctx.Log.Warning("Could not write java.sh profile.d script: %s", err.Error())
 	} else {

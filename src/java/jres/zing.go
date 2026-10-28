@@ -66,6 +66,14 @@ func (z *ZingJRE) Supply() error {
 	z.javaHome = javaHome
 	z.installedVersion = z.version
 
+	if err := ApplyBlockedCerts(z.ctx, javaHome); err != nil {
+		z.ctx.Log.Warning("Could not update blocked certificates: %s", err.Error())
+	}
+
+	if err := RemoveDistrustedRoots(z.ctx, javaHome); err != nil {
+		z.ctx.Log.Warning("Could not remove distrusted root certificates: %s", err.Error())
+	}
+
 	// Write profile.d script for runtime JAVA_HOME setup
 	if err := z.writeProfileDScript(); err != nil {
 		z.ctx.Log.Warning("Could not write java.sh profile.d script: %s", err.Error())
