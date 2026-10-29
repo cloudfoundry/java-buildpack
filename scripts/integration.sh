@@ -29,7 +29,9 @@ OPTIONS
 ENVIRONMENT
   INTEGRATION_RETRIES                Times to rerun each failed test on its own after a full run
                                      fails, so a transient failure does not cost a full run.
-                                     0 disables it (default: 2)
+                                     0 disables it (default: 3)
+  INTEGRATION_RETRY_DELAY            Seconds to wait before the first retry of a test; the wait
+                                     grows by this amount for each further retry (default: 30)
 
 EXAMPLES
   # Serial mode
@@ -179,7 +181,8 @@ function specs::retry_failed() {
   local log="${1}"
   shift
 
-  local retries="${INTEGRATION_RETRIES:-2}"
+  local retries="${INTEGRATION_RETRIES:-3}"
+  local delay="${INTEGRATION_RETRY_DELAY:-30}"
 
   # A crash, build failure or panic can leave tests unrun, so only trust the failed test list
   # when the run completed normally and printed its summary.
@@ -211,7 +214,9 @@ function specs::retry_failed() {
   while IFS= read -r test; do
     local passed="false"
     for ((attempt = 1; attempt <= retries; attempt++)); do
-      echo "--- Retry ${attempt}/${retries}: ${test}"
+      # Back off so a short-lived outage (for example a Cloud Controller restart) can clear.
+      echo "--- Retry ${attempt}/${retries} in $((delay * attempt))s: ${test}"
+      sleep "$((delay * attempt))"
       # A pattern that matches nothing also exits 0, so require the test to be reported as passed.
       if go test -count=1 -timeout=0 -mod vendor -v -run "$(specs::run_pattern "${test}")" "$@" 2>&1 | tee "${retry_log}" &&
         grep -qE "^\s*--- PASS: ${test//[^[:alnum:]_\/-]/.} " "${retry_log}"; then

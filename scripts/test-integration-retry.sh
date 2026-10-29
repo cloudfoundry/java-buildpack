@@ -10,6 +10,7 @@ tmpdir="$(mktemp -d)"
 trap 'rm -rf "${tmpdir}"' EXIT
 
 failures=0
+export INTEGRATION_RETRY_DELAY=0
 
 function check() {
   local name="${1}" expected="${2}" actual="${3}"
@@ -73,7 +74,7 @@ check "flaky test passing on retry succeeds" "0" "$(run_retry "${subtest_log}")"
 
 GO_STUB_PASS=false
 check "test failing on every retry fails" "1" "$(run_retry "${subtest_log}")"
-check "each failing test is retried INTEGRATION_RETRIES times" "2" "$(go_calls)"
+check "each failing test is retried INTEGRATION_RETRIES times" "3" "$(go_calls)"
 
 GO_STUB_NOMATCH=true
 check "retry matching no test is not counted as passed" "1" "$(run_retry "${subtest_log}")"
