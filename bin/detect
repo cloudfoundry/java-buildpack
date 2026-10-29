@@ -1,6 +1,9 @@
 #!/bin/bash
 # Cloud Foundry Java Buildpack - Detect Script
-# Detects runnable Java artifacts; does not claim source-only projects
+# Detects runnable Java artifacts; does not claim source-only projects.
+# Partially aligned with the Ruby buildpack: build tool markers (pom.xml,
+# build.gradle) are removed, but some checks (bare *.jar, MANIFEST.MF,
+# *.class files, Procfile with java) are broader than the Ruby implementation.
 
 set -e
 
