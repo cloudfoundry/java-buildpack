@@ -297,4 +297,6 @@ function buildpack::package() {
   printf "%s" "${output}"
 }
 
-main "${@:-}"
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main "${@:-}"
+fi
