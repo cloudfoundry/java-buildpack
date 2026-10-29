@@ -80,6 +80,30 @@ func testContainerDetectionErrors(platform switchblade.Platform, fixtures string
 				Expect(logs.String()).To(ContainSubstring("detected a compatible application"))
 				Expect(logs.String()).NotTo(ContainSubstring("No suitable container found"))
 			})
+
+			it("fails for Maven source directory (pom.xml but no compiled artifact)", func() {
+				_, logs, err := platform.Deploy.
+					Execute(name, filepath.Join(fixtures, "containers", "no_container_maven_source"))
+				Expect(err).To(HaveOccurred())
+				Expect(logs.String()).To(ContainSubstring("detected a compatible application"))
+				Expect(logs.String()).NotTo(ContainSubstring("No suitable container found"))
+			})
+
+			it("fails for Gradle source directory (build.gradle but no compiled artifact)", func() {
+				_, logs, err := platform.Deploy.
+					Execute(name, filepath.Join(fixtures, "containers", "no_container_gradle_source"))
+				Expect(err).To(HaveOccurred())
+				Expect(logs.String()).To(ContainSubstring("detected a compatible application"))
+				Expect(logs.String()).NotTo(ContainSubstring("No suitable container found"))
+			})
+
+			it("fails for Gradle Kotlin source directory (build.gradle.kts but no compiled artifact)", func() {
+				_, logs, err := platform.Deploy.
+					Execute(name, filepath.Join(fixtures, "containers", "no_container_gradle_kotlin_source"))
+				Expect(err).To(HaveOccurred())
+				Expect(logs.String()).To(ContainSubstring("detected a compatible application"))
+				Expect(logs.String()).NotTo(ContainSubstring("No suitable container found"))
+			})
 		})
 
 		context("when detect passes but no container matches", func() {
@@ -100,30 +124,6 @@ func testContainerDetectionErrors(platform switchblade.Platform, fixtures string
 			it("fails for thin jar without Main-Class (repackage didn't run)", func() {
 				_, logs, err := platform.Deploy.
 					Execute(name, filepath.Join(fixtures, "containers", "no_container_thin_jar_extracted"))
-				Expect(err).To(HaveOccurred())
-				Expect(logs.String()).To(ContainSubstring("No suitable container found"))
-			})
-
-			// bin/detect correctly rejects these (build tool files are not runnable artifacts), but
-			// the docker/supply-script platform bypasses bin/detect entirely, so the fixtures reach
-			// the supply phase and fail here instead.
-			it("fails for Maven source directory (pom.xml but no compiled artifact)", func() {
-				_, logs, err := platform.Deploy.
-					Execute(name, filepath.Join(fixtures, "containers", "no_container_maven_source"))
-				Expect(err).To(HaveOccurred())
-				Expect(logs.String()).To(ContainSubstring("No suitable container found"))
-			})
-
-			it("fails for Gradle source directory (build.gradle but no compiled artifact)", func() {
-				_, logs, err := platform.Deploy.
-					Execute(name, filepath.Join(fixtures, "containers", "no_container_gradle_source"))
-				Expect(err).To(HaveOccurred())
-				Expect(logs.String()).To(ContainSubstring("No suitable container found"))
-			})
-
-			it("fails for Gradle Kotlin source directory (build.gradle.kts but no compiled artifact)", func() {
-				_, logs, err := platform.Deploy.
-					Execute(name, filepath.Join(fixtures, "containers", "no_container_gradle_kotlin_source"))
 				Expect(err).To(HaveOccurred())
 				Expect(logs.String()).To(ContainSubstring("No suitable container found"))
 			})
