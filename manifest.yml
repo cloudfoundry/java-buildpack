@@ -338,7 +338,7 @@ dependencies:
 - name: google-stackdriver-profiler
   version: 0.4.0
   uri: https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz
-  sha256: 509b87c406b59424cb101d561567cadad97d3fd1c235224bca2a114d4a7bde0c
+  sha256: bd44383322b51b4ddd45233306d318a4f89afa69d5461c412f06ccbb6e11f835
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
