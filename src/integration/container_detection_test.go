@@ -78,41 +78,19 @@ func testContainerDetectionErrors(platform switchblade.Platform, fixtures string
 				Expect(err).To(HaveOccurred())
 				Expect(logs.String()).To(ContainSubstring("detected a compatible application"))
 			})
+
+			it("fails for Maven source directory (pom.xml but no compiled artifact)", func() {
+				_, logs, err := platform.Deploy.
+					Execute(name, filepath.Join(fixtures, "containers", "no_container_maven_source"))
+				Expect(err).To(HaveOccurred())
+				Expect(logs.String()).To(ContainSubstring("detected a compatible application"))
+			})
 		})
 
 		context("when detect passes but no container matches", func() {
 			it("fails for thin jar without Main-Class", func() {
 				_, logs, err := platform.Deploy.
 					Execute(name, filepath.Join(fixtures, "containers", "no_container_thin_jar"))
-				Expect(err).To(HaveOccurred())
-				Expect(logs.String()).To(ContainSubstring("No suitable container found"))
-			})
-		})
-
-		context("when app looks like Spring Boot but detection fails", func() {
-			it("fails for BOOT-INF present but no Spring Boot markers in MANIFEST.MF", func() {
-				appDir, cleanup, err := stageFixture(fixtures,
-					"no_container_boot_inf_no_markers", "BOOT-INF/classes", "BOOT-INF/lib")
-				Expect(err).NotTo(HaveOccurred())
-				defer cleanup()
-
-				_, logs, err := platform.Deploy.Execute(name, appDir)
-				Expect(err).To(HaveOccurred())
-				Expect(logs.String()).To(ContainSubstring("No suitable container found"))
-			})
-
-			it("fails for raw jar with non-spring filename", func() {
-				_, logs, err := platform.Deploy.
-					Execute(name, filepath.Join(fixtures, "containers", "no_container_raw_jar"))
-				Expect(err).To(HaveOccurred())
-				Expect(logs.String()).To(ContainSubstring("No suitable container found"))
-			})
-		})
-
-		context("when Spring Boot source or partial build is pushed (most common user error)", func() {
-			it("fails for Maven source directory (pom.xml but no compiled artifact)", func() {
-				_, logs, err := platform.Deploy.
-					Execute(name, filepath.Join(fixtures, "containers", "no_container_maven_source"))
 				Expect(err).To(HaveOccurred())
 				Expect(logs.String()).To(ContainSubstring("No suitable container found"))
 			})
@@ -143,6 +121,26 @@ func testContainerDetectionErrors(platform switchblade.Platform, fixtures string
 			})
 		})
 
+		context("when app looks like Spring Boot but detection fails", func() {
+			it("fails for BOOT-INF present but no Spring Boot markers in MANIFEST.MF", func() {
+				appDir, cleanup, err := stageFixture(fixtures,
+					"no_container_boot_inf_no_markers", "BOOT-INF/classes", "BOOT-INF/lib")
+				Expect(err).NotTo(HaveOccurred())
+				defer cleanup()
+
+				_, logs, err := platform.Deploy.Execute(name, appDir)
+				Expect(err).To(HaveOccurred())
+				Expect(logs.String()).To(ContainSubstring("No suitable container found"))
+			})
+
+			it("fails for raw jar with non-spring filename", func() {
+				_, logs, err := platform.Deploy.
+					Execute(name, filepath.Join(fixtures, "containers", "no_container_raw_jar"))
+				Expect(err).To(HaveOccurred())
+				Expect(logs.String()).To(ContainSubstring("No suitable container found"))
+			})
+		})
+
 		context("when Spring Boot app is detected but misconfigured", func() {
 			it("detects Spring Boot even with empty BOOT-INF/lib", func() {
 				appDir, cleanup, err := stageFixture(fixtures,
@@ -162,4 +160,3 @@ func testContainerDetectionErrors(platform switchblade.Platform, fixtures string
 		})
 	}
 }
-
