@@ -195,6 +195,12 @@ function specs::retry_failed() {
     return 1
   fi
 
+  # The root test is a leaf when initialization or teardown fails without a failed subtest.
+  # Rerunning it would rerun the whole suite, so leave that to the task-level retry.
+  if grep -qx 'TestIntegration' <<<"${failed}"; then
+    return 1
+  fi
+
   echo ""
   echo "=== Rerunning failed tests only (up to ${retries} retries each) ==="
 
