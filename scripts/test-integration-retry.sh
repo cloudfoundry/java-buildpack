@@ -22,8 +22,13 @@ function check() {
 }
 
 # Stub: prints the pass line for the retried test when GO_STUB_PASS is set; counts invocations.
+# GO_STUB_NOMATCH simulates a -run pattern that matches nothing: exit 0 without running any test.
 function go() {
   echo "x" >>"${tmpdir}/go-calls"
+  if [[ "${GO_STUB_NOMATCH:-false}" == "true" ]]; then
+    echo "testing: warning: no tests to run"
+    return 0
+  fi
   if [[ "${GO_STUB_PASS:-false}" == "true" ]]; then
     echo "    --- PASS: TestIntegration/integration/Flaky_one (0.00s)"
     return 0
@@ -69,6 +74,10 @@ check "flaky test passing on retry succeeds" "0" "$(run_retry "${subtest_log}")"
 GO_STUB_PASS=false
 check "test failing on every retry fails" "1" "$(run_retry "${subtest_log}")"
 check "each failing test is retried INTEGRATION_RETRIES times" "2" "$(go_calls)"
+
+GO_STUB_NOMATCH=true
+check "retry matching no test is not counted as passed" "1" "$(run_retry "${subtest_log}")"
+GO_STUB_NOMATCH=false
 
 INTEGRATION_RETRIES=0
 GO_STUB_PASS=true
