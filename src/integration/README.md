@@ -49,6 +49,8 @@ BUILDPACK_FILE=/path/to/java-buildpack-v4.x.x.zip ./scripts/integration.sh --cac
 BUILDPACK_FILE=/path/to/java-buildpack-v4.x.x.zip ./scripts/integration.sh --stack cflinuxfs4
 ```
 
+When a run fails, `scripts/integration.sh` reruns each failed test on its own, up to `INTEGRATION_RETRIES` times (default 3), waiting `INTEGRATION_RETRY_DELAY` seconds (default 30) before the first retry and that much longer before each further one, instead of the whole suite. This absorbs transient failures such as a Cloud Controller 500 during staging. A crash or panic is not retried, and a test that keeps failing still fails the run. Set `INTEGRATION_RETRIES=0` to disable it.
+
 ### Run Tests Directly with Go
 
 You can also run the tests directly using Go:
