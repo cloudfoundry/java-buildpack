@@ -207,19 +207,19 @@ function specs::retry_failed() {
   echo ""
   echo "=== Rerunning failed tests only (up to ${retries} retries each) ==="
 
-  local test attempt recovered still_failing retry_log
+  local test attempt passed recovered still_failing retry_log
   recovered=()
   still_failing=()
   retry_log="$(mktemp)"
   while IFS= read -r test; do
-    local passed="false"
+    passed="false"
     for ((attempt = 1; attempt <= retries; attempt++)); do
       # Back off so a short-lived outage (for example a Cloud Controller restart) can clear.
       echo "--- Retry ${attempt}/${retries} in $((delay * attempt))s: ${test}"
       sleep "$((delay * attempt))"
       # A pattern that matches nothing also exits 0, so require the test to be reported as passed.
       if go test -count=1 -timeout=0 -mod vendor -v -run "$(specs::run_pattern "${test}")" "$@" 2>&1 | tee "${retry_log}" &&
-        grep -qE "^\s*--- PASS: ${test//[^[:alnum:]_\/-]/.} " "${retry_log}"; then
+        grep -qF -- "--- PASS: ${test} " "${retry_log}"; then
         passed="true"
         break
       fi

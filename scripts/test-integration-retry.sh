@@ -30,6 +30,10 @@ function go() {
     echo "testing: warning: no tests to run"
     return 0
   fi
+  if [[ -n "${GO_STUB_PASS_LINE:-}" ]]; then
+    echo "    --- PASS: ${GO_STUB_PASS_LINE} (0.00s)"
+    return 0
+  fi
   if [[ "${GO_STUB_PASS:-false}" == "true" ]]; then
     echo "    --- PASS: TestIntegration/integration/Flaky_one (0.00s)"
     return 0
@@ -79,6 +83,18 @@ check "each failing test is retried INTEGRATION_RETRIES times" "3" "$(go_calls)"
 GO_STUB_NOMATCH=true
 check "retry matching no test is not counted as passed" "1" "$(run_retry "${subtest_log}")"
 GO_STUB_NOMATCH=false
+
+dots_log="${tmpdir}/dots.log"
+cat >"${dots_log}" <<'EOF'
+--- FAIL: TestIntegration (1.00s)
+    --- FAIL: TestIntegration/integration (1.00s)
+        --- FAIL: TestIntegration/integration/with_a.b (1.00s)
+EOF
+GO_STUB_PASS_LINE="TestIntegration/integration/with_aXb"
+check "pass line of a different test is not counted (metacharacters are literal)" "1" "$(run_retry "${dots_log}")"
+GO_STUB_PASS_LINE="TestIntegration/integration/with_a.b"
+check "pass line of the same test with metacharacters is counted" "0" "$(run_retry "${dots_log}")"
+GO_STUB_PASS_LINE=""
 
 INTEGRATION_RETRIES=0
 GO_STUB_PASS=true
