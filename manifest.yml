@@ -352,13 +352,13 @@ dependencies:
   source: https://groovy.jfrog.io/artifactory/dist-release-local/groovy-zips/apache-groovy-binary-4.0.33.zip
   source_sha256: 395a69a81d5e9915d360d630663c1d98534c9dec134cb267798e49370855d93d
 - name: jacoco
-  version: 0.8.15
-  uri: https://buildpacks.cloudfoundry.org/dependencies/jacoco/jacoco_0.8.15_linux_noarch_any-stack_5b3f6ddb.zip
-  sha256: 5b3f6ddb724e761d25c937d68b0189a3a23f3e220e3282575ee0b53359e8110e
+  version: 0.8.16
+  uri: https://buildpacks.cloudfoundry.org/dependencies/jacoco/jacoco_0.8.16_linux_noarch_any-stack_a7b90535.zip
+  sha256: a7b90535b30a7159dab62d8db0b276ed1f7bc73b7c2354d314503cd34b9c00ba
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://repo1.maven.org/maven2/org/jacoco/jacoco/0.8.15/jacoco-0.8.15.zip
+  source: https://repo1.maven.org/maven2/org/jacoco/jacoco/0.8.16/jacoco-0.8.16.zip
   source_sha256: ''
 - name: java-cfenv
   version: 3.5.3
