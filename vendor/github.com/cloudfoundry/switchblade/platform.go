@@ -1,9 +1,11 @@
 package switchblade
 
 import (
+	"compress/gzip"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/cloudfoundry/switchblade/internal/cloudfoundry"
 	"github.com/cloudfoundry/switchblade/internal/docker"
@@ -85,13 +87,19 @@ func NewPlatform(platformType, token, stack string) (Platform, error) {
 		lifecycleManager := docker.NewLifecycleManager(golang, archiver)
 		buildpacksCache := docker.NewBuildpacksCache(filepath.Join(workspace, "buildpacks-cache"))
 		buildpacksRegistry := docker.NewBuildpacksRegistry("https://api.github.com", token)
-		buildpacksManager := docker.NewBuildpacksManager(archiver, buildpacksCache, buildpacksRegistry)
+		// Buildpack contents (jars, tgz dependencies) are already compressed,
+		// so BestSpeed trades compression ratio for speed there without
+		// affecting the app source, lifecycle, or build-cache archives below.
+		buildpacksManager := docker.NewBuildpacksManager(archiver.WithCompressionLevel(gzip.BestSpeed), buildpacksCache, buildpacksRegistry)
 		networkManager := docker.NewNetworkManager(dockerClient)
 
 		initialize := docker.NewInitialize(buildpacksRegistry, networkManager)
 		deinitialize := docker.NewDeinitialize(networkManager)
-		setup := docker.NewSetup(dockerClient, lifecycleManager, buildpacksManager, archiver, networkManager, workspace, stack)
+		setup := docker.NewSetup(dockerClient, lifecycleManager, buildpacksManager, archiver, networkManager, workspace, stack).WithFastCompression()
 		stage := docker.NewStage(dockerClient, archiver, workspace)
+		if skip, _ := strconv.ParseBool(os.Getenv(docker.SkipBuildCacheEnv)); skip {
+			setup = setup.WithoutBuildCache()
+		}
 		start := docker.NewStart(dockerClient, networkManager, workspace, stack)
 		teardown := docker.NewTeardown(dockerClient, workspace)
 

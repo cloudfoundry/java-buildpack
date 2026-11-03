@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
 )
 
 type TeardownPhase interface {
@@ -33,8 +33,12 @@ func NewTeardown(client TeardownClient, workspace string) Teardown {
 }
 
 func (t Teardown) Run(ctx context.Context, name string) error {
+	if err := validateName(name); err != nil {
+		return fmt.Errorf("invalid app name: %w", err)
+	}
+
 	err := t.client.ContainerRemove(ctx, name, container.RemoveOptions{Force: true})
-	if err != nil && !client.IsErrNotFound(err) {
+	if err != nil && !errdefs.IsNotFound(err) {
 		return fmt.Errorf("failed to remove container: %w", err)
 	}
 
@@ -53,7 +57,7 @@ func (t Teardown) Run(ctx context.Context, name string) error {
 		return fmt.Errorf("failed to delete buildpack tarball: %w", err)
 	}
 
-	err = os.RemoveAll(filepath.Join(t.workspace, "buildpacks", name))
+	err = removeAllWithin(filepath.Join(t.workspace, "buildpacks"), filepath.Join(t.workspace, "buildpacks", name))
 	if err != nil {
 		return fmt.Errorf("failed to delete buildpacks: %w", err)
 	}

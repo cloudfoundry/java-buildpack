@@ -1,6 +1,8 @@
 package docker
 
 import (
+	"archive/tar"
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -10,18 +12,28 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/docker/docker/api/types"
+	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/errdefs"
 	specs "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
 const (
 	BuildpackAppLifecycleRepoURL = "https://github.com/cloudfoundry/buildpackapplifecycle/archive/refs/heads/main.zip"
 	BridgeNetworkName            = "bridge"
+
+	// SkipBuildCacheEnv, when set to a true value, opts in to skipping the
+	// build cache: it is neither restored nor saved between deployments. Only
+	// opt in when no deployment relies on the cache of an earlier deployment
+	// with the same name.
+	SkipBuildCacheEnv = "SWITCHBLADE_SKIP_BUILD_CACHE"
 )
+
+// fastGzipWrapper takes precedence over /usr/bin/gzip on the stack PATH, so
+// that the lifecycle's "tar -czf" uses the fastest compression level. An
+// explicit level passed by a caller still wins, as gzip uses the last one.
+const fastGzipWrapper = "#!/bin/sh\nexec /usr/bin/gzip -1 \"$@\"\n"
 
 type SetupPhase interface {
 	Run(ctx context.Context, logs io.Writer, name, path string) (containerID string, err error)
@@ -37,7 +49,7 @@ type SetupClient interface {
 	ImagePull(ctx context.Context, ref string, options image.PullOptions) (io.ReadCloser, error)
 	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *specs.Platform, containerName string) (container.CreateResponse, error)
 	CopyToContainer(ctx context.Context, containerID, dstPath string, content io.Reader, options container.CopyToContainerOptions) error
-	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
+	ContainerInspect(ctx context.Context, containerID string) (container.InspectResponse, error)
 	ContainerRemove(ctx context.Context, containerID string, options container.RemoveOptions) error
 }
 
@@ -76,6 +88,8 @@ type Setup struct {
 	env                map[string]string
 	disconnectInternet bool
 	services           map[string]map[string]interface{}
+	fastCompression    bool
+	skipBuildCache     bool
 }
 
 func NewSetup(client SetupClient, lifecycle LifecycleBuilder, buildpacks BuildpacksBuilder, archiver Archiver, networks SetupNetworkManager, workspace, stack string) Setup {
@@ -91,6 +105,10 @@ func NewSetup(client SetupClient, lifecycle LifecycleBuilder, buildpacks Buildpa
 }
 
 func (s Setup) Run(ctx context.Context, logs io.Writer, name, path string) (string, error) {
+	if err := validateName(name); err != nil {
+		return "", fmt.Errorf("invalid app name: %w", err)
+	}
+
 	lifecycle, err := s.lifecycle.Build(BuildpackAppLifecycleRepoURL, filepath.Join(s.workspace, "lifecycle"))
 	if err != nil {
 		return "", fmt.Errorf("failed to build lifecycle: %w", err)
@@ -166,6 +184,11 @@ func (s Setup) Run(ctx context.Context, logs io.Writer, name, path string) (stri
 		}
 	}
 
+	outputCache := "/tmp/output-cache"
+	if s.skipBuildCache {
+		outputCache = "/dev/null"
+	}
+
 	containerConfig := container.Config{
 		Image: fmt.Sprintf("cloudfoundry/%s:latest", s.stack),
 		Cmd: []string{
@@ -174,7 +197,7 @@ func (s Setup) Run(ctx context.Context, logs io.Writer, name, path string) (stri
 			"--buildDir=/tmp/app",
 			fmt.Sprintf("--buildpackOrder=%s", order),
 			"--buildpacksDir=/tmp/buildpacks",
-			"--outputBuildArtifactsCache=/tmp/output-cache",
+			fmt.Sprintf("--outputBuildArtifactsCache=%s", outputCache),
 			"--outputDroplet=/tmp/droplet",
 			"--outputMetadata=/tmp/result.json",
 			fmt.Sprintf("--skipDetect=%t", skipDetect),
@@ -202,10 +225,12 @@ func (s Setup) Run(ctx context.Context, logs io.Writer, name, path string) (stri
 
 	tarballs := []string{lifecycle, buildpacks, source}
 
-	buildCachePath := filepath.Join(s.workspace, "build-cache", fmt.Sprintf("%s.tar.gz", name))
-	_, err = os.Stat(buildCachePath)
-	if err == nil {
-		tarballs = append(tarballs, buildCachePath)
+	if !s.skipBuildCache {
+		buildCachePath := filepath.Join(s.workspace, "build-cache", fmt.Sprintf("%s.tar.gz", name))
+		_, err = os.Stat(buildCachePath)
+		if err == nil {
+			tarballs = append(tarballs, buildCachePath)
+		}
 	}
 
 	for _, tarballPath := range tarballs {
@@ -225,7 +250,64 @@ func (s Setup) Run(ctx context.Context, logs io.Writer, name, path string) (stri
 		}
 	}
 
+	if s.fastCompression {
+		wrapper, err := fastGzipTarball()
+		if err != nil {
+			return "", fmt.Errorf("failed to create gzip wrapper: %w", err)
+		}
+
+		err = s.client.CopyToContainer(ctx, resp.ID, "/", wrapper, container.CopyToContainerOptions{})
+		if err != nil {
+			return "", fmt.Errorf("failed to copy gzip wrapper to container: %w", err)
+		}
+	}
+
 	return resp.ID, nil
+}
+
+func fastGzipTarball() (io.Reader, error) {
+	buffer := bytes.NewBuffer(nil)
+	tw := tar.NewWriter(buffer)
+	// The name is deliberately relative: CopyToContainer extracts the tar
+	// relative to its destination path "/", so this lands at
+	// /usr/local/bin/gzip. A leading slash can extract to //usr/local/bin/gzip
+	// on some runtimes.
+	err := tw.WriteHeader(&tar.Header{
+		Name:     "usr/local/bin/gzip",
+		Mode:     0755,
+		Size:     int64(len(fastGzipWrapper)),
+		Typeflag: tar.TypeReg,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = tw.Write([]byte(fastGzipWrapper))
+	if err != nil {
+		return nil, err
+	}
+
+	err = tw.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	return buffer, nil
+}
+
+// WithFastCompression makes the lifecycle compress the droplet and build
+// cache with the fastest gzip level. The droplet contents are unchanged.
+func (s Setup) WithFastCompression() Setup {
+	s.fastCompression = true
+	return s
+}
+
+// WithoutBuildCache neither restores a build cache into the staging
+// container nor lets the lifecycle archive one. Stage needs no matching
+// option: it saves a build cache only when the lifecycle wrote one.
+func (s Setup) WithoutBuildCache() Setup {
+	s.skipBuildCache = true
+	return s
 }
 
 func (s Setup) WithBuildpacks(buildpacks ...string) SetupPhase {

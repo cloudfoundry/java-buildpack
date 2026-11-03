@@ -11,7 +11,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/go-connections/nat"
@@ -31,7 +30,7 @@ type StartClient interface {
 	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *specs.Platform, containerName string) (container.CreateResponse, error)
 	CopyToContainer(ctx context.Context, containerID, dstPath string, content io.Reader, options container.CopyToContainerOptions) error
 	ContainerStart(ctx context.Context, containerID string, options container.StartOptions) error
-	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
+	ContainerInspect(ctx context.Context, containerID string) (container.InspectResponse, error)
 }
 
 //go:generate faux --interface StartNetworkManager --output fakes/start_network_manager.go
@@ -59,6 +58,10 @@ func NewStart(client StartClient, networks StartNetworkManager, workspace, stack
 }
 
 func (s Start) Run(ctx context.Context, logs io.Writer, name, command string) (string, string, error) {
+	if err := validateName(name); err != nil {
+		return "", "", fmt.Errorf("invalid app name: %w", err)
+	}
+
 	env := []string{
 		"LANG=en_US.UTF-8",
 		"MEMORY_LIMIT=1024m",

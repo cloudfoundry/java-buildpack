@@ -164,6 +164,11 @@ function specs::run() {
   export BUILDPACK_FILE="${BUILDPACK_FILE:-"${buildpack_file}"}"
   export GOMAXPROCS="${GOMAXPROCS:-"${nodes}"}"
 
+  # Integration tests never reuse a build cache, so skip restoring and saving it (docker platform only).
+  if [[ "${platform}" == "docker" ]]; then
+    export SWITCHBLADE_SKIP_BUILD_CACHE="${SWITCHBLADE_SKIP_BUILD_CACHE:-true}"
+  fi
+
   local status=0
   if go test -count=1 -timeout=0 -mod vendor -v "${go_test_args[@]}" 2>&1 | tee "${log}"; then
     rm -f "${log}"
