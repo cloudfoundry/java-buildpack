@@ -53,6 +53,8 @@ When a run fails, `scripts/integration.sh` reruns each failed test on its own, u
 
 On the docker platform, `scripts/integration.sh` sets `SWITCHBLADE_SKIP_BUILD_CACHE=true` (Switchblade 0.10.0+) so staging skips restoring and saving the build cache. Set it to `false` to keep the cache.
 
+On the docker platform, `scripts/integration.sh` runs tests in parallel (3 nodes) by default. Pass `--parallel false` to run serially. The cf platform stays serial unless you pass `--parallel true`.
+
 ### Run Tests Directly with Go
 
 You can also run the tests directly using Go:

@@ -22,7 +22,7 @@ OPTIONS
   --github-token <token>             GitHub token to use when making API requests
   --platform <cf|docker>             Switchblade platform to execute the tests against (default: cf)
   --cached <true|false>              Run cached/offline tests (default: false)
-  --parallel <true|false>            Run tests in parallel (default: false)
+  --parallel <true|false>            Run tests in parallel (default: true for docker, false for cf)
   --stack <stack>                    Stack to use for tests (default: cflinuxfs4)
   --keep-failed-containers           Preserve failed test containers for debugging (default: false)
 
@@ -34,11 +34,11 @@ ENVIRONMENT
                                      grows by this amount for each further retry (default: 30)
 
 EXAMPLES
-  # Serial mode
+  # Docker runs in parallel by default (3 nodes)
   ./scripts/integration.sh --platform docker
 
-  # Parallel mode (uses GOMAXPROCS=2)
-  ./scripts/integration.sh --platform docker --parallel true
+  # Serial mode
+  ./scripts/integration.sh --platform docker --parallel false
 
   # Keep failed containers for debugging
   ./scripts/integration.sh --platform docker --keep-failed-containers
@@ -51,7 +51,7 @@ function main() {
   stack="${CF_STACK:-cflinuxfs4}"
   platform="cf"
   cached="false"
-  parallel="false"
+  parallel=""
   keep_failed="false"
   token="${GITHUB_TOKEN:-}"
 
@@ -106,6 +106,10 @@ function main() {
     esac
   done
 
+  if [[ -z "${parallel}" ]]; then
+    parallel="$(specs::default_parallel "${platform}")"
+  fi
+
   echo "=== Java Buildpack Integration Tests ==="
   echo "Platform:           ${platform}"
   echo "Stack:              ${stack}"
@@ -115,6 +119,15 @@ function main() {
   echo ""
 
   specs::run "${cached}" "${parallel}" "${stack}" "${platform}" "${token}" "${keep_failed}"
+}
+
+# Docker tests run in parallel by default; the cf platform shares one CF foundation, so it stays serial.
+function specs::default_parallel() {
+  if [[ "${1}" == "docker" ]]; then
+    echo "true"
+  else
+    echo "false"
+  fi
 }
 
 function specs::run() {
