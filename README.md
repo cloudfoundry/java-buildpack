@@ -248,10 +248,10 @@ For air-gapped environments or security-conscious deployments, you can build a s
 **Using a profile** (defined in `manifest.yml`):
 
 ```bash
-# Minimal: JDKs, CF utilities, Tomcat, and common frameworks only (~28 dependencies)
+# Minimal: JDKs, CF utilities, Tomcat, and common frameworks only (~25 dependencies)
 $ ./scripts/package.sh --cached --profile minimal
 
-# Standard: core + open-source APM, OTel, and JDBC drivers (~32 dependencies)
+# Standard: core + open-source APM, OTel, and JDBC drivers (~29 dependencies)
 $ ./scripts/package.sh --cached --profile standard
 ```
 
