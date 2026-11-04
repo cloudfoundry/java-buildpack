@@ -3,6 +3,7 @@
 .yardoc
 .DS_Store
 build/
+!vendor/**/build/
 doc
 AGENTS.md
 SESSION_*.md
