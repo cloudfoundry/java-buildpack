@@ -109,6 +109,27 @@ func TestDocker(t *testing.T) {
 }
 ```
 
+On Docker, the buildpacks are bundled into a tarball under
+`~/.switchblade/buildpacks` that is built once per set of buildpacks and
+reused by every deployment. It is rebuilt when a local buildpack zip or
+directory changes. The three most recently used tarballs are kept.
+
+Two settings speed up staging on Docker:
+
+- On by default: droplet and build cache compress with the fastest gzip level. The droplet
+  contents are unchanged, only the archive is slightly larger. The lifecycle
+  runs `tar -czf`, which takes no compression level, and the `GZIP`
+  environment variable is deprecated. So Switchblade copies a small wrapper,
+  `exec /usr/bin/gzip -1 "$@"`, to `/usr/local/bin/gzip` in each staging
+  container (not on the host), ahead of `/usr/bin` on the stack `PATH`. A
+  buildpack that runs `gzip` during staging also gets level 1, unless it
+  passes its own level.
+- Opt-in: set `SWITCHBLADE_SKIP_BUILD_CACHE=true` to neither restore nor save
+  the build cache between deployments. Only opt in when no test relies on the
+  build cache of an earlier deployment with the same name, for example a test
+  that pushes the same app twice and expects the second staging to reuse
+  cached dependencies.
+
 ### Specifying buildpacks: `WithBuildpacks`
 
 ```go
@@ -217,3 +238,29 @@ if err != nil {
 
 fmt.Println(name) // Outputs: switchblade-<some-ulid>
 ```
+
+## Releasing
+
+Releases are cut from `main` by the
+[Create Draft Release](.github/workflows/create-draft-release.yml) workflow.
+On every push to `main` it deletes the previous draft, bumps the tag, and
+creates a new draft release.
+
+The draft body is taken from the `## [Unreleased]` section of
+[`CHANGELOG.md`](CHANGELOG.md). If that section is empty, the workflow falls
+back to GitHub's auto-generated release notes (`What's Changed`).
+
+Because the draft is recreated on every push, do not edit the draft release
+body by hand — it will be overwritten. Instead:
+
+1. Add entries under `## [Unreleased]` in `CHANGELOG.md` as changes land.
+   Each push to `main` refreshes the draft with that section.
+2. Review the draft, then publish it.
+3. Afterwards, in a follow-up change, rename `## [Unreleased]` to the
+   published version (for example `## [v0.10.0] - 2026-11-02`) and leave a
+   fresh, empty `## [Unreleased]` section at the top.
+
+Do the rename only *after* publishing: a push to `main` deletes the existing
+draft, so promoting the section beforehand would discard the notes for the
+release being cut. Until new entries are added, the next draft falls back to
+GitHub-generated notes.

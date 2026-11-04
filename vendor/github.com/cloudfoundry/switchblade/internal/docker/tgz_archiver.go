@@ -14,14 +14,23 @@ import (
 
 type TGZArchiver struct {
 	prefix string
+	level  int
 }
 
 func NewTGZArchiver() TGZArchiver {
-	return TGZArchiver{}
+	return TGZArchiver{level: gzip.DefaultCompression}
 }
 
 func (a TGZArchiver) WithPrefix(prefix string) Archiver {
 	a.prefix = prefix
+	return a
+}
+
+// WithCompressionLevel sets the gzip compression level (e.g. gzip.BestSpeed)
+// used by Compress. Callers whose input is already compressed, such as the
+// buildpacks manager, can trade compression ratio for speed.
+func (a TGZArchiver) WithCompressionLevel(level int) TGZArchiver {
+	a.level = level
 	return a
 }
 
@@ -37,11 +46,12 @@ func (a TGZArchiver) Compress(input, output string) error {
 	}
 	defer file.Close()
 
-	gw := gzip.NewWriter(file)
-	defer gw.Close()
+	gw, err := gzip.NewWriterLevel(file, a.level)
+	if err != nil {
+		return fmt.Errorf("failed to create gzip writer: %w", err)
+	}
 
 	tw := tar.NewWriter(gw)
-	defer tw.Close()
 
 	info, err := os.Stat(input)
 	if err != nil {
@@ -50,12 +60,32 @@ func (a TGZArchiver) Compress(input, output string) error {
 
 	switch {
 	case info.IsDir():
-		return a.fromDirectory(input, tw)
+		err = a.fromDirectory(input, tw)
 	case info.Mode()&fs.ModeType == 0:
-		return a.fromFile(input, tw)
+		err = a.fromFile(input, tw)
 	default:
-		return errors.New("unknown file type")
+		err = errors.New("unknown file type")
 	}
+	if err != nil {
+		return err
+	}
+
+	// Close explicitly (instead of via defer) so flush errors, such as a full
+	// disk producing a truncated archive, are not silently discarded before
+	// the tarball is published to the shared cache.
+	if err := tw.Close(); err != nil {
+		return fmt.Errorf("failed to close tar writer: %w", err)
+	}
+
+	if err := gw.Close(); err != nil {
+		return fmt.Errorf("failed to close gzip writer: %w", err)
+	}
+
+	if err := file.Close(); err != nil {
+		return fmt.Errorf("failed to close output file: %w", err)
+	}
+
+	return nil
 }
 
 func (a TGZArchiver) fromDirectory(input string, tw *tar.Writer) error {

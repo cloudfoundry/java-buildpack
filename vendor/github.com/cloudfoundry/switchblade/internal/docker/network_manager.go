@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/errdefs"
 )
 
 //go:generate faux --interface NetworkManagementClient --output fakes/network_management_client.go
@@ -90,7 +90,7 @@ func (m NetworkManager) Delete(ctx context.Context, name string) error {
 	for _, nw := range networks {
 		if nw.Name == name {
 			err = m.client.NetworkRemove(ctx, nw.ID)
-			if err != nil && !errdefs.IsForbidden(err) {
+			if err != nil && !errdefs.IsPermissionDenied(err) {
 				return fmt.Errorf("failed to delete network: %w", err)
 			}
 

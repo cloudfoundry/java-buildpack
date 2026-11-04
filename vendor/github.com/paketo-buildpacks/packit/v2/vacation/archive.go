@@ -34,6 +34,7 @@ func NewArchive(inputReader io.Reader) Archive {
 // - "application/x-executable"
 // - "text/plain; charset=utf-8"
 // - "application/jar"
+// - "application/java-archive"
 // - "application/octet-stream"
 // and write the contents of the input stream to a file name specified by the
 // `Archive.WithName()` option in the destination directory.
@@ -69,6 +70,7 @@ func (a Archive) Decompress(destination string) error {
 		decompressor = NewExecutable(bufferedReader).WithName(a.name)
 	case "text/plain; charset=utf-8",
 		"application/jar",
+		"application/java-archive",
 		"application/octet-stream":
 		decompressor = NewNopArchive(bufferedReader).WithName(a.name)
 	default:
