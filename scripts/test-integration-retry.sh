@@ -119,6 +119,9 @@ nosummary_log="${tmpdir}/nosummary.log"
 printf -- '        --- FAIL: TestIntegration/integration/Flaky_one (1.00s)\n' >"${nosummary_log}"
 check "log without the TestIntegration summary is not retried" "1" "$(run_retry "${nosummary_log}")"
 
+check "docker runs in parallel by default" "true" "$(specs::default_parallel docker)"
+check "cf runs serially by default" "false" "$(specs::default_parallel cf)"
+
 if [[ "${failures}" -gt 0 ]]; then
   echo "${failures} check(s) failed"
   exit 1
