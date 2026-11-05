@@ -203,6 +203,7 @@ This Go-based buildpack is a migration from the original Ruby-based Cloud Foundr
   * [GraalVM](docs/jre-graal_vm_jre.md) ([Configuration](docs/jre-graal_vm_jre.md#configuration))
   * [IBM Semeru](docs/jre-ibm_jre.md) ([Configuration](docs/jre-ibm_jre.md#configuration))
   * [Oracle](docs/jre-oracle_jre.md) ([Configuration](docs/jre-oracle_jre.md#configuration))
+* [JRE Blocked Certificates and Removed Roots](docs/jre-blocked_certs.md) ([Configuration](docs/jre-blocked_certs.md#configuration)) - All JREs
 * [Debugging the Buildpack](docs/debugging-the-buildpack.md)
 * [Buildpack Modes](docs/buildpack-modes.md)
 * Related Projects
