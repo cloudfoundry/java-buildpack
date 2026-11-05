@@ -17,7 +17,7 @@ pre_package: scripts/build.sh
 packaging_profiles:
   minimal:
     description: JDKs, CF utilities, Tomcat, and common frameworks only. No APM agents,
-      profilers, or JDBC drivers.
+      profilers, JDBC drivers, or Zulu JREs.
     exclude:
     - datadog-javaagent
     - elastic-apm-agent
@@ -39,9 +39,10 @@ packaging_profiles:
     - luna-security-provider
     - postgresql-jdbc
     - mariadb-jdbc
+    - zulu
   standard:
-    description: Core + open-source APM, OTel, and JDBC drivers. No commercial agents
-      or profilers.
+    description: Core + open-source APM, OTel, and JDBC drivers. No commercial agents,
+      profilers, or Zulu JREs.
     exclude:
     - datadog-javaagent
     - elastic-apm-agent
@@ -59,6 +60,7 @@ packaging_profiles:
     - java-memory-assistant
     - java-memory-assistant-cleanup
     - luna-security-provider
+    - zulu
 default_versions:
 - name: openjdk
   version: 17.x
