@@ -10,9 +10,10 @@ import (
 
 // SpringBootContainer handles Spring Boot JAR applications
 type SpringBootContainer struct {
-	context     *common.Context
-	jarFile     string
-	startScript string // For staged Spring Boot apps (bin/application)
+	context        *common.Context
+	jarFile        string
+	startScript    string // For staged Spring Boot apps (bin/application)
+	isExecutableWar bool  // True when the app is a Spring Boot executable WAR
 }
 
 // NewSpringBootContainer creates a new Spring Boot container
@@ -36,6 +37,17 @@ func (s *SpringBootContainer) Detect() (string, error) {
 		}
 		// Has BOOT-INF but not a Spring Boot app - let other containers handle it
 		s.context.Log.Debug("Found BOOT-INF directory but not a Spring Boot application (missing Spring Boot manifest markers)")
+	}
+
+	// Check for Spring Boot executable WAR (WEB-INF/ + Spring Boot manifest markers).
+	// Must run before the JAR check so executable WARs are not handed to Tomcat.
+	webInf := filepath.Join(buildDir, "WEB-INF")
+	if _, err := os.Stat(webInf); err == nil {
+		if s.isSpringBootExecutableWar(buildDir) {
+			s.isExecutableWar = true
+			s.context.Log.Debug("Detected Spring Boot executable WAR via WEB-INF directory")
+			return "Spring Boot", nil
+		}
 	}
 
 	// Check for Spring Boot JAR in root directory
@@ -229,6 +241,12 @@ func (s *SpringBootContainer) Finalize() error {
 		if err := s.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("BOOT-INF", "lib"))); err != nil {
 			return fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
 		}
+	} else if webInf := filepath.Join(buildDir, "WEB-INF"); s.isExecutableWar || s.isSpringBootExecutableWar(buildDir) {
+		if _, err := os.Stat(webInf); err == nil {
+			if err := s.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("WEB-INF", "lib"))); err != nil {
+				return fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
+			}
+		}
 	}
 
 	// Write combined JAVA_OPTS
@@ -274,6 +292,15 @@ func (s *SpringBootContainer) Release() (string, error) {
 		return "", fmt.Errorf("exploded JAR found but no Main-Class in MANIFEST.MF")
 	}
 
+	// Check for Spring Boot executable WAR (WEB-INF/ + Spring Boot manifest markers)
+	webInf := filepath.Join(buildDir, "WEB-INF")
+	if _, err := os.Stat(webInf); err == nil {
+		if s.isExecutableWar || s.isSpringBootExecutableWar(buildDir) {
+			launcherClass := s.getWarLauncherClass(buildDir)
+			return JavaExecCommand(s.context.Stager.DepsIdx(), fmt.Sprintf("-cp $PWD/.${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s", launcherClass)), nil
+		}
+	}
+
 	// Check for staged Spring Boot app with startup script
 	if s.startScript != "" {
 		cmd := fmt.Sprintf("$HOME/bin/%s", s.startScript)
@@ -293,6 +320,51 @@ func (s *SpringBootContainer) Release() (string, error) {
 	// JAVA_OPTS is applied by the javaexec launcher (see JavaExecCommand) (#1301)
 	cmd := JavaExecCommand(s.context.Stager.DepsIdx(), fmt.Sprintf("${CONTAINER_SECURITY_PROVIDER:+-Dloader.path=$CONTAINER_SECURITY_PROVIDER} -jar %s", jarFile))
 	return cmd, nil
+}
+
+// isSpringBootExecutableWar checks if an exploded WAR is a Spring Boot executable WAR
+// by looking for Spring Boot-specific markers in MANIFEST.MF.
+// A traditional WAR deployed to an external servlet container will not have these.
+func (s *SpringBootContainer) isSpringBootExecutableWar(buildDir string) bool {
+	manifestData, err := s.readManifestFile(buildDir)
+	if err != nil {
+		s.context.Log.Debug("Could not read MANIFEST.MF for WAR detection: %s", err.Error())
+		return false
+	}
+
+	// Main-Class containing WarLauncher is definitive
+	mainClass := s.readManifestField(manifestData, "Main-Class:")
+	if strings.Contains(mainClass, "WarLauncher") {
+		return true
+	}
+
+	// Spring Boot sets both Start-Class and Spring-Boot-Version in all executable archives
+	startClass := s.readManifestField(manifestData, "Start-Class:")
+	springBootVersion := s.readManifestField(manifestData, "Spring-Boot-Version:")
+	return startClass != "" && springBootVersion != ""
+}
+
+// getWarLauncherClass returns the WarLauncher class name from MANIFEST.MF, falling back
+// to the version-appropriate default when the manifest does not set Main-Class.
+// Spring Boot 2.x uses: org.springframework.boot.loader.WarLauncher
+// Spring Boot 3.x uses: org.springframework.boot.loader.launch.WarLauncher
+func (s *SpringBootContainer) getWarLauncherClass(buildDir string) string {
+	manifestData, err := s.readManifestFile(buildDir)
+	if err != nil {
+		s.context.Log.Debug("Could not read MANIFEST.MF for WAR launcher detection: %s", err.Error())
+		return "org.springframework.boot.loader.launch.WarLauncher"
+	}
+
+	mainClass := s.readManifestField(manifestData, "Main-Class:")
+	if mainClass != "" {
+		return mainClass
+	}
+
+	springBootVersion := s.readManifestField(manifestData, "Spring-Boot-Version:")
+	if strings.HasPrefix(springBootVersion, "2.") {
+		return "org.springframework.boot.loader.WarLauncher"
+	}
+	return "org.springframework.boot.loader.launch.WarLauncher"
 }
 
 // isSpringBootExplodedJar checks if an exploded JAR is actually a Spring Boot application
