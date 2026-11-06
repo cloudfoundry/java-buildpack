@@ -220,9 +220,9 @@ func (s *SpringBootContainer) Finalize() error {
 	}
 
 	// Configure additional JAVA_OPTS for Spring Boot
-	additionalOpts := []string{
-		"-Djava.io.tmpdir=$TMPDIR",
-		"-XX:+ExitOnOutOfMemoryError",
+	additionalOpts := []string{"-Djava.io.tmpdir=$TMPDIR"}
+	if !s.isExecutableWar {
+		additionalOpts = append(additionalOpts, "-XX:+ExitOnOutOfMemoryError")
 	}
 
 	// Combine existing opts with additional opts
@@ -241,11 +241,9 @@ func (s *SpringBootContainer) Finalize() error {
 		if err := s.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("BOOT-INF", "lib"))); err != nil {
 			return fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
 		}
-	} else if webInf := filepath.Join(buildDir, "WEB-INF"); s.isExecutableWar || s.isSpringBootExecutableWar(buildDir) {
-		if _, err := os.Stat(webInf); err == nil {
-			if err := s.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("WEB-INF", "lib"))); err != nil {
-				return fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
-			}
+	} else if s.isExecutableWar {
+		if err := s.context.Stager.WriteProfileD("zzz_classpath_symlinks.sh", fmt.Sprintf(symlinkScript, filepath.Join("WEB-INF", "lib"))); err != nil {
+			return fmt.Errorf("failed to write zzz_classpath_symlinks.sh: %w", err)
 		}
 	}
 
@@ -293,12 +291,9 @@ func (s *SpringBootContainer) Release() (string, error) {
 	}
 
 	// Check for Spring Boot executable WAR (WEB-INF/ + Spring Boot manifest markers)
-	webInf := filepath.Join(buildDir, "WEB-INF")
-	if _, err := os.Stat(webInf); err == nil {
-		if s.isExecutableWar || s.isSpringBootExecutableWar(buildDir) {
-			launcherClass := s.getWarLauncherClass(buildDir)
-			return JavaExecCommand(s.context.Stager.DepsIdx(), fmt.Sprintf("-cp $PWD/.${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s", launcherClass)), nil
-		}
+	if s.isExecutableWar {
+		launcherClass := s.getWarLauncherClass(buildDir)
+		return JavaExecCommand(s.context.Stager.DepsIdx(), fmt.Sprintf("-cp $PWD/.${CONTAINER_SECURITY_PROVIDER:+:$CONTAINER_SECURITY_PROVIDER} %s", launcherClass)), nil
 	}
 
 	// Check for staged Spring Boot app with startup script
