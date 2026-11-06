@@ -152,7 +152,7 @@ This section documents Go buildpack behaviors that differ from the Ruby buildpac
 
 **Ruby v4 behavior**: The Tomcat container guarded its detection with `!main_class` — if a `Main-Class` was present in the manifest, Tomcat stepped aside and the JavaMain container picked it up via that `Main-Class`. Executable WARs worked without any special configuration.
 
-**Go v5 behavior (v5.1.x canary)**: The Tomcat container detects any exploded archive with a `WEB-INF/` directory unconditionally. It has no `Main-Class` guard. Executable WARs are therefore handed to Tomcat, which tries to deploy them as a standard servlet application — the WarLauncher is never invoked, and the app fails or misbehaves at startup.
+**Go v5 behavior**: The Tomcat container detects any exploded archive with a `WEB-INF/` directory unconditionally. It has no `Main-Class` guard. Executable WARs are therefore handed to Tomcat, which tries to deploy them as a standard servlet application — the WarLauncher is never invoked, and the app fails or misbehaves at startup.
 
 **Immediate workaround** — add to `manifest.yml`:
 

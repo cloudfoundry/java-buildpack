@@ -112,6 +112,21 @@ var _ = Describe("Tomcat Container", func() {
 			})
 		})
 
+		Context("with WAR containing arbitrary Main-Class (non-Spring-Boot)", func() {
+			BeforeEach(func() {
+				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)
+				manifest := "Manifest-Version: 1.0\nMain-Class: com.example.Main\n"
+				os.WriteFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"), []byte(manifest), 0644)
+			})
+
+			It("does not detect as Tomcat (steps aside for JavaMain, Ruby v4 parity)", func() {
+				name, err := container.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(BeEmpty())
+			})
+		})
+
 		Context("with plain WAR (WEB-INF but no Spring Boot manifest markers)", func() {
 			BeforeEach(func() {
 				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)

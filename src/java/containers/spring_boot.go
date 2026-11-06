@@ -438,3 +438,30 @@ func (s *SpringBootContainer) getLauncherClass(buildDir string) string {
 	s.context.Log.Debug("Could not determine Spring Boot version, defaulting to 3.x launcher")
 	return "org.springframework.boot.loader.launch.JarLauncher"
 }
+
+// isSpringBootExecutableWar reports whether the archive at buildDir is a Spring Boot
+// executable WAR by checking META-INF/MANIFEST.MF for Spring Boot launcher markers.
+// Package-level helper used by SpringBootContainer.
+func isSpringBootExecutableWar(buildDir string) bool {
+	data, err := os.ReadFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"))
+	if err != nil {
+		return false
+	}
+	manifest := string(data)
+	if strings.Contains(parseMainClass(manifest), "WarLauncher") {
+		return true
+	}
+	return manifestField(manifest, "Start-Class:") != "" &&
+		manifestField(manifest, "Spring-Boot-Version:") != ""
+}
+
+// manifestField extracts the value of a named field from a MANIFEST.MF string.
+func manifestField(manifest, field string) string {
+	for _, line := range strings.Split(manifest, "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, field) {
+			return strings.TrimSpace(strings.TrimPrefix(line, field))
+		}
+	}
+	return ""
+}
