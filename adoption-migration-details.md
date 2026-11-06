@@ -146,6 +146,40 @@ There are two main aspects to consider when migrating to the Go-based Java Build
 
 This section documents Go buildpack behaviors that differ from the Ruby buildpack, including new features and known fixes applied during the migration.
 
+### Spring Boot executable WAR detection (**breaking change**)
+
+**Affected apps**: Spring Boot applications packaged as executable WARs (the Maven `spring-boot:repackage` goal with a WAR artifact, or Gradle's `bootWar` task). These have a `WEB-INF/` directory **and** a `Main-Class: org.springframework.boot.loader[.launch].WarLauncher` entry in `META-INF/MANIFEST.MF`.
+
+**Ruby v4 behavior**: The Tomcat container guarded its detection with `!main_class` — if a `Main-Class` was present in the manifest, Tomcat stepped aside and the JavaMain container picked it up via that `Main-Class`. Executable WARs worked without any special configuration.
+
+**Go v5 behavior (v5.1.x canary)**: The Tomcat container detects any exploded archive with a `WEB-INF/` directory unconditionally. It has no `Main-Class` guard. Executable WARs are therefore handed to Tomcat, which tries to deploy them as a standard servlet application — the WarLauncher is never invoked, and the app fails or misbehaves at startup.
+
+**Immediate workaround** — add to `manifest.yml`:
+
+```yaml
+env:
+  JBP_CONFIG_JAVA_MAIN: '{ java_main_class: "org.springframework.boot.loader.launch.WarLauncher" }'
+```
+
+For Spring Boot 2.x apps (before the loader package was reorganised):
+
+```yaml
+env:
+  JBP_CONFIG_JAVA_MAIN: '{ java_main_class: "org.springframework.boot.loader.WarLauncher" }'
+```
+
+The workaround forces Java Main container to claim the app, bypassing Tomcat detection entirely.
+
+**How to identify if your app is affected**: Check `META-INF/MANIFEST.MF` inside your WAR artifact:
+
+```
+Main-Class: org.springframework.boot.loader.launch.WarLauncher   # SB 3.x
+# or
+Main-Class: org.springframework.boot.loader.WarLauncher          # SB 2.x
+```
+
+If either is present and your build produces a WAR (not a JAR), apply the workaround above.
+
 ### `JAVA_HOME` is now set during staging
 
 The Ruby buildpack never set `JAVA_HOME`. The Go buildpack writes it as an env file (sourced between supply steps) and in `profile.d/java.sh` at runtime. This is a **positive new feature** — apps and tasks that previously hard-coded `.java-buildpack/open_jdk_jre/bin/java` can now use `$JAVA_HOME/bin/java` instead.
