@@ -96,6 +96,36 @@ var _ = Describe("Tomcat Container", func() {
 				Expect(name).To(Equal("Tomcat"))
 			})
 		})
+
+		Context("with Spring Boot executable WAR (WEB-INF + WarLauncher manifest)", func() {
+			BeforeEach(func() {
+				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)
+				manifest := "Manifest-Version: 1.0\nMain-Class: org.springframework.boot.loader.launch.WarLauncher\nStart-Class: com.example.App\nSpring-Boot-Version: 3.2.0\n"
+				os.WriteFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"), []byte(manifest), 0644)
+			})
+
+			It("does not detect as Tomcat (steps aside for SpringBootContainer)", func() {
+				name, err := container.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(BeEmpty())
+			})
+		})
+
+		Context("with plain WAR (WEB-INF but no Spring Boot manifest markers)", func() {
+			BeforeEach(func() {
+				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)
+				manifest := "Manifest-Version: 1.0\n"
+				os.WriteFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"), []byte(manifest), 0644)
+			})
+
+			It("detects as Tomcat", func() {
+				name, err := container.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(Equal("Tomcat"))
+			})
+		})
 	})
 
 	Describe("Release", func() {

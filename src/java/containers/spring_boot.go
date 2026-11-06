@@ -43,7 +43,7 @@ func (s *SpringBootContainer) Detect() (string, error) {
 	// Must run before the JAR check so executable WARs are not handed to Tomcat.
 	webInf := filepath.Join(buildDir, "WEB-INF")
 	if _, err := os.Stat(webInf); err == nil {
-		if s.isSpringBootExecutableWar(buildDir) {
+		if isSpringBootExecutableWar(buildDir) {
 			s.isExecutableWar = true
 			s.context.Log.Debug("Detected Spring Boot executable WAR via WEB-INF directory")
 			return "Spring Boot", nil
@@ -315,28 +315,6 @@ func (s *SpringBootContainer) Release() (string, error) {
 	// JAVA_OPTS is applied by the javaexec launcher (see JavaExecCommand) (#1301)
 	cmd := JavaExecCommand(s.context.Stager.DepsIdx(), fmt.Sprintf("${CONTAINER_SECURITY_PROVIDER:+-Dloader.path=$CONTAINER_SECURITY_PROVIDER} -jar %s", jarFile))
 	return cmd, nil
-}
-
-// isSpringBootExecutableWar checks if an exploded WAR is a Spring Boot executable WAR
-// by looking for Spring Boot-specific markers in MANIFEST.MF.
-// A traditional WAR deployed to an external servlet container will not have these.
-func (s *SpringBootContainer) isSpringBootExecutableWar(buildDir string) bool {
-	manifestData, err := s.readManifestFile(buildDir)
-	if err != nil {
-		s.context.Log.Debug("Could not read MANIFEST.MF for WAR detection: %s", err.Error())
-		return false
-	}
-
-	// Main-Class containing WarLauncher is definitive
-	mainClass := s.readManifestField(manifestData, "Main-Class:")
-	if strings.Contains(mainClass, "WarLauncher") {
-		return true
-	}
-
-	// Spring Boot sets both Start-Class and Spring-Boot-Version in all executable archives
-	startClass := s.readManifestField(manifestData, "Start-Class:")
-	springBootVersion := s.readManifestField(manifestData, "Spring-Boot-Version:")
-	return startClass != "" && springBootVersion != ""
 }
 
 // getWarLauncherClass returns the WarLauncher class name from MANIFEST.MF, falling back

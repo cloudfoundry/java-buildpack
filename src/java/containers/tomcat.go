@@ -35,6 +35,10 @@ func (t *TomcatContainer) Detect() (string, error) {
 	// Check for WEB-INF directory (exploded WAR)
 	webInf := filepath.Join(buildDir, "WEB-INF")
 	if _, err := os.Stat(webInf); err == nil {
+		if isSpringBootExecutableWar(buildDir) {
+			t.context.Log.Debug("Spring Boot executable WAR detected; stepping aside for SpringBootContainer")
+			return "", nil
+		}
 		t.context.Log.Debug("Detected WAR application via WEB-INF directory")
 		return "Tomcat", nil
 	}
