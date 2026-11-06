@@ -35,6 +35,15 @@ func (t *TomcatContainer) Detect() (string, error) {
 	// Check for WEB-INF directory (exploded WAR)
 	webInf := filepath.Join(buildDir, "WEB-INF")
 	if _, err := os.Stat(webInf); err == nil {
+		// Ruby v4 parity: step aside for any app that has a Main-Class, letting
+		// SpringBootContainer or JavaMain claim it instead.
+		manifestPath := filepath.Join(buildDir, "META-INF", "MANIFEST.MF")
+		if data, err := os.ReadFile(manifestPath); err == nil {
+			if parseMainClass(string(data)) != "" {
+				t.context.Log.Debug("Main-Class manifest entry detected; stepping aside for SpringBoot/JavaMain")
+				return "", nil
+			}
+		}
 		t.context.Log.Debug("Detected WAR application via WEB-INF directory")
 		return "Tomcat", nil
 	}

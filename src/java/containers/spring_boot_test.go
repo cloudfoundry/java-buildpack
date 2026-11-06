@@ -119,6 +119,51 @@ var _ = Describe("Spring Boot Container", func() {
 				Expect(name).To(BeEmpty())
 			})
 		})
+
+		Context("with Spring Boot executable WAR (WEB-INF + WarLauncher in Main-Class)", func() {
+			BeforeEach(func() {
+				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)
+				manifest := "Manifest-Version: 1.0\nMain-Class: org.springframework.boot.loader.launch.WarLauncher\nStart-Class: com.example.App\nSpring-Boot-Version: 3.2.0\n"
+				os.WriteFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"), []byte(manifest), 0644)
+			})
+
+			It("detects as Spring Boot (not Tomcat)", func() {
+				name, err := container.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(Equal("Spring Boot"))
+			})
+		})
+
+		Context("with Spring Boot executable WAR (WEB-INF + Start-Class + Spring-Boot-Version)", func() {
+			BeforeEach(func() {
+				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)
+				manifest := "Manifest-Version: 1.0\nStart-Class: com.example.App\nSpring-Boot-Version: 2.7.0\n"
+				os.WriteFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"), []byte(manifest), 0644)
+			})
+
+			It("detects as Spring Boot (not Tomcat)", func() {
+				name, err := container.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(Equal("Spring Boot"))
+			})
+		})
+
+		Context("with plain WAR (WEB-INF but no Spring Boot manifest markers)", func() {
+			BeforeEach(func() {
+				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)
+				manifest := "Manifest-Version: 1.0\n"
+				os.WriteFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"), []byte(manifest), 0644)
+			})
+
+			It("does not detect as Spring Boot (falls through to Tomcat)", func() {
+				name, err := container.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(BeEmpty())
+			})
+		})
 	})
 
 	Describe("Release", func() {
@@ -179,6 +224,46 @@ var _ = Describe("Spring Boot Container", func() {
 				Expect(err.Error()).To(ContainSubstring("no Spring Boot JAR"))
 			})
 		})
+
+		Context("with Spring Boot executable WAR (Spring Boot 3.x WarLauncher)", func() {
+			BeforeEach(func() {
+				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)
+				manifest := "Manifest-Version: 1.0\nMain-Class: org.springframework.boot.loader.launch.WarLauncher\nStart-Class: com.example.App\nSpring-Boot-Version: 3.2.0\n"
+				os.WriteFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"), []byte(manifest), 0644)
+				container.Detect()
+			})
+
+			It("uses WarLauncher in the release command", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(cmd).To(ContainSubstring("WarLauncher"))
+				Expect(cmd).NotTo(ContainSubstring("JarLauncher"))
+			})
+
+			It("uses javaexec launcher and omits $JAVA_OPTS from the command", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				expectSafeLaunch(cmd)
+			})
+		})
+
+		Context("with Spring Boot executable WAR (Spring Boot 2.x WarLauncher)", func() {
+			BeforeEach(func() {
+				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)
+				manifest := "Manifest-Version: 1.0\nStart-Class: com.example.App\nSpring-Boot-Version: 2.7.18\n"
+				os.WriteFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"), []byte(manifest), 0644)
+				container.Detect()
+			})
+
+			It("uses the Spring Boot 2.x WarLauncher package", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(cmd).To(ContainSubstring("org.springframework.boot.loader.WarLauncher"))
+				Expect(cmd).NotTo(ContainSubstring("org.springframework.boot.loader.launch.WarLauncher"))
+			})
+		})
 	})
 
 	Describe("Finalize", func() {
@@ -190,6 +275,26 @@ var _ = Describe("Spring Boot Container", func() {
 		It("finalizes successfully", func() {
 			err := container.Finalize()
 			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("with Spring Boot executable WAR", func() {
+			BeforeEach(func() {
+				container = containers.NewSpringBootContainer(ctx)
+				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)
+				manifest := "Manifest-Version: 1.0\nMain-Class: org.springframework.boot.loader.launch.WarLauncher\nStart-Class: com.example.App\nSpring-Boot-Version: 3.2.0\n"
+				os.WriteFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"), []byte(manifest), 0644)
+				container.Detect()
+			})
+
+			It("writes the classpath symlink script for WEB-INF/lib", func() {
+				Expect(container.Finalize()).To(Succeed())
+				scriptPath := filepath.Join(depsDir, "0", "profile.d", "zzz_classpath_symlinks.sh")
+				data, err := os.ReadFile(scriptPath)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(data)).To(ContainSubstring("WEB-INF/lib"))
+				Expect(string(data)).NotTo(ContainSubstring("BOOT-INF/lib"))
+			})
 		})
 
 		It("writes a profile.d script that exports SERVER_PORT=$PORT so the variable is shell-expanded at runtime", func() {
