@@ -220,9 +220,9 @@ func (s *SpringBootContainer) Finalize() error {
 	}
 
 	// Configure additional JAVA_OPTS for Spring Boot
-	additionalOpts := []string{"-Djava.io.tmpdir=$TMPDIR"}
-	if !s.isExecutableWar {
-		additionalOpts = append(additionalOpts, "-XX:+ExitOnOutOfMemoryError")
+	additionalOpts := []string{
+		"-Djava.io.tmpdir=$TMPDIR",
+		"-XX:+ExitOnOutOfMemoryError",
 	}
 
 	// Combine existing opts with additional opts

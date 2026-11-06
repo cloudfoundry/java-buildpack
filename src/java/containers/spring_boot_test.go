@@ -295,14 +295,6 @@ var _ = Describe("Spring Boot Container", func() {
 				Expect(string(data)).To(ContainSubstring("WEB-INF/lib"))
 				Expect(string(data)).NotTo(ContainSubstring("BOOT-INF/lib"))
 			})
-
-			It("does not add ExitOnOutOfMemoryError to JAVA_OPTS for executable WAR", func() {
-				Expect(container.Finalize()).To(Succeed())
-				envPath := filepath.Join(depsDir, "0", "env", "JAVA_OPTS")
-				data, err := os.ReadFile(envPath)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(string(data)).NotTo(ContainSubstring("ExitOnOutOfMemoryError"))
-			})
 		})
 
 		It("writes a profile.d script that exports SERVER_PORT=$PORT so the variable is shell-expanded at runtime", func() {
