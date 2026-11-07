@@ -105,6 +105,8 @@ func TestIntegration(t *testing.T) {
 	// Framework tests (APM agents, security providers, etc.)
 	suite("Frameworks", testFrameworks(platform, fixtures))
 
+	suite("JREBlockedCerts", testJREBlockedCerts(platform, fixtures))
+
 	suite.Run(t)
 
 	Expect(platform.Deinitialize()).To(Succeed())
