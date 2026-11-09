@@ -6,6 +6,10 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/cloudfoundry/java-buildpack/src/java/common"
+	"github.com/cloudfoundry/java-buildpack/src/java/frameworks"
+	"github.com/cloudfoundry/libbuildpack"
 )
 
 var _ = Describe("AspectJ Weaver Agent", func() {
@@ -83,6 +87,69 @@ var _ = Describe("AspectJ Weaver Agent", func() {
 					os.Remove(jarPath)
 				}
 			})
+		})
+	})
+
+	Describe("Detect and Finalize", func() {
+		var framework *frameworks.AspectJWeaverAgentFramework
+
+		BeforeEach(func() {
+			logger := libbuildpack.NewLogger(GinkgoWriter)
+			manifest := &libbuildpack.Manifest{}
+			stager := libbuildpack.NewStager([]string{tmpDir, filepath.Join(tmpDir, "cache"), filepath.Join(tmpDir, "deps"), "0"}, logger, manifest)
+			framework = frameworks.NewAspectJWeaverAgentFramework(&common.Context{
+				Stager:    stager,
+				Manifest:  manifest,
+				Installer: &libbuildpack.Installer{},
+				Log:       logger,
+				Command:   &libbuildpack.Command{},
+			})
+
+			bootInfLib := filepath.Join(tmpDir, "BOOT-INF", "lib")
+			Expect(os.MkdirAll(bootInfLib, 0755)).To(Succeed())
+			Expect(os.WriteFile(filepath.Join(bootInfLib, "aspectjweaver-1.9.7.jar"), []byte("mock jar"), 0644)).To(Succeed())
+		})
+
+		writeAopXml := func(relativeDir ...string) {
+			dir := filepath.Join(append([]string{tmpDir}, relativeDir...)...)
+			Expect(os.MkdirAll(dir, 0755)).To(Succeed())
+			Expect(os.WriteFile(filepath.Join(dir, "aop.xml"), []byte("<aspectj/>"), 0644)).To(Succeed())
+		}
+
+		It("returns nothing without aop.xml", func() {
+			name, err := framework.Detect()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(name).To(BeEmpty())
+		})
+
+		DescribeTable("detects aop.xml location",
+			func(relativeDir ...string) {
+				writeAopXml(relativeDir...)
+
+				name, err := framework.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(Equal("aspectj-weaver"))
+			},
+			Entry("META-INF", "META-INF"),
+			Entry("WEB-INF/classes/META-INF", "WEB-INF", "classes", "META-INF"),
+			Entry("WEB-INF/classes/org/aspectj", "WEB-INF", "classes", "org", "aspectj"),
+			Entry("BOOT-INF/classes/META-INF", "BOOT-INF", "classes", "META-INF"),
+			Entry("BOOT-INF/classes/org/aspectj", "BOOT-INF", "classes", "org", "aspectj"),
+			Entry("org/aspectj", "org", "aspectj"),
+		)
+
+		It("writes a javaagent opt pointing at the weaver jar under $HOME", func() {
+			writeAopXml("BOOT-INF", "classes", "META-INF")
+
+			name, err := framework.Detect()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(name).To(Equal("aspectj-weaver"))
+			Expect(framework.Finalize()).To(Succeed())
+
+			optsFile := filepath.Join(tmpDir, "deps", "0", "java_opts", "12_aspectj_weaver.opts")
+			content, err := os.ReadFile(optsFile)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(Equal("-javaagent:$HOME/BOOT-INF/lib/aspectjweaver-1.9.7.jar"))
 		})
 	})
 

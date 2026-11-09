@@ -1002,6 +1002,25 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 				})
 			})
 
+			context("with AspectJ Weaver and aop.xml in BOOT-INF/classes/META-INF", func() {
+				it("detects AspectJ Weaver", func() {
+					deployment, logs, err := platform.Deploy.
+						WithEnv(map[string]string{
+							"BP_JAVA_VERSION": "11",
+						}).
+						Execute(name, filepath.Join(fixtures, "frameworks", "aspectj_weaver_boot_inf_classes_meta_inf"))
+					Expect(err).NotTo(HaveOccurred(), logs.String)
+
+					Expect(logs.String()).To(ContainSubstring("AspectJ Weaver detected"))
+					Eventually(deployment).Should(matchers.Serve(ContainSubstring("")))
+
+					// The fixture's stub weaver prints this from premain, so the -javaagent was attached at runtime
+					Eventually(func() (string, error) {
+						return deployment.RuntimeLogs()
+					}).Should(ContainSubstring("AspectJ Agent stub loaded"))
+				})
+			})
+
 			context("with Container Security Provider", func() {
 				it("detects and configures Container Security Provider", func() {
 					deployment, logs, err := platform.Deploy.
