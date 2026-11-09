@@ -150,35 +150,39 @@ This section documents Go buildpack behaviors that differ from the Ruby buildpac
 
 **Affected apps**: Spring Boot applications packaged as executable WARs (the Maven `spring-boot:repackage` goal with a WAR artifact, or Gradle's `bootWar` task). These have a `WEB-INF/` directory **and** a `Main-Class: org.springframework.boot.loader[.launch].WarLauncher` entry in `META-INF/MANIFEST.MF`.
 
-**Ruby v4 behavior**: The Tomcat container guarded its detection with `!main_class` — if a `Main-Class` was present in the manifest, Tomcat stepped aside and the JavaMain container picked it up via that `Main-Class`. Executable WARs worked without any special configuration.
+**Ruby v4 behavior**: The Tomcat container guarded its detection with `!main_class` — if a `Main-Class` was present in the manifest, Tomcat stepped aside and the Spring Boot or JavaMain container picked it up. Executable WARs worked without any special configuration.
 
-**Go v5 behavior**: The Tomcat container detects any exploded archive with a `WEB-INF/` directory unconditionally. It has no `Main-Class` guard. Executable WARs are therefore handed to Tomcat, which tries to deploy them as a standard servlet application — the WarLauncher is never invoked, and the app fails or misbehaves at startup.
+**Go v5 behavior**: The Tomcat container detected any exploded archive with a `WEB-INF/` directory unconditionally. It had no `Main-Class` guard. Executable WARs were therefore handed to Tomcat, which tried to deploy them as a standard servlet application — the WarLauncher was never invoked, and the app failed or misbehaved at startup.
 
-**Immediate workaround** — add to `manifest.yml`:
+**Status**: Fixed in v5.x. The Tomcat container now mirrors Ruby v4 parity: if a `Main-Class` is present in `META-INF/MANIFEST.MF`, Tomcat steps aside and lets Spring Boot or JavaMain claim the app. Spring Boot executable WARs are detected automatically. Non-Spring-Boot WARs that carry a `Main-Class` are now routed to JavaMain rather than Tomcat.
+
+**Workaround** (for buildpack versions before the fix) — add to `manifest.yml`:
 
 ```yaml
 env:
   JBP_CONFIG_JAVA_MAIN: '{ java_main_class: "org.springframework.boot.loader.launch.WarLauncher" }'
 ```
 
-For Spring Boot 2.x apps (before the loader package was reorganised):
+For Spring Boot 2.x–3.1 apps (using the old loader package):
 
 ```yaml
 env:
   JBP_CONFIG_JAVA_MAIN: '{ java_main_class: "org.springframework.boot.loader.WarLauncher" }'
 ```
 
-The workaround forces Java Main container to claim the app, bypassing Tomcat detection entirely.
+The workaround forces the Java Main container to claim the app, bypassing Tomcat detection entirely.
 
 **How to identify if your app is affected**: Check `META-INF/MANIFEST.MF` inside your WAR artifact:
 
 ```
-Main-Class: org.springframework.boot.loader.launch.WarLauncher   # SB 3.x
+Main-Class: org.springframework.boot.loader.launch.WarLauncher   # SB 3.2+
 # or
-Main-Class: org.springframework.boot.loader.WarLauncher          # SB 2.x
+Main-Class: org.springframework.boot.loader.WarLauncher          # SB 2.x, 3.0.x, 3.1.x
 ```
 
-If either is present and your build produces a WAR (not a JAR), apply the workaround above.
+If either is present and your build produces a WAR (not a JAR), the fixed buildpack handles it automatically. For older versions, apply the workaround above.
+
+**Note on the Spring Boot loader package**: The loader classes moved from `org.springframework.boot.loader` to `org.springframework.boot.loader.launch` starting with Spring Boot **3.2.0**. Spring Boot 2.x, 3.0.x, and 3.1.x all use the old `org.springframework.boot.loader` package.
 
 ### `JAVA_HOME` is now set during staging
 

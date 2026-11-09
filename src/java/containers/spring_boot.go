@@ -10,10 +10,10 @@ import (
 
 // SpringBootContainer handles Spring Boot JAR applications
 type SpringBootContainer struct {
-	context        *common.Context
-	jarFile        string
-	startScript    string // For staged Spring Boot apps (bin/application)
-	isExecutableWar bool  // True when the app is a Spring Boot executable WAR
+	context         *common.Context
+	jarFile         string
+	startScript     string // For staged Spring Boot apps (bin/application)
+	isExecutableWar bool   // True when the app is a Spring Boot executable WAR
 }
 
 // NewSpringBootContainer creates a new Spring Boot container
@@ -319,8 +319,8 @@ func (s *SpringBootContainer) Release() (string, error) {
 
 // getWarLauncherClass returns the WarLauncher class name from MANIFEST.MF, falling back
 // to the version-appropriate default when the manifest does not set Main-Class.
-// Spring Boot 2.x uses: org.springframework.boot.loader.WarLauncher
-// Spring Boot 3.x uses: org.springframework.boot.loader.launch.WarLauncher
+// Spring Boot 2.x–3.1 use: org.springframework.boot.loader.WarLauncher
+// Spring Boot 3.2+    use: org.springframework.boot.loader.launch.WarLauncher
 func (s *SpringBootContainer) getWarLauncherClass(buildDir string) string {
 	manifestData, err := s.readManifestFile(buildDir)
 	if err != nil {
@@ -334,7 +334,7 @@ func (s *SpringBootContainer) getWarLauncherClass(buildDir string) string {
 	}
 
 	springBootVersion := s.readManifestField(manifestData, "Spring-Boot-Version:")
-	if strings.HasPrefix(springBootVersion, "2.") {
+	if usesOldLoaderPackage(springBootVersion) {
 		return "org.springframework.boot.loader.WarLauncher"
 	}
 	return "org.springframework.boot.loader.launch.WarLauncher"
@@ -408,35 +408,37 @@ func (s *SpringBootContainer) readMainClassFromManifest(buildDir string) (string
 }
 
 // getLauncherClass returns the launcher class from manifest. If missing tries to determine correct JarLauncher class name
-// based on Spring Boot version
-// Spring Boot 2.x uses: org.springframework.boot.loader.JarLauncher
-// Spring Boot 3.x uses: org.springframework.boot.loader.launch.JarLauncher
+// based on Spring Boot version.
+// Spring Boot 2.x–3.1 use: org.springframework.boot.loader.JarLauncher
+// Spring Boot 3.2+    use: org.springframework.boot.loader.launch.JarLauncher
 func (s *SpringBootContainer) getLauncherClass(buildDir string) string {
 	manifestData, err := s.readManifestFile(buildDir)
 	if err != nil {
 		s.context.Log.Debug("Could not read MANIFEST.MF for version detection: %s", err.Error())
-		// Default to Spring Boot 3.x (newer) launcher
 		return "org.springframework.boot.loader.launch.JarLauncher"
 	}
 
-	// Return launcher class from manifest. If missing try using JarLauncher based on Spring-Boot-Version
 	mainClass := s.readManifestField(manifestData, "Main-Class:")
 	if mainClass != "" {
 		return mainClass
 	}
 
 	springBootVersion := s.readManifestField(manifestData, "Spring-Boot-Version:")
-	if strings.HasPrefix(springBootVersion, "3.") {
-		return "org.springframework.boot.loader.launch.JarLauncher"
-	}
-	// Spring Boot 2.x uses the old loader package
-	if strings.HasPrefix(springBootVersion, "2.") {
+	if usesOldLoaderPackage(springBootVersion) {
 		return "org.springframework.boot.loader.JarLauncher"
 	}
 
-	// Default to Spring Boot 3.x (newer) launcher if version couldn't be determined
-	s.context.Log.Debug("Could not determine Spring Boot version, defaulting to 3.x launcher")
+	s.context.Log.Debug("Could not determine Spring Boot version, defaulting to 3.2+ launcher")
 	return "org.springframework.boot.loader.launch.JarLauncher"
+}
+
+// usesOldLoaderPackage reports whether the given Spring Boot version uses the old
+// org.springframework.boot.loader package (pre-3.2). The loader was reorganised
+// under org.springframework.boot.loader.launch starting with Spring Boot 3.2.0.
+func usesOldLoaderPackage(version string) bool {
+	return strings.HasPrefix(version, "2.") ||
+		strings.HasPrefix(version, "3.0.") ||
+		strings.HasPrefix(version, "3.1.")
 }
 
 // isSpringBootExecutableWar reports whether the archive at buildDir is a Spring Boot
