@@ -127,6 +127,22 @@ var _ = Describe("Tomcat Container", func() {
 			})
 		})
 
+		Context("with Spring Boot executable WAR (Start-Class + Spring-Boot-Version, no Main-Class)", func() {
+			BeforeEach(func() {
+				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)
+				// No Main-Class — only the Start-Class+Spring-Boot-Version heuristic applies.
+				manifest := "Manifest-Version: 1.0\nStart-Class: com.example.App\nSpring-Boot-Version: 2.7.18\n"
+				os.WriteFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"), []byte(manifest), 0644)
+			})
+
+			It("does not detect as Tomcat (order-independent guard for SpringBootContainer)", func() {
+				name, err := container.Detect()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(name).To(BeEmpty())
+			})
+		})
+
 		Context("with plain WAR (WEB-INF but no Spring Boot manifest markers)", func() {
 			BeforeEach(func() {
 				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)

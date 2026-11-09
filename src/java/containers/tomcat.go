@@ -44,6 +44,13 @@ func (t *TomcatContainer) Detect() (string, error) {
 				return "", nil
 			}
 		}
+		// Also cover the case where a Spring Boot executable WAR has Start-Class +
+		// Spring-Boot-Version but no explicit Main-Class (isSpringBootExecutableWar
+		// checks both paths; the Main-Class path is already handled above).
+		if isSpringBootExecutableWar(buildDir) {
+			t.context.Log.Debug("Spring Boot executable WAR (Start-Class+Spring-Boot-Version heuristic); stepping aside for SpringBootContainer")
+			return "", nil
+		}
 		t.context.Log.Debug("Detected WAR application via WEB-INF directory")
 		return "Tomcat", nil
 	}
