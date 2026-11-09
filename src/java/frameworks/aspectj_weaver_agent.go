@@ -37,25 +37,32 @@ func (a *AspectJWeaverAgentFramework) Detect() (string, error) {
 		return "", nil
 	}
 
-	// Check for aop.xml configuration in META-INF/aop.xml
-	aopConfig := filepath.Join(a.context.Stager.BuildDir(), "META-INF", "aop.xml")
-	if _, err := os.Stat(aopConfig); err == nil {
-		a.aspectjJar = aspectjJar
-		a.hasAopConfig = true
-		a.context.Log.Info("AspectJ Weaver detected: %s with aop.xml", aspectjJar)
-		return "aspectj-weaver", nil
-	}
-
-	// Also check in WEB-INF/classes/META-INF/aop.xml for web apps
-	webInfAopConfig := filepath.Join(a.context.Stager.BuildDir(), "WEB-INF", "classes", "META-INF", "aop.xml")
-	if _, err := os.Stat(webInfAopConfig); err == nil {
-		a.aspectjJar = aspectjJar
-		a.hasAopConfig = true
-		a.context.Log.Info("AspectJ Weaver detected: %s with WEB-INF/classes/META-INF/aop.xml", aspectjJar)
-		return "aspectj-weaver", nil
+	buildDir := a.context.Stager.BuildDir()
+	for _, relativePath := range aopConfigLocations() {
+		if _, err := os.Stat(filepath.Join(buildDir, relativePath)); err == nil {
+			a.aspectjJar = aspectjJar
+			a.hasAopConfig = true
+			a.context.Log.Info("AspectJ Weaver detected: %s with %s", aspectjJar, relativePath)
+			return "aspectj-weaver", nil
+		}
 	}
 
 	return "", nil
+}
+
+// aopConfigLocations returns the aop.xml locations relative to the application root: every classpath root
+// (archive root, Spring Boot classes, WAR classes) combined with every file name the weaver loads.
+func aopConfigLocations() []string {
+	classpathRoots := []string{"", filepath.Join("BOOT-INF", "classes"), filepath.Join("WEB-INF", "classes")}
+	aopFiles := []string{filepath.Join("META-INF", "aop.xml"), filepath.Join("org", "aspectj", "aop.xml")}
+
+	var locations []string
+	for _, root := range classpathRoots {
+		for _, aopFile := range aopFiles {
+			locations = append(locations, filepath.Join(root, aopFile))
+		}
+	}
+	return locations
 }
 
 // Supply phase - nothing to install for AspectJ (app-provided JAR)
