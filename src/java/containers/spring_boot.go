@@ -328,7 +328,8 @@ func (s *SpringBootContainer) getWarLauncherClass(buildDir string) string {
 		return "org.springframework.boot.loader.launch.WarLauncher"
 	}
 
-	mainClass := s.readManifestField(manifestData, "Main-Class:")
+	// parseMainClass handles RFC 2822 continuation-line unfolding; readManifestField does not.
+	mainClass := parseMainClass(manifestData)
 	if mainClass != "" {
 		return mainClass
 	}
@@ -418,7 +419,8 @@ func (s *SpringBootContainer) getLauncherClass(buildDir string) string {
 		return "org.springframework.boot.loader.launch.JarLauncher"
 	}
 
-	mainClass := s.readManifestField(manifestData, "Main-Class:")
+	// parseMainClass handles RFC 2822 continuation-line unfolding; readManifestField does not.
+	mainClass := parseMainClass(manifestData)
 	if mainClass != "" {
 		return mainClass
 	}

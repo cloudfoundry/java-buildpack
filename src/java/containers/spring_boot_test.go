@@ -264,6 +264,26 @@ var _ = Describe("Spring Boot Container", func() {
 				Expect(cmd).NotTo(ContainSubstring("org.springframework.boot.loader.launch.WarLauncher"))
 			})
 		})
+
+		Context("with Spring Boot executable WAR and folded Main-Class continuation line", func() {
+			// MANIFEST.MF allows lines to be folded at 72 bytes by inserting \n + space.
+			// parseMainClass unfolds them; readManifestField (simple line scan) does not.
+			// This test would return a truncated class name if readManifestField were used.
+			BeforeEach(func() {
+				os.MkdirAll(filepath.Join(buildDir, "WEB-INF", "lib"), 0755)
+				os.MkdirAll(filepath.Join(buildDir, "META-INF"), 0755)
+				// Main-Class value is split across two lines (fold after "laun")
+				manifest := "Manifest-Version: 1.0\nMain-Class: org.springframework.boot.loader.laun\n ch.WarLauncher\nStart-Class: com.example.App\nSpring-Boot-Version: 3.2.0\n"
+				os.WriteFile(filepath.Join(buildDir, "META-INF", "MANIFEST.MF"), []byte(manifest), 0644)
+				container.Detect()
+			})
+
+			It("reconstructs the full launcher class from the folded manifest entry", func() {
+				cmd, err := container.Release()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(cmd).To(ContainSubstring("org.springframework.boot.loader.launch.WarLauncher"))
+			})
+		})
 	})
 
 	Describe("Finalize", func() {
