@@ -1,6 +1,7 @@
 package integration_test
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -1004,11 +1005,18 @@ func testFrameworks(platform switchblade.Platform, fixtures string) func(*testin
 
 			context("with AspectJ Weaver and aop.xml in BOOT-INF/classes/META-INF", func() {
 				it("detects AspectJ Weaver", func() {
+					// Spring Boot repackaging places aop.xml under BOOT-INF/classes/META-INF, so move it there
+					fixture := t.TempDir()
+					Expect(os.CopyFS(fixture, os.DirFS(filepath.Join(fixtures, "frameworks", "aspectj_weaver_meta_inf")))).To(Succeed())
+					bootInfMetaInf := filepath.Join(fixture, "BOOT-INF", "classes", "META-INF")
+					Expect(os.MkdirAll(bootInfMetaInf, 0755)).To(Succeed())
+					Expect(os.Rename(filepath.Join(fixture, "META-INF", "aop.xml"), filepath.Join(bootInfMetaInf, "aop.xml"))).To(Succeed())
+
 					deployment, logs, err := platform.Deploy.
 						WithEnv(map[string]string{
 							"BP_JAVA_VERSION": "11",
 						}).
-						Execute(name, filepath.Join(fixtures, "frameworks", "aspectj_weaver_boot_inf_classes_meta_inf"))
+						Execute(name, fixture)
 					Expect(err).NotTo(HaveOccurred(), logs.String)
 
 					Expect(logs.String()).To(ContainSubstring("AspectJ Weaver detected"))
