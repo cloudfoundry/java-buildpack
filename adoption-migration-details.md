@@ -146,17 +146,17 @@ There are two main aspects to consider when migrating to the Go-based Java Build
 
 This section documents Go buildpack behaviors that differ from the Ruby buildpack, including new features and known fixes applied during the migration.
 
-### Spring Boot executable WAR detection (**breaking change**)
+### Spring Boot executable WAR detection (breaking change before v5.1.2)
 
 **Affected apps**: Spring Boot applications packaged as executable WARs (the Maven `spring-boot:repackage` goal with a WAR artifact, or Gradle's `bootWar` task). These have a `WEB-INF/` directory **and** a `Main-Class: org.springframework.boot.loader[.launch].WarLauncher` entry in `META-INF/MANIFEST.MF`.
 
 **Ruby v4 behavior**: The Tomcat container guarded its detection with `!main_class` — if a `Main-Class` was present in the manifest, Tomcat stepped aside and the Spring Boot or JavaMain container picked it up. Executable WARs worked without any special configuration.
 
-**Go v5 behavior**: The Tomcat container detected any exploded archive with a `WEB-INF/` directory unconditionally. It had no `Main-Class` guard. Executable WARs were therefore handed to Tomcat, which tried to deploy them as a standard servlet application — the WarLauncher was never invoked, and the app failed or misbehaved at startup.
+**Go v5 behavior (before v5.1.2)**: The Tomcat container detected any exploded archive with a `WEB-INF/` directory unconditionally. It had no `Main-Class` guard. Executable WARs were therefore handed to Tomcat, which tried to deploy them as a standard servlet application — the WarLauncher was never invoked, and the app failed or misbehaved at startup.
 
-**Status**: Fixed in v5.x. The Tomcat container now mirrors Ruby v4 parity: if a `Main-Class` is present in `META-INF/MANIFEST.MF`, Tomcat steps aside and lets Spring Boot or JavaMain claim the app. Spring Boot executable WARs are detected automatically. Non-Spring-Boot WARs that carry a `Main-Class` are now routed to JavaMain rather than Tomcat.
+**Status**: Fixed in **v5.1.2** — the behavior is back in line with Ruby v4. The Tomcat container now mirrors Ruby v4 parity: if a `Main-Class` is present in `META-INF/MANIFEST.MF`, Tomcat steps aside and lets Spring Boot or JavaMain claim the app. Spring Boot executable WARs are detected automatically. Non-Spring-Boot WARs that carry a `Main-Class` are now routed to JavaMain rather than Tomcat.
 
-**Workaround** (for buildpack versions before the fix) — add to `manifest.yml`:
+**Workaround** (for buildpack versions before v5.1.2) — add to `manifest.yml`:
 
 ```yaml
 env:
