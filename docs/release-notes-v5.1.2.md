@@ -64,8 +64,6 @@ Frameworks, containers and drivers:
 
 ## Documentation and tests
 
-- Added `docs/spring-boot-executable-war.md` explaining the detection fix and
-  the pre-fix workaround (#1533).
 - Scoped the Spring Boot executable WAR breaking-change note to apply only to
   versions before v5.1.2 (#1533).
 - Integration test infrastructure: retry only failed tests rather than the whole
