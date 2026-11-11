@@ -33,7 +33,7 @@ func testGroovy(platform switchblade.Platform, fixtures string) func(*testing.T,
 			it("successfully deploys a non-POGO Groovy script", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "groovy_non_pogo"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -45,7 +45,7 @@ func testGroovy(platform switchblade.Platform, fixtures string) func(*testing.T,
 			it("successfully deploys a Groovy script with main method", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "groovy_main_method"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -57,7 +57,7 @@ func testGroovy(platform switchblade.Platform, fixtures string) func(*testing.T,
 			it("successfully deploys a Groovy script with shebang", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "groovy_shebang"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -71,7 +71,7 @@ func testGroovy(platform switchblade.Platform, fixtures string) func(*testing.T,
 			it("successfully deploys when JARs are present", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "groovy_with_jars"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -83,7 +83,7 @@ func testGroovy(platform switchblade.Platform, fixtures string) func(*testing.T,
 			it("includes lib/ JARs in the start command classpath", func() {
 				_, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "groovy_with_lib_jars"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -100,7 +100,7 @@ func testGroovy(platform switchblade.Platform, fixtures string) func(*testing.T,
 			it("successfully deploys Groovy script with shebang containing class", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "groovy_shebang_containing_class"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)

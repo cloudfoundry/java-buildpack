@@ -32,7 +32,7 @@ func testJavaMain(platform switchblade.Platform, fixtures string) func(*testing.
 			it("detects application with Main-Class manifest entry", func() {
 				_, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "main"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -47,7 +47,7 @@ func testJavaMain(platform switchblade.Platform, fixtures string) func(*testing.
 			it("detects and configures the specified main class", func() {
 				_, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION":      "11",
+						"BP_JAVA_VERSION":      defaultJavaVersion,
 						"JBP_CONFIG_JAVA_MAIN": `{java_main_class: "io.pivotal.SimpleJava"}`,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "main"))
@@ -73,7 +73,7 @@ func testJavaMain(platform switchblade.Platform, fixtures string) func(*testing.
 			it("successfully stages with custom arguments", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION":      "11",
+						"BP_JAVA_VERSION":      defaultJavaVersion,
 						"JBP_CONFIG_JAVA_MAIN": `{arguments: "--server.port=$PORT"}`,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "main"))
@@ -94,7 +94,7 @@ func testJavaMain(platform switchblade.Platform, fixtures string) func(*testing.
 			it("detects application with custom Java options", func() {
 				_, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 						// Reduce memory settings to fit within 1G limit (v4 calculator)
 						"JAVA_OPTS": "-Xmx384m -XX:ReservedCodeCacheSize=120M -Xss512k -XX:+UseG1GC",
 					}).

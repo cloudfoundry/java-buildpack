@@ -33,7 +33,7 @@ func testDistZip(platform switchblade.Platform, fixtures string) func(*testing.T
 			it("successfully deploys a standard dist zip", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "dist_zip"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -45,7 +45,7 @@ func testDistZip(platform switchblade.Platform, fixtures string) func(*testing.T
 			it("successfully deploys with custom application classpath", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "dist_zip_app_classpath"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)

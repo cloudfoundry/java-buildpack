@@ -131,7 +131,7 @@ func testContainerDetectionErrors(platform switchblade.Platform, fixtures string
 			it("detects thin jar with Main-Class as JavaMain (not SpringBoot)", func() {
 				_, logs, _ := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "21",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "thin_jar_with_main_class"))
 				// Assert on the detection decision, not on deployment success: the
@@ -169,7 +169,7 @@ func testContainerDetectionErrors(platform switchblade.Platform, fixtures string
 
 				_, logs, _ := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "21",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, appDir)
 				// Assert on the detection decision, not on deployment success: BOOT-INF/lib
