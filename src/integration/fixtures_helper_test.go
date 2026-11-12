@@ -12,11 +12,26 @@ import (
 )
 
 const (
-	javaTestAppsReleaseTag = "v1.0.0"
-	javaTestAppsBaseURL = "https://github.com/cloudfoundry/java-test-applications/releases/download/" + javaTestAppsReleaseTag
-	sb3JarName          = "java-main-application-boot3-1.0.0.jar"
-	sb4JarName          = "java-main-application-1.0.0.jar"
+	javaTestAppsVersion    = "1.0.1"
+	javaTestAppsReleaseTag = "v" + javaTestAppsVersion
+	javaTestAppsBaseURL    = "https://github.com/cloudfoundry/java-test-applications/releases/download/" + javaTestAppsReleaseTag
+	sb3JarName             = "java-main-application-boot3-" + javaTestAppsVersion + ".jar"
+	sb4JarName             = "java-main-application-" + javaTestAppsVersion + ".jar"
+
+	executableWarName      = "executable-war-application-" + javaTestAppsVersion + ".war"
+	executableWarBoot3Name = "executable-war-application-boot3-" + javaTestAppsVersion + ".war"
+	mainClassWarName       = "main-class-war-application-" + javaTestAppsVersion + ".war"
 )
+
+// javaTestAppsURL returns the download URL of a release artifact. JAVA_TEST_APPS_BASE_URL lets a not-yet-released build of java-test-applications
+// be served locally, e.g. JAVA_TEST_APPS_BASE_URL=http://localhost:8000.
+func javaTestAppsURL(artifact string) string {
+	base := javaTestAppsBaseURL
+	if override := os.Getenv("JAVA_TEST_APPS_BASE_URL"); override != "" {
+		base = strings.TrimSuffix(override, "/")
+	}
+	return base + "/" + artifact
+}
 
 // downloadJavaTestAppsJars downloads the pinned SB3 and SB4 fat jars.
 // For Docker-mode tests, jars are extracted (exploded) into fixture directories
@@ -33,46 +48,53 @@ const (
 //
 // Returns (sb3FixturePath, sb4FixturePath, cleanup func, error).
 func downloadJavaTestAppsJars(platform string) (string, string, func(), error) {
+	paths, cleanup, err := downloadJavaTestApps(platform, sb3JarName, sb4JarName)
+	if err != nil {
+		return "", "", nil, err
+	}
+	return paths[sb3JarName], paths[sb4JarName], cleanup, nil
+}
+
+// downloadJavaTestApps downloads the given release artifacts and returns a map from artifact name to the
+// fixture path to deploy (see downloadJavaTestAppsJars for why Docker mode explodes the archive).
+func downloadJavaTestApps(platform string, artifacts ...string) (map[string]string, func(), error) {
 	dir, err := os.MkdirTemp("", "java-test-apps-*")
 	if err != nil {
-		return "", "", nil, fmt.Errorf("create temp dir: %w", err)
+		return nil, nil, fmt.Errorf("create temp dir: %w", err)
 	}
-
 	cleanup := func() { os.RemoveAll(dir) }
 
-	type jarEntry struct {
-		jarName string
-		path    string // set after download/extract
-	}
-	entries := []jarEntry{
-		{jarName: sb3JarName},
-		{jarName: sb4JarName},
-	}
-
-	for i := range entries {
-		jarPath := filepath.Join(dir, entries[i].jarName)
-		if err := downloadFile(javaTestAppsBaseURL+"/"+entries[i].jarName, jarPath); err != nil {
+	paths := make(map[string]string, len(artifacts))
+	for _, artifact := range artifacts {
+		path, err := fetchJavaTestApp(platform, dir, artifact)
+		if err != nil {
 			cleanup()
-			return "", "", nil, fmt.Errorf("download %s: %w", entries[i].jarName, err)
+			return nil, nil, err
 		}
+		paths[artifact] = path
+	}
+	return paths, cleanup, nil
+}
 
-		if platform == "docker" {
-			// Docker mode: explode jar into directory (simulates CF staging zip extraction).
-			// Switchblade Docker archives the fixture dir as-is via TGZArchiver.
-			explodedDir := filepath.Join(dir, fmt.Sprintf("exploded-%d", i))
-			if err := extractZip(jarPath, explodedDir); err != nil {
-				cleanup()
-				return "", "", nil, fmt.Errorf("extract %s: %w", entries[i].jarName, err)
-			}
-			_ = os.Remove(jarPath)
-			entries[i].path = explodedDir
-		} else {
-			// CF mode: return raw jar path — `cf push -p` handles zip extraction natively.
-			entries[i].path = jarPath
-		}
+func fetchJavaTestApp(platform, dir, artifact string) (string, error) {
+	archivePath := filepath.Join(dir, artifact)
+	if err := downloadFile(javaTestAppsURL(artifact), archivePath); err != nil {
+		return "", fmt.Errorf("download %s: %w", artifact, err)
 	}
 
-	return entries[0].path, entries[1].path, cleanup, nil
+	if platform != "docker" {
+		// CF mode: return the raw archive, `cf push -p` handles zip extraction natively.
+		return archivePath, nil
+	}
+
+	// Docker mode: explode the archive into a directory (simulates CF staging zip extraction).
+	// Switchblade Docker archives the fixture dir as-is via TGZArchiver.
+	explodedDir := filepath.Join(dir, "exploded-"+artifact)
+	if err := extractZip(archivePath, explodedDir); err != nil {
+		return "", fmt.Errorf("extract %s: %w", artifact, err)
+	}
+	_ = os.Remove(archivePath)
+	return explodedDir, nil
 }
 
 // extractZip extracts a zip/jar file into destDir, replicating the flat-file

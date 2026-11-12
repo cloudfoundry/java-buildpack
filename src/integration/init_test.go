@@ -34,6 +34,9 @@ var settings struct {
 	// Populated in TestIntegration before the suite runs.
 	SB3JarPath string
 	SB4JarPath string
+
+	// Fixture paths of the executable WAR/JAR archives from java-test-applications, keyed by artifact name.
+	ExecutableApps map[string]string
 }
 
 func init() {
@@ -80,6 +83,11 @@ func TestIntegration(t *testing.T) {
 		defer cleanupJars()
 		settings.SB3JarPath = sb3Jar
 		settings.SB4JarPath = sb4Jar
+
+		apps, cleanupApps, err := downloadJavaTestApps(settings.Platform, executableWarName, executableWarBoot3Name, mainClassWarName)
+		Expect(err).NotTo(HaveOccurred(), "failed to download java-test-applications executable archives for integration tests")
+		defer cleanupApps()
+		settings.ExecutableApps = apps
 	}
 
 	var suite spec.Suite
@@ -94,6 +102,7 @@ func TestIntegration(t *testing.T) {
 	suite("SpringBoot", testSpringBoot(platform, fixtures, settings.SB3JarPath, settings.SB4JarPath))
 	suite("JavaMain", testJavaMain(platform, fixtures))
 	suite("DistZip", testDistZip(platform, fixtures))
+	suite("ExecutableArchives", testExecutableArchives(platform, settings.ExecutableApps))
 
 	suite("Groovy", testGroovy(platform, fixtures))
 	suite("Ratpack", testRatpack(platform, fixtures))
