@@ -16,6 +16,9 @@ The Google Stackdriver Profiler Framework causes an application to be automatica
 </table>
 Tags are printed to standard output by the buildpack detect script
 
+## Version
+Google publishes the agent as `cloud-profiler-java-agent_<YYYYMMDD>_RC<nn>.tar.gz`, a date based version that Cloud Foundry's semantic version resolver cannot handle. The manifest therefore maps `<YYYYMMDD>_RC<nn>` to `0.<YYYYMMDD>.<nn>`, for example `20261026_RC00` is `0.20261026.0`. The `uri` points to the versioned artifact, never to the floating `latest` copy, so the pinned `sha256` stays valid.
+
 ## User-Provided Service (Optional)
 Users may optionally provide their own Google Stackdriver Profiler service. A user-provided Google Stackdriver Profiler service must have a name or tag with `google-stackdriver-profiler` in it so that the Google Stackdriver Profiler Agent Framework will automatically configure the application to work with the service.
 
