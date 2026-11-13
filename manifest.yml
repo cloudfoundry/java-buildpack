@@ -395,14 +395,14 @@ dependencies:
   - cflinuxfs4
   - cflinuxfs5
 - name: jprofiler-profiler
-  version: 16.2.1
-  uri: https://buildpacks.cloudfoundry.org/dependencies/jprofiler-profiler/jprofiler-profiler_16.2.1_linux_x64_cflinuxfs4_edf8f42c.tgz
-  sha256: edf8f42cfb6c0021a60820e28b372d7c85254e25b7d105c76f436ef0459e53c3
+  version: 16.3.1
+  uri: https://buildpacks.cloudfoundry.org/dependencies/jprofiler-profiler/jprofiler-profiler_16.3.1_linux_x64_cflinuxfs4_7802cd82.tgz
+  sha256: 7802cd82e7e9db1854fb72a7ce47d3620431c76a4fac1402a020186e7ae497b7
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://download-gcdn.ej-technologies.com/jprofiler/jprofiler_linux_16_2_1.tar.gz
-  source_sha256: edf8f42cfb6c0021a60820e28b372d7c85254e25b7d105c76f436ef0459e53c3
+  source: https://download-gcdn.ej-technologies.com/jprofiler/jprofiler_linux_16_3_1.tar.gz
+  source_sha256: 7802cd82e7e9db1854fb72a7ce47d3620431c76a4fac1402a020186e7ae497b7
 - name: jrebel
   version: 2026.4.1
   uri: https://buildpacks.cloudfoundry.org/dependencies/jrebel/jrebel_2026.4.1_linux_noarch_any-stack_7746f38f.zip
