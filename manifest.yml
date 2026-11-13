@@ -338,8 +338,8 @@ dependencies:
   source: https://repo1.maven.org/maven2/co/elastic/otel/elastic-otel-javaagent/1.14.0/elastic-otel-javaagent-1.14.0.jar
   source_sha256: ''
 - name: google-stackdriver-profiler
-  version: 0.4.0
-  uri: https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz
+  version: 0.20261026.0
+  uri: https://storage.googleapis.com/cloud-profiler/java/cloud-profiler-java-agent_20261026_RC00.tar.gz
   sha256: bd44383322b51b4ddd45233306d318a4f89afa69d5461c412f06ccbb6e11f835
   cf_stacks:
   - cflinuxfs4
