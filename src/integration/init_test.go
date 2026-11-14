@@ -52,7 +52,8 @@ func TestIntegration(t *testing.T) {
 	var Expect = NewWithT(t).Expect
 
 	format.MaxLength = 0
-	SetDefaultEventuallyTimeout(40 * time.Second)
+	// The real Spring Boot test apps start slower than the old stub fixtures, especially with a Java agent (JRebel adds ~40s).
+	SetDefaultEventuallyTimeout(2 * time.Minute)
 
 	root, err := filepath.Abs("./../../")
 	Expect(err).NotTo(HaveOccurred())
@@ -112,7 +113,7 @@ func TestIntegration(t *testing.T) {
 	suite("ContainerDetection", testContainerDetectionErrors(platform, fixtures))
 
 	// Framework tests (APM agents, security providers, etc.)
-	suite("Frameworks", testFrameworks(platform, fixtures))
+	suite("Frameworks", testFrameworks(platform, fixtures, settings.SB3JarPath, settings.SB4JarPath))
 
 	suite.Run(t)
 
