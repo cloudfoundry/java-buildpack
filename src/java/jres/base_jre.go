@@ -28,6 +28,9 @@ type BaseJRE struct {
 	installErrNote string
 
 	extraFinalizeOpts func() string
+
+	// base64Mitigation adds -XX:-UseBASE64Intrinsics when the installed JRE does not contain the fix for CVE-2026-114938 yet
+	base64Mitigation bool
 }
 
 func newBaseJRE(ctx *common.Context, jreName, jreKey string, dirPrefixes, dirExacts []string, installErrNote string) BaseJRE {
@@ -175,6 +178,8 @@ func (b *BaseJRE) Finalize() error {
 			}
 		}
 	}
+
+	b.base64Mitigate()
 
 	b.ctx.Log.Info("%s finalization complete", b.jreName)
 	return nil

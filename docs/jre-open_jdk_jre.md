@@ -28,7 +28,31 @@ The JRE can be configured by modifying the [`config/open_jdk_jre.yml`][] file in
 | `jre.version` | The version of Java runtime to use.  Candidate versions can be found in the listings for [jammy][]. Note: version 1.8.0 and higher require the `memory_sizes` and `memory_heuristics` mappings to specify `metaspace` rather than `permgen`.
 | `jvmkill.repository_root` | The URL of the `jvmkill` repository index ([details][repositories]).
 | `jvmkill.version` | The version of `jvmkill` to use.  Candidate versions can be found in the listings for [jammy][jvmkill-jammy].
+| `base64_intrinsics_mitigation.enabled` | Whether `-XX:-UseBASE64Intrinsics` is added while the JRE does not yet contain the fix for CVE-2026-114938, described below under "CVE-2026-114938 Mitigation". Defaults to `true`.
+| `base64_intrinsics_mitigation.jdk_java_options` | Whether the option is also exported in `JDK_JAVA_OPTIONS`, described below under "CVE-2026-114938 Mitigation". Defaults to `true`.
 | `memory_calculator` | Memory calculator defaults, described below under "Memory".
+
+### CVE-2026-114938 Mitigation
+
+Releases of Java 17 (from 17.0.6) and later contain a heap overflow in the AVX-512 Base64 decoder of HotSpot on x86-64 (CVE-2026-114938, "Java4Shell"). Until the JRE in the buildpack contains the fix, the buildpack adds `-XX:-UseBASE64Intrinsics` to the JVM options, and logs a warning when it does. The option is not added for Java 8 and 11, which are not affected, nor for a JRE that already contains the fix (17.0.21.1, 21.0.13.1, 25.0.5.1 or later), so it disappears by itself when the buildpack ships a fixed JRE.
+
+To opt out, for example to measure the performance impact, set:
+
+```
+cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '{base64_intrinsics_mitigation: {enabled: false}}'
+```
+
+The option is added to `JAVA_OPTS`, and also exported in `JDK_JAVA_OPTIONS` (appended to a value that the application sets), so that JVMs that are not started with `JAVA_OPTS` are covered too: a custom start command, a task, a `cf ssh` session or a JVM started by the application. Every `java` launcher of Java 9 and later that reads `JDK_JAVA_OPTIONS` prints `NOTE: Picked up JDK_JAVA_OPTIONS: ...` on stderr, which can disturb tools that parse that output. `jcmd`, `javac` and other tools are not covered. To keep the option in `JAVA_OPTS` only, set:
+
+```
+cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '{base64_intrinsics_mitigation: {jdk_java_options: false}}'
+```
+
+Java 8 does not read `JDK_JAVA_OPTIONS`, so a Java 8 started by the application is not affected. `JAVA_TOOL_OPTIONS` is not used, because a Java 8 JVM refuses to start with the option in it.
+
+A `java` that is started by hand in a plain `cf ssh` session does not get the option, because such a session does not run the `profile.d` scripts. That is not expected for apps: the JVM of the app, tasks and custom start commands are started through the launcher, which does.
+
+Only this JRE is covered. The Zulu and SapMachine releases in the buildpack already contain the fix. For a JRE that the buildpack does not patch (for example Oracle or GraalVM), set `-XX:-UseBASE64Intrinsics` in `JAVA_OPTS` yourself until you update to a fixed release.
 
 ### Additional Resources
 
