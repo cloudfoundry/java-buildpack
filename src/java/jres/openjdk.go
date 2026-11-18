@@ -9,5 +9,6 @@ type OpenJDKJRE struct{ BaseJRE }
 func NewOpenJDKJRE(ctx *common.Context) *OpenJDKJRE {
 	b := newBaseJRE(ctx, "OpenJDK", "openjdk", []string{"jdk", "jre"}, nil, "")
 	b.extraFinalizeOpts = func() string { return "-XX:ActiveProcessorCount=$(nproc)" }
+	b.base64Mitigation = true
 	return &OpenJDKJRE{b}
 }
