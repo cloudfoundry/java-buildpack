@@ -50,6 +50,8 @@ cf set-env my-application JBP_CONFIG_OPEN_JDK_JRE '{base64_intrinsics_mitigation
 
 Java 8 does not read `JDK_JAVA_OPTIONS`, so a Java 8 started by the application is not affected. `JAVA_TOOL_OPTIONS` is not used, because a Java 8 JVM refuses to start with the option in it.
 
+A `java` that is started by hand in a plain `cf ssh` session does not get the option, because such a session does not run the `profile.d` scripts. That is not expected for apps: the JVM of the app and custom start commands are started through the launcher, which does.
+
 Only this JRE is covered. The Zulu and SapMachine releases in the buildpack already contain the fix. For a JRE that the buildpack does not patch (for example Oracle or GraalVM), set `-XX:-UseBASE64Intrinsics` in `JAVA_OPTS` yourself until you update to a fixed release.
 
 ### Additional Resources
