@@ -135,14 +135,23 @@ func readJavaVersion(javaHome string) (string, error) {
 	return "", fmt.Errorf("no JAVA_VERSION in release file")
 }
 
-// base64MitigationSettings reads the opt-outs from JBP_CONFIG_<JRE>_JRE: enabled turns the whole mitigation off,
+// jreConfigEnv returns the name and value of the JBP_CONFIG_* variable of the JRE, with the same precedence as GetJREVersion:
+// the generated name (e.g. JBP_CONFIG_OPENJDK) first, then the documented name (e.g. JBP_CONFIG_OPEN_JDK_JRE).
+func (b *BaseJRE) jreConfigEnv() (string, string) {
+	generated := fmt.Sprintf("JBP_CONFIG_%s", strings.ToUpper(strings.ReplaceAll(b.jreKey, "-", "_")))
+	if value := os.Getenv(generated); value != "" {
+		return generated, value
+	}
+	if documented, exists := jreNameToDocumentedEnvVar[b.jreKey]; exists {
+		return documented, os.Getenv(documented)
+	}
+	return generated, ""
+}
+
+// base64MitigationSettings reads the opt-outs from JBP_CONFIG_<JRE> or JBP_CONFIG_<JRE>_JRE: enabled turns the whole mitigation off,
 // jdk_java_options turns off only the JDK_JAVA_OPTIONS part. Both default to true.
 func (b *BaseJRE) base64MitigationSettings() (enabled, jdkJavaOptions bool) {
-	envVarName := jreNameToDocumentedEnvVar[b.jreKey]
-	if envVarName == "" {
-		envVarName = fmt.Sprintf("JBP_CONFIG_%s", strings.ToUpper(strings.ReplaceAll(b.jreKey, "-", "_")))
-	}
-	config := os.Getenv(envVarName)
+	envVarName, config := b.jreConfigEnv()
 	if config == "" {
 		return true, true
 	}

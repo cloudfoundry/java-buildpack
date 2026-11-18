@@ -92,6 +92,42 @@ var _ = Describe("CVE-2026-114938 Base64 intrinsics mitigation", func() {
 				Expect(jreOpts()).To(ContainSubstring(mitigation))
 			})
 
+			It("can be turned off through the generated name JBP_CONFIG_OPENJDK", func() {
+				Expect(os.Setenv("JBP_CONFIG_OPENJDK", "{base64_intrinsics_mitigation: {enabled: false}}")).To(Succeed())
+				createFakeJRE(ctx, "", "25.0.5.0.3")
+				Expect(jvm.newJRE(ctx).Finalize()).To(Succeed())
+
+				Expect(jreOpts()).NotTo(ContainSubstring("UseBASE64Intrinsics"))
+				Expect(filepath.Join(ctx.Stager.DepDir(), "profile.d", "base64_intrinsics_mitigation.sh")).NotTo(BeAnExistingFile())
+			})
+
+			It("can turn off only JDK_JAVA_OPTIONS through the generated name JBP_CONFIG_OPENJDK", func() {
+				Expect(os.Setenv("JBP_CONFIG_OPENJDK", "{base64_intrinsics_mitigation: {jdk_java_options: false}}")).To(Succeed())
+				createFakeJRE(ctx, "", "25.0.5.0.3")
+				Expect(jvm.newJRE(ctx).Finalize()).To(Succeed())
+
+				Expect(jreOpts()).To(ContainSubstring(mitigation))
+				Expect(filepath.Join(ctx.Stager.DepDir(), "profile.d", "base64_intrinsics_mitigation.sh")).NotTo(BeAnExistingFile())
+			})
+
+			It("uses the generated name over the documented name, like the version selection", func() {
+				Expect(os.Setenv("JBP_CONFIG_OPENJDK", "{base64_intrinsics_mitigation: {enabled: true}}")).To(Succeed())
+				Expect(os.Setenv(jvm.envVar, "{base64_intrinsics_mitigation: {enabled: false}}")).To(Succeed())
+				createFakeJRE(ctx, "", "25.0.5.0.3")
+				Expect(jvm.newJRE(ctx).Finalize()).To(Succeed())
+
+				Expect(jreOpts()).To(ContainSubstring(mitigation))
+			})
+
+			It("falls back to the documented name when the generated name is not set", func() {
+				Expect(os.Setenv("JBP_CONFIG_OPENJDK", "")).To(Succeed())
+				Expect(os.Setenv(jvm.envVar, "{base64_intrinsics_mitigation: {enabled: false}}")).To(Succeed())
+				createFakeJRE(ctx, "", "25.0.5.0.3")
+				Expect(jvm.newJRE(ctx).Finalize()).To(Succeed())
+
+				Expect(jreOpts()).NotTo(ContainSubstring("UseBASE64Intrinsics"))
+			})
+
 			It("stays on when the configuration cannot be parsed", func() {
 				Expect(os.Setenv(jvm.envVar, "{base64_intrinsics_mitigation: [")).To(Succeed())
 				createFakeJRE(ctx, "", "25.0.5.0.3")
