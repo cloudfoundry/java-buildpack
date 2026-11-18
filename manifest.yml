@@ -477,13 +477,13 @@ dependencies:
   source: https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.33.1/opentelemetry-javaagent.jar
   source_sha256: e43a270df53c6f423e0ab157be9c27ccc01d5dc3232e162fe54777573db2f149
 - name: openjdk
-  version: 8.0.513+9
-  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_8.0.513%2B9_linux_x64_cflinuxfs4_f188847b.tgz
-  sha256: f188847b0ef508755df0106535613d176165c64d1ca4530e83d5a5a20a7a890c
+  version: 8.0.514+5
+  uri: https://buildpacks.cloudfoundry.org/dependencies/openjdk/openjdk_8.0.514%2B5_linux_x64_cflinuxfs4_3b4a7e6f.tgz
+  sha256: 3b4a7e6f61eb888c6de85592f1e14e27ba5d016cec7394afc9f94715f1c6f09e
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
-  source: https://github.com/bell-sw/Liberica/releases/download/8u513+9/bellsoft-jre8u513+9-linux-amd64.tar.gz
+  source: https://github.com/bell-sw/Liberica/releases/download/8u514+5/bellsoft-jre8u514+5-linux-amd64.tar.gz
   source_sha256: ''
 - name: openjdk
   version: 11.0.33.0.3+7
