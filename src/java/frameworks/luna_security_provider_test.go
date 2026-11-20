@@ -336,6 +336,24 @@ var _ = Describe("LunaSecurityProvider", func() {
 				})
 			})
 
+			Context("with Luna provider installed (Java 8, JRE in nested directory under deps)", func() {
+				BeforeEach(func() {
+					installLunaProvider(depsDir)
+					javaHome := filepath.Join(depsDir, "0", "jre", "jre8u513")
+					writeJavaReleaseFile(javaHome, "1.8.0_513")
+					os.Setenv("JAVA_HOME", javaHome)
+				})
+
+				It("resolves the JRE ext dirs at staging time instead of referencing $JAVA_HOME", func() {
+					Expect(fw.Finalize()).To(Succeed())
+					content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "32_luna_security_provider.opts"))
+					Expect(err).NotTo(HaveOccurred())
+					Expect(string(content)).To(Equal("-Djava.ext.dirs=$DEPS_DIR/0/luna_security_provider/ext:" +
+						"$DEPS_DIR/0/jre/jre8u513/jre/lib/ext:$DEPS_DIR/0/jre/jre8u513/lib/ext"))
+					Expect(string(content)).NotTo(ContainSubstring("$JAVA_HOME"))
+				})
+			})
+
 			Context("when JAVA_HOME is not set (defaults to Java 8 fallback)", func() {
 				BeforeEach(func() {
 					installLunaProvider(depsDir)

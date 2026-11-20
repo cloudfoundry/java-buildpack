@@ -146,7 +146,7 @@ func (l *LunaSecurityProviderFramework) Finalize() error {
 	} else {
 		// Java 8: Use extension directory
 		extDir := fmt.Sprintf("$DEPS_DIR/%s/luna_security_provider/ext", depsIdx)
-		javaOpts = fmt.Sprintf("-Djava.ext.dirs=%s:$JAVA_HOME/jre/lib/ext:$JAVA_HOME/lib/ext", extDir)
+		javaOpts = fmt.Sprintf("-Djava.ext.dirs=%s:%s", extDir, jreExtDirs(l.context))
 	}
 
 	if err := l.context.Stager.WriteProfileD("luna_security_provider.sh", profileScript); err != nil {

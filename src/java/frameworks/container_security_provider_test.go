@@ -222,6 +222,31 @@ var _ = Describe("Container Security Provider", func() {
 				})
 			})
 
+			Context("when the JAR is present (Java 8, JRE in nested directory under deps)", func() {
+				BeforeEach(func() {
+					javaHome := filepath.Join(depsDir, "0", "jre", "jre8u513")
+					writeJavaReleaseFile(javaHome, "1.8.0_513")
+					os.Setenv("JAVA_HOME", javaHome)
+
+					providerDir := filepath.Join(depsDir, "0", "container_security_provider")
+					Expect(os.MkdirAll(providerDir, 0755)).To(Succeed())
+					Expect(os.WriteFile(
+						filepath.Join(providerDir, "container-security-provider-1.20.0-RELEASE.jar"),
+						[]byte("fake jar"),
+						0644,
+					)).To(Succeed())
+				})
+
+				It("resolves the JRE ext dirs at staging time instead of referencing $JAVA_HOME", func() {
+					Expect(fw.Finalize()).To(Succeed())
+					content, err := os.ReadFile(filepath.Join(depsDir, "0", "java_opts", "17_container_security.opts"))
+					Expect(err).NotTo(HaveOccurred())
+					Expect(string(content)).To(ContainSubstring("-Djava.ext.dirs=$DEPS_DIR/0/container_security_provider:" +
+						"$DEPS_DIR/0/jre/jre8u513/jre/lib/ext:$DEPS_DIR/0/jre/jre8u513/lib/ext "))
+					Expect(string(content)).NotTo(ContainSubstring("$JAVA_HOME"))
+				})
+			})
+
 			Context("key_manager_enabled configuration", func() {
 				BeforeEach(func() {
 					javaHome, err := os.MkdirTemp("", "java-home")
