@@ -85,7 +85,7 @@ func (c *ContainerSecurityProviderFramework) Finalize() error {
 	} else {
 		// Java 8: Use extension directory
 		runtimeProviderDir := fmt.Sprintf("$DEPS_DIR/%s/container_security_provider", depsIdx)
-		javaOpts = fmt.Sprintf("-Djava.ext.dirs=%s:$JAVA_HOME/jre/lib/ext:$JAVA_HOME/lib/ext", runtimeProviderDir)
+		javaOpts = fmt.Sprintf("-Djava.ext.dirs=%s:%s", runtimeProviderDir, jreExtDirs(c.context))
 	}
 
 	// Add security provider to java.security.properties
