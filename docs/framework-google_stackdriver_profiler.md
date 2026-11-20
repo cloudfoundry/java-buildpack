@@ -16,6 +16,9 @@ The Google Stackdriver Profiler Framework causes an application to be automatica
 </table>
 Tags are printed to standard output by the buildpack detect script
 
+## Version
+The agent version is the version of the Google release, `vX.Y.Z` of [GoogleCloudPlatform/cloud-profiler-java](https://github.com/GoogleCloudPlatform/cloud-profiler-java/releases). The default version pin `0.x` resolves to it.
+
 ## User-Provided Service (Optional)
 Users may optionally provide their own Google Stackdriver Profiler service. A user-provided Google Stackdriver Profiler service must have a name or tag with `google-stackdriver-profiler` in it so that the Google Stackdriver Profiler Agent Framework will automatically configure the application to work with the service.
 
