@@ -1,9 +1,9 @@
 package integration_test
 
 import (
+	"fmt"
 	"io"
 	"net/http"
-	"path/filepath"
 	"testing"
 
 	"github.com/cloudfoundry/switchblade"
@@ -35,9 +35,9 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 			it("successfully deploys and runs", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
-					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
+					Execute(name, requireJar(t, sb4JarPath))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				Expect(logs.String()).To(ContainSubstring("Java Buildpack"))
@@ -49,9 +49,9 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 			it("starts successfully", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
-					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
+					Execute(name, requireJar(t, sb4JarPath))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				Expect(logs.String()).To(Or(
@@ -66,13 +66,12 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 			it("includes java-cfenv when Spring Boot is detected", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION":        "11",
+						"BP_JAVA_VERSION":        defaultJavaVersion,
 						"JBP_CONFIG_JAVA_CF_ENV": "{enabled: true}",
 					}).
-					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
+					Execute(name, requireJar(t, sb4JarPath))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
-				// Fixture is not a Spring3 app, so Java CF Env detect should not pass
-				Expect(logs.String()).NotTo(ContainSubstring("Java CF Env"))
+				Expect(logs.String()).To(ContainSubstring("Java CF Env"))
 
 				Eventually(deployment).Should(matchers.Serve(Not(BeEmpty())))
 			})
@@ -82,11 +81,11 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 			it("applies configured JAVA_OPTS with from_environment=false and verifies at runtime", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "17",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 						// Reduce memory settings to fit within 1G limit (v4 calculator)
 						"JBP_CONFIG_JAVA_OPTS": `[from_environment: false, java_opts: '-Xmx256M -Xms128M -Xss512k -XX:ReservedCodeCacheSize=120M -XX:MetaspaceSize=78643K -XX:MaxMetaspaceSize=157286K -DoptionKey=optionValue']`,
 					}).
-					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
+					Execute(name, requireJar(t, sb4JarPath))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				// Verify buildpack detected and configured Java Opts
@@ -105,25 +104,27 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 					ContainSubstring("-XX:ReservedCodeCacheSize=120M"),
 					ContainSubstring("-XX:MetaspaceSize=78643K"),
 					ContainSubstring("-XX:MaxMetaspaceSize=157286K"),
-					ContainSubstring("optionKey=optionValue"), // Custom system property
-				)).WithEndpoint("/jvm-args"))
+				)).WithEndpoint("/input-arguments"))
+				Eventually(deployment).Should(matchers.Serve(
+					ContainSubstring(`"optionKey":"optionValue"`), // Custom system property
+				).WithEndpoint("/system-properties"))
 
 				// Verify Container Security Provider opts use runtime paths ($DEPS_DIR), not staging paths
 				Eventually(deployment).Should(matchers.Serve(And(
 					Not(ContainSubstring("/tmp/contents")), // Should NOT have staging path
 					ContainSubstring("-Djava.security.properties="),
-				)).WithEndpoint("/jvm-args"))
+				)).WithEndpoint("/input-arguments"))
 			})
 
 			it("applies configured JAVA_OPTS with from_environment=true and preserves user opts", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "17",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 						// Reduce memory settings to fit within 1G limit (v4 calculator)
 						"JBP_CONFIG_JAVA_OPTS": `{from_environment: true, java_opts: ["-Xmx384M", "-XX:ReservedCodeCacheSize=120M", "-Xss512k", "-DconfiguredProperty=fromConfig"]}`,
 						"JAVA_OPTS":            "-DuserProperty=fromUser",
 					}).
-					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
+					Execute(name, requireJar(t, sb4JarPath))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				// Verify buildpack detected and configured Java Opts
@@ -131,25 +132,25 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 				Expect(logs.String()).To(ContainSubstring("Adding configured JAVA_OPTS"))
 
 				// Verify application starts successfully
-				Eventually(deployment).Should(matchers.Serve(ContainSubstring("Hello from Spring Boot")))
+				Eventually(deployment).Should(matchers.Serve(ContainSubstring("ok")))
 			})
 
 			it("applies only configured JAVA_OPTS with from_environment=false and ignores user opts", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "17",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 						// Reduce memory settings to fit within 1G limit (v4 calculator)
 						"JBP_CONFIG_JAVA_OPTS": `{from_environment: false, java_opts: ["-Xmx384M", "-XX:ReservedCodeCacheSize=120M", "-Xss512k", "-DconfiguredProperty=fromConfig"]}`,
 						"JAVA_OPTS":            "-DuserProperty=shouldBeIgnored",
 					}).
-					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
+					Execute(name, requireJar(t, sb4JarPath))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				// Verify buildpack detected and configured Java Opts
 				Expect(logs.String()).To(ContainSubstring("Java Opts"))
 
 				// Verify application starts successfully
-				Eventually(deployment).Should(matchers.Serve(ContainSubstring("Hello from Spring Boot")))
+				Eventually(deployment).Should(matchers.Serve(ContainSubstring("ok")))
 			})
 
 			// Regression tests for #1301: the start command no longer uses `eval`, and
@@ -159,25 +160,25 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 			// executed, and globs/cron stars/shell metacharacters are never expanded or
 			// interpreted as operators. These drive the value through the user JAVA_OPTS
 			// env path (from_environment: true; memory comes from the configured opts),
-			// then read the JVM's actual received value back via the fixture's /jvm-args
+			// then read the JVM's actual received value back via the app's /system-properties
 			// endpoint (System.getProperty("userProperty")).
 			memoryOpts := `java_opts: ["-Xmx256M", "-Xms128M", "-Xss512k", "-XX:ReservedCodeCacheSize=120M", "-XX:MetaspaceSize=78643K", "-XX:MaxMetaspaceSize=157286K"]`
 
 			it("does not execute command substitution in JAVA_OPTS (#1301, no eval)", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "17",
+						"BP_JAVA_VERSION":      defaultJavaVersion,
 						"JBP_CONFIG_JAVA_OPTS": `{from_environment: true, ` + memoryOpts + `}`,
 						// $(hostname) would run under the old eval start command. It must
 						// instead arrive at the JVM verbatim.
 						"JAVA_OPTS": `-DuserProperty=$(hostname)`,
 					}).
-					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
+					Execute(name, requireJar(t, sb4JarPath))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				Eventually(deployment).Should(matchers.Serve(
-					ContainSubstring("userProperty=$(hostname)"), // literal, not the executed hostname
-				).WithEndpoint("/jvm-args"))
+					ContainSubstring(`"userProperty":"$(hostname)"`), // literal, not the executed hostname
+				).WithEndpoint("/system-properties"))
 			})
 
 			// NOTE: glob/cron preservation and shell-metacharacter/ampersand/backslash
@@ -192,27 +193,27 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 			it("applies framework opts without any configured JAVA_OPTS", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "17",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
-					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_staged"))
+					Execute(name, requireJar(t, sb4JarPath))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				// Verify Container Security Provider is always installed
 				Expect(logs.String()).To(ContainSubstring("Container Security Provider"))
 
 				// Verify application starts successfully
-				Eventually(deployment).Should(matchers.Serve(ContainSubstring("Hello from Spring Boot")))
+				Eventually(deployment).Should(matchers.Serve(ContainSubstring("ok")))
 			})
 
 			it("verifies multiple frameworks (4) append JAVA_OPTS without overwriting each other", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "17",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 						// Reduce memory settings to fit within 1G limit (v4 calculator)
 						"JBP_CONFIG_JAVA_OPTS": `{from_environment: false, java_opts: ["-Xmx384M", "-XX:ReservedCodeCacheSize=120M", "-Xss512k", "-DcustomProp=testValue"]}`,
 						"JBP_CONFIG_DEBUG":     `{enabled: true}`,
 					}).
-					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_multi_framework"))
+					Execute(name, appWithFile(t, requireJar(t, sb4JarPath), "rebel-remote.xml", "<application/>\n"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				// Verify FOUR frameworks are detected:
@@ -241,19 +242,19 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 					ContainSubstring("jvmkill"),
 					// Verify no staging paths anywhere
 					Not(ContainSubstring("/tmp/contents")),
-				)).WithEndpoint("/jvm-args"))
+				)).WithEndpoint("/input-arguments"))
 			})
 
 			it("verifies from_environment=true preserves user JAVA_OPTS with 4 frameworks", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "17",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 						// Reduce memory settings to fit within 1G limit (v4 calculator)
 						"JBP_CONFIG_JAVA_OPTS": `{from_environment: true, java_opts: ["-XX:ReservedCodeCacheSize=120M", "-Xss512k", "-DconfigProp=fromBuildpack"]}`,
 						"JAVA_OPTS":            "-DuserProp=fromEnvironment -Xmx256M",
 						"JBP_CONFIG_DEBUG":     `{enabled: true}`,
 					}).
-					Execute(name, filepath.Join(fixtures, "containers", "spring_boot_multi_framework"))
+					Execute(name, appWithFile(t, requireJar(t, sb4JarPath), "rebel-remote.xml", "<application/>\n"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
 				// Verify FOUR frameworks are detected:
@@ -283,11 +284,41 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 					ContainSubstring("jvmkill"),
 					// No staging paths anywhere
 					Not(ContainSubstring("/tmp/contents")),
-				)).WithEndpoint("/jvm-args"))
+				)).WithEndpoint("/input-arguments"))
 			})
 		})
 
-		// Tests using real Spring Boot fat jars from cloudfoundry/java-test-applications@v1.0.0.
+		// Coverage matrix: every supported Spring Boot major on every supported JRE it can run on.
+		// SB3 needs Java 17+. The SB4 test app is built for Java 21 (Spring Boot 4 itself runs on 17+).
+		// Java 8 and 11 are covered by the Tomcat, DistZip and JavaMain suites: no supported Spring Boot runs there.
+		for _, matrix := range []struct {
+			boot     string
+			jar      *string
+			versions []string
+		}{
+			{"SB3", &sb3JarPath, []string{"17", "21", "25"}},
+			{"SB4", &sb4JarPath, []string{"21", "25"}},
+		} {
+			matrix := matrix
+			for _, javaVersion := range matrix.versions {
+				javaVersion := javaVersion
+				context(fmt.Sprintf("%s on Java %s", matrix.boot, javaVersion), func() {
+					it("stages and serves the application", func() {
+						deployment, logs, err := platform.Deploy.
+							WithEnv(map[string]string{
+								"BP_JAVA_VERSION": javaVersion,
+							}).
+							Execute(name, requireJar(t, *matrix.jar))
+						Expect(err).NotTo(HaveOccurred(), logs.String)
+
+						Expect(logs.String()).To(ContainSubstring("Java Buildpack"))
+						Eventually(deployment).Should(matchers.Serve(ContainSubstring("ok")))
+					})
+				})
+			}
+		}
+
+		// Tests using real Spring Boot fat jars from cloudfoundry/java-test-applications.
 		// SB4 (java-main-application) exposes RuntimeUtils endpoints (via core module):
 		//   GET /active-profiles          -> ["cloud"] when java-cfenv activates cloud profile
 		//   GET /loaded-jars              -> full classloader chain URLs incl. BOOT-INF/lib/*
@@ -397,8 +428,8 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 						"db": {"uri": "postgres://host:5432/dbname"},
 					}).
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION":             "21",
-						"JBP_CONFIG_JAVA_CF_ENV":      "{enabled: true}",
+						"BP_JAVA_VERSION":        "21",
+						"JBP_CONFIG_JAVA_CF_ENV": "{enabled: true}",
 						// cf-metrics-exporter: rpsType=random + enableLogEmitter requires no external infra
 						"CF_METRICS_EXPORTER_ENABLED": "true",
 						"CF_METRICS_EXPORTER_PROPS":   "rpsType=random,enableLogEmitter",

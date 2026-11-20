@@ -33,7 +33,7 @@ func testRatpack(platform switchblade.Platform, fixtures string) func(*testing.T
 			it("successfully deploys a Ratpack dist application", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "ratpack_dist"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -45,7 +45,7 @@ func testRatpack(platform switchblade.Platform, fixtures string) func(*testing.T
 			it("successfully deploys a staged Ratpack application", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "ratpack_staged"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)

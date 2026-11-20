@@ -105,7 +105,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 			it("disables access logging by default (Ruby buildpack parity)", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
 
@@ -132,7 +132,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 			it("enables access logging when configured via JBP_CONFIG_TOMCAT", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION":   "11",
+						"BP_JAVA_VERSION":   defaultJavaVersion,
 						"JBP_CONFIG_TOMCAT": "{ access_logging_support: { access_logging: enabled } }",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
@@ -261,14 +261,14 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 			it("respects memory calculator settings with JAVA_OPTS", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 						"JAVA_OPTS":       "-Xmx256m",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
 
 				Expect(err).NotTo(HaveOccurred(), logs.String)
 
-				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK (11."))
+				Expect(logs.String()).To(ContainSubstring("Installing OpenJDK (25."))
 				Expect(logs.String()).To(ContainSubstring("memory"))
 				Eventually(deployment).Should(matchers.Serve(ContainSubstring("OK")))
 			})
@@ -406,7 +406,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 				// 5. Application deploys successfully with custom configuration
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION":   "11",
+						"BP_JAVA_VERSION":   defaultJavaVersion,
 						"JBP_CONFIG_TOMCAT": "{tomcat: {external_configuration_enabled: true}, external_configuration: {repository_root: \"https://tomcat-config.cfapps.eu12.hana.ondemand.com\", version: \"1.4.0\"}}",
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))
@@ -440,7 +440,7 @@ func testTomcat(platform switchblade.Platform, fixtures string) func(*testing.T,
 			it("serves app at configured path and not at root", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION":   "11",
+						"BP_JAVA_VERSION":   defaultJavaVersion,
 						"JBP_CONFIG_TOMCAT": `{tomcat: {context_path: /my/app}}`,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "tomcat_jakarta"))

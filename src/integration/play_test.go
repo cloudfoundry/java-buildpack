@@ -33,7 +33,7 @@ func testPlay(platform switchblade.Platform, fixtures string) func(*testing.T, s
 			it("successfully deploys a Play 2.0 dist application", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "play_2.0_dist"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -47,7 +47,7 @@ func testPlay(platform switchblade.Platform, fixtures string) func(*testing.T, s
 			it("successfully deploys a Play 2.1 dist application", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "play_2.1_dist"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -59,7 +59,7 @@ func testPlay(platform switchblade.Platform, fixtures string) func(*testing.T, s
 			it("successfully deploys a staged Play 2.1 application", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "play_2.1_staged"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -73,7 +73,7 @@ func testPlay(platform switchblade.Platform, fixtures string) func(*testing.T, s
 			it("successfully deploys a Play 2.2 dist application", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "play_2.2_dist"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -85,7 +85,7 @@ func testPlay(platform switchblade.Platform, fixtures string) func(*testing.T, s
 			it("successfully deploys a staged Play 2.2 application", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "play_2.2_staged"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -97,7 +97,7 @@ func testPlay(platform switchblade.Platform, fixtures string) func(*testing.T, s
 			it("handles Play 2.2 application without bat file", func() {
 				deployment, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "play_2.2_minus_bat_file"))
 				Expect(err).NotTo(HaveOccurred(), logs.String)
@@ -115,7 +115,7 @@ func testPlay(platform switchblade.Platform, fixtures string) func(*testing.T, s
 				// malformed applications. See: lib/java_buildpack/util/play/factory.rb:47
 				_, logs, err := platform.Deploy.
 					WithEnv(map[string]string{
-						"BP_JAVA_VERSION": "11",
+						"BP_JAVA_VERSION": defaultJavaVersion,
 					}).
 					Execute(name, filepath.Join(fixtures, "containers", "play_2.1_2.2_hybrid"))
 				Expect(err).To(HaveOccurred(), logs.String)
