@@ -57,20 +57,20 @@ On the docker platform, `scripts/integration.sh` runs tests in parallel (3 nodes
 
 ### Run Tests Directly with Go
 
-You can also run the tests directly using Go:
+You can also run the tests directly using Go. `src/integration` is its own Go module (own `go.mod`, no `vendor/`), so run `go test` from that directory. Its dependencies (switchblade, the Docker client, OpenTelemetry) are downloaded, not vendored, and they do not change the Go version or the `vendor/` directory of the buildpack itself.
 
 ```bash
 cd src/integration
 
 # Run all tests
-BUILDPACK_FILE=/path/to/buildpack.zip go test -mod vendor -v -timeout 30m ./
+BUILDPACK_FILE=/path/to/buildpack.zip go test -v -timeout 30m ./
 
 # Run on Docker (requires GitHub token)
-BUILDPACK_FILE=/path/to/buildpack.zip go test -mod vendor -v -timeout 30m ./ \
+BUILDPACK_FILE=/path/to/buildpack.zip go test -v -timeout 30m ./ \
   -platform=docker -github-token=<token>
 
 # Run offline tests
-BUILDPACK_FILE=/path/to/buildpack.zip go test -mod vendor -v -timeout 30m ./ -cached
+BUILDPACK_FILE=/path/to/buildpack.zip go test -v -timeout 30m ./ -cached
 ```
 
 ### Running a Subset of Tests
