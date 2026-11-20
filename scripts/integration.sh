@@ -154,17 +154,19 @@ function specs::run() {
   fi
 
   cd "${ROOTDIR}"
-  go mod download
-
   local buildpack_file
   buildpack_file="$(buildpack::package "1.2.3" "${cached}" "${stack}")"
+
+  # src/integration is its own Go module, so run from there.
+  cd "${ROOTDIR}/src/integration"
+  go mod download
 
   local log
   log="$(mktemp)"
 
   local -a go_test_args
   go_test_args=(
-    "${ROOTDIR}/src/integration"
+    .
     ${cached_flag}
     ${platform_flag}
     ${token_flag}
@@ -183,7 +185,7 @@ function specs::run() {
   fi
 
   local status=0
-  if go test -count=1 -timeout=0 -mod vendor -v "${go_test_args[@]}" 2>&1 | tee "${log}"; then
+  if go test -count=1 -timeout=0 -v "${go_test_args[@]}" 2>&1 | tee "${log}"; then
     rm -f "${log}"
     return 0
   fi
@@ -236,7 +238,7 @@ function specs::retry_failed() {
       echo "--- Retry ${attempt}/${retries} in $((delay * attempt))s: ${test}"
       sleep "$((delay * attempt))"
       # A pattern that matches nothing also exits 0, so require the test to be reported as passed.
-      if go test -count=1 -timeout=0 -mod vendor -v -run "$(specs::run_pattern "${test}")" "$@" 2>&1 | tee "${retry_log}" &&
+      if go test -count=1 -timeout=0 -v -run "$(specs::run_pattern "${test}")" "$@" 2>&1 | tee "${retry_log}" &&
         grep -qF -- "--- PASS: ${test} " "${retry_log}"; then
         passed="true"
         break

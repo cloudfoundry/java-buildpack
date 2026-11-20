@@ -127,7 +127,7 @@ java-buildpack/
 │   ├── unit.sh                         # Run unit tests
 │   ├── integration.sh                  # Run integration tests
 │   └── package.sh                      # Package buildpack for deployment
-├── vendor/                             # Vendored Go dependencies
+├── vendor/                             # Vendored Go dependencies of the buildpack (not of src/integration)
 ├── ARCHITECTURE.md                     # Detailed architecture guide
 ├── RUBY_VS_GO_BUILDPACK_COMPARISON.md  # Ruby vs Go buildpack implementations comparison info
 ├── CONTRIBUTING.md                     # Contribution guide
