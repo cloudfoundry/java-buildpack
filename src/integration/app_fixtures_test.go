@@ -2,6 +2,7 @@ package integration_test
 
 import (
 	"archive/zip"
+	"bytes"
 	"io"
 	"io/fs"
 	"os"
@@ -110,6 +111,13 @@ func rezipWithFile(src, dst, relPath, content string) error {
 
 	w := zip.NewWriter(out)
 	for _, f := range r.File {
+		if f.FileInfo().IsDir() {
+			// Copy refuses directory entries that carry the 2-byte empty deflate body Gradle writes.
+			if _, err := w.CreateHeader(&zip.FileHeader{Name: f.Name, Method: zip.Store, Modified: f.Modified}); err != nil {
+				return err
+			}
+			continue
+		}
 		if err := w.Copy(f); err != nil {
 			return err
 		}
@@ -122,4 +130,89 @@ func rezipWithFile(src, dst, relPath, content string) error {
 		return err
 	}
 	return w.Close()
+}
+
+func TestRezipWithFile(t *testing.T) {
+	dir := t.TempDir()
+	src := filepath.Join(dir, "app.jar")
+
+	// Gradle writes directory entries with the deflate method and a 2-byte empty body. Go's zip writer
+	// cannot write a body for a name ending in "/", so write the entry under a placeholder name of the same
+	// length and rename it in the finished archive (the name is not covered by the CRC).
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+	rawDir, err := zw.CreateRaw(&zip.FileHeader{
+		Name:               "META-INF_",
+		Method:             zip.Deflate,
+		CompressedSize64:   2,
+		UncompressedSize64: 0,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := rawDir.Write([]byte{0x03, 0x00}); err != nil {
+		t.Fatal(err)
+	}
+	stored, err := zw.CreateHeader(&zip.FileHeader{Name: "BOOT-INF/lib/nested.jar", Method: zip.Store})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := stored.Write([]byte("nested jar bytes")); err != nil {
+		t.Fatal(err)
+	}
+	deflated, err := zw.CreateHeader(&zip.FileHeader{Name: "META-INF/MANIFEST.MF", Method: zip.Deflate})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := deflated.Write([]byte("Manifest-Version: 1.0\n")); err != nil {
+		t.Fatal(err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	archive := bytes.ReplaceAll(buf.Bytes(), []byte("META-INF_"), []byte("META-INF/"))
+	if err := os.WriteFile(src, archive, 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	dst := filepath.Join(dir, "out.jar")
+	if err := rezipWithFile(src, dst, "rebel-remote.xml", "<application/>\n"); err != nil {
+		t.Fatalf("rezipWithFile: %v", err)
+	}
+
+	r, err := zip.OpenReader(dst)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+
+	entries := map[string]*zip.File{}
+	for _, f := range r.File {
+		entries[f.Name] = f
+	}
+	for _, name := range []string{"META-INF/", "BOOT-INF/lib/nested.jar", "META-INF/MANIFEST.MF", "rebel-remote.xml"} {
+		if entries[name] == nil {
+			t.Fatalf("entry %q missing from %v", name, r.File)
+		}
+	}
+	if m := entries["BOOT-INF/lib/nested.jar"].Method; m != zip.Store {
+		t.Errorf("nested jar must stay uncompressed, got method %d", m)
+	}
+	for name, want := range map[string]string{
+		"BOOT-INF/lib/nested.jar": "nested jar bytes",
+		"rebel-remote.xml":        "<application/>\n",
+	} {
+		rc, err := entries[name].Open()
+		if err != nil {
+			t.Fatal(err)
+		}
+		got, err := io.ReadAll(rc)
+		rc.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if string(got) != want {
+			t.Errorf("%s = %q, want %q", name, got, want)
+		}
+	}
 }
