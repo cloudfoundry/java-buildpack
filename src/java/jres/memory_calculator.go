@@ -25,6 +25,7 @@ type MemoryCalculator struct {
 	classCount          int
 	stackThreads        int
 	headroom            int
+	xmsEqualsXmx        bool
 	configLoaded        bool
 	classCountUserSet   bool
 	stackThreadsUserSet bool
@@ -124,6 +125,9 @@ func (m *MemoryCalculator) Supply() error {
 
 	m.ctx.Log.Info("Memory Calculator installed: Loaded Classes: %s, Threads: %s, Headroom: %s",
 		m.classCountDisplay(), m.stackThreadsDisplay(), m.headroomDisplay())
+	if m.xmsEqualsXmx {
+		m.ctx.Log.Info("Memory Calculator: initial heap (-Xms) equals maximum heap (-Xmx)")
+	}
 
 	// Clean up temp directory
 	os.RemoveAll(tempDir)
@@ -296,6 +300,10 @@ func (m *MemoryCalculator) GetCalculatorCommand() string {
 		classCount = int(float64(DefaultClassCount) * 0.35) // Apply same 35% factor
 	}
 
+	if m.xmsEqualsXmx {
+		args = append(args, "--xms-equals-xmx")
+	}
+
 	args = append(args,
 		fmt.Sprintf("--loaded-class-count=%d", classCount),
 		fmt.Sprintf("--thread-count=%d", m.stackThreads),
@@ -330,6 +338,7 @@ type memoryCalculatorConfig struct {
 	StackThreads int `yaml:"stack_threads"`
 	ClassCount   int `yaml:"class_count"`
 	Headroom     int `yaml:"headroom"`
+	XmsEqualsXmx bool `yaml:"xms_equals_xmx"`
 }
 
 // LoadConfig loads memory calculator configuration from the JRE-specific env var
@@ -383,6 +392,7 @@ func (m *MemoryCalculator) LoadConfig() {
 				m.headroom = mc.Headroom
 				m.headroomUserSet = true
 			}
+			m.xmsEqualsXmx = mc.XmsEqualsXmx
 		}
 	}
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/cloudfoundry/switchblade"
@@ -12,6 +13,26 @@ import (
 
 	. "github.com/onsi/gomega"
 )
+
+type heapOptions struct {
+	Xms string
+	Xmx string
+}
+
+func heapOptionsOf(inputArguments string) heapOptions {
+	var heap heapOptions
+	for _, argument := range strings.FieldsFunc(inputArguments, func(r rune) bool {
+		return r == '"' || r == ',' || r == '[' || r == ']' || r == ' ' || r == '\n'
+	}) {
+		if value, found := strings.CutPrefix(argument, "-Xms"); found {
+			heap.Xms = value
+		}
+		if value, found := strings.CutPrefix(argument, "-Xmx"); found {
+			heap.Xmx = value
+		}
+	}
+	return heap
+}
 
 func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, sb4JarPath string) func(*testing.T, spec.G, spec.S) {
 	return func(t *testing.T, context spec.G, it spec.S) {
@@ -74,6 +95,41 @@ func testSpringBoot(platform switchblade.Platform, fixtures string, sb3JarPath, 
 				Expect(logs.String()).To(ContainSubstring("Java CF Env"))
 
 				Eventually(deployment).Should(matchers.Serve(Not(BeEmpty())))
+			})
+		})
+
+		// https://github.com/cloudfoundry/java-buildpack/issues/1377
+		context("with the memory calculator", func() {
+			it("sets the initial heap equal to the maximum heap when xms_equals_xmx is true", func() {
+				deployment, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"BP_JAVA_VERSION":         defaultJavaVersion,
+						"JBP_CONFIG_OPEN_JDK_JRE": "{ memory_calculator: { xms_equals_xmx: true } }",
+					}).
+					Execute(name, requireJar(t, sb4JarPath))
+				Expect(err).NotTo(HaveOccurred(), logs.String)
+
+				Eventually(deployment).Should(matchers.Serve(
+					WithTransform(heapOptionsOf, Satisfy(func(heap heapOptions) bool {
+						return heap.Xmx != "" && heap.Xms == heap.Xmx
+					})),
+				).WithEndpoint("/input-arguments"))
+			})
+
+			it("does not set an initial heap by default", func() {
+				deployment, logs, err := platform.Deploy.
+					WithEnv(map[string]string{
+						"BP_JAVA_VERSION": defaultJavaVersion,
+					}).
+					Execute(name, requireJar(t, sb4JarPath))
+				Expect(err).NotTo(HaveOccurred(), logs.String)
+
+				Eventually(deployment).Should(matchers.Serve(
+					WithTransform(heapOptionsOf, And(
+						HaveField("Xmx", Not(BeEmpty())),
+						HaveField("Xms", BeEmpty()),
+					)),
+				).WithEndpoint("/input-arguments"))
 			})
 		})
 
