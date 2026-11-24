@@ -81,7 +81,7 @@ The total available memory for the application's container is specified when an 
 The Java buildpack uses this value to control the JRE's use of various
 regions of memory and logs the JRE memory settings when the application starts or restarts.
 These settings can be influenced by configuring
-the `stack_threads` and/or `class_count` mappings (both part of the `memory_calculator` mapping),
+the `stack_threads`, `class_count`, `headroom` and/or `xms_equals_xmx` mappings (all part of the `memory_calculator` mapping),
 and/or Java options relating to memory.
 
 Note: If the total available memory is scaled up or down, the Java buildpack will re-calculate the JRE memory settings the next time the application is started.
@@ -118,6 +118,18 @@ stack_threads: 500
 ```
 
 Note that the default value of 250 threads is optimized for a default Tomcat configuration.  If you are using another container, especially something non-blocking like Netty, it's more appropriate to use a significantly smaller value.  Typically 25 threads would cover the needs of both the server (Netty) and the threads started by the JVM itself.
+
+#### Initial Heap
+
+By default the memory calculator sets only the maximum heap size (`-Xmx`) and the JVM chooses the initial heap size, which grows under load. To set the initial heap size (`-Xms`) equal to the maximum heap size, enable the experimental `xms_equals_xmx` option:
+
+```yaml
+xms_equals_xmx: true
+```
+
+An explicit `-Xms` in the Java options takes precedence. If an explicit `-Xms` is larger than the maximum heap, the application fails to start with an error from the memory calculator.
+
+Setting the initial heap equal to the maximum heap avoids heap growth, but increases the initially committed memory and can affect memory-based autoscaling. Compare latency, GC pauses, CPU and container memory under a representative workload before enabling it in production.
 
 #### Java Options
 

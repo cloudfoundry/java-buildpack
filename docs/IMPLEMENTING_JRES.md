@@ -280,7 +280,7 @@ export PATH=$JAVA_HOME/bin:$PATH
 Downloads `java-buildpack-memory-calculator` binary. At application start it computes JVM heap/metaspace/stack settings from `$MEMORY_LIMIT`:
 
 ```
--Xmx512M -Xms512M -XX:MaxMetaspaceSize=128M -Xss1M -XX:ReservedCodeCacheSize=32M
+-Xmx512M -XX:MaxMetaspaceSize=128M -Xss1M -XX:ReservedCodeCacheSize=32M
 ```
 
 User customization — prefer `JBP_CONFIG_<JRE>_JRE` for structured config (covers all three knobs):
@@ -293,8 +293,9 @@ cf set-env myapp JBP_CONFIG_OPEN_JDK_JRE \
 `stack_threads` — number of user threads (default: 250); affects `-Xss` heap budget.
 `class_count` — estimated loaded classes (default: auto-detected); affects `-XX:MaxMetaspaceSize`.
 `headroom` — percent of total memory to leave unallocated (default: 0).
+`xms_equals_xmx` — experimental: set `-Xms` equal to the maximum heap (default: false). Not available as a `MEMORY_CALCULATOR_*` env var.
 
-`MEMORY_CALCULATOR_*` env vars are a simpler alternative, but only cover two of the three knobs. They take precedence over `JBP_CONFIG_*` when both are set:
+`MEMORY_CALCULATOR_*` env vars are a simpler alternative, but only cover some of the knobs. They take precedence over `JBP_CONFIG_*` when both are set:
 
 ```bash
 cf set-env myapp MEMORY_CALCULATOR_STACK_THREADS 300

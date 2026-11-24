@@ -280,4 +280,65 @@ var _ = Describe("Memory Calculator Issues", func() {
 				"MALLOC_ARENA_MAX must be exported to reach the exec-ed JVM.\nCommand:\n%s", cmd)
 		})
 	})
+
+	// -------------------------------------------------------------------------
+	// https://github.com/cloudfoundry/java-buildpack/issues/1377
+	// Opt-in memory_calculator.xms_equals_xmx forwards --xms-equals-xmx to the calculator.
+	// Calculator versions before the one that introduced the flag exit with
+	// "unknown flag", so the flag must only be passed when the user opts in.
+	// -------------------------------------------------------------------------
+	Describe("#1377: xms_equals_xmx", func() {
+		commandFor := func(jreName string) string {
+			fakeBinary("4.2.0")
+			mc := jres.NewMemoryCalculator(ctx, jreDir, "17.0.9", 17, jreName)
+			Expect(mc.Finalize()).To(Succeed())
+			return mc.GetCalculatorCommand()
+		}
+
+		It("does not pass --xms-equals-xmx by default", func() {
+			Expect(commandFor("openjdk")).NotTo(ContainSubstring("xms-equals-xmx"))
+		})
+
+		It("passes --xms-equals-xmx when JBP_CONFIG_OPEN_JDK_JRE sets xms_equals_xmx: true", func() {
+			DeferCleanup(os.Unsetenv, "JBP_CONFIG_OPEN_JDK_JRE")
+			Expect(os.Setenv("JBP_CONFIG_OPEN_JDK_JRE", "{ memory_calculator: { xms_equals_xmx: true } }")).To(Succeed())
+
+			Expect(commandFor("openjdk")).To(ContainSubstring("--xms-equals-xmx"))
+		})
+
+		It("does not pass --xms-equals-xmx when xms_equals_xmx: false", func() {
+			DeferCleanup(os.Unsetenv, "JBP_CONFIG_OPEN_JDK_JRE")
+			Expect(os.Setenv("JBP_CONFIG_OPEN_JDK_JRE", "{ memory_calculator: { xms_equals_xmx: false } }")).To(Succeed())
+
+			Expect(commandFor("openjdk")).NotTo(ContainSubstring("xms-equals-xmx"))
+		})
+
+		It("passes --xms-equals-xmx for another JRE through its own JBP_CONFIG variable", func() {
+			DeferCleanup(os.Unsetenv, "JBP_CONFIG_ZULU_JRE")
+			Expect(os.Setenv("JBP_CONFIG_ZULU_JRE", "{ memory_calculator: { xms_equals_xmx: true } }")).To(Succeed())
+
+			Expect(commandFor("zulu")).To(ContainSubstring("--xms-equals-xmx"))
+		})
+
+		It("passes the flag together with the other memory_calculator settings", func() {
+			DeferCleanup(os.Unsetenv, "JBP_CONFIG_OPEN_JDK_JRE")
+			Expect(os.Setenv("JBP_CONFIG_OPEN_JDK_JRE",
+				"{ memory_calculator: { xms_equals_xmx: true, headroom: 5, stack_threads: 50 } }")).To(Succeed())
+
+			cmd := commandFor("openjdk")
+
+			Expect(cmd).To(ContainSubstring("--xms-equals-xmx"))
+			Expect(cmd).To(ContainSubstring("--head-room=5"))
+			Expect(cmd).To(ContainSubstring("--thread-count=50"))
+		})
+
+		It("accepts xms_equals_xmx without an unknown-field WARNING", func() {
+			DeferCleanup(os.Unsetenv, "JBP_CONFIG_OPEN_JDK_JRE")
+			Expect(os.Setenv("JBP_CONFIG_OPEN_JDK_JRE", "{ memory_calculator: { xms_equals_xmx: true } }")).To(Succeed())
+
+			commandFor("openjdk")
+
+			Expect(logBuffer.String()).NotTo(ContainSubstring("WARNING"))
+		})
+	})
 })
