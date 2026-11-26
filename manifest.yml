@@ -338,12 +338,14 @@ dependencies:
   source: https://repo1.maven.org/maven2/co/elastic/otel/elastic-otel-javaagent/1.14.0/elastic-otel-javaagent-1.14.0.jar
   source_sha256: ''
 - name: google-stackdriver-profiler
-  version: 0.4.0
-  uri: https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz
+  version: 0.5.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/google-stackdriver-profiler/google-stackdriver-profiler_0.5.0_linux_noarch_any-stack_bd443833.tgz
   sha256: bd44383322b51b4ddd45233306d318a4f89afa69d5461c412f06ccbb6e11f835
   cf_stacks:
   - cflinuxfs4
   - cflinuxfs5
+  source: https://github.com/GoogleCloudPlatform/cloud-profiler-java/releases/download/v0.5.0/profiler_java_agent.tar.gz
+  source_sha256: bd44383322b51b4ddd45233306d318a4f89afa69d5461c412f06ccbb6e11f835
 - name: groovy
   version: 4.0.33
   uri: https://buildpacks.cloudfoundry.org/dependencies/groovy/groovy_4.0.33_linux_noarch_any-stack_395a69a8.zip
