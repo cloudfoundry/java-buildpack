@@ -70,7 +70,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string, sb3JarPath, 
 
 			context("with AppDynamics service binding", func() {
 				it("detects and installs AppDynamics agent", func() {
-					t.Skip("SKIPPED: AppDynamics agent requires authentication and is not in manifest.yml - agent must be provided via service binding or downloaded at runtime")
+					t.Skip("SKIPPED: AppDynamics is bring-your-own-agent - this fixture does not provide an agent archive or agent-uri")
 					deployment, logs, err := platform.Deploy.
 						WithServices(map[string]switchblade.Service{
 							"appdynamics": {
@@ -93,7 +93,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string, sb3JarPath, 
 				})
 
 				it("configures AppDynamics with controller info from service binding", func() {
-					t.Skip("SKIPPED: AppDynamics agent requires authentication and is not in manifest.yml - agent must be provided via service binding or downloaded at runtime")
+					t.Skip("SKIPPED: AppDynamics is bring-your-own-agent - this fixture does not provide an agent archive or agent-uri")
 					deployment, logs, err := platform.Deploy.
 						WithServices(map[string]switchblade.Service{
 							"my-appdynamics-service": {
@@ -160,7 +160,7 @@ func testFrameworks(platform switchblade.Platform, fixtures string, sb3JarPath, 
 
 			context("with multiple APM agents", func() {
 				it("can handle multiple agent service bindings", func() {
-					t.Skip("Test uses AppDynamics which requires authentication and is not in manifest - skipping until test is updated to use agents that work without auth")
+					t.Skip("Test uses AppDynamics, which is bring-your-own-agent; the fixture does not provide an agent archive or agent-uri")
 					deployment, logs, err := platform.Deploy.
 						WithServices(map[string]switchblade.Service{
 							"newrelic": {
